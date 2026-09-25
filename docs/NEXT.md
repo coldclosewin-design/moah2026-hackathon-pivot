@@ -12,15 +12,18 @@
 
 ## 2. 남은 일 (의존 순서. 날짜 배정이 아니다)
 
-### Step 3 — 신호 계층 + 채점 (Claude)
-| # | 일 | 메모 |
+### Step 3 — 신호 계층 + 채점 (Claude) — ✅ 2026-09-26 브랜치 `claude/signals-scoring` (PR 대기)
+| # | 일 | 어디 |
 |---|---|---|
-| 3a | `vss-stub/.../VssConstants.java` 에 B층 상수 추가 | 조향각·기어·주차센서·벨트·IGN·방향지시등 L/R·브레이크·비상등 (`01_driving_coach.md` §5). COVESA 표준명 기준, 전부 사내 미확인 → `INTEGRATION.md` B절 |
-| 3b | `vehicle/SignalAvailability.kt` — `LIVE / SIMULATED / MISSING` + 레지스트리 | 포트가 Fake 면 `SIMULATED`, Real 이면 값이 온 키만 `LIVE`, 일정 시간 없으면 `MISSING`. 리포트 배지의 근거 |
-| 3c | `FakeVehiclePort` 시나리오 재생기 | `Scenario(steps: [(초, 경로→값)])` 를 `DEMO_SPEED_FACTOR` 로 압축 재생. **주차 2벌**(잘한 40 s / 못한 90 s, §4.4). 기존 sin 속도는 "도로" 시나리오로 남김 |
-| 3d | `scoring/` A층 — `MotionSegmenter`(속도열 → 이동 구간 수·총 시간·정지 대기), `HarshEventDetector`(급출발·급정지) | 속도만으로 성립. JVM 테스트로 합성 속도열 검출 확인 |
-| 3e | `scoring/` B층 — `SteeringReversalCounter`, `GearShiftCounter`, `ProximityMonitor`, `PreDriveChecklist` | 입력 신호가 `MISSING` 이면 결과가 `null`(미측정). 테스트로 강제 |
-| 3f | `scoring/ParkingScore` — 숙련 축 / 안전 축 / 배지(실신호·시뮬·미측정 수) / "지난번보다" 비교 | 점수 구간 정의는 시드에 |
+| 3a ✅ | B층 상수 10개 | `vss-stub/.../VssConstants.java` (COVESA 추정, `SelectedGear` 로 P/D 표현), 파서 `vehicle/VssGear.kt`(`Gear.parse`, `toVssIgnitionOn`) |
+| 3b ✅ | `SignalAvailability { LIVE, SIMULATED, MISSING }` + `SignalRegistry` + `AvailabilityBadge` | `vehicle/SignalAvailability.kt`. 세션 동안 값이 온 키만 기록. Fake 면 전부 `SIMULATED` |
+| 3c ✅ | `Scenario`/`ScenarioBuilder`(`at`, `speedRamp`), `FakeVehiclePort.play(scenario, speedFactor)`·`stop`·`holdSpeed`·`playback` | `vehicle/Scenario.kt`, `vehicle/FakeVehiclePort.kt`. 주차 2벌 `data/ParkingScenarios.kt`(잘한 26 s / 못한 44 s). 기본 sin 속도 시뮬은 도로용으로 그대로 |
+| 3d ✅ | A층 `MotionSegmenter`, `HarshEventDetector`(300 ms 시간창 차분·1 s 디바운스) | `scoring/`. 이동 평균은 진짜 급정지를 깎아서 뺐다(일지 9/26) |
+| 3e ✅ | B층 `SteeringReversalCounter`, `GearShiftCounter`, `ProximityMonitor`(거리 → 없으면 boolean), `PreDriveChecklist` | `scoring/`. 입력이 비면 null = 미측정 |
+| 3f ✅ | `ParkingMetrics`·`ParkingRubric`·`ParkingScorer`(숙련/안전)·`ParkingDelta`·**`ParkingRecorder`**(delta 를 받아 시계열 → metrics → score) | `scoring/ParkingScorer.kt`, `ParkingRecorder.kt`. 상태기계는 `recorder.onDelta(now, delta)` 만 부르면 된다. `ParkingRecorderScenarioTest` 가 시나리오 2벌의 숫자를 고정 |
+| 3g ⬜ | (선택) `HybridVehiclePort(real, fake)` — 실포트에서 안 오는 키만 Fake 시나리오로 채운다 | 사내에서 "실신호 2 · 시뮬 6" 배지를 실제로 보여주는 장치. Step 4 뒤 여유 시 |
+
+단위 테스트 21 → 62 (실패 0).
 
 ### Step 4 — 상태기계 + 시드 (Claude)
 | # | 일 | 메모 |

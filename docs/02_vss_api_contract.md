@@ -55,9 +55,25 @@ public class VssConstants {               // "Vehicle.Xxx.Yyy" dot 경로 문자
     public static final String VEHICLE_BODY_HORN_ISACTIVE = "Vehicle.Body.Horn.IsActive";         // boolean
     // 도어 예제 신호 (Template App 기준)
     public static final String DOOR_DRIVER_ISOPEN = "Vehicle.Cabin.Door.Row1.DriverSide.IsOpen";  // boolean
+
+    // 2026-09-26 운전 연수 B층 채점용 — COVESA VSS 표준명 기준 **추정**, 전부 사내 미확인 (INTEGRATION.md B절)
+    public static final String STEERING_WHEEL_ANGLE = "Vehicle.Chassis.SteeringWheel.Angle";                   // int16/float, degree, 양수 = 왼쪽
+    public static final String TRANSMISSION_SELECTED_GEAR = "Vehicle.Powertrain.Transmission.SelectedGear";     // int8: 0=N, 1..=D, -1..=R, 126=P, 127=D
+    public static final String SEAT_DRIVER_ISBELTED = "Vehicle.Cabin.Seat.Row1.DriverSide.IsBelted";           // boolean
+    public static final String LOW_VOLTAGE_SYSTEM_STATE = "Vehicle.LowVoltageSystemState";                      // string: UNDEFINED/LOCK/OFF/ACC/ON/START
+    public static final String LIGHT_INDICATOR_LEFT = "Vehicle.Body.Lights.DirectionIndicator.Left.IsSignaling";   // boolean
+    public static final String LIGHT_INDICATOR_RIGHT = "Vehicle.Body.Lights.DirectionIndicator.Right.IsSignaling"; // boolean
+    public static final String LIGHT_HAZARD = "Vehicle.Body.Lights.Hazard.IsSignaling";                        // boolean
+    public static final String BRAKE_PEDAL_POSITION = "Vehicle.Chassis.Brake.PedalPosition";                   // uint8, percent
+    public static final String OBSTACLE_IS_WARNING = "Vehicle.ADAS.ObstacleDetection.IsWarning";                // boolean (표준)
+    public static final String OBSTACLE_REAR_DISTANCE_CM = "Vehicle.ADAS.ObstacleDetection.Rear.Distance";     // float, cm — **비표준 추정**, 없을 가능성 가장 높음
     // ... 앱에 필요한 신호만 추가 (전체 목록: pageId 1323873443, 1,251개)
 }
 ```
+
+**경로가 틀리면 어떻게 되나 (함정 6의 실전 대응).** 위 B층 상수는 컴파일은 되지만 실물 이름이 다르면 값이 영영 오지 않는다. 앱은 `vehicle/SignalAvailability.kt` 의 `SignalRegistry` 로 세션 동안 값이 온 키를 기록해 `LIVE / SIMULATED / MISSING` 을 정하고, `MISSING` 인 신호가 필요한 채점 항목은 null(미측정)로 빼며 리포트에 "실신호 N · 시뮬레이션 N · 미측정 N" 배지를 단다. 사내 첫날 `missingKeys()` 를 로그로 찍어 pageId 1323873443 과 대조하고, 비슷한 이름이 있으면 **문자열만** 고친다.
+
+**기어 인코딩.** `SelectedGear` 의 COVESA 인코딩은 `vehicle/VssGear.kt` 의 `Gear.parse` 가 P/R/N/D 넷으로 접는다(문자 "P/R/N/D" 도 받음). 실물이 다른 인코딩이면 그 함수 한 곳만 고친다.
 
 ## 값 타입 변환 (모든 값은 String으로 옴)
 

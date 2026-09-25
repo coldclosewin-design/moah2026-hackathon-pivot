@@ -61,6 +61,10 @@
 - [2026-09-25] [scoring] A층(급가속·급제동·jerk·과속·정속 편차·정지/출발)은 `Vehicle.Speed` 500 ms 틱을 스무딩 후 미분해 계산한다고 가정. 실물의 갱신 주기·노이즈가 다르면 임계값 재조정 → 사내에서 정차·급가속 시 `Vehicle.Speed` 원시 로그 채집
 - [2026-09-25] [lesson] 화면 잠금 `> 5 km/h`, 리포트 해제 `< 1 km/h 且 운전석 도어 열림` — 16번 `[journey]` 가정 그대로. 주행 중 도어 열림은 무해
 - [2026-09-25] [ai] 주행 중 발화는 전부 규칙(지연 0). AI(`CoachPort`)는 구간 종료·정차·세션 종료 총평만. 외부는 `FakeCoachPort`, 실패 시 규칙 문장 폴백 → 사내 Cloud Copilot 인증·네트워크 확인 후 실구현 교체
+- [2026-09-26] [stub] `VssConstants` 에 B층 상수 10개 추가 — `STEERING_WHEEL_ANGLE`, `TRANSMISSION_SELECTED_GEAR`(9/25 계획의 `CurrentGear` 대신 — P(126)/D(127) 를 표현하는 것은 `SelectedGear`), `SEAT_DRIVER_ISBELTED`, `LOW_VOLTAGE_SYSTEM_STATE`, `LIGHT_INDICATOR_LEFT/RIGHT`, `LIGHT_HAZARD`, `BRAKE_PEDAL_POSITION`, `OBSTACLE_IS_WARNING`(표준), `OBSTACLE_REAR_DISTANCE_CM`(**비표준 추정**). 전부 사내 미확인 → 첫날 `SignalRegistry.missingKeys()` 로그와 pageId 1323873443 대조
+- [2026-09-26] [vss] 조향각 부호는 COVESA(양수 = 왼쪽), 기어 인코딩은 COVESA `SelectedGear`(0=N, 양수=D, 음수=R, 126=P, 127=D), 시동은 `LowVoltageSystemState` 의 `ON/START` 를 켜짐으로 가정. 실물이 다르면 `vehicle/VssGear.kt` 의 파서 한 곳만 고친다 → 사내에서 P·R·D 각각의 원시 문자열 채집
+- [2026-09-26] [scoring] 급조작 임계 가속 +3.0 / 제동 -3.5 m/s²(UBI 관행), 300 ms 시간창 차분, 같은 종류 1 s 디바운스. 이동 구간 판정 속도 > 1 km/h. 조향 왕복 데드밴드 10°. 근접 경고 40 cm. 주차 감점표(`ParkingRubric`) 배점은 전부 가정 → 사내 실측·시연 리허설 뒤 조정
+- [2026-09-26] [fake] `FakeVehiclePort` 시나리오 재생기(`play(scenario, speedFactor)`)와 주차 시나리오 2벌(`data/ParkingScenarios.kt`) 의 각도·거리·시간은 전부 지은 값이다. 잘한 주차: 이동 2구간·조향 1왕복·전환 0 / 못한 주차: 4구간·3왕복·전환 2·급정지 1·근접 1·벨트 늦음 — 채점기 테스트(`ParkingRecorderScenarioTest`)가 이 숫자를 고정한다
 - [2026-09-25] [inhouse] 사내에서만 가능한 것 8항목(외부 개발 중 대체 불가): ① Bitbucket 소스 업로드 ② `market_uploader` APK 제출 ③ 3D 에뮬 연동 시연 영상 ④ `RealVehiclePort` 실행 ⑤ B층 경로 9개 실재 확인 ⑥ TTS 엔진·한국어 음성 ⑦ 디스플레이 물리 크기(`MOAH/DesignScale`) ⑧ Cloud Copilot 인증. 시연 영상은 **B안(외부 에뮬)을 먼저 완성**해 사내 방문이 1회여도 제출 가능하게 한다
 
 ## C. 요청 (Codex → Claude / Claude → Codex)
