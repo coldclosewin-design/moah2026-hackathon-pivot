@@ -1,0 +1,29 @@
+# 사내 자료 / 대용량 — 절대 커밋 금지
+tmp-info/
+emulator/
+*.apk
+*.aab
+*.img
+*.zip
+
+# Gradle / Android
+.gradle/
+build/
+.cxx/
+local.properties
+captures/
+*.iml
+.idea/
+.kotlin/
+*.hprof
+.externalNativeBuild/
+
+# OS / 편집기
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+
+# 에이전트 로컬
+.claude/settings.local.json
+.codex/

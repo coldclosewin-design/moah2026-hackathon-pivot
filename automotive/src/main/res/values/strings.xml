@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 제품명은 가칭. 확정되면 여기 한 곳만 바꾼다 -->
+    <string name="app_name">DriveCoach</string>
+    <string name="brand">DRIVE COACH</string>
+</resources>
