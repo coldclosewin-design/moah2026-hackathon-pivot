@@ -3,4 +3,17 @@
     <!-- 제품명은 가칭. 확정되면 여기 한 곳만 바꾼다 -->
     <string name="app_name">DriveCoach</string>
     <string name="brand">DRIVE COACH</string>
+    <string name="lesson_start">시작</string>
+    <string name="lesson_finish">다 됐어요</string>
+    <string name="lesson_again">한 번 더</string>
+    <string name="lesson_end">오늘은 여기까지</string>
+    <string name="lesson_restart">다시 시작</string>
+    <string name="demo_toggle">시연</string>
+    <string name="demo_good">잘한 주차</string>
+    <string name="demo_bad">못한 주차</string>
+    <string name="demo_stop_car">정차</string>
+    <string name="demo_resume_car">출발</string>
+    <string name="demo_open_door">문 열기</string>
+    <string name="demo_close_door">문 닫기</string>
+    <string name="demo_stop_scenario">시나리오 정지</string>
 </resources>

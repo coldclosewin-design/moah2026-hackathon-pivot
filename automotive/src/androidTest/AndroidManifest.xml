@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- AGP overwrites the first entry with its default runner. Keep a placeholder so the
+         named, platform-only runner below survives without changing the owned Gradle files. -->
+    <instrumentation android:name="android.test.InstrumentationTestRunner"
+        android:targetPackage="com.moah.hackathon" />
+    <instrumentation android:name="com.moah.hackathon.ui.LessonScreenInstrumentation"
+        android:targetPackage="com.moah.hackathon" />
+</manifest>

@@ -2,11 +2,11 @@
 
 새 Claude Code 세션이 이 파일 하나로 이어받을 수 있게 쓴 인계 문서. **작업을 마칠 때마다 이 파일을 갱신한다**(끝난 것은 지우고, 새로 생긴 것은 추가). 과거의 경위는 `docs/journal/`, 규칙은 `AGENTS.md`·`CLAUDE.md`, **제품 정의는 `docs/topics/01_driving_coach.md` v2**.
 
-마지막 갱신: 2026-09-26 · Step 3·4 머지(PR #1·#2), Step 7 도구 작성(PR #3) · **열린 Codex 오더 1건: `docs/handoffs/2026-09-26_codex_lesson_screens.md`(화면 5장 + 시연 패널)** · 마감 2026-10-07
+마지막 갱신: 2026-09-26 · Step 3·4·7 기반 머지(PR #1~#3) · **Step 5 화면 구현·계측 완료, `codex/lesson-screens` 리뷰 대기** · 마감 2026-10-07
 
 ## 1. 지금 되는 것 (한 문단)
 
-`16_hackathon`(Gift Drive) 에서 플랫폼 계층만 물려받은 **빈 껍데기가 빌드·단위테스트(21개) 통과** 상태다. 앱을 켜면 16번 초기의 Dashboard(속도 큰 글자, 운전석 도어·ABS 카드, "Toggle driver door" 왕복, `source=FAKE` 배지)가 뜬다 — `VehiclePort` 가 살아 있음을 눈으로 확인하는 용도이고 연수 세션 화면이 들어오면 `MainActivity` 에서 교체한다(9/25 에뮬에서 속도 갱신·도어 토글 확인). 살아 있는 것: `vehicle/`(VehiclePort·Fake·Real·Factory·VssValues), `ports/TtsPort`(자막 동기·청크 분할·URGENT 큐·kob 음성), `ports/{LocationPort,GpsLocationPort}`, `ports/Route`(아직 Gift Drive 의 `hidden` 개념 잔존), `ui/concepts/DesignScale`, `ui/CoachStyle`, `tools/` 3종(아직 Gift Drive 흐름), 문서 골격 전부.
+`codex/lesson-screens`에서는 앱을 켜면 **LessonRoute의 연수 세션 화면 5장과 Fake 전용 시연 패널**이 뜬다. Setup의 과제·모드·예약 예시, Briefing, 주차 도식, 회차 피드백, 오늘 리포트·진단서 탭까지 연결했다. Dashboard는 부트스트랩 참조용으로 남겼다. **빌드·단위테스트 99개 통과**, CSTDe_API_34에서 `Lesson contract passed`; 5화면과 진단서·잠금·미측정/4줄 자막 캡처는 `docs/screenshots/lesson/`. 플랫폼·상태기계·채점·시드 구조·Gradle 파일은 변경하지 않았다.
 
 **제품 정의 v2 (9/26)**: 시연 본편은 **후면 직각 주차 과제**. `Setup(대화·제안) → Briefing → Maneuver(도식) → Done("다 됐어요") → Report(도어 열림)`. 채점은 과정만. 모드 가이드→힌트→평가→지식테스트. 상세는 `topics/01_driving_coach.md`.
 
@@ -40,17 +40,23 @@
 
 단위 테스트 62 → 89 (실패 0). 첫 Codex 발주서: `docs/handoffs/2026-09-26_codex_lesson_screens.md`.
 
-### Step 5 — 화면 (Codex 발주, `docs/handoffs/`)
-`Setup`(대화형 설정·앱 제안·과제/모드 선택·예약 카드) / `Briefing` / **`Maneuver`**(위에서 본 차 도식: 조향각·기어·센서, 터치 없음) / `Done`(회차 요약·"다 됐어요") / `Report`(숙련 축·안전 축·배지·AI 총평·다음 과제 / **진단서 탭**: 공유 범위 3단계 + 예상 혜택, "실제 전송 없음" 문구). 시연 조작은 Fake 일 때만.
+### Step 5 — 화면 (Codex) — ✅ 구현·계측, 리뷰 대기
+`ui/lesson/`의 Setup / Briefing / Maneuver / Done / Report + DemoPanel + LessonRoute. 화면은 단계별 데이터만 받고 Route만 LessonPhase를 분기한다. Maneuver는 원래 snapshot의 locked/stopped 판정을 전달받는다(표시 속도 반올림으로 5.1 km/h를 해제하지 않음). 잠금 시 시연 패널까지 제거, 정차 때만 완료 버튼, 힌트는 4초 후 소거, 완료 버튼은 두 번 펄스 후 정지한다. 전 화면 32 sp 이상·한국어 Phrase 줄바꿈·말줄임 없는 자막.
+
+- `LessonPresentationTest`: 표시 매핑 10개 추가(전체 99개). 미측정 지표 생략, 비교 없음/개선/악화, 배지·도식 경계, 이전 회차 TTS의 점수 문장 차단 등. Maneuver의 자막·힌트·가이드에서 `점수/감점/N점` 문장을 걸러 접근성 트리로도 새지 않게 한다.
+- `LessonScreenInstrumentation`: 추가 Gradle 의존성 없이 플랫폼 접근성 검사. 잠금 상태 클릭·스크롤 0, 점수 비노출, 화면 액션, 신호 누락, 4줄 자막, 힌트 만료, 진단서 라디오. AGP가 덮어쓰는 첫 instrumentation 항목은 기본 runner 자리표시자로 보존했다.
+- Fake 기본 속도가 도로용 45~95 km/h이므로 Setup 진입 시 DemoControls.stopCar(), 시나리오 재생 시 stopScenario → resumeCar → play를 호출한다. Real은 demo=null이라 해당 호출·패널이 없다.
+- 원본 `tools/emu_flow.sh`는 PASS/clashes 0이지만 두 번째 회차가 끝나기 전에 완료할 수 있는 대기 조건 오류를 발견했다. `INTEGRATION.md` C절의 도구 수정 요청을 먼저 확인할 것.
+- 두 번째 `asked done`만 `(attempt 2)`로 한정한 로컬 검증본으로 전체 재생 PASS/clashes 0: 못한 주차 60/55·이동 4회, 잘한 주차 100/100·이동 2회, 도어 → Report. 시작부터 리포트 104초(덤프·탭 대기 포함), 회차 시간 53초/34초. 실시간 Fake 배지는 `실신호 0 · 시뮬레이션 8 · 미측정 0`으로 실제 수신 개수를 표시한다.
 
 ### Step 6 — AI (Claude)
 `ports/CoachPort.kt` + `FakeCoachPort` — `phrase(score, profile, history)`(멘트 변주, 실패 시 시드 풀), `summarize(report)`, `suggestNext(profile)`. **예외를 던지지 않는다** — 테스트로 강제. Cloud Copilot 구현체는 사내 인증 확인 후.
 
-### Step 7 — 시연 파이프라인 (Claude) — 🟡 스크립트·대본은 썼고, **화면이 들어와야 돌릴 수 있다** (브랜치 `claude/demo-tooling`)
+### Step 7 — 시연 파이프라인 (Claude) — 🟡 화면 연결·실행 검증, 원본 대기 조건 보완 필요
 | # | 일 | 상태 |
 |---|---|---|
-| 7a | `tools/emu_flow.sh` 주차 흐름(Setup 힌트 → 못한 주차 → 다 됐어요 → 한 번 더 → 잘한 주차 → 문 열기 → Report). 힌트 3종·회차 2·배지를 로그(`hint:`·`asked done`·`attempt N: skill=`·`report:`)와 라벨로 판정 | ✅ 작성, ⬜ 실행(화면 뒤) |
-| 7b | `tools/lesson_shots.sh` — Codex 의 `LessonScreenInstrumentation` 을 돌려 `lesson-*.png` 를 꺼낸다. `concept_shots.sh`·`gps_flow.sh` 는 삭제(16번 `0c95d18` 에 있음) | ✅ 작성, ⬜ 실행 |
+| 7a | `tools/emu_flow.sh` 주차 흐름(Setup 힌트 → 못한 주차 → 다 됐어요 → 한 번 더 → 잘한 주차 → 문 열기 → Report). 힌트 3종·회차 2·배지를 로그(`hint:`·`asked done`·`attempt N: skill=`·`report:`)와 라벨로 판정 | ✅ 실행, 두 번째 회차 대기 조건 수정 요청(C절) |
+| 7b | `tools/lesson_shots.sh` — Codex 의 `LessonScreenInstrumentation` 을 돌려 `lesson-*.png` 를 꺼낸다. `concept_shots.sh`·`gps_flow.sh` 는 삭제(16번 `0c95d18` 에 있음) | ✅ 실행 PASS·8장 캡처 |
 | 7c | `docs/05_demo_script.md` — 2분 10초 타임라인·말할 것·시간 조절·사고 대응 | ✅ 초안, ⬜ 실측 시각 |
 | 7d | `DEMO_SPEED_FACTOR` 기본 10 → **1.0**(주차 시나리오는 실시간이 맞다). 상태기계에 스크립트용 로그 `hint:`·`asked done` | ✅ |
 | 7e | 화면 PR 리뷰 뒤: `emu_flow.sh` PASS → 대본 시각 실측 → 캡처를 눈으로. 계측 계약을 만들 때 `build.gradle.kts` 의 `testInstrumentationRunner` 주석을 먼저 읽는다 | ⬜ |

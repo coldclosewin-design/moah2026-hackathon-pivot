@@ -14,6 +14,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.moah.hackathon.App
 import com.moah.hackathon.BuildConfig
 import com.moah.hackathon.ui.concepts.DesignScale
+import com.moah.hackathon.feature.lesson.LessonViewModel
+import com.moah.hackathon.ui.lesson.LessonRoute
 
 class MainActivity : ComponentActivity() {
 
@@ -32,11 +34,9 @@ class MainActivity : ComponentActivity() {
         val container = (application as App).container
         setContent {
             MaterialTheme(colorScheme = darkColorScheme()) {
-                // 피벗 직후: VehiclePort 왕복(속도 sensor · 도어 actuator)을 눈으로 확인하는 Dashboard.
-                // 연수 세션 화면(feature/lesson)이 들어오면 여기서 교체한다.
-                val vm: DashboardViewModel = viewModel(factory = DashboardViewModel.factory(container.vehicle))
+                val vm: LessonViewModel = viewModel(factory = LessonViewModel.factory(container))
                 // 기기 밀도와 무관하게 설계 크기(2560×1268 dp)로 그린다. 이유는 DesignScale.kt
-                DesignScale { DashboardScreen(vm) }
+                DesignScale { LessonRoute(vm) }
             }
         }
     }
