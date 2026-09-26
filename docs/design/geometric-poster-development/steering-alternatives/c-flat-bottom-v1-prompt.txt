@@ -1,0 +1,22 @@
+Use case: ui-mockup / style-transfer. Produce ONE complete alternate steering-wheel BRIEFING screen for a geometric-poster automotive app. Wide landscape 2560:1268 ratio, same framing and resolution as input image 1. It is a single app page, not a sheet, device photo or labeled presentation.
+
+Reference roles:
+Image 1 = LAYOUT/TYPE/COPY reference ONLY: keep its entire LEFT white UI area exactly, but replace its over-simple steering-wheel illustration with a NEW design. Do NOT merely add detail to its ring; choose the distinct steering design described below.
+Image 2 = ART DIRECTION and DETAIL-DENSITY reference: match the moderate detailing of the cropped car, whose roof, windows, mirrors, lights and wheels are described by crisp, interlocking flat color planes. The illustration needs recognizable object construction with selected detail, while keeping bold poster clarity.
+
+Common style: geometric editorial vector-like illustration, flat navy #070827, off-white #FCFCFA, periwinkle #5B60A1 and limited red #F52D48 accent. Strong cutout silhouettes and flat overlapping form planes create subtle depth like the reference car. Main shapes should be evident immediately, with a few details visible on closer look. No glossy 3D, no rendered bevels, no airbrushed shadows, no heavy gradients, no realistic leather, stitches, material texture, paper, hatching, outlines around every shape, hands, logo, dashboard, gauges or extra telemetry. No real car brand or copied badge. Use red for a tiny index/trim accent, not a warning.
+
+Keep exactly the original left-side UI text, size, weight, line breaks, wordmark and sound-wave glyph, with no additions:
+"DRIVE COACH"
+"연습 준비"
+"핸들 방향과"
+"기어 전환을 볼게요."
+"후면 직각 주차 · 가이드 모드"
+"서두르지 않아도 괜찮아요."
+"음성 안내 중"
+Regular Korean sans with accurate spelling and clean generous whitespace. No text embedded in the new wheel, no A/B/C/D variant label. This is a static decorative wheel, not a live steering display. The illustrated small steering controls are decorative parts, not app touch targets.
+The RIGHT illustration should occupy approximately the same right-side area as image 1 and never cover the text. Preserve the left-to-right white/navy contrast and oversized editorial scale. All variants must be recognizably different in structure and viewpoint, not trivial color swaps.
+
+Variant C: FLAT-BOTTOM D-SHAPED WHEEL.
+A contemporary D-shaped steering wheel, viewed nearly front-on with a slight tilt. Its distinctive STRAIGHT lower rim must be completely visible, creating an unmistakable D outline, while the upper curved rim can gently crop against the top/right. Give it substantial but restrained side thumb grips, a small hexagonal/trapezoidal central pad, two broad side spokes with simple inset button rows, and an open split lower spoke. The lower spoke should have a visible navy negative-space slot above the flat bottom. Use white main form planes, periwinkle grip/inner bands, navy recesses and one tiny RED lower-spoke insert instead of a top marker.
+Composition: slightly smaller scale than the original giant ring so that the bottom flat edge and both lower corners are visible. Center the wheel in the navy right field with generous breathing room below its D edge. It still feels like a bold editorial crop, not an isolated product catalog thumbnail. The decisive distinction is the flat bottom and angular compact hub; avoid the round soft-pill hub of the previous detailed version. No racing logos, carbon fiber or microtexture.

@@ -1,0 +1,21 @@
+Use case: infographic-diagram. Create ONE landscape LAYER CONSTRUCTION BOARD for the 밤의 실루엣 automotive UI concept family. Approximate ratio 2.02:1, target 2560 x 1268.
+Input image 1 is the PRIMARY STYLE anchor: inherit its palette, line quality, typography character and action colors. Input image 2 is a STRUCTURE reference only for an exploded-layer board. Do not copy its beige/sage palette, huge black title, dense typography or repeated thumbnails. This is a design reference diagram, not an interactive app screen.
+STYLE: Deep midnight navy #051C29, teal #07516B, fine cyan edge accents #69C9DE, restrained warm amber #F5B34F, near-white #ECF5F2 text. Matte layered silhouette/cut-paper feel, regular humanist Korean sans typography. In functional screens remove scenic forest/lake details entirely: replace with a calm nearly-solid dark field and a single flat teal content surface, a little quiet edge depth. Vehicle is a simple brandless silhouette with cyan contour highlights. Upper-left soft lighting, very short shadows. Do not make a night photograph or realistic rendering. Amber is a small accent; only primary buttons in stationary screens get amber fills.
+Top left small brand "DRIVE COACH", then a modest light/medium title "밤의 실루엣 · 레이어 구성". No giant chunky headings.
+Left 60%: a clear elegant axonometric exploded stack of EXACTLY FIVE thin matte graphic planes, separated by ample vertical gaps and aligned by two very quiet dotted construction lines. Bottom to top:
+01 — a simple flat full-color background plane in this theme's base color;
+02 — subtle offset backing shapes supplying visual depth, flat periwinkle on white for geometric theme, teal on navy for midnight, slightly offset blue/cream for blue theme. No thick bevels.
+03 — a simple content card or tonal diagram surface and ONE original top-down car silhouette. The car faces front DOWN, rear UP. It has EXACTLY FOUR attached tire marks, two per side. No detached/floating wheel extras and no duplication. Brandless, simple, very little detail. Four tires total for this car.
+04 — one empty accent-colored rounded button shape and one small upward directional arrow, discrete graphic parts with NO text baked in.
+05 — the topmost text and state layer. Indicate its virtual plane only with fine corner marks, no glass or opaque slab. Crisp clearly legible separate labels "R", "85 cm", "시뮬". Show that text is a distinct UI rendering layer.
+Each plane has one numbered callout from 01 at bottom to 05 at top. Match numbering precisely to the contents and legend. Never merge or add a sixth plane.
+Right 32%: one clean vertical legend, ordered TOP TO BOTTOM 05, 04, 03, 02, 01 to mirror the stack. Large readable regular-weight headings, with one concise smaller description under each. Exact text:
+"05 글자·상태" / "밝고 또렷한 정보"
+"04 버튼·방향" / "작은 황금빛 강조"
+"03 카드·차량" / "단순한 실루엣"
+"02 받침·깊이" / "청록 색면과 짧은 그림자"
+"01 배경" / "남청 바탕"
+No decorative example thumbnails inside the legend; use numbers and simple thin connector rules only.
+Small lower-left inset titled "조립 모습" may show one assembled miniature parking information module, front-on, with a simple assembled top-down car (exactly FOUR attached tires) and labels "R" and "85 cm". Make it visually separate from exploded layers. No loose tires.
+Small clear bottom-right footnote exactly "구성 참고용 · 개별 에셋 파일 아님".
+Composition is airy, all Korean spelled correctly, nothing cropped, all five layers plainly distinguishable. No realistic photography, office desk, scissors, craft tools, game characters, source screenshot controls, code, map, measured parking position or glossy glass/plastic. Keep texture modest and diagrams/labels clean. It is allowed to show controls here as component examples, not as a driving screen.

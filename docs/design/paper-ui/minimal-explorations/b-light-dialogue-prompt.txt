@@ -1,0 +1,33 @@
+Create a polished DESIGN COMPARISON SHEET containing TWO separate wide automotive app screens stacked vertically, SETUP on top and REPORT below. Each screen has an approximately 2:1 width-to-height ratio. The complete sheet is roughly square or a little taller than square, target 2048 x 2220. Small quiet labels outside the screens identify the concept and the two states; no explanatory paragraphs. These are original interface concept images, not device photography.
+
+USER REVISION, higher priority than the old design reference: the old setup/report contains too much shading, illustration detail, oversized heavy headings and too much simultaneous information. Radically reduce those. Preserve only gentle physical paper layering and a warm ivory base. ALL car/object illustrations must be SIMPLE UNFILLED CONTOUR LINE DRAWINGS: blank interiors identical to the paper background, no gray window fills, no colored body panels, no filled road surfaces, no crosshatching, no pencil shading, no scene/background illustration. At most ONE small car drawing per screen. White/cream surfaces, restrained thin charcoal strokes, a small sage accent only for the primary control. No dark filled panels. Remove the old road/tree logo; use a small simple "DRIVE COACH" text wordmark.
+
+Typography: regular-weight (roughly 400) or restrained medium 500. Absolutely NO extra-bold, black-weight, chunky rounded display type or huge poster titles. Heading at most 1.5–1.7 times body size. Korean characters with open counters, comfortable spacing and readable full words. Task/feedback is more prominent than the generic screen title. Exact font reproduction is not required by image generation; approximate the specified type character. Avoid microscopic text.
+
+Information architecture is identical in all concepts:
+UPPER SETUP SCREEN, only these visible strings:
+small "DRIVE COACH"
+small screen title "오늘의 연습"
+main task "후면 직각 주차"
+secondary "가이드 모드"
+one supporting sentence "처음은 순서대로 함께할게요."
+one primary button "시작"
+one understated secondary action "과제·모드 바꾸기"
+No nine-card grid, no profile row, no reservation details, no four mode tabs, no voice subtitle duplicate, no demo panel.
+
+LOWER REPORT SCREEN, only these visible strings:
+small "DRIVE COACH"
+small screen title "오늘의 기록"
+main feedback "다음엔 뒤 거리를 조금 더 남겨 볼까요?"
+secondary "후면 직각 주차 · 1회 연습"
+primary button "다시 시작"
+secondary action "자세히 보기"
+discreet readable footer "실신호 0 · 시뮬레이션 7 · 미측정 1"
+short scope note "주차 과정만 측정했어요."
+No scores, gauges, tables, full signal lists, certificate tabs, extra car scenes or redundant subtitles. Detailed data are behind the single detail action; do not render the expanded view.
+
+Reference roles: the Chicory dialogue screenshot informs lightly irregular clean contour drawing and relaxed monoline lettering; the Chicory end-card informs restrained handwritten character, NOT its bold outlined logo. The old accepted parking UI informs warm paper and functional clarity. The old setup and report are contrast references to simplify, NOT templates to preserve. Do not copy characters, logos, scenery, game screenshots or browser chrome.
+Ensure each screen remains spacious but organized around a clear focal point, not a tiny interface floating in an oversized blank poster. Text/action controls are fully visible, clean, not rotated. Paper shadow may be a very short soft contact shadow at the lower-right edge. No watermark.
+
+Concept B, external sheet label exactly "B · 가벼운 대화". Use light friendly HANDWRITTEN MONOLINE headings reminiscent of Gaegu Regular and the non-logo lettering in Chicory. Korean heading strokes are airy, medium-sized, with slight baseline irregularity but NO bold bubble letters. Body/status/control labels use a regular clean Korean sans-serif.
+Each screen has one quiet open sheet with a subtle cut edge, without a boxed card grid. A small one-line car doodle above or beside the central task in setup; one simple blank outline speech-tail paper note in report. The central short task or feedback line is the focus, with generous but controlled breathing room. A small sage bookmark-shaped primary button beneath it and a restrained secondary text action. Do not draw black speech bubbles or any mascot. Keep all illustrated interiors empty. Slightly more charming and conversational than A, still mature and calm.

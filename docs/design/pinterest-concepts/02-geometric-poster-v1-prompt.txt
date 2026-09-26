@@ -1,0 +1,21 @@
+Use case: ui-mockup.
+Asset type: One complete high-fidelity landscape automotive driver-training app SETUP screen, stationary before starting practice. Canvas target 2560 x 1268, wide approximately 2.02:1. Generate ONE screen only, edge-to-edge, no device frame, no system bars, no browser, no labels outside the UI.
+Primary request: A fresh color-theme concept inspired by the attached visual reference. The app is a kind, calm driving coach. Simple content with abundant negative space, one primary action and one secondary action. The user dislikes data-heavy navigation dashboards and heavy/bold headlines. Do not add metrics or extra cards. Make this feel like a considered usable application with exceptional visual art direction.
+Input image 1: STYLE REFERENCE ONLY. Borrow visual language, palette, mood and shape treatment, not the literal subjects, logos or screenshot controls. Make original driving-related artwork.
+Shared information and hierarchy, exact visible text in Korean:
+Small understated brand at upper left: "DRIVE COACH"
+Main friendly heading, two lines, regular/medium weight, modest and readable:
+"오늘은 가볍게,"
+"주차부터 해볼까요?"
+One concise selected-task line: "후면 직각 주차 · 가이드 모드"
+A small supporting sentence: "처음은 순서대로 함께할게요."
+One prominent primary button: "시작" with a small right arrow if appropriate.
+One secondary text action beneath: "과제·모드 바꾸기"
+No other text. Render Korean accurately with generous spacing and clear simple letterforms. Text and UI must sit on clean quiet surfaces, never over busy art. Main heading should feel relaxed, not an oversized heavy advertising headline; weight equivalent 400–500.
+Constraints: The illustration is purely decorative conceptual art, not live camera footage, GPS/map data, parking position measurement or an AR overlay. Show no sensor numbers, speed, score, completion controls, charts, user avatars, menus of unrelated settings, gradients in text, game characters, source logos, watermarks, player controls or Pinterest elements. No grid of widgets. Preserve spacious 7% outer margins, comfortable touch target sizes, clean non-overlapping text. Let the palette and artwork carry character instead of adding interface chrome.
+
+Concept 2 — Geometric poster.
+Translate the second reference's confident flat navy/white/lavender shapes with a sharply restricted red accent into an editorial, minimalist driver-training app.
+Style: crisp flat vector-like paper cutout illustration, large interlocking curves and planes, no texture, no airbrush, no realistic shading, no grain, no gradients. Geometric shapes can be bold while the typography is light and human.
+Composition: Full warm-white/off-white canvas. On the left 45%, an original compact car in a compelling simplified three-quarter perspective built from broad near-black navy, white and periwinkle shapes; a sweeping abstract road-like ribbon and a cropped circular arch create sophisticated negative space behind it. No person or umbrella. Treat the composition like an art poster, with only a small red tail-light or accent. Right half holds UI text openly on off-white with no surrounding card. Asymmetry is balanced, graphic boundaries stay away from text.
+Palette: ink navy #070827, white #FCFCFA, periwinkle #5B60A1, signal red #F52D48. Navy text, navy/periwinkle artwork, small red primary button with white label. The red button signifies an intentional primary action here, not a warning. Use regular-weight refined Korean sans for title, not thick or condensed. Subtle dark label styling on selected task. Secondary action navy, thin underline if useful. Keep red to less than ~5% and give the white field ample space.
