@@ -40,9 +40,30 @@ class ManeuverDisplayStateTest {
         assertEquals(SignalAvailability.SIMULATED, s.steeringSignal)
         assertEquals(SignalAvailability.LIVE, s.gearSignal)
         assertEquals(SignalAvailability.MISSING, s.distanceSignal)
+        assertEquals(TaskType.PARKING, s.taskType)
+        assertNull(s.belt); assertNull(s.ignitionOn)
+        assertEquals(SignalAvailability.MISSING, s.beltSignal)
         // 점수·감점·조향 왕복 수·기어 전환 수는 이 타입에 존재하지 않는다 (컴파일 타임 보장). 문서용 확인:
         val fields = ManeuverDisplayState::class.java.declaredFields.map { it.name }
         assertTrue(fields.none { it.contains("skill") || it.contains("safety") || it.contains("reversal") || it.contains("shift") || it.contains("score") })
+    }
+
+    @Test
+    fun `checklist task carries belt and ignition for the three chips`() {
+        val snap = VehicleSnapshot().apply(mapOf(
+            VssConstants.SEAT_DRIVER_ISBELTED to "true", VssConstants.LOW_VOLTAGE_SYSTEM_STATE to "OFF",
+            VssConstants.TRANSMISSION_SELECTED_GEAR to "126",
+        ))
+        val s = phase(snap, mapOf(
+            VssConstants.SEAT_DRIVER_ISBELTED to SignalAvailability.LIVE,
+            VssConstants.LOW_VOLTAGE_SYSTEM_STATE to SignalAvailability.SIMULATED,
+        )).copy(task = SeedCatalog.predriveTask, guide = null).toDisplayState()
+        assertEquals(TaskType.CHECKLIST, s.taskType)
+        assertEquals(true, s.belt)
+        assertEquals(false, s.ignitionOn)
+        assertEquals("P", s.gear)
+        assertEquals(SignalAvailability.LIVE, s.beltSignal)
+        assertEquals(SignalAvailability.SIMULATED, s.ignitionSignal)
     }
 
     @Test

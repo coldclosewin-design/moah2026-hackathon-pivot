@@ -8,6 +8,8 @@ import kotlin.math.roundToInt
 /**
  * 주차 중 화면(도식)이 받는 값 전부. **점수·감점 누계·조향 왕복 수·기어 전환 수는 없다** — 운전자가 화면을 보게 만드는 값은
  * 타입에서부터 빼 둔다(AGENTS 규칙 10). 진행 상황(구간 수·경과 시간)과 지금 값(조향각·기어·거리)만 준다.
+ *
+ * [taskType] 이 [TaskType.CHECKLIST] 면 화면은 도식 대신 벨트·기어·시동 세 칩을 그린다([belt]·[gear]·[ignitionOn]).
  */
 internal data class ManeuverDisplayState(
     val speed: String,
@@ -26,6 +28,13 @@ internal data class ManeuverDisplayState(
     val steeringSignal: SignalAvailability,
     val gearSignal: SignalAvailability,
     val distanceSignal: SignalAvailability,
+    /** 과제 유형 — 주차는 도식, 출발 전 점검은 칩 3개. */
+    val taskType: TaskType = TaskType.PARKING,
+    /** 출발 전 점검용 현재 값. 신호가 없으면 null(미측정). */
+    val belt: Boolean? = null,
+    val ignitionOn: Boolean? = null,
+    val beltSignal: SignalAvailability = SignalAvailability.MISSING,
+    val ignitionSignal: SignalAvailability = SignalAvailability.MISSING,
 )
 
 internal fun LessonPhase.Maneuver.toDisplayState() = ManeuverDisplayState(
@@ -45,6 +54,11 @@ internal fun LessonPhase.Maneuver.toDisplayState() = ManeuverDisplayState(
     gearSignal = availability[VssConstants.TRANSMISSION_SELECTED_GEAR] ?: SignalAvailability.MISSING,
     distanceSignal = availability[VssConstants.OBSTACLE_REAR_DISTANCE_CM]
         ?: availability[VssConstants.OBSTACLE_IS_WARNING] ?: SignalAvailability.MISSING,
+    taskType = task.type,
+    belt = snapshot.belt,
+    ignitionOn = snapshot.ignitionOn,
+    beltSignal = availability[VssConstants.SEAT_DRIVER_ISBELTED] ?: SignalAvailability.MISSING,
+    ignitionSignal = availability[VssConstants.LOW_VOLTAGE_SYSTEM_STATE] ?: SignalAvailability.MISSING,
 )
 
 internal fun Gear.label(): String = when (this) {
