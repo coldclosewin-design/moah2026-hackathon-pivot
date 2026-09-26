@@ -2,7 +2,7 @@
 
 새 Claude Code 세션이 이 파일 하나로 이어받을 수 있게 쓴 인계 문서. **작업을 마칠 때마다 이 파일을 갱신한다**(끝난 것은 지우고, 새로 생긴 것은 추가). 과거의 경위는 `docs/journal/`, 규칙은 `AGENTS.md`·`CLAUDE.md`, **제품 정의는 `docs/topics/01_driving_coach.md` v2**.
 
-마지막 갱신: 2026-09-26 · PR #1~#14 머지(`main = 508f03b`, 열린 PR 0) — **READY 과제 셋(출발 전 점검·주차·지식 테스트) + 기하학 포스터 디자인 시스템과 `Maneuver`·`Report` 새 화면(라운드 1)이 main** · 다음: **라운드 2 발주서**(Claude) → Codex · 상태기계 후속(도어 선열림·브리핑 조사) · 마감 2026-10-07
+마지막 갱신: 2026-09-26 · PR #1~#14 머지(`main = 508f03b`, 열린 PR 0) — **READY 과제 셋(출발 전 점검·주차·지식 테스트) + 기하학 포스터 디자인 시스템과 `Maneuver`·`Report` 새 화면(라운드 1)이 main** · **라운드 2 발주서 나감**(`docs/handoffs/2026-09-26_codex_ui_round2.md`, PR #16) → Codex · 상태기계 후속(도어 선열림·브리핑 조사)은 Claude 소 PR · 마감 2026-10-07
 
 ## 1. 지금 되는 것 (한 문단)
 
@@ -77,7 +77,7 @@
 |---|---|---|
 | 9a | `docs/design/02_design_brief.md` — 라운드 0~3, 채울 것 9, **불변 규칙 12** + 검사 수단. 레퍼런스 = `docs/design/geometric-poster-development/`(시안 4장·핸들 B·시각 규칙·색 토큰 5). 탐색 이력(종이 UI·미니멀·Pinterest)은 `docs/design/README.md`(Codex) | ✅ 채움(모션 포함 9개 모두 사용자 확인 9/26) |
 | 9b | 라운드 1 발주서 `docs/handoffs/2026-09-26_codex_ui_round1.md` — 디자인 시스템(`CoachStyle`) + `Maneuver`·`Report`, 드래프트 PR, `lesson_shots`·`emu_flow` PASS, 불변 표 12줄. **0절: Codex 본 트리 정리**(시안 폴더 → `codex/design-refs` PR, NEXT·일지 수정 되돌리기) | ✅ 시안 PR #13 `b211107` · 라운드 1 PR #14 `508f03b` (리뷰: 빌드·129·`emu_flow` PASS·`lesson_shots` PASS·캡처 vs 시안·불변 12줄). 사용자 톤 확정 |
-| 9c | 라운드 2 — `Setup`(제안 문장 + 과제·모드 시트, 준비 중 회색)·`Briefing`(핸들 B 에셋)·`Done`·`Quiz`/`QuizDone`·점검 과제 칩 3개(C절 3건), 글자 없는 일러스트 에셋(WebP ≤ 1 MB), `emu_flow.sh` PASS. **라운드 1 관찰 반영**: 접힌 상태 라벨에 대상 붙이기(전부 MISSING 이면 접지 않기), `LessonCanvas` Bold → `BrandMark` 통일 | ⬜ Claude 발주서 → Codex |
+| 9c | 라운드 2 — `Setup`(제안 문장 + 과제·모드 시트, 준비 중 회색)·`Briefing`(핸들 B 에셋)·`Done`·`Quiz`/`QuizDone`·점검 과제 칩 3개(C절 3건), 글자 없는 일러스트 에셋(WebP ≤ 1 MB), `emu_flow.sh` PASS. **라운드 1 관찰 반영**: 접힌 상태 라벨에 대상 붙이기(전부 MISSING 이면 접지 않기), `LessonCanvas` Bold → `BrandMark` 통일. 발주서 `docs/handoffs/2026-09-26_codex_ui_round2.md`. 선행(PR #16): `ManeuverDisplayState` 점검용 필드 5개, `emu_flow.sh` 시트 대응 | ✅ 발주 → ⬜ Codex |
 | 9e | 상태기계 후속(Claude): ① 회차 시작 시 도어가 이미 열려 있으면 닫힘을 한 번 본 뒤에만 종료 조건(Report 에서 시연 패널이 빠져 드러남) ② `briefingLine` 조사("뒤 거리을" → 를/을, "과/와") | ⬜ 소 PR |
 | 9d | 라운드 3 — B안 영상 재녹화, 덱·컷 목록 스크린샷 교체 | ⬜ 사용자 |
 

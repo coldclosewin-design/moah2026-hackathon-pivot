@@ -73,6 +73,8 @@ FAIL=0
 echo "== start"; adb shell am force-stop com.moah.hackathon; adb logcat -c
 adb shell am start -n com.moah.hackathon/.ui.MainActivity >/dev/null; sleep 4
 shot 10_setup; echo "  texts: $(now_texts)"
+# UI 라운드 2 부터 모드 선택은 "과제·모드 바꾸기" 시트 안에 있을 수 있다 — 첫 화면에 "힌트" 가 없으면 시트를 먼저 연다
+dump; texts | grep -q "힌트" || { tap_text "과제·모드 바꾸기"; sleep 1; }
 tap_text "힌트"; sleep 1; tap_text "시작"; sleep 1
 wait_log "begin parking-rear-perpendicular HINT" 10 || { echo "  !! session did not begin"; exit 1; }
 T0=$(date +%s); mark "session began"
