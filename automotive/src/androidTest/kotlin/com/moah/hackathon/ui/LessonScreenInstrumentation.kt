@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import com.moah.hackathon.App
 import com.moah.hackathon.data.SeedCatalog
@@ -29,14 +28,17 @@ class LessonScreenInstrumentation : Instrumentation() {
         try {
             val task = SeedCatalog.parkingTask
             val container = (activity.application as App).container
-            val demo: @Composable () -> Unit = {
+            val setupDemo: @Composable () -> Unit = {
                 DemoPanel(container.scenarios, null, {}, {}, {}, {}, {})
+            }
+            val demo: @Composable () -> Unit = {
+                DemoPanel(container.scenariosFor(task), null, {}, {}, {}, {}, {})
             }
             var started: Pair<String, LessonMode>? = null
             render(activity) {
                 SetupScreen(SeedCatalog.demoProfile, SeedCatalog.tasks, task, LessonMode.GUIDE,
                     "처음은 제가 순서대로 함께할게요.", SeedCatalog.reservation, "오늘은 편안한 곳에서 주차부터 연습해 봐요.",
-                    { id, mode -> started = id to mode }, demo)
+                    { id, mode -> started = id to mode }, setupDemo)
             }
             check(texts().containsAll(listOf("오늘은 뭘 해볼까요?", "시작", "시연", "잘한 주차", "못한 주차")))
             capture("setup")
@@ -59,7 +61,19 @@ class LessonScreenInstrumentation : Instrumentation() {
             check(texts().none { it == "다 됐어요" })
             check(allText().any { "뒤 85 cm" in it })
             assertNoScores()
+            check(allText().none { Regex("회차|이동 \\d+회|18초").containsMatchIn(it) })
             capture("maneuver")
+            click("시연")
+            check(texts().none { it == "잘한 주차" })
+            capture("maneuver-collapsed")
+
+            render(activity) {
+                ManeuverScreen(moving.copy(steeringSignal = SignalAvailability.LIVE,
+                    distanceSignal = SignalAvailability.MISSING, rearDistanceCm = null), false, false, null, {})
+            }
+            check(texts().containsAll(listOf("실신호", "시뮬레이션", "미측정")))
+            check(allText().any { "뒤 거리 미측정" in it })
+            capture("mixed")
 
             // 5.1 rounds to the visible value "5", but the original snapshot MUST still lock all controls.
             listOf(5.1f, 20f).forEach { speed ->
@@ -94,7 +108,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             // A moving value displayed as "1" must not expose a finish action.
             render(activity) { ManeuverScreen(moving.copy(speed = "1"), false, false, null, {}) }
             check(texts().none { it == "다 됐어요" })
-            render(activity) { ManeuverScreen(moving.copy(guideText = null, hintText = "잠깐 보이는 힌트"), false, false, null, {}) }
+            render(activity) { ManeuverScreen(moving.copy(guideText = null, hintText = "잠깐 보이는 힌트"), false, false, "잠깐 보이는 힌트", {}) }
             check(texts().contains("잠깐 보이는 힌트"))
             Thread.sleep(4_200)
             check(texts().none { it == "잠깐 보이는 힌트" })
@@ -119,7 +133,7 @@ class LessonScreenInstrumentation : Instrumentation() {
                 task, LessonMode.GUIDE, "핸들 타이밍을 한 단계씩 함께 익혀요.", ShareLevel.entries,
                 SeedCatalog.benefits, listOf("안전벨트 확인"))
             var restarted = 0
-            render(activity) { ReportScreen(report, "오늘의 기록을 바탕으로 다음 연습을 준비했어요.", { restarted++ }, demo) }
+            render(activity) { ReportScreen(report, { restarted++ }) }
             check(texts().containsAll(listOf(badgeText(score.badge), "다시 시작", "이 신호는 이 차에서 받지 못했어요")))
             capture("report")
             click("진단서")
@@ -128,9 +142,20 @@ class LessonScreenInstrumentation : Instrumentation() {
             capture("certificate")
             check(nodes().any { it.isChecked && descendants(it).any { child -> child.text?.toString() == "항목별" } })
             click("공유 예시 보기")
+            click("돌아가기")
+            click("자세히 보기")
+            check(texts().containsAll(listOf("숙련", "안전", "60", "55")))
+            check(texts().any { it.startsWith("다음엔 ") })
+            capture("details")
+            click("돌아가기")
+            click("진단서")
             click("다시 시작")
             runOnMainSync { check(restarted == 1) }
             pass("Done actions and Report badge, certificate sharing choices, restart")
+            render(activity) { ReportScreen(report.copy(attempts = List(100) { record.copy(index = it + 1) }), {}) }
+            check(texts().contains("100"))
+            check(texts().contains("다시 시작"))
+            capture("report-100")
             finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Lesson contract passed\n") })
         } catch (failure: Throwable) {
             finish(Activity.RESULT_CANCELED, Bundle().apply { putString("stream", failure.stackTraceToString()) })
@@ -138,7 +163,7 @@ class LessonScreenInstrumentation : Instrumentation() {
     }
 
     private fun render(activity: MainActivity, content: @Composable () -> Unit) {
-        runOnMainSync { activity.setContent { MaterialTheme(colorScheme = darkColorScheme()) { DesignScale { content() } } } }
+        runOnMainSync { activity.setContent { MaterialTheme(colorScheme = coachColorScheme()) { DesignScale { content() } } } }
         Thread.sleep(700)
         runOnMainSync {}
     }

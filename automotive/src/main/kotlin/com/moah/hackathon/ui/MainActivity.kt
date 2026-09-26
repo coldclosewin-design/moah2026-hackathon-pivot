@@ -8,7 +8,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.moah.hackathon.App
@@ -33,7 +32,7 @@ class MainActivity : ComponentActivity() {
         }
         val container = (application as App).container
         setContent {
-            MaterialTheme(colorScheme = darkColorScheme()) {
+            MaterialTheme(colorScheme = coachColorScheme()) {
                 val vm: LessonViewModel = viewModel(factory = LessonViewModel.factory(container))
                 // 기기 밀도와 무관하게 설계 크기(2560×1268 dp)로 그린다. 이유는 DesignScale.kt
                 DesignScale { LessonRoute(vm) }

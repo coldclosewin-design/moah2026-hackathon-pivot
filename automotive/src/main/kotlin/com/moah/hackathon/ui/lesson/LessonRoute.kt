@@ -30,9 +30,9 @@ internal fun LessonRoute(vm: LessonViewModel) {
             state.reason, state.reservation, subtitle, vm::begin, demo)
         is LessonPhase.Briefing -> BriefingScreen(state.line, subtitle)
         is LessonPhase.Maneuver -> ManeuverScreen(state.toDisplayState(), state.snapshot.locked, state.snapshot.stopped,
-            subtitle, vm::finishAttempt, demo)
+            subtitle, vm::finishAttempt, demo, state.task.title)
         is LessonPhase.Done -> DoneScreen(state.task.title, state.attempt, state.record, subtitle, vm::nextAttempt, vm::endSession, demo)
-        is LessonPhase.Report -> ReportScreen(state.report, subtitle, vm::restart, demo)
+        is LessonPhase.Report -> ReportScreen(state.report, vm::restart)
         // [cross] Claude: 지식 테스트 화면은 Codex 오더 대기(INTEGRATION C절 9/26). 그때까지는 음성으로 진행되고 자막만 보인다.
         is LessonPhase.Quiz, is LessonPhase.QuizDone -> BriefingScreen("지식 테스트 — 화면 준비 중. 음성과 자막으로 진행돼요.", subtitle)
     }

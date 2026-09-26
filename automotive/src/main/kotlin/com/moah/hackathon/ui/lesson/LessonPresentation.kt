@@ -46,7 +46,7 @@ internal fun deltaLines(delta: ParkingDelta?): List<DeltaLine> = if (delta == nu
 internal fun badgeText(badge: AvailabilityBadge) = "실신호 ${badge.live} · 시뮬레이션 ${badge.simulated} · 미측정 ${badge.missing}"
 internal fun signalLabel(signal: SignalAvailability) = when (signal) {
     SignalAvailability.LIVE -> "실신호"
-    SignalAvailability.SIMULATED -> "시뮬"
+    SignalAvailability.SIMULATED -> "시뮬레이션"
     SignalAvailability.MISSING -> "미측정"
 }
 
@@ -65,9 +65,11 @@ internal fun signalName(key: String): String = when (key) {
 }
 
 internal fun ManeuverDisplayState.proximityAlert() = obstacleWarning || (rearDistanceCm?.let { it < 40f } == true)
+internal fun ManeuverDisplayState.commonSignal(): SignalAvailability? =
+    steeringSignal.takeIf { it == gearSignal && it == distanceSignal }
 internal fun ManeuverDisplayState.diagramDescription() = buildList {
     add("차량 도식, 뒤쪽이 화면 위")
-    add("조향 ${steeringDeg?.let { "${it.roundToInt()}도" } ?: "미측정"}, ${signalLabel(steeringSignal)}")
+    add("조향각 ${steeringDeg?.let { "${it.roundToInt()}도" } ?: "미측정"}, ${signalLabel(steeringSignal)}")
     add("기어 ${gear ?: "미측정"}, ${signalLabel(gearSignal)}")
     add(rearDistanceCm?.let { "뒤 ${it.roundToInt()} cm" } ?: "뒤 거리 미측정")
     add(signalLabel(distanceSignal))

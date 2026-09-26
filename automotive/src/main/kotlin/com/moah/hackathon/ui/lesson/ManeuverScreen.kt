@@ -2,15 +2,16 @@ package com.moah.hackathon.ui.lesson
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
@@ -27,57 +28,112 @@ import kotlin.math.roundToInt
 
 @Composable
 internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stopped: Boolean, subtitle: String?,
-    onFinish: () -> Unit, demo: (@Composable () -> Unit)? = null) {
+    onFinish: () -> Unit, demo: (@Composable () -> Unit)? = null, taskTitle: String = "후면 직각 주차") {
     var visibleHint by remember(state.hintText) { mutableStateOf(maneuverText(state.hintText)) }
-    LaunchedEffect(state.hintText) { if (state.hintText != null) { delay(4_000); visibleHint = null } }
-    // Gate the whole slot here so even an expanded Fake control panel cannot leak touch targets.
-    LessonFrame(maneuverText(subtitle), if (locked) null else demo) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            LessonText("${state.attempt}회차 · 이동 ${state.movingSegments}회 · ${state.elapsedSeconds}초", 40, bold = true)
-            LessonText("${state.speed} km/h", 40, CoachColors.Muted)
+    val hintAlpha = remember { Animatable(1f) }
+    LaunchedEffect(state.hintText) {
+        if (visibleHint != null) {
+            hintAlpha.snapTo(0f)
+            hintAlpha.animateTo(1f, tween(180))
+            delay(3_620)
+            hintAlpha.animateTo(0f, tween(200))
+            visibleHint = null
         }
-        if (locked) {
-            Column(Modifier.weight(1f).fillMaxWidth(), verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally) {
-                LessonText("운전에 집중해 주세요", 88, bold = true)
-                Spacer(Modifier.height(36.dp))
-                LessonText("속도를 낮추면 주차 도식이 다시 보여요.", 42, CoachColors.Muted)
-            }
-        } else {
-            Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(32.dp)) {
-                Column(Modifier.weight(1.2f), horizontalAlignment = Alignment.CenterHorizontally) {
-                    LessonText("차량 뒤쪽 ↑", 32, CoachColors.Muted)
-                    VehicleDiagram(state, Modifier.weight(1f).fillMaxWidth())
-                    LessonText("조향 방향을 보여 주는 도식이에요.", 32, CoachColors.Muted)
+    }
+    val expansion = rememberSaveable { mutableStateOf(true) }
+    val commonSignal = state.commonSignal()
+    PosterSurface {
+        Row(Modifier.fillMaxSize()) {
+            Column(Modifier.weight(.53f).fillMaxHeight().background(CoachColors.Ink)
+                .padding(start = 180.dp, end = 100.dp, top = 64.dp, bottom = 52.dp)) {
+                BrandMark(color = CoachColors.Paper)
+                if (locked) {
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
+                        Headline("운전에 집중해 주세요", color = CoachColors.Paper)
+                        Spacer(Modifier.height(32.dp))
+                        LessonText("속도를 낮추면 주차 도식이 다시 보여요.", 40, CoachColors.Paper.copy(alpha = .7f))
+                    }
+                } else {
+                    Box(Modifier.weight(1f).fillMaxWidth()) {
+                        VehicleDiagram(state, Modifier.fillMaxSize())
+                        if (state.gear == "R") Eyebrow("차량 뒤쪽 ↑", Modifier.align(Alignment.TopCenter)
+                            .padding(top = 24.dp), CoachColors.Paper)
+                    }
+                    Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Eyebrow("조향각", color = CoachColors.Paper)
+                        LessonText(state.steeringDeg?.let {
+                            "${if (it > 0) "왼쪽" else if (it < 0) "오른쪽" else "중립"} ${abs(it).roundToInt()}°"
+                        } ?: "미측정", 80, if (state.steeringDeg == null) CoachColors.Paper.copy(alpha = .6f)
+                            else CoachColors.Paper, bold = true)
+                        if (commonSignal == null) StateLabel(signalLabel(state.steeringSignal), state.steeringSignal, onInk = true)
+                    }
                 }
-                Column(Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(24.dp)) {
-                    LessonCard(Modifier.fillMaxWidth()) {
-                        SignalHeading("기어", state.gearSignal)
-                        LessonText(state.gear ?: "—", 112, CoachColors.Accent, bold = true)
+                Spacer(Modifier.height(24.dp))
+                Eyebrow("조향 방향 도식", color = CoachColors.Paper.copy(alpha = .7f))
+            }
+            Row(Modifier.weight(.47f).fillMaxHeight().padding(start = 64.dp, end = 64.dp, top = 64.dp, bottom = 52.dp),
+                horizontalArrangement = Arrangement.spacedBy(32.dp)) {
+                Column(Modifier.weight(1f).fillMaxHeight()) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Top) {
+                        LessonText(taskTitle, 40, modifier = Modifier.weight(1f))
+                        Column(horizontalAlignment = Alignment.End) {
+                            LessonText("${state.speed} km/h", 56, bold = true)
+                            commonSignal?.let { StateLabel(signalLabel(it), it) }
+                        }
                     }
-                    LessonCard(Modifier.fillMaxWidth()) {
-                        SignalHeading("조향각", state.steeringSignal)
-                        val angle = state.steeringDeg
-                        LessonText(angle?.let { "${if (it > 0) "왼쪽" else if (it < 0) "오른쪽" else "중립"} ${abs(it).roundToInt()}°" } ?: "—", 48, bold = true)
+                    Column(Modifier.weight(1f).fillMaxWidth(), verticalArrangement = Arrangement.Center) {
+                        val guide = maneuverText(state.guideText)?.takeIf { it.isNotBlank() }
+                        val spoken = maneuverText(subtitle)?.takeIf { it.isNotBlank() && it != state.hintText }
+                        val main = guide ?: visibleHint ?: spoken
+                        if (main != null) {
+                            Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                                Eyebrow("조수석")
+                                if (guide != null) state.guideStep?.let { Eyebrow(it, color = CoachColors.Periwinkle) }
+                            }
+                            Spacer(Modifier.height(24.dp))
+                            Headline(main, Modifier.graphicsLayer {
+                                alpha = if (guide == null && visibleHint != null) hintAlpha.value else 1f
+                            }, size = 72)
+                            if (guide != null && spoken != null && spoken != guide) {
+                                Spacer(Modifier.height(24.dp))
+                                LessonText(spoken, 40)
+                            }
+                        }
                     }
-                    LessonCard(Modifier.fillMaxWidth()) {
-                        SignalHeading("뒤 거리", state.distanceSignal)
-                        LessonText(state.rearDistanceCm?.let { "${it.roundToInt()} cm" } ?: "—", 56,
-                            if (state.proximityAlert()) CoachColors.Warning else CoachColors.Foreground, bold = true)
-                        if (state.proximityAlert()) LessonText("뒤가 가까워요", 36, CoachColors.Warning)
+                    if (!locked) {
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(32.dp)) {
+                            SignalValue("기어", state.gear ?: "미측정", state.gearSignal, commonSignal == null,
+                                Modifier.weight(.8f))
+                            Box(Modifier.width(2.dp).height(140.dp).background(CoachColors.Lavender))
+                            SignalValue(if (state.proximityAlert()) "가까워요" else "뒤 거리",
+                                state.rearDistanceCm?.let { "${it.roundToInt()} cm" } ?: "미측정",
+                                state.distanceSignal, commonSignal == null, Modifier.weight(1.4f))
+                        }
+                        Spacer(Modifier.height(40.dp))
+                        if (stopped) {
+                            Eyebrow("${state.attempt}회차 · 이동 ${state.movingSegments}회 · ${state.elapsedSeconds}초", color = CoachColors.Muted)
+                            Spacer(Modifier.height(16.dp))
+                            FinishButton(state.askedDone, onFinish)
+                        }
                     }
+                }
+                // No panel, toggle, scroll or clickable node survives the original snapshot lock.
+                if (!locked && demo != null) CompositionLocalProvider(LocalDemoExpansion provides expansion) {
+                    Box(Modifier.width(if (expansion.value) 420.dp else 80.dp)) { demo() }
                 }
             }
         }
-        Row(Modifier.fillMaxWidth().heightIn(min = 96.dp), verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                maneuverText(state.guideText)?.let { LessonText("${state.guideStep.orEmpty()}  $it", 42, CoachColors.Accent) }
-                visibleHint?.let { LessonText(it, 42, CoachColors.Simulated) }
-                if (!locked && state.askedDone) LessonText("다 되셨나요?", 36, CoachColors.Accent)
-            }
-            if (!locked && stopped) FinishButton(state.askedDone, onFinish)
-        }
+    }
+}
+
+@Composable
+private fun SignalValue(label: String, value: String, signal: SignalAvailability, showSource: Boolean, modifier: Modifier) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Eyebrow(label)
+        LessonText(value, if (value == "미측정") 56 else 80,
+            if (value == "미측정") CoachColors.Muted else CoachColors.Ink, bold = true)
+        if (showSource) StateLabel(signalLabel(signal), signal)
     }
 }
 
@@ -87,64 +143,58 @@ private fun FinishButton(emphasized: Boolean, onFinish: () -> Unit) {
     LaunchedEffect(emphasized) {
         pulse.snapTo(1f)
         if (emphasized) repeat(2) {
-            pulse.animateTo(1.04f, tween(450))
+            pulse.animateTo(1.025f, tween(450))
             pulse.animateTo(1f, tween(450))
         }
     }
-    LessonButton(stringResource(R.string.lesson_finish), onFinish,
-        Modifier.graphicsLayer { scaleX = pulse.value; scaleY = pulse.value }, primary = true)
-}
-
-@Composable
-private fun SignalHeading(title: String, signal: SignalAvailability) {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        LessonText(title, 32, CoachColors.Muted)
-        LessonText(signalLabel(signal), 32, when (signal) {
-            SignalAvailability.LIVE -> CoachColors.Accent
-            SignalAvailability.SIMULATED -> CoachColors.Simulated
-            SignalAvailability.MISSING -> CoachColors.Muted
-        })
-    }
+    PrimaryPill(stringResource(R.string.lesson_finish), onFinish,
+        Modifier.graphicsLayer { scaleX = pulse.value; scaleY = pulse.value })
 }
 
 @Composable
 private fun VehicleDiagram(state: ManeuverDisplayState, modifier: Modifier) {
     Canvas(modifier.semantics { contentDescription = state.diagramDescription() }) {
         val cx = size.width / 2
-        val top = size.height * .29f
-        val carWidth = size.width * .34f
-        val carHeight = size.height * .59f
+        val top = size.height * .20f
+        val carHeight = size.height * .73f
+        val carWidth = carHeight * .43f
         val left = cx - carWidth / 2
-        val stroke = 4.dp.toPx()
-        val rearColor = if (state.proximityAlert()) CoachColors.Warning else CoachColors.Accent
-        // Rear sensor: full width represents 250 cm; unavailable values are an unfilled outline.
-        val barWidth = size.width * .70f
-        val barTop = size.height * .07f
-        drawRoundRect(CoachColors.Outline, Offset(cx - barWidth / 2, barTop), Size(barWidth, 22.dp.toPx()), CornerRadius(11.dp.toPx()))
-        if (state.rearDistanceCm != null) drawRoundRect(rearColor, Offset(cx - barWidth / 2, barTop),
-            Size(barWidth * distanceFraction(state.rearDistanceCm), 22.dp.toPx()), CornerRadius(11.dp.toPx()))
         if (state.gear == "R") {
-            val arrowBottom = top - 12.dp.toPx()
-            val arrowTop = barTop + 45.dp.toPx()
-            drawLine(CoachColors.Accent, Offset(cx, arrowBottom), Offset(cx, arrowTop), stroke)
+            val arrowY = size.height * .105f
             drawPath(Path().apply {
-                moveTo(cx - 18.dp.toPx(), arrowTop + 20.dp.toPx()); lineTo(cx, arrowTop)
-                lineTo(cx + 18.dp.toPx(), arrowTop + 20.dp.toPx())
-            }, CoachColors.Accent, style = Stroke(stroke))
+                moveTo(cx, arrowY); lineTo(cx + 36.dp.toPx(), arrowY + 36.dp.toPx())
+                lineTo(cx + 13.dp.toPx(), arrowY + 36.dp.toPx()); lineTo(cx + 13.dp.toPx(), arrowY + 62.dp.toPx())
+                lineTo(cx - 13.dp.toPx(), arrowY + 62.dp.toPx()); lineTo(cx - 13.dp.toPx(), arrowY + 36.dp.toPx())
+                lineTo(cx - 36.dp.toPx(), arrowY + 36.dp.toPx()); close()
+            }, CoachColors.Signal)
         }
-        drawRoundRect(CoachColors.Panel, Offset(left, top), Size(carWidth, carHeight), CornerRadius(45.dp.toPx()))
-        drawRoundRect(CoachColors.Accent, Offset(left, top), Size(carWidth, carHeight), CornerRadius(45.dp.toPx()), style = Stroke(stroke))
-        drawRoundRect(CoachColors.Outline, Offset(left + carWidth * .14f, top + carHeight * .20f),
-            Size(carWidth * .72f, carHeight * .46f), CornerRadius(22.dp.toPx()))
-        drawLine(CoachColors.Muted, Offset(left + carWidth * .17f, top + carHeight * .70f),
-            Offset(left + carWidth * .83f, top + carHeight * .70f), stroke)
-        listOf(left - 8.dp.toPx(), left + carWidth + 8.dp.toPx()).forEach { x ->
-            listOf(.18f, .80f).forEach { fraction ->
+        drawRoundRect(CoachColors.Paper, Offset(left, top), Size(carWidth, carHeight), CornerRadius(carWidth * .29f))
+        // Rear glass is at the top, windshield and steerable front wheels at the bottom.
+        drawPath(Path().apply {
+            moveTo(left + carWidth * .13f, top + carHeight * .13f)
+            quadraticTo(cx, top + carHeight * .06f, left + carWidth * .87f, top + carHeight * .13f)
+            lineTo(left + carWidth * .80f, top + carHeight * .28f)
+            quadraticTo(cx, top + carHeight * .24f, left + carWidth * .20f, top + carHeight * .28f)
+            close()
+        }, CoachColors.Periwinkle)
+        drawPath(Path().apply {
+            moveTo(left + carWidth * .20f, top + carHeight * .60f)
+            quadraticTo(cx, top + carHeight * .64f, left + carWidth * .80f, top + carHeight * .60f)
+            lineTo(left + carWidth * .90f, top + carHeight * .79f)
+            quadraticTo(cx, top + carHeight * .88f, left + carWidth * .10f, top + carHeight * .79f)
+            close()
+        }, CoachColors.Periwinkle)
+        listOf(left + carWidth * .05f, left + carWidth * .90f).forEach { x ->
+            drawRoundRect(CoachColors.Periwinkle, Offset(x, top + carHeight * .32f),
+                Size(carWidth * .05f, carHeight * .25f), CornerRadius(6.dp.toPx()))
+        }
+        listOf(left - 26.dp.toPx(), left + carWidth + 26.dp.toPx()).forEach { x ->
+            listOf(.18f, .82f).forEach { fraction ->
                 val pivot = Offset(x, top + carHeight * fraction)
-                // Front faces downward; positive clockwise rotation therefore points the wheels left on screen.
-                rotate(if (fraction > .5f) wheelRotation(state.steeringDeg) else 0f, pivot) {
-                    drawRoundRect(CoachColors.Foreground, Offset(x - 14.dp.toPx(), pivot.y - 36.dp.toPx()),
-                        Size(28.dp.toPx(), 72.dp.toPx()), CornerRadius(8.dp.toPx()))
+                // The nose faces down. A right steering input draws the front wheels as /.
+                rotate(if (fraction > .5f) -wheelRotation(state.steeringDeg) else 0f, pivot) {
+                    drawRoundRect(CoachColors.Periwinkle, Offset(x - 17.dp.toPx(), pivot.y - 59.dp.toPx()),
+                        Size(34.dp.toPx(), 118.dp.toPx()), CornerRadius(8.dp.toPx()))
                 }
             }
         }
