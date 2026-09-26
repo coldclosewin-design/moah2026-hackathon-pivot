@@ -90,7 +90,7 @@ adb logcat -s "MOAH/VehiclePortFactory:*" "MOAH/LessonStateMachine:*" "MOAH/Real
 
 Real 모드에서 달라지는 동작:
 
-- **오른쪽 위 "시연" 버튼(정차/출발/문 열기/문 닫기)이 사라진다.** Fake 전용이다(`JourneyViewModel.demo == null`). 속도와 도어는 Signal Simulator / 3D 에뮬레이터로 조작한다. Fake 로 폴백된 경우에는 버튼이 그대로 보인다 — **버튼이 보이면 Real 이 아니다.**
+- **시연 패널("시연" 토글 · 잘한/못한 주차 · 정차/출발 · 문 열기/닫기)은 기본 빌드에서 사내에서도 보인다** — `USE_FAKE_VSS=false` 면 `HybridVehiclePort(real, fake)` 가 되어 **실물에서 안 오는 키만 Fake 시나리오가 채우기** 때문이다(`LessonViewModel.demo` 는 Hybrid 에서도 non-null). 실물이 주는 키(속도·도어가 오면)에는 패널의 정차·도어 버튼이 **먹지 않는다** — 실제로 세우고 열어야 한다. 순수 Real 로 보려면 `-PfillMissing=false` 로 빌드(그때는 패널이 사라진다). 어느 쪽이든 리포트 배지 `실신호 N` 이 진실이다: logcat `MOAH/VehiclePortFactory` 에 `Hybrid` 또는 `RealVehiclePort ready` 줄.
 - **남은 거리**는 기본값(`USE_FAKE_LOCATION=true`)에서 *실제 `Vehicle.Speed` 를 적분 × 배율 10* 으로 줄어든다. 즉 Signal Simulator 에서 속도를 60 으로 올리면 첫 구간(10.5 km)이 약 63초, 0 으로 내리면 진행과 주문 상태가 멈춘다. 시연에 이 방식이 가장 다루기 쉽다. GPS 는 사내 에뮬에 제공자가 있는지 확인한 뒤에만 `-PfakeLocation=false`.
 - 단계 전환 조건: 잠금 `Speed > 5`, 공개 `남은 거리 ≤ 500 m`, 도착 `Speed < 1` **그리고** 운전석 도어 열림. 다음 구간은 도착 화면의 "다음 장소로" 버튼으로 시작한다(신호로 자동 전환하지 않음).
 

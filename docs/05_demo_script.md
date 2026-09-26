@@ -42,7 +42,8 @@ bash tools/emu_flow.sh /tmp/flow       # 끝에 "result: PASS", "clashes: 0" 이
 
 | 증상 | 대응 |
 |---|---|
-| 시연 패널이 없다 | Real 포트다(사내). Signal Simulator 로 `Vehicle.Speed`·`SelectedGear`·`SteeringWheel.Angle`·도어를 준다. 조향각·기어가 없으면 힌트가 A층(급정지)만 나온다 — 그대로 진행하고 배지의 "미측정"을 보여준다 |
+| 사내에서 패널은 보이는데 정차·문 열기가 안 먹는다 | 정상 — Hybrid 에서 실물이 주는 키(속도·도어)는 실물이 이긴다. Signal Simulator 로 속도 0·도어 열림을 준다. 조향각·기어가 실물에 없으면 시나리오가 채우고 배지가 "시뮬레이션 N"으로 말한다 |
+| 시연 패널이 아예 없다 | `-PfillMissing=false` 순수 Real 빌드다. Signal Simulator 로 `Vehicle.Speed`·`SelectedGear`·`SteeringWheel.Angle`·도어를 준다. 조향각·기어가 없으면 힌트가 A층(급정지)만 나온다 — 그대로 진행하고 배지의 "미측정"을 보여준다 |
 | 힌트 음성이 안 나온다 | 자막은 나온다(엔진 없음). 자막을 읽어 준다. logcat `MOAH/AndroidTtsPort` |
 | "다 됐어요"가 안 보인다 | 속도가 1 km/h 미만이어야 한다. 패널 **정차** |
 | 리포트가 안 열린다 | 정차 + 운전석 도어 열림 둘 다. **정차** → **문 열기**. 또는 `Done` 의 **오늘은 여기까지** |

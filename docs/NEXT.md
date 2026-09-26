@@ -83,6 +83,7 @@
 - **역할**: Claude = 인프라·포트·채점·상태기계·데이터 구조·문서·리뷰·머지. Codex = 화면·테스트·시드 문구. 화면은 `docs/handoffs/YYYY-MM-DD_codex_<topic>.md` 오더로(급한 한 줄은 `[cross]`).
 - **흐름**: `claude/<topic>` 브랜치 → PR → 사용자가 "N 머지해" → `gh pr merge N --squash`. **머지 승인 없이 다음 작업을 쌓지 않는다.** (부트스트랩·기획 문서는 Day 0~1 이라 main 직접 커밋 — 이후는 PR)
 - **Codex PR 리뷰 루틴**: 직접 빌드 → 에뮬 캡처 → **눈으로 본다** → `04_agent_workflow.md` 체크리스트 → PR 코멘트.
+- **동시 작업 규칙 (9/26 사고 뒤)**: Codex 가 본 트리(`C:\Project\17_hackathon-pivot`)에서 작업 중이면 Claude 는 **거기서 `git checkout` 을 하지 않는다** — Codex 의 미커밋 파일이 Claude 브랜치로 넘어온다. Claude 는 `git worktree add .worktrees/<topic> <브랜치>` 로 별도 트리에서 빌드·커밋·PR 한다(`.worktrees/` 는 `.git/info/exclude`). 본 트리의 브랜치는 Codex 것이 유지돼야 한다. 반대로 Claude 만 일할 때는 본 트리를 쓴다.
 - **에뮬**: `"$LOCALAPPDATA/Android/Sdk/emulator/emulator.exe" -avd CSTDe_API_34 -no-snapshot-load` 백그라운드. 먼저 `adb get-state`. 앱은 user 10. 함정은 `tools/README.md`. 스크린샷은 `screencap -d 4619827259835644672`, 탭은 그냥 `input tap`(`-d` 는 실패).
 - **셸 함정**: 큰 heredoc + 한국어 → Bash 파싱 실패(9/25 재현). 긴 파일은 Write 도구, 커밋 메시지는 `-m` 여러 개 또는 `-F 파일`. **Gradle 은 PowerShell 로**(`.\gradlew.bat …`) — Git Bash 에서 `cmd //c gradlew.bat` 은 이 환경에서 실행되지 않는다(9/26). 작은 치환은 `sed -i`, Kotlin 백틱 테스트명은 heredoc 에 넣지 않는다.
 - **사용자 선호**: 한국어. 선택지가 있으면 추천과 함께. 검증 못 한 것은 그렇다고. 남은 일수를 이유로 범위를 깎지 않는다 — 미루는 이유는 기술적 불확실성만. **코드에 이름이 박히기 전에 기획을 넓히는 타이밍을 중시한다**(9/26).
