@@ -20,10 +20,12 @@
 - [ ] 내가 사용한 `VssConstants` 경로가 실제 존재 (오타 시 조용히 무시됨) — pageId 1323873443 대조
 - [ ] 신호 흐름 확인: `[앱] --setVSS--> [Databroker] <--WS--> [Signal Simulator] --TCP--> [3D Emulator]` (`adb forward 8090`)
 - [ ] 도어 예제: `Vehicle.Cabin.Door.Row1.DriverSide.IsOpen` SET/GET 동작
-- [ ] 실제 값 포맷 (예: 속도 `"120.5"` vs `"120"`), 업데이트 주기/스레드 타이밍이 Fake와 다르지 않은지
+- [ ] **B층 키 10개**: 회차 시작 로그 `attempt 1 start … missing=[…]` 를 적어 온다. 든 키마다 pageId 1323873443 에서 비슷한 이름을 찾아 `VssConstants.java` 문자열만 교정(상수명 유지). 기어 인코딩·조향 부호가 다르면 `VssGear.kt`. 리포트 배지 `실신호 N` 숫자 메모
+- [ ] Signal Simulator 로 조향각·기어를 넣어 도식 칩이 "실신호" 로 바뀌는지, 없는 신호는 패널 시나리오가 채우는지(Hybrid)
+- [ ] 실제 값 포맷 (예: 속도 `"3.0"` vs `"3"`, 정차 시 `0`), 업데이트 주기/스레드 타이밍이 Fake와 다르지 않은지
 - [ ] getVSS/setVSS 호출부가 백그라운드 스레드인지 (ANR 점검)
 - [ ] 구독 해제(`unsubscribeVSS`)가 onPause/onDestroy에서 호출되는지 (메모리 누수)
-- [ ] `copilot_config.json` push (Cloud AI 사용 시)
+- [ ] Cloud Copilot 인증 방식·엔드포인트 확인 → `CoachTransport` 구현체 하나 → `App.kt` 의 `transport = null` 교체 (`copilot_config.json` push 가 필요하면 그때)
 - [ ] APK 빌드 → MarketUploader 제출, 소스 Bitbucket push, 시연 영상 녹화
 
 ## B. 외부 개발 중 가정 로그 (append-only)
@@ -91,3 +93,4 @@
 - [2026-09-18] [Claude→Codex] d-road 의사-3D 지도(주행·공개) + oneword 스킨을 정식 스타일로. 데이터는 `Driving.map`/`Reveal.map`(`RouteView`, 누설 방지 처리됨). 핸드오프 `docs/handoffs/2026-09-18_codex_d_road_map_skin.md`. (**완료** PR #17)
 - [2026-09-19] [Claude→Codex] 도착 화면 "가는 길"(층 분해도 + 경로 애니메이션 + 단계 목록, `Arrival.indoor`) + PR #17 리뷰의 다듬기 4건. 핸드오프 `docs/handoffs/2026-09-19_codex_indoor_route.md`. (**완료** PR #19 — 리뷰에서 산책 카드 가림·분해도 크기 2건 수정 후 머지)
 - [2026-09-21] [Claude→Codex] 최종 도착 시간표(`ArrivalTiming`)를 확정된 음성 kob 의 실측에 맞추기 — 값과 시각 리터럴이 박힌 테스트만. 핸드오프 `docs/handoffs/2026-09-21_codex_arrival_timing_kob.md` (**완료** PR #42)
+- [2026-09-26] [Claude→Codex] **준비 중 과제·미지원 모드 표시**: `Task.status`(READY/PLANNED, `isReady`)와 `Task.supports(mode)` 가 모델에 추가됨. 상태기계는 PLANNED 과제·미지원 모드의 `begin` 을 거부하고 음성으로 알린다. Setup 화면에서 PLANNED 과제는 회색 + "준비 중"(`TaskStatus.label`) 표시, 선택한 과제가 지원하지 않는 모드는 숨기거나 비활성으로. 지금 시드에서 READY 는 후면 직각 주차 하나. (**대기** — UI 재설계 라운드 2 에 포함하거나 별도 소 PR)

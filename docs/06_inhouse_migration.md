@@ -91,18 +91,22 @@ adb logcat -s "MOAH/VehiclePortFactory:*" "MOAH/LessonStateMachine:*" "MOAH/Real
 Real 모드에서 달라지는 동작:
 
 - **시연 패널("시연" 토글 · 잘한/못한 주차 · 정차/출발 · 문 열기/닫기)은 기본 빌드에서 사내에서도 보인다** — `USE_FAKE_VSS=false` 면 `HybridVehiclePort(real, fake)` 가 되어 **실물에서 안 오는 키만 Fake 시나리오가 채우기** 때문이다(`LessonViewModel.demo` 는 Hybrid 에서도 non-null). 실물이 주는 키(속도·도어가 오면)에는 패널의 정차·도어 버튼이 **먹지 않는다** — 실제로 세우고 열어야 한다. 순수 Real 로 보려면 `-PfillMissing=false` 로 빌드(그때는 패널이 사라진다). 어느 쪽이든 리포트 배지 `실신호 N` 이 진실이다: logcat `MOAH/VehiclePortFactory` 에 `Hybrid` 또는 `RealVehiclePort ready` 줄.
-- **남은 거리**는 기본값(`USE_FAKE_LOCATION=true`)에서 *실제 `Vehicle.Speed` 를 적분 × 배율 10* 으로 줄어든다. 즉 Signal Simulator 에서 속도를 60 으로 올리면 첫 구간(10.5 km)이 약 63초, 0 으로 내리면 진행과 주문 상태가 멈춘다. 시연에 이 방식이 가장 다루기 쉽다. GPS 는 사내 에뮬에 제공자가 있는지 확인한 뒤에만 `-PfakeLocation=false`.
-- 단계 전환 조건: 잠금 `Speed > 5`, 공개 `남은 거리 ≤ 500 m`, 도착 `Speed < 1` **그리고** 운전석 도어 열림. 다음 구간은 도착 화면의 "다음 장소로" 버튼으로 시작한다(신호로 자동 전환하지 않음).
+- 회차 시작 로그 `attempt N start (MODE) missing=[…]` 의 **`missing` 목록이 사내 첫날의 핵심 관찰값**이다 — 실물에서 값이 오지 않은 키. 비어 있으면 10개 전부 온 것(Hybrid 라 Fake 가 채운 키도 "온 것"으로 잡힌다 → 실신호 여부는 리포트 배지 `실신호 N` 으로 본다).
+- 단계 전환 조건: 잠금 `Speed > 5`, 리포트 `Speed < 1` **그리고** 운전석 도어 열림. 회차 종료는 "다 됐어요" 버튼(기어 P + 정차를 보면 앱이 먼저 "다 되셨나요?" 를 묻는다). 위치·GPS 는 주차 과제에 쓰지 않는다.
+- 시작 가능한 과제는 **후면 직각 주차** 하나(`Task.status == READY`). 다른 과제·지식 테스트 모드는 상태기계가 거부하고 음성으로 알려 준다 — 사내에서 잘못 눌러도 주차 채점기가 돌지 않는다.
 
 ## 5. 신호 확인 (INTEGRATION.md A절과 같이 본다)
 
-1. Signal Simulator 에서 `Vehicle.Speed` 를 바꾼다 → 주행 화면의 큰 숫자가 따라오는지. **안 따라오면** 경로 오타(조용히 무시됨) 또는 구독 실패 → `MOAH/RealVehiclePort` 로그.
-2. 값 포맷을 로그로 확인: 속도가 `"60.0"` 인지 `"60"` 인지, 정차 시 정확히 `0` 인지(노이즈가 있으면 `STOP_SPEED_KMH = 1` 을 못 넘는다), 도어가 `"true"/"false"` 소문자인지. 파서는 `VssValues.kt` 한 곳.
-3. 도어 `Vehicle.Cabin.Door.Row1.DriverSide.IsOpen` 을 3D 에뮬에서 연다 → 공개 화면에서 도착 화면으로 넘어가는지.
-4. 콜백 스레드·ANR: 기분 선택 → 시작 시 화면이 멎지 않는지.
-5. 앱을 나갔다 들어와도 값이 계속 오는지, 로그에 구독 중복이 없는지.
+1. Signal Simulator 에서 `Vehicle.Speed` 를 바꾼다 → `Maneuver` 우상단 속도 숫자가 따라오는지, 5 를 넘기면 버튼·패널이 사라지는지. **안 따라오면** 경로 오타(조용히 무시됨) 또는 구독 실패 → `MOAH/RealVehiclePort` 로그.
+2. 값 포맷을 로그로 확인: 속도가 `"3.0"` 인지 `"3"` 인지, 정차 시 정확히 `0` 인지(노이즈가 있으면 `STOP_SPEED_KMH = 1` 을 못 넘어 "다 됐어요" 가 안 뜬다), 도어가 `"true"/"false"` 소문자인지. 파서는 `VssValues.kt`·`VssGear.kt` 두 곳.
+3. **B층 키 10개 대조** (`docs/topics/01_driving_coach.md` §5 표 ↔ pageId 1323873443): 회차 시작 로그 `missing=[…]` 에 든 키는 실물 이름이 다르다. 비슷한 이름을 찾아 `VssConstants.java` 의 **문자열만** 고친다(상수명은 그대로). 특히 `SelectedGear`(P=126/D=127 인코딩이 다르면 `VssGear.kt` 파서), `SteeringWheel.Angle` 부호(양수=왼쪽 가정), `ObstacleDetection.Rear.Distance`(비표준 — 없을 가능성 가장 높음 → `IsWarning` 만으로 근접 경고).
+4. Signal Simulator 에 조향각·기어가 있으면 넣어 본다 → 도식의 바퀴·기어 글자가 따라오고 칩이 "시뮬" → **"실신호"** 로 바뀌는지. 리포트 배지의 `실신호 N` 이 올라간 화면을 **메모로만** 적어 온다(캡처 반출 금지).
+5. 도어 `Vehicle.Cabin.Door.Row1.DriverSide.IsOpen` 을 3D 에뮬에서 연다(정차 상태에서) → `Done` 또는 `Maneuver` 에서 `Report` 로 넘어가는지. 주행 중 열면 무해해야 한다.
+6. 콜백 스레드·ANR: **시작** 을 눌러 Briefing → Maneuver 로 갈 때 화면이 멎지 않는지.
+7. 앱을 나갔다 들어와도 값이 계속 오는지, 로그에 구독 중복이 없는지.
+8. TTS: `MOAH/AndroidTtsPort` 의 `ko voices`·`voice=` 줄. kob 가 없으면 로컬 최고 품질로 내려간다 — 목소리가 바뀌면 대본 시각 재측정.
 
-주제용 추가 신호(기어/좌석/연료/외기온)는 **없어도 시연이 성립**한다. pageId 1323873443 에서 경로와 값 의미만 적어 온다([topics/01_mood_drive.md](topics/01_mood_drive.md) "사내에서 확인할 것").
+**시나리오 재생기는 사내에서도 쓸 수 있다**(Hybrid) — Signal Simulator 에 없는 신호는 패널의 "못한 주차"가 채운다. 단 실물이 주는 속도·도어는 실물이 이기므로, 시나리오와 실물 속도가 싸우면 화면이 이상해진다 → 실물 속도를 0 에 두고 재생하거나, 속도까지 실물로 조작하고 시나리오는 끈다.
 
 ## 6. 안 될 때의 결정표
 

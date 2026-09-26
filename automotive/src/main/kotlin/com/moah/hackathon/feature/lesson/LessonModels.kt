@@ -15,6 +15,12 @@ enum class TaskType { CHECKLIST, DRIVING, PARKING, KNOWLEDGE }
 
 enum class Difficulty(val label: String) { EASY("하"), MEDIUM("중"), HARD("상") }
 
+/**
+ * 과제가 실제로 돌아가는가. 카탈로그에는 계획된 과제도 보여 주되(제품의 폭), **시작은 [READY] 만** 된다 —
+ * 채점기·가이드가 없는 과제를 주차 채점기로 돌리는 사고를 막고, 화면은 "준비 중"으로 정직하게 표시한다.
+ */
+enum class TaskStatus(val label: String) { READY("가능"), PLANNED("준비 중") }
+
 data class Task(
     val id: String,
     val title: String,
@@ -26,7 +32,16 @@ data class Task(
     /** B층 채점·가이드 확인에 쓰는 신호. 없어도 과제는 진행된다(미측정). */
     val requiredSignals: Set<String>,
     val requiresDriving: Boolean,
-)
+    val status: TaskStatus = TaskStatus.PLANNED,
+) {
+    val isReady: Boolean get() = status == TaskStatus.READY
+
+    /** 이 과제로 그 모드를 시작할 수 있나. 지식 테스트는 지식 과제에만, 나머지 셋은 주행·주차 과제에만. */
+    fun supports(mode: LessonMode): Boolean = when (mode) {
+        LessonMode.QUIZ -> type == TaskType.KNOWLEDGE
+        else -> type != TaskType.KNOWLEDGE
+    }
+}
 
 /** 손을 떼 가는 순서 (§3.2). */
 enum class LessonMode(val label: String) { GUIDE("가이드"), HINT("힌트"), EVALUATE("평가"), QUIZ("지식 테스트") }

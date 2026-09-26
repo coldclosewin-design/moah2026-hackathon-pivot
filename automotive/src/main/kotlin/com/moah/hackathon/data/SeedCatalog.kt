@@ -9,6 +9,7 @@ import com.moah.hackathon.feature.lesson.RemarkTemplate
 import com.moah.hackathon.feature.lesson.ReservationCard
 import com.moah.hackathon.feature.lesson.ScoreBand
 import com.moah.hackathon.feature.lesson.Task
+import com.moah.hackathon.feature.lesson.TaskStatus
 import com.moah.hackathon.feature.lesson.TaskType
 import com.moah.hackathon.vehicle.Gear
 import mobis.vss.VssConstants as V
@@ -19,7 +20,7 @@ import mobis.vss.VssConstants as V
  */
 object SeedCatalog {
 
-    // ───────── 과제 카탈로그 (§3.1) ─────────
+    // ───────── 과제 카탈로그 (§3.1) — 시작 가능한 것은 status = READY 만. 나머지는 제품의 폭을 보여 주는 계획 ─────────
 
     const val TASK_PARKING_REAR = "parking-rear-perpendicular"
 
@@ -35,7 +36,8 @@ object SeedCatalog {
         Task("road-course", "일반 도로 코스", TaskType.DRIVING, Difficulty.MEDIUM, "구간마다 기대 행동이 있는 실생활 경로.",
             listOf("속도 유지", "급조작", "방향지시등"), setOf(V.VEHICLE_SPEED), requiresDriving = true),
         Task(TASK_PARKING_REAR, "후면 직각 주차", TaskType.PARKING, Difficulty.HARD, "핸들 끝까지 → 후진 → 45°에서 중립 → 곧게.",
-            listOf("핸들 방향", "기어 전환", "뒤 거리"), setOf(V.STEERING_WHEEL_ANGLE, V.TRANSMISSION_SELECTED_GEAR, V.OBSTACLE_REAR_DISTANCE_CM), requiresDriving = true),
+            listOf("핸들 방향", "기어 전환", "뒤 거리"), setOf(V.STEERING_WHEEL_ANGLE, V.TRANSMISSION_SELECTED_GEAR, V.OBSTACLE_REAR_DISTANCE_CM), requiresDriving = true,
+            status = TaskStatus.READY),   // 채점기·가이드·시나리오가 있는 유일한 과제. 나머지는 카탈로그(계획)만
         Task("parking-parallel", "평행 주차", TaskType.PARKING, Difficulty.HARD, "길가 한 칸에 뒤로 들어가기.",
             listOf("핸들 방향", "기어 전환", "뒤 거리"), setOf(V.STEERING_WHEEL_ANGLE, V.TRANSMISSION_SELECTED_GEAR, V.OBSTACLE_REAR_DISTANCE_CM), requiresDriving = true),
         Task("roundabout", "회전교차로", TaskType.DRIVING, Difficulty.HARD, "우선순위 확인 → 진입 → 지시등으로 진출.",

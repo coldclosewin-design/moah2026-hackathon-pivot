@@ -2,7 +2,7 @@
 
 새 Claude Code 세션이 이 파일 하나로 이어받을 수 있게 쓴 인계 문서. **작업을 마칠 때마다 이 파일을 갱신한다**(끝난 것은 지우고, 새로 생긴 것은 추가). 과거의 경위는 `docs/journal/`, 규칙은 `AGENTS.md`·`CLAUDE.md`, **제품 정의는 `docs/topics/01_driving_coach.md` v2**.
 
-마지막 갱신: 2026-09-26 · Step 3·4·5·7 머지(PR #1~#5) — **화면까지 붙은 앱이 main** · 열린 Codex 오더 없음 · Claude 후속 PR #6(emu_flow 검증 강화·Fake 정차 시작·대본 실측) · 마감 2026-10-07
+마지막 갱신: 2026-09-26 · PR #1~#7 머지 — **화면까지 붙은 앱 + 발표·영상 문서 초안이 main** · PR #8(가드·디자인 브리프·런북) 대기 · **Codex 별도 세션: UI 재설계 진행 중(`docs/design/02_design_brief.md`)** · 마감 2026-10-07
 
 ## 1. 지금 되는 것 (한 문단)
 
@@ -70,12 +70,23 @@
 | 8d | 사내: 이관 → A안 녹화 → Bitbucket 소스 → MarketUploader APK | ⬜ 사용자 |
 | 8e | 슬라이드를 사내 양식으로 옮기기, 2번 장 개인 계기 | ⬜ 사용자 |
 
+### Step 9 — UI 재설계 (Codex 별도 세션 · 사용자 레퍼런스) — 🟡 브리프 뼈대 완료, 레퍼런스 대기
+| # | 일 | 상태 |
+|---|---|---|
+| 9a | `docs/design/02_design_brief.md` — 라운드 0~3, 채울 것 9, **불변 규칙 12**(라벨 13개·잠금·점수 비노출·4줄 자막·배지·시스템 글꼴·DesignScale·준비 중 회색) + 검사 수단, 자유로운 것. `references/` | ✅ 뼈대(PR #8). ⬜ 사용자 답·레퍼런스 |
+| 9b | 라운드 1 발주서 — 핵심 2화면(`Maneuver`·`Report`) 미리보기, 드래프트 PR + `lesson_shots.sh` 캡처 | ⬜ 레퍼런스 뒤 Claude 가 쓴다 |
+| 9c | 라운드 2 — 5화면 + 패널 전체, 준비 중 과제 회색 처리(C절 요청) 포함, `emu_flow.sh` PASS | ⬜ Codex |
+| 9d | 라운드 3 — B안 영상 재녹화, 덱·컷 목록 스크린샷 교체 | ⬜ 사용자 |
+
+**순서**: 디자인(9) → 녹화(8c) → 사내(8d). 디자인 뒤에 찍어야 두 번 찍지 않는다. Codex 는 본 트리 `codex/ui-design`, Claude 는 `.worktrees/` — 동시 작업 규칙.
+
 ### 사용자 결정·행동이 필요한 것
 | # | 일 | 상태 |
 |---|---|---|
 | U1 | 제품명 | 가칭 DriveCoach. `res/values/strings.xml` 한 곳 |
 | U2 | 사내 출근 일정 | 제출물 3종이 사내 전용. 방침: 외부 개발 후 별도 절차. 가능하면 빈 껍데기로 clone→빌드→설치 경로 먼저 |
 | U3 | 주차장·코스 시드 좌표 | 없으면 서초 기준 임의, `INTEGRATION.md` 가정 표기 |
+| U4 | **디자인 브리프 답 9개 + 레퍼런스** | `docs/design/02_design_brief.md` "채울 것", `references/`. 이게 와야 라운드 1 발주서를 쓴다 |
 
 ### 뒤로 미루는 항목 (기술적 불확실성)
 | 항목 | 이유 |
@@ -115,6 +126,7 @@
 | 시연 대본 | `docs/05_demo_script.md` — 실측 103 s 반영 |
 | 발표·영상 | `docs/presentation/01_deck_outline.md`(12장·대본·예상 질문), `02_video_shotlist.md`(컷 13·녹화 절차 A/B) |
 | 화면 캡처 | `docs/screenshots/lesson/` — Codex 계측이 뽑은 8장 + 실제 2회차 리포트 |
+| 디자인 | `docs/design/02_design_brief.md`(불변 규칙·채울 것), `references/`, `01_ui_concept_candidates.md`(16번 후보 20) |
 | 가정 원장 | `docs/INTEGRATION.md` B절 |
 
 ## 5. 16번에서 되가져올 수 있는 것 (읽기 전용 참조)

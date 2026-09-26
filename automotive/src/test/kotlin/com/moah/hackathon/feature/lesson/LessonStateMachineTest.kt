@@ -138,6 +138,26 @@ class LessonStateMachineTest {
     }
 
     @Test
+    fun `planned tasks and unsupported modes are refused and the session stays in Setup`() = runTest {
+        val h = harness()
+        h.machine.begin("road-course", LessonMode.HINT)          // 카탈로그에만 있는 과제
+        advanceUntilIdle()
+        assertTrue(h.machine.phase.value is LessonPhase.Setup)
+        assertTrue(h.tts.spoken.last(), h.tts.spoken.last().contains("준비 중"))
+        assertTrue(h.tts.spoken.last().contains("후면 직각 주차"))
+
+        h.machine.begin(SeedCatalog.TASK_PARKING_REAR, LessonMode.QUIZ)  // 주차에 지식 테스트
+        advanceUntilIdle()
+        assertTrue(h.machine.phase.value is LessonPhase.Setup)
+        assertTrue(h.tts.spoken.last().contains("지식 테스트 모드로는"))
+
+        h.machine.begin(SeedCatalog.TASK_PARKING_REAR, LessonMode.EVALUATE)
+        advanceUntilIdle()
+        assertTrue(h.machine.phase.value is LessonPhase.Maneuver)
+        h.scope.cancel()
+    }
+
+    @Test
     fun `door opening while moving is harmless`() = runTest {
         val h = harness()
         h.machine.begin(SeedCatalog.TASK_PARKING_REAR, LessonMode.EVALUATE)
