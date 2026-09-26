@@ -6,6 +6,7 @@ import com.moah.hackathon.feature.lesson.LessonMode
 import com.moah.hackathon.feature.lesson.Profile
 import com.moah.hackathon.feature.lesson.ScoreBand
 import com.moah.hackathon.feature.lesson.Task
+import com.moah.hackathon.feature.lesson.TaskType
 import com.moah.hackathon.scoring.ParkingDelta
 import com.moah.hackathon.scoring.ParkingScore
 import kotlinx.coroutines.withTimeoutOrNull
@@ -30,11 +31,11 @@ class CloudCoachPort(
     private val timeoutMillis: Long = 4_000L,
 ) : CoachPort {
 
-    override suspend fun remark(score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int): String {
-        val safe = fallback.remark(score, delta, profile, attempt)
-        val (system, user) = CoachPrompts.remark(score, delta, profile, attempt, seedLine = safe.substringAfter(". ", ""))
+    override suspend fun remark(task: Task, score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int): String {
+        val safe = fallback.remark(task, score, delta, profile, attempt)
+        val (system, user) = CoachPrompts.remark(task, score, delta, profile, attempt, seedLine = safe.substringAfter(". ", ""))
         val cloud = ask(system, user, maxChars = CoachPrompts.REMARK_MAX_CHARS) ?: return safe
-        return "${CoachPrompts.attemptHead(score)} $cloud"
+        return "${attemptHead(task, score)} $cloud"
     }
 
     override suspend fun summarize(task: Task, mode: LessonMode, attempts: List<AttemptRecord>, profile: Profile): String {
@@ -73,18 +74,23 @@ object CoachPrompts {
 규칙: 한국어 존댓말, 한 문장, 위트 있게 북돋우되 사실만. 점수·등수·비교 서열을 말하지 않습니다. 금지어: 하위, 실패, 못했, 최악, 낙제.
 운전자의 프로필(장롱면허 햇수, 목표, 무서운 것)과 이번 회차의 과정 지표만 근거로 씁니다. 차가 칸에 반듯이 들어갔는지는 모릅니다 — 말하지 않습니다."""
 
-    fun attemptHead(score: ParkingScore): String =
-        "${score.metrics.motion.movingSegments}번 만에, ${score.metrics.motion.totalMillis / 1000}초."
-
-    fun remark(score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int, seedLine: String): Pair<String, String> {
+    fun remark(task: Task, score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int, seedLine: String): Pair<String, String> {
         val m = score.metrics
         val user = buildString {
             appendLine("운전자: ${profile.name}, 장롱면허 ${profile.rustyYears ?: "?"}년, 목표 ${profile.statement.goal ?: "-"}, 무서운 것 ${profile.statement.fear ?: "-"}.")
-            appendLine("과제: 후면 직각 주차, ${attempt}회차. 숙련 구간 ${ScoreBand.of(score.skill)}.")
-            appendLine("과정: 이동 ${m.motion.movingSegments}회, ${m.motion.totalMillis / 1000}초, 조향 되돌림 ${m.steering?.reversals ?: "미측정"}회, 기어 전환 ${m.gear?.reverseDriveShifts ?: "미측정"}회, 급조작 ${m.harshEvents.size}회, 뒤 최소 ${m.proximity?.minDistanceCm?.let { "${it.toInt()} cm" } ?: "미측정"}.")
-            delta?.let { appendLine("지난번 대비: 이동 ${signed(it.segments)}회, ${signed(it.seconds.toInt())}초, 조향 ${it.reversals?.let(::signed) ?: "-"}회.") }
+            appendLine("과제: ${task.title}, ${attempt}회차. 숙련 구간 ${ScoreBand.of(score.skill)}.")
+            if (task.type == TaskType.CHECKLIST) {
+                val pd = m.preDrive
+                fun at(ms: Long?) = ms?.let { "${it / 1000}초" } ?: "안 함/미측정"
+                val order = when (pd.beltBeforeIgnition) { true -> "벨트 먼저(맞음)"; false -> "시동 먼저(순서 바뀜)"; null -> "모름" }
+                appendLine("과정: 벨트 ${at(pd.beltOnMillis)}, 시동 ${at(pd.ignitionOnMillis)}, 순서 $order, 점검 중 움직임 ${m.motion.movingSegments}회, 끝 기어 ${if (m.gear?.endedInPark == true) "P" else m.gear?.let { "P 아님" } ?: "미측정"}.")
+                delta?.let { appendLine("지난번 대비: ${signed(it.seconds.toInt())}초.") }
+            } else {
+                appendLine("과정: 이동 ${m.motion.movingSegments}회, ${m.motion.totalMillis / 1000}초, 조향 되돌림 ${m.steering?.reversals ?: "미측정"}회, 기어 전환 ${m.gear?.reverseDriveShifts ?: "미측정"}회, 급조작 ${m.harshEvents.size}회, 뒤 최소 ${m.proximity?.minDistanceCm?.let { "${it.toInt()} cm" } ?: "미측정"}.")
+                delta?.let { appendLine("지난번 대비: 이동 ${signed(it.segments)}회, ${signed(it.seconds.toInt())}초, 조향 ${it.reversals?.let(::signed) ?: "-"}회.") }
+            }
             appendLine("참고 문장(이 톤으로, 그대로 쓰지 말고 변주): $seedLine")
-            append("한 문장, ${REMARK_MAX_CHARS}자 이내로 회차 멘트를 써 주세요. 숫자 머리말(\"N번 만에, N초.\")은 앱이 붙이므로 쓰지 마세요.")
+            append("한 문장, ${REMARK_MAX_CHARS}자 이내로 회차 멘트를 써 주세요. 숫자 머리말(\"${attemptHead(task, score)}\")은 앱이 붙이므로 쓰지 마세요.")
         }
         return SYSTEM to user
     }

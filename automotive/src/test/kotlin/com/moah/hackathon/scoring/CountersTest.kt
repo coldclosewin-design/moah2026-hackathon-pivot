@@ -75,6 +75,18 @@ class CountersTest {
     }
 
     @Test
+    fun `on-millis is the last rising edge - a default read then a scenario OFF-ON lands on the scenario time`() {
+        assertEquals(2000L, PreDriveChecklist.onMillis(s(0L to true, 100L to false, 2000L to true)))
+        assertEquals(0L, PreDriveChecklist.onMillis(s(0L to true, 500L to true)))
+        assertNull(PreDriveChecklist.onMillis(s(0L to false)))
+        assertNull(PreDriveChecklist.onMillis(s(0L to true, 3000L to false)))   // 끝에 풀었으면 채운 것이 아니다
+        assertNull(PreDriveChecklist.onMillis(emptyList()))
+        val order = PreDriveChecklist.summarize(s(0L to false, 9000L to true), s(0L to false, 2000L to true), firstMoveMillis = null)
+        assertEquals(false, order.beltBeforeIgnition)
+        assertNull(PreDriveChecklist.summarize(s(0L to false), s(0L to false, 2000L to true), firstMoveMillis = null).beltBeforeIgnition)
+    }
+
+    @Test
     fun `no belt signal is unmeasured - before moving belted is true and unbelted is not yet a verdict`() {
         assertNull(PreDriveChecklist.summarize(emptyList(), emptyList(), 1000L).beltBeforeFirstMove)
         assertEquals(true, PreDriveChecklist.summarize(s(0L to false, 3L to true), emptyList(), firstMoveMillis = null).beltBeforeFirstMove)

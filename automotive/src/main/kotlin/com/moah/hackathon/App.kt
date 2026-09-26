@@ -2,11 +2,13 @@ package com.moah.hackathon
 
 import android.app.Application
 import android.content.Context
+import com.moah.hackathon.data.ChecklistScenarios
 import com.moah.hackathon.data.ParkingScenarios
 import com.moah.hackathon.data.SeedCatalog
 import com.moah.hackathon.feature.lesson.LessonStateMachine
 import com.moah.hackathon.feature.lesson.ProgressStore
 import com.moah.hackathon.feature.lesson.RemarkPool
+import com.moah.hackathon.feature.lesson.Task
 import com.moah.hackathon.ports.AndroidTtsPort
 import com.moah.hackathon.ports.CloudCoachPort
 import com.moah.hackathon.ports.CoachPort
@@ -52,8 +54,9 @@ class AppContainer(context: Context) {
      * 확인되면 `CoachTransport` 구현체 하나를 여기 넘기면 끝.
      */
     val coach: CoachPort = CloudCoachPort(fallback = FakeCoachPort(RemarkPool(SeedCatalog.remarks)), transport = null)
-    /** 시연 조작 패널이 고르는 Fake 시나리오. Real 에서는 쓰이지 않는다. */
-    val scenarios: List<Scenario> = ParkingScenarios.all
+    /** 시연 조작 패널이 고르는 Fake 시나리오(전체). 진행 중인 과제가 정해지면 [scenariosFor] 로 좁힌다. Real 에서는 쓰이지 않는다. */
+    val scenarios: List<Scenario> = ParkingScenarios.all + ChecklistScenarios.all
+    val scenariosFor: (Task) -> List<Scenario> = SeedCatalog::scenariosFor
 
     val lesson = LessonStateMachine(
         vehicle = vehicle, tts = tts, coach = coach, registry = registry, store = store,

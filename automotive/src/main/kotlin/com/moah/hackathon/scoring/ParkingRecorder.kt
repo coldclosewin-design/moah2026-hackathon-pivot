@@ -55,6 +55,10 @@ class ParkingRecorder(private val registry: SignalRegistry) {
     fun score(rubric: ParkingRubric = ParkingRubric(), untilMillis: Long? = null): ParkingScore? =
         metrics(untilMillis)?.let { ParkingScorer.score(it, registry.badge(), registry.missingKeys(), rubric) }
 
+    /** 출발 전 점검 과제 — 같은 시계열을 [ChecklistScorer] 로. 움직이지 않아도 속도 0 샘플이 있으면 채점된다. */
+    fun scoreChecklist(rubric: ChecklistRubric = ChecklistRubric(), untilMillis: Long? = null): ParkingScore? =
+        metrics(untilMillis)?.let { ChecklistScorer.score(it, registry.badge(), registry.missingKeys(), rubric) }
+
     fun reset() {
         speed.clear(); angle.clear(); gear.clear(); distance.clear(); warning.clear(); belt.clear(); ignition.clear()
         lastMillis = 0L
