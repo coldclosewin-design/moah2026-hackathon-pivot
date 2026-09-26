@@ -109,10 +109,25 @@ class LessonPresentationTest {
     }
 
     @Test fun previousResultSpeechCannotLeakIntoNextManeuver() {
+        assertNull(maneuverText("이동 4회로 마쳤어요."))
+        assertNull(maneuverText("이번에는 44초 걸렸어요."))
         assertNull(maneuverText("지난번에는 60점이었어요."))
         assertNull(maneuverText("그게 오늘의 점수예요."))
         assertNull(maneuverText("이번 감점은 없었어요."))
         assertEquals("안전벨트 점검부터 해 볼까요?", maneuverText("안전벨트 점검부터 해 볼까요?"))
         assertEquals("뒤 35 cm, 멈추세요.", maneuverText("뒤 35 cm, 멈추세요."))
+    }
+
+    @Test fun reportSummaryDropsOnlyTheCoachMetadataCountAndPreservesSentenceBreaks() {
+        assertEquals("후면 직각 주차, 힌트 모드.\n잘 마쳤어요.\n주변도 살펴요.",
+            driverReportSummary("후면 직각 주차, 힌트 모드 2회.\n잘 마쳤어요.\n주변도 살펴요."))
+        assertEquals("잘 마쳤어요.\n다음에도 천천히 해 봐요.", driverReportSummary("잘 마쳤어요.\n다음에도 천천히 해 봐요."))
+    }
+
+    @Test fun everySeedOpenerRespectsTheDoneCopyContractBeforeRandomSelection() {
+        SeedCatalog.remarks.forEach { template ->
+            assertFalse(template.text, Regex("\\d|\\{(?:years|segments|seconds|deltaSegments|deltaSeconds)\\}|지난번보다|cm")
+                .containsMatchIn(template.text))
+        }
     }
 }
