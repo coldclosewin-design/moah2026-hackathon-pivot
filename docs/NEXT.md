@@ -78,7 +78,7 @@
 | 9a | `docs/design/02_design_brief.md` — 라운드 0~3, 채울 것 9, **불변 규칙 12** + 검사 수단. 레퍼런스 = `docs/design/geometric-poster-development/`(시안 4장·핸들 B·시각 규칙·색 토큰 5). 탐색 이력(종이 UI·미니멀·Pinterest)은 `docs/design/README.md`(Codex) | ✅ 채움(모션 포함 9개 모두 사용자 확인 9/26) |
 | 9b | 라운드 1 발주서 `docs/handoffs/2026-09-26_codex_ui_round1.md` — 디자인 시스템(`CoachStyle`) + `Maneuver`·`Report`, 드래프트 PR, `lesson_shots`·`emu_flow` PASS, 불변 표 12줄. **0절: Codex 본 트리 정리**(시안 폴더 → `codex/design-refs` PR, NEXT·일지 수정 되돌리기) | ✅ 시안 PR #13 `b211107` · 라운드 1 PR #14 `508f03b` (리뷰: 빌드·129·`emu_flow` PASS·`lesson_shots` PASS·캡처 vs 시안·불변 12줄). 사용자 톤 확정 |
 | 9c | 라운드 2 — `Setup`(제안 문장 + 과제·모드 시트, 준비 중 회색)·`Briefing`(핸들 B 에셋)·`Done`·`Quiz`/`QuizDone`·점검 과제 칩 3개(C절 3건), 글자 없는 일러스트 에셋(WebP ≤ 1 MB), `emu_flow.sh` PASS. **라운드 1 관찰 반영**: 접힌 상태 라벨에 대상 붙이기(전부 MISSING 이면 접지 않기), `LessonCanvas` Bold → `BrandMark` 통일. 발주서 `docs/handoffs/2026-09-26_codex_ui_round2.md`. 선행(PR #16): `ManeuverDisplayState` 점검용 필드 5개, `emu_flow.sh` 시트 대응 | ✅ 발주 → ⬜ Codex |
-| 9e | 상태기계 후속(Claude): ① 회차 시작 시 도어가 이미 열려 있으면 닫힘을 한 번 본 뒤에만 종료 조건(Report 에서 시연 패널이 빠져 드러남) ② `briefingLine` 조사("뒤 거리을" → 를/을, "과/와") | ⬜ 소 PR |
+| 9e | 상태기계 후속(Claude): ① 회차 시작 시 도어가 이미 열려 있으면 닫힘을 한 번 본 뒤에만 종료 조건(`doorArmed`, 로그 `door already open at attempt start`) ② 조사 헬퍼 `withObjectParticle`·`withTopicParticle`·`withAndParticle`·`joinAsObjects`(`ports/Models.kt`) → 브리핑 "뒤 거리를 봅니다", 거부 문장 "주차는" | ✅ 브랜치 `claude/lesson-followups` (PR 대기) |
 | 9d | 라운드 3 — B안 영상 재녹화, 덱·컷 목록 스크린샷 교체 | ⬜ 사용자 |
 
 리뷰 루틴(Claude): worktree 에서 head 빌드 → `emu_flow.sh` → `lesson_shots.sh` → 캡처를 시안과 나란히 눈으로 → 불변 표 grep. `codex/design-refs`(이미지만) 는 바로 머지.

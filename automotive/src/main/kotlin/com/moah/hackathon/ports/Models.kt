@@ -22,9 +22,28 @@ fun LatLng.distanceTo(other: LatLng): Double {
  * 코칭 문장에 사람·장소 이름을 끼워 넣을 때 조사를 문장에 박아 두면 "지훈가"가 된다.
  * 한글 음절로 끝나지 않으면(영문·숫자·빈 문자열) "가"를 붙인다.
  */
-fun String.withSubjectParticle(): String {
+fun String.withSubjectParticle(): String = withParticle(closed = "이", open = "가")
+
+/** 목적격 조사 — 받침이 있으면 "을", 없으면 "를". ("뒤 거리를", "기어 전환을") */
+fun String.withObjectParticle(): String = withParticle(closed = "을", open = "를")
+
+/** 보조사 — 받침이 있으면 "은", 없으면 "는". ("주차는", "점검은") */
+fun String.withTopicParticle(): String = withParticle(closed = "은", open = "는")
+
+/** 접속 조사 — 받침이 있으면 "과", 없으면 "와". ("핸들 방향과", "거리와") */
+fun String.withAndParticle(): String = withParticle(closed = "과", open = "와")
+
+/** 한글 음절로 끝나지 않으면(영문·숫자·빈 문자열) 받침 없는 쪽을 붙인다. 빈 문자열은 그대로. */
+private fun String.withParticle(closed: String, open: String): String {
     val last = lastOrNull() ?: return this
-    if (last !in '가'..'힣') return this + "가"
+    if (last !in '가'..'힣') return this + open
     val hasFinalConsonant = (last - '가') % 28 != 0
-    return this + if (hasFinalConsonant) "이" else "가"
+    return this + if (hasFinalConsonant) closed else open
+}
+
+/** "A과 B과 C를" — 나열의 마지막에 목적격 조사, 앞은 접속 조사. 비어 있으면 빈 문자열. */
+fun List<String>.joinAsObjects(): String {
+    if (isEmpty()) return ""
+    val head = dropLast(1).map { it.withAndParticle() }
+    return (head + last().withObjectParticle()).joinToString(" ")
 }
