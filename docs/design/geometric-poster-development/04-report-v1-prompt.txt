@@ -1,0 +1,22 @@
+Use case: ui-mockup. Create one full high-fidelity automotive driver-training app screen. Wide flat front-on 2560:1268 landscape ratio (about 2.02:1), edge-to-edge app content, no device frame, system/browser bars, comparison sheet or extra captions.
+
+Critical direction: The user LOVES the attached original GEOMETRIC POSTER setup page. Use THIS SINGLE IMAGE as the sole visual reference. They REJECTED subsequent pages that merely recolored an old black-and-white papercraft app. Develop the strong graphic design language of THIS poster across a real product: bold LARGE FLAT COLOR FIELDS, clever negative space, confident asymmetry, deliberate edge cropping, circular arcs and simple diagonal geometry. This must feel art-directed and editorial, not like a generic dashboard or a recolored paper app.
+
+Palette only: nearly black ink navy #070827, clean off-white #FCFCFA, periwinkle #5B60A1, pale lavender #E5E6F0 and a SMALL signal-red #F52D48 accent. Dominant white space, navy graphic masses, controlled purple. Crisp vector-like planes with no hand-drawn outline around the car, no grunge, no paper texture, no cut/torn paper edges, no stacked/tilted sheets, no card shadows, no bevels, no floating rounded dashboard tiles, no glass, no realistic 3D or photographic materials. Use bold forms but LIGHT typography: clean regular Korean sans (400–500), open counters, modest title size, numbers can be medium. No extra-bold headings or handwritten font. Match the slim refined wordmark "DRIVE COACH" in the reference. Use small red as graphic punctuation/primary action, never an invented warning.
+
+Keep UI sparse and thoughtfully aligned with 7% outer text safe margins and a common grid. Whitespace is intentional, not an empty generic placeholder. Text always on uninterrupted color fields. All Korean correctly spelled and fully visible. No invention of vehicle telemetry, camera/map visuals or precise parking location. No source logos. The artwork is original geometry, not the old thin outlined top-down toy car from paper UI.
+
+PAGE: REPORT, stationary post-practice summary. Develop an editorial graphic record page, NOT a notebook, report card stack, speech bubble or paper panel.
+Composition: White/off-white canvas. Left 38% has a single edge-cropped navy geometric vertical shape and a periwinkle circular segment. Inside this dramatic ink field put a huge but LIGHT regular-weight white numeral "01", with a small label "연습 기록" above. The number means ONE practice attempt, not a score. A thin red slash/dash adds graphic punctuation. Abstract geometry only — no car, no document or speech-bubble icon, no clipboard, no medal/trophy, no paper sheets. Let the huge number and geometric cutout make a striking brand composition.
+Right 52% is generous clean white with the main feedback and actions, text aligned to a clear vertical grid.
+Small "DRIVE COACH" wordmark top-left, in white if it sits on navy.
+Exact right-side text:
+small title "오늘의 기록"
+main regular heading in two lines:
+"뒤 거리를 조금 더"
+"남겨 볼까요?"
+supporting line "후면 직각 주차 · 가이드 모드"
+One restrained RED primary pill button "다시 시작" with a simple white right arrow, matching the original setup.
+One secondary text action below "자세히 보기", thin underline.
+Across the quiet white bottom edge, after a single thin lavender rule, the clearly readable source-status line "실신호 0 · 시뮬레이션 7 · 미측정 1" and the concise scope note "주차 과정만 측정했어요."
+Do not repeat the attempt count elsewhere. No measured skill/safety score, gauge, table, duplicated action, congratulatory perfect parking imagery, hand-drawn decoration or shadow. Clear negative space and confident geometry. The overall look should feel like the original setup has become a thoughtful product family, not a generic dashboard.

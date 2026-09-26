@@ -1,0 +1,20 @@
+Use case: ui-mockup. Produce ONE complete front-on automotive app content screen, landscape approximately 2.02:1, target 2560 x 1268. No device frame, no browser/system bars, no presentation label outside the screen, no watermarks or source game logos. Input image 1 is the PRIMARY style anchor (already approved color concept setup). Input image 2 is a CONTENT AND VEHICLE-ORIENTATION reference only: do not inherit its beige color scheme, oversized bold fonts, excessive information or exact old layout.
+Preserve the selected color concept's line style, palette and visual character, but keep a calm minimal functional interface with substantial whitespace. Korean headings should be modest regular/medium weight, no oversized heavy typography. Do not put texture behind text. All data must be clear, unclipped, separated from illustrations. Illustrations are symbolic, never measured parking position/camera imagery. Do not invent data.
+
+Asset: low-speed reverse parking guide, moving at 3 km/h, to complete the 파랑 손그림 UI family.
+STYLE: Rich cobalt azure #106ADB, warm off-white #FFFDF5, ink #15212C, apricot orange #FFAC68. Light slightly irregular hand-inked outlines, simple flat blank white vehicle interiors, very sparse subtle grain on blue only. Relaxed monoline Korean handwritten headings, but normal clean Korean sans for numbers, data, long feedback and body. Functional screens have an even blue field and simple flat slightly darker-blue or off-white backing where needed for legibility. No cone, parking grid, mascot, cloud scenery, realistic car detail, crosshatching or colored-in shading. Orange is a small directional/action accent.
+
+Layout and exact text:
+Small "DRIVE COACH" at upper left. Modest title "후면 직각 주차". Upper right "3 km/h" with a legible small status badge "시뮬레이션" clearly applying to the shown demonstration data.
+Left 55%: one large clear TRUE TOP-DOWN car diagram on a simple uncluttered tonal backing. Rear of car is at TOP, front at BOTTOM. Above the car put "차량 뒤쪽 ↑" and one large clear upward reverse arrow. Behind the arrow is a simple short horizontal distance-indicator line, not a wall or parking bay.
+Car consists of exactly ONE simple wheel-less body plus exactly FOUR tire rectangles, no other tire shapes or implied additional wheels. Two REAR tires at the TOP remain vertical, parallel to body. Two FRONT tires at the BOTTOM rotate modestly 25 degrees from vertical in the FORWARD SLASH / direction: lower tips to VIEWER LEFT, upper tips to VIEWER RIGHT. This means driver's RIGHT steering because front of vehicle is pointing DOWN. Do not mirror tires, do not confuse steering-wheel rotation 450 degrees with road-wheel rotation. All four tires are near their wheel positions and appear as slightly separate cutout parts. Top-down proportions, no car perspective, no fake depth angle, no side-view car.
+Under the diagram, single small but readable note "조향 방향을 보여 주는 도식이에요."
+
+Right 32%: a single clean information column with 3 widely separated rows, quiet separators instead of three giant boxed cards:
+"기어" / "R"
+"조향각" / "오른쪽 450°"
+"뒤 거리" / "85 cm"
+Use crisp medium sans numbers even if the theme has a handwritten heading.
+
+Bottom: one full-width clean subtitle strip, small label "조수석", then exactly "다 돌렸어요. 이제 천천히 후진하세요."
+No other words. No huge button, no completion button, no start/retry control while moving, no score, no gauges, no points, no elapsed-time row, no move-count, no menu, no expanded demo panel. No parking lines, targets, GPS path, obstacles, camera video, sensor arcs, confetti or celebratory framing. No decorative forest or car illustration outside the one diagram.

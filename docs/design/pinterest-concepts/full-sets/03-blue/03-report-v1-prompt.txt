@@ -1,0 +1,19 @@
+Use case: ui-mockup. Create ONE full standalone REPORT page for the 파랑 손그림 driving-coach app family. Landscape approximately 2.02:1, target 2560 x 1268, flat front-on app content, no device, no OS bars or browser chrome.
+Input image 1: PRIMARY STYLE reference, the chosen 파랑 손그림 setup screen. Input image 2: CONTENT AND SIMPLICITY reference only, its LOWER screen is the sparse report; ignore the upper screen and do not copy the comparison sheet, beige theme or labels outside the screens. Output one report, not a sheet of two screens.
+STYLE: Rich cobalt azure #106ADB, warm off-white #FFFDF5, ink #15212C, apricot orange #FFAC68. Light slightly irregular hand-inked outlines, simple flat blank white vehicle interiors, very sparse subtle grain on blue only. Relaxed monoline Korean handwritten headings, but normal clean Korean sans for numbers, data, long feedback and body. Functional screens have an even blue field and simple flat slightly darker-blue or off-white backing where needed for legibility. No cone, parking grid, mascot, cloud scenery, realistic car detail, crosshatching or colored-in shading. Orange is a small directional/action accent.
+User wants a full page with sparse information, not a dashboard packed with metrics. Preserve the first reference palette and typography character while giving this REPORT its own open-record visual composition. Two very subtly overlapping flat record sheets or a single wide note with an offset backing provide understated layering. Headings regular 400 or restrained medium 500, no heavy large display type. The feedback is the focal point, slightly larger than body, with plenty of negative space. No realistic book, spiral binding, prop scene, 3D material or photo.
+
+Exact content and hierarchy:
+Small brand at upper left "DRIVE COACH"
+Modest title "오늘의 기록"
+Primary friendly feedback set in two carefully balanced lines:
+"다음엔 뒤 거리를"
+"조금 더 남겨 볼까요?"
+Secondary description "후면 직각 주차 · 1회 연습"
+Primary action "다시 시작"
+Secondary action "자세히 보기"
+A clearly readable but quieter status line, exact "실신호 0 · 시뮬레이션 7 · 미측정 1"
+A short scope note directly next to or beneath the status line: "주차 과정만 측정했어요."
+
+Composition: Main report sheet/note occupies central 80% with controlled spacing, no tiny card floating in huge blank space. A small simple outline speech-note motif or minimal abstract sheet-corner detail may sit in the left part; no need to repeat the setup car. Put feedback and task at the visual center with actions below. Put the source-status and scope note in a clean footer inside the open-record area, distinctly separated from buttons. All text reads clearly and stays fully in the safe region. Never give positive/success styling to nonexistent precise parking measurement. The signal count label is information, not a warning banner.
+Do not add a score, gauge, medal, trophy, table, precise parked car diagram, parking bay, checkmark of parking success, extra metrics, detailed signal list, tab navigation, certification, full prose paragraphs, extra actions or expanded demo panel. No scenery competing with the report. No source logos or characters.

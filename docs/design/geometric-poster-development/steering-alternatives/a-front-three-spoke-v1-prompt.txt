@@ -1,0 +1,22 @@
+Use case: ui-mockup / style-transfer. Produce ONE complete alternate steering-wheel BRIEFING screen for a geometric-poster automotive app. Wide landscape 2560:1268 ratio, same framing and resolution as input image 1. It is a single app page, not a sheet, device photo or labeled presentation.
+
+Reference roles:
+Image 1 = LAYOUT/TYPE/COPY reference ONLY: keep its entire LEFT white UI area exactly, but replace its over-simple steering-wheel illustration with a NEW design. Do NOT merely add detail to its ring; choose the distinct steering design described below.
+Image 2 = ART DIRECTION and DETAIL-DENSITY reference: match the moderate detailing of the cropped car, whose roof, windows, mirrors, lights and wheels are described by crisp, interlocking flat color planes. The illustration needs recognizable object construction with selected detail, while keeping bold poster clarity.
+
+Common style: geometric editorial vector-like illustration, flat navy #070827, off-white #FCFCFA, periwinkle #5B60A1 and limited red #F52D48 accent. Strong cutout silhouettes and flat overlapping form planes create subtle depth like the reference car. Main shapes should be evident immediately, with a few details visible on closer look. No glossy 3D, no rendered bevels, no airbrushed shadows, no heavy gradients, no realistic leather, stitches, material texture, paper, hatching, outlines around every shape, hands, logo, dashboard, gauges or extra telemetry. No real car brand or copied badge. Use red for a tiny index/trim accent, not a warning.
+
+Keep exactly the original left-side UI text, size, weight, line breaks, wordmark and sound-wave glyph, with no additions:
+"DRIVE COACH"
+"연습 준비"
+"핸들 방향과"
+"기어 전환을 볼게요."
+"후면 직각 주차 · 가이드 모드"
+"서두르지 않아도 괜찮아요."
+"음성 안내 중"
+Regular Korean sans with accurate spelling and clean generous whitespace. No text embedded in the new wheel, no A/B/C/D variant label. This is a static decorative wheel, not a live steering display. The illustrated small steering controls are decorative parts, not app touch targets.
+The RIGHT illustration should occupy approximately the same right-side area as image 1 and never cover the text. Preserve the left-to-right white/navy contrast and oversized editorial scale. All variants must be recognizably different in structure and viewpoint, not trivial color swaps.
+
+Variant A: PRECISE FRONTAL THREE-SPOKE WHEEL.
+A clear symmetric near-front-facing wheel, round rim, compact softly triangular central horn pad and three sharply defined spokes at about 9, 3 and 6 o'clock. The central pad should be much SMALLER than the previous large rounded hub — leave generous navy negative openings between spokes and rim. White rim face, narrow periwinkle inner edge, navy grip cut-ins. Add a small rectangular button cluster on each horizontal spoke and a subtle recess where the lower spoke meets the hub; no circular joystick. Small red top-center index stripe.
+Composition: the wheel's center sits around 78% canvas width and 55% canvas height. Enlarge it until the far-right rim and a little of the top/bottom crop off-screen, but both horizontal spoke connections remain clear. The characteristic visual is the balanced, readable Y-like three-spoke structure inside a strong circular frame. Match the reference car's crisp functional detail without excessive bevelled faces. Frontal geometry and clean, sophisticated symmetry are key.

@@ -1,0 +1,19 @@
+Use case: ui-mockup. Create one full high-fidelity automotive driver-training app screen. Wide flat front-on 2560:1268 landscape ratio (about 2.02:1), edge-to-edge app content, no device frame, system/browser bars, comparison sheet or extra captions.
+
+Critical direction: The user LOVES the attached original GEOMETRIC POSTER setup page. Use THIS SINGLE IMAGE as the sole visual reference. They REJECTED subsequent pages that merely recolored an old black-and-white papercraft app. Develop the strong graphic design language of THIS poster across a real product: bold LARGE FLAT COLOR FIELDS, clever negative space, confident asymmetry, deliberate edge cropping, circular arcs and simple diagonal geometry. This must feel art-directed and editorial, not like a generic dashboard or a recolored paper app.
+
+Palette only: nearly black ink navy #070827, clean off-white #FCFCFA, periwinkle #5B60A1, pale lavender #E5E6F0 and a SMALL signal-red #F52D48 accent. Dominant white space, navy graphic masses, controlled purple. Crisp vector-like planes with no hand-drawn outline around the car, no grunge, no paper texture, no cut/torn paper edges, no stacked/tilted sheets, no card shadows, no bevels, no floating rounded dashboard tiles, no glass, no realistic 3D or photographic materials. Use bold forms but LIGHT typography: clean regular Korean sans (400–500), open counters, modest title size, numbers can be medium. No extra-bold headings or handwritten font. Match the slim refined wordmark "DRIVE COACH" in the reference. Use small red as graphic punctuation/primary action, never an invented warning.
+
+Keep UI sparse and thoughtfully aligned with 7% outer text safe margins and a common grid. Whitespace is intentional, not an empty generic placeholder. Text always on uninterrupted color fields. All Korean correctly spelled and fully visible. No invention of vehicle telemetry, camera/map visuals or precise parking location. No source logos. The artwork is original geometry, not the old thin outlined top-down toy car from paper UI.
+
+PAGE: BRIEFING, stationary practice preparation. A graphic opener between setup and actual maneuver. NO user action buttons on this page; coaching audio introduces the session.
+Composition: Left 57% is clean white with beautifully spaced text, right 43% is an edge-to-edge navy field. Break the central division with ONE immense flat geometric steering wheel motif, partially cropped at the top and right edge. The wheel is a white/periwinkle circular ring with navy negative space, simple broad spokes and one tiny red index mark; it is an editorial SYMBOL, not an instrument showing measured steering angle. NO realistic steering wheel surface, no car silhouette, no cards. Make it a powerful visual cousin of the setup's sweeping car/arch silhouette.
+Exact visible text, and only these strings:
+top-left small "DRIVE COACH"
+small eyebrow "연습 준비"
+main regular-weight heading on white, two lines:
+"핸들 방향과"
+"기어 전환을 볼게요."
+supporting line "후면 직각 주차 · 가이드 모드"
+small calm reassurance "서두르지 않아도 괜찮아요."
+Bottom-left a small simple sound-wave glyph and label "음성 안내 중" in periwinkle. It is a state indicator, not a button. No progress metrics, no countdown, no numbered instructions, no pill navigation, no stop button. Brand red only in a small steering-wheel index mark or tiny accent line. All functional words on the white side.
