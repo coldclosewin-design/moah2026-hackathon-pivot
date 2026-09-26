@@ -18,6 +18,8 @@ object HarshEventDetector {
     const val HARSH_BRAKE_MPS2 = -3.5f
     const val DEBOUNCE_MILLIS = 1000L
     const val WINDOW_MILLIS = 300L
+    /** 샘플 시각 지터(테스트의 ms 절삭, 에뮬 틱 흔들림)로 창이 1~2 ms 빗나가는 것을 막는다. */
+    const val WINDOW_TOLERANCE_MILLIS = 20L
 
     fun detect(
         samples: List<SpeedSample>,
@@ -53,7 +55,7 @@ object HarshEventDetector {
         if (samples.size < 2) return
         var j = 0
         for (i in 1 until samples.size) {
-            while (j + 1 < i && samples[i].tMillis - samples[j + 1].tMillis >= windowMillis) j++
+            while (j + 1 < i && samples[i].tMillis - samples[j + 1].tMillis >= windowMillis - WINDOW_TOLERANCE_MILLIS) j++
             val dtSec = (samples[i].tMillis - samples[j].tMillis) / 1000f
             if (dtSec <= 0f) continue
             val dvMps = (samples[i].value - samples[j].value) / 3.6f

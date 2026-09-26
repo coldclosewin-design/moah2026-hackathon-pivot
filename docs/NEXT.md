@@ -25,16 +25,20 @@
 
 단위 테스트 21 → 62 (실패 0).
 
-### Step 4 — 상태기계 + 시드 (Claude)
-| # | 일 | 메모 |
+### Step 4 — 상태기계 + 시드 (Claude) — ✅ 2026-09-26 브랜치 `claude/lesson-state-machine` (PR 대기)
+| # | 일 | 어디 |
 |---|---|---|
-| 4a | `feature/lesson/LessonPhase.kt` — `Setup · Briefing · Maneuver · Done · Report` | `Maneuver` 는 저속 화면 허용, `Driving`(도로 과제)은 잠금. 둘 다 같은 기계 |
-| 4b | `LessonStateMachine.kt`, `LessonViewModel.kt` | `StateFlow<LessonPhase>`, 포트 주입, Log 외 안드로이드 의존 없음. `LOCK 5 km/h`, `STOP 1 km/h`. 세션 종료 = 버튼 또는 운전석 도어 열림. Fake 일 때만 `DemoControls`(시나리오 선택·재생·도어) |
-| 4c | 가이드 단계 엔진 `GuideRunner` | 단계 = (대사, 확인 조건). 신호로 확인 → 다음. `MISSING` 이면 확인 없이 읽고 리포트에 남김 (§4.3) |
-| 4d | 규칙 힌트 `HintRules` → `TtsPort.speak(…, URGENT)` | 너무 일찍 중립·근접·급조작. 같은 힌트 쿨다운 |
-| 4e | `data/SeedCatalog.kt` — 과제 카탈로그(§3.1), 프로필 질문 5, **멘트 풀**(점수 구간 × 프로필 × 이력, 반복 금지), 지식 문항, 시험장 예약 카드 1 | 문구 **내용**은 Codex 가 다듬는다 |
-| 4f | `ManeuverDisplayState` / `DrivingDisplayState` 매퍼 | 도식에 필요한 것만(조향각·기어·센서 거리·구간 수). **점수·감점 누계는 주지 않는다**(AGENTS 규칙 10). 테스트로 강제 |
-| 4g | `Profile`(진술·관측) + `ProgressStore`(세션 누적, 인메모리 → 나중에 파일) | "지난번보다" 와 자동 제안의 근거 |
+| 4a ✅ | `LessonPhase` — `Setup · Briefing · Maneuver · Done · Report` (+ `GuideStepView`) | `feature/lesson/LessonPhase.kt`. `Maneuver` 에는 점수 필드가 **타입상 없다** |
+| 4b ✅ | `LessonStateMachine`(`begin·finishAttempt·nextAttempt·endSession·reset`), `LessonViewModel`(+ `DemoControls`: 시나리오 재생·정차·도어 — Fake 일 때만) | `feature/lesson/LessonStateMachine.kt`, `LessonViewModel.kt`. 회차 시작 때 `vehicle.get()` 으로 레지스트리를 먼저 심는다(안 그러면 가이드가 전 단계를 MISSING 으로 보고 한 번에 읽어 버린다 — 일지 9/26) |
+| 4c ✅ | `GuideRunner` — 단계 = (대사, 신호, 확인 문장, 판정). 한 스냅샷에 여러 단계가 충족돼 있으면 연달아 확인 | `feature/lesson/GuideRunner.kt`. 주차 6단계는 `SeedCatalog.parkingGuide` |
+| 4d ✅ | `HintRules` — 채점 지표 **증가분**으로 힌트(벨트·근접·급조작 URGENT / 조향·기어 NORMAL), 규칙별 5 s 쿨다운 | `feature/lesson/HintRules.kt` |
+| 4e ✅ | `SeedCatalog` — 과제 9, 가이드 6단계, 프로필 질문 5 + 시연 프로필(장롱 10년차·주차 공포), 멘트 21(밴드 4 × 태그), 지식 3, 예약 카드, 혜택 예시 | `data/SeedCatalog.kt`. **문구는 Codex 가 다듬는다** |
+| 4f ✅ | `ManeuverDisplayState` 매퍼 + 리플렉션 테스트(skill/safety/reversal/shift/score 필드 없음) | `feature/lesson/ManeuverDisplayState.kt` |
+| 4g ✅ | `Profile`(진술+관측), `ProgressStore`(인메모리), `ModeAdvisor`(가이드 70점×2 → 힌트, 힌트 80점×2 → 평가; 과제는 공포 → 약점 → 첫 쉬운 것) | `feature/lesson/LessonModels.kt`, `ProgressStore.kt` |
+| 4h ✅ | `CoachPort` + `FakeCoachPort`(멘트 풀 변주·총평) — Step 6 의 Fake 를 앞당김. AI 구현체만 남음 | `ports/CoachPort.kt`, `feature/lesson/RemarkPool.kt` |
+| 4i ✅ | `App.kt` 배선: registry·store·coach·scenarios·lesson. **`MainActivity` 는 아직 Dashboard** — 화면은 Step 5 Codex | `App.kt` |
+
+단위 테스트 62 → 89 (실패 0). 첫 Codex 발주서: `docs/handoffs/2026-09-26_codex_lesson_screens.md`.
 
 ### Step 5 — 화면 (Codex 발주, `docs/handoffs/`)
 `Setup`(대화형 설정·앱 제안·과제/모드 선택·예약 카드) / `Briefing` / **`Maneuver`**(위에서 본 차 도식: 조향각·기어·센서, 터치 없음) / `Done`(회차 요약·"다 됐어요") / `Report`(숙련 축·안전 축·배지·AI 총평·다음 과제 / **진단서 탭**: 공유 범위 3단계 + 예상 혜택, "실제 전송 없음" 문구). 시연 조작은 Fake 일 때만.
@@ -74,7 +78,7 @@
 - **흐름**: `claude/<topic>` 브랜치 → PR → 사용자가 "N 머지해" → `gh pr merge N --squash`. **머지 승인 없이 다음 작업을 쌓지 않는다.** (부트스트랩·기획 문서는 Day 0~1 이라 main 직접 커밋 — 이후는 PR)
 - **Codex PR 리뷰 루틴**: 직접 빌드 → 에뮬 캡처 → **눈으로 본다** → `04_agent_workflow.md` 체크리스트 → PR 코멘트.
 - **에뮬**: `"$LOCALAPPDATA/Android/Sdk/emulator/emulator.exe" -avd CSTDe_API_34 -no-snapshot-load` 백그라운드. 먼저 `adb get-state`. 앱은 user 10. 함정은 `tools/README.md`. 스크린샷은 `screencap -d 4619827259835644672`, 탭은 그냥 `input tap`(`-d` 는 실패).
-- **셸 함정**: 큰 heredoc + 한국어 → Bash 파싱 실패(9/25 재현). 긴 파일은 Write 도구, 커밋 메시지는 `-m` 여러 개 또는 `-F 파일`.
+- **셸 함정**: 큰 heredoc + 한국어 → Bash 파싱 실패(9/25 재현). 긴 파일은 Write 도구, 커밋 메시지는 `-m` 여러 개 또는 `-F 파일`. **Gradle 은 PowerShell 로**(`.\gradlew.bat …`) — Git Bash 에서 `cmd //c gradlew.bat` 은 이 환경에서 실행되지 않는다(9/26). 작은 치환은 `sed -i`, Kotlin 백틱 테스트명은 heredoc 에 넣지 않는다.
 - **사용자 선호**: 한국어. 선택지가 있으면 추천과 함께. 검증 못 한 것은 그렇다고. 남은 일수를 이유로 범위를 깎지 않는다 — 미루는 이유는 기술적 불확실성만. **코드에 이름이 박히기 전에 기획을 넓히는 타이밍을 중시한다**(9/26).
 
 ## 4. 어디에 무엇이 있나

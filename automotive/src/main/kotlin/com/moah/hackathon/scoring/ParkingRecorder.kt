@@ -22,8 +22,11 @@ class ParkingRecorder(private val registry: SignalRegistry) {
     private val belt = ArrayList<FlagSample>()
     private val ignition = ArrayList<FlagSample>()
 
+    private var lastMillis = 0L
+
     fun onDelta(tMillis: Long, delta: Map<String, String>) {
         registry.onValues(delta)
+        if (tMillis > lastMillis) lastMillis = tMillis
         delta[VssConstants.VEHICLE_SPEED]?.toVssFloat()?.let { speed.add(Sample(tMillis, kotlin.math.abs(it))) }
         delta[VssConstants.STEERING_WHEEL_ANGLE]?.toVssFloat()?.let { angle.add(Sample(tMillis, it)) }
         delta[VssConstants.TRANSMISSION_SELECTED_GEAR]?.toVssGear()?.let { gear.add(Sample(tMillis, it)) }
@@ -33,9 +36,12 @@ class ParkingRecorder(private val registry: SignalRegistry) {
         delta[VssConstants.LOW_VOLTAGE_SYSTEM_STATE]?.toVssIgnitionOn()?.let { ignition.add(Sample(tMillis, it)) }
     }
 
-    /** 속도가 한 번도 안 왔으면 null — A층조차 성립하지 않는다(속도는 확정 신호라 사실상 없다). */
-    fun metrics(): ParkingMetrics? {
-        val motion = MotionSegmenter.summarize(speed) ?: return null
+    /**
+     * 속도가 한 번도 안 왔으면 null — A층조차 성립하지 않는다(속도는 확정 신호라 사실상 없다).
+     * @param untilMillis 회차 종료 시각(버튼). null 이면 마지막 신호 시각까지.
+     */
+    fun metrics(untilMillis: Long? = null): ParkingMetrics? {
+        val motion = MotionSegmenter.summarize(speed, endMillis = untilMillis ?: lastMillis) ?: return null
         return ParkingMetrics(
             motion = motion,
             harshEvents = HarshEventDetector.detect(speed),
@@ -46,11 +52,12 @@ class ParkingRecorder(private val registry: SignalRegistry) {
         )
     }
 
-    fun score(rubric: ParkingRubric = ParkingRubric()): ParkingScore? =
-        metrics()?.let { ParkingScorer.score(it, registry.badge(), registry.missingKeys(), rubric) }
+    fun score(rubric: ParkingRubric = ParkingRubric(), untilMillis: Long? = null): ParkingScore? =
+        metrics(untilMillis)?.let { ParkingScorer.score(it, registry.badge(), registry.missingKeys(), rubric) }
 
     fun reset() {
         speed.clear(); angle.clear(); gear.clear(); distance.clear(); warning.clear(); belt.clear(); ignition.clear()
+        lastMillis = 0L
     }
 
     companion object {
