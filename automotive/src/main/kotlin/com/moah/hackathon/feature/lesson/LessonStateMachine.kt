@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
@@ -281,7 +282,7 @@ class LessonStateMachine(
         doorArmed = !snapshot.doorOpen
         if (!doorArmed) Log.i(TAG, "door already open at attempt start → door exit disarmed until it closes")
         guide = if (mode == LessonMode.GUIDE) GuideRunner(guideFor(task), registry) else null
-        publishManeuver(task, mode)
+        publishManeuver(task, mode, enter = true)
         ensureVehicleSubscription()
         guide?.start()?.forEach { tts.speak(it) }
         guide?.unverified?.forEach { unverifiedSteps += it.say }
@@ -346,8 +347,13 @@ class LessonStateMachine(
         }
     }
 
-    private fun publishManeuver(task: Task, mode: LessonMode) {
-        _phase.value = LessonPhase.Maneuver(
+    /**
+     * @param enter 회차 시작(Briefing·Done → Maneuver). false 면 **지금 단계가 Maneuver 일 때만** 갱신한다 —
+     *   신호 delta 를 처리하던 코루틴이 [finishAttempt] 가 막 만든 Done 을 묵은 Maneuver 로 덮어쓰는 경합을 막는다
+     *   (화면 녹화 부하에서 재현: 회차 점수는 기록됐는데 화면은 Maneuver 에 남고 "다 됐어요" 가 다시 보임).
+     */
+    private fun publishManeuver(task: Task, mode: LessonMode, enter: Boolean = false) {
+        val next = LessonPhase.Maneuver(
             task = task, mode = mode, attempt = attempt, snapshot = snapshot,
             guide = guide?.view(), lastHint = lastHint,
             movingSegments = recorder.metrics()?.motion?.movingSegments ?: 0,
@@ -355,6 +361,8 @@ class LessonStateMachine(
             askedDone = askedDone,
             availability = registry.snapshot(),
         )
+        if (enter) _phase.value = next
+        else _phase.update { current -> if (current is LessonPhase.Maneuver && !finishing) next else current }
     }
 
     private suspend fun toReport() {
