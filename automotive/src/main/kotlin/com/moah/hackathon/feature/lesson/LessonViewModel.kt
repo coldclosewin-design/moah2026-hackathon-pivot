@@ -9,6 +9,7 @@ import com.moah.hackathon.AppContainer
 import com.moah.hackathon.BuildConfig
 import com.moah.hackathon.ports.TtsPort
 import com.moah.hackathon.vehicle.FakeVehiclePort
+import com.moah.hackathon.vehicle.HybridVehiclePort
 import com.moah.hackathon.vehicle.Scenario
 import com.moah.hackathon.vehicle.ScenarioPlayback
 import com.moah.hackathon.vehicle.VehiclePort
@@ -31,8 +32,16 @@ class LessonViewModel(
     val phase: StateFlow<LessonPhase> = machine.phase
     val subtitle: StateFlow<String?> = tts.lastSpoken
 
-    /** Fake 차량일 때만 존재하는 시연 조작. 사내(Real)에서는 null → 화면이 숨긴다. **버튼이 보이면 Real 이 아니다.** */
-    val demo: DemoControls? = (vehicle as? FakeVehiclePort)?.let { DemoControls(it) }
+    /**
+     * 시연 조작. Fake 가 섞여 있을 때만 존재한다 — 순수 Fake, 또는 Hybrid(실물에서 안 오는 키를 Fake 가 채움).
+     * 순수 Real(`-PfillMissing=false`)에서는 null → 화면이 숨긴다. **패널이 보이면 Fake 가 섞여 있다.**
+     * Hybrid 에서 live 키(실물이 주는 속도·도어)에는 정차·도어 버튼이 먹지 않는다 — 실차에서는 실제로 세우고 열어야 한다.
+     */
+    val demo: DemoControls? = when (vehicle) {
+        is FakeVehiclePort -> DemoControls(vehicle)
+        is HybridVehiclePort -> DemoControls(vehicle.fake)
+        else -> null
+    }
 
     inner class DemoControls(private val fake: FakeVehiclePort) {
         val scenarios: List<Scenario> get() = this@LessonViewModel.scenarios

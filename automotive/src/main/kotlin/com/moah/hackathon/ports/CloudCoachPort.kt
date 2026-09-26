@@ -1,0 +1,116 @@
+package com.moah.hackathon.ports
+
+import android.util.Log
+import com.moah.hackathon.feature.lesson.AttemptRecord
+import com.moah.hackathon.feature.lesson.LessonMode
+import com.moah.hackathon.feature.lesson.Profile
+import com.moah.hackathon.feature.lesson.ScoreBand
+import com.moah.hackathon.feature.lesson.Task
+import com.moah.hackathon.scoring.ParkingDelta
+import com.moah.hackathon.scoring.ParkingScore
+import kotlinx.coroutines.withTimeoutOrNull
+
+/**
+ * LLM 호출의 전송 계층. **사내 Cloud Copilot 인증 방식이 확인되기 전까지 구현체가 없다**(docs/INTEGRATION.md B절 9/26).
+ * 확인되면 이 인터페이스 하나만 구현해 [CloudCoachPort] 에 넘긴다. 반환은 본문 텍스트 한 덩어리.
+ */
+interface CoachTransport {
+    suspend fun complete(system: String, user: String): String
+}
+
+/**
+ * AI 코치 — 정차했을 때만 말한다. 프롬프트를 조립해 [CoachTransport] 에 보내고, **어떤 이유로든 못 쓰면 [fallback](시드 멘트 풀)으로**.
+ * 못 쓰는 경우: 전송 계층 없음 · 예외 · [timeoutMillis] 초과 · 응답 검증 실패(빈 값, 너무 긺, 금지어). 예외를 밖으로 던지지 않는다(CoachPort 계약).
+ *
+ * 응답은 그대로 믿지 않는다 — 시연 중 화면에 나가는 문장이라 길이·금지어를 여기서 거른다.
+ */
+class CloudCoachPort(
+    private val fallback: CoachPort,
+    private val transport: CoachTransport?,
+    private val timeoutMillis: Long = 4_000L,
+) : CoachPort {
+
+    override suspend fun remark(score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int): String {
+        val safe = fallback.remark(score, delta, profile, attempt)
+        val (system, user) = CoachPrompts.remark(score, delta, profile, attempt, seedLine = safe.substringAfter(". ", ""))
+        val cloud = ask(system, user, maxChars = CoachPrompts.REMARK_MAX_CHARS) ?: return safe
+        return "${CoachPrompts.attemptHead(score)} $cloud"
+    }
+
+    override suspend fun summarize(task: Task, mode: LessonMode, attempts: List<AttemptRecord>, profile: Profile): String {
+        val safe = fallback.summarize(task, mode, attempts, profile)
+        if (attempts.isEmpty()) return safe
+        val (system, user) = CoachPrompts.summary(task, mode, attempts, profile, seedLine = safe)
+        return ask(system, user, maxChars = CoachPrompts.SUMMARY_MAX_CHARS) ?: safe
+    }
+
+    /** 성공하면 검증된 문장, 아니면 null(→ 호출자가 폴백). */
+    private suspend fun ask(system: String, user: String, maxChars: Int): String? {
+        val t = transport ?: run { Log.d(TAG, "no transport → fallback"); return null }
+        val raw = try {
+            withTimeoutOrNull(timeoutMillis) { t.complete(system, user) }
+        } catch (e: RuntimeException) {
+            Log.w(TAG, "transport failed → fallback", e); return null
+        }
+        if (raw == null) { Log.w(TAG, "transport timed out (${timeoutMillis} ms) → fallback"); return null }
+        return CoachPrompts.validate(raw, maxChars).also { if (it == null) Log.w(TAG, "response rejected → fallback: ${raw.take(40)}") }
+    }
+
+    private companion object {
+        const val TAG = "MOAH/CloudCoachPort"
+    }
+}
+
+/** 프롬프트 조립과 응답 검증. 순수 함수 — 테스트로 고정한다. */
+object CoachPrompts {
+    const val REMARK_MAX_CHARS = 60
+    const val SUMMARY_MAX_CHARS = 160
+
+    /** 두려움을 줄이는 앱이 쓰지 않는 말(§3.4). 응답에 들어 있으면 버린다. */
+    val BANNED: List<String> = listOf("하위", "실패", "못했", "형편없", "최악", "낙제", "불합격", "위험한 운전자")
+
+    private const val SYSTEM = """당신은 초보 운전자의 조수석에 앉은, 화내지 않는 운전 코치입니다.
+규칙: 한국어 존댓말, 한 문장, 위트 있게 북돋우되 사실만. 점수·등수·비교 서열을 말하지 않습니다. 금지어: 하위, 실패, 못했, 최악, 낙제.
+운전자의 프로필(장롱면허 햇수, 목표, 무서운 것)과 이번 회차의 과정 지표만 근거로 씁니다. 차가 칸에 반듯이 들어갔는지는 모릅니다 — 말하지 않습니다."""
+
+    fun attemptHead(score: ParkingScore): String =
+        "${score.metrics.motion.movingSegments}번 만에, ${score.metrics.motion.totalMillis / 1000}초."
+
+    fun remark(score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int, seedLine: String): Pair<String, String> {
+        val m = score.metrics
+        val user = buildString {
+            appendLine("운전자: ${profile.name}, 장롱면허 ${profile.rustyYears ?: "?"}년, 목표 ${profile.statement.goal ?: "-"}, 무서운 것 ${profile.statement.fear ?: "-"}.")
+            appendLine("과제: 후면 직각 주차, ${attempt}회차. 숙련 구간 ${ScoreBand.of(score.skill)}.")
+            appendLine("과정: 이동 ${m.motion.movingSegments}회, ${m.motion.totalMillis / 1000}초, 조향 되돌림 ${m.steering?.reversals ?: "미측정"}회, 기어 전환 ${m.gear?.reverseDriveShifts ?: "미측정"}회, 급조작 ${m.harshEvents.size}회, 뒤 최소 ${m.proximity?.minDistanceCm?.let { "${it.toInt()} cm" } ?: "미측정"}.")
+            delta?.let { appendLine("지난번 대비: 이동 ${signed(it.segments)}회, ${signed(it.seconds.toInt())}초, 조향 ${it.reversals?.let(::signed) ?: "-"}회.") }
+            appendLine("참고 문장(이 톤으로, 그대로 쓰지 말고 변주): $seedLine")
+            append("한 문장, ${REMARK_MAX_CHARS}자 이내로 회차 멘트를 써 주세요. 숫자 머리말(\"N번 만에, N초.\")은 앱이 붙이므로 쓰지 마세요.")
+        }
+        return SYSTEM to user
+    }
+
+    fun summary(task: Task, mode: LessonMode, attempts: List<AttemptRecord>, profile: Profile, seedLine: String): Pair<String, String> {
+        val user = buildString {
+            appendLine("운전자: ${profile.name}, 장롱면허 ${profile.rustyYears ?: "?"}년, 목표 ${profile.statement.goal ?: "-"}.")
+            appendLine("과제 ${task.title}, ${mode.label} 모드, ${attempts.size}회차.")
+            attempts.forEach { a ->
+                appendLine("- ${a.index}회차: 숙련 ${a.score.skill}, 안전 ${a.score.safety}, 이동 ${a.score.metrics.motion.movingSegments}회, ${a.score.metrics.motion.totalMillis / 1000}초, 급조작 ${a.score.metrics.harshEvents.size}, 근접 ${a.score.metrics.proximity?.warnings ?: "미측정"}.")
+            }
+            appendLine("참고 문장(이 톤으로): $seedLine")
+            append("두 문장, ${SUMMARY_MAX_CHARS}자 이내로 오늘 세션 총평을 써 주세요. 첫 문장은 흐름(나아졌나), 둘째 문장은 안전 쪽 한 가지.")
+        }
+        return SYSTEM to user
+    }
+
+    /** 빈 값·너무 긴 것·금지어·줄바꿈 여러 줄은 버린다. 앞뒤 따옴표·공백은 정리. */
+    fun validate(raw: String, maxChars: Int): String? {
+        val text = raw.trim().trim('"', '“', '”', '\'').trim()
+        if (text.isBlank()) return null
+        if (text.length > maxChars) return null
+        if (text.lines().size > 2) return null
+        if (BANNED.any { it in text }) return null
+        return text
+    }
+
+    private fun signed(n: Int): String = if (n > 0) "+$n" else n.toString()
+}

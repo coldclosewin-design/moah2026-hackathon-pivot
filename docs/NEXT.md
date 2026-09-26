@@ -21,7 +21,7 @@
 | 3d ✅ | A층 `MotionSegmenter`, `HarshEventDetector`(300 ms 시간창 차분·1 s 디바운스) | `scoring/`. 이동 평균은 진짜 급정지를 깎아서 뺐다(일지 9/26) |
 | 3e ✅ | B층 `SteeringReversalCounter`, `GearShiftCounter`, `ProximityMonitor`(거리 → 없으면 boolean), `PreDriveChecklist` | `scoring/`. 입력이 비면 null = 미측정 |
 | 3f ✅ | `ParkingMetrics`·`ParkingRubric`·`ParkingScorer`(숙련/안전)·`ParkingDelta`·**`ParkingRecorder`**(delta 를 받아 시계열 → metrics → score) | `scoring/ParkingScorer.kt`, `ParkingRecorder.kt`. 상태기계는 `recorder.onDelta(now, delta)` 만 부르면 된다. `ParkingRecorderScenarioTest` 가 시나리오 2벌의 숫자를 고정 |
-| 3g ⬜ | (선택) `HybridVehiclePort(real, fake)` — 실포트에서 안 오는 키만 Fake 시나리오로 채운다 | 사내에서 "실신호 2 · 시뮬 6" 배지를 실제로 보여주는 장치. Step 4 뒤 여유 시 |
+| 3g ✅ | `HybridVehiclePort(real, fake)` — Real 이 한 번이라도 값을 낸 키는 live, 나머지는 Fake 시나리오. `SignalRegistry.forPort` 가 키별 출처를 갈라 배지가 "실신호 2 · 시뮬 6" 로 섞인다 | `vehicle/HybridVehiclePort.kt`. 팩토리가 Real 을 기본으로 감싼다(`-PfillMissing=false` 면 순수 Real). live 키엔 시연 조작이 먹지 않는다 |
 
 단위 테스트 21 → 62 (실패 0).
 
@@ -43,8 +43,8 @@
 ### Step 5 — 화면 (Codex 발주, `docs/handoffs/`)
 `Setup`(대화형 설정·앱 제안·과제/모드 선택·예약 카드) / `Briefing` / **`Maneuver`**(위에서 본 차 도식: 조향각·기어·센서, 터치 없음) / `Done`(회차 요약·"다 됐어요") / `Report`(숙련 축·안전 축·배지·AI 총평·다음 과제 / **진단서 탭**: 공유 범위 3단계 + 예상 혜택, "실제 전송 없음" 문구). 시연 조작은 Fake 일 때만.
 
-### Step 6 — AI (Claude)
-`ports/CoachPort.kt` + `FakeCoachPort` — `phrase(score, profile, history)`(멘트 변주, 실패 시 시드 풀), `summarize(report)`, `suggestNext(profile)`. **예외를 던지지 않는다** — 테스트로 강제. Cloud Copilot 구현체는 사내 인증 확인 후.
+### Step 6 — AI (Claude) — 🟡 전송 계층만 남음
+`ports/CoachPort.kt`(계약) + `FakeCoachPort`(시드 풀, Step 4) + **`CloudCoachPort(fallback, transport)`**(프롬프트 조립 `CoachPrompts`·타임아웃 4 s·응답 검증 길이/줄수/금지어·실패 시 폴백, 예외 안 던짐 — 테스트로 강제). `App.kt` 는 `transport = null` 로 배선 → 지금은 항상 시드 풀. **사내 Copilot 인증 방식 확인 → `CoachTransport.complete(system, user)` 구현체 하나** 넣으면 끝.
 
 ### Step 7 — 시연 파이프라인 (Claude) — 🟡 스크립트·대본은 썼고, **화면이 들어와야 돌릴 수 있다** (브랜치 `claude/demo-tooling`)
 | # | 일 | 상태 |
@@ -97,7 +97,7 @@
 | 음성 | `ports/TtsPort.kt` — `speak(text, priority)`, `lastSpoken`, `SpeechPriority.URGENT` |
 | 위치·경로 | `ports/LocationPort.kt`, `GpsLocationPort.kt`, `Route.kt` |
 | 화면 골격 | `ui/MainActivity.kt`(Dashboard 배선), `ui/CoachStyle.kt`, `ui/concepts/DesignScale.kt` |
-| 빌드 플래그 4개 | `automotive/build.gradle.kts` — `USE_FAKE_VSS`, `USE_FAKE_LOCATION`, `TTS_VOICE`, `DEMO_SPEED_FACTOR`(기본 1.0 = 실시간) |
+| 빌드 플래그 5개 | `automotive/build.gradle.kts` — `USE_FAKE_VSS`, `FILL_MISSING_WITH_FAKE`(`-PfillMissing`, Real 일 때 Hybrid), `USE_FAKE_LOCATION`, `TTS_VOICE`, `DEMO_SPEED_FACTOR`(기본 1.0 = 실시간) |
 | 도구 | `tools/emu_flow.sh`(주차 세션 자동 재생), `lesson_shots.sh`(계측 캡처), `README.md`(함정 목록) — 화면이 들어오면 돌린다 |
 | 시연 대본 | `docs/05_demo_script.md` — 시각은 화면 뒤 실측 |
 | 가정 원장 | `docs/INTEGRATION.md` B절 |
