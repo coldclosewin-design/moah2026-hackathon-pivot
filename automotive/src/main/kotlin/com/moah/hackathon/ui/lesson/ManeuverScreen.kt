@@ -20,6 +20,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.moah.hackathon.R
 import com.moah.hackathon.feature.lesson.ManeuverDisplayState
+import com.moah.hackathon.feature.lesson.TaskType
 import com.moah.hackathon.ui.CoachColors
 import com.moah.hackathon.vehicle.SignalAvailability
 import kotlinx.coroutines.delay
@@ -42,6 +43,7 @@ internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stoppe
     }
     val expansion = rememberSaveable { mutableStateOf(true) }
     val commonSignal = state.commonSignal()
+    val checklist = state.taskType == TaskType.CHECKLIST
     PosterSurface {
         Row(Modifier.fillMaxSize()) {
             Column(Modifier.weight(.53f).fillMaxHeight().background(CoachColors.Ink)
@@ -51,7 +53,16 @@ internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stoppe
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
                         Headline("운전에 집중해 주세요", color = CoachColors.Paper)
                         Spacer(Modifier.height(32.dp))
-                        LessonText("속도를 낮추면 주차 도식이 다시 보여요.", 40, CoachColors.Paper.copy(alpha = .7f))
+                        LessonText(if (checklist) "정차하면 점검 상태가 다시 보여요." else "속도를 낮추면 주차 도식이 다시 보여요.",
+                            40, CoachColors.Paper.copy(alpha = .7f))
+                    }
+                } else if (checklist) {
+                    Column(Modifier.weight(1f).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically)) {
+                        ChecklistValue("안전벨트", state.belt?.let { if (it) "채움" else "아직" }, state.belt == true,
+                            state.beltSignal, commonSignal == null)
+                        ChecklistValue("기어", state.gear, state.gear == "P", state.gearSignal, commonSignal == null)
+                        ChecklistValue("시동", state.ignitionOn?.let { if (it) "켜짐" else "꺼짐" }, state.ignitionOn == true,
+                            state.ignitionSignal, commonSignal == null)
                     }
                 } else {
                     Box(Modifier.weight(1f).fillMaxWidth()) {
@@ -69,7 +80,7 @@ internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stoppe
                     }
                 }
                 Spacer(Modifier.height(24.dp))
-                Eyebrow("조향 방향 도식", color = CoachColors.Paper.copy(alpha = .7f))
+                Eyebrow(if (checklist) "출발 전 점검" else "조향 방향 도식", color = CoachColors.Paper.copy(alpha = .7f))
             }
             Row(Modifier.weight(.47f).fillMaxHeight().padding(start = 64.dp, end = 64.dp, top = 64.dp, bottom = 52.dp),
                 horizontalArrangement = Arrangement.spacedBy(32.dp)) {
@@ -79,7 +90,7 @@ internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stoppe
                         LessonText(taskTitle, 40, modifier = Modifier.weight(1f))
                         Column(horizontalAlignment = Alignment.End) {
                             LessonText("${state.speed} km/h", 56, bold = true)
-                            commonSignal?.let { StateLabel(signalLabel(it), it) }
+                            commonSignal?.let { StateLabel(collapsedSignalLabel(it), it) }
                         }
                     }
                     Column(Modifier.weight(1f).fillMaxWidth(), verticalArrangement = Arrangement.Center) {
@@ -102,27 +113,43 @@ internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stoppe
                         }
                     }
                     if (!locked) {
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(32.dp)) {
-                            SignalValue("기어", state.gear ?: "미측정", state.gearSignal, commonSignal == null,
-                                Modifier.weight(.8f))
-                            Box(Modifier.width(2.dp).height(140.dp).background(CoachColors.Lavender))
-                            SignalValue(if (state.proximityAlert()) "가까워요" else "뒤 거리",
-                                state.rearDistanceCm?.let { "${it.roundToInt()} cm" } ?: "미측정",
-                                state.distanceSignal, commonSignal == null, Modifier.weight(1.4f))
+                        if (!checklist) {
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(32.dp)) {
+                                SignalValue("기어", state.gear ?: "미측정", state.gearSignal, commonSignal == null,
+                                    Modifier.weight(.8f))
+                                Box(Modifier.width(2.dp).height(140.dp).background(CoachColors.Lavender))
+                                SignalValue(if (state.proximityAlert()) "가까워요" else "뒤 거리",
+                                    state.rearDistanceCm?.let { "${it.roundToInt()} cm" } ?: "미측정",
+                                    state.distanceSignal, commonSignal == null, Modifier.weight(1.4f))
+                            }
+                            Spacer(Modifier.height(40.dp))
                         }
-                        Spacer(Modifier.height(40.dp))
                         if (stopped) {
-                            Eyebrow("${state.attempt}회차 · 이동 ${state.movingSegments}회 · ${state.elapsedSeconds}초", color = CoachColors.Muted)
+                            Eyebrow(if (checklist) "${state.attempt}회차 · ${state.elapsedSeconds}초" else
+                                "${state.attempt}회차 · 이동 ${state.movingSegments}회 · ${state.elapsedSeconds}초", color = CoachColors.Muted)
                             Spacer(Modifier.height(16.dp))
                             FinishButton(state.askedDone, onFinish)
                         }
                     }
                 }
                 // No panel, toggle, scroll or clickable node survives the original snapshot lock.
-                if (!locked && demo != null) CompositionLocalProvider(LocalDemoExpansion provides expansion) {
-                    Box(Modifier.width(if (expansion.value) 420.dp else 80.dp)) { demo() }
-                }
+                if (!locked && demo != null) DemoRail(expansion, demo)
             }
+        }
+    }
+}
+
+@Composable
+private fun ChecklistValue(label: String, value: String?, satisfied: Boolean, signal: SignalAvailability, showSource: Boolean) {
+    val measured = value != null && signal != SignalAvailability.MISSING
+    Row(Modifier.fillMaxWidth().heightIn(min = 220.dp), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.width(8.dp).height(180.dp).background(
+            if (measured && satisfied) CoachColors.Periwinkle else CoachColors.Ink))
+        Column(Modifier.padding(start = 32.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Eyebrow(label, color = CoachColors.Paper)
+            LessonText(if (measured) value!! else "미측정", 80,
+                if (measured && satisfied) CoachColors.Paper else CoachColors.Paper.copy(alpha = .6f), bold = true)
+            if (showSource) StateLabel(signalLabel(if (measured) signal else SignalAvailability.MISSING), signal, onInk = true)
         }
     }
 }

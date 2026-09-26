@@ -9,6 +9,7 @@ import android.view.accessibility.AccessibilityNodeInfo
 import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import com.moah.hackathon.App
 import com.moah.hackathon.data.SeedCatalog
 import com.moah.hackathon.feature.lesson.*
@@ -40,15 +41,33 @@ class LessonScreenInstrumentation : Instrumentation() {
                     "처음은 제가 순서대로 함께할게요.", SeedCatalog.reservation, "오늘은 편안한 곳에서 주차부터 연습해 봐요.",
                     { id, mode -> started = id to mode }, setupDemo)
             }
-            check(texts().containsAll(listOf("오늘은 뭘 해볼까요?", "시작", "시연", "잘한 주차", "못한 주차")))
+            check(texts().containsAll(listOf(setupProposal(TaskType.PARKING), "시작", "시연", "잘한 주차", "못한 주차")))
             capture("setup")
+            click("과제·모드 바꾸기")
+            check(texts().contains("연습할 과제"))
+            check(texts().containsAll(listOf("가이드", "힌트", "평가")))
+            check(texts().none { it == "지식 테스트" })
+            val planned = SeedCatalog.tasks.first { !it.isReady }
+            check(nodes().none { it.isClickable && descendants(it).any { child -> child.text?.toString() == planned.title } })
+            check(texts().contains("준비 중"))
+            capture("setup-sheet")
             click("힌트")
             click("시작")
             runOnMainSync { check(started == task.id to LessonMode.HINT) }
+            val knowledge = SeedCatalog.tasks.first { it.type == TaskType.KNOWLEDGE }
+            scrollTo(knowledge.title)
+            click(knowledge.title)
+            check(texts().contains("지식 테스트"))
+            check(texts().none { it in listOf("가이드", "힌트", "평가") })
+            click("시작")
+            runOnMainSync { check(started == knowledge.id to LessonMode.QUIZ) }
+            click("돌아가기")
+            check(texts().contains(setupProposal(TaskType.KNOWLEDGE)))
+            capture("setup-knowledge")
             pass("Setup selection dispatches task and mode; demo defaults expanded")
 
             val line = "후면 직각 주차, 가이드 모드. 오늘은 핸들 방향과 기어 전환을 봅니다."
-            render(activity) { BriefingScreen(line, line) }
+            render(activity) { BriefingScreen(task, LessonMode.GUIDE, line, line) }
             check(texts().contains(line))
             check(nodes().none(::hasTouchAction))
             capture("briefing")
@@ -65,6 +84,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             capture("maneuver")
             click("시연")
             check(texts().none { it == "잘한 주차" })
+            check(texts().contains("시뮬레이션 신호"))
             capture("maneuver-collapsed")
 
             render(activity) {
@@ -100,6 +120,7 @@ class LessonScreenInstrumentation : Instrumentation() {
                     distanceSignal = SignalAvailability.MISSING), false, true, longSubtitle, { finished++ })
             }
             check(allText().any { it.contains("뒤 거리 미측정") })
+            check(texts().count { it == "미측정" } >= 3)
             check(texts().contains(longSubtitle))
             capture("missing")
             click("다 됐어요")
@@ -114,6 +135,71 @@ class LessonScreenInstrumentation : Instrumentation() {
             check(texts().none { it == "잠깐 보이는 힌트" })
             pass("Maneuver: no scores, exact lock/stop boundaries, missing signals, four-line subtitle, hint expiry")
 
+            val checklist = moving.copy(speed = "0", gear = "P", guideText = "브레이크를 밟고 시동을 켜 주세요.",
+                guideStep = "3/3", taskType = TaskType.CHECKLIST, belt = true, ignitionOn = false,
+                beltSignal = SignalAvailability.SIMULATED, ignitionSignal = SignalAvailability.SIMULATED)
+            val checklistDemo: @Composable () -> Unit = {
+                DemoPanel(container.scenariosFor(SeedCatalog.predriveTask), null, {}, {}, {}, {}, {})
+            }
+            render(activity) { ManeuverScreen(checklist, false, true, null, {}, checklistDemo, SeedCatalog.predriveTask.title) }
+            check(texts().containsAll(listOf("안전벨트", "기어", "시동", "채움", "P", "꺼짐", "다 됐어요")))
+            check(allText().none { Regex("조향각|뒤 거리|cm|이동 \\d+회").containsMatchIn(it) })
+            assertNoScores()
+            capture("maneuver-checklist")
+            render(activity) { ManeuverScreen(checklist.copy(belt = null, ignitionOn = null,
+                beltSignal = SignalAvailability.MISSING, ignitionSignal = SignalAvailability.MISSING), false, true, null, {},
+                taskTitle = SeedCatalog.predriveTask.title) }
+            check(texts().count { it == "미측정" } >= 2)
+            check(texts().contains("P"))
+            capture("maneuver-checklist-missing")
+            render(activity) { ManeuverScreen(checklist.copy(speed = "5"), true, false, null, {}, checklistDemo) }
+            check(nodes().none(::hasTouchAction))
+            assertNoScores()
+            pass("Checklist: belt/gear/ignition, no parking telemetry, missing signals, locked touch gate")
+
+            var nextCount = 0
+            SeedCatalog.quiz.forEachIndexed { index, item ->
+                val chosen = mutableStateOf<Int?>(null)
+                render(activity) { QuizScreen(knowledge, index, SeedCatalog.quiz.size, item, false,
+                    chosen.value, index, { chosen.value = it }, { nextCount++ }) }
+                check(item.choices.all { it in texts() })
+                check(nodes().count { it.isClickable } == item.choices.size)
+                check(texts().none { it in listOf("다음 문제", "결과 보기") })
+                if (index == 0) capture("quiz")
+                val selected = if (index == 0) (item.answer + 1) % item.choices.size else item.answer
+                click(item.choices[selected])
+                runOnMainSync { check(chosen.value == selected) }
+                check(texts().contains(item.why))
+                check(nodes().count { it.isClickable } == 1)
+                if (index == 0) capture("quiz-answered")
+                click(if (index == SeedCatalog.quiz.lastIndex) "결과 보기" else "다음 문제")
+            }
+            runOnMainSync { check(nextCount == SeedCatalog.quiz.size) }
+            listOf<Int?>(null, 0).forEach { chosen ->
+                render(activity) { QuizScreen(knowledge, 0, 5, SeedCatalog.quiz.first(), true, chosen, 0, {}, {}) }
+                check(texts().contains("정차 후 답해 주세요"))
+                check(SeedCatalog.quiz.first().choices.none { it in texts() })
+                check(nodes().none(::hasTouchAction))
+            }
+            capture("quiz-locked")
+            val items = SeedCatalog.quiz.take(3)
+            val results = listOf(QuizResult(items[1].id, items[1].answer, true), QuizResult(items[0].id, 0, false))
+            var quizRestarted = 0
+            render(activity) { QuizDoneScreen(knowledge, results, items, "이유까지 기억하면 충분해요.", { quizRestarted++ }) }
+            check(texts().contains("정답: ${items[0].choices[items[0].answer]}"))
+            check(texts().contains(items[0].why))
+            check(texts().none { it == items[1].why })
+            check(texts().contains("맞았어요"))
+            scrollTo("안 풀었어요")
+            check(texts().contains("안 풀었어요"))
+            click("다시 시작")
+            runOnMainSync { check(quizRestarted == 1) }
+            render(activity) { QuizDoneScreen(knowledge, SeedCatalog.quiz.mapIndexed { index, item ->
+                QuizResult(item.id, if (index == 0) 0 else item.answer, index != 0)
+            }, SeedCatalog.quiz, "5문제 중 4개를 맞혔어요. 이유까지 기억하면 충분해요.", {}) }
+            capture("quiz-done")
+            pass("Quiz: five questions, choice dispatch, answer explanations, next/result, lock, keyed results and restart")
+
             val metrics = ParkingMetrics(MotionSummary(4, 44_000, 26_000, 4f, 1_000), emptyList(),
                 SteeringSummary(3, 450f), GearSummary(2, true, true), ProximitySummary(1, 35f), PreDriveSummary(false, true))
             val score = ParkingScore(60, 55, metrics, AvailabilityBadge(0, 7, 1), listOf(ParkingRecorder.KEYS.last()))
@@ -121,12 +207,19 @@ class LessonScreenInstrumentation : Instrumentation() {
                 "장롱의 문 정도는 열었습니다. 좋은 출발이에요.", 0)
             var again = 0
             var ended = 0
-            render(activity) { DoneScreen(task.title, 1, record, record.remark, { again++ }, { ended++ }, demo) }
+            render(activity) { DoneScreen(task, 1, record, record.remark, { again++ }, { ended++ }, demo) }
             check(texts().none { "지난번보다" in it })
             capture("done")
             click("한 번 더")
             click("오늘은 여기까지")
             runOnMainSync { check(again == 1 && ended == 1) }
+            val checklistRecord = record.copy(taskId = SeedCatalog.predriveTask.id, remark = "벨트, P, 시동. 순서가 손에 남아 있네요.",
+                score = score.copy(metrics = metrics.copy(preDrive = PreDriveSummary(true, true, 2_000, 5_000),
+                    motion = metrics.motion.copy(movingSegments = 0))))
+            render(activity) { DoneScreen(SeedCatalog.predriveTask, 1, checklistRecord, null, {}, {}, checklistDemo) }
+            check(texts().contains("벨트 2초 · 시동 5초 · 벨트 먼저 · 움직임 0회"))
+            check(texts().none { Regex("조향|뒤 최소|칸 안의 위치").containsMatchIn(it) })
+            capture("done-checklist")
 
             val report = LessonReport(task, LessonMode.HINT, listOf(record), score,
                 "첫 연습을 마쳤어요. 다음에는 뒤 거리를 조금 더 남겨 볼까요?",
@@ -180,6 +273,15 @@ class LessonScreenInstrumentation : Instrumentation() {
         val button = nodes().first { it.isClickable && descendants(it).any { node -> node.text?.toString() == label } }
         check(button.performAction(AccessibilityNodeInfo.ACTION_CLICK))
         Thread.sleep(300)
+    }
+    private fun scrollTo(label: String) {
+        repeat(12) {
+            if (texts().contains(label)) return
+            val scroll = nodes().firstOrNull { it.isScrollable } ?: error("No scroll container for $label")
+            check(scroll.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD))
+            Thread.sleep(350)
+        }
+        error("Not visible after scrolling: $label")
     }
     private fun capture(name: String) {
         val screenshot = checkNotNull(uiAutomation.takeScreenshot())

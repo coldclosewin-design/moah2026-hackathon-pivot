@@ -3,6 +3,8 @@ package com.moah.hackathon.ui.lesson
 import com.moah.hackathon.feature.lesson.*
 import com.moah.hackathon.scoring.ParkingDelta
 import com.moah.hackathon.scoring.ParkingMetrics
+import com.moah.hackathon.ports.withAndParticle
+import com.moah.hackathon.ports.withObjectParticle
 import com.moah.hackathon.vehicle.AvailabilityBadge
 import com.moah.hackathon.vehicle.SignalAvailability
 import mobis.vss.VssConstants as V
@@ -21,6 +23,35 @@ internal fun taskTypeLabel(type: TaskType): String = when (type) {
 
 internal fun selectionReason(task: Task, mode: LessonMode, suggestedTask: Task, suggestedMode: LessonMode, reason: String) =
     if (task.id == suggestedTask.id && mode == suggestedMode) reason else task.summary
+
+internal fun supportedMode(task: Task, mode: LessonMode) =
+    mode.takeIf(task::supports) ?: LessonMode.entries.first(task::supports)
+
+internal fun setupProposal(type: TaskType) = when (type) {
+    TaskType.CHECKLIST -> "시동 켜기 전,\n순서를 익혀볼까요?"
+    TaskType.KNOWLEDGE -> "정차 중이니\n머리로 풀어 볼까요?"
+    TaskType.PARKING -> "오늘은 가볍게,\n주차부터 해볼까요?"
+    TaskType.DRIVING -> "오늘은 천천히,\n함께 달려 볼까요?"
+}
+
+internal fun briefingHeadline(watch: List<String>): String = when (watch.size) {
+    0 -> "오늘의 연습을\n함께 준비할게요."
+    1 -> "${watch.first().withObjectParticle()}\n볼게요."
+    else -> "${watch[0].withAndParticle()}\n${watch[1].withObjectParticle()} 볼게요."
+}
+
+internal fun processLine(type: TaskType, metrics: ParkingMetrics): String =
+    if (type == TaskType.CHECKLIST) buildList {
+        metrics.preDrive.let { pre ->
+            pre.beltOnMillis?.let { add("벨트 ${it / 1000}초") }
+            pre.ignitionOnMillis?.let { add("시동 ${it / 1000}초") }
+            pre.beltBeforeIgnition?.let { add(if (it) "벨트 먼저" else "시동 먼저") }
+        }
+        add("움직임 ${metrics.motion.movingSegments}회")
+    }.joinToString(" · ") else metricLines(metrics).joinToString(" · ") { "${it.label} ${it.value}" }
+
+internal fun taskDeltaLines(type: TaskType, delta: ParkingDelta?) =
+    deltaLines(if (type == TaskType.CHECKLIST) delta?.copy(reversals = null, shifts = null) else delta)
 
 internal data class MetricLine(val label: String, val value: String)
 internal fun metricLines(metrics: ParkingMetrics) = buildList {
@@ -65,8 +96,14 @@ internal fun signalName(key: String): String = when (key) {
 }
 
 internal fun ManeuverDisplayState.proximityAlert() = obstacleWarning || (rearDistanceCm?.let { it < 40f } == true)
-internal fun ManeuverDisplayState.commonSignal(): SignalAvailability? =
-    steeringSignal.takeIf { it == gearSignal && it == distanceSignal }
+internal fun ManeuverDisplayState.commonSignal(): SignalAvailability? {
+    val signals = if (taskType == TaskType.CHECKLIST) listOf(beltSignal, gearSignal, ignitionSignal)
+        else listOf(steeringSignal, gearSignal, distanceSignal)
+    return signals.first().takeIf { it != SignalAvailability.MISSING && signals.all { value -> value == it } }
+}
+
+internal fun collapsedSignalLabel(signal: SignalAvailability) =
+    if (signal == SignalAvailability.SIMULATED) "시뮬레이션 신호" else signalLabel(signal)
 internal fun ManeuverDisplayState.diagramDescription() = buildList {
     add("차량 도식, 뒤쪽이 화면 위")
     add("조향각 ${steeringDeg?.let { "${it.roundToInt()}도" } ?: "미측정"}, ${signalLabel(steeringSignal)}")
