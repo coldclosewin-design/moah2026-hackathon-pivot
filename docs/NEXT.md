@@ -61,8 +61,14 @@
 | 7d | `DEMO_SPEED_FACTOR` 기본 10 → **1.0**(주차 시나리오는 실시간이 맞다). 상태기계에 스크립트용 로그 `hint:`·`asked done` | ✅ |
 | 7e | 화면 PR 리뷰 뒤: `emu_flow.sh` PASS → 대본 시각 실측 → 캡처를 눈으로. 계측 계약을 만들 때 `build.gradle.kts` 의 `testInstrumentationRunner` 주석을 먼저 읽는다 | ✅ 9/26 (Codex 는 자리표시자 첫 항목으로 함정 회피) |
 
-### Step 8 — 제출
-발표 덱(16번 `docs/presentation/01_deck_outline.md` 슬라이드 7~11 서사 재사용), 시연 영상 **B안(외부 에뮬)을 먼저**, 사내에서 Bitbucket·MarketUploader·A안(3D 에뮬) 녹화.
+### Step 8 — 발표·영상·제출 — 🟡 문서 초안 완료
+| # | 일 | 상태 |
+|---|---|---|
+| 8a | `docs/presentation/01_deck_outline.md` — 12장·7분, 장마다 화면·말·근거·초, 길이 조절(3/5/7/10분), 예상 질문 8, 발표자가 채울 것 | ✅ 초안(9/26). ⚠ 8·9·11장은 사내 이관 뒤 숫자 갱신 |
+| 8b | `docs/presentation/02_video_shotlist.md` — 컷 13개(약 2분 05초), A 사내판(Hybrid·Signal Simulator)/B 외부판, 편집 원칙, 녹화 절차·함정 | ✅ 초안(9/26) |
+| 8c | **시연 영상 B안 녹화**(외부 에뮬, 사람이 직접 누름, 소리 포함은 PC 녹화) | ⬜ 사용자. 지금 상태로 가능 |
+| 8d | 사내: 이관 → A안 녹화 → Bitbucket 소스 → MarketUploader APK | ⬜ 사용자 |
+| 8e | 슬라이드를 사내 양식으로 옮기기, 2번 장 개인 계기 | ⬜ 사용자 |
 
 ### 사용자 결정·행동이 필요한 것
 | # | 일 | 상태 |
@@ -106,7 +112,9 @@
 | 화면 골격 | `ui/MainActivity.kt`(Dashboard 배선), `ui/CoachStyle.kt`, `ui/concepts/DesignScale.kt` |
 | 빌드 플래그 5개 | `automotive/build.gradle.kts` — `USE_FAKE_VSS`, `FILL_MISSING_WITH_FAKE`(`-PfillMissing`, Real 일 때 Hybrid), `USE_FAKE_LOCATION`, `TTS_VOICE`, `DEMO_SPEED_FACTOR`(기본 1.0 = 실시간) |
 | 도구 | `tools/emu_flow.sh`(주차 세션 자동 재생), `lesson_shots.sh`(계측 캡처), `README.md`(함정 목록) — 화면이 들어오면 돌린다 |
-| 시연 대본 | `docs/05_demo_script.md` — 시각은 화면 뒤 실측 |
+| 시연 대본 | `docs/05_demo_script.md` — 실측 103 s 반영 |
+| 발표·영상 | `docs/presentation/01_deck_outline.md`(12장·대본·예상 질문), `02_video_shotlist.md`(컷 13·녹화 절차 A/B) |
+| 화면 캡처 | `docs/screenshots/lesson/` — Codex 계측이 뽑은 8장 + 실제 2회차 리포트 |
 | 가정 원장 | `docs/INTEGRATION.md` B절 |
 
 ## 5. 16번에서 되가져올 수 있는 것 (읽기 전용 참조)

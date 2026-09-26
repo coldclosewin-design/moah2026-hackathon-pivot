@@ -78,4 +78,5 @@ Claude Code와 Codex가 공유하는 단일 지침. 세부 문서는 `docs/`.
 - `docs/06_inhouse_migration.md` — 사내 이관 런북
 - `docs/INTEGRATION.md` — 사내 수렴 체크리스트·가정 로그·요청
 - `docs/topics/01_driving_coach.md` — 확정 주제 정의·채점 설계·신호 표. `_comparison.md` 에 피벗 결정 기록
+- `docs/05_demo_script.md` — 시연 대본(실측 시각·시간 조절·사고 대응). `docs/presentation/` — 발표 덱 구성·시연 영상 컷 목록
 - `docs/journal/` — 개발일지(16번 9/16~9/22 포함, 9/25 피벗)
