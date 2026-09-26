@@ -207,13 +207,15 @@ class LessonStateMachine(
                     hints.evaluate(t, recorder.metrics(), snapshot).forEach { h ->
                         lastHint = h.text
                         tts.speak(h.text, h.priority)
+                        Log.i(TAG, "hint: ${h.text}")   // tools/emu_flow.sh 가 이 줄을 기다린다
                     }
                 }
                 if (!askedDone && snapshot.stopped && snapshot.gear == com.moah.hackathon.vehicle.Gear.PARK && (recorder.metrics()?.motion?.firstMoveMillis != null) && p.mode != LessonMode.GUIDE) {
                     askedDone = true
                     tts.speak("다 되셨나요? 다 됐으면 버튼을 눌러 주세요.")
+                    Log.i(TAG, "asked done (attempt $attempt)")
                 }
-                if (guide?.finished == true) askedDone = true
+                if (guide?.finished == true && !askedDone) { askedDone = true; Log.i(TAG, "asked done (attempt $attempt, guide finished)") }
                 publishManeuver(p.task, p.mode)
                 if (snapshot.doorOpen && snapshot.stopped) {
                     Log.i(TAG, "door opened while stopped → finish + report")

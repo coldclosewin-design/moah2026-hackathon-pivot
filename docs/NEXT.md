@@ -2,7 +2,7 @@
 
 새 Claude Code 세션이 이 파일 하나로 이어받을 수 있게 쓴 인계 문서. **작업을 마칠 때마다 이 파일을 갱신한다**(끝난 것은 지우고, 새로 생긴 것은 추가). 과거의 경위는 `docs/journal/`, 규칙은 `AGENTS.md`·`CLAUDE.md`, **제품 정의는 `docs/topics/01_driving_coach.md` v2**.
 
-마지막 갱신: 2026-09-26 · 제품 정의 v2 확정, Step 3 착수 직전 · 열린 Codex 오더 없음 · 마감 2026-10-07
+마지막 갱신: 2026-09-26 · Step 3·4 머지(PR #1·#2), Step 7 도구 작성(PR #3) · **열린 Codex 오더 1건: `docs/handoffs/2026-09-26_codex_lesson_screens.md`(화면 5장 + 시연 패널)** · 마감 2026-10-07
 
 ## 1. 지금 되는 것 (한 문단)
 
@@ -46,8 +46,14 @@
 ### Step 6 — AI (Claude)
 `ports/CoachPort.kt` + `FakeCoachPort` — `phrase(score, profile, history)`(멘트 변주, 실패 시 시드 풀), `summarize(report)`, `suggestNext(profile)`. **예외를 던지지 않는다** — 테스트로 강제. Cloud Copilot 구현체는 사내 인증 확인 후.
 
-### Step 7 — 시연 파이프라인 (Claude)
-`tools/emu_flow.sh` 를 주차 흐름(탭 라벨·`MOAH/LessonStateMachine`·시나리오 전환)에 맞게 수정 → `result: PASS`. `docs/05_demo_script.md` 신규(§4.5 기준, 분단위 타임라인·시간 조절·사고 대응표). 계측 계약을 만들 때 `build.gradle.kts` 의 `testInstrumentationRunner` 주석을 먼저 읽는다.
+### Step 7 — 시연 파이프라인 (Claude) — 🟡 스크립트·대본은 썼고, **화면이 들어와야 돌릴 수 있다** (브랜치 `claude/demo-tooling`)
+| # | 일 | 상태 |
+|---|---|---|
+| 7a | `tools/emu_flow.sh` 주차 흐름(Setup 힌트 → 못한 주차 → 다 됐어요 → 한 번 더 → 잘한 주차 → 문 열기 → Report). 힌트 3종·회차 2·배지를 로그(`hint:`·`asked done`·`attempt N: skill=`·`report:`)와 라벨로 판정 | ✅ 작성, ⬜ 실행(화면 뒤) |
+| 7b | `tools/lesson_shots.sh` — Codex 의 `LessonScreenInstrumentation` 을 돌려 `lesson-*.png` 를 꺼낸다. `concept_shots.sh`·`gps_flow.sh` 는 삭제(16번 `0c95d18` 에 있음) | ✅ 작성, ⬜ 실행 |
+| 7c | `docs/05_demo_script.md` — 2분 10초 타임라인·말할 것·시간 조절·사고 대응 | ✅ 초안, ⬜ 실측 시각 |
+| 7d | `DEMO_SPEED_FACTOR` 기본 10 → **1.0**(주차 시나리오는 실시간이 맞다). 상태기계에 스크립트용 로그 `hint:`·`asked done` | ✅ |
+| 7e | 화면 PR 리뷰 뒤: `emu_flow.sh` PASS → 대본 시각 실측 → 캡처를 눈으로. 계측 계약을 만들 때 `build.gradle.kts` 의 `testInstrumentationRunner` 주석을 먼저 읽는다 | ⬜ |
 
 ### Step 8 — 제출
 발표 덱(16번 `docs/presentation/01_deck_outline.md` 슬라이드 7~11 서사 재사용), 시연 영상 **B안(외부 에뮬)을 먼저**, 사내에서 Bitbucket·MarketUploader·A안(3D 에뮬) 녹화.
@@ -91,8 +97,9 @@
 | 음성 | `ports/TtsPort.kt` — `speak(text, priority)`, `lastSpoken`, `SpeechPriority.URGENT` |
 | 위치·경로 | `ports/LocationPort.kt`, `GpsLocationPort.kt`, `Route.kt` |
 | 화면 골격 | `ui/MainActivity.kt`(Dashboard 배선), `ui/CoachStyle.kt`, `ui/concepts/DesignScale.kt` |
-| 빌드 플래그 4개 | `automotive/build.gradle.kts` — `USE_FAKE_VSS`, `USE_FAKE_LOCATION`, `TTS_VOICE`, `DEMO_SPEED_FACTOR` |
-| 도구 | `tools/` — **전부 Gift Drive 흐름. Step 7 에서 수정** |
+| 빌드 플래그 4개 | `automotive/build.gradle.kts` — `USE_FAKE_VSS`, `USE_FAKE_LOCATION`, `TTS_VOICE`, `DEMO_SPEED_FACTOR`(기본 1.0 = 실시간) |
+| 도구 | `tools/emu_flow.sh`(주차 세션 자동 재생), `lesson_shots.sh`(계측 캡처), `README.md`(함정 목록) — 화면이 들어오면 돌린다 |
+| 시연 대본 | `docs/05_demo_script.md` — 시각은 화면 뒤 실측 |
 | 가정 원장 | `docs/INTEGRATION.md` B절 |
 
 ## 5. 16번에서 되가져올 수 있는 것 (읽기 전용 참조)
