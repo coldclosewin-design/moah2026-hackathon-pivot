@@ -75,7 +75,7 @@
 ### Step 9 — UI 재설계 (Codex 별도 세션 · 기준 = 기하학 포스터) — 🟡 라운드 1 발주 완료
 | # | 일 | 상태 |
 |---|---|---|
-| 9a | `docs/design/02_design_brief.md` — 라운드 0~3, 채울 것 9, **불변 규칙 12** + 검사 수단. 레퍼런스 = `docs/design/geometric-poster-development/`(시안 4장·핸들 B·시각 규칙·색 토큰 5). 탐색 이력(종이 UI·미니멀·Pinterest)은 `docs/design/README.md`(Codex) | ✅ 채움(모션은 기본값·사용자 확인 전) |
+| 9a | `docs/design/02_design_brief.md` — 라운드 0~3, 채울 것 9, **불변 규칙 12** + 검사 수단. 레퍼런스 = `docs/design/geometric-poster-development/`(시안 4장·핸들 B·시각 규칙·색 토큰 5). 탐색 이력(종이 UI·미니멀·Pinterest)은 `docs/design/README.md`(Codex) | ✅ 채움(모션 포함 9개 모두 사용자 확인 9/26) |
 | 9b | 라운드 1 발주서 `docs/handoffs/2026-09-26_codex_ui_round1.md` — 디자인 시스템(`CoachStyle`) + `Maneuver`·`Report`, 드래프트 PR, `lesson_shots`·`emu_flow` PASS, 불변 표 12줄. **0절: Codex 본 트리 정리**(시안 폴더 → `codex/design-refs` PR, NEXT·일지 수정 되돌리기) | ✅ 발주 → ⬜ Codex |
 | 9c | 라운드 2 — `Setup`(제안 문장 + 과제·모드 시트, 준비 중 회색)·`Briefing`(핸들 B 에셋)·`Done`·`Quiz`/`QuizDone`·점검 과제 칩 3개(C절 3건), 글자 없는 일러스트 에셋(WebP ≤ 1 MB), `emu_flow.sh` PASS | ⬜ 라운드 1 톤 확정 뒤 Claude 발주 |
 | 9d | 라운드 3 — B안 영상 재녹화, 덱·컷 목록 스크린샷 교체 | ⬜ 사용자 |
@@ -109,7 +109,7 @@
 | U1 | 제품명 | 가칭 DriveCoach. `res/values/strings.xml` 한 곳 |
 | U2 | 사내 출근 일정 | 제출물 3종이 사내 전용. 방침: 외부 개발 후 별도 절차. 가능하면 빈 껍데기로 clone→빌드→설치 경로 먼저 |
 | U3 | 주차장·코스 시드 좌표 | 없으면 서초 기준 임의, `INTEGRATION.md` 가정 표기 |
-| U4 | 디자인 브리프 — **모션** 기본값 확인(최소: 힌트 페이드·전환 한 동작·게이지 없음) + 라운드 1 드래프트 PR 캡처를 보고 톤 확정 | `docs/design/02_design_brief.md` "채울 것" 모션 행. 레퍼런스·나머지 8답은 ✅ (9/26 Codex 디자인 세션에서 도출) |
+| U4 | 라운드 1 드래프트 PR 캡처를 보고 톤 확정 (브리프 답 9개·이동 중 진행 정보 숨김은 ✅ 9/26 확인) | `docs/design/02_design_brief.md` "채울 것" 모션 행. 레퍼런스·나머지 8답은 ✅ (9/26 Codex 디자인 세션에서 도출) |
 
 ### 뒤로 미루는 항목 (기술적 불확실성)
 | 항목 | 이유 |
