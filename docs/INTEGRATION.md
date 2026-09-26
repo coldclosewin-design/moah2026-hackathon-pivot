@@ -65,6 +65,8 @@
 - [2026-09-26] [vss] 조향각 부호는 COVESA(양수 = 왼쪽), 기어 인코딩은 COVESA `SelectedGear`(0=N, 양수=D, 음수=R, 126=P, 127=D), 시동은 `LowVoltageSystemState` 의 `ON/START` 를 켜짐으로 가정. 실물이 다르면 `vehicle/VssGear.kt` 의 파서 한 곳만 고친다 → 사내에서 P·R·D 각각의 원시 문자열 채집
 - [2026-09-26] [scoring] 급조작 임계 가속 +3.0 / 제동 -3.5 m/s²(UBI 관행), 300 ms 시간창 차분, 같은 종류 1 s 디바운스. 이동 구간 판정 속도 > 1 km/h. 조향 왕복 데드밴드 10°. 근접 경고 40 cm. 주차 감점표(`ParkingRubric`) 배점은 전부 가정 → 사내 실측·시연 리허설 뒤 조정
 - [2026-09-26] [fake] `FakeVehiclePort` 시나리오 재생기(`play(scenario, speedFactor)`)와 주차 시나리오 2벌(`data/ParkingScenarios.kt`) 의 각도·거리·시간은 전부 지은 값이다. 잘한 주차: 이동 2구간·조향 1왕복·전환 0 / 못한 주차: 4구간·3왕복·전환 2·급정지 1·근접 1·벨트 늦음 — 채점기 테스트(`ParkingRecorderScenarioTest`)가 이 숫자를 고정한다
+- [2026-09-26] [lesson] 가이드 판정 임계(핸들 끝 ≤ -400°, 중립 |각| < 30°, 정차 < 1 km/h), 모드 자동 제안(가이드 70점 × 2회 → 힌트, 힌트 80점 × 2회 → 평가), 힌트 쿨다운 5 s, 멘트 반복 금지 최근 3개 — 전부 가정 → 시연 리허설·사용자 체감으로 조정
+- [2026-09-26] [real] 회차 시작 때 `VehiclePort.get(KEYS)` 로 현재값을 읽어 `SignalRegistry` 를 심는다(가이드가 어느 신호를 확인할 수 있는지 알아야 함). **가정: Real 의 `getVSS` 는 모르는 키를 결과에서 빼고(예외 없이), 아는 키는 현재값을 준다.** 빈 문자열이나 예외를 주면 `RealVehiclePort.get` 에서 걸러야 한다 → 사내 첫날 B층 키를 넣은 `get` 의 원시 반환을 로그로
 - [2026-09-25] [inhouse] 사내에서만 가능한 것 8항목(외부 개발 중 대체 불가): ① Bitbucket 소스 업로드 ② `market_uploader` APK 제출 ③ 3D 에뮬 연동 시연 영상 ④ `RealVehiclePort` 실행 ⑤ B층 경로 9개 실재 확인 ⑥ TTS 엔진·한국어 음성 ⑦ 디스플레이 물리 크기(`MOAH/DesignScale`) ⑧ Cloud Copilot 인증. 시연 영상은 **B안(외부 에뮬)을 먼저 완성**해 사내 방문이 1회여도 제출 가능하게 한다
 
 ## C. 요청 (Codex → Claude / Claude → Codex)
@@ -72,6 +74,8 @@
 형식: `- [날짜] [from→to] 요청 내용 (상태)`
 
 > 2026-09-25 이전 항목은 Gift Drive(16번) 시절 기록. 전부 완료 상태이며 이 저장소에는 해당 코드가 없다.
+
+- [2026-09-26] [Claude→Codex] 연수 세션 화면 5장(Setup·Briefing·Maneuver 도식·Done·Report+진단서 탭) + Fake 전용 시연 조작 패널 + MainActivity 를 LessonRoute 로. 핸드오프 `docs/handoffs/2026-09-26_codex_lesson_screens.md` (**대기** — PR #2 머지 후 발주)
 
 - [2026-09-17] [Codex→Claude] `JourneyViewModel`이 main에 없어 `feature/journey`에 `startJourney(mood: Mood, minutes: Int)`와 읽기 전용 `journeyRequest: StateFlow<JourneyRequest?>`를 추가함. 실제 JourneyStateMachine 연결 시 이 진입점의 요청을 소비하도록 연결 요청. (**완료** — `JourneyStateMachine` 연결, `startJourney` 시그니처 유지, `phase`/`subtitle` StateFlow 추가)
 - [2026-09-17] [Claude→Codex] `ui/JourneyScreen.kt` 자리표시자를 단계별 화면(Driving 잠금 화면 / Reveal / Arrival)으로 교체 요청. (**완료** PR #2)

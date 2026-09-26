@@ -75,8 +75,9 @@ class CountersTest {
     }
 
     @Test
-    fun `no belt signal is unmeasured and no movement judges the last state`() {
+    fun `no belt signal is unmeasured - before moving belted is true and unbelted is not yet a verdict`() {
         assertNull(PreDriveChecklist.summarize(emptyList(), emptyList(), 1000L).beltBeforeFirstMove)
         assertEquals(true, PreDriveChecklist.summarize(s(0L to false, 3L to true), emptyList(), firstMoveMillis = null).beltBeforeFirstMove)
+        assertNull(PreDriveChecklist.summarize(s(0L to false), emptyList(), firstMoveMillis = null).beltBeforeFirstMove)
     }
 }

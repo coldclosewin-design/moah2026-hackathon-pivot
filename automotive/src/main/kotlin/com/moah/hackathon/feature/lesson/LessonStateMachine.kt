@@ -1,0 +1,278 @@
+package com.moah.hackathon.feature.lesson
+
+import android.util.Log
+import com.moah.hackathon.ports.CoachPort
+import com.moah.hackathon.ports.SpeechPriority
+import com.moah.hackathon.ports.TtsPort
+import com.moah.hackathon.scoring.ParkingDelta
+import com.moah.hackathon.scoring.ParkingRecorder
+import com.moah.hackathon.scoring.ParkingRubric
+import com.moah.hackathon.vehicle.SignalRegistry
+import com.moah.hackathon.vehicle.VehiclePort
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+
+/**
+ * 연수 세션의 두뇌. 포트만 의존하며 Android 프레임워크에 의존하지 않는다(Log 제외) — JVM 테스트로 돈다.
+ *
+ * 입력: [VehiclePort] (속도·기어·조향각·벨트·IGN·도어·센서), 운전자 버튼([begin]·[finishAttempt]·[nextAttempt]·[endSession])
+ * 출력: [phase], [TtsPort] 발화
+ *
+ * 흐름 (§4.1): Setup → Briefing → [Maneuver → Done] × 회차 → Report
+ *  - 가이드 모드: [GuideRunner] 가 단계마다 말하고 신호로 확인. 신호가 MISSING 이면 읽고 넘긴다.
+ *  - 힌트 모드: [HintRules] 가 채점 지표 증가분을 보고 틀린 순간만 말한다(규칙, 지연 0).
+ *  - 평가 모드: 조용. 끝나면 총평.
+ *  - 회차 종료: 운전자가 "다 됐어요"([finishAttempt]). 기어 P + 정차를 보면 먼저 "다 되셨나요?" 한 번 묻는다.
+ *  - 세션 종료: [endSession] 또는 **정차 + 운전석 도어 열림**. 주행 중 도어 열림은 무해.
+ *  - 채점·멘트는 [ParkingRecorder]·[CoachPort]. 코치가 실패해도 규칙 문장으로 이어진다(CoachPort 계약).
+ */
+class LessonStateMachine(
+    private val vehicle: VehiclePort,
+    private val tts: TtsPort,
+    private val coach: CoachPort,
+    private val registry: SignalRegistry,
+    private val store: ProgressStore,
+    private val tasks: List<Task>,
+    private val guideFor: (Task) -> List<GuideStep>,
+    private val reservation: ReservationCard?,
+    private val benefits: List<String>,
+    profile: Profile,
+    private val scope: CoroutineScope,
+    private val clock: () -> Long = { System.currentTimeMillis() },
+    private val briefingMillis: Long = 2_500L,
+    private val rubric: ParkingRubric = ParkingRubric(),
+) {
+    var profile: Profile = profile
+        private set
+
+    private val _phase = MutableStateFlow<LessonPhase>(setup())
+    val phase: StateFlow<LessonPhase> = _phase
+
+    private val recorder = ParkingRecorder(registry)
+    private val hints = HintRules()
+    private var guide: GuideRunner? = null
+    private var snapshot = VehicleSnapshot()
+    private var vehicleJob: Job? = null
+    private var briefingJob: Job? = null
+    private var attempt = 0
+    private var attemptStartMillis = 0L
+    private var lastHint: String? = null
+    private var askedDone = false
+    private var finishing = false
+    private val sessionRecords = ArrayList<AttemptRecord>()
+    private val unverifiedSteps = LinkedHashSet<String>()
+    private var current: Pair<Task, LessonMode>? = null
+
+    // ───────── 운전자 버튼 ─────────
+
+    /** Setup 에서 과제·모드를 골라 시작. */
+    fun begin(taskId: String, mode: LessonMode) {
+        if (_phase.value !is LessonPhase.Setup) return
+        val task = tasks.firstOrNull { it.id == taskId } ?: run { Log.w(TAG, "unknown task $taskId"); return }
+        current = task to mode
+        sessionRecords.clear()
+        unverifiedSteps.clear()
+        attempt = 0
+        val line = briefingLine(task, mode)
+        _phase.value = LessonPhase.Briefing(task, mode, line)
+        tts.speak(line)
+        Log.i(TAG, "begin ${task.id} ${mode}")
+        briefingJob = scope.launch {
+            if (briefingMillis > 0) delay(briefingMillis)
+            startAttempt()
+        }
+    }
+
+    /** "다 됐어요" — 회차를 채점하고 Done 으로. 버튼과 도어 열림이 겹쳐도 한 번만 기록한다. */
+    fun finishAttempt() {
+        val p = _phase.value as? LessonPhase.Maneuver ?: return
+        if (finishing) return
+        val score = recorder.score(rubric, untilMillis = clock() - attemptStartMillis) ?: run {
+            tts.speak("아직 움직임이 없어요. 천천히 시작해 보세요.")
+            return
+        }
+        finishing = true
+        val previous = store.previous(p.task.id)
+        val delta = previous?.let { ParkingDelta.of(score.metrics, it.score.metrics) }
+        scope.launch {
+            val remark = try {
+                coach.remark(score, delta, profile, attempt)
+            } catch (e: RuntimeException) {
+                Log.w(TAG, "coach.remark failed → rule sentence", e)
+                "${score.metrics.motion.movingSegments}번 만에, ${score.metrics.motion.totalMillis / 1000}초. 수고했어요."
+            }
+            val record = AttemptRecord(attempt, p.task.id, p.mode, score, delta, remark, clock())
+            store.add(record)
+            sessionRecords += record
+            profile = profile.copy(observation = store.observation())
+            _phase.value = LessonPhase.Done(p.task, p.mode, attempt, record)
+            finishing = false
+            tts.speak(remark, SpeechPriority.URGENT)
+            Log.i(TAG, "attempt $attempt: skill=${score.skill} safety=${score.safety} segments=${score.metrics.motion.movingSegments} badge=${score.badge}")
+        }
+    }
+
+    /** Done 에서 "한 번 더". */
+    fun nextAttempt() {
+        if (_phase.value !is LessonPhase.Done) return
+        scope.launch { startAttempt() }
+    }
+
+    /** Done(또는 Maneuver) 에서 "오늘은 여기까지". */
+    fun endSession() {
+        when (_phase.value) {
+            is LessonPhase.Maneuver -> { finishAttempt(); scope.launch { toReport() } }
+            is LessonPhase.Done -> scope.launch { toReport() }
+            else -> {}
+        }
+    }
+
+    /** 리포트에서 "다시 시작" 또는 오류 복구. */
+    fun reset() {
+        briefingJob?.cancel(); briefingJob = null
+        vehicleJob?.cancel(); vehicleJob = null
+        guide = null
+        current = null
+        tts.stop()
+        _phase.value = setup()
+    }
+
+    // ───────── 내부 ─────────
+
+    private fun setup(): LessonPhase.Setup {
+        val task = ModeAdvisor.suggestTask(profile, tasks)
+        val s = ModeAdvisor.suggest(task, store)
+        return LessonPhase.Setup(profile, tasks, task, s.mode, s.reason, reservation)
+    }
+
+    private fun briefingLine(task: Task, mode: LessonMode): String {
+        val watch = task.watch.joinToString("과 ")
+        return when (mode) {
+            LessonMode.GUIDE -> "${task.title}, 가이드 모드. 제가 단계마다 말하고 확인할게요. 오늘은 ${watch}을 봅니다."
+            LessonMode.HINT -> "${task.title}, 힌트 모드. 조용히 있다가 필요한 순간에만 말할게요. 오늘은 ${watch}을 봅니다."
+            LessonMode.EVALUATE -> "${task.title}, 평가 모드. 끝까지 조용히 보고 있을게요. 다 되면 버튼을 눌러 주세요."
+            LessonMode.QUIZ -> "${task.title}. 정차 중이니 편하게 답해 주세요."
+        }
+    }
+
+    private suspend fun startAttempt() {
+        val (task, mode) = current ?: return
+        attempt++
+        recorder.reset()
+        hints.reset()
+        attemptStartMillis = clock()
+        lastHint = null
+        askedDone = false
+        finishing = false
+        // 가이드가 "어느 신호를 확인할 수 있나"를 알려면 현재값을 먼저 봐야 한다 — 구독의 첫 emit 을 기다리지 않고 직접 읽는다.
+        val now = vehicle.get(ParkingRecorder.KEYS.toList())
+        registry.onValues(now)
+        snapshot = snapshot.apply(now)
+        recorder.onDelta(0L, now)
+        guide = if (mode == LessonMode.GUIDE) GuideRunner(guideFor(task), registry) else null
+        publishManeuver(task, mode)
+        ensureVehicleSubscription()
+        guide?.start()?.forEach { tts.speak(it) }
+        guide?.unverified?.forEach { unverifiedSteps += it.say }
+        publishManeuver(task, mode)
+        Log.i(TAG, "attempt $attempt start (${mode}) missing=${registry.missingKeys()}")
+    }
+
+    private fun ensureVehicleSubscription() {
+        if (vehicleJob?.isActive == true) return
+        vehicleJob = vehicle.observe(ParkingRecorder.KEYS.toList())
+            .onEach { delta -> onDelta(delta) }
+            .launchIn(scope)
+    }
+
+    private fun onDelta(delta: Map<String, String>) {
+        snapshot = snapshot.apply(delta)
+        registry.onValues(delta)
+        val p = _phase.value
+        when (p) {
+            is LessonPhase.Maneuver -> {
+                val t = clock() - attemptStartMillis
+                recorder.onDelta(t, delta)
+                guide?.let { g ->
+                    g.onSnapshot(snapshot).forEach { tts.speak(it) }
+                    g.unverified.forEach { unverifiedSteps += it.say }
+                }
+                if (p.mode == LessonMode.HINT) {
+                    hints.evaluate(t, recorder.metrics(), snapshot).forEach { h ->
+                        lastHint = h.text
+                        tts.speak(h.text, h.priority)
+                    }
+                }
+                if (!askedDone && snapshot.stopped && snapshot.gear == com.moah.hackathon.vehicle.Gear.PARK && (recorder.metrics()?.motion?.firstMoveMillis != null) && p.mode != LessonMode.GUIDE) {
+                    askedDone = true
+                    tts.speak("다 되셨나요? 다 됐으면 버튼을 눌러 주세요.")
+                }
+                if (guide?.finished == true) askedDone = true
+                publishManeuver(p.task, p.mode)
+                if (snapshot.doorOpen && snapshot.stopped) {
+                    Log.i(TAG, "door opened while stopped → finish + report")
+                    finishAttempt()
+                    scope.launch { toReport() }
+                }
+            }
+            is LessonPhase.Done -> if (snapshot.doorOpen && snapshot.stopped) {
+                Log.i(TAG, "door opened → report")
+                scope.launch { toReport() }
+            }
+            else -> {}
+        }
+    }
+
+    private fun publishManeuver(task: Task, mode: LessonMode) {
+        _phase.value = LessonPhase.Maneuver(
+            task = task, mode = mode, attempt = attempt, snapshot = snapshot,
+            guide = guide?.view(), lastHint = lastHint,
+            movingSegments = recorder.metrics()?.motion?.movingSegments ?: 0,
+            elapsedMillis = clock() - attemptStartMillis,
+            askedDone = askedDone,
+            availability = registry.snapshot(),
+        )
+    }
+
+    private suspend fun toReport() {
+        // finishAttempt 가 코루틴으로 Done 을 만들 때까지 잠시 기다린다
+        var waited = 0
+        while (_phase.value is LessonPhase.Maneuver && waited < 20) { delay(50); waited++ }
+        val p = _phase.value
+        if (p is LessonPhase.Report) return
+        val (task, mode) = current ?: return
+        val attempts = sessionRecords.toList()
+        val best = attempts.maxByOrNull { it.score.skill }?.score
+            ?: run { Log.w(TAG, "no attempts → back to setup"); reset(); return }
+        val summary = try {
+            coach.summarize(task, mode, attempts, profile)
+        } catch (e: RuntimeException) {
+            Log.w(TAG, "coach.summarize failed → rule sentence", e)
+            "${task.title} ${attempts.size}회. 가장 좋은 회차 ${best.skill}점."
+        }
+        val nextTask = ModeAdvisor.suggestTask(profile, tasks)
+        val next = ModeAdvisor.suggest(task, store)
+        vehicleJob?.cancel(); vehicleJob = null
+        guide = null
+        _phase.value = LessonPhase.Report(
+            LessonReport(
+                task = task, mode = mode, attempts = attempts, best = best, summary = summary,
+                nextTask = nextTask, nextMode = next.mode, nextReason = next.reason,
+                shareLevels = ShareLevel.entries.toList(), benefits = benefits,
+                unverifiedGuideSteps = unverifiedSteps.toList(),
+            ),
+        )
+        tts.speak("$summary\n다음엔 ${next.mode.label} 모드 어때요? ${next.reason}", SpeechPriority.URGENT)
+        Log.i(TAG, "report: attempts=${attempts.size} best=${best.skill}/${best.safety} badge=${best.badge}")
+    }
+
+    private companion object {
+        const val TAG = "MOAH/LessonStateMachine"
+    }
+}

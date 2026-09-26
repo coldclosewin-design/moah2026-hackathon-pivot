@@ -18,7 +18,10 @@ data class MotionSummary(
 object MotionSegmenter {
     const val MOVING_KMH = 1.0f
 
-    fun summarize(samples: List<SpeedSample>, movingKmh: Float = MOVING_KMH): MotionSummary? {
+    /**
+     * @param endMillis 회차가 끝난 시각(버튼·마지막 신호). 속도 샘플이 그보다 먼저 끊겼어도 총 시간은 여기까지다. null 이면 마지막 속도 샘플.
+     */
+    fun summarize(samples: List<SpeedSample>, movingKmh: Float = MOVING_KMH, endMillis: Long? = null): MotionSummary? {
         if (samples.isEmpty()) return null
         var segments = 0
         var movingMillis = 0L
@@ -38,10 +41,11 @@ object MotionSegmenter {
             }
             moving = nowMoving
         }
-        if (moving) movingMillis += samples.last().tMillis - segmentStart
+        val end = maxOf(samples.last().tMillis, endMillis ?: Long.MIN_VALUE)
+        if (moving) movingMillis += end - segmentStart
         return MotionSummary(
             movingSegments = segments,
-            totalMillis = samples.last().tMillis - samples.first().tMillis,
+            totalMillis = end - samples.first().tMillis,
             movingMillis = movingMillis,
             maxSpeedKmh = max,
             firstMoveMillis = firstMove,
