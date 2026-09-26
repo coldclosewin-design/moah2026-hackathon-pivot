@@ -76,7 +76,8 @@ wait_log() { # wait_log "패턴" 최대초
   echo "  !! timeout waiting log '$1'"; return 1
 }
 # 시연 패널이 접혀 있으면 연다(라벨 "시연"). 이미 열려 있으면 "못한 주차" 가 보인다.
-open_demo_panel() { dump; texts | grep -q "못한 주차" && return 0; tap_text "시연"; sleep 1; }
+# 라운드 3 부터 패널은 기본 접힘·시나리오 재생 시 자동 접힘 — 누를 때마다 연다. 이미 열려 있으면 시나리오 라벨이 보인다
+open_demo_panel() { dump; texts | grep -qE "못한 주차|못한 점검" && return 0; tap_text "시연"; sleep 1; }
 T0=$(date +%s); mark() { echo "  [t+$(( $(date +%s) - T0 ))s] $1"; }
 FAIL=0
 
@@ -114,7 +115,7 @@ R2=$(adb logcat -d -s "$TAG" | grep -oE "attempt 2: skill=[0-9]+ safety=[0-9]+ s
 [ "$R2" = "attempt 2: skill=100 safety=100 segments=2" ] || { echo "  !! attempt 2 expected skill=100 safety=100 segments=2"; FAIL=1; }
 
 echo "== report: 정차 + 운전석 도어 열림"
-tap_text "문 열기"; wait_log "report: attempts=2" 15 || exit 1; mark "report (= 시연 길이)"; sleep 3; shot 17_report
+open_demo_panel; tap_text "문 열기"; wait_log "report: attempts=2" 15 || exit 1; mark "report (= 시연 길이)"; sleep 3; shot 17_report
 now_texts | grep -q "다시 시작" || { echo "  !! report screen not reached: $(texts)"; FAIL=1; }
 now_texts | grep -qE "실신호|시뮬레이션|미측정" || { echo "  !! report has no availability badge"; FAIL=1; }
 echo "  texts: $(texts)"
