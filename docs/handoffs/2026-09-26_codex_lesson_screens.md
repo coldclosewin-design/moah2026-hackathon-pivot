@@ -19,7 +19,7 @@
   - `phase: StateFlow<LessonPhase>` — 아래 5단계 중 하나
   - `subtitle: StateFlow<String?>` — 마지막으로 **말하기 시작한** 문장(자막). 모든 화면에 큰 글자로.
   - 진입점: `begin(taskId, mode)` / `finishAttempt()` / `nextAttempt()` / `endSession()` / `restart()`
-  - `demo: DemoControls?` — **Fake 차량일 때만 non-null.** null 이면 패널을 그리지 않는다(사내 Real 에서 버튼이 보이면 Real 이 아니다).
+  - `demo: DemoControls?` — **Fake 가 섞여 있을 때만 non-null**(순수 Fake, 또는 사내 Hybrid = 실물에서 안 오는 키를 Fake 가 채움). null 이면 패널을 그리지 않는다. 화면은 이유를 몰라도 된다 — null 이면 숨기고, 있으면 그린다.
     `demo.scenarios`(id·title), `demo.playback`(재생 상태), `demo.play(id)`, `demo.stopScenario()`, `demo.stopCar()`, `demo.resumeCar()`, `demo.setDoor(open)`
 - `LessonPhase` (`feature/lesson/LessonPhase.kt`)
 

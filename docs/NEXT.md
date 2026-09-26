@@ -21,7 +21,7 @@
 | 3d ✅ | A층 `MotionSegmenter`, `HarshEventDetector`(300 ms 시간창 차분·1 s 디바운스) | `scoring/`. 이동 평균은 진짜 급정지를 깎아서 뺐다(일지 9/26) |
 | 3e ✅ | B층 `SteeringReversalCounter`, `GearShiftCounter`, `ProximityMonitor`(거리 → 없으면 boolean), `PreDriveChecklist` | `scoring/`. 입력이 비면 null = 미측정 |
 | 3f ✅ | `ParkingMetrics`·`ParkingRubric`·`ParkingScorer`(숙련/안전)·`ParkingDelta`·**`ParkingRecorder`**(delta 를 받아 시계열 → metrics → score) | `scoring/ParkingScorer.kt`, `ParkingRecorder.kt`. 상태기계는 `recorder.onDelta(now, delta)` 만 부르면 된다. `ParkingRecorderScenarioTest` 가 시나리오 2벌의 숫자를 고정 |
-| 3g ⬜ | (선택) `HybridVehiclePort(real, fake)` — 실포트에서 안 오는 키만 Fake 시나리오로 채운다 | 사내에서 "실신호 2 · 시뮬 6" 배지를 실제로 보여주는 장치. Step 4 뒤 여유 시 |
+| 3g ✅ | `HybridVehiclePort(real, fake)` — Real 이 한 번이라도 값을 낸 키는 live, 나머지는 Fake 시나리오. `SignalRegistry.forPort` 가 키별 출처를 갈라 배지가 "실신호 2 · 시뮬 6" 로 섞인다 | `vehicle/HybridVehiclePort.kt`. 팩토리가 Real 을 기본으로 감싼다(`-PfillMissing=false` 면 순수 Real). live 키엔 시연 조작이 먹지 않는다 |
 
 단위 테스트 21 → 62 (실패 0).
 
@@ -43,8 +43,8 @@
 ### Step 5 — 화면 (Codex 발주, `docs/handoffs/`)
 `Setup`(대화형 설정·앱 제안·과제/모드 선택·예약 카드) / `Briefing` / **`Maneuver`**(위에서 본 차 도식: 조향각·기어·센서, 터치 없음) / `Done`(회차 요약·"다 됐어요") / `Report`(숙련 축·안전 축·배지·AI 총평·다음 과제 / **진단서 탭**: 공유 범위 3단계 + 예상 혜택, "실제 전송 없음" 문구). 시연 조작은 Fake 일 때만.
 
-### Step 6 — AI (Claude)
-`ports/CoachPort.kt` + `FakeCoachPort` — `phrase(score, profile, history)`(멘트 변주, 실패 시 시드 풀), `summarize(report)`, `suggestNext(profile)`. **예외를 던지지 않는다** — 테스트로 강제. Cloud Copilot 구현체는 사내 인증 확인 후.
+### Step 6 — AI (Claude) — 🟡 전송 계층만 남음
+`ports/CoachPort.kt`(계약) + `FakeCoachPort`(시드 풀, Step 4) + **`CloudCoachPort(fallback, transport)`**(프롬프트 조립 `CoachPrompts`·타임아웃 4 s·응답 검증 길이/줄수/금지어·실패 시 폴백, 예외 안 던짐 — 테스트로 강제). `App.kt` 는 `transport = null` 로 배선 → 지금은 항상 시드 풀. **사내 Copilot 인증 방식 확인 → `CoachTransport.complete(system, user)` 구현체 하나** 넣으면 끝.
 
 ### Step 7 — 시연 파이프라인 (Claude) — 🟡 스크립트·대본은 썼고, **화면이 들어와야 돌릴 수 있다** (브랜치 `claude/demo-tooling`)
 | # | 일 | 상태 |
@@ -83,6 +83,7 @@
 - **역할**: Claude = 인프라·포트·채점·상태기계·데이터 구조·문서·리뷰·머지. Codex = 화면·테스트·시드 문구. 화면은 `docs/handoffs/YYYY-MM-DD_codex_<topic>.md` 오더로(급한 한 줄은 `[cross]`).
 - **흐름**: `claude/<topic>` 브랜치 → PR → 사용자가 "N 머지해" → `gh pr merge N --squash`. **머지 승인 없이 다음 작업을 쌓지 않는다.** (부트스트랩·기획 문서는 Day 0~1 이라 main 직접 커밋 — 이후는 PR)
 - **Codex PR 리뷰 루틴**: 직접 빌드 → 에뮬 캡처 → **눈으로 본다** → `04_agent_workflow.md` 체크리스트 → PR 코멘트.
+- **동시 작업 규칙 (9/26 사고 뒤)**: Codex 가 본 트리(`C:\Project\17_hackathon-pivot`)에서 작업 중이면 Claude 는 **거기서 `git checkout` 을 하지 않는다** — Codex 의 미커밋 파일이 Claude 브랜치로 넘어온다. Claude 는 `git worktree add .worktrees/<topic> <브랜치>` 로 별도 트리에서 빌드·커밋·PR 한다(`.worktrees/` 는 `.git/info/exclude`). 본 트리의 브랜치는 Codex 것이 유지돼야 한다. 반대로 Claude 만 일할 때는 본 트리를 쓴다.
 - **에뮬**: `"$LOCALAPPDATA/Android/Sdk/emulator/emulator.exe" -avd CSTDe_API_34 -no-snapshot-load` 백그라운드. 먼저 `adb get-state`. 앱은 user 10. 함정은 `tools/README.md`. 스크린샷은 `screencap -d 4619827259835644672`, 탭은 그냥 `input tap`(`-d` 는 실패).
 - **셸 함정**: 큰 heredoc + 한국어 → Bash 파싱 실패(9/25 재현). 긴 파일은 Write 도구, 커밋 메시지는 `-m` 여러 개 또는 `-F 파일`. **Gradle 은 PowerShell 로**(`.\gradlew.bat …`) — Git Bash 에서 `cmd //c gradlew.bat` 은 이 환경에서 실행되지 않는다(9/26). 작은 치환은 `sed -i`, Kotlin 백틱 테스트명은 heredoc 에 넣지 않는다.
 - **사용자 선호**: 한국어. 선택지가 있으면 추천과 함께. 검증 못 한 것은 그렇다고. 남은 일수를 이유로 범위를 깎지 않는다 — 미루는 이유는 기술적 불확실성만. **코드에 이름이 박히기 전에 기획을 넓히는 타이밍을 중시한다**(9/26).
@@ -97,7 +98,7 @@
 | 음성 | `ports/TtsPort.kt` — `speak(text, priority)`, `lastSpoken`, `SpeechPriority.URGENT` |
 | 위치·경로 | `ports/LocationPort.kt`, `GpsLocationPort.kt`, `Route.kt` |
 | 화면 골격 | `ui/MainActivity.kt`(Dashboard 배선), `ui/CoachStyle.kt`, `ui/concepts/DesignScale.kt` |
-| 빌드 플래그 4개 | `automotive/build.gradle.kts` — `USE_FAKE_VSS`, `USE_FAKE_LOCATION`, `TTS_VOICE`, `DEMO_SPEED_FACTOR`(기본 1.0 = 실시간) |
+| 빌드 플래그 5개 | `automotive/build.gradle.kts` — `USE_FAKE_VSS`, `FILL_MISSING_WITH_FAKE`(`-PfillMissing`, Real 일 때 Hybrid), `USE_FAKE_LOCATION`, `TTS_VOICE`, `DEMO_SPEED_FACTOR`(기본 1.0 = 실시간) |
 | 도구 | `tools/emu_flow.sh`(주차 세션 자동 재생), `lesson_shots.sh`(계측 캡처), `README.md`(함정 목록) — 화면이 들어오면 돌린다 |
 | 시연 대본 | `docs/05_demo_script.md` — 시각은 화면 뒤 실측 |
 | 가정 원장 | `docs/INTEGRATION.md` B절 |

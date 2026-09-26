@@ -52,7 +52,7 @@ Claude Code와 Codex가 공유하는 단일 지침. 세부 문서는 `docs/`.
 - 툴체인: JDK 17, AGP 8.7.3, Kotlin 2.0.21, Compose, compileSdk 35 / targetSdk 34 / minSdk 29. 버전은 `gradle/libs.versions.toml`.
 - Android Studio 없음. 에뮬은 16번과 같은 AVD `CSTDe_API_34`(`docs/03_environment.md`).
 - 완료 기준은 항상 "빌드+단위테스트 통과". 깨진 상태로 커밋하지 않는다.
-- 빌드 플래그 4개(`automotive/build.gradle.kts`): `USE_FAKE_VSS`(하드코딩), `USE_FAKE_LOCATION`(`-PfakeLocation`), `TTS_VOICE`(`-PttsVoice`), `DEMO_SPEED_FACTOR`(`-PdemoSpeed`).
+- 빌드 플래그 5개(`automotive/build.gradle.kts`): `USE_FAKE_VSS`(하드코딩), `FILL_MISSING_WITH_FAKE`(`-PfillMissing`, Real 일 때 실물에서 안 오는 키만 Fake 로 — 배지가 "실신호 N · 시뮬 N" 로 섞임), `USE_FAKE_LOCATION`(`-PfakeLocation`), `TTS_VOICE`(`-PttsVoice`), `DEMO_SPEED_FACTOR`(`-PdemoSpeed`, 기본 1.0).
 
 ## 코드 스타일
 

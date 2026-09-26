@@ -21,6 +21,8 @@ android {
 
         // 외부: "true" (FakeVehiclePort 실행) / 사내 머지 시: "false" (RealVehiclePort → VSSManager)
         buildConfigField("boolean", "USE_FAKE_VSS", "true")
+        // Real 일 때 실물에서 안 오는 키만 Fake(시나리오)로 채운다 → 배지가 "실신호 2 · 시뮬레이션 6" 처럼 섞인다. 순수 Real 로 보려면 -PfillMissing=false
+        buildConfigField("boolean", "FILL_MISSING_WITH_FAKE", (project.findProperty("fillMissing") ?: "true").toString())
         // 위치: "true" = 속도 적분 Fake(시연 시간 압축) / "false" = GPS 우선, 권한·제공자 없으면 Fake 폴백
         // 빌드 시 -PfakeLocation=false 로 바꿀 수 있다 (에뮬 geo fix 검증용)
         buildConfigField("boolean", "USE_FAKE_LOCATION", (project.findProperty("fakeLocation") ?: "true").toString())

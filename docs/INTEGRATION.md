@@ -67,6 +67,8 @@
 - [2026-09-26] [fake] `FakeVehiclePort` 시나리오 재생기(`play(scenario, speedFactor)`)와 주차 시나리오 2벌(`data/ParkingScenarios.kt`) 의 각도·거리·시간은 전부 지은 값이다. 잘한 주차: 이동 2구간·조향 1왕복·전환 0 / 못한 주차: 4구간·3왕복·전환 2·급정지 1·근접 1·벨트 늦음 — 채점기 테스트(`ParkingRecorderScenarioTest`)가 이 숫자를 고정한다
 - [2026-09-26] [lesson] 가이드 판정 임계(핸들 끝 ≤ -400°, 중립 |각| < 30°, 정차 < 1 km/h), 모드 자동 제안(가이드 70점 × 2회 → 힌트, 힌트 80점 × 2회 → 평가), 힌트 쿨다운 5 s, 멘트 반복 금지 최근 3개 — 전부 가정 → 시연 리허설·사용자 체감으로 조정
 - [2026-09-26] [real] 회차 시작 때 `VehiclePort.get(KEYS)` 로 현재값을 읽어 `SignalRegistry` 를 심는다(가이드가 어느 신호를 확인할 수 있는지 알아야 함). **가정: Real 의 `getVSS` 는 모르는 키를 결과에서 빼고(예외 없이), 아는 키는 현재값을 준다.** 빈 문자열이나 예외를 주면 `RealVehiclePort.get` 에서 걸러야 한다 → 사내 첫날 B층 키를 넣은 `get` 의 원시 반환을 로그로
+- [2026-09-26] [hybrid] `USE_FAKE_VSS=false` 일 때 기본으로 `HybridVehiclePort(real, fake)` — **Real 이 한 번이라도 값을 낸 키는 live**(Fake delta 를 버림), 나머지는 Fake 시나리오가 채운다. 가정: 실물이 모르는 키는 `get` 결과에서 빠지고 `set` 은 실패 목록에 넣는다(둘 다 계약 §). 순수 Real 로 보려면 `-PfillMissing=false`. **live 키에는 시연 조작(정차·도어)이 먹지 않는다** — 실차에서는 실제로 세우고 열어야 한다 → 사내 첫날 logcat `MOAH/VehiclePortFactory` 의 `Hybrid` 줄과 리포트 배지의 `실신호 N` 을 확인
+- [2026-09-26] [ai] `CloudCoachPort(fallback, transport=null)` 을 배선했다. 전송 계층 `CoachTransport.complete(system, user)` 만 구현하면 붙는다(현재 null → 항상 시드 풀). 응답은 60자(총평 160자)·2줄·금지어(하위·실패·못했…)로 걸러 통과 못 하면 폴백. 타임아웃 4 s → 사내에서 Copilot 인증 방식·엔드포인트·응답 지연 확인
 - [2026-09-25] [inhouse] 사내에서만 가능한 것 8항목(외부 개발 중 대체 불가): ① Bitbucket 소스 업로드 ② `market_uploader` APK 제출 ③ 3D 에뮬 연동 시연 영상 ④ `RealVehiclePort` 실행 ⑤ B층 경로 9개 실재 확인 ⑥ TTS 엔진·한국어 음성 ⑦ 디스플레이 물리 크기(`MOAH/DesignScale`) ⑧ Cloud Copilot 인증. 시연 영상은 **B안(외부 에뮬)을 먼저 완성**해 사내 방문이 1회여도 제출 가능하게 한다
 
 ## C. 요청 (Codex → Claude / Claude → Codex)

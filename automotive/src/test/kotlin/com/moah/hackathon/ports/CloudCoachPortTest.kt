@@ -1,0 +1,88 @@
+package com.moah.hackathon.ports
+
+import com.moah.hackathon.data.ParkingScenarios
+import com.moah.hackathon.data.SeedCatalog
+import com.moah.hackathon.feature.lesson.AttemptRecord
+import com.moah.hackathon.feature.lesson.LessonMode
+import com.moah.hackathon.feature.lesson.RemarkPool
+import com.moah.hackathon.scoring.ParkingRecorder
+import com.moah.hackathon.scoring.ParkingScore
+import com.moah.hackathon.vehicle.SignalRegistry
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Test
+import kotlin.random.Random
+
+class CloudCoachPortTest {
+    private val profile = SeedCatalog.demoProfile
+    private val fallback = FakeCoachPort(RemarkPool(SeedCatalog.remarks, Random(5)))
+
+    private fun score(): ParkingScore {
+        val r = ParkingRecorder(SignalRegistry(ParkingRecorder.KEYS, simulated = true))
+        for (s in ParkingScenarios.bad.steps) r.onDelta((s.atSeconds * 1000).toLong(), s.values)
+        return r.score()!!
+    }
+
+    private fun transport(block: suspend (String, String) -> String) = object : CoachTransport {
+        override suspend fun complete(system: String, user: String) = block(system, user)
+    }
+
+    @Test
+    fun `no transport falls back to the seed pool with the numeric head`() = runTest {
+        val coach = CloudCoachPort(fallback, transport = null)
+        val text = coach.remark(score(), null, profile, 1)
+        assertTrue(text, text.startsWith("4번 만에, 44초."))
+    }
+
+    @Test
+    fun `a good cloud answer is used with the head prepended and the prompt carries profile and process`() = runTest {
+        var captured = ""
+        val coach = CloudCoachPort(fallback, transport { _, user -> captured = user; "문고리는 잡았어요. 다음엔 열어 봅시다." })
+        val text = coach.remark(score(), null, profile, 1)
+        assertEquals("4번 만에, 44초. 문고리는 잡았어요. 다음엔 열어 봅시다.", text)
+        assertTrue(captured, captured.contains("장롱면허 10년"))
+        assertTrue(captured.contains("이동 4회"))
+        assertTrue(captured.contains("조향 되돌림 3회"))
+        assertTrue(captured.contains("참고 문장"))
+    }
+
+    @Test
+    fun `exceptions timeouts and rejected answers all fall back`() = runTest {
+        val s = score()
+        val boom = CloudCoachPort(fallback, transport { _, _ -> throw IllegalStateException("401") })
+        assertTrue(boom.remark(s, null, profile, 1).startsWith("4번 만에, 44초."))
+
+        val slow = CloudCoachPort(fallback, transport { _, _ -> delay(10_000); "늦은 답" }, timeoutMillis = 1_000)
+        assertTrue(slow.remark(s, null, profile, 1).startsWith("4번 만에, 44초."))
+        assertFalse(slow.remark(s, null, profile, 1).contains("늦은 답"))
+
+        val rude = CloudCoachPort(fallback, transport { _, _ -> "하위 20% 운전자입니다." })
+        assertFalse(rude.remark(s, null, profile, 1).contains("하위"))
+
+        val verbose = CloudCoachPort(fallback, transport { _, _ -> "아".repeat(200) })
+        assertTrue(verbose.remark(s, null, profile, 1).length < 120)
+    }
+
+    @Test
+    fun `validate trims quotes, rejects blanks, length, banned words and multi-line essays`() {
+        assertEquals("좋아요.", CoachPrompts.validate("  \"좋아요.\"  ", 60))
+        assertNull(CoachPrompts.validate("   ", 60))
+        assertNull(CoachPrompts.validate("가".repeat(61), 60))
+        assertNull(CoachPrompts.validate("실패했어요", 60))
+        assertNull(CoachPrompts.validate("한 줄\n두 줄\n세 줄", 60))
+        assertEquals("한 줄\n두 줄", CoachPrompts.validate("한 줄\n두 줄", 60))
+    }
+
+    @Test
+    fun `summary uses the cloud when it answers and the fallback when attempts are empty`() = runTest {
+        val s = score()
+        val record = AttemptRecord(1, SeedCatalog.TASK_PARKING_REAR, LessonMode.HINT, s, null, "…", 0L)
+        val coach = CloudCoachPort(fallback, transport { _, user -> assertTrue(user.contains("1회차: 숙련 60")); "오늘은 여기까지 잘 왔어요. 뒤 거리만 조금 더." })
+        assertEquals("오늘은 여기까지 잘 왔어요. 뒤 거리만 조금 더.", coach.summarize(SeedCatalog.parkingTask, LessonMode.HINT, listOf(record), profile))
+        assertTrue(coach.summarize(SeedCatalog.parkingTask, LessonMode.HINT, emptyList(), profile).contains("움직이지 않았어요"))
+    }
+}
