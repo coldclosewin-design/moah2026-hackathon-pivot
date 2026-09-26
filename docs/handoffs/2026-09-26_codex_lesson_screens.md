@@ -64,9 +64,12 @@
 - 탭 2 **진단서**(2순위 서사): 공유 범위 3단계(`shareLevels`: label·description) 라디오, 예상 혜택(`benefits`) 목록, 상단에 **"예시입니다 — 실제 전송·계약은 없습니다"** 고정 문구. 공유 버튼은 누르면 토스트 "예시 화면입니다"만.
 
 ### 시연 조작 패널 (Fake 일 때만, 우상단 접이식)
+- 접힌 상태의 토글 버튼 라벨은 **시연**. 펼치면 아래 버튼들이 보인다. 기본은 **펼친 상태**(시연 중 한 번 덜 누르게).
 - `demo.scenarios` 마다 버튼(제목: "잘한 주차", "못한 주차") → `demo.play(id)`. `demo.playback` 으로 진행 표시(`stepIndex/stepCount`).
 - **정차** `stopCar()` / **출발** `resumeCar()` / **문 열기** `setDoor(true)` / **문 닫기** `setDoor(false)` / **시나리오 정지** `stopScenario()`.
-- 라벨은 `res/values/strings.xml` 에 두고 **정확히 이 문자열**로(`tools/emu_flow.sh` 가 라벨로 탭한다): 시작 / 다 됐어요 / 한 번 더 / 오늘은 여기까지 / 다시 시작 / 잘한 주차 / 못한 주차 / 정차 / 출발 / 문 열기 / 문 닫기.
+- 라벨은 `res/values/strings.xml` 에 두고 **정확히 이 문자열**로(`tools/emu_flow.sh` 가 라벨로 탭한다): 시작 / 다 됐어요 / 한 번 더 / 오늘은 여기까지 / 다시 시작 / 시연 / 잘한 주차 / 못한 주차 / 정차 / 출발 / 문 열기 / 문 닫기 / 시나리오 정지. 모드 선택 버튼은 `LessonMode.label`(가이드 / 힌트 / 평가 / 지식 테스트) 그대로.
+- 리포트 화면에는 배지 문자열 "실신호 N · 시뮬레이션 N · 미측정 N" 과 **다시 시작** 이 있어야 한다(스크립트가 이 둘로 도달을 판정).
+- 계측 클래스 이름은 `com.moah.hackathon.ui.LessonScreenInstrumentation`, 캡처 파일명은 `files/lesson-<화면>.png`, 통과 시 `Lesson contract passed` 를 출력 — `tools/lesson_shots.sh` 가 그대로 기다린다.
 
 ## 규칙 (16번에서 배운 것, 그대로)
 - 화면 composable 은 `LessonPhase` 를 직접 받지 말고 각 단계 데이터(또는 `toDisplayState()`)만 받는다 — 미리보기·테스트가 쉬워진다.

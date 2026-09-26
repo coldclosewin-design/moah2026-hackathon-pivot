@@ -27,8 +27,9 @@ android {
         // TTS 음성 이름. 기본 ko-kr-x-kob-network(16번에서 사용자가 네 후보를 듣고 결정). 오프라인·미설치면 같은 계열 로컬(kob-local) → 로컬 최고 품질로 복귀.
         // 후보는 logcat "MOAH/AndroidTtsPort: ko voices". 로컬 자동 선택으로 돌리려면 -PttsVoice=auto
         buildConfigField("String", "TTS_VOICE", "\"${(project.findProperty("ttsVoice") ?: "ko-kr-x-kob-network").toString().let { if (it == "auto") "" else it }}\"")
-        // Fake 위치·Fake 신호 시나리오의 시간 압축 배율. 시연 길이에 맞춰 -PdemoSpeed=12 처럼 바꾼다 (GPS 모드에서는 위치에 무시)
-        buildConfigField("double", "DEMO_SPEED_FACTOR", (project.findProperty("demoSpeed") ?: "10.0").toString().toDouble().toString())
+        // Fake 신호 시나리오·Fake 위치의 시간 압축 배율. 주차 시나리오(잘한 26 s·못한 44 s)는 실시간이 맞아 기본 1.0.
+        // 시연 시간이 모자라면 -PdemoSpeed=1.5. (16번 도로 주행은 12 km 라 10 이었다)
+        buildConfigField("double", "DEMO_SPEED_FACTOR", (project.findProperty("demoSpeed") ?: "1.0").toString().toDouble().toString())
     }
 
     buildTypes {
