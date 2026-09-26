@@ -81,7 +81,8 @@
 | 9e | 상태기계 후속(Claude): ① 도어 선열림 `doorArmed` ② 조사 헬퍼 → 브리핑 "뒤 거리를 봅니다" | ✅ PR #17 `22a433a` |
 | 9f | **라운드 2 Codex PR #18** — 리뷰 완료(빌드·137·`emu_flow` PASS 98 s·`lesson_shots` PASS·캡처 21장 vs 시안). 시연 영상 녹화 중 **경합 발견 → PR #19**(`publishManeuver` CAS: delta 코루틴이 Done 을 묵은 Maneuver 로 덮어쓰던 것). 영상(2분 14초)은 #18 + #19 빌드 | ⬜ 사용자 승인 대기: **#18 → #19 순서로 머지** |
 | 9g | **라운드 2 영상 피드백 22건 분류** → `docs/design/03_round2_feedback.md`. 결정 3건 ✅(9/27): 숫자는 운전자 문장에서 전부 순화 / 궤적 시뮬레이션 진행 / 패널은 자동 접힘. **A 묶음(Claude, 브랜치 `claude/driver-copy-path`)**: `CoachPort` 두 문장(`AdviceRules` 조언 + 서두 풀), 총평 숫자 제거, 회차 시작 발화, `SHOW_DEMO_PANEL` 플래그, `PathReconstructor` → `AttemptRecord.path`. **디자인 세션 발주** `docs/handoffs/2026-09-27_codex_design_topview.md`(차 도식 3~4안·후진 도형·Done 궤적 시안) | 🟡 A 묶음 PR 대기 · 디자인 세션 → 사용자 선택 → 라운드 3 발주서(Claude) |
-| 9d | 라운드 3 — 피드백 B 항목 전부 + 시안 선택 결과 + 스크린샷 교체 → B안 영상 재녹화, 대본 실측 | ⬜ 9g 뒤 |
+| 9h | **A 묶음 PR #21 머지**(`955adfa`). 디자인 시안 PR #22 머지(`88c29fe`) → **사용자 선택 B**(고정 바퀴 + 방향 호 + 후진 셰브론), Done 궤적 시안 확정 | ✅ |
+| 9d | **라운드 3 발주서** `docs/handoffs/2026-09-27_codex_ui_round3.md` — 세 규칙(패널 접힘·숫자 없음·Headline 자동 축소) + Setup 시트 30/70·Briefing 정리·Maneuver B 도식(방향 호·셰브론)·Done 추정 궤적·Report 신호 출처 + 불변 표 + 캡처 교체. `emu_flow.sh` 는 접힌 패널을 `문 열기` 전에 다시 연다 | ✅ 발주 → ⬜ Codex → 리뷰 → 재녹화·대본 실측 |
 
 리뷰 루틴(Claude): worktree 에서 head 빌드 → `emu_flow.sh` → `lesson_shots.sh` → 캡처를 시안과 나란히 눈으로 → 불변 표 grep. `codex/design-refs`(이미지만) 는 바로 머지.
 
