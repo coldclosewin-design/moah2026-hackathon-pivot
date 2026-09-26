@@ -2,7 +2,7 @@
 
 새 Claude Code 세션이 이 파일 하나로 이어받을 수 있게 쓴 인계 문서. **작업을 마칠 때마다 이 파일을 갱신한다**(끝난 것은 지우고, 새로 생긴 것은 추가). 과거의 경위는 `docs/journal/`, 규칙은 `AGENTS.md`·`CLAUDE.md`, **제품 정의는 `docs/topics/01_driving_coach.md` v2**.
 
-마지막 갱신: 2026-09-26 · PR #1~#9 머지 — **화면까지 붙은 앱 + 발표·영상 문서 초안 + 지식 테스트 상태기계가 main** · 출발 전 점검 과제(`claude/predrive-check`) PR 대기 · **Codex 별도 세션: UI 재설계 진행 중(`docs/design/02_design_brief.md`)** · 마감 2026-10-07
+마지막 갱신: 2026-09-26 · PR #1~#10 머지(`main = 08e966b`, 열린 PR 0) — **화면까지 붙은 앱 + 발표·영상 문서 초안 + READY 과제 셋(출발 전 점검·주차·지식 테스트)이 main** · **Codex 별도 세션: UI 재설계 진행 중(`docs/design/02_design_brief.md`) — Claude 는 레퍼런스·브리프 답 대기** · 마감 2026-10-07
 
 ## 1. 지금 되는 것 (한 문단)
 
@@ -90,7 +90,7 @@
 | 10c | 화면 `Quiz`·`QuizDone` — C절 요청. 그때까지 `LessonRoute` 에 `[cross]` 자리표시자(Briefing 화면 재사용, 자막으로 진행) | ⬜ Codex(UI 재설계 라운드 2 에 함께) |
 | 10d | (선택) `CloudCoachPort` 로 퀴즈 총평 변주 · STT 로 음성 답변(사내 확인 뒤) | ⬜ |
 
-### Step 11 — 출발 전 점검 과제 (Claude ✅ 브랜치 `claude/predrive-check` · Codex 화면 ⬜)
+### Step 11 — 출발 전 점검 과제 (Claude ✅ PR #10 머지 `08e966b` · Codex 화면 ⬜)
 | # | 일 | 상태 |
 |---|---|---|
 | 11a | 시드 `TASK_PREDRIVE` READY(`CHECKLIST`, 주행 불필요), 가이드 3단계(벨트 → P 확인 → 시동), 점검 멘트 12, `SeedCatalog.scenariosFor(task)` | ✅ |
