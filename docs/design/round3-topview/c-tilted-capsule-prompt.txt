@@ -1,0 +1,16 @@
+Use case: infographic-diagram / automotive UI design concept.
+Create one finished raster design concept for option C of a top-view car steering diagram. Target canvas 1360 x 1268 px, near square ratio 1.0726:1. Entire image is ONLY the solid navy left 53% graphic field of a driving assistant app; do not show any right-hand UI. One car, no text or labels.
+
+Mature geometric poster made of only 8-12 flat simple Canvas-friendly shapes. Strict five-color palette: Ink #070827, Paper #FCFCFA, Periwinkle #5B60A1, Lavender #E5E6F0, Signal red #F52D48. Absolutely uniform solid navy background, no gradients, noise, texture, shadows, 3D or lighting.
+
+One clean tall capsule-like car silhouette centered with generous margins, about 340px wide x 740px long. REAR at TOP, FRONT at BOTTOM. White body, squared-shorter trunk at the upper end and subtly longer tapered hood at the lower end. One simple periwinkle rear glass pane at top, one broader periwinkle windshield at lower end, minimal white roof area between and a simple lavender hood section. Not a robot, phone, appliance, toy, vehicle brand, realistic illustration, or highly detailed sedan. NO WHEELS at all; no tire rectangles or wheel wells, no mirrors needed.
+
+C steering mechanism: the ENTIRE car silhouette is rotated 8 degrees clockwise from vertical, so its front/bottom nose points slightly toward IMAGE LEFT (driver's right with the car facing down), and the rear/top points slightly image right. Keep the amount small but visible. Do not add a second ghost car, motion trail, steering arrow or arc.
+
+Reverse indicator C: exactly three SHORT RED DASHES in one line along the car longitudinal axis behind the rear/top end, separated by equal navy gaps. Each dash about 8px wide x 20px long, each gap 16px, the nearest starts 35px behind the top end. The dashes inherit the car's 8-degree tilt. No red on the body. No arrowhead, text, number or arrow glyph.
+Deliver this single near-square option, no contact sheet or comparison.
+
+--- Refinement (input: initial generated C) ---
+Precise style edit of the supplied option C; keep the near-square composition and the SINGLE wheel-free capsule car with rear at top, front at bottom, purple windows, and three short red dashes behind it. Reduce the car clockwise tilt to 8 degrees. Preserve the generous navy field and no-text composition. Simplify the hood into ONE lavender filled shape without seam lines.
+
+Flatten ALL colors into exactly uniform solid fills: background #070827; body #FCFCFA; ALL glass #5B60A1; hood #E5E6F0; three red dashes #F52D48. No pixel grain, no dither, no paper, no material, no shading, no gradient even on large surfaces, no gloss, no shadow. Pure digital flat vector pictogram. Do not add wheels, mirrors, lines, arrows, or text. Keep output near-square 1360:1268 aspect, width slightly greater than height.
