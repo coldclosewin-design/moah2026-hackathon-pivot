@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.moah.hackathon.ui.lesson.BrandMark
 
 /**
  * 주제 확정 전 자리표시자. 속도(sensor)·도어(actuator) 왕복 경로를 눈으로 확인하는 용도.
@@ -35,11 +36,7 @@ fun DashboardScreen(vm: DashboardViewModel) {
         contentColor = MaterialTheme.colorScheme.onBackground,
     ) {
     Box(modifier = Modifier.padding(48.dp)) {
-        Text(
-            text = "MOAH 2026 · source=${state.source}",
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.align(Alignment.TopStart),
-        )
+        BrandMark(Modifier.align(Alignment.TopStart))
 
         Row(
             modifier = Modifier.align(Alignment.Center),
@@ -50,7 +47,7 @@ fun DashboardScreen(vm: DashboardViewModel) {
                 Text(
                     text = state.speedKmh?.let { "%.0f".format(it) } ?: "--",
                     fontSize = 220.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Medium,
                 )
                 Text(text = "km/h", fontSize = 48.sp)
             }

@@ -1,6 +1,5 @@
 package com.moah.hackathon.ui.lesson
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -11,6 +10,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clipToBounds
@@ -23,10 +24,11 @@ import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.moah.hackathon.ui.CoachColors
-import com.moah.hackathon.ui.LessonCanvas
 import com.moah.hackathon.ui.CoachType
 import com.moah.hackathon.vehicle.SignalAvailability
 
@@ -43,7 +45,7 @@ internal fun PosterSurface(content: @Composable () -> Unit) {
 }
 
 @Composable
-internal fun LessonText(text: String, size: Int = 36, color: Color = CoachColors.Foreground,
+internal fun LessonText(text: String, size: Int = 36, color: Color = CoachColors.Ink,
     bold: Boolean = false, modifier: Modifier = Modifier) {
     Text(text, modifier, color = color, fontSize = size.sp, lineHeight = (size * 1.3f).sp,
         fontWeight = if (bold) FontWeight.Medium else FontWeight.Normal,
@@ -104,41 +106,26 @@ internal fun PosterRule(modifier: Modifier = Modifier) =
     HorizontalDivider(modifier, thickness = 2.dp, color = CoachColors.Lavender)
 
 @Composable
-internal fun LessonFrame(subtitle: String?, demo: (@Composable () -> Unit)? = null,
-    content: @Composable ColumnScope.() -> Unit) {
-    LessonCanvas {
-        Row(Modifier.weight(1f).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(32.dp)) {
-            Column(Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(20.dp), content = content)
-            if (demo != null) Box(Modifier.width(490.dp)) { demo() }
-        }
-        Surface(color = CoachColors.Panel, shape = RoundedCornerShape(24.dp), modifier = Modifier.fillMaxWidth()) {
-            Row(Modifier.padding(horizontal = 32.dp, vertical = 20.dp), horizontalArrangement = Arrangement.spacedBy(32.dp)) {
-                LessonText("조수석", 32, CoachColors.Accent, modifier = Modifier.width(130.dp).padding(top = 8.dp))
-                // No ellipsis or line cap: the entire spoken sentence remains accessible (including four lines).
-                LessonText(subtitle?.takeIf { it.isNotBlank() } ?: "화내지 않는 조수석, 함께 연습해요.", 42,
-                    modifier = Modifier.weight(1f))
-            }
-        }
+internal fun SelectionChip(label: String, chosen: Boolean, onClick: () -> Unit) {
+    Box(Modifier.background(if (chosen) CoachColors.Periwinkle else CoachColors.Lavender)
+        .clickable(role = Role.RadioButton, onClick = onClick).semantics { selected = chosen }
+        .padding(horizontal = 24.dp, vertical = 20.dp)) {
+        LessonText(label, 40, if (chosen) CoachColors.Paper else CoachColors.Ink)
     }
 }
 
 @Composable
-internal fun LessonCard(modifier: Modifier = Modifier, padding: Int = 28, spacing: Int = 16,
-    content: @Composable ColumnScope.() -> Unit) {
-    Surface(modifier, color = CoachColors.Panel, shape = RoundedCornerShape(24.dp),
-        border = BorderStroke(1.dp, CoachColors.Outline)) {
-        Column(Modifier.padding(padding.dp), verticalArrangement = Arrangement.spacedBy(spacing.dp), content = content)
+internal fun DemoRail(expansion: MutableState<Boolean>, demo: @Composable () -> Unit) {
+    CompositionLocalProvider(LocalDemoExpansion provides expansion) {
+        Box(Modifier.width(if (expansion.value) 420.dp else 80.dp)) { demo() }
     }
 }
 
 @Composable
-internal fun LessonButton(label: String, onClick: () -> Unit, modifier: Modifier = Modifier, primary: Boolean = false) {
-    Button(onClick, modifier.heightIn(min = 80.dp), shape = RoundedCornerShape(20.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = if (primary) CoachColors.Accent else CoachColors.Panel,
-            contentColor = if (primary) CoachColors.Ink else CoachColors.Foreground),
-        border = if (primary) null else BorderStroke(2.dp, CoachColors.Outline),
-        contentPadding = PaddingValues(horizontal = 28.dp, vertical = 16.dp)) {
-        LessonText(label, 34, if (primary) CoachColors.Ink else CoachColors.Foreground, bold = true)
+internal fun SpeechFooter(subtitle: String?) {
+    if (!subtitle.isNullOrBlank()) {
+        PosterRule()
+        Spacer(Modifier.height(20.dp))
+        LessonText(subtitle, 32, CoachColors.Muted)
     }
 }

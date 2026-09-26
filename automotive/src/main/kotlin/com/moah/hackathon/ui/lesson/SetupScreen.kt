@@ -1,15 +1,20 @@
 package com.moah.hackathon.ui.lesson
 
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -23,61 +28,88 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
     demo: (@Composable () -> Unit)? = null) {
     var selectedTaskId by rememberSaveable(suggestedTask.id) { mutableStateOf(suggestedTask.id) }
     var modeName by rememberSaveable(suggestedMode) { mutableStateOf(suggestedMode.name) }
+    var sheet by rememberSaveable { mutableStateOf(false) }
+    val expansion = rememberSaveable { mutableStateOf(true) }
     val task = tasks.firstOrNull { it.id == selectedTaskId } ?: suggestedTask
-    val mode = LessonMode.valueOf(modeName)
-    val aside: (@Composable () -> Unit)? = if (demo == null) null else {
-        {
-            Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                demo()
-                reservation?.let { ReservationInfo(it, compact = true) }
+    val mode = supportedMode(task, LessonMode.valueOf(modeName))
+    val start = { if (task.isReady) onBegin(task.id, mode) }
+    PosterSurface {
+        Row(Modifier.fillMaxSize()) {
+            Box(Modifier.weight(.53f).fillMaxHeight()) {
+                Image(painterResource(R.drawable.poster_car), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                BrandMark(Modifier.padding(start = 180.dp, top = 64.dp))
             }
-        }
-    }
-    LessonFrame(subtitle, aside) {
-        LessonText("오늘은 뭘 해볼까요?", 60, bold = true)
-        LessonText(profileLine(profile), 32, CoachColors.Muted)
-        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-            LessonCard(Modifier.fillMaxWidth(), padding = 20, spacing = 8) {
-                LessonText("오늘의 제안", 32, CoachColors.Accent)
-                LessonText("${task.title} · ${mode.label} 모드", 46, bold = true)
-                LessonText(selectionReason(task, mode, suggestedTask, suggestedMode, reason), 36)
-            }
-            LessonText("연습할 과제", 32, CoachColors.Muted)
-            tasks.chunked(3).forEach { row ->
-                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    row.forEach { item ->
-                        val chosen = item.id == task.id
-                        Surface(onClick = { selectedTaskId = item.id },
-                            modifier = Modifier.weight(1f).semantics { selected = chosen },
-                            color = if (chosen) CoachColors.Accent else CoachColors.Panel,
-                            shape = RoundedCornerShape(18.dp), border = BorderStroke(1.dp, CoachColors.Outline)) {
-                            Column(Modifier.padding(14.dp)) {
-                                LessonText(item.title, 34, if (chosen) CoachColors.Ink else CoachColors.Foreground, bold = true)
-                                LessonText("${taskTypeLabel(item.type)} · 난이도 ${item.difficulty.label}", 32,
-                                    if (chosen) CoachColors.Ink else CoachColors.Muted)
+            Row(Modifier.weight(.47f).fillMaxHeight().padding(start = 32.dp, end = 32.dp, top = 64.dp, bottom = 52.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                Column(Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                    if (sheet) {
+                        Eyebrow("연습할 과제")
+                        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                            tasks.chunked(3).forEach { row ->
+                                Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                    row.forEach { item ->
+                                        TaskChoice(item, item.id == task.id, Modifier.weight(1f).fillMaxHeight()) {
+                                            selectedTaskId = item.id
+                                            modeName = supportedMode(item, mode).name
+                                        }
+                                    }
+                                    repeat(3 - row.size) { Spacer(Modifier.weight(1f)) }
+                                }
+                            }
+                            reservation?.let { ReservationInfo(it) }
+                        }
+                        // Keep mode selection and start reachable while the task/reservation list scrolls.
+                        Eyebrow("모드")
+                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            LessonMode.entries.filter(task::supports).forEach { item ->
+                                SelectionChip(item.label, item == mode, { modeName = item.name })
                             }
                         }
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(32.dp)) {
+                            PrimaryPill(stringResource(R.string.lesson_start), start)
+                            TextAction(stringResource(R.string.lesson_back), { sheet = false })
+                        }
+                    } else {
+                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
+                            Eyebrow(profileLine(profile), color = CoachColors.Muted)
+                            Spacer(Modifier.height(32.dp))
+                            Headline(setupProposal(task.type), size = 72)
+                            Spacer(Modifier.height(32.dp))
+                            LessonText("${task.title} · ${mode.label} 모드", 40)
+                            Spacer(Modifier.height(20.dp))
+                            LessonText(selectionReason(task, mode, suggestedTask, suggestedMode, reason), 40, CoachColors.Muted)
+                            Spacer(Modifier.height(48.dp))
+                            PrimaryPill(stringResource(R.string.lesson_start), start, Modifier.fillMaxWidth())
+                            Spacer(Modifier.height(16.dp))
+                            TextAction(stringResource(R.string.lesson_change_task_mode), { sheet = true })
+                        }
+                        SpeechFooter(subtitle)
                     }
-                    repeat(3 - row.size) { Spacer(Modifier.weight(1f)) }
                 }
+                if (demo != null) DemoRail(expansion, demo)
             }
-            if (demo == null) reservation?.let { ReservationInfo(it, compact = false) }
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            LessonMode.entries.forEach { item ->
-                LessonButton(item.label, { modeName = item.name }, Modifier.semantics { selected = item == mode }, primary = item == mode)
-            }
-            Spacer(Modifier.weight(1f))
-            LessonButton(stringResource(R.string.lesson_start), { onBegin(task.id, mode) }, primary = true)
         }
     }
 }
 
 @Composable
-private fun ReservationInfo(card: ReservationCard, compact: Boolean) {
-    LessonCard(Modifier.fillMaxWidth(), padding = 20, spacing = 8) {
-        LessonText(card.venue, 32, CoachColors.Accent, bold = true)
-        LessonText(if (compact) "${card.slot}\n${card.course}" else "${card.slot} · ${card.course}", 32)
-        LessonText(if (card.note.contains("실제 예약 연계 없음")) card.note else "${card.note} · 실제 예약 연계 없음", 32, CoachColors.Muted)
+private fun TaskChoice(task: Task, chosen: Boolean, modifier: Modifier, onClick: () -> Unit) {
+    val background = if (chosen && task.isReady) CoachColors.Periwinkle else CoachColors.Lavender
+    val foreground = when { !task.isReady -> CoachColors.Muted; chosen -> CoachColors.Paper; else -> CoachColors.Ink }
+    // Disabled tasks deliberately have no onClick semantics (even a disabled clickable action would leak).
+    val action = if (task.isReady) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier.semantics { disabled() }
+    Column(modifier.background(background).then(action).semantics { selected = chosen }
+        .padding(horizontal = 12.dp, vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        LessonText(task.title, 40, foreground)
+        LessonText("${taskTypeLabel(task.type)} · ${task.difficulty.label}", 32, foreground)
+        if (!task.isReady) LessonText(task.status.label, 32, CoachColors.Muted)
     }
+}
+
+@Composable
+private fun ReservationInfo(card: ReservationCard) {
+    PosterRule()
+    Eyebrow("제휴 시험장 예시", color = CoachColors.Periwinkle)
+    LessonText("${card.venue}\n${card.slot}\n${card.course}", 40)
+    LessonText(if (card.note.contains("실제 예약 연계 없음")) card.note else "${card.note} · 실제 예약 연계 없음", 32, CoachColors.Muted)
 }

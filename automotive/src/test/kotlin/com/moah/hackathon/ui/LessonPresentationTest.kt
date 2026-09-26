@@ -27,6 +27,38 @@ class LessonPresentationTest {
 
     @Test fun doneFirstAttemptHasNoComparison() { assertTrue(deltaLines(null).isEmpty()) }
 
+    @Test fun taskChangesCannotKeepAnUnsupportedMode() {
+        val knowledge = SeedCatalog.tasks.first { it.type == TaskType.KNOWLEDGE }
+        assertEquals(LessonMode.QUIZ, supportedMode(knowledge, LessonMode.HINT))
+        assertEquals(LessonMode.GUIDE, supportedMode(SeedCatalog.predriveTask, LessonMode.QUIZ))
+        assertEquals(LessonMode.HINT, supportedMode(SeedCatalog.parkingTask, LessonMode.HINT))
+    }
+
+    @Test fun briefingUsesTheCorrectKoreanParticlesAndOnlyTwoWatchItems() {
+        assertEquals("핸들 방향과\n기어 전환을 볼게요.", briefingHeadline(SeedCatalog.parkingTask.watch))
+        assertEquals("뒤 거리와\n시동을 볼게요.", briefingHeadline(listOf("뒤 거리", "시동", "벨트")))
+        assertEquals("안전벨트를\n볼게요.", briefingHeadline(listOf("안전벨트")))
+    }
+
+    @Test fun checklistDoneOmitsParkingAndUnavailableTiming() {
+        assertEquals("벨트 2초 · 시동 5초 · 벨트 먼저 · 움직임 4회", processLine(TaskType.CHECKLIST,
+            metrics.copy(preDrive = PreDriveSummary(true, true, 2_000, 5_000))))
+        assertEquals("움직임 4회", processLine(TaskType.CHECKLIST, metrics.copy(preDrive = PreDriveSummary(null, null))))
+        assertEquals("시동 3초 · 움직임 4회", processLine(TaskType.CHECKLIST,
+            metrics.copy(preDrive = PreDriveSummary(null, true, null, 3_000))))
+    }
+
+    @Test fun missingSignalsNeverCollapseAndChecklistUsesItsOwnSignals() {
+        val missing = display().copy(steeringSignal = SignalAvailability.MISSING,
+            gearSignal = SignalAvailability.MISSING, distanceSignal = SignalAvailability.MISSING)
+        assertNull(missing.commonSignal())
+        val checklist = missing.copy(taskType = TaskType.CHECKLIST, beltSignal = SignalAvailability.LIVE,
+            gearSignal = SignalAvailability.LIVE, ignitionSignal = SignalAvailability.LIVE)
+        assertEquals(SignalAvailability.LIVE, checklist.commonSignal())
+        assertNull(checklist.copy(beltSignal = SignalAvailability.MISSING).commonSignal())
+        assertEquals("시뮬레이션 신호", collapsedSignalLabel(SignalAvailability.SIMULATED))
+    }
+
     @Test fun doneImprovementIsPositiveAndRegressionIsNeutral() {
         val lines = deltaLines(ParkingDelta(-2, 4, null, 0))
         assertEquals(3, lines.size)
