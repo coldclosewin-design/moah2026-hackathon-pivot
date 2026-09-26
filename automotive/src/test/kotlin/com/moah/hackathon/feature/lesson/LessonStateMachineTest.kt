@@ -279,6 +279,39 @@ class LessonStateMachineTest {
     }
 
     @Test
+    fun `a door already open at attempt start does not end the attempt - closing then opening does`() = runTest {
+        val h = harness()
+        h.port.set(mapOf(VssConstants.DOOR_DRIVER_ISOPEN to VssValues.TRUE))   // 타는 중 — 문이 열린 채 시작
+        h.machine.begin(SeedCatalog.TASK_PARKING_REAR, LessonMode.EVALUATE)
+        advanceUntilIdle()
+        assertTrue(h.machine.phase.value is LessonPhase.Maneuver)
+        feed(h, ParkingScenarios.good)                 // 정차 구간이 여러 번 있지만 문이 계속 열려 있어도 끝나지 않는다
+        assertTrue(h.machine.phase.value is LessonPhase.Maneuver)
+        assertTrue(h.store.all().isEmpty())
+        h.port.set(mapOf(VssConstants.DOOR_DRIVER_ISOPEN to VssValues.FALSE)); advanceUntilIdle()   // 닫음 → 무장
+        assertTrue(h.machine.phase.value is LessonPhase.Maneuver)
+        openDoor(h)                                    // 다시 열림 → 회차 종료 + 리포트
+        assertTrue(h.machine.phase.value is LessonPhase.Report)
+        assertEquals(1, h.store.all().size)
+        h.scope.cancel()
+    }
+
+    @Test
+    fun `spoken lines carry the right particles`() = runTest {
+        val h = harness()
+        h.machine.begin("road-course", LessonMode.HINT)
+        assertTrue(h.tts.spoken.last(), h.tts.spoken.last().startsWith("일반 도로 코스는 아직 준비 중이에요. 지금은 출발 전 점검·후면 직각 주차·비상등·날씨별 행동을 할 수 있어요."))
+        h.machine.begin(SeedCatalog.TASK_PARKING_REAR, LessonMode.QUIZ)
+        assertTrue(h.tts.spoken.last().startsWith("후면 직각 주차는 지식 테스트 모드로는"))
+        h.machine.begin(SeedCatalog.TASK_PARKING_REAR, LessonMode.GUIDE)
+        assertTrue(h.tts.spoken.last(), h.tts.spoken.last().endsWith("오늘은 핸들 방향과 기어 전환과 뒤 거리를 봅니다."))
+        h.machine.reset()
+        h.machine.begin(SeedCatalog.TASK_PREDRIVE, LessonMode.HINT)
+        assertTrue(h.tts.spoken.last(), h.tts.spoken.last().endsWith("오늘은 안전벨트와 기어 P와 시동을 봅니다."))
+        h.scope.cancel()
+    }
+
+    @Test
     fun `door opening while moving is harmless`() = runTest {
         val h = harness()
         h.machine.begin(SeedCatalog.TASK_PARKING_REAR, LessonMode.EVALUATE)

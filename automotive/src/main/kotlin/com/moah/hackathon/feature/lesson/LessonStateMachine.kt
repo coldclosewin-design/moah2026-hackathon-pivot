@@ -5,6 +5,9 @@ import com.moah.hackathon.ports.CoachPort
 import com.moah.hackathon.ports.SpeechPriority
 import com.moah.hackathon.ports.TtsPort
 import com.moah.hackathon.ports.attemptHead
+import com.moah.hackathon.ports.joinAsObjects
+import com.moah.hackathon.ports.withObjectParticle
+import com.moah.hackathon.ports.withTopicParticle
 import com.moah.hackathon.scoring.ChecklistRubric
 import com.moah.hackathon.scoring.ParkingDelta
 import com.moah.hackathon.scoring.ParkingRecorder
@@ -71,6 +74,11 @@ class LessonStateMachine(
     private var lastHint: String? = null
     private var askedDone = false
     private var finishing = false
+    /**
+     * 도어 종료 조건의 무장(armed) 여부. 회차 시작 시점에 운전석 도어가 **이미 열려 있으면**(타고 있는 중, 또는 지난 세션에서 열고 닫지 않음)
+     * 닫히는 것을 한 번 본 뒤에만 "정차 + 도어 열림 → 리포트" 가 살아난다. 안 그러면 첫 신호에서 회차가 바로 끝난다.
+     */
+    private var doorArmed = true
     private val sessionRecords = ArrayList<AttemptRecord>()
     private val unverifiedSteps = LinkedHashSet<String>()
     private var current: Pair<Task, LessonMode>? = null
@@ -84,12 +92,13 @@ class LessonStateMachine(
         // 준비 중인 과제·맞지 않는 모드는 시작하지 않는다 — 주차 채점기가 다른 과제에 돌아가는 사고 방지. Setup 에 그대로 남는다.
         if (!task.isReady) {
             Log.i(TAG, "refused: ${task.id} is ${task.status}")
-            tts.speak("${task.title}은 아직 준비 중이에요. 지금은 ${tasks.filter { it.isReady }.joinToString("·") { it.title }}을 할 수 있어요.")
+            val ready = tasks.filter { it.isReady }.joinToString("·") { it.title }
+            tts.speak("${task.title.withTopicParticle()} 아직 준비 중이에요. 지금은 ${ready.withObjectParticle()} 할 수 있어요.")
             return
         }
         if (!task.supports(mode)) {
             Log.i(TAG, "refused: ${task.id} does not support $mode")
-            tts.speak("${task.title}은 ${mode.label} 모드로는 할 수 없어요. 가이드·힌트·평가 중에서 골라 주세요.")
+            tts.speak("${task.title.withTopicParticle()} ${mode.label} 모드로는 할 수 없어요. 가이드·힌트·평가 중에서 골라 주세요.")
             return
         }
         current = task to mode
@@ -246,10 +255,10 @@ class LessonStateMachine(
     }
 
     private fun briefingLine(task: Task, mode: LessonMode): String {
-        val watch = task.watch.joinToString("과 ")
+        val watch = task.watch.joinAsObjects()   // "핸들 방향과 기어 전환과 뒤 거리를"
         return when (mode) {
-            LessonMode.GUIDE -> "${task.title}, 가이드 모드. 제가 단계마다 말하고 확인할게요. 오늘은 ${watch}을 봅니다."
-            LessonMode.HINT -> "${task.title}, 힌트 모드. 조용히 있다가 필요한 순간에만 말할게요. 오늘은 ${watch}을 봅니다."
+            LessonMode.GUIDE -> "${task.title}, 가이드 모드. 제가 단계마다 말하고 확인할게요. 오늘은 $watch 봅니다."
+            LessonMode.HINT -> "${task.title}, 힌트 모드. 조용히 있다가 필요한 순간에만 말할게요. 오늘은 $watch 봅니다."
             LessonMode.EVALUATE -> "${task.title}, 평가 모드. 끝까지 조용히 보고 있을게요. 다 되면 버튼을 눌러 주세요."
             LessonMode.QUIZ -> "${task.title}. 정차 중이니 편하게 답해 주세요."
         }
@@ -269,6 +278,8 @@ class LessonStateMachine(
         registry.onValues(now)
         snapshot = snapshot.apply(now)
         recorder.onDelta(0L, now)
+        doorArmed = !snapshot.doorOpen
+        if (!doorArmed) Log.i(TAG, "door already open at attempt start → door exit disarmed until it closes")
         guide = if (mode == LessonMode.GUIDE) GuideRunner(guideFor(task), registry) else null
         publishManeuver(task, mode)
         ensureVehicleSubscription()
@@ -288,6 +299,8 @@ class LessonStateMachine(
     private fun onDelta(delta: Map<String, String>) {
         snapshot = snapshot.apply(delta)
         registry.onValues(delta)
+        if (!doorArmed && !snapshot.doorOpen) { doorArmed = true; Log.i(TAG, "door closed → door exit armed") }
+        val doorExit = doorArmed && snapshot.doorOpen && snapshot.stopped
         val p = _phase.value
         when (p) {
             is LessonPhase.Maneuver -> {
@@ -317,13 +330,13 @@ class LessonStateMachine(
                 }
                 if (guide?.finished == true && !askedDone) { askedDone = true; Log.i(TAG, "asked done (attempt $attempt, guide finished)") }
                 publishManeuver(p.task, p.mode)
-                if (snapshot.doorOpen && snapshot.stopped) {
+                if (doorExit) {
                     Log.i(TAG, "door opened while stopped → finish + report")
                     finishAttempt()
                     scope.launch { toReport() }
                 }
             }
-            is LessonPhase.Done -> if (snapshot.doorOpen && snapshot.stopped) {
+            is LessonPhase.Done -> if (doorExit) {
                 Log.i(TAG, "door opened → report")
                 scope.launch { toReport() }
             }
