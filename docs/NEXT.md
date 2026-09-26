@@ -2,11 +2,11 @@
 
 새 Claude Code 세션이 이 파일 하나로 이어받을 수 있게 쓴 인계 문서. **작업을 마칠 때마다 이 파일을 갱신한다**(끝난 것은 지우고, 새로 생긴 것은 추가). 과거의 경위는 `docs/journal/`, 규칙은 `AGENTS.md`·`CLAUDE.md`, **제품 정의는 `docs/topics/01_driving_coach.md` v2**.
 
-마지막 갱신: 2026-09-26 · Step 3·4·7 기반 머지(PR #1~#3) · **Step 5 화면 구현·계측 완료, `codex/lesson-screens` 리뷰 대기** · 마감 2026-10-07
+마지막 갱신: 2026-09-26 · Step 3·4·5·7 머지(PR #1~#5) — **화면까지 붙은 앱이 main** · 열린 Codex 오더 없음 · Claude 후속 PR #6(emu_flow 검증 강화·Fake 정차 시작·대본 실측) · 마감 2026-10-07
 
 ## 1. 지금 되는 것 (한 문단)
 
-`codex/lesson-screens`에서는 앱을 켜면 **LessonRoute의 연수 세션 화면 5장과 Fake 전용 시연 패널**이 뜬다. Setup의 과제·모드·예약 예시, Briefing, 주차 도식, 회차 피드백, 오늘 리포트·진단서 탭까지 연결했다. Dashboard는 부트스트랩 참조용으로 남겼다. **빌드·단위테스트 99개 통과**, CSTDe_API_34에서 `Lesson contract passed`; 5화면과 진단서·잠금·미측정/4줄 자막 캡처는 `docs/screenshots/lesson/`. 플랫폼·상태기계·채점·시드 구조·Gradle 파일은 변경하지 않았다.
+`main`(PR #5 `73ded64`)에서 앱을 켜면 **LessonRoute의 연수 세션 화면 5장과 Fake 전용 시연 패널**이 뜬다. Setup의 과제·모드·예약 예시, Briefing, 주차 도식, 회차 피드백, 오늘 리포트·진단서 탭까지 연결했다. Dashboard는 부트스트랩 참조용으로 남겼다. **빌드·단위테스트 99개 통과**, CSTDe_API_34에서 `Lesson contract passed`; 5화면과 진단서·잠금·미측정/4줄 자막 캡처는 `docs/screenshots/lesson/`. 플랫폼·상태기계·채점·시드 구조·Gradle 파일은 변경하지 않았다.
 
 **제품 정의 v2 (9/26)**: 시연 본편은 **후면 직각 주차 과제**. `Setup(대화·제안) → Briefing → Maneuver(도식) → Done("다 됐어요") → Report(도어 열림)`. 채점은 과정만. 모드 가이드→힌트→평가→지식테스트. 상세는 `topics/01_driving_coach.md`.
 
@@ -40,7 +40,7 @@
 
 단위 테스트 62 → 89 (실패 0). 첫 Codex 발주서: `docs/handoffs/2026-09-26_codex_lesson_screens.md`.
 
-### Step 5 — 화면 (Codex) — ✅ 구현·계측, 리뷰 대기
+### Step 5 — 화면 (Codex) — ✅ PR #5 머지 `73ded64` (Claude 리뷰: 빌드·emu_flow PASS·lesson_shots PASS·캡처 눈으로)
 `ui/lesson/`의 Setup / Briefing / Maneuver / Done / Report + DemoPanel + LessonRoute. 화면은 단계별 데이터만 받고 Route만 LessonPhase를 분기한다. Maneuver는 원래 snapshot의 locked/stopped 판정을 전달받는다(표시 속도 반올림으로 5.1 km/h를 해제하지 않음). 잠금 시 시연 패널까지 제거, 정차 때만 완료 버튼, 힌트는 4초 후 소거, 완료 버튼은 두 번 펄스 후 정지한다. 전 화면 32 sp 이상·한국어 Phrase 줄바꿈·말줄임 없는 자막.
 
 - `LessonPresentationTest`: 표시 매핑 10개 추가(전체 99개). 미측정 지표 생략, 비교 없음/개선/악화, 배지·도식 경계, 이전 회차 TTS의 점수 문장 차단 등. Maneuver의 자막·힌트·가이드에서 `점수/감점/N점` 문장을 걸러 접근성 트리로도 새지 않게 한다.
@@ -52,14 +52,14 @@
 ### Step 6 — AI (Claude) — 🟡 전송 계층만 남음
 `ports/CoachPort.kt`(계약) + `FakeCoachPort`(시드 풀, Step 4) + **`CloudCoachPort(fallback, transport)`**(프롬프트 조립 `CoachPrompts`·타임아웃 4 s·응답 검증 길이/줄수/금지어·실패 시 폴백, 예외 안 던짐 — 테스트로 강제). `App.kt` 는 `transport = null` 로 배선 → 지금은 항상 시드 풀. **사내 Copilot 인증 방식 확인 → `CoachTransport.complete(system, user)` 구현체 하나** 넣으면 끝.
 
-### Step 7 — 시연 파이프라인 (Claude) — 🟡 화면 연결·실행 검증, 원본 대기 조건 보완 필요
+### Step 7 — 시연 파이프라인 (Claude) — ✅ 실행 검증 완료 (PR #6 에서 대기 조건·고정값 검증 보강)
 | # | 일 | 상태 |
 |---|---|---|
-| 7a | `tools/emu_flow.sh` 주차 흐름(Setup 힌트 → 못한 주차 → 다 됐어요 → 한 번 더 → 잘한 주차 → 문 열기 → Report). 힌트 3종·회차 2·배지를 로그(`hint:`·`asked done`·`attempt N: skill=`·`report:`)와 라벨로 판정 | ✅ 실행, 두 번째 회차 대기 조건 수정 요청(C절) |
+| 7a | `tools/emu_flow.sh` 주차 흐름(Setup 힌트 → 못한 주차 → 다 됐어요 → 한 번 더 → 잘한 주차 → 문 열기 → Report). 힌트 3종·회차 2·배지를 로그(`hint:`·`asked done`·`attempt N: skill=`·`report:`)와 라벨로 판정 | ✅ PASS·clashes 0·103 s. PR #6: `asked done (attempt N` 한정 + 회차 채점 고정값(60/55·4 · 100/100·2) 검증 |
 | 7b | `tools/lesson_shots.sh` — Codex 의 `LessonScreenInstrumentation` 을 돌려 `lesson-*.png` 를 꺼낸다. `concept_shots.sh`·`gps_flow.sh` 는 삭제(16번 `0c95d18` 에 있음) | ✅ 실행 PASS·8장 캡처 |
-| 7c | `docs/05_demo_script.md` — 2분 10초 타임라인·말할 것·시간 조절·사고 대응 | ✅ 초안, ⬜ 실측 시각 |
+| 7c | `docs/05_demo_script.md` — 2분 10초 타임라인·말할 것·시간 조절·사고 대응 | ✅ 실측 시각 반영(PR #6) |
 | 7d | `DEMO_SPEED_FACTOR` 기본 10 → **1.0**(주차 시나리오는 실시간이 맞다). 상태기계에 스크립트용 로그 `hint:`·`asked done` | ✅ |
-| 7e | 화면 PR 리뷰 뒤: `emu_flow.sh` PASS → 대본 시각 실측 → 캡처를 눈으로. 계측 계약을 만들 때 `build.gradle.kts` 의 `testInstrumentationRunner` 주석을 먼저 읽는다 | ⬜ |
+| 7e | 화면 PR 리뷰 뒤: `emu_flow.sh` PASS → 대본 시각 실측 → 캡처를 눈으로. 계측 계약을 만들 때 `build.gradle.kts` 의 `testInstrumentationRunner` 주석을 먼저 읽는다 | ✅ 9/26 (Codex 는 자리표시자 첫 항목으로 함정 회피) |
 
 ### Step 8 — 제출
 발표 덱(16번 `docs/presentation/01_deck_outline.md` 슬라이드 7~11 서사 재사용), 시연 영상 **B안(외부 에뮬)을 먼저**, 사내에서 Bitbucket·MarketUploader·A안(3D 에뮬) 녹화.
