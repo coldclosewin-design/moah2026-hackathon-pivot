@@ -18,18 +18,19 @@ object VehiclePortFactory {
 
     fun create(context: Context): VehiclePort {
         if (BuildConfig.USE_FAKE_VSS) {
-            Log.i(TAG, "USE_FAKE_VSS=true → FakeVehiclePort")
-            return FakeVehiclePort()
+            // 정차 상태로 시작한다(기본 sin 속도 시뮬레이션 끔) — 주차 과제는 시나리오 재생기가 신호를 만들고, 도로 속도로 시작하면 Setup 이 잠긴다(Codex C절 9/26)
+            Log.i(TAG, "USE_FAKE_VSS=true → FakeVehiclePort (stopped)")
+            return FakeVehiclePort(simulate = false)
         }
         val real = try {
             RealVehiclePort(context).also { Log.i(TAG, "RealVehiclePort ready") }
         } catch (e: LinkageError) {
             // mobis.vss 클래스가 런타임에 없음 (외부 에뮬에서 stub 으로 빌드된 경우)
             Log.e(TAG, "mobis.vss not present at runtime → falling back to FakeVehiclePort", e)
-            return FakeVehiclePort()
+            return FakeVehiclePort(simulate = false)
         } catch (e: IllegalStateException) {
             Log.e(TAG, "VSS service unavailable → falling back to FakeVehiclePort", e)
-            return FakeVehiclePort()
+            return FakeVehiclePort(simulate = false)
         }
         if (!BuildConfig.FILL_MISSING_WITH_FAKE) return real
         // 기본 시뮬레이션(sin 속도)은 끈다 — 속도는 실물이 주고, 없는 키는 시나리오 재생기가 채운다

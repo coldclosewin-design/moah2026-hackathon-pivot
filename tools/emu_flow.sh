@@ -84,20 +84,22 @@ open_demo_panel; tap_text "못한 주차"; sleep 6; shot 12_maneuver_hint
 wait_log "hint: 안전벨트" 30 || FAIL=1
 wait_log "hint: 뒤가 가까워요" 60 || FAIL=1
 wait_log "hint: 제동이 급했어요" 20 || FAIL=1
-wait_log "asked done" 60 || FAIL=1; mark "asked done (1)"; sleep 1; shot 13_maneuver_parked
+wait_log "asked done \(attempt 1" 60 || FAIL=1; mark "asked done (1)"; sleep 1; shot 13_maneuver_parked
 tap_text "다 됐어요"; wait_log "attempt 1: skill=" 10 || exit 1; mark "done (1)"; sleep 2; shot 14_done_1
 echo "  texts: $(now_texts)"
-adb logcat -d -s "$TAG" | grep -oE "attempt 1: skill=[0-9]+ safety=[0-9]+" | tail -1
+R1=$(adb logcat -d -s "$TAG" | grep -oE "attempt 1: skill=[0-9]+ safety=[0-9]+ segments=[0-9]+" | tail -1); echo "  $R1"
+[ "$R1" = "attempt 1: skill=60 safety=55 segments=4" ] || { echo "  !! attempt 1 expected skill=60 safety=55 segments=4 (ParkingRecorderScenarioTest 고정값)"; FAIL=1; }
 
 echo "== attempt 2: 잘한 주차 (힌트 없이 끝나야 한다)"
 tap_text "한 번 더"; wait_log "attempt 2 start" 10 || exit 1; mark "attempt 2"
 HINTS_BEFORE=$(adb logcat -d -s "$TAG" | grep -c "hint: ")
 open_demo_panel; tap_text "잘한 주차"; sleep 6; shot 15_maneuver_good
-wait_log "asked done" 60 || FAIL=1   # 첫 회차의 것과 구분: 아래 attempt 2 로그로 판정
+wait_log "asked done \(attempt 2" 60 || FAIL=1; mark "asked done (2)"   # attempt 번호로 한정 — 1회차 로그에 매칭되던 버그(Codex, C절 9/26)
 tap_text "다 됐어요"; wait_log "attempt 2: skill=" 10 || exit 1; mark "done (2)"; sleep 2; shot 16_done_2
 HINTS_AFTER=$(adb logcat -d -s "$TAG" | grep -c "hint: ")
 [ "$HINTS_AFTER" -eq "$HINTS_BEFORE" ] || { echo "  !! good parking produced hints ($((HINTS_AFTER-HINTS_BEFORE)))"; FAIL=1; }
-adb logcat -d -s "$TAG" | grep -oE "attempt 2: skill=[0-9]+ safety=[0-9]+" | tail -1
+R2=$(adb logcat -d -s "$TAG" | grep -oE "attempt 2: skill=[0-9]+ safety=[0-9]+ segments=[0-9]+" | tail -1); echo "  $R2"
+[ "$R2" = "attempt 2: skill=100 safety=100 segments=2" ] || { echo "  !! attempt 2 expected skill=100 safety=100 segments=2"; FAIL=1; }
 
 echo "== report: 정차 + 운전석 도어 열림"
 tap_text "문 열기"; wait_log "report: attempts=2" 15 || exit 1; mark "report (= 시연 길이)"; sleep 3; shot 17_report
@@ -107,5 +109,5 @@ echo "  texts: $(texts)"
 
 echo "== logcat"; adb logcat -d -s "$TAG" | grep -v "beginning of" | cut -c20-220
 echo "== uiautomator clashes (0 = clean single-instance run): $(adb logcat -d | grep -c "UiAutomationService.*already registered")"
-echo "== result: $([ $FAIL = 0 ] && echo PASS || echo FAIL) (힌트 3종 · 회차 2 · 리포트 배지)"
+echo "== result: $([ $FAIL = 0 ] && echo PASS || echo FAIL) (힌트 3종 · 회차 2 채점 고정값 · 리포트 배지)"
 echo "== done"; exit $FAIL
