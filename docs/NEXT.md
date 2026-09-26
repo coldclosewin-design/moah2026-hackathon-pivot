@@ -80,6 +80,14 @@
 
 **순서**: 디자인(9) → 녹화(8c) → 사내(8d). 디자인 뒤에 찍어야 두 번 찍지 않는다. Codex 는 본 트리 `codex/ui-design`, Claude 는 `.worktrees/` — 동시 작업 규칙.
 
+### Step 10 — 지식 테스트 (Claude 상태기계 ✅ PR #9 · Codex 화면 ⬜)
+| # | 일 | 상태 |
+|---|---|---|
+| 10a | `LessonPhase.Quiz`(index·item·locked·chosen·correctSoFar)·`QuizDone`(results·items·remark), `QuizItem`·`QuizResult`·`QuizRecord`. 상태기계 `answer(choice)`·`nextQuestion()`, 잠금(속도 > 5) 중 답 무시, `endSession` 은 푼 것까지로 결과. 문제·선택지·정답 이유를 음성으로 | ✅ |
+| 10b | 시드: 지식 과제 READY(QUIZ 모드만), 문항 5(회전교차로·비상등·우천 제동·야간 상향등·안전거리). 문구는 Codex 가 다듬는다 | ✅ |
+| 10c | 화면 `Quiz`·`QuizDone` — C절 요청. 그때까지 `LessonRoute` 에 `[cross]` 자리표시자(Briefing 화면 재사용, 자막으로 진행) | ⬜ Codex(UI 재설계 라운드 2 에 함께) |
+| 10d | (선택) `CloudCoachPort` 로 퀴즈 총평 변주 · STT 로 음성 답변(사내 확인 뒤) | ⬜ |
+
 ### 사용자 결정·행동이 필요한 것
 | # | 일 | 상태 |
 |---|---|---|

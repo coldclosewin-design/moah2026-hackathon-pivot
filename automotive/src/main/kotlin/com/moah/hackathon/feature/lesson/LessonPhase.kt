@@ -49,6 +49,29 @@ sealed interface LessonPhase {
 
     /** 세션 종료(버튼 또는 정차 + 운전석 도어 열림) → 진단 리포트. */
     data class Report(val report: LessonReport) : LessonPhase
+
+    /**
+     * 지식 테스트 한 문제. **정차 중에만** 답할 수 있다 — [locked](속도 > 5) 면 화면은 선택지를 숨기고 상태기계는 [LessonStateMachine.answer] 를 무시한다.
+     * [chosen] 이 null 이면 답 대기, 아니면 정답 공개 상태(이유를 읽어 준 뒤 "다음 문제").
+     */
+    data class Quiz(
+        val task: Task,
+        val index: Int,
+        val total: Int,
+        val item: QuizItem,
+        val locked: Boolean,
+        val chosen: Int?,
+        val correctSoFar: Int,
+    ) : LessonPhase {
+        val answered: Boolean get() = chosen != null
+        val isLast: Boolean get() = index >= total - 1
+    }
+
+    /** 문제를 다 풀었거나 중간에 끝냄. 정답 수와 문제별 결과(복습용). */
+    data class QuizDone(val task: Task, val results: List<QuizResult>, val items: List<QuizItem>, val remark: String) : LessonPhase {
+        val correct: Int get() = results.count { it.correct }
+        val total: Int get() = items.size
+    }
 }
 
 data class GuideStepView(val index: Int, val count: Int, val say: String, val waitingFor: String, val unverified: Boolean)

@@ -40,6 +40,7 @@ class LessonStateMachine(
     private val store: ProgressStore,
     private val tasks: List<Task>,
     private val guideFor: (Task) -> List<GuideStep>,
+    private val quizFor: (Task) -> List<QuizItem> = { emptyList() },
     private val reservation: ReservationCard?,
     private val benefits: List<String>,
     profile: Profile,
@@ -96,8 +97,82 @@ class LessonStateMachine(
         Log.i(TAG, "begin ${task.id} ${mode}")
         briefingJob = scope.launch {
             if (briefingMillis > 0) delay(briefingMillis)
-            startAttempt()
+            if (mode == LessonMode.QUIZ) startQuiz(task) else startAttempt()
         }
+    }
+
+    // ───────── 지식 테스트 ─────────
+
+    private var quizItems: List<QuizItem> = emptyList()
+    private val quizResults = ArrayList<QuizResult>()
+
+    private suspend fun startQuiz(task: Task) {
+        quizItems = quizFor(task)
+        if (quizItems.isEmpty()) {
+            Log.w(TAG, "no quiz items for ${task.id} → back to setup")
+            tts.speak("이 과제에는 아직 문제가 없어요.")
+            _phase.value = setup(); current = null
+            return
+        }
+        quizResults.clear()
+        val now = vehicle.get(listOf(mobis.vss.VssConstants.VEHICLE_SPEED, mobis.vss.VssConstants.DOOR_DRIVER_ISOPEN))
+        snapshot = snapshot.apply(now)
+        ensureVehicleSubscription()
+        publishQuiz(task, 0, chosen = null)
+        speakQuestion(quizItems[0], 0)
+        Log.i(TAG, "quiz start ${task.id} items=${quizItems.size}")
+    }
+
+    /** 선택지 버튼. 잠금(속도 > 5)·이미 답한 문제·퀴즈 밖에서는 무시. */
+    fun answer(choice: Int) {
+        val p = _phase.value as? LessonPhase.Quiz ?: return
+        if (p.locked || p.answered || choice !in p.item.choices.indices) return
+        val correct = choice == p.item.answer
+        quizResults += QuizResult(p.item.id, choice, correct)
+        publishQuiz(p.task, p.index, chosen = choice)
+        val verdict = if (correct) "맞아요." else "아쉬워요. 정답은 ${p.item.choices[p.item.answer]}."
+        tts.speak("$verdict ${p.item.why}", SpeechPriority.URGENT)
+        Log.i(TAG, "quiz answer ${p.item.id}: chosen=$choice correct=$correct")
+    }
+
+    /** "다음 문제" / 마지막이면 "결과 보기". 답하기 전에는 무시. */
+    fun nextQuestion() {
+        val p = _phase.value as? LessonPhase.Quiz ?: return
+        if (!p.answered) return
+        if (p.isLast) { finishQuiz(p.task); return }
+        val next = p.index + 1
+        publishQuiz(p.task, next, chosen = null)
+        speakQuestion(quizItems[next], next)
+    }
+
+    private fun finishQuiz(task: Task) {
+        val record = QuizRecord(task.id, quizResults.toList(), clock())
+        store.addQuiz(record)
+        val remark = quizRemark(record.correct, quizItems.size)
+        _phase.value = LessonPhase.QuizDone(task, record.results, quizItems, remark)
+        tts.speak(remark, SpeechPriority.URGENT)
+        vehicleJob?.cancel(); vehicleJob = null
+        Log.i(TAG, "quiz done ${task.id}: ${record.correct}/${quizItems.size}")
+    }
+
+    private fun quizRemark(correct: Int, total: Int): String = when {
+        total == 0 -> "문제가 없었어요."
+        correct == total -> "${total}문제 다 맞았어요. 이건 몸으로도 기억해 두면 좋아요."
+        correct == 0 -> "${total}문제 중 맞은 게 없지만, 이유를 들었으니 다음엔 달라요."
+        correct * 2 >= total -> "${total}문제 중 ${correct}개. 틀린 것의 이유만 한 번 더 읽어 봐요."
+        else -> "${total}문제 중 ${correct}개. 틀린 게 더 많지만 그래서 하는 거예요."
+    }
+
+    private fun publishQuiz(task: Task, index: Int, chosen: Int?) {
+        _phase.value = LessonPhase.Quiz(
+            task = task, index = index, total = quizItems.size, item = quizItems[index],
+            locked = snapshot.locked, chosen = chosen, correctSoFar = quizResults.count { it.correct },
+        )
+    }
+
+    private fun speakQuestion(item: QuizItem, index: Int) {
+        val choices = item.choices.mapIndexed { i, c -> "${listOf("첫째", "둘째", "셋째", "넷째")[i.coerceAtMost(3)]}, $c" }.joinToString(". ")
+        tts.speak("${index + 1}번. ${item.question}\n$choices")
     }
 
     /** "다 됐어요" — 회차를 채점하고 Done 으로. 버튼과 도어 열림이 겹쳐도 한 번만 기록한다. */
@@ -140,6 +215,7 @@ class LessonStateMachine(
         when (_phase.value) {
             is LessonPhase.Maneuver -> { finishAttempt(); scope.launch { toReport() } }
             is LessonPhase.Done -> scope.launch { toReport() }
+            is LessonPhase.Quiz -> finishQuiz((_phase.value as LessonPhase.Quiz).task)   // 중간에 끝내기 — 푼 것까지로 결과
             else -> {}
         }
     }
@@ -238,6 +314,8 @@ class LessonStateMachine(
                 Log.i(TAG, "door opened → report")
                 scope.launch { toReport() }
             }
+            // 퀴즈는 정차 중에만 — 움직이면 잠금만 갱신하고(선택지 숨김), 도어는 무관
+            is LessonPhase.Quiz -> if (p.locked != snapshot.locked) _phase.value = p.copy(locked = snapshot.locked)
             else -> {}
         }
     }

@@ -15,9 +15,12 @@ class SeedCatalogTest {
     }
 
     @Test
-    fun `exactly the parking task is READY and it supports the three driving modes but not quiz`() {
+    fun `parking and knowledge tasks are READY - parking supports the three driving modes but not quiz`() {
         val ready = SeedCatalog.tasks.filter { it.isReady }
-        assertEquals(listOf(SeedCatalog.TASK_PARKING_REAR), ready.map { it.id })
+        assertEquals(listOf(SeedCatalog.TASK_PARKING_REAR, SeedCatalog.TASK_KNOWLEDGE), ready.map { it.id })
+        assertEquals(5, SeedCatalog.quizFor(SeedCatalog.tasks.first { it.id == SeedCatalog.TASK_KNOWLEDGE }).size)
+        assertTrue(SeedCatalog.quizFor(SeedCatalog.parkingTask).isEmpty())
+        assertEquals(SeedCatalog.quiz.size, SeedCatalog.quiz.map { it.id }.toSet().size)
         val p = SeedCatalog.parkingTask
         assertTrue(p.supports(com.moah.hackathon.feature.lesson.LessonMode.GUIDE) && p.supports(com.moah.hackathon.feature.lesson.LessonMode.HINT) && p.supports(com.moah.hackathon.feature.lesson.LessonMode.EVALUATE))
         assertTrue(!p.supports(com.moah.hackathon.feature.lesson.LessonMode.QUIZ))

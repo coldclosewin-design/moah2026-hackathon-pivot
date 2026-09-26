@@ -5,6 +5,7 @@ import com.moah.hackathon.feature.lesson.GuideStep
 import com.moah.hackathon.feature.lesson.Profile
 import com.moah.hackathon.feature.lesson.ProfileQuestion
 import com.moah.hackathon.feature.lesson.ProfileStatement
+import com.moah.hackathon.feature.lesson.QuizItem
 import com.moah.hackathon.feature.lesson.RemarkTemplate
 import com.moah.hackathon.feature.lesson.ReservationCard
 import com.moah.hackathon.feature.lesson.ScoreBand
@@ -23,6 +24,7 @@ object SeedCatalog {
     // ───────── 과제 카탈로그 (§3.1) — 시작 가능한 것은 status = READY 만. 나머지는 제품의 폭을 보여 주는 계획 ─────────
 
     const val TASK_PARKING_REAR = "parking-rear-perpendicular"
+    const val TASK_KNOWLEDGE = "knowledge-hazard-weather"
 
     val tasks: List<Task> = listOf(
         Task("predrive-check", "출발 전 점검", TaskType.CHECKLIST, Difficulty.EASY, "안전벨트·기어 P·시동을 순서대로.",
@@ -42,8 +44,9 @@ object SeedCatalog {
             listOf("핸들 방향", "기어 전환", "뒤 거리"), setOf(V.STEERING_WHEEL_ANGLE, V.TRANSMISSION_SELECTED_GEAR, V.OBSTACLE_REAR_DISTANCE_CM), requiresDriving = true),
         Task("roundabout", "회전교차로", TaskType.DRIVING, Difficulty.HARD, "우선순위 확인 → 진입 → 지시등으로 진출.",
             listOf("속도", "방향지시등"), setOf(V.VEHICLE_SPEED, V.LIGHT_INDICATOR_RIGHT), requiresDriving = true),
-        Task("knowledge-hazard-weather", "비상등·날씨별 행동", TaskType.KNOWLEDGE, Difficulty.HARD, "정차 중 3지선다.",
-            listOf("비상등", "우천", "야간"), emptySet(), requiresDriving = false),
+        Task(TASK_KNOWLEDGE, "비상등·날씨별 행동", TaskType.KNOWLEDGE, Difficulty.HARD, "정차 중 3지선다 5문제. 채점보다 이유를 듣는 것.",
+            listOf("비상등", "우천", "야간"), emptySet(), requiresDriving = false,
+            status = TaskStatus.READY),   // 지식 테스트 모드로만 시작된다(Task.supports)
     )
 
     val parkingTask: Task get() = tasks.first { it.id == TASK_PARKING_REAR }
@@ -126,12 +129,17 @@ object SeedCatalog {
         "제휴 시험장 대여료 할인",
     )
 
-    /** 정차 중 3지선다 (§3.2 지식 테스트). */
-    data class QuizItem(val question: String, val choices: List<String>, val answer: Int, val why: String)
+    /** 정차 중 3지선다 (§3.2 지식 테스트). 채점보다 `why` 를 듣는 것이 목적. 문항 내용은 Codex 가 다듬는다. */
+    fun quizFor(task: Task): List<QuizItem> = when (task.id) {
+        TASK_KNOWLEDGE -> quiz
+        else -> emptyList()
+    }
 
     val quiz: List<QuizItem> = listOf(
-        QuizItem("회전교차로에 들어갈 때 누가 우선인가요?", listOf("들어가는 차", "돌고 있는 차", "먼저 도착한 차"), 1, "회전 중인 차가 우선. 진입 차는 양보."),
-        QuizItem("비상등은 언제 켜나요?", listOf("차선을 바꿀 때", "갑자기 서거나 고장·사고로 서 있을 때", "터널에 들어갈 때"), 1, "뒤차에 위험을 알리는 신호."),
-        QuizItem("비가 올 때 제동 거리는?", listOf("같다", "짧아진다", "길어진다 — 속도를 20% 줄인다"), 2, "노면 마찰이 줄어 제동 거리가 늘어난다."),
+        QuizItem("roundabout-priority", "회전교차로에 들어갈 때 누가 우선인가요?", listOf("들어가는 차", "돌고 있는 차", "먼저 도착한 차"), 1, "회전 중인 차가 우선이에요. 들어가는 차가 양보하고, 빈틈이 생기면 천천히 들어가요."),
+        QuizItem("hazard-when", "비상등은 언제 켜나요?", listOf("차선을 바꿀 때", "갑자기 서거나 고장·사고로 서 있을 때", "터널에 들어갈 때"), 1, "뒤차에 위험을 알리는 신호예요. 차선 변경엔 방향지시등, 터널엔 전조등."),
+        QuizItem("rain-braking", "비가 올 때 제동 거리는?", listOf("같다", "짧아진다", "길어진다"), 2, "노면 마찰이 줄어 제동 거리가 늘어요. 속도를 20% 줄이고 앞차와 거리를 더 둬요."),
+        QuizItem("night-highbeam", "밤에 마주 오는 차가 있을 때 상향등은?", listOf("켠다", "끈다", "깜빡인다"), 1, "상향등은 마주 오는 운전자의 눈을 멀게 해요. 마주 오는 차가 있으면 하향등."),
+        QuizItem("following-distance", "앞차와의 안전거리는 보통?", listOf("속도계 숫자만큼 m", "1 m", "차 두 대 길이"), 0, "시속 60이면 60 m 쯤. 비 오면 그 두 배. 초보 때는 넉넉할수록 좋아요."),
     )
 }
