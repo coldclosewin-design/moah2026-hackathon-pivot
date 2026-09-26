@@ -24,6 +24,9 @@ internal object CoachColors {
     val Muted = Color(0xFFB2C0B7)
     val Accent = Color(0xFFD4EEAE)
     val Outline = Color(0xFF405148)
+    val Warning = Color(0xFFFF887B)
+    val Simulated = Color(0xFFE7C58C)
+    val Ink = Color(0xFF172018)
 }
 
 @Composable
@@ -34,13 +37,13 @@ internal fun LessonCanvas(content: @Composable ColumnScope.() -> Unit) {
         contentColor = CoachColors.Foreground,
     ) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 96.dp, vertical = 64.dp),
-            verticalArrangement = Arrangement.spacedBy(40.dp),
+            modifier = Modifier.fillMaxSize().padding(horizontal = 72.dp, vertical = 40.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
             Text(
                 stringResource(R.string.brand),
                 color = CoachColors.Accent,
-                fontSize = 24.sp,
+                fontSize = 32.sp,
                 letterSpacing = 4.sp,
                 fontWeight = FontWeight.Bold,
             )

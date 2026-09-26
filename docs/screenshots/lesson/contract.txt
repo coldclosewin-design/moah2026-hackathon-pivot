@@ -1,0 +1,5 @@
+PASS Setup selection dispatches task and mode; demo defaults expanded
+PASS Briefing has its full sentence and no touch targets
+PASS Maneuver: no scores, exact lock/stop boundaries, missing signals, four-line subtitle, hint expiry
+PASS Done actions and Report badge, certificate sharing choices, restart
+Lesson contract passed
