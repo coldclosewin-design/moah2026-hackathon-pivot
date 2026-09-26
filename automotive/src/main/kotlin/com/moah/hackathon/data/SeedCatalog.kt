@@ -104,45 +104,49 @@ object SeedCatalog {
 
     // ───────── 멘트 풀 (§3.4) — 점수 구간 × 상황 태그. 같은 점수에 같은 말 반복 금지는 RemarkPool 이 지킨다 ─────────
 
+    /**
+     * **서두**만 있다 — 조언 문장은 `AdviceRules` 가 지표에서 고른다(2026-09-27 결정: 운전자 문장에 숫자 없음).
+     * 그래서 여기엔 횟수·초·점수가 없고, 프로필 숫자(장롱 {years}년)만 허용한다.
+     */
     val remarks: List<RemarkTemplate> = listOf(
         // EXCELLENT
         RemarkTemplate(ScoreBand.EXCELLENT, setOf("rusty", "first"), "장롱 {years}년차 첫 주차치고 몸이 기억하네요."),
         RemarkTemplate(ScoreBand.EXCELLENT, setOf("rusty"), "장롱의 문을 활짝 열었어요. 이 정도면 마트 주차장은 됩니다."),
-        RemarkTemplate(ScoreBand.EXCELLENT, setOf("improved"), "지난번보다 {deltaSegments}번 줄었어요. 이게 연습의 맛이죠."),
-        RemarkTemplate(ScoreBand.EXCELLENT, setOf("any"), "한 번에 들어갔어요. 이걸 몸이 기억하게 한 번만 더."),
+        RemarkTemplate(ScoreBand.EXCELLENT, setOf("improved"), "지난번보다 훨씬 매끈했어요. 이게 연습의 맛이죠."),
+        RemarkTemplate(ScoreBand.EXCELLENT, setOf("any"), "한 번에 들어갔어요. 이 감각을 몸이 기억하게."),
         RemarkTemplate(ScoreBand.EXCELLENT, setOf("any"), "깔끔했어요. 옆자리에 누가 있었어도 할 말이 없었을 거예요."),
         // GOOD
         RemarkTemplate(ScoreBand.GOOD, setOf("rusty", "first"), "장롱의 문 정도는 열었습니다. 좋은 출발이에요."),
-        RemarkTemplate(ScoreBand.GOOD, setOf("first"), "첫 회차에 이만큼이면 충분해요. 핸들 되돌리는 횟수만 줄여 봐요."),
-        RemarkTemplate(ScoreBand.GOOD, setOf("improved"), "{deltaSegments}번 덜 움직였어요. 방향이 맞아요."),
-        RemarkTemplate(ScoreBand.GOOD, setOf("regressed"), "아까보다 한두 번 더 움직였지만 안전했어요. 그게 더 중요해요."),
+        RemarkTemplate(ScoreBand.GOOD, setOf("first"), "첫 회차에 이만큼이면 충분해요."),
+        RemarkTemplate(ScoreBand.GOOD, setOf("improved"), "아까보다 덜 헤맸어요. 방향이 맞아요."),
+        RemarkTemplate(ScoreBand.GOOD, setOf("regressed"), "아까보다 조금 더 움직였지만 안전했어요. 그게 더 중요해요."),
         RemarkTemplate(ScoreBand.GOOD, setOf("any"), "좋아요. 한 번 더 하면 핸들 타이밍이 손에 붙을 거예요."),
-        RemarkTemplate(ScoreBand.GOOD, setOf("any"), "괜찮은 주차였어요. 뒤 거리를 조금만 더 남겨 보세요."),
+        RemarkTemplate(ScoreBand.GOOD, setOf("any"), "잘 들어왔어요. 오늘 이 정도면 충분해요."),
         // OK
         RemarkTemplate(ScoreBand.OK, setOf("rusty", "first"), "장롱 {years}년차, 문고리는 잡았어요. 다음엔 열어 봅시다."),
-        RemarkTemplate(ScoreBand.OK, setOf("first"), "처음이라 왕복이 많았어요. 핸들을 끝까지 돌린 채 조금 더 기다려 보세요."),
-        RemarkTemplate(ScoreBand.OK, setOf("improved"), "줄었어요. {deltaSegments}번이나. 이 방향 그대로."),
+        RemarkTemplate(ScoreBand.OK, setOf("first"), "처음이라 조금 헤맸어요. 그게 정상이에요."),
+        RemarkTemplate(ScoreBand.OK, setOf("improved"), "아까보다 나아졌어요. 이 방향 그대로."),
         RemarkTemplate(ScoreBand.OK, setOf("regressed"), "이번엔 조금 헤맸어요. 괜찮아요, 헤매는 게 연습이에요."),
-        RemarkTemplate(ScoreBand.OK, setOf("any"), "들어가긴 했어요. 45도에서 중립을 조금만 늦게 잡아 봐요."),
-        RemarkTemplate(ScoreBand.OK, setOf("any"), "{segments}번 움직였어요. 다음엔 한 번 덜 움직이는 걸 목표로."),
+        RemarkTemplate(ScoreBand.OK, setOf("any"), "시간이 조금 걸렸지만 잘 마쳤어요."),
+        RemarkTemplate(ScoreBand.OK, setOf("any"), "들어가긴 했어요. 다음엔 조금 더 가볍게."),
         // ROUGH
         RemarkTemplate(ScoreBand.ROUGH, setOf("rusty", "first"), "장롱 {years}년이면 이게 정상이에요. 오늘은 여기까지 온 게 성과."),
-        RemarkTemplate(ScoreBand.ROUGH, setOf("first"), "첫 회차는 원래 이래요. 다음 회차는 가이드 모드로 같이 해 봐요."),
-        RemarkTemplate(ScoreBand.ROUGH, setOf("any"), "많이 움직였지만 부딪히지 않았어요. 그게 오늘의 점수예요."),
-        RemarkTemplate(ScoreBand.ROUGH, setOf("any"), "힘들었죠. 한 번 쉬고, 다음엔 핸들 한 번 → 후진 한 번만 생각해요."),
+        RemarkTemplate(ScoreBand.ROUGH, setOf("first"), "첫 회차는 원래 이래요. 다음엔 가이드 모드로 같이 해 봐요."),
+        RemarkTemplate(ScoreBand.ROUGH, setOf("any"), "많이 움직였지만 부딪히지 않았어요. 그게 오늘의 성과예요."),
+        RemarkTemplate(ScoreBand.ROUGH, setOf("any"), "힘들었죠. 그래도 끝까지 했어요."),
 
         // ── 출발 전 점검 (TaskType.CHECKLIST) — 차는 서 있으니 "들어갔다" 류의 주차 표현을 쓰지 않는다 ──
         RemarkTemplate(ScoreBand.EXCELLENT, setOf("rusty", "first"), "벨트, P, 시동. 장롱 {years}년인데 순서가 손에 남아 있네요.", TaskType.CHECKLIST),
-        RemarkTemplate(ScoreBand.EXCELLENT, setOf("improved"), "지난번보다 {deltaSeconds}초 빨라졌어요. 순서가 습관이 되고 있어요.", TaskType.CHECKLIST),
+        RemarkTemplate(ScoreBand.EXCELLENT, setOf("improved"), "지난번보다 손이 빨라졌어요. 순서가 습관이 되고 있어요.", TaskType.CHECKLIST),
         RemarkTemplate(ScoreBand.EXCELLENT, setOf("any"), "교과서 순서였어요. 지금 이 차에서 제일 안전한 사람은 당신이에요.", TaskType.CHECKLIST),
-        RemarkTemplate(ScoreBand.EXCELLENT, setOf("any"), "{seconds}초면 충분해요. 이제 진짜 출발만 남았어요.", TaskType.CHECKLIST),
+        RemarkTemplate(ScoreBand.EXCELLENT, setOf("any"), "막힘이 없었어요. 이제 진짜 출발만 남았어요.", TaskType.CHECKLIST),
         RemarkTemplate(ScoreBand.GOOD, setOf("rusty", "first"), "장롱의 문고리는 잡았어요. 문 여는 건 다음 과제에서.", TaskType.CHECKLIST),
         RemarkTemplate(ScoreBand.GOOD, setOf("any"), "다 켜졌어요. 순서 한 번만 더 몸에 넣으면 끝이에요.", TaskType.CHECKLIST),
-        RemarkTemplate(ScoreBand.GOOD, setOf("any"), "좋아요. 벨트가 먼저, 시동은 그다음. 이 한 줄만 기억해요.", TaskType.CHECKLIST),
-        RemarkTemplate(ScoreBand.OK, setOf("any"), "시동이 벨트보다 먼저였어요. 벨트가 먼저 — 이게 습관이 되면 반은 한 거예요.", TaskType.CHECKLIST),
+        RemarkTemplate(ScoreBand.GOOD, setOf("any"), "좋아요. 출발 준비가 손에 익어 가요.", TaskType.CHECKLIST),
+        RemarkTemplate(ScoreBand.OK, setOf("any"), "순서가 한 번 바뀌었지만 다 켜졌어요.", TaskType.CHECKLIST),
         RemarkTemplate(ScoreBand.OK, setOf("any"), "조금 헤맸지만 다 켜졌어요. 이 순서를 세 번만 반복해 봐요.", TaskType.CHECKLIST),
-        RemarkTemplate(ScoreBand.OK, setOf("rusty"), "장롱 {years}년차, 시동은 켰어요. 벨트를 먼저 매는 것만 남았어요.", TaskType.CHECKLIST),
-        RemarkTemplate(ScoreBand.ROUGH, setOf("any"), "빠진 게 있어요. 시동 꺼진 차 안이 제일 안전한 연습장이니 하나씩 다시 해 봐요.", TaskType.CHECKLIST),
+        RemarkTemplate(ScoreBand.OK, setOf("rusty"), "장롱 {years}년차, 시동은 켰어요. 순서만 남았어요.", TaskType.CHECKLIST),
+        RemarkTemplate(ScoreBand.ROUGH, setOf("any"), "빠진 게 있어요. 시동 꺼진 차 안이 제일 안전한 연습장이에요.", TaskType.CHECKLIST),
         RemarkTemplate(ScoreBand.ROUGH, setOf("rusty"), "장롱 {years}년이면 이것부터가 연습이에요. 여기 앉은 게 성과.", TaskType.CHECKLIST),
     )
 

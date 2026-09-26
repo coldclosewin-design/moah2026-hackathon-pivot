@@ -2,6 +2,7 @@ package com.moah.hackathon.feature.lesson
 
 import com.moah.hackathon.scoring.ParkingDelta
 import com.moah.hackathon.scoring.ParkingScore
+import com.moah.hackathon.scoring.PathPoint
 import com.moah.hackathon.vehicle.Gear
 import com.moah.hackathon.vehicle.toVssBoolean
 import com.moah.hackathon.vehicle.toVssFloat
@@ -122,8 +123,11 @@ data class AttemptRecord(
     val mode: LessonMode,
     val score: ParkingScore,
     val delta: ParkingDelta?,
+    /** "서두.\n조언." 두 문장. 숫자 없음(2026-09-27). 화면은 줄바꿈 단위로 줄을 끊는다. */
     val remark: String,
     val atMillis: Long,
+    /** 속도·기어·조향각으로 **추정**한 회차 궤적(미터, 시작 = 원점, +y = 시작 방향). Done 화면의 탑뷰 시뮬레이션. 실제 위치가 아니다. */
+    val path: List<PathPoint> = emptyList(),
 )
 
 /** 진단서 공유 범위 (§3.5, 구조 A). 단계가 올라갈수록 보상이 커진다. 실제 전송은 없다. */

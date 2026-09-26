@@ -80,7 +80,7 @@
 | 9c | 라운드 2 — `Setup`(제안 문장 + 과제·모드 시트, 준비 중 회색)·`Briefing`(핸들 B 에셋)·`Done`·`Quiz`/`QuizDone`·점검 과제 칩 3개(C절 3건), 글자 없는 일러스트 에셋(WebP ≤ 1 MB), `emu_flow.sh` PASS. **라운드 1 관찰 반영**: 접힌 상태 라벨에 대상 붙이기(전부 MISSING 이면 접지 않기), `LessonCanvas` Bold → `BrandMark` 통일. 발주서 `docs/handoffs/2026-09-26_codex_ui_round2.md`. 선행(PR #16): `ManeuverDisplayState` 점검용 필드 5개, `emu_flow.sh` 시트 대응 | ✅ 발주 → ⬜ Codex |
 | 9e | 상태기계 후속(Claude): ① 도어 선열림 `doorArmed` ② 조사 헬퍼 → 브리핑 "뒤 거리를 봅니다" | ✅ PR #17 `22a433a` |
 | 9f | **라운드 2 Codex PR #18** — 리뷰 완료(빌드·137·`emu_flow` PASS 98 s·`lesson_shots` PASS·캡처 21장 vs 시안). 시연 영상 녹화 중 **경합 발견 → PR #19**(`publishManeuver` CAS: delta 코루틴이 Done 을 묵은 Maneuver 로 덮어쓰던 것). 영상(2분 14초)은 #18 + #19 빌드 | ⬜ 사용자 승인 대기: **#18 → #19 순서로 머지** |
-| 9g | **라운드 2 영상 피드백 22건 분류** → `docs/design/03_round2_feedback.md`. 관통 원인 3: 시연 패널 상시 노출 · 숫자를 운전자에게 그대로 말함 · 줄바꿈이 폭에 끌려다님. **사용자 결정 3**(숫자 노출 범위 / 탑뷰 궤적 시뮬레이션 넣을지 / 패널 정책) | ⬜ 사용자 → 결정 뒤 순서: A 묶음 PR(Claude) ∥ 디자인 세션(차 도식 3~4안·궤적 시안) → 라운드 3 발주서 → 재녹화 |
+| 9g | **라운드 2 영상 피드백 22건 분류** → `docs/design/03_round2_feedback.md`. 결정 3건 ✅(9/27): 숫자는 운전자 문장에서 전부 순화 / 궤적 시뮬레이션 진행 / 패널은 자동 접힘. **A 묶음(Claude, 브랜치 `claude/driver-copy-path`)**: `CoachPort` 두 문장(`AdviceRules` 조언 + 서두 풀), 총평 숫자 제거, 회차 시작 발화, `SHOW_DEMO_PANEL` 플래그, `PathReconstructor` → `AttemptRecord.path`. **디자인 세션 발주** `docs/handoffs/2026-09-27_codex_design_topview.md`(차 도식 3~4안·후진 도형·Done 궤적 시안) | 🟡 A 묶음 PR 대기 · 디자인 세션 → 사용자 선택 → 라운드 3 발주서(Claude) |
 | 9d | 라운드 3 — 피드백 B 항목 전부 + 시안 선택 결과 + 스크린샷 교체 → B안 영상 재녹화, 대본 실측 | ⬜ 9g 뒤 |
 
 리뷰 루틴(Claude): worktree 에서 head 빌드 → `emu_flow.sh` → `lesson_shots.sh` → 캡처를 시안과 나란히 눈으로 → 불변 표 grep. `codex/design-refs`(이미지만) 는 바로 머지.
