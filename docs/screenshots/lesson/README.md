@@ -9,6 +9,8 @@
 - `lesson-setup-sheet.png`: 30/70 배치, 같은 높이 카드, 220×96dp 모드 칩.
 - `session-report.png`: 실제 두 회차 후 도어 열림으로 진입한 Report.
 
-실제 세션 3장은 중복 패널 조회를 제거한 검증 사본으로 생성했다. `flow-round3-proposal.txt`: 60/55·4회, 100/100·2회, 힌트/도어/배지 확인, PASS·uiautomator clashes 0, 리포트까지 109초. `flow-round3-default.txt`: 원본의 중복 조회로 시간 감점 경계를 넘어 첫 회차 58점이 된 실패 기록. 도구 원본 수정은 발주서 예외 승인 대기이며, 기존 `flow.txt`와 `flow-{initial,baseline,proposal}.txt`는 라운드 2 이력이다.
+실제 세션 3장은 사용자 승인으로 중복 패널 조회를 제거한 원본 `tools/emu_flow.sh` 실행에서 가져왔다. `flow.txt`: 첫 회차 60/55·이동 4회, 두 번째 100/100·이동 2회, 힌트 3종·잘한 주차 추가 힌트 0건·도어/배지 확인, PASS·uiautomator clashes 0, 리포트까지 108초. 채점·배율·기대값은 유지했다.
+
+`flow-round3-default.txt`는 수정 전 원본의 중복 조회로 시간 감점 경계를 넘어 첫 회차 58점이 된 실패 기록이다. `flow-round3-proposal.txt`는 같은 패치를 임시 사본으로 먼저 검증한 PASS 기록(109초)이며, `flow-{initial,baseline,proposal}.txt`는 라운드 2 이력이다.
 
 `build-round3.txt`: 빌드·단위 테스트·계측 APK 빌드 성공. 단위 테스트 147개, 실패·오류·건너뜀 0.
