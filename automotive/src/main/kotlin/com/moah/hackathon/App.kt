@@ -57,7 +57,7 @@ class AppContainer(context: Context) {
 
     val lesson = LessonStateMachine(
         vehicle = vehicle, tts = tts, coach = coach, registry = registry, store = store,
-        tasks = SeedCatalog.tasks, guideFor = SeedCatalog::guideFor,
+        tasks = SeedCatalog.tasks, guideFor = SeedCatalog::guideFor, quizFor = SeedCatalog::quizFor,
         reservation = SeedCatalog.reservation, benefits = SeedCatalog.benefits,
         profile = SeedCatalog.demoProfile, scope = appScope,
     )

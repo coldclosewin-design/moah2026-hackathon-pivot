@@ -43,7 +43,7 @@ class LessonStateMachineTest {
         val machine = LessonStateMachine(
             vehicle = port, tts = tts, coach = coach ?: FakeCoachPort(RemarkPool(SeedCatalog.remarks, Random(3))),
             registry = SignalRegistry(ParkingRecorder.KEYS, simulated = true), store = store,
-            tasks = SeedCatalog.tasks, guideFor = SeedCatalog::guideFor, reservation = SeedCatalog.reservation, benefits = SeedCatalog.benefits,
+            tasks = SeedCatalog.tasks, guideFor = SeedCatalog::guideFor, quizFor = SeedCatalog::quizFor, reservation = SeedCatalog.reservation, benefits = SeedCatalog.benefits,
             profile = SeedCatalog.demoProfile, scope = scope, clock = { testScheduler.currentTime }, briefingMillis = 0,
         )
         return Harness(port, tts, store, machine, scope)
@@ -154,6 +154,69 @@ class LessonStateMachineTest {
         h.machine.begin(SeedCatalog.TASK_PARKING_REAR, LessonMode.EVALUATE)
         advanceUntilIdle()
         assertTrue(h.machine.phase.value is LessonPhase.Maneuver)
+        h.scope.cancel()
+    }
+
+    @Test
+    fun `quiz - five questions, verdict and reason spoken, done with the score, moving locks answers`() = runTest {
+        val h = harness()
+        h.machine.begin(SeedCatalog.TASK_KNOWLEDGE, LessonMode.QUIZ)
+        advanceUntilIdle()
+        var q = h.machine.phase.value as LessonPhase.Quiz
+        assertEquals(0, q.index); assertEquals(5, q.total); assertFalse(q.answered); assertFalse(q.locked)
+        assertTrue(h.tts.spoken.last(), h.tts.spoken.last().startsWith("1번. 회전교차로"))
+        assertTrue(h.tts.spoken.last().contains("둘째, 돌고 있는 차"))
+
+        h.machine.nextQuestion()                       // 답하기 전엔 무시
+        assertEquals(0, (h.machine.phase.value as LessonPhase.Quiz).index)
+
+        h.machine.answer(1)                            // 정답
+        q = h.machine.phase.value as LessonPhase.Quiz
+        assertEquals(1, q.chosen); assertEquals(1, q.correctSoFar)
+        assertTrue(h.tts.spoken.last().startsWith("맞아요."))
+        assertEquals(SpeechPriority.URGENT, h.tts.priorities.last())
+        h.machine.answer(2)                            // 이미 답한 문제는 무시
+        assertEquals(1, (h.machine.phase.value as LessonPhase.Quiz).chosen)
+
+        h.machine.nextQuestion()
+        q = h.machine.phase.value as LessonPhase.Quiz
+        assertEquals(1, q.index); assertFalse(q.answered)
+
+        // 움직이면 잠금 — 답이 무시된다
+        h.port.inject(mapOf(VssConstants.VEHICLE_SPEED to "12.0")); advanceUntilIdle()
+        assertTrue((h.machine.phase.value as LessonPhase.Quiz).locked)
+        h.machine.answer(1)
+        assertFalse((h.machine.phase.value as LessonPhase.Quiz).answered)
+        h.port.inject(mapOf(VssConstants.VEHICLE_SPEED to "0.0")); advanceUntilIdle()
+        assertFalse((h.machine.phase.value as LessonPhase.Quiz).locked)
+
+        h.machine.answer(0)                            // 오답
+        assertTrue(h.tts.spoken.last(), h.tts.spoken.last().startsWith("아쉬워요. 정답은 갑자기 서거나"))
+        h.machine.nextQuestion()
+        h.machine.answer(2); h.machine.nextQuestion()  // 3번 정답
+        h.machine.answer(1); h.machine.nextQuestion()  // 4번 정답
+        h.machine.answer(0)                            // 5번 정답 (마지막)
+        assertTrue((h.machine.phase.value as LessonPhase.Quiz).isLast)
+        h.machine.nextQuestion()                       // 결과 보기
+        val done = h.machine.phase.value as LessonPhase.QuizDone
+        assertEquals(4, done.correct); assertEquals(5, done.total)
+        assertEquals(listOf(true, false, true, true, true), done.results.map { it.correct })
+        assertTrue(done.remark, done.remark.contains("5문제 중 4개"))
+        assertEquals(1, h.store.quizzes().size)
+        h.machine.reset()
+        assertTrue(h.machine.phase.value is LessonPhase.Setup)
+        h.scope.cancel()
+    }
+
+    @Test
+    fun `quiz - ending early keeps the answered ones and a task without items goes back to setup`() = runTest {
+        val h = harness()
+        h.machine.begin(SeedCatalog.TASK_KNOWLEDGE, LessonMode.QUIZ)
+        advanceUntilIdle()
+        h.machine.answer(1); h.machine.nextQuestion(); h.machine.answer(0)
+        h.machine.endSession()
+        val done = h.machine.phase.value as LessonPhase.QuizDone
+        assertEquals(2, done.results.size); assertEquals(1, done.correct); assertEquals(5, done.total)
         h.scope.cancel()
     }
 

@@ -135,6 +135,27 @@ enum class ShareLevel(val label: String, val description: String) {
 
 data class ReservationCard(val venue: String, val slot: String, val course: String, val note: String)
 
+// ───────── 지식 테스트 (§3.2) — 정차 중 3지선다. STT 는 사내 확인 뒤, 지금은 화면 버튼 ─────────
+
+data class QuizItem(
+    val id: String,
+    val question: String,
+    val choices: List<String>,
+    /** [choices] 의 인덱스. */
+    val answer: Int,
+    /** 정답·오답 어느 쪽이든 읽어 주는 이유 — 퀴즈의 목적은 채점이 아니라 이걸 듣는 것. */
+    val why: String,
+) {
+    init { require(answer in choices.indices) { "answer index out of range for $id" } }
+}
+
+data class QuizResult(val itemId: String, val chosen: Int, val correct: Boolean)
+
+data class QuizRecord(val taskId: String, val results: List<QuizResult>, val atMillis: Long) {
+    val correct: Int get() = results.count { it.correct }
+    val total: Int get() = results.size
+}
+
 data class LessonReport(
     val task: Task,
     val mode: LessonMode,

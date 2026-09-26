@@ -5,8 +5,11 @@ package com.moah.hackathon.feature.lesson
  */
 class ProgressStore {
     private val records = ArrayList<AttemptRecord>()
+    private val quizzes = ArrayList<QuizRecord>()
 
     fun add(record: AttemptRecord) { records += record }
+    fun addQuiz(record: QuizRecord) { quizzes += record }
+    fun quizzes(): List<QuizRecord> = quizzes.toList()
     fun all(): List<AttemptRecord> = records.toList()
     fun forTask(taskId: String): List<AttemptRecord> = records.filter { it.taskId == taskId }
     fun previous(taskId: String): AttemptRecord? = forTask(taskId).lastOrNull()
