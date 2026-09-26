@@ -54,12 +54,13 @@ object ModeAdvisor {
         return Suggestion(LessonMode.GUIDE, "한 번 더 가이드로 해 봐요. 아직 ${PASS_SKILL}점을 ${PASSES_TO_HINT}번 넘지 않았어요.")
     }
 
-    /** 과제 제안 — 무서운 것(진술)이 있으면 그 과제, 관측된 약한 과제가 있으면 그것, 아니면 첫 쉬운 과제. */
+    /** 과제 제안 — **시작 가능한(READY) 과제 중에서** 무서운 것(진술) → 관측된 약한 과제 → 첫 쉬운 과제. READY 가 없으면 카탈로그 첫 항목. */
     fun suggestTask(profile: Profile, tasks: List<Task>): Task {
-        profile.observation.weakTaskId?.let { id -> tasks.firstOrNull { it.id == id }?.let { return it } }
+        val ready = tasks.filter { it.isReady }.ifEmpty { tasks }
+        profile.observation.weakTaskId?.let { id -> ready.firstOrNull { it.id == id }?.let { return it } }
         val fear = profile.statement.fear
-        if (fear != null) tasks.firstOrNull { it.title.contains(fear) || fear.contains(it.type.koreanKey()) }?.let { return it }
-        return tasks.firstOrNull { it.difficulty == Difficulty.EASY } ?: tasks.first()
+        if (fear != null) ready.firstOrNull { it.title.contains(fear) || fear.contains(it.type.koreanKey()) }?.let { return it }
+        return ready.firstOrNull { it.difficulty == Difficulty.EASY } ?: ready.first()
     }
 
     private fun TaskType.koreanKey(): String = when (this) {

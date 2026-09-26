@@ -75,6 +75,17 @@ class LessonStateMachine(
     fun begin(taskId: String, mode: LessonMode) {
         if (_phase.value !is LessonPhase.Setup) return
         val task = tasks.firstOrNull { it.id == taskId } ?: run { Log.w(TAG, "unknown task $taskId"); return }
+        // 준비 중인 과제·맞지 않는 모드는 시작하지 않는다 — 주차 채점기가 다른 과제에 돌아가는 사고 방지. Setup 에 그대로 남는다.
+        if (!task.isReady) {
+            Log.i(TAG, "refused: ${task.id} is ${task.status}")
+            tts.speak("${task.title}은 아직 준비 중이에요. 지금은 ${tasks.filter { it.isReady }.joinToString("·") { it.title }}을 할 수 있어요.")
+            return
+        }
+        if (!task.supports(mode)) {
+            Log.i(TAG, "refused: ${task.id} does not support $mode")
+            tts.speak("${task.title}은 ${mode.label} 모드로는 할 수 없어요. 가이드·힌트·평가 중에서 골라 주세요.")
+            return
+        }
         current = task to mode
         sessionRecords.clear()
         unverifiedSteps.clear()
