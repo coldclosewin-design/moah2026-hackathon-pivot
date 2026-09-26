@@ -1,0 +1,34 @@
+Mode: built-in image_gen.
+Selected lineage: initial body study -> composition refinement -> final D edit.
+The A steering mechanism was not selected for delivery; its body study supplied the common car shape for B and D.
+
+--- 1. Initial body study, no input image ---
+Use case: infographic-diagram / automotive UI design concept.
+Create a single finished raster design concept for option A of a top-view car steering diagram. Canvas target 1360 x 1268 px (ratio 1.0726:1). This entire image is ONLY the navy left graphic field that will occupy 53% of a 2560 x 1268 app screen. Do not show the rest of the screen. One car, no labels or text anywhere.
+
+Style: clean mature geometric poster, orthographic vector-like flat solid color shapes, sharp restrained curves, medium detail easily redrawn with about 18-24 Canvas primitives. Strict palette only: Ink #070827, Paper #FCFCFA, Periwinkle #5B60A1, Lavender #E5E6F0, Signal red #F52D48. Navy background must be perfectly uniform #070827. No gradients, texture, shadows, lighting, 3D, photographic material or decorative lines.
+
+Composition: one centered elegant compact passenger car approximately 360px wide and 740px long, with generous navy margins. REAR of the car at TOP, FRONT/NOSE at BOTTOM. Rounded but distinctly shaped body: shorter squared trunk at the top, a longer tapered hood at bottom, not a toy pill. White body, subtle lavender trunk and hood sections, a periwinkle rear window near the top, simple white roof, periwinkle broad front windshield near the bottom. Three-part glazing arrangement: rear pane, minimal side-glass band split around the white roof, front windshield. Two tiny white side mirrors located by the lower windshield. Body seams must be only a few simple strokes. Avoid individually drawn seats, doors, handles, grille mesh, lights, badges, roof racks or photorealism.
+
+A steering mechanism: four small dark/periwinkle wheel bars in inward-cut wheel wells, NOT giant detached sticks outside the body. Rear/top wheels stay vertical. Both FRONT/BOTTOM wheel bars tilt only about 12 degrees so their bottom ends point toward IMAGE LEFT (the driver's right when the nose points down). Wheels remain tucked inside silhouette envelope. Wheel rotation is deliberately small and credible.
+
+Reverse indicator A: exactly ONE thin red shallow curved LINE following the rear/top body edge, separated by a narrow navy gap, centered and about 270px wide. This is an abstract reverse-status edge, not lamps and not a tail-light illustration. No extra red anywhere. Absolutely no arrow glyph, arrow stem, text, numerals or logos.
+Return this single option only, not a comparison sheet.
+
+--- 2. Composition/body refinement; input: initial body study ---
+Edit this car diagram into a clean near-SQUARE composition, 1360px wide by 1268px high. Expand the navy canvas substantially to the LEFT and RIGHT. The canvas must be wider than tall. Shrink the car to occupy ONLY 58 percent of image HEIGHT and 27 percent of WIDTH, centered in the navy field with very wide empty margins. It must not be a tall portrait poster.
+
+Keep rear at TOP and front at BOTTOM, with simple hood, trunk, white roof, purple three-part windows and tiny mirrors. Correct the TWO LOWER FRONT WHEELS: they must be PARALLEL to each other, BOTH tilted like the same forward slash / when viewed on screen. Both lower wheel tips extend IMAGE LEFT, both upper tips IMAGE RIGHT, only 12 degrees from vertical. The upper/rear wheels remain vertical. Put all four wheel bars inside the body outline. There must be no outward symmetric toe-out wheels.
+
+Simplify the geometry: remove ALL headlights, bumper grille, thin hood seam lines, glossy highlights and tiny decorative shapes. Retain one lavender flat hood plane and one flat lavender trunk plane; white body, purple glass, small mirrors. Exactly one thin RED arc spaced just behind the TOP REAR bumper for reverse indication. No text of any kind.
+
+MANDATORY FLAT PALETTE: replace every shaded patch with one completely uniform solid fill. Background solid #070827, body #FCFCFA, glass and wheels #5B60A1, hood/trunk #E5E6F0, red #F52D48. Absolutely no shadow, no gradients, no lighting, no texture, no glow, no extra colors. Crisp vector pictogram aesthetic. Preserve enough car shape to read as a restrained real car diagram, not a toy. One car only.
+
+--- 3. Final D; input: refined body study ---
+Use case: precise-object-edit. Produce option D from the supplied near-square car diagram. Preserve exactly the same single car body, its size, position, windows, small mirrors, lavender hood and trunk, rear at TOP/front at BOTTOM and generous navy margins. All fills perfectly flat using only #070827, #FCFCFA, #5B60A1, #E5E6F0 and #F52D48. No texture, gradients, shadows, lighting or 3D.
+
+Change ONLY the steering indication:
+- ALL FOUR inset wheel bars must be VERTICAL, fixed and parallel; no rotated wheels.
+- Add TWO short isolated horizontal rectangular direction markers, one on each side of the car at the same height as the car roof center. Leave a navy gap of 85px between each marker and the body. Each marker is about 90px long and 12px high. The IMAGE RIGHT marker is Signal red #F52D48 (right steering command active). The IMAGE LEFT marker is muted Periwinkle #5B60A1 (inactive). The markers communicate the command label left/right, not a wheel angle or actual body position.
+- Keep the existing single THIN RED curved reverse indicator just outside the TOP/REAR edge. Do not add another arrow, chevron, dash trail or arc.
+Exactly one car, one top reverse edge line, two side direction bars; no text, letters, numerical angle or labels. Return the same near-square 1360:1268 composition.
