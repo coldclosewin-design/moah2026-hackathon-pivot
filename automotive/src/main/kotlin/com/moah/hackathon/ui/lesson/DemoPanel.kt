@@ -1,9 +1,12 @@
 package com.moah.hackathon.ui.lesson
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -12,35 +15,54 @@ import com.moah.hackathon.ui.CoachColors
 import com.moah.hackathon.vehicle.Scenario
 import com.moah.hackathon.vehicle.ScenarioPlayback
 
+// The maneuver layout reserves a rail only while the panel is expanded.
+internal val LocalDemoExpansion = compositionLocalOf<MutableState<Boolean>?> { null }
+
 @Composable
 internal fun DemoPanel(scenarios: List<Scenario>, playback: ScenarioPlayback?, onPlay: (String) -> Unit,
     onStopScenario: () -> Unit, onStopCar: () -> Unit, onResumeCar: () -> Unit, onDoor: (Boolean) -> Unit) {
-    var expanded by rememberSaveable { mutableStateOf(true) }
-    LessonCard(Modifier.fillMaxWidth(), padding = 20, spacing = 12) {
-        LessonButton(stringResource(R.string.demo_toggle), { expanded = !expanded }, Modifier.fillMaxWidth())
-        if (expanded) {
-            LessonText("시뮬레이션 신호", 32, CoachColors.Simulated)
-            scenarios.forEach { scenario ->
-                val label = when (scenario.title) {
-                    "잘한 주차" -> stringResource(R.string.demo_good)
-                    "못한 주차" -> stringResource(R.string.demo_bad)
-                    else -> scenario.title
+    val ownExpansion = rememberSaveable { mutableStateOf(true) }
+    val expansion = LocalDemoExpansion.current ?: ownExpansion
+    val rail = LocalDemoExpansion.current != null
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        TextAction(stringResource(R.string.demo_toggle), { expansion.value = !expansion.value },
+            Modifier.align(Alignment.End), size = 32)
+        if (expansion.value) {
+            Eyebrow("시뮬레이션 신호", color = CoachColors.Periwinkle)
+            if (rail) scenarios.forEach { scenario -> DemoButton(scenario.title, { onPlay(scenario.id) }) }
+            else scenarios.chunked(2).forEach { pair ->
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    pair.forEach { scenario -> DemoButton(scenario.title, { onPlay(scenario.id) }, Modifier.weight(1f), compact = true) }
                 }
-                LessonButton(label, { onPlay(scenario.id) }, Modifier.fillMaxWidth())
             }
             val progress = playback?.let { (it.stepIndex + 1).coerceAtMost(it.stepCount) } ?: 0
-            LessonText(playback?.let { "${if (it.finished) "재생 완료" else "재생 중"} · $progress/${it.stepCount}" } ?: "재생 대기", 32, CoachColors.Muted)
-            LinearProgressIndicator(progress = { playback?.let { progress.toFloat() / it.stepCount.coerceAtLeast(1) } ?: 0f },
-                modifier = Modifier.fillMaxWidth().height(6.dp), color = CoachColors.Simulated, trackColor = CoachColors.Outline)
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                LessonButton(stringResource(R.string.demo_stop_car), onStopCar, Modifier.weight(1f))
-                LessonButton(stringResource(R.string.demo_resume_car), onResumeCar, Modifier.weight(1f))
+            LessonText(playback?.let { "${if (it.finished) "재생 완료" else "재생 중"} · $progress/${it.stepCount}" }
+                ?: "재생 대기", 32, CoachColors.Muted)
+            if (rail) {
+                DemoButton(stringResource(R.string.demo_stop_car), onStopCar)
+                DemoButton(stringResource(R.string.demo_resume_car), onResumeCar)
+                DemoButton(stringResource(R.string.demo_open_door), { onDoor(true) })
+                DemoButton(stringResource(R.string.demo_close_door), { onDoor(false) })
+            } else {
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    DemoButton(stringResource(R.string.demo_stop_car), onStopCar, Modifier.weight(1f), compact = true)
+                    DemoButton(stringResource(R.string.demo_resume_car), onResumeCar, Modifier.weight(1f), compact = true)
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    DemoButton(stringResource(R.string.demo_open_door), { onDoor(true) }, Modifier.weight(1f), compact = true)
+                    DemoButton(stringResource(R.string.demo_close_door), { onDoor(false) }, Modifier.weight(1f), compact = true)
+                }
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                LessonButton(stringResource(R.string.demo_open_door), { onDoor(true) }, Modifier.weight(1f))
-                LessonButton(stringResource(R.string.demo_close_door), { onDoor(false) }, Modifier.weight(1f))
-            }
-            LessonButton(stringResource(R.string.demo_stop_scenario), onStopScenario, Modifier.fillMaxWidth())
+            DemoButton(stringResource(R.string.demo_stop_scenario), onStopScenario, compact = !rail)
         }
+    }
+}
+
+@Composable
+private fun DemoButton(label: String, onClick: () -> Unit, modifier: Modifier = Modifier, compact: Boolean = false) {
+    Button(onClick, modifier.fillMaxWidth().heightIn(min = if (compact) 72.dp else 84.dp), shape = RoundedCornerShape(4.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = CoachColors.Lavender, contentColor = CoachColors.Ink),
+        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 14.dp)) {
+        LessonText(label, 32)
     }
 }

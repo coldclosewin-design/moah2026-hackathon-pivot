@@ -1,0 +1,64 @@
+== start
+  shot 10_setup
+  texts: DRIVE COACH|오늘은 뭘 해볼까요?|연수생 · 장롱 10년차 · 목표 아이 등하원|오늘의 제안|후면 직각 주차 · 가이드 모드|처음 하는 과제라 가이드부터 해요. 제가 단계마다 확인할게요.|연습할 과제|출발 전 점검|조작 · 난이도 하|단순 전진 후 정지|주행 · 난이도 하|좌회전 방향지시등|주행 · 난이도 하|차선 변경|주행 · 난이도 중|일반 도로 코스|주행 · 난이도 중|후면 직각 주차|주차 · 난이도 상|평행 주차|주차 · 난이도 상|회전교차로|주행 · 난이도 상|비상등·날씨별 행동|지식 · 난이도 상|가이드|힌트|평가|지식 테스트|시작|시연|시뮬레이션 신호|잘한 주차|못한 주차|잘한 점검|못한 점검|재생 대기|정차|출발|문 열기|문 닫기|시나리오 정지|제휴 도로주행시험장 (서초)|오늘 14:00 – 15:00 비어 있음&#10;코스 B · 주차 3종|시드 데이터 — 실제 예약 연계 없음|조수석|화내지 않는 조수석, 함께 연습해요.|
+  tap @ 296,1138
+  tap @ 1907,1138
+  log 'begin parking-rear-perpendicular HINT' after 1s
+  [t+0s] session began
+  shot 11_briefing
+  log 'attempt 1 start' after 2s
+  [t+2s] attempt 1 (hint)
+== attempt 1: 못한 주차 (힌트 모드 — 벨트·근접·급정지 힌트가 나와야 한다)
+  tap @ 2286,426
+  shot 12_maneuver_hint
+  log 'hint: 안전벨트' after 1s
+  log 'hint: 뒤가 가까워요' after 20s
+  log 'hint: 제동이 급했어요' after 2s
+  log 'asked done \(attempt 1' after 12s
+  [t+51s] asked done (1)
+  shot 13_maneuver_parked
+  tap @ 1548,1232
+  log 'attempt 1: skill=' after 1s
+  [t+56s] done (1)
+  shot 14_done_1
+  texts: DRIVE COACH|후면 직각 주차 · 1회차 완료|4번 만에, 54초. 들어가긴 했어요. 45도에서 중립을 조금만 늦게 잡아 봐요.|이동|4회|시간|54초|조향 왕복|3회|기어 전환|2회|뒤 최소 거리|35 cm|칸 안의 위치는 확인할 수 없어요. 오늘은 주차 과정을 돌아봤어요.|한 번 더|오늘은 여기까지|시연|시뮬레이션 신호|잘한 주차|못한 주차|재생 완료 · 41/41|정차|출발|문 열기|문 닫기|시나리오 정지|조수석|4번 만에, 54초. 들어가긴 했어요. 45도에서 중립을 조금만 늦게 잡아 봐요.|
+  attempt 1: skill=60 safety=55 segments=4
+== attempt 2: 잘한 주차 (힌트 없이 끝나야 한다)
+  tap @ 154,1138
+  log 'attempt 2 start' after 1s
+  [t+65s] attempt 2
+  tap @ 2286,330
+  shot 15_maneuver_good
+  log 'asked done \(attempt 2' after 17s
+  [t+96s] asked done (2)
+  tap @ 1548,1232
+  log 'attempt 2: skill=' after 1s
+  [t+100s] done (2)
+  shot 16_done_2
+  attempt 2: skill=100 safety=100 segments=2
+== report: 정차 + 운전석 도어 열림
+  tap @ 2117,593
+  log 'report: attempts=2' after 1s
+  [t+107s] report (= 시연 길이)
+  shot 17_report
+  texts: DRIVE COACH|연습 기록|02|오늘의 기록|후면 직각 주차, 힌트 모드 2회. 첫 회차 60점에서 100점까지 올라왔어요. 안전 쪽은 걱정할 게 없어요.|후면 직각 주차 · 힌트|다시 시작|→|자세히 보기|진단서|실신호 0 · 시뮬레이션 8 · 미측정 0|주차 과정만 측정했어요.|
+== logcat
+26669 26669 I MOAH/LessonStateMachine: begin parking-rear-perpendicular HINT
+26669 26826 I MOAH/LessonStateMachine: attempt 1 start (HINT) missing=[]
+26669 26825 I MOAH/LessonStateMachine: hint: 안전벨트가 아직이에요.
+26669 26825 I MOAH/LessonStateMachine: hint: 전진으로 보정할 때는 핸들을 반대로 돌려 두세요.
+26669 26825 I MOAH/LessonStateMachine: hint: 전진으로 보정할 때는 핸들을 반대로 돌려 두세요.
+26669 26826 I MOAH/LessonStateMachine: hint: 핸들을 조금 더 유지해 보세요. 되돌리는 횟수가 늘고 있어요.
+26669 26825 I MOAH/LessonStateMachine: hint: 뒤가 가까워요. 멈추세요.
+26669 26826 I MOAH/LessonStateMachine: hint: 제동이 급했어요. 브레이크는 천천히 밟아요.
+26669 26826 I MOAH/LessonStateMachine: hint: 핸들을 조금 더 유지해 보세요. 되돌리는 횟수가 늘고 있어요.
+26669 26826 I MOAH/LessonStateMachine: asked done (attempt 1)
+26669 26826 I MOAH/LessonStateMachine: attempt 1: skill=60 safety=55 segments=4 badge=AvailabilityBadge(live=0, simulated=8, missing=0)
+26669 26826 I MOAH/LessonStateMachine: attempt 2 start (HINT) missing=[]
+26669 26825 I MOAH/LessonStateMachine: asked done (attempt 2)
+26669 26826 I MOAH/LessonStateMachine: attempt 2: skill=100 safety=100 segments=2 badge=AvailabilityBadge(live=0, simulated=8, missing=0)
+26669 26826 I MOAH/LessonStateMachine: door opened → report
+26669 26826 I MOAH/LessonStateMachine: report: attempts=2 best=100/100 badge=AvailabilityBadge(live=0, simulated=8, missing=0)
+== uiautomator clashes (0 = clean single-instance run): 0
+== result: PASS (힌트 3종 · 회차 2 채점 고정값 · 리포트 배지)
+== done

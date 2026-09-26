@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,16 +19,38 @@ import com.moah.hackathon.R
 
 /** 세션의 모든 단계 화면이 같은 팔레트를 쓴다. 값은 Codex 가 화면을 만들며 바꿀 수 있다. */
 internal object CoachColors {
-    val Background = Color(0xFF111916)
-    val Panel = Color(0xFF1B2620)
-    val Foreground = Color(0xFFF1F3E8)
-    val Muted = Color(0xFFB2C0B7)
-    val Accent = Color(0xFFD4EEAE)
-    val Outline = Color(0xFF405148)
-    val Warning = Color(0xFFFF887B)
-    val Simulated = Color(0xFFE7C58C)
-    val Ink = Color(0xFF172018)
+    val Ink = Color(0xFF070827)
+    val Paper = Color(0xFFFCFCFA)
+    val Periwinkle = Color(0xFF5B60A1)
+    val Lavender = Color(0xFFE5E6F0)
+    val Signal = Color(0xFFF52D48)
+    val Muted = Ink.copy(alpha = .60f)
+
+    // Compatibility roles for the screens whose composition changes in round 2.
+    val Background = Paper
+    val Panel = Lavender
+    val Foreground = Ink
+    val Accent = Periwinkle
+    val Outline = Lavender
+    val Warning = Muted
+    val Simulated = Periwinkle
 }
+
+/** Design-space sizes; DesignScale fixes the canvas at 2560 × 1268 dp. */
+internal object CoachType {
+    const val Eyebrow = 32
+    const val Body = 40
+    const val Headline = 80
+    const val Value = 80
+}
+
+internal fun coachColorScheme() = lightColorScheme(
+    primary = CoachColors.Periwinkle, onPrimary = CoachColors.Paper,
+    background = CoachColors.Paper, onBackground = CoachColors.Ink,
+    surface = CoachColors.Paper, onSurface = CoachColors.Ink,
+    surfaceVariant = CoachColors.Lavender, onSurfaceVariant = CoachColors.Ink,
+    outline = CoachColors.Muted,
+)
 
 @Composable
 internal fun LessonCanvas(content: @Composable ColumnScope.() -> Unit) {
