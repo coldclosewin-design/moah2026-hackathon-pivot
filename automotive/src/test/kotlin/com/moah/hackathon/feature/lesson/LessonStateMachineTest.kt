@@ -100,7 +100,8 @@ class LessonStateMachineTest {
         val done = h.machine.phase.value as LessonPhase.Done
         assertEquals(100, done.record.score.skill)
         assertEquals(100, done.record.score.safety)
-        assertTrue(done.record.remark, done.record.remark.startsWith("2번 만에, 26초."))
+        // 운전자 문장에 숫자 없음(9/27) — "서두\n조언" 두 문장
+        assertTrue(done.record.remark, !done.record.remark.contains(Regex("[0-9]+번|[0-9]+초")) && done.record.remark.contains("\n"))
         assertEquals(SpeechPriority.URGENT, h.tts.priorities.last())
         assertEquals(1, h.store.all().size)
 
@@ -243,7 +244,7 @@ class LessonStateMachineTest {
         val done = h.machine.phase.value as LessonPhase.Done
         assertEquals(100, done.record.score.skill)
         assertEquals(100, done.record.score.safety)
-        assertTrue(done.record.remark, done.record.remark.startsWith("출발 준비 5초."))
+        assertTrue(done.record.remark, !done.record.remark.contains("초.") && done.record.remark.endsWith("이 순서 그대로 몸에 남겨 두세요."))
         assertFalse(done.record.remark.contains("들어갔"))   // 주차 멘트가 섞이지 않는다
 
         openDoor(h)
@@ -271,7 +272,7 @@ class LessonStateMachineTest {
         val done = h.machine.phase.value as LessonPhase.Done
         assertEquals(60, done.record.score.skill)
         assertEquals(70, done.record.score.safety)
-        assertTrue(done.record.remark, done.record.remark.startsWith("출발 준비 9초."))
+        assertTrue(done.record.remark, !done.record.remark.contains("초.") && done.record.remark.endsWith("다음엔 벨트가 먼저, 시동은 그다음이에요."))
         h.machine.endSession(); advanceUntilIdle()
         val report = (h.machine.phase.value as LessonPhase.Report).report
         assertTrue(report.summary, report.summary.startsWith("출발 전 점검, 힌트 모드 1회."))
@@ -341,7 +342,7 @@ class LessonStateMachineTest {
         val report = (h.machine.phase.value as LessonPhase.Report).report
         assertEquals(2, report.attempts.size)
         assertEquals(100, report.best.skill)
-        assertTrue(report.summary, report.summary.contains("60점에서 100점까지"))
+        assertTrue(report.summary, report.summary.contains("좋아졌어요") && !report.summary.contains("점"))
         h.machine.reset()
         assertTrue(h.machine.phase.value is LessonPhase.Setup)
         h.scope.cancel()
@@ -373,10 +374,10 @@ class LessonStateMachineTest {
         feed(h, ParkingScenarios.good)
         h.machine.finishAttempt(); advanceUntilIdle()
         val done = h.machine.phase.value as LessonPhase.Done
-        assertTrue(done.record.remark, done.record.remark.startsWith("2번 만에, 26초."))
+        assertTrue(done.record.remark, done.record.remark.startsWith("수고했어요.\n"))
         h.machine.endSession(); advanceUntilIdle()
         val report = (h.machine.phase.value as LessonPhase.Report).report
-        assertTrue(report.summary.contains("가장 좋은 회차 100점"))
+        assertTrue(report.summary, report.summary.contains("수고했어요") && !report.summary.contains("점"))
         assertFalse(h.tts.spoken.isEmpty())
         h.scope.cancel()
     }

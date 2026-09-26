@@ -33,9 +33,9 @@ class CloudCoachPort(
 
     override suspend fun remark(task: Task, score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int): String {
         val safe = fallback.remark(task, score, delta, profile, attempt)
-        val (system, user) = CoachPrompts.remark(task, score, delta, profile, attempt, seedLine = safe.substringAfter(". ", ""))
-        val cloud = ask(system, user, maxChars = CoachPrompts.REMARK_MAX_CHARS) ?: return safe
-        return "${attemptHead(task, score)} $cloud"
+        val (system, user) = CoachPrompts.remark(task, score, delta, profile, attempt, seedLine = safe.replace('\n', ' '))
+        // 숫자 머리말은 붙이지 않는다(운전자 문장 규칙). 두 문장을 줄바꿈으로 — 화면이 문장 단위로 줄을 끊는다
+        return ask(system, user, maxChars = CoachPrompts.REMARK_MAX_CHARS)?.let { CoachPrompts.twoLines(it) } ?: safe
     }
 
     override suspend fun summarize(task: Task, mode: LessonMode, attempts: List<AttemptRecord>, profile: Profile): String {
@@ -64,15 +64,22 @@ class CloudCoachPort(
 
 /** 프롬프트 조립과 응답 검증. 순수 함수 — 테스트로 고정한다. */
 object CoachPrompts {
-    const val REMARK_MAX_CHARS = 60
+    const val REMARK_MAX_CHARS = 90
     const val SUMMARY_MAX_CHARS = 160
 
     /** 두려움을 줄이는 앱이 쓰지 않는 말(§3.4). 응답에 들어 있으면 버린다. */
     val BANNED: List<String> = listOf("하위", "실패", "못했", "형편없", "최악", "낙제", "불합격", "위험한 운전자")
 
     private const val SYSTEM = """당신은 초보 운전자의 조수석에 앉은, 화내지 않는 운전 코치입니다.
-규칙: 한국어 존댓말, 한 문장, 위트 있게 북돋우되 사실만. 점수·등수·비교 서열을 말하지 않습니다. 금지어: 하위, 실패, 못했, 최악, 낙제.
+규칙: 한국어 존댓말, 정확히 두 문장 — 첫 문장은 응원하는 서두, 둘째 문장은 고칠 것 하나. 위트 있게 북돋우되 사실만.
+숫자(횟수·초·점수·등수)를 말하지 않습니다. 금지어: 하위, 실패, 못했, 최악, 낙제.
 운전자의 프로필(장롱면허 햇수, 목표, 무서운 것)과 이번 회차의 과정 지표만 근거로 씁니다. 차가 칸에 반듯이 들어갔는지는 모릅니다 — 말하지 않습니다."""
+
+    /** 응답을 문장 단위 두 줄로 — 첫 마침표 뒤에서 한 번만 줄을 바꾼다. 문장이 하나면 그대로. */
+    fun twoLines(text: String): String {
+        val idx = text.indexOf(". ")
+        return if (idx > 0 && idx < text.length - 2) text.substring(0, idx + 1) + "\n" + text.substring(idx + 2).trimStart() else text
+    }
 
     fun remark(task: Task, score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int, seedLine: String): Pair<String, String> {
         val m = score.metrics
@@ -90,7 +97,7 @@ object CoachPrompts {
                 delta?.let { appendLine("지난번 대비: 이동 ${signed(it.segments)}회, ${signed(it.seconds.toInt())}초, 조향 ${it.reversals?.let(::signed) ?: "-"}회.") }
             }
             appendLine("참고 문장(이 톤으로, 그대로 쓰지 말고 변주): $seedLine")
-            append("한 문장, ${REMARK_MAX_CHARS}자 이내로 회차 멘트를 써 주세요. 숫자 머리말(\"${attemptHead(task, score)}\")은 앱이 붙이므로 쓰지 마세요.")
+            append("두 문장(서두. 조언.), ${REMARK_MAX_CHARS}자 이내로 회차 멘트를 써 주세요. 위 과정 숫자(${attemptHead(task, score)})는 근거로만 쓰고 문장에는 넣지 마세요.")
         }
         return SYSTEM to user
     }
@@ -102,8 +109,8 @@ object CoachPrompts {
             attempts.forEach { a ->
                 appendLine("- ${a.index}회차: 숙련 ${a.score.skill}, 안전 ${a.score.safety}, 이동 ${a.score.metrics.motion.movingSegments}회, ${a.score.metrics.motion.totalMillis / 1000}초, 급조작 ${a.score.metrics.harshEvents.size}, 근접 ${a.score.metrics.proximity?.warnings ?: "미측정"}.")
             }
-            appendLine("참고 문장(이 톤으로): $seedLine")
-            append("두 문장, ${SUMMARY_MAX_CHARS}자 이내로 오늘 세션 총평을 써 주세요. 첫 문장은 흐름(나아졌나), 둘째 문장은 안전 쪽 한 가지.")
+            appendLine("참고 문장(이 톤으로): ${seedLine.replace('\n', ' ')}")
+            append("두 문장, ${SUMMARY_MAX_CHARS}자 이내로 오늘 세션 총평을 써 주세요. 첫 문장은 흐름(나아졌나), 둘째 문장은 안전 쪽 한 가지. 점수·횟수 숫자는 쓰지 마세요.")
         }
         return SYSTEM to user
     }

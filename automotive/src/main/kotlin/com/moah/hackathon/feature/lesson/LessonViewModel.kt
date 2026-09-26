@@ -39,9 +39,10 @@ class LessonViewModel(
      * 순수 Real(`-PfillMissing=false`)에서는 null → 화면이 숨긴다. **패널이 보이면 Fake 가 섞여 있다.**
      * Hybrid 에서 live 키(실물이 주는 속도·도어)에는 정차·도어 버튼이 먹지 않는다 — 실차에서는 실제로 세우고 열어야 한다.
      */
-    val demo: DemoControls? = when (vehicle) {
-        is FakeVehiclePort -> DemoControls(vehicle)
-        is HybridVehiclePort -> DemoControls(vehicle.fake)
+    val demo: DemoControls? = when {
+        !BuildConfig.SHOW_DEMO_PANEL -> null   // -PdemoPanel=false: 녹화·사내용, 패널 자체를 그리지 않는다
+        vehicle is FakeVehiclePort -> DemoControls(vehicle)
+        vehicle is HybridVehiclePort -> DemoControls(vehicle.fake)
         else -> null
     }
 

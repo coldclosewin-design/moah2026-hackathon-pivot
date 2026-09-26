@@ -59,6 +59,9 @@ class ParkingRecorder(private val registry: SignalRegistry) {
     fun scoreChecklist(rubric: ChecklistRubric = ChecklistRubric(), untilMillis: Long? = null): ParkingScore? =
         metrics(untilMillis)?.let { ChecklistScorer.score(it, registry.badge(), registry.missingKeys(), rubric) }
 
+    /** 회차의 추정 궤적(dead-reckoning). 속도 샘플이 없으면 빈 목록. 화면은 "추정" 이라고 쓴다. */
+    fun path(): List<PathPoint> = PathReconstructor.reconstruct(speed, angle, gear)
+
     fun reset() {
         speed.clear(); angle.clear(); gear.clear(); distance.clear(); warning.clear(); belt.clear(); ignition.clear()
         lastMillis = 0L

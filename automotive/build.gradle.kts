@@ -32,6 +32,8 @@ android {
         // Fake 신호 시나리오·Fake 위치의 시간 압축 배율. 주차 시나리오(잘한 26 s·못한 44 s)는 실시간이 맞아 기본 1.0.
         // 시연 시간이 모자라면 -PdemoSpeed=1.5. (16번 도로 주행은 12 km 라 10 이었다)
         buildConfigField("double", "DEMO_SPEED_FACTOR", (project.findProperty("demoSpeed") ?: "1.0").toString().toDouble().toString())
+        // 시연 조작 패널(Fake 신호 버튼). 녹화·사내에서 화면에서 지우려면 -PdemoPanel=false — 그때는 스크립트도 못 누른다
+        buildConfigField("boolean", "SHOW_DEMO_PANEL", (project.findProperty("demoPanel") ?: "true").toString())
     }
 
     buildTypes {
