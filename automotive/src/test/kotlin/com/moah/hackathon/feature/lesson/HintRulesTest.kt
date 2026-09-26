@@ -1,5 +1,6 @@
 package com.moah.hackathon.feature.lesson
 
+import com.moah.hackathon.data.ChecklistScenarios
 import com.moah.hackathon.data.ParkingScenarios
 import com.moah.hackathon.ports.SpeechPriority
 import com.moah.hackathon.scoring.ParkingRecorder
@@ -10,9 +11,9 @@ import org.junit.Test
 
 class HintRulesTest {
 
-    private fun run(scenario: com.moah.hackathon.vehicle.Scenario, cooldown: Long = 5_000L): List<Hint> {
+    private fun run(scenario: com.moah.hackathon.vehicle.Scenario, cooldown: Long = 5_000L, checklist: Boolean = false): List<Hint> {
         val recorder = ParkingRecorder(SignalRegistry(ParkingRecorder.KEYS, simulated = true))
-        val rules = HintRules(cooldown)
+        val rules = HintRules(cooldown, checklist)
         var snap = VehicleSnapshot()
         val out = ArrayList<Hint>()
         for (step in scenario.steps) {
@@ -42,6 +43,16 @@ class HintRulesTest {
             .forEach { assertEquals(SpeechPriority.URGENT, it.priority) }
         // 벨트 힌트는 첫 이동 뒤에 한 번만 — 출발 전에 외치지 않는다
         assertEquals(1, texts.count { it == "안전벨트가 아직이에요." })
+    }
+
+    @Test
+    fun `checklist rules - ignition before belt is urgent and once, a creep is a calm reminder, a good check is silent`() {
+        assertTrue(run(ChecklistScenarios.good, checklist = true).isEmpty())
+        val hints = run(ChecklistScenarios.bad, checklist = true)
+        assertEquals(listOf("시동보다 안전벨트가 먼저예요. 지금 매 주세요.", "아직 출발 전이에요. 차는 세운 채로 점검만 해요."), hints.map { it.text })
+        assertEquals(listOf(SpeechPriority.URGENT, SpeechPriority.NORMAL), hints.map { it.priority })
+        // 점검 과제에서는 주차 규칙(벨트 없이 이동)을 따로 외치지 않는다 — 한 상황에 한 마디
+        assertTrue(hints.none { it.text == "안전벨트가 아직이에요." })
     }
 
     @Test

@@ -4,6 +4,8 @@ import android.util.Log
 import com.moah.hackathon.ports.CoachPort
 import com.moah.hackathon.ports.SpeechPriority
 import com.moah.hackathon.ports.TtsPort
+import com.moah.hackathon.ports.attemptHead
+import com.moah.hackathon.scoring.ChecklistRubric
 import com.moah.hackathon.scoring.ParkingDelta
 import com.moah.hackathon.scoring.ParkingRecorder
 import com.moah.hackathon.scoring.ParkingRubric
@@ -31,6 +33,8 @@ import kotlinx.coroutines.launch
  *  - 회차 종료: 운전자가 "다 됐어요"([finishAttempt]). 기어 P + 정차를 보면 먼저 "다 되셨나요?" 한 번 묻는다.
  *  - 세션 종료: [endSession] 또는 **정차 + 운전석 도어 열림**. 주행 중 도어 열림은 무해.
  *  - 채점·멘트는 [ParkingRecorder]·[CoachPort]. 코치가 실패해도 규칙 문장으로 이어진다(CoachPort 계약).
+ *  - **출발 전 점검 과제**([TaskType.CHECKLIST]): 같은 흐름, 차는 서 있다. 채점은 [ParkingRecorder.scoreChecklist],
+ *    힌트는 점검 규칙만, "다 되셨나요?" 는 벨트·시동·P 가 다 보이면.
  */
 class LessonStateMachine(
     private val vehicle: VehiclePort,
@@ -48,6 +52,7 @@ class LessonStateMachine(
     private val clock: () -> Long = { System.currentTimeMillis() },
     private val briefingMillis: Long = 2_500L,
     private val rubric: ParkingRubric = ParkingRubric(),
+    private val checklistRubric: ChecklistRubric = ChecklistRubric(),
 ) {
     var profile: Profile = profile
         private set
@@ -56,7 +61,7 @@ class LessonStateMachine(
     val phase: StateFlow<LessonPhase> = _phase
 
     private val recorder = ParkingRecorder(registry)
-    private val hints = HintRules()
+    private var hints = HintRules()
     private var guide: GuideRunner? = null
     private var snapshot = VehicleSnapshot()
     private var vehicleJob: Job? = null
@@ -179,8 +184,10 @@ class LessonStateMachine(
     fun finishAttempt() {
         val p = _phase.value as? LessonPhase.Maneuver ?: return
         if (finishing) return
-        val score = recorder.score(rubric, untilMillis = clock() - attemptStartMillis) ?: run {
-            tts.speak("아직 움직임이 없어요. 천천히 시작해 보세요.")
+        val until = clock() - attemptStartMillis
+        val checklist = p.task.type == TaskType.CHECKLIST
+        val score = (if (checklist) recorder.scoreChecklist(checklistRubric, until) else recorder.score(rubric, until)) ?: run {
+            tts.speak(if (checklist) "아직 신호가 없어요. 잠시 뒤 다시 눌러 주세요." else "아직 움직임이 없어요. 천천히 시작해 보세요.")
             return
         }
         finishing = true
@@ -188,10 +195,10 @@ class LessonStateMachine(
         val delta = previous?.let { ParkingDelta.of(score.metrics, it.score.metrics) }
         scope.launch {
             val remark = try {
-                coach.remark(score, delta, profile, attempt)
+                coach.remark(p.task, score, delta, profile, attempt)
             } catch (e: RuntimeException) {
                 Log.w(TAG, "coach.remark failed → rule sentence", e)
-                "${score.metrics.motion.movingSegments}번 만에, ${score.metrics.motion.totalMillis / 1000}초. 수고했어요."
+                "${attemptHead(p.task, score)} 수고했어요."
             }
             val record = AttemptRecord(attempt, p.task.id, p.mode, score, delta, remark, clock())
             store.add(record)
@@ -252,7 +259,7 @@ class LessonStateMachine(
         val (task, mode) = current ?: return
         attempt++
         recorder.reset()
-        hints.reset()
+        hints = HintRules(checklist = task.type == TaskType.CHECKLIST)
         attemptStartMillis = clock()
         lastHint = null
         askedDone = false
@@ -297,7 +304,13 @@ class LessonStateMachine(
                         Log.i(TAG, "hint: ${h.text}")   // tools/emu_flow.sh 가 이 줄을 기다린다
                     }
                 }
-                if (!askedDone && snapshot.stopped && snapshot.gear == com.moah.hackathon.vehicle.Gear.PARK && (recorder.metrics()?.motion?.firstMoveMillis != null) && p.mode != LessonMode.GUIDE) {
+                // 다 된 것 같으면 한 번 묻는다 — 주차: 움직인 뒤 기어 P + 정차 / 출발 전 점검: 벨트·시동·P 가 다 보임(MISSING 이면 안 묻고 버튼을 기다린다)
+                val looksDone = if (p.task.type == TaskType.CHECKLIST) {
+                    snapshot.belt == true && snapshot.ignitionOn == true && snapshot.gear == com.moah.hackathon.vehicle.Gear.PARK
+                } else {
+                    snapshot.stopped && snapshot.gear == com.moah.hackathon.vehicle.Gear.PARK && recorder.metrics()?.motion?.firstMoveMillis != null
+                }
+                if (!askedDone && looksDone && p.mode != LessonMode.GUIDE) {
                     askedDone = true
                     tts.speak("다 되셨나요? 다 됐으면 버튼을 눌러 주세요.")
                     Log.i(TAG, "asked done (attempt $attempt)")

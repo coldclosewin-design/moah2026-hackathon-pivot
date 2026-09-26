@@ -15,9 +15,11 @@ class SeedCatalogTest {
     }
 
     @Test
-    fun `parking and knowledge tasks are READY - parking supports the three driving modes but not quiz`() {
+    fun `predrive parking and knowledge tasks are READY - parking supports the three driving modes but not quiz`() {
         val ready = SeedCatalog.tasks.filter { it.isReady }
-        assertEquals(listOf(SeedCatalog.TASK_PARKING_REAR, SeedCatalog.TASK_KNOWLEDGE), ready.map { it.id })
+        assertEquals(listOf(SeedCatalog.TASK_PREDRIVE, SeedCatalog.TASK_PARKING_REAR, SeedCatalog.TASK_KNOWLEDGE), ready.map { it.id })
+        assertTrue(!SeedCatalog.predriveTask.requiresDriving)
+        assertTrue(SeedCatalog.predriveTask.supports(com.moah.hackathon.feature.lesson.LessonMode.GUIDE) && !SeedCatalog.predriveTask.supports(com.moah.hackathon.feature.lesson.LessonMode.QUIZ))
         assertEquals(5, SeedCatalog.quizFor(SeedCatalog.tasks.first { it.id == SeedCatalog.TASK_KNOWLEDGE }).size)
         assertTrue(SeedCatalog.quizFor(SeedCatalog.parkingTask).isEmpty())
         assertEquals(SeedCatalog.quiz.size, SeedCatalog.quiz.map { it.id }.toSet().size)
@@ -28,10 +30,19 @@ class SeedCatalogTest {
     }
 
     @Test
-    fun `parking guide has six steps and only the parking task has a guide`() {
+    fun `parking guide has six steps, predrive three, and planned tasks have none`() {
         assertEquals(6, SeedCatalog.guideFor(SeedCatalog.parkingTask).size)
         assertTrue(SeedCatalog.guideFor(SeedCatalog.tasks.first { it.id == "road-course" }).isEmpty())
         assertEquals(listOf("belt", "ignition", "reverse", "steer-right", "center", "park"), SeedCatalog.parkingGuide.map { it.id })
+        assertEquals(listOf("belt", "park-check", "ignition"), SeedCatalog.guideFor(SeedCatalog.predriveTask).map { it.id })
+        assertTrue(SeedCatalog.predriveGuide.last().confirm.contains("버튼을 눌러 주세요"))
+    }
+
+    @Test
+    fun `scenarios follow the task type`() {
+        assertEquals(listOf("parking-good", "parking-bad"), SeedCatalog.scenariosFor(SeedCatalog.parkingTask).map { it.id })
+        assertEquals(listOf("predrive-good", "predrive-bad"), SeedCatalog.scenariosFor(SeedCatalog.predriveTask).map { it.id })
+        assertTrue(SeedCatalog.scenariosFor(SeedCatalog.tasks.first { it.id == SeedCatalog.TASK_KNOWLEDGE }).isEmpty())
     }
 
     @Test

@@ -13,6 +13,7 @@ import com.moah.hackathon.feature.lesson.Task
 import com.moah.hackathon.feature.lesson.TaskStatus
 import com.moah.hackathon.feature.lesson.TaskType
 import com.moah.hackathon.vehicle.Gear
+import com.moah.hackathon.vehicle.Scenario
 import mobis.vss.VssConstants as V
 
 /**
@@ -23,12 +24,14 @@ object SeedCatalog {
 
     // ───────── 과제 카탈로그 (§3.1) — 시작 가능한 것은 status = READY 만. 나머지는 제품의 폭을 보여 주는 계획 ─────────
 
+    const val TASK_PREDRIVE = "predrive-check"
     const val TASK_PARKING_REAR = "parking-rear-perpendicular"
     const val TASK_KNOWLEDGE = "knowledge-hazard-weather"
 
     val tasks: List<Task> = listOf(
-        Task("predrive-check", "출발 전 점검", TaskType.CHECKLIST, Difficulty.EASY, "안전벨트·기어 P·시동을 순서대로.",
-            listOf("안전벨트", "기어", "시동"), setOf(V.SEAT_DRIVER_ISBELTED, V.TRANSMISSION_SELECTED_GEAR, V.LOW_VOLTAGE_SYSTEM_STATE), requiresDriving = false),
+        Task(TASK_PREDRIVE, "출발 전 점검", TaskType.CHECKLIST, Difficulty.EASY, "안전벨트·기어 P·시동을 순서대로. 차는 세운 채로.",
+            listOf("안전벨트", "기어 P", "시동"), setOf(V.SEAT_DRIVER_ISBELTED, V.TRANSMISSION_SELECTED_GEAR, V.LOW_VOLTAGE_SYSTEM_STATE), requiresDriving = false,
+            status = TaskStatus.READY),   // 가이드 3단계 + ChecklistScorer + 시나리오 2벌. 움직이지 않는 유일한 조작 과제
         Task("straight-stop", "단순 전진 후 정지", TaskType.DRIVING, Difficulty.EASY, "천천히 출발해 부드럽게 멈추기.",
             listOf("출발", "정지"), setOf(V.VEHICLE_SPEED), requiresDriving = true),
         Task("left-turn-signal", "좌회전 방향지시등", TaskType.DRIVING, Difficulty.EASY, "좌회전 3초 전에 켜고, 돌고 나서 끄기.",
@@ -50,11 +53,20 @@ object SeedCatalog {
     )
 
     val parkingTask: Task get() = tasks.first { it.id == TASK_PARKING_REAR }
+    val predriveTask: Task get() = tasks.first { it.id == TASK_PREDRIVE }
 
-    // ───────── 가이드 단계 — 후면 직각 주차, 신호 확인형 (§4.3) ─────────
+    /** 시연 패널이 과제별로 보여 주는 Fake 시나리오. 주행 과제는 아직 없다. */
+    fun scenariosFor(task: Task): List<Scenario> = when (task.type) {
+        TaskType.PARKING -> ParkingScenarios.all
+        TaskType.CHECKLIST -> ChecklistScenarios.all
+        else -> emptyList()
+    }
+
+    // ───────── 가이드 단계 — 신호 확인형 (§4.3) ─────────
 
     fun guideFor(task: Task): List<GuideStep> = when (task.id) {
         TASK_PARKING_REAR -> parkingGuide
+        TASK_PREDRIVE -> predriveGuide
         else -> emptyList()
     }
 
@@ -65,6 +77,13 @@ object SeedCatalog {
         GuideStep("steer-right", "핸들을 오른쪽 끝까지 돌리세요.", V.STEERING_WHEEL_ANGLE, "다 돌렸어요. 이제 천천히 후진하세요.") { s, _ -> (s.steeringDeg ?: 0f) <= -400f },
         GuideStep("center", "차가 45도쯤 되면 핸들을 중립으로 돌려 주세요.", V.STEERING_WHEEL_ANGLE, "곧게 후진하세요.") { s, moved -> moved && kotlin.math.abs(s.steeringDeg ?: 999f) < 30f },
         GuideStep("park", "다 들어왔으면 멈추고 기어 P.", V.TRANSMISSION_SELECTED_GEAR, "다 되셨나요? 다 됐으면 버튼을 눌러 주세요.") { s, _ -> s.stopped && s.gear == Gear.PARK },
+    )
+
+    /** 출발 전 점검 — 시동 꺼진 차에서 시작한다. 벨트 → 기어 P 확인 → 브레이크 밟고 시동. 첫 단계는 주차 가이드와 같은 것. */
+    val predriveGuide: List<GuideStep> = listOf(
+        parkingGuide.first { it.id == "belt" },
+        GuideStep("park-check", "기어가 P에 있는지 확인해 주세요.", V.TRANSMISSION_SELECTED_GEAR, "P 맞아요.") { s, _ -> s.gear == Gear.PARK },
+        GuideStep("ignition", "브레이크를 밟고 시동을 켜 주세요.", V.LOW_VOLTAGE_SYSTEM_STATE, "시동 켜졌어요. 출발 준비 끝. 다 됐으면 버튼을 눌러 주세요.") { s, _ -> s.ignitionOn == true },
     )
 
     // ───────── 프로필 (§3.4) — 첫 설정 대화 5문항 + 시연용 예시 프로필 ─────────
@@ -111,6 +130,20 @@ object SeedCatalog {
         RemarkTemplate(ScoreBand.ROUGH, setOf("first"), "첫 회차는 원래 이래요. 다음 회차는 가이드 모드로 같이 해 봐요."),
         RemarkTemplate(ScoreBand.ROUGH, setOf("any"), "많이 움직였지만 부딪히지 않았어요. 그게 오늘의 점수예요."),
         RemarkTemplate(ScoreBand.ROUGH, setOf("any"), "힘들었죠. 한 번 쉬고, 다음엔 핸들 한 번 → 후진 한 번만 생각해요."),
+
+        // ── 출발 전 점검 (TaskType.CHECKLIST) — 차는 서 있으니 "들어갔다" 류의 주차 표현을 쓰지 않는다 ──
+        RemarkTemplate(ScoreBand.EXCELLENT, setOf("rusty", "first"), "벨트, P, 시동. 장롱 {years}년인데 순서가 손에 남아 있네요.", TaskType.CHECKLIST),
+        RemarkTemplate(ScoreBand.EXCELLENT, setOf("improved"), "지난번보다 {deltaSeconds}초 빨라졌어요. 순서가 습관이 되고 있어요.", TaskType.CHECKLIST),
+        RemarkTemplate(ScoreBand.EXCELLENT, setOf("any"), "교과서 순서였어요. 지금 이 차에서 제일 안전한 사람은 당신이에요.", TaskType.CHECKLIST),
+        RemarkTemplate(ScoreBand.EXCELLENT, setOf("any"), "{seconds}초면 충분해요. 이제 진짜 출발만 남았어요.", TaskType.CHECKLIST),
+        RemarkTemplate(ScoreBand.GOOD, setOf("rusty", "first"), "장롱의 문고리는 잡았어요. 문 여는 건 다음 과제에서.", TaskType.CHECKLIST),
+        RemarkTemplate(ScoreBand.GOOD, setOf("any"), "다 켜졌어요. 순서 한 번만 더 몸에 넣으면 끝이에요.", TaskType.CHECKLIST),
+        RemarkTemplate(ScoreBand.GOOD, setOf("any"), "좋아요. 벨트가 먼저, 시동은 그다음. 이 한 줄만 기억해요.", TaskType.CHECKLIST),
+        RemarkTemplate(ScoreBand.OK, setOf("any"), "시동이 벨트보다 먼저였어요. 벨트가 먼저 — 이게 습관이 되면 반은 한 거예요.", TaskType.CHECKLIST),
+        RemarkTemplate(ScoreBand.OK, setOf("any"), "조금 헤맸지만 다 켜졌어요. 이 순서를 세 번만 반복해 봐요.", TaskType.CHECKLIST),
+        RemarkTemplate(ScoreBand.OK, setOf("rusty"), "장롱 {years}년차, 시동은 켰어요. 벨트를 먼저 매는 것만 남았어요.", TaskType.CHECKLIST),
+        RemarkTemplate(ScoreBand.ROUGH, setOf("any"), "빠진 게 있어요. 시동 꺼진 차 안이 제일 안전한 연습장이니 하나씩 다시 해 봐요.", TaskType.CHECKLIST),
+        RemarkTemplate(ScoreBand.ROUGH, setOf("rusty"), "장롱 {years}년이면 이것부터가 연습이에요. 여기 앉은 게 성과.", TaskType.CHECKLIST),
     )
 
     // ───────── 장소·보상 (§3.3·§3.5) — 시드, 실제 연계 없음 ─────────

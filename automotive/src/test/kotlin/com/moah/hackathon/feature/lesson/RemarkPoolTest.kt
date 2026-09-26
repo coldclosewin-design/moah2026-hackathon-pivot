@@ -24,6 +24,20 @@ class RemarkPoolTest {
     }
 
     @Test
+    fun `checklist picks never borrow a parking line and vice versa`() {
+        val pool = RemarkPool(SeedCatalog.remarks, Random(2))
+        val checklistTexts = SeedCatalog.remarks.filter { it.taskType == TaskType.CHECKLIST }.map { it.text }.toSet()
+        ScoreBand.entries.forEach { band ->
+            repeat(4) {
+                val raw = pool.pick(band, setOf("rusty", "first"), emptyMap(), TaskType.CHECKLIST)
+                assertTrue("$band: $raw", checklistTexts.contains(raw))
+            }
+        }
+        val parking = pool.pick(ScoreBand.EXCELLENT, setOf("any"), emptyMap())
+        assertFalse(parking, checklistTexts.contains(parking))
+    }
+
+    @Test
     fun `placeholders are filled`() {
         val pool = RemarkPool(listOf(RemarkTemplate(ScoreBand.OK, setOf("any"), "{segments}번, {years}년차 {name}")), Random(1))
         assertEquals("4번, 10년차 연수생", pool.pick(ScoreBand.OK, emptySet(), mapOf("segments" to "4", "years" to "10", "name" to "연수생")))

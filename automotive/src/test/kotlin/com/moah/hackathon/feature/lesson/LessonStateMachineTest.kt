@@ -1,5 +1,6 @@
 package com.moah.hackathon.feature.lesson
 
+import com.moah.hackathon.data.ChecklistScenarios
 import com.moah.hackathon.data.ParkingScenarios
 import com.moah.hackathon.data.SeedCatalog
 import com.moah.hackathon.ports.CoachPort
@@ -221,6 +222,63 @@ class LessonStateMachineTest {
     }
 
     @Test
+    fun `predrive check - guide confirms belt P ignition without moving, scores 100 and the door opens the report`() = runTest {
+        val h = harness()
+        h.machine.begin(SeedCatalog.TASK_PREDRIVE, LessonMode.GUIDE)
+        advanceUntilIdle()
+        val m0 = h.machine.phase.value as LessonPhase.Maneuver
+        assertEquals("안전벨트를 매 주세요.", m0.guide!!.say)
+        assertTrue(h.tts.spoken.first(), h.tts.spoken.first().startsWith("출발 전 점검, 가이드 모드"))
+
+        feed(h, ChecklistScenarios.good)
+        val confirms = SeedCatalog.predriveGuide.map { it.confirm }
+        assertEquals(confirms, h.tts.spoken.filter { it in confirms })
+        val m1 = h.machine.phase.value as LessonPhase.Maneuver
+        assertTrue(m1.askedDone)                       // 가이드가 끝났다
+        assertEquals(0, m1.movingSegments)
+        assertTrue(h.tts.spoken.none { it.startsWith("다 되셨나요?") })   // 가이드 모드는 마지막 단계 확인 문장이 그 역할
+
+        h.machine.finishAttempt()
+        advanceUntilIdle()
+        val done = h.machine.phase.value as LessonPhase.Done
+        assertEquals(100, done.record.score.skill)
+        assertEquals(100, done.record.score.safety)
+        assertTrue(done.record.remark, done.record.remark.startsWith("출발 준비 5초."))
+        assertFalse(done.record.remark.contains("들어갔"))   // 주차 멘트가 섞이지 않는다
+
+        openDoor(h)
+        val report = (h.machine.phase.value as LessonPhase.Report).report
+        assertEquals(SeedCatalog.TASK_PREDRIVE, report.task.id)
+        assertEquals(100, report.best.skill)
+        assertTrue(report.unverifiedGuideSteps.isEmpty())
+        h.scope.cancel()
+    }
+
+    @Test
+    fun `predrive check - hint mode speaks the order hint when the engine starts before the belt and scores 60 70`() = runTest {
+        val h = harness()
+        h.machine.begin(SeedCatalog.TASK_PREDRIVE, LessonMode.HINT)
+        advanceUntilIdle()
+        feed(h, ChecklistScenarios.bad)
+        assertTrue(h.tts.spoken.toString(), "시동보다 안전벨트가 먼저예요. 지금 매 주세요." in h.tts.spoken)
+        assertTrue(h.tts.spoken.any { it.startsWith("아직 출발 전이에요") })
+        val m = h.machine.phase.value as LessonPhase.Maneuver
+        assertTrue(m.askedDone)                        // 벨트·시동·P 가 다 보이면 "다 되셨나요?"
+        assertTrue(h.tts.spoken.any { it.startsWith("다 되셨나요?") })
+
+        h.machine.finishAttempt()
+        advanceUntilIdle()
+        val done = h.machine.phase.value as LessonPhase.Done
+        assertEquals(60, done.record.score.skill)
+        assertEquals(70, done.record.score.safety)
+        assertTrue(done.record.remark, done.record.remark.startsWith("출발 준비 9초."))
+        h.machine.endSession(); advanceUntilIdle()
+        val report = (h.machine.phase.value as LessonPhase.Report).report
+        assertTrue(report.summary, report.summary.startsWith("출발 전 점검, 힌트 모드 1회."))
+        h.scope.cancel()
+    }
+
+    @Test
     fun `door opening while moving is harmless`() = runTest {
         val h = harness()
         h.machine.begin(SeedCatalog.TASK_PARKING_REAR, LessonMode.EVALUATE)
@@ -273,7 +331,7 @@ class LessonStateMachineTest {
     @Test
     fun `a failing coach falls back to a rule sentence and the session continues`() = runTest {
         val angry = object : CoachPort {
-            override suspend fun remark(score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int): String = throw IllegalStateException("no network")
+            override suspend fun remark(task: Task, score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int): String = throw IllegalStateException("no network")
             override suspend fun summarize(task: Task, mode: LessonMode, attempts: List<AttemptRecord>, profile: Profile): String = throw IllegalStateException("no network")
         }
         val h = harness(angry)

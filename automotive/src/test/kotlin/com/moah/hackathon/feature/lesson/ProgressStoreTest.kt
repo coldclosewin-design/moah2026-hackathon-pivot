@@ -65,9 +65,11 @@ class ProgressStoreTest {
     @Test
     fun `task suggestion follows fear then falls back to the first easy task - among READY tasks only`() {
         assertEquals(SeedCatalog.TASK_PARKING_REAR, ModeAdvisor.suggestTask(SeedCatalog.demoProfile, SeedCatalog.tasks).id)
-        // 시드에는 READY 가 주차 하나뿐 → 공포가 없어도 계획 과제(출발 전 점검 등)를 제안하지 않는다
+        // 공포가 없으면 READY 중 첫 쉬운 과제 = 출발 전 점검. 계획(PLANNED) 과제는 제안하지 않는다
         val noFear = Profile("x", ProfileStatement())
-        assertEquals(SeedCatalog.TASK_PARKING_REAR, ModeAdvisor.suggestTask(noFear, SeedCatalog.tasks).id)
+        assertEquals(SeedCatalog.TASK_PREDRIVE, ModeAdvisor.suggestTask(noFear, SeedCatalog.tasks).id)
+        val onlyParkingReady = SeedCatalog.tasks.map { if (it.id == SeedCatalog.TASK_PARKING_REAR) it else it.copy(status = TaskStatus.PLANNED) }
+        assertEquals(SeedCatalog.TASK_PARKING_REAR, ModeAdvisor.suggestTask(noFear, onlyParkingReady).id)
         // READY 가 여럿이면 쉬운 것부터
         val ready = SeedCatalog.tasks.map { it.copy(status = TaskStatus.READY) }
         assertEquals(Difficulty.EASY, ModeAdvisor.suggestTask(noFear, ready).difficulty)

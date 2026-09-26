@@ -27,6 +27,8 @@ class LessonViewModel(
     tts: TtsPort,
     vehicle: VehiclePort? = null,
     private val scenarios: List<Scenario> = emptyList(),
+    /** 과제별 시나리오 — 시연 패널이 지금 과제에 맞는 버튼만 보이게. 기본은 전부. */
+    private val scenariosFor: (Task) -> List<Scenario> = { scenarios },
 ) : ViewModel() {
 
     val phase: StateFlow<LessonPhase> = machine.phase
@@ -44,7 +46,8 @@ class LessonViewModel(
     }
 
     inner class DemoControls(private val fake: FakeVehiclePort) {
-        val scenarios: List<Scenario> get() = this@LessonViewModel.scenarios
+        /** 진행 중인 과제의 시나리오만. Setup(과제 미정)에서는 전부. 화면은 phase 가 바뀔 때 다시 그리므로 그때 다시 읽힌다. */
+        val scenarios: List<Scenario> get() = currentTask()?.let(scenariosFor) ?: this@LessonViewModel.scenarios
         val playback: StateFlow<ScenarioPlayback?> get() = fake.playback
         fun play(scenarioId: String) {
             scenarios.firstOrNull { it.id == scenarioId }?.let { fake.play(it, BuildConfig.DEMO_SPEED_FACTOR) }
@@ -55,6 +58,16 @@ class LessonViewModel(
         fun setDoor(open: Boolean) {
             viewModelScope.launch { fake.set(mapOf(VssConstants.DOOR_DRIVER_ISOPEN to VssValues.ofBoolean(open))) }
         }
+    }
+
+    private fun currentTask(): Task? = when (val p = phase.value) {
+        is LessonPhase.Briefing -> p.task
+        is LessonPhase.Maneuver -> p.task
+        is LessonPhase.Done -> p.task
+        is LessonPhase.Report -> p.report.task
+        is LessonPhase.Quiz -> p.task
+        is LessonPhase.QuizDone -> p.task
+        is LessonPhase.Setup -> null
     }
 
     fun begin(taskId: String, mode: LessonMode) = machine.begin(taskId, mode)
@@ -69,7 +82,7 @@ class LessonViewModel(
 
     companion object {
         fun factory(container: AppContainer): ViewModelProvider.Factory = viewModelFactory {
-            initializer { LessonViewModel(container.lesson, container.tts, container.vehicle, container.scenarios) }
+            initializer { LessonViewModel(container.lesson, container.tts, container.vehicle, container.scenarios, container.scenariosFor) }
         }
     }
 }

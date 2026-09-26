@@ -2,13 +2,15 @@
 
 새 Claude Code 세션이 이 파일 하나로 이어받을 수 있게 쓴 인계 문서. **작업을 마칠 때마다 이 파일을 갱신한다**(끝난 것은 지우고, 새로 생긴 것은 추가). 과거의 경위는 `docs/journal/`, 규칙은 `AGENTS.md`·`CLAUDE.md`, **제품 정의는 `docs/topics/01_driving_coach.md` v2**.
 
-마지막 갱신: 2026-09-26 · PR #1~#7 머지 — **화면까지 붙은 앱 + 발표·영상 문서 초안이 main** · PR #8(가드·디자인 브리프·런북) 대기 · **Codex 별도 세션: UI 재설계 진행 중(`docs/design/02_design_brief.md`)** · 마감 2026-10-07
+마지막 갱신: 2026-09-26 · PR #1~#9 머지 — **화면까지 붙은 앱 + 발표·영상 문서 초안 + 지식 테스트 상태기계가 main** · 출발 전 점검 과제(`claude/predrive-check`) PR 대기 · **Codex 별도 세션: UI 재설계 진행 중(`docs/design/02_design_brief.md`)** · 마감 2026-10-07
 
 ## 1. 지금 되는 것 (한 문단)
 
 `main`(PR #5 `73ded64`)에서 앱을 켜면 **LessonRoute의 연수 세션 화면 5장과 Fake 전용 시연 패널**이 뜬다. Setup의 과제·모드·예약 예시, Briefing, 주차 도식, 회차 피드백, 오늘 리포트·진단서 탭까지 연결했다. Dashboard는 부트스트랩 참조용으로 남겼다. **빌드·단위테스트 99개 통과**, CSTDe_API_34에서 `Lesson contract passed`; 5화면과 진단서·잠금·미측정/4줄 자막 캡처는 `docs/screenshots/lesson/`. 플랫폼·상태기계·채점·시드 구조·Gradle 파일은 변경하지 않았다.
 
 **제품 정의 v2 (9/26)**: 시연 본편은 **후면 직각 주차 과제**. `Setup(대화·제안) → Briefing → Maneuver(도식) → Done("다 됐어요") → Report(도어 열림)`. 채점은 과정만. 모드 가이드→힌트→평가→지식테스트. 상세는 `topics/01_driving_coach.md`.
+
+**시작 가능한 과제(READY) 셋**: 출발 전 점검(Step 11, 가이드·힌트·평가, 차는 서 있음) · 후면 직각 주차(시연 본편) · 지식 테스트(Step 10, 화면은 자리표시자). 나머지 6개는 "준비 중". 단위 테스트 129.
 
 ## 2. 남은 일 (의존 순서. 날짜 배정이 아니다)
 
@@ -87,6 +89,17 @@
 | 10b | 시드: 지식 과제 READY(QUIZ 모드만), 문항 5(회전교차로·비상등·우천 제동·야간 상향등·안전거리). 문구는 Codex 가 다듬는다 | ✅ |
 | 10c | 화면 `Quiz`·`QuizDone` — C절 요청. 그때까지 `LessonRoute` 에 `[cross]` 자리표시자(Briefing 화면 재사용, 자막으로 진행) | ⬜ Codex(UI 재설계 라운드 2 에 함께) |
 | 10d | (선택) `CloudCoachPort` 로 퀴즈 총평 변주 · STT 로 음성 답변(사내 확인 뒤) | ⬜ |
+
+### Step 11 — 출발 전 점검 과제 (Claude ✅ 브랜치 `claude/predrive-check` · Codex 화면 ⬜)
+| # | 일 | 상태 |
+|---|---|---|
+| 11a | 시드 `TASK_PREDRIVE` READY(`CHECKLIST`, 주행 불필요), 가이드 3단계(벨트 → P 확인 → 시동), 점검 멘트 12, `SeedCatalog.scenariosFor(task)` | ✅ |
+| 11b | `PreDriveSummary` 에 `beltOnMillis`·`ignitionOnMillis`·`beltBeforeIgnition`(마지막 false→true 전이) · `ChecklistScorer`/`ChecklistRubric`(숙련 = 순서·완성·시간, 안전 = 움직임·P·벨트) · `ParkingRecorder.scoreChecklist` | ✅ |
+| 11c | 상태기계: 과제 유형으로 채점기 선택, 힌트 규칙 분리(`HintRules(checklist = true)` — 시동 먼저·움직임), "다 되셨나요?" 는 벨트·시동·P 가 다 보이면. `CoachPort.remark(task, …)` 로 과제 전달, 머리말 `attemptHead(task, score)`("출발 준비 N초."), `RemarkTemplate.taskType` 으로 멘트 풀 분리 | ✅ |
+| 11d | `ChecklistScenarios` 잘한 점검(8 s, 100/100) · 못한 점검(12 s, 60/70). `DemoControls.scenarios` 는 진행 중 과제의 것만 | ✅ |
+| 11e | 화면: 점검 과제용 `Maneuver` 칩 3개·`Done/Report` 행 교체 — C절 요청 | ⬜ Codex(UI 재설계 라운드 2 에 함께) |
+
+단위 테스트 113 → 129. `emu_flow.sh`(주차) 는 영향 없음 — 시연 본편은 그대로 주차.
 
 ### 사용자 결정·행동이 필요한 것
 | # | 일 | 상태 |
