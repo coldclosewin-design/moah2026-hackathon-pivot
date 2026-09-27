@@ -15,10 +15,18 @@ import org.junit.Test
  */
 class ParkingRecorderScenarioTest {
 
-    private fun record(scenario: Scenario): ParkingRecorder {
+    private fun record(scenario: Scenario, jitterSeconds: (Double) -> Double = { 0.0 }): ParkingRecorder {
         val recorder = ParkingRecorder(SignalRegistry(ParkingRecorder.KEYS, simulated = true))
-        for (step in scenario.steps) recorder.onDelta((step.atSeconds * 1000).toLong(), step.values)
+        for (step in scenario.steps) recorder.onDelta(((step.atSeconds + jitterSeconds(step.atSeconds)) * 1000).toLong(), step.values)
         return recorder
+    }
+
+    @Test
+    fun `bad parking - the harsh stop survives a late last sample (emulator load)`() {
+        // 9/28 녹화·덤프 부하에서 급정지 힌트가 두 번 빠졌다. 마지막 정지 샘플(28.8 s)이 120 ms 늦게 와도 급제동 1건이어야 한다.
+        val late = record(ParkingScenarios.bad) { at -> if (at == 28.8) 0.12 else 0.0 }.score()!!
+        assertEquals(listOf(HarshKind.BRAKING), late.metrics.harshEvents.map { it.kind })
+        assertEquals(100 - 15 - 10 - 20, late.safety)
     }
 
     @Test

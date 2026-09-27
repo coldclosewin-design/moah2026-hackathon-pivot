@@ -15,7 +15,9 @@ data class HarshEvent(val tMillis: Long, val kind: HarshKind, val accelMps2: Flo
 
 object HarshEventDetector {
     const val HARSH_ACCEL_MPS2 = 3.0f
-    const val HARSH_BRAKE_MPS2 = -3.5f
+    // -3.5 → -3.0 (2026-09-28): 시연 시나리오의 급정지가 임계에 17 ms 여유로 걸쳐 있어 녹화·덤프 부하에서 두 번 빠졌다.
+    // 가속과 같은 3 m/s² 로 맞추고, 시나리오 쪽도 4.8 km/h → 0 (-4.4 m/s²) 으로 벌려 여유 144 ms.
+    const val HARSH_BRAKE_MPS2 = -3.0f
     const val DEBOUNCE_MILLIS = 1000L
     const val WINDOW_MILLIS = 300L
     /** 샘플 시각 지터(테스트의 ms 절삭, 에뮬 틱 흔들림)로 창이 1~2 ms 빗나가는 것을 막는다. */
