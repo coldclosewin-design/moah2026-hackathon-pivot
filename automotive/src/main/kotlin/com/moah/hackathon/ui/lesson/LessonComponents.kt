@@ -129,11 +129,10 @@ internal fun SelectionChip(label: String, chosen: Boolean, onClick: () -> Unit) 
 @Composable
 internal fun BoxScope.DemoRail(expansion: MutableState<Boolean>, demo: @Composable () -> Unit) {
     CompositionLocalProvider(LocalDemoExpansion provides expansion) {
-        val top = if (LocalDemoToggleStyle.current == DemoToggleStyle.PILL) 24.dp else 16.dp
         Box(Modifier.align(Alignment.TopEnd).padding(end = 8.dp)
             .width(if (expansion.value) 420.dp else 88.dp)
             .background(if (expansion.value) CoachColors.Lavender else Color.Transparent)
-            .padding(start = if (expansion.value) 24.dp else 0.dp, end = 24.dp, top = top, bottom = 24.dp)) { demo() }
+            .padding(start = if (expansion.value) 24.dp else 0.dp, end = 24.dp, top = 24.dp, bottom = 24.dp)) { demo() }
     }
 }
 

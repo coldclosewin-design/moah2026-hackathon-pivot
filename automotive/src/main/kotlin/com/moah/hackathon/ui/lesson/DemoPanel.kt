@@ -24,9 +24,6 @@ import com.moah.hackathon.vehicle.ScenarioPlayback
 
 // The rail floats above the poster; opening it never changes the reading width.
 internal val LocalDemoExpansion = compositionLocalOf<MutableState<Boolean>?> { null }
-// Draft comparison only: remove the unselected option after the user's screenshot review.
-internal enum class DemoToggleStyle { TEXT, PILL }
-internal val LocalDemoToggleStyle = compositionLocalOf { DemoToggleStyle.PILL }
 
 @Composable
 internal fun DemoPanel(scenarios: List<Scenario>, playback: ScenarioPlayback?, onPlay: (String) -> Unit,
@@ -36,14 +33,10 @@ internal fun DemoPanel(scenarios: List<Scenario>, playback: ScenarioPlayback?, o
     val play: (String) -> Unit = { id -> expansion.value = false; onPlay(id) }
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         val toggleLabel = stringResource(R.string.demo_toggle)
-        if (LocalDemoToggleStyle.current == DemoToggleStyle.TEXT) {
-            TextAction(toggleLabel, { expansion.value = !expansion.value }, Modifier.align(Alignment.End), size = 32)
-        } else {
-            Box(Modifier.align(Alignment.End).size(64.dp, 32.dp).clip(RoundedCornerShape(100))
-                .background(if (expansion.value) CoachColors.Periwinkle else CoachColors.Lavender)
-                .clickable { expansion.value = !expansion.value }
-                .semantics { contentDescription = toggleLabel; role = Role.Button })
-        }
+        Box(Modifier.align(Alignment.End).size(64.dp, 32.dp).clip(RoundedCornerShape(100))
+            .background(if (expansion.value) CoachColors.Periwinkle else CoachColors.Lavender)
+            .clickable { expansion.value = !expansion.value }
+            .semantics { contentDescription = toggleLabel; role = Role.Button })
         if (expansion.value) {
             Eyebrow("시뮬레이션 신호", color = CoachColors.Periwinkle)
             scenarios.forEach { scenario -> DemoButton(scenario.title, { play(scenario.id) }) }

@@ -82,7 +82,7 @@ internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stoppe
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.Top) {
                             LessonText("$taskTitle · ${state.attempt}회차", 40, modifier = Modifier.weight(1f))
-                            val speedOffset = if (demo != null && LocalDemoToggleStyle.current == DemoToggleStyle.PILL) (-16).dp else 0.dp
+                            val speedOffset = if (demo != null) (-16).dp else 0.dp
                             Column(Modifier.offset(y = speedOffset), horizontalAlignment = Alignment.End) {
                                 LessonText("${state.speed} km/h", 56, bold = true)
                                 commonSignal?.let { StateLabel(collapsedSignalLabel(it), it) }

@@ -10,7 +10,6 @@ import android.view.accessibility.AccessibilityNodeInfo
 import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import com.moah.hackathon.App
 import com.moah.hackathon.data.SeedCatalog
@@ -108,17 +107,6 @@ class LessonScreenInstrumentation : Instrumentation() {
             // Compose expands the 64 x 32 drawing to a 64 x 48 accessibility touch target.
             check(pillBounds.width() == 64 && pillBounds.height() == 48) { "Pill touch bounds: $pillBounds" }
             check(textBounds("3 km/h").top - (pillBounds.bottom - 8) == 24) { "Pill/speed gap: $pillBounds / ${textBounds("3 km/h")}" }
-            render(activity) {
-                CompositionLocalProvider(LocalDemoToggleStyle provides DemoToggleStyle.TEXT) {
-                    ManeuverScreen(moving, false, false, "다 돌렸어요. 이제 천천히 후진하세요.", {}, demo)
-                }
-            }
-            capture("demo-toggle-text")
-            click("시연")
-            check(texts().contains("잘한 주차"))
-            click("잘한 주차")
-            assertPanelCollapsed()
-            render(activity) { ManeuverScreen(moving, false, false, "다 돌렸어요. 이제 천천히 후진하세요.", {}, demo) }
             val gearBounds = textBounds("R")
             val distanceBounds = textBounds("85 cm")
             click("시연")
@@ -371,6 +359,7 @@ class LessonScreenInstrumentation : Instrumentation() {
     private fun assertNoDoneMetrics() { check(allText().none { Regex("\\d+회(?!차)|\\d+초|지난번보다|cm").containsMatchIn(it) }) }
     private fun assertPanelCollapsed() {
         check(allText().contains("시연"))
+        check(texts().none { it == "시연" }) { "Demo toggle must only expose its accessible label" }
         check(texts().none { it in listOf("잘한 주차", "못한 주차", "잘한 점검", "못한 점검", "문 열기") })
     }
     private fun textBounds(label: String) = Rect().also { rect ->
