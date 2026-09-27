@@ -38,15 +38,15 @@ declare -A BOUNDS
 remember_bounds() {
   local label b
   for label in "정차" "출발" "문 열기" "문 닫기" "잘한 주차" "못한 주차" "다 됐어요" "시연"; do
-    b=$(grep -oE "text=\"$label\"[^>]*bounds=\"\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]\"" "$OUT/ui.xml" | head -1 | grep -oE 'bounds="[^"]*"' | grep -oE '[0-9]+' | tr '\n' ' ')
+    b=$(grep -oE "(text|content-desc)=\"$label\"[^>]*bounds=\"\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]\"" "$OUT/ui.xml" | head -1 | grep -oE 'bounds="[^"]*"' | grep -oE '[0-9]+' | tr '\n' ' ')
     [ -n "$b" ] && BOUNDS[$label]="$b"
   done
 }
-tap_text() { # tap_text "라벨"  (최대 4회 재시도, 덤프가 안 되면 기억한 좌표)
+tap_text() { # tap_text "라벨"  (최대 4회 재시도, 덤프가 안 되면 기억한 좌표). 라벨은 text 또는 content-desc(무텍스트 알약 토글 대응, 라운드 4)
   local b="" try
   for try in 1 2 3 4; do
     if dump; then remember_bounds; elif [ -n "${BOUNDS[$1]:-}" ]; then b="${BOUNDS[$1]}"; echo "  .. dump failed (screen is animating) → remembered bounds for '$1'"; break; fi
-    b=$(grep -oE "text=\"$1\"[^>]*bounds=\"\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]\"" "$OUT/ui.xml" | head -1 | grep -oE 'bounds="[^"]*"' | grep -oE '[0-9]+' )
+    b=$(grep -oE "(text|content-desc)=\"$1\"[^>]*bounds=\"\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]\"" "$OUT/ui.xml" | head -1 | grep -oE 'bounds="[^"]*"' | grep -oE '[0-9]+' )
     [ -n "$b" ] && break
     echo "  .. '$1' not yet (try $try)"; sleep 2
   done

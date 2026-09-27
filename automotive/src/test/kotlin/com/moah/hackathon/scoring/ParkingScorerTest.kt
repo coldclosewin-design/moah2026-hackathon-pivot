@@ -30,7 +30,8 @@ class ParkingScorerTest {
 
     @Test
     fun `skill loses points for extra segments reversals shifts and time`() {
-        val s = ParkingScorer.score(metrics(segments = 4, seconds = 70, steering = SteeringSummary(3, 450f), gear = GearSummary(2, true, true)), badge, emptyList())
+        val grace = ParkingRubric().graceSeconds
+        val s = ParkingScorer.score(metrics(segments = 4, seconds = grace + 25L, steering = SteeringSummary(3, 450f), gear = GearSummary(2, true, true)), badge, emptyList())
         // 2 extra segments ×8 + 2 extra reversals ×6 + 2 shifts ×6 + 25 s over grace → 2 blocks ×2
         assertEquals(100 - 16 - 12 - 12 - 4, s.skill)
         assertEquals(100, s.safety)

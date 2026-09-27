@@ -23,7 +23,9 @@ data class ParkingRubric(
     val penaltyPerExtraReversal: Int = 6,
     val idealShifts: Int = 0,
     val penaltyPerExtraShift: Int = 6,
-    val graceSeconds: Int = 45,
+    // 45 → 60 (2026-09-28): 못한 주차 시나리오(44 s)에 시연 도구·운전자 망설임 10 s 가 붙으면 55 s 경계를 넘나들어 60/58 이 흔들렸다.
+    // 초보의 후면 주차 1 분은 감점 대상이 아니다 — 시간 감점은 그 뒤부터.
+    val graceSeconds: Int = 60,
     val penaltyPerExtra10s: Int = 2,
     val penaltyNotInPark: Int = 5,
     val penaltyPerHarshEvent: Int = 15,
