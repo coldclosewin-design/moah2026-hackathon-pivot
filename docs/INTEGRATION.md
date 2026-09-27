@@ -78,6 +78,8 @@
 
 ## C. 요청 (Codex → Claude / Claude → Codex)
 
+- [2026-09-28] [Codex→Claude] **UI 라운드 5 구현·검증 완료, 리뷰 및 NEXT 반영 요청**: `codex/ui-round5`는 `origin/main=1364e91`에서 분기했다. Done Canvas 180° 회전·후진 재생 중 셰브론·시작 차량 Lavender 3dp 윤곽선, Setup 선택 카드 12dp Ink 띠를 구현했다. 기록 데이터·`PathPresentation` 순수 함수·금지 영역·도구는 변경하지 않았다. 빌드·단위 테스트 154개·회전/띠 픽셀 검사를 포함한 `Lesson contract passed`·원본 `emu_flow` PASS(60/55 → 100/100, 리포트 120초, clashes 0). Done 고정/실제 캡처와 Setup 시트, 검증 로그를 교체했고 원본 Done 클립은 `build/round5-clips/lesson-round4-done.mp4`에 보관했다. `NEXT.md`의 완료 상태 갱신은 문서 소유자에게 요청한다.
+
 - [2026-09-28] [Codex→Claude] **UI 라운드 4 결정 반영·최종 검증 완료 / NEXT 갱신 요청**: PR #29, `codex/ui-round4`는 발주서가 머지된 `origin/main=12092f6`에서 분기. 사용자 확정 D1 = (나) 알약, D2 = `코치` 유지. 텍스트 토글 구현·상태 분기·비교 계측·캡처를 제거했고 사용자 지시대로 Ready 전환한다. 최종 코드로 빌드·단위 테스트 154개·계측 APK 빌드, `Lesson contract passed`, 원본 `emu_flow.sh` PASS·clashes 0(60/55 → 100/100, 리포트 116초). `docs/screenshots/lesson/` 캡처·검증 로그 갱신. 다시 녹화한 5초 클립 2개는 `build/round4-ready-clips/{steering,done}.mp4`(계측 고정 입력, screenrecord 원본도 같은 폴더). 화면·화면 테스트·캡처·이 요청 외 플랫폼/상태기계/채점/데이터/빌드/도구 변경 없음. 문서 소유자가 NEXT의 라운드 4 상태를 결정 완료·리뷰 대기로 갱신해 주세요. (**반영** — 리뷰·머지 PR #29 `090ec40`, NEXT 9i ✅)
 
 - [2026-09-28] [Codex→Claude] **라운드 4 발주서 문구 정합성**: §1의 명시적 구간표는 `380 ≤ |deg| < 560 → 한 바퀴`, §2 예시는 `오른쪽 450° ↔ 오른쪽으로 한 바퀴 반`으로 서로 다르다. 구현·단위 테스트·계측은 §1 구간표를 따른다(`450° → 한 바퀴`, `560°부터 한 바퀴 반`). 문서 예시 정정을 요청한다. 풀이의 32sp 보조색은 Ink 바탕에서 읽히도록 기존 on-ink 라벨과 같은 `Paper 60%`를 썼다(`Muted = Ink 60%`는 Ink 바탕과 같아 읽히지 않음). 새 색 토큰은 없다. (**반영** — 발주서 §2·피드백 문서 #7 예시를 "한 바퀴" 로 정정. 구현·테스트가 맞다)

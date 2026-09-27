@@ -1,8 +1,10 @@
+PASS Selected task has a 12 dp Ink stripe on Periwinkle
 PASS Setup selection dispatches task and mode; demo collapsed, opens on 시연, collapses on play without resizing text
 PASS Briefing has its full sentence and no touch targets
 PASS Maneuver: no scores, exact lock/stop boundaries, missing signals, four-line subtitle, hint expiry
 PASS Checklist: belt/gear/ignition, no parking telemetry, missing signals, locked touch gate
 PASS Quiz: five questions, choice dispatch, answer explanations, next/result, lock, keyed results and restart
+PASS Done rear-up pixels: Ink end car above, Lavender start outline below; settled semantics have no chevron or metrics
 PASS Done actions and Report badge, certificate sharing choices, restart
 PASS 5-second screenrecord clips: /sdcard/lesson-round4-steering.mp4 and /sdcard/lesson-round4-done.mp4
 Lesson contract passed

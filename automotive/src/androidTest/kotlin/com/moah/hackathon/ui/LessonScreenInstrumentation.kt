@@ -11,6 +11,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.toArgb
 import com.moah.hackathon.App
 import com.moah.hackathon.data.SeedCatalog
 import com.moah.hackathon.feature.lesson.*
@@ -64,7 +65,17 @@ class LessonScreenInstrumentation : Instrumentation() {
             check(nodes().none { it.isClickable && descendants(it).any { child -> child.text?.toString() == planned.title } })
             check(texts().contains("준비 중"))
             assertDriverButton(activity, "시작")
-            capture("setup-sheet")
+            val selectedBounds = buttonBounds(task.title)
+            capture("setup-sheet") { bitmap ->
+                val stripeWidth = (12 * designScale(activity)).toInt()
+                (0 until stripeWidth).forEach { x ->
+                    check(bitmap.getPixel(selectedBounds.left + x, selectedBounds.centerY()) == CoachColors.Ink.toArgb()) {
+                        "Selected task stripe is not Ink at x=$x"
+                    }
+                }
+                check(bitmap.getPixel(selectedBounds.left + stripeWidth + 1, selectedBounds.centerY()) == CoachColors.Periwinkle.toArgb())
+            }
+            pass("Selected task has a 12 dp Ink stripe on Periwinkle")
             click("힌트")
             click("시작")
             runOnMainSync { check(started == task.id to LessonMode.HINT) }
@@ -272,7 +283,19 @@ class LessonScreenInstrumentation : Instrumentation() {
             assertPanelCollapsed()
             check(texts().containsAll(listOf("신호로 추정한 궤적이에요.", "실제 위치와 다를 수 있어요.")))
             assertNoDoneMetrics()
-            capture("done-path-contract")
+            check(allText().none { "셰브론" in it })
+            val pathBounds = Rect().also { bounds ->
+                nodes().first { it.contentDescription?.toString() == "추정 궤적" }.getBoundsInScreen(bounds)
+            }
+            capture("done-path-contract") { bitmap ->
+                val endCar = colorBounds(bitmap, pathBounds, CoachColors.Ink.toArgb())
+                val startOutline = colorBounds(bitmap, pathBounds, CoachColors.Lavender.toArgb())
+                check(!endCar.isEmpty && !startOutline.isEmpty) { "Missing end car or start outline" }
+                check(endCar.centerY() < pathBounds.centerY() && startOutline.centerY() > pathBounds.centerY()) {
+                    "Done must be rear-up: end=$endCar, start=$startOutline, canvas=$pathBounds"
+                }
+            }
+            pass("Done rear-up pixels: Ink end car above, Lavender start outline below; settled semantics have no chevron or metrics")
             render(activity) { DoneScreen(task, 1, record.copy(path = listOf(path.first(), path.first().copy(y = .49f))), null, {}, {}) }
             check(allText().none { it == "추정 궤적" })
             val checklistRecord = record.copy(taskId = SeedCatalog.predriveTask.id, remark = "순서를 잘 익혔어요.\n다음에도 벨트부터 확인해요.",
@@ -380,14 +403,18 @@ class LessonScreenInstrumentation : Instrumentation() {
     private fun buttonBounds(label: String) = Rect().also { buttonNode(label).getBoundsInScreen(it) }
     private fun assertDriverButton(activity: MainActivity, label: String) {
         val bounds = buttonBounds(label)
+        val density = designScale(activity)
+        check(kotlin.math.abs(bounds.height() / density - 140f) <= 1f && bounds.width() / density >= 719f) {
+            "$label driver bounds: $bounds / $density"
+        }
+    }
+    private fun designScale(activity: MainActivity): Float {
         var density = 1f
         runOnMainSync {
             val content = activity.findViewById<android.view.View>(android.R.id.content)
             density = checkNotNull(com.moah.hackathon.ui.concepts.designDensity(content.width, content.height))
         }
-        check(kotlin.math.abs(bounds.height() / density - 140f) <= 1f && bounds.width() / density >= 719f) {
-            "$label driver bounds: $bounds / $density"
-        }
+        return density
     }
     private fun scrollTo(label: String) {
         repeat(12) {
@@ -398,10 +425,21 @@ class LessonScreenInstrumentation : Instrumentation() {
         }
         error("Not visible after scrolling: $label")
     }
-    private fun capture(name: String) {
+    private fun colorBounds(bitmap: Bitmap, region: Rect, color: Int): Rect {
+        val bounds = Rect()
+        for (y in region.top until region.bottom) for (x in region.left until region.right) {
+            if (bitmap.getPixel(x, y) == color) bounds.union(x, y, x + 1, y + 1)
+        }
+        return bounds
+    }
+    private fun capture(name: String, verify: (Bitmap) -> Unit = {}) {
         val screenshot = checkNotNull(uiAutomation.takeScreenshot())
-        File(targetContext.filesDir, "lesson-$name.png").outputStream().use { screenshot.compress(Bitmap.CompressFormat.PNG, 100, it) }
-        screenshot.recycle()
+        try {
+            File(targetContext.filesDir, "lesson-$name.png").outputStream().use { screenshot.compress(Bitmap.CompressFormat.PNG, 100, it) }
+            verify(screenshot)
+        } finally {
+            screenshot.recycle()
+        }
     }
     private fun pass(message: String) { sendStatus(0, Bundle().apply { putString("stream", "PASS $message\n") }) }
 }
