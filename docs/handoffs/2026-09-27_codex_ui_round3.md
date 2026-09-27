@@ -81,7 +81,7 @@
 |---|---|---|
 | `AttemptRecord.path: List<PathPoint>` | `scoring/PathReconstructor.kt` | `tMillis, x, y, headingDeg, reversing`. 미터, 시작 원점, +y 시작 방향, 반시계 양수 |
 | `AttemptRecord.remark` | — | `"서두\n조언"` 두 문장 |
-| `LessonReport.summary` | — | `"과제, 모드 N회.\n흐름.\n안전."` 세 문장 |
+| `LessonReport.summary` | — | ~~`"과제, 모드 N회.\n흐름.\n안전."` 세 문장~~ → **`"흐름.\n안전."` 두 문장**(리뷰 뒤 Claude 후속 — 머리말 제거. UI 의 `driverReportSummary` 는 no-op 이 됨) |
 | `ParkingScore.metrics.harshEvents[i].tMillis` | — | 급정지 점 위치 매칭용 |
 | `BuildConfig.SHOW_DEMO_PANEL` | — | false 면 `demo == null` (이미 처리) |
 
