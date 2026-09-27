@@ -2,8 +2,9 @@
 
 ```
 프로젝트: C:\Project\17_hackathon-pivot (AAOS 앱, Kotlin/Compose). 먼저 AGENTS.md, 이 발주서, 라운드 4 발주서 docs/handoffs/2026-09-28_codex_ui_round4.md 의 Setup 절(띠·주 버튼 규칙)을 읽어라.
-브랜치: codex/ui-round6 를 origin/main 에서 새로 만들어 작업(이 발주서 PR 머지 뒤).
-작업: Setup 의 "과제·모드 바꾸기" 시트를 한 층(카드 9개 3×3)에서 두 층(카테고리 4 → 그 안의 세부 과제)으로. 데이터·상태기계·채점·도구는 손대지 않는다.
+선행: 디자인 세션 docs/handoffs/2026-09-28_codex_design_sheet.md(시안 3~4안) → 사용자 선택 → Claude 가 이 발주서 §1 을 선택안으로 갱신 → 그 뒤 구현.
+브랜치: codex/ui-round6 를 origin/main 에서 새로 만들어 작업(선택안 반영 PR 머지 뒤).
+작업: Setup 의 "과제·모드 바꾸기" 시트를 한 층(카드 9개 3×3)에서 두 층(카테고리 4 → 그 안의 세부 과제)으로, 사용자가 고른 시안대로. 데이터·상태기계·채점·도구는 손대지 않는다.
 제약: vehicle/, ports/, scoring/, feature/lesson/, data/ 의 구조, build 파일, tools/ 는 수정 금지. 필요하면 docs/INTEGRATION.md C절에 적어라.
 완료 기준: .\gradlew.bat assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest 통과(PowerShell), bash tools/lesson_shots.sh → "Lesson contract passed", bash tools/emu_flow.sh → result: PASS(원본 그대로 — 시트를 열면 제안 과제의 카테고리가 이미 펼쳐져 "힌트"·"시작" 이 바로 보여야 한다),
           docs/screenshots/lesson/ 에 lesson-setup-sheet.png(카테고리 층)·lesson-setup-sheet-parking.png(주차 펼침) 교체/추가, gh pr create.
@@ -16,6 +17,8 @@
 지금 시트는 9장을 3×3 으로 한 번에 보여 주고 유형은 왼쪽 띠 색으로만 구분한다(라운드 4). 과제가 늘면(도로 과제·주차 변형) 한 화면에 안 들어간다. 데이터는 이미 두 층이다 — `Task.type`(`CHECKLIST · DRIVING · PARKING · KNOWLEDGE`) 이 카테고리, `SeedCatalog.tasks` 가 세부 과제. **새 필드·새 시드 없음.** 화면이 `tasks.groupBy { it.type }` 으로 나누면 된다.
 
 ## 1. 시트 구조 (`SetupScreen.kt`)
+
+> 아래는 **기본안(디자인 세션의 A · 두 줄 카드)** 기준이다. 사용자가 B·C·D 를 고르면 Claude 가 이 절을 선택안의 배치로 고쳐 쓴다. §2 불변과 §3 데이터는 안과 무관하게 그대로다.
 
 읽는 영역 70 % 안에서 두 층. 시트를 열 때 **제안 과제(`suggestedTask`)의 카테고리가 이미 펼쳐진 상태**로 연다 — `emu_flow.sh` 와 실제 시연은 시트를 연 직후 `힌트` → `시작` 을 누르므로, 첫 렌더에 모드 칩과 `시작` 이 보여야 한다(불변).
 
