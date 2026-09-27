@@ -1,8 +1,12 @@
 package com.moah.hackathon.ui.lesson
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -22,15 +26,23 @@ import androidx.compose.ui.unit.dp
 import com.moah.hackathon.feature.lesson.AttemptRecord
 import com.moah.hackathon.scoring.PathPoint
 import com.moah.hackathon.ui.CoachColors
+import kotlinx.coroutines.delay
+import kotlin.math.roundToLong
 
 @Composable
 internal fun EstimatedPath(record: AttemptRecord, modifier: Modifier) {
-    val legs = remember(record.path) { pathLegs(record.path) }
+    val time = remember(record) { Animatable(0f) }
+    LaunchedEffect(record) {
+        delay(500)
+        time.animateTo(record.path.last().tMillis.toFloat(), tween(3_000, easing = LinearEasing))
+    }
     Column(modifier.padding(top = 64.dp, bottom = 52.dp)) {
         Canvas(Modifier.weight(1f).fillMaxWidth().clipToBounds().semantics { contentDescription = "추정 궤적" }) {
             val viewport = pathViewport(record.path, size.width / density, size.height / density)
+            val elapsed = time.value.roundToLong()
+            val revealed = pathThroughTime(record.path, elapsed)
             fun position(point: PathPoint) = Offset(viewport.x(point.x).dp.toPx(), viewport.y(point.y).dp.toPx())
-            legs.forEach { leg ->
+            pathLegs(revealed).forEach { leg ->
                 drawPath(Path().apply {
                     leg.points.forEachIndexed { index, point ->
                         val p = position(point)
@@ -40,8 +52,8 @@ internal fun EstimatedPath(record: AttemptRecord, modifier: Modifier) {
                     style = Stroke(6.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
             }
             pathCar(position(record.path.first()), record.path.first().headingDeg, viewport.scale.dp.toPx(), CoachColors.Lavender)
-            pathCar(position(record.path.last()), record.path.last().headingDeg, viewport.scale.dp.toPx(), CoachColors.Ink)
-            record.score.metrics.harshEvents.forEach { event ->
+            pathCar(position(revealed.last()), revealed.last().headingDeg, viewport.scale.dp.toPx(), CoachColors.Ink)
+            record.score.metrics.harshEvents.filter { it.tMillis <= elapsed }.forEach { event ->
                 nearestPathPoint(record.path, event.tMillis)?.let { drawCircle(CoachColors.Signal, 10.dp.toPx(), position(it)) }
             }
         }

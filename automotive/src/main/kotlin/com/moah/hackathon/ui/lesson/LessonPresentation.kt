@@ -113,7 +113,7 @@ internal fun ManeuverDisplayState.diagramDescription() = buildList {
     add("조향각 ${steeringDeg?.let { "${it.roundToInt()}도" } ?: "미측정"}, ${signalLabel(steeringSignal)}")
     add("기어 ${gear ?: "미측정"}, ${signalLabel(gearSignal)}")
     if (gear == "R") add("후진 중")
-    if (steeringDeg != null) add("조향 방향 호")
+    if (steeringDeg != null) add("조향 방향 호, 보조선")
     add(rearDistanceCm?.let { "뒤 ${it.roundToInt()} cm" } ?: "뒤 거리 미측정")
     add(signalLabel(distanceSignal))
     if (proximityAlert()) add("뒤가 가까워요")
@@ -123,6 +123,19 @@ internal fun ManeuverDisplayState.diagramDescription() = buildList {
 internal fun wheelRotation(steeringDeg: Float?) = ((steeringDeg ?: 0f) / 15f).coerceIn(-38f, 38f)
 // Positive means left steering: with the nose down, its arc bends to screen-right.
 internal fun steeringArcBend(steeringDeg: Float?) = steeringDeg?.let { (it / 450f).coerceIn(-1f, 1f) }
+internal fun steeringTurnsLabel(deg: Float?): String? {
+    val magnitude = abs(deg ?: return null)
+    if (magnitude < 45f) return "중립"
+    val direction = if (deg > 0f) "왼쪽" else "오른쪽"
+    val amount = when {
+        magnitude < 200f -> "조금"
+        magnitude < 380f -> "반 바퀴"
+        magnitude < 560f -> "한 바퀴"
+        magnitude < 740f -> "한 바퀴 반"
+        else -> "끝까지"
+    }
+    return "${direction}으로 $amount"
+}
 internal fun distanceFraction(distanceCm: Float?) = ((distanceCm ?: 0f) / 250f).coerceIn(0f, 1f)
 
 // lastSpoken can still contain the previous Done/Report sentence at the next attempt.

@@ -84,8 +84,9 @@ internal fun Headline(text: String, modifier: Modifier = Modifier, size: Int = C
 }
 
 @Composable
-internal fun PrimaryPill(label: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Button(onClick, modifier.heightIn(min = 120.dp), shape = RoundedCornerShape(100),
+internal fun PrimaryPill(label: String, onClick: () -> Unit, modifier: Modifier = Modifier, driver: Boolean = false) {
+    val dimensions = if (driver) Modifier.widthIn(min = 720.dp).height(140.dp) else Modifier.heightIn(min = 120.dp)
+    Button(onClick, modifier.then(dimensions), shape = RoundedCornerShape(100),
         colors = ButtonDefaults.buttonColors(containerColor = CoachColors.Signal, contentColor = CoachColors.Paper),
         contentPadding = PaddingValues(horizontal = 48.dp, vertical = 24.dp)) {
         LessonText(label, 40, CoachColors.Paper, bold = true)
@@ -113,8 +114,8 @@ internal fun StateLabel(text: String, availability: SignalAvailability, modifier
 }
 
 @Composable
-internal fun PosterRule(modifier: Modifier = Modifier) =
-    HorizontalDivider(modifier, thickness = 2.dp, color = CoachColors.Lavender)
+internal fun PosterRule(modifier: Modifier = Modifier, color: Color = CoachColors.Lavender) =
+    HorizontalDivider(modifier, thickness = 2.dp, color = color)
 
 @Composable
 internal fun SelectionChip(label: String, chosen: Boolean, onClick: () -> Unit) {
@@ -128,10 +129,10 @@ internal fun SelectionChip(label: String, chosen: Boolean, onClick: () -> Unit) 
 @Composable
 internal fun BoxScope.DemoRail(expansion: MutableState<Boolean>, demo: @Composable () -> Unit) {
     CompositionLocalProvider(LocalDemoExpansion provides expansion) {
-        Box(Modifier.align(Alignment.TopEnd).padding(top = 16.dp, end = 32.dp)
-            .width(if (expansion.value) 420.dp else 80.dp)
+        Box(Modifier.align(Alignment.TopEnd).padding(end = 8.dp)
+            .width(if (expansion.value) 420.dp else 88.dp)
             .background(if (expansion.value) CoachColors.Lavender else Color.Transparent)
-            .padding(if (expansion.value) 16.dp else 0.dp)) { demo() }
+            .padding(start = if (expansion.value) 24.dp else 0.dp, end = 24.dp, top = 24.dp, bottom = 24.dp)) { demo() }
     }
 }
 

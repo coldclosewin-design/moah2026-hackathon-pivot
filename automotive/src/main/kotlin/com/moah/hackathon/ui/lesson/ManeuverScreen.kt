@@ -68,6 +68,8 @@ internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stoppe
                                 "${if (it > 0) "왼쪽" else if (it < 0) "오른쪽" else "중립"} ${abs(it).roundToInt()}°"
                             } ?: "미측정", 80, if (state.steeringDeg == null) CoachColors.Paper.copy(alpha = .6f)
                                 else CoachColors.Paper, bold = true)
+                            // Muted on the ink panel needs the same contrast treatment as the other on-ink labels.
+                            steeringTurnsLabel(state.steeringDeg)?.let { LessonText(it, 32, CoachColors.Paper.copy(alpha = .6f)) }
                             if (commonSignal == null) StateLabel(signalLabel(state.steeringSignal), state.steeringSignal, onInk = true)
                         }
                     }
@@ -80,7 +82,8 @@ internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stoppe
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.Top) {
                             LessonText("$taskTitle · ${state.attempt}회차", 40, modifier = Modifier.weight(1f))
-                            Column(horizontalAlignment = Alignment.End) {
+                            val speedOffset = if (demo != null) (-16).dp else 0.dp
+                            Column(Modifier.offset(y = speedOffset), horizontalAlignment = Alignment.End) {
                                 LessonText("${state.speed} km/h", 56, bold = true)
                                 commonSignal?.let { StateLabel(collapsedSignalLabel(it), it) }
                             }
@@ -92,7 +95,7 @@ internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stoppe
                             val main = guide ?: visibleHint ?: spoken?.takeIf { it.count { c -> c == '\n' } < 3 }
                             if (main != null) {
                                 Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                                    Eyebrow("조수석")
+                                    Eyebrow("코치")
                                     if (guide != null) state.guideStep?.let { Eyebrow(it, color = CoachColors.Periwinkle) }
                                 }
                                 Spacer(Modifier.height(24.dp))
@@ -166,5 +169,5 @@ private fun FinishButton(emphasized: Boolean, onFinish: () -> Unit) {
         }
     }
     PrimaryPill(stringResource(R.string.lesson_finish), onFinish,
-        Modifier.fillMaxWidth().height(140.dp).graphicsLayer { scaleX = pulse.value; scaleY = pulse.value })
+        Modifier.fillMaxWidth().graphicsLayer { scaleX = pulse.value; scaleY = pulse.value }, driver = true)
 }

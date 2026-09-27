@@ -9,6 +9,34 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class LessonPresentationTest {
+    @Test fun steeringTurnsMissingAndNeutral() {
+        assertNull(steeringTurnsLabel(null))
+        listOf(-44.99f, 0f, 44.99f).forEach { assertEquals("중립", steeringTurnsLabel(it)) }
+    }
+
+    @Test fun steeringTurnsLittleStartsAtFortyFive() {
+        listOf(45f, 199.99f).forEach {
+            assertEquals("왼쪽으로 조금", steeringTurnsLabel(it))
+            assertEquals("오른쪽으로 조금", steeringTurnsLabel(-it))
+        }
+    }
+
+    @Test fun steeringTurnsHalfAndFullBoundaries() {
+        listOf(200f, 379.99f).forEach { assertEquals("오른쪽으로 반 바퀴", steeringTurnsLabel(-it)) }
+        listOf(380f, 450f, 559.99f).forEach { assertEquals("오른쪽으로 한 바퀴", steeringTurnsLabel(-it)) }
+    }
+
+    @Test fun steeringTurnsOneAndAHalfAndFullLockBoundaries() {
+        listOf(560f, 739.99f).forEach { assertEquals("왼쪽으로 한 바퀴 반", steeringTurnsLabel(it)) }
+        listOf(740f, 1080f).forEach { assertEquals("왼쪽으로 끝까지", steeringTurnsLabel(it)) }
+    }
+
+    @Test fun steeringTurnsDirectionMatchesCovesaForEveryBand() {
+        listOf(45f, 200f, 380f, 560f, 740f).forEach {
+            assertTrue(steeringTurnsLabel(it)!!.startsWith("왼쪽으로"))
+            assertTrue(steeringTurnsLabel(-it)!!.startsWith("오른쪽으로"))
+        }
+    }
     private val metrics = ParkingMetrics(MotionSummary(4, 44_900, 28_000, 4f, 1_000), emptyList(),
         SteeringSummary(3, 450f), GearSummary(2, true, true), ProximitySummary(1, 35f), PreDriveSummary(false, true))
 

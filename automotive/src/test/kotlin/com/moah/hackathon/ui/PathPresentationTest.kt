@@ -8,6 +8,29 @@ import org.junit.Test
 class PathPresentationTest {
     private fun point(t: Long, x: Float, y: Float, reverse: Boolean = true, heading: Float = 0f) = PathPoint(t, x, y, heading, reverse)
 
+    @Test fun replayUsesIrregularTimestampsAndDestinationGear() {
+        val path = listOf(point(0, 0f, 0f, false), point(100, 2f, -2f, true, -20f),
+            point(1_000, 8f, -8f, false, -80f))
+        assertEquals(listOf(path.first()), pathThroughTime(path, 0))
+        val frame = pathThroughTime(path, 400)
+        assertEquals(3, frame.size)
+        assertEquals(point(400, 4f, -4f, false, -40f), frame.last())
+        assertEquals(listOf(true, false), pathLegs(frame).map { it.reversing })
+        assertEquals(path.take(2), pathThroughTime(path, 100))
+        assertEquals(path, pathThroughTime(path, 1_000))
+        assertEquals(path, pathThroughTime(path, 2_000))
+    }
+
+    @Test fun replayHandlesEmptyDuplicateTimesAndWrappedHeading() {
+        assertTrue(pathThroughTime(emptyList(), 0).isEmpty())
+        val path = listOf(point(100, 0f, 0f, heading = 350f), point(100, 1f, 1f, heading = 350f),
+            point(300, 3f, 3f, heading = 10f))
+        assertEquals(listOf(path.first()), pathThroughTime(path, 0))
+        assertEquals(path.take(2), pathThroughTime(path, 100))
+        assertEquals(360f, pathThroughTime(path, 200).last().headingDeg, .001f)
+        assertEquals(path, pathThroughTime(path, 300))
+    }
+
     @Test fun stationaryAndShortTravelDoNotShowAPathButAnOutAndBackDoes() {
         assertFalse(hasEstimatedPath(emptyList()))
         assertFalse(hasEstimatedPath(listOf(point(0, 0f, 0f))))
