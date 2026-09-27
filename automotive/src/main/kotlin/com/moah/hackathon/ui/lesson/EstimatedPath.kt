@@ -42,19 +42,25 @@ internal fun EstimatedPath(record: AttemptRecord, modifier: Modifier) {
             val elapsed = time.value.roundToLong()
             val revealed = pathThroughTime(record.path, elapsed)
             fun position(point: PathPoint) = Offset(viewport.x(point.x).dp.toPx(), viewport.y(point.y).dp.toPx())
-            pathLegs(revealed).forEach { leg ->
-                drawPath(Path().apply {
-                    leg.points.forEachIndexed { index, point ->
-                        val p = position(point)
-                        if (index == 0) moveTo(p.x, p.y) else lineTo(p.x, p.y)
-                    }
-                }, if (leg.reversing) CoachColors.Periwinkle else CoachColors.Lavender,
-                    style = Stroke(6.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
-            }
-            pathCar(position(record.path.first()), record.path.first().headingDeg, viewport.scale.dp.toPx(), CoachColors.Lavender)
-            pathCar(position(revealed.last()), revealed.last().headingDeg, viewport.scale.dp.toPx(), CoachColors.Ink)
-            record.score.metrics.harshEvents.filter { it.tMillis <= elapsed }.forEach { event ->
-                nearestPathPoint(record.path, event.tMillis)?.let { drawCircle(CoachColors.Signal, 10.dp.toPx(), position(it)) }
+            // Match Maneuver's rear-up convention without changing recorded coordinates or time.
+            rotate(180f, pivot = center) {
+                pathLegs(revealed).forEach { leg ->
+                    drawPath(Path().apply {
+                        leg.points.forEachIndexed { index, point ->
+                            val p = position(point)
+                            if (index == 0) moveTo(p.x, p.y) else lineTo(p.x, p.y)
+                        }
+                    }, if (leg.reversing) CoachColors.Periwinkle else CoachColors.Lavender,
+                        style = Stroke(6.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
+                }
+                pathCar(position(record.path.first()), record.path.first().headingDeg, viewport.scale.dp.toPx(),
+                    CoachColors.Lavender, outline = true)
+                val current = revealed.last()
+                pathCar(position(current), current.headingDeg, viewport.scale.dp.toPx(), CoachColors.Ink,
+                    reversing = time.isRunning && elapsed < record.path.last().tMillis && current.reversing)
+                record.score.metrics.harshEvents.filter { it.tMillis <= elapsed }.forEach { event ->
+                    nearestPathPoint(record.path, event.tMillis)?.let { drawCircle(CoachColors.Signal, 10.dp.toPx(), position(it)) }
+                }
             }
         }
         Column(Modifier.padding(start = 100.dp, end = 32.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -64,13 +70,19 @@ internal fun EstimatedPath(record: AttemptRecord, modifier: Modifier) {
     }
 }
 
-private fun DrawScope.pathCar(center: Offset, heading: Float, scale: Float, color: Color) {
+private fun DrawScope.pathCar(center: Offset, heading: Float, scale: Float, color: Color,
+    outline: Boolean = false, reversing: Boolean = false) {
     val width = 1.8f * scale
     val height = 4.5f * scale
     // Compose rotates clockwise; PathPoint heading is counterclockwise from screen-up.
     rotate(-heading, center) {
         val left = center.x - width / 2
         val top = center.y - height / 2
+        if (outline) {
+            drawRoundRect(color, Offset(left, top), Size(width, height), CornerRadius(width * .28f),
+                style = Stroke(3.dp.toPx()))
+            return@rotate
+        }
         drawRoundRect(color, Offset(left, top), Size(width, height), CornerRadius(width * .28f))
         drawPath(Path().apply {
             moveTo(left + width * .12f, top + height * .24f)
@@ -78,6 +90,14 @@ private fun DrawScope.pathCar(center: Offset, heading: Float, scale: Float, colo
             lineTo(left + width * .78f, top + height * .38f)
             quadraticTo(center.x, top + height * .34f, left + width * .22f, top + height * .38f); close()
         }, CoachColors.Paper)
+        if (reversing) {
+            val rear = center.y + height / 2 + .6f * scale
+            drawPath(Path().apply {
+                moveTo(center.x - width * .36f, rear - width * .16f)
+                lineTo(center.x, rear)
+                lineTo(center.x + width * .36f, rear - width * .16f)
+            }, CoachColors.Signal, style = Stroke(6.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
+        }
         drawPath(Path().apply {
             moveTo(left + width * .22f, top + height * .72f)
             quadraticTo(center.x, top + height * .76f, left + width * .78f, top + height * .72f)

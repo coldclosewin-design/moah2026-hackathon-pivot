@@ -101,8 +101,8 @@ private fun TaskChoice(task: Task, chosen: Boolean, modifier: Modifier, onClick:
     val foreground = when { !task.isReady -> CoachColors.Muted; chosen -> CoachColors.Paper; else -> CoachColors.Ink }
     // Disabled tasks deliberately have no onClick semantics (even a disabled clickable action would leak).
     val action = if (task.isReady) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier.semantics { disabled() }
-    val stripe = when (task.type) {
-        TaskType.PARKING -> if (chosen && task.isReady) CoachColors.Paper else CoachColors.Periwinkle
+    val stripe = if (chosen) CoachColors.Ink else when (task.type) {
+        TaskType.PARKING -> CoachColors.Periwinkle
         TaskType.DRIVING -> CoachColors.Ink
         TaskType.CHECKLIST -> CoachColors.Signal
         TaskType.KNOWLEDGE -> CoachColors.Periwinkle.copy(alpha = .4f)
