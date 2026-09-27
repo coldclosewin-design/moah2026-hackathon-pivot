@@ -104,7 +104,8 @@ wait_log "hint: 안전벨트" 30 || FAIL=1
 wait_log "hint: 뒤가 가까워요" 60 || FAIL=1
 wait_log "hint: 제동이 급했어요" 20 || FAIL=1
 wait_log "asked done \(attempt 1" 60 || FAIL=1; mark "asked done (1)"; sleep 1; shot 13_maneuver_parked
-tap_cached "다 됐어요"; wait_log "attempt 1: skill=" 10 || exit 1; mark "done (1)"; sleep 2; shot 14_done_1
+# Done 은 진입 0.5 s 뒤 궤적을 3 s 재생한다(라운드 4) — 정지 그림을 찍으려면 4 s. 채점은 끝난 뒤라 회차 시간에 안 들어간다
+tap_cached "다 됐어요"; wait_log "attempt 1: skill=" 10 || exit 1; mark "done (1)"; sleep 4; shot 14_done_1
 echo "  texts: $(now_texts)"
 R1=$(adb logcat -d -s "$TAG" | grep -oE "attempt 1: skill=[0-9]+ safety=[0-9]+ segments=[0-9]+" | tail -1); echo "  $R1"
 [ "$R1" = "attempt 1: skill=60 safety=55 segments=4" ] || { echo "  !! attempt 1 expected skill=60 safety=55 segments=4 (ParkingRecorderScenarioTest 고정값)"; FAIL=1; }
@@ -114,7 +115,7 @@ tap_text "한 번 더"; wait_log "attempt 2 start" 10 || exit 1; mark "attempt 2
 HINTS_BEFORE=$(adb logcat -d -s "$TAG" | grep -c "hint: ")
 open_demo_panel; tap_text "잘한 주차"; sleep 6; shot 15_maneuver_good
 wait_log "asked done \(attempt 2" 60 || FAIL=1; mark "asked done (2)"   # attempt 번호로 한정 — 1회차 로그에 매칭되던 버그(Codex, C절 9/26)
-tap_cached "다 됐어요"; wait_log "attempt 2: skill=" 10 || exit 1; mark "done (2)"; sleep 2; shot 16_done_2
+tap_cached "다 됐어요"; wait_log "attempt 2: skill=" 10 || exit 1; mark "done (2)"; sleep 4; shot 16_done_2
 HINTS_AFTER=$(adb logcat -d -s "$TAG" | grep -c "hint: ")
 [ "$HINTS_AFTER" -eq "$HINTS_BEFORE" ] || { echo "  !! good parking produced hints ($((HINTS_AFTER-HINTS_BEFORE)))"; FAIL=1; }
 R2=$(adb logcat -d -s "$TAG" | grep -oE "attempt 2: skill=[0-9]+ safety=[0-9]+ segments=[0-9]+" | tail -1); echo "  $R2"

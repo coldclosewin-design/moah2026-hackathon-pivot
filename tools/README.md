@@ -17,6 +17,8 @@ bash tools/lesson_shots.sh /tmp/shots  # 고정 데이터로 5화면 계약 검�
 
 ## lesson_shots.sh — 화면 계약 검사 + 캡처
 
+라운드 4 부터 계측이 끝에 **애니메이션 클립 2개**(조향 0° → 450° → 0°, Done 궤적 재생)를 `screenrecord --time-limit 5` 로 찍어 `/sdcard/lesson-round4-steering.mp4`·`/sdcard/lesson-round4-done.mp4` 에 남긴다(약 10 s 추가). 리뷰 때 `adb pull` 한 뒤 `ffmpeg -i x.mp4 -vf "fps=2,scale=640:-1,tile=5x2" strip.png` 로 프레임 스트립을 만들어 눈으로 본다. **경로에 `\\$var` 를 쓰지 말 것** — Git Bash 가 `$` 를 리터럴로 남겨 `shots$c.mp4` 같은 파일이 생긴다(9/28). 출력 폴더로 `cd` 한 뒤 상대 경로가 안전하다.
+
 `LessonScreenInstrumentation`(Codex 소유)이 고정 데이터로 5화면을 그려 (a) `Maneuver` 잠금 상태에서 클릭 가능한 노드 0개 (b) `Maneuver` 접근성 트리에 "점수"·"감점"·"N점" 없음 (c) 캡처 `lesson-*.png` 를 `filesDir` 에 저장. 끝에 `Lesson contract passed` 를 찍어야 PASS.
 
 `Unable to find instrumentation info` 가 나오면 `adb shell pm list instrumentation | grep moah` 로 등록된 항목을 보고, `automotive/build.gradle.kts` 의 `testInstrumentationRunner` 주석을 읽어라 — AGP 가 매니페스트의 첫 항목 이름을 덮어쓴다.
