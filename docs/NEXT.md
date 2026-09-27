@@ -2,7 +2,7 @@
 
 새 Claude Code 세션이 이 파일 하나로 이어받을 수 있게 쓴 인계 문서. **작업을 마칠 때마다 이 파일을 갱신한다**(끝난 것은 지우고, 새로 생긴 것은 추가). 과거의 경위는 `docs/journal/`, 규칙은 `AGENTS.md`·`CLAUDE.md`, **제품 정의는 `docs/topics/01_driving_coach.md` v2**.
 
-마지막 갱신: 2026-09-27 · `main = c0c3dfa`(PR #1~#25, **라운드 3 머지**) · 이 문서 PR = 총평 머리말 제거 후속 · 마감 2026-10-07. **새 세션은 여기서: §Step 9d 남은 것 = B안 재녹화(사용자 또는 Claude `screenrecord`) → 컷 길이 실측 → 스크린샷·덱 교체 → 사내(8d).**
+마지막 갱신: 2026-09-27 · `main = 81e8046`(PR #1~#26, **라운드 3 머지 + 총평 후속**) · B안 재녹화 전달(`build/demo-round3.mp4`, 저장소 밖) · 마감 2026-10-07. **새 세션은 여기서: ① 사용자의 재녹화 영상 피드백 → 있으면 라운드 4 발주(리뷰 관찰 3건 포함) ② 없으면 컷 길이 실측·덱 스크린샷 교체(8a) → 사내 이관(8d). 열린 PR 없음.**
 
 ## 1. 지금 되는 것 (한 문단)
 
@@ -70,7 +70,7 @@
 |---|---|---|
 | 8a | `docs/presentation/01_deck_outline.md` — 12장·7분, 장마다 화면·말·근거·초, 길이 조절(3/5/7/10분), 예상 질문 8, 발표자가 채울 것 | ✅ 초안(9/26). ⚠ 8·9·11장은 사내 이관 뒤 숫자 갱신 |
 | 8b | `docs/presentation/02_video_shotlist.md` — 컷 13개(약 2분 05초), A 사내판(Hybrid·Signal Simulator)/B 외부판, 편집 원칙, 녹화 절차·함정 | ✅ 초안(9/26) |
-| 8c | **시연 영상 B안 녹화**(외부 에뮬, 사람이 직접 누름, 소리 포함은 PC 녹화) | ⬜ 사용자. 지금 상태로 가능 |
+| 8c | **시연 영상 B안 녹화**(외부 에뮬, 사람이 직접 누름, 소리 포함은 PC 녹화) | 🟡 소리 없는 판은 ✅ 9/27 Claude(`screenrecord` + `emu_flow`, 1920×1080, 109 s, `build/demo-round3.mp4`). **소리 포함 제출용은 ⬜ 사용자**(PC 녹화, 대본 타임라인 그대로) |
 | 8d | 사내: 이관 → A안 녹화 → Bitbucket 소스 → MarketUploader APK | ⬜ 사용자 |
 | 8e | 슬라이드를 사내 양식으로 옮기기, 2번 장 개인 계기 | ⬜ 사용자 |
 
@@ -84,7 +84,7 @@
 | 9f | **라운드 2 Codex PR #18** — 리뷰 완료(빌드·137·`emu_flow` PASS 98 s·`lesson_shots` PASS·캡처 21장 vs 시안). 시연 영상 녹화 중 **경합 발견 → PR #19**(`publishManeuver` CAS: delta 코루틴이 Done 을 묵은 Maneuver 로 덮어쓰던 것). 영상(2분 14초)은 #18 + #19 빌드 | ⬜ 사용자 승인 대기: **#18 → #19 순서로 머지** |
 | 9g | **라운드 2 영상 피드백 22건 분류** → `docs/design/03_round2_feedback.md`. 결정 3건 ✅(9/27): 숫자는 운전자 문장에서 전부 순화 / 궤적 시뮬레이션 진행 / 패널은 자동 접힘. **A 묶음(Claude, 브랜치 `claude/driver-copy-path`)**: `CoachPort` 두 문장(`AdviceRules` 조언 + 서두 풀), 총평 숫자 제거, 회차 시작 발화, `SHOW_DEMO_PANEL` 플래그, `PathReconstructor` → `AttemptRecord.path`. **디자인 세션 발주** `docs/handoffs/2026-09-27_codex_design_topview.md`(차 도식 3~4안·후진 도형·Done 궤적 시안) | 🟡 A 묶음 PR 대기 · 디자인 세션 → 사용자 선택 → 라운드 3 발주서(Claude) |
 | 9h | **A 묶음 PR #21 머지**(`955adfa`). 디자인 시안 PR #22 머지(`88c29fe`) → **사용자 선택 B**(고정 바퀴 + 방향 호 + 후진 셰브론), Done 궤적 시안 확정 | ✅ |
-| 9d | **라운드 3 발주서** `docs/handoffs/2026-09-27_codex_ui_round3.md` — 세 규칙(패널 접힘·숫자 없음·Headline 자동 축소) + Setup 시트 30/70·Briefing 정리·Maneuver B 도식(방향 호·셰브론)·Done 추정 궤적·Report 신호 출처 + 불변 표 + 캡처 교체. `emu_flow.sh` 는 접힌 패널을 `문 열기` 전에 다시 연다 | ✅ 발주 → ✅ **Codex PR #25 머지 `c0c3dfa`**(리뷰: 빌드·147·`emu_flow` PASS 108 s·`lesson_shots` PASS·캡처 24장 vs 시안·불변 표 — 관찰 3: 총평 머리말 중복(Claude 후속 ✅ 이 PR), 회차 1 유예 여유 2 s(대본 사고 대응에 기록), `시연` 토글 상단 여백) → ✅ 대본 시각 실측 반영(`05_demo_script.md`) → ⬜ **재녹화(B안)** → ⬜ 컷 목록 "길이" 열 실측 · 스크린샷·덱 교체 |
+| 9d | **라운드 3 발주서** `docs/handoffs/2026-09-27_codex_ui_round3.md` — 세 규칙(패널 접힘·숫자 없음·Headline 자동 축소) + Setup 시트 30/70·Briefing 정리·Maneuver B 도식(방향 호·셰브론)·Done 추정 궤적·Report 신호 출처 + 불변 표 + 캡처 교체. `emu_flow.sh` 는 접힌 패널을 `문 열기` 전에 다시 연다 | ✅ 발주 → ✅ **Codex PR #25 머지 `c0c3dfa`**(리뷰: 빌드·147·`emu_flow` PASS 108 s·`lesson_shots` PASS·캡처 24장 vs 시안·불변 표 — 관찰 3: 총평 머리말 중복(Claude 후속 ✅ PR #26), 회차 1 유예 여유 2 s(대본 사고 대응에 기록), `시연` 토글 상단 여백(라운드 4 후보)) → ✅ 대본 시각 실측 반영(`05_demo_script.md`) → ✅ **재녹화(B안, 소리 없음)** → ⬜ 사용자 영상 피드백 → ⬜ 컷 목록 "길이" 열 실측 · 덱 5·6장 스크린샷 교체 |
 | 9d-준비 ✅ | 리뷰 뒤 단계 **선반영**(9/27, 브랜치 `claude/round3-prep`): `docs/05_demo_script.md`(패널 `시연` 조작·두 문장 멘트·탑뷰 B·추정 궤적·`신호 출처`·사고 대응 2줄, **시각은 잠정**), `presentation/02_video_shotlist.md`(컷 7·9 궤적, 편집 원칙 "숫자 보이면 옛 빌드", 녹화 함정 ③④), `01_deck_outline.md`(5·6장 화면 파일명·한 줄), `topics/01` §4.1·§4.5 Done 문장. main `10e4d1a` 기준선: 빌드·141 통과 | ✅ |
 
 리뷰 루틴(Claude): worktree 에서 head 빌드 → `emu_flow.sh` → `lesson_shots.sh` → 캡처를 시안(`docs/design/round3-topview/`)과 나란히 눈으로 → 발주서 §2 불변 표 grep(`이동 \d+회`·`\d+초` 가 `Maneuver`·`Done` 에 없음, `추정 궤적` 캡션 두 줄, `신호 출처`, 패널 기본 접힘) → PR 코멘트. `codex/design-refs`(이미지만) 는 바로 머지. **리뷰 뒤**: `emu_flow.sh` 의 `[t+NNs]` 로 대본 시각 열을 고치고, 컷 목록 "길이" 열은 재녹화에서 잰다.
