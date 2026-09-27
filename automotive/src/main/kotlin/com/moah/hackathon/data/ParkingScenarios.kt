@@ -64,10 +64,11 @@ object ParkingScenarios {
         // 3구간: 다시 후진, 근접 경고 뒤 급정지
         at(21.0, V.TRANSMISSION_SELECTED_GEAR to Gear.REVERSE.vss)
         at(22.0, V.STEERING_WHEEL_ANGLE to RIGHT_FULL)
-        speedRamp(23.0, 24.0, 0.0, 4.0)
+        speedRamp(23.0, 24.0, 0.0, 4.8) // 잠금(> 5 km/h) 아래에서 최대한 — 급정지 Δv 를 벌린다
         at(26.0, V.OBSTACLE_REAR_DISTANCE_CM to "90.0")
         at(28.0, V.OBSTACLE_REAR_DISTANCE_CM to "35.0", V.OBSTACLE_IS_WARNING to VssValues.TRUE)
-        speedRamp(28.5, 28.8, 4.0, 0.0, stepSeconds = 0.15) // 4 km/h → 0 in 0.3 s ≈ -3.7 m/s²
+        // 4.8 km/h → 0 in 0.3 s ≈ -4.4 m/s². 임계 -3.0 까지 마지막 샘플이 144 ms 늦어도 잡힌다(4.0/-3.5 였을 땐 17 ms — 부하에서 빠짐)
+        speedRamp(28.5, 28.8, 4.8, 0.0, stepSeconds = 0.15)
         at(30.0, V.OBSTACLE_REAR_DISTANCE_CM to "40.0", V.OBSTACLE_IS_WARNING to VssValues.FALSE)
         // 4구간: 핸들 중립, 곧게 마무리
         at(32.0, V.STEERING_WHEEL_ANGLE to CENTER)
