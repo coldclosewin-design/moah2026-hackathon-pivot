@@ -15,24 +15,25 @@ import com.moah.hackathon.ui.CoachColors
 import com.moah.hackathon.vehicle.Scenario
 import com.moah.hackathon.vehicle.ScenarioPlayback
 
-// The maneuver layout reserves a rail only while the panel is expanded.
+// The rail floats above the poster; opening it never changes the reading width.
 internal val LocalDemoExpansion = compositionLocalOf<MutableState<Boolean>?> { null }
 
 @Composable
 internal fun DemoPanel(scenarios: List<Scenario>, playback: ScenarioPlayback?, onPlay: (String) -> Unit,
     onStopScenario: () -> Unit, onStopCar: () -> Unit, onResumeCar: () -> Unit, onDoor: (Boolean) -> Unit) {
-    val ownExpansion = rememberSaveable { mutableStateOf(true) }
+    val ownExpansion = rememberSaveable { mutableStateOf(false) }
     val expansion = LocalDemoExpansion.current ?: ownExpansion
     val rail = LocalDemoExpansion.current != null
+    val play: (String) -> Unit = { id -> expansion.value = false; onPlay(id) }
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         TextAction(stringResource(R.string.demo_toggle), { expansion.value = !expansion.value },
             Modifier.align(Alignment.End), size = 32)
         if (expansion.value) {
             Eyebrow("시뮬레이션 신호", color = CoachColors.Periwinkle)
-            if (rail) scenarios.forEach { scenario -> DemoButton(scenario.title, { onPlay(scenario.id) }) }
+            if (rail) scenarios.forEach { scenario -> DemoButton(scenario.title, { play(scenario.id) }) }
             else scenarios.chunked(2).forEach { pair ->
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    pair.forEach { scenario -> DemoButton(scenario.title, { onPlay(scenario.id) }, Modifier.weight(1f), compact = true) }
+                    pair.forEach { scenario -> DemoButton(scenario.title, { play(scenario.id) }, Modifier.weight(1f), compact = true) }
                 }
             }
             val progress = playback?.let { (it.stepIndex + 1).coerceAtMost(it.stepCount) } ?: 0

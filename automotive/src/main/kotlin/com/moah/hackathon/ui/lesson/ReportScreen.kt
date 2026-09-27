@@ -41,10 +41,10 @@ internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit) {
                         Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
                             Eyebrow("오늘의 기록")
                             Spacer(Modifier.height(28.dp))
-                            Headline(report.summary, size = 72)
+                            Headline(driverReportSummary(report.summary), Modifier.weight(1f, fill = false), size = 72)
                             Spacer(Modifier.height(32.dp))
                             LessonText("${report.task.title} · ${report.mode.label}", 40)
-                            Spacer(Modifier.height(56.dp))
+                            Spacer(Modifier.height(40.dp))
                             PrimaryPill(stringResource(R.string.lesson_restart), onRestart, Modifier.widthIn(min = 600.dp))
                             Spacer(Modifier.height(24.dp))
                             Row(horizontalArrangement = Arrangement.spacedBy(64.dp)) {
@@ -105,6 +105,7 @@ private fun RecordGraphic(attempts: Int, modifier: Modifier) {
 private fun ReportProvenance(report: LessonReport) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         PosterRule()
+        Eyebrow("신호 출처", color = CoachColors.Muted)
         Row(Modifier.fillMaxWidth().padding(top = 16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
             LessonText(badgeText(report.best.badge), 32, CoachColors.Periwinkle)
             LessonText("주차 과정만 측정했어요.", 32, CoachColors.Muted)

@@ -18,7 +18,7 @@ internal object CoachColors {
 internal object CoachType {
     const val Eyebrow = 32
     const val Body = 40
-    const val Headline = 80
+    const val Headline = 72
     const val Value = 80
 }
 

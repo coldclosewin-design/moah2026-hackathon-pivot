@@ -12,6 +12,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clipToBounds
@@ -23,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.selected
@@ -46,8 +50,9 @@ internal fun PosterSurface(content: @Composable () -> Unit) {
 
 @Composable
 internal fun LessonText(text: String, size: Int = 36, color: Color = CoachColors.Ink,
-    bold: Boolean = false, modifier: Modifier = Modifier) {
+    bold: Boolean = false, modifier: Modifier = Modifier, maxLines: Int = Int.MAX_VALUE) {
     Text(text, modifier, color = color, fontSize = size.sp, lineHeight = (size * 1.3f).sp,
+        maxLines = maxLines, overflow = if (maxLines == Int.MAX_VALUE) TextOverflow.Clip else TextOverflow.Ellipsis,
         fontWeight = if (bold) FontWeight.Medium else FontWeight.Normal,
         style = TextStyle(localeList = LocaleList("ko-KR"),
             lineBreak = LineBreak.Paragraph.copy(wordBreak = LineBreak.WordBreak.Phrase)))
@@ -66,10 +71,16 @@ internal fun Eyebrow(text: String, modifier: Modifier = Modifier, color: Color =
 @Composable
 internal fun Headline(text: String, modifier: Modifier = Modifier, size: Int = CoachType.Headline,
     color: Color = CoachColors.Ink) {
-    // Never ellipsize speech. Explicit four-line subtitles remain complete in the accessibility tree.
-    Text(text, modifier, color = color, fontSize = size.sp, lineHeight = (size * 1.18f).sp,
-        fontWeight = FontWeight.Normal, style = TextStyle(localeList = LocaleList("ko-KR"),
-            lineBreak = LineBreak.Paragraph.copy(wordBreak = LineBreak.WordBreak.Phrase)))
+    BoxWithConstraints(modifier) {
+        val sizes = listOf(size, 64, 56).distinct().filter { it <= size }
+        var step by remember(text, size, maxWidth, maxHeight) { mutableIntStateOf(0) }
+        val fittedSize = sizes[step]
+        Text(text, color = color, fontSize = fittedSize.sp, lineHeight = (fittedSize * 1.18f).sp,
+            maxLines = 3, onTextLayout = { result ->
+                if (result.hasVisualOverflow && step < sizes.lastIndex) step++
+            }, fontWeight = FontWeight.Normal, style = TextStyle(localeList = LocaleList("ko-KR"),
+                lineBreak = LineBreak.Paragraph.copy(wordBreak = LineBreak.WordBreak.Phrase)))
+    }
 }
 
 @Composable
@@ -107,17 +118,20 @@ internal fun PosterRule(modifier: Modifier = Modifier) =
 
 @Composable
 internal fun SelectionChip(label: String, chosen: Boolean, onClick: () -> Unit) {
-    Box(Modifier.background(if (chosen) CoachColors.Periwinkle else CoachColors.Lavender)
+    Box(Modifier.width(220.dp).height(96.dp).background(if (chosen) CoachColors.Periwinkle else CoachColors.Lavender)
         .clickable(role = Role.RadioButton, onClick = onClick).semantics { selected = chosen }
-        .padding(horizontal = 24.dp, vertical = 20.dp)) {
-        LessonText(label, 40, if (chosen) CoachColors.Paper else CoachColors.Ink)
+        .padding(horizontal = 4.dp), contentAlignment = Alignment.Center) {
+        LessonText(label, 40, if (chosen) CoachColors.Paper else CoachColors.Ink, maxLines = 1)
     }
 }
 
 @Composable
-internal fun DemoRail(expansion: MutableState<Boolean>, demo: @Composable () -> Unit) {
+internal fun BoxScope.DemoRail(expansion: MutableState<Boolean>, demo: @Composable () -> Unit) {
     CompositionLocalProvider(LocalDemoExpansion provides expansion) {
-        Box(Modifier.width(if (expansion.value) 420.dp else 80.dp)) { demo() }
+        Box(Modifier.align(Alignment.TopEnd).padding(top = 16.dp, end = 32.dp)
+            .width(if (expansion.value) 420.dp else 80.dp)
+            .background(if (expansion.value) CoachColors.Lavender else Color.Transparent)
+            .padding(if (expansion.value) 16.dp else 0.dp)) { demo() }
     }
 }
 

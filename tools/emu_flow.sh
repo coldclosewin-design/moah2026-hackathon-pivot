@@ -77,7 +77,13 @@ wait_log() { # wait_log "패턴" 최대초
 }
 # 시연 패널이 접혀 있으면 연다(라벨 "시연"). 이미 열려 있으면 "못한 주차" 가 보인다.
 # 라운드 3 부터 패널은 기본 접힘·시나리오 재생 시 자동 접힘 — 누를 때마다 연다. 이미 열려 있으면 시나리오 라벨이 보인다
-open_demo_panel() { dump; texts | grep -qE "못한 주차|못한 점검" && return 0; tap_text "시연"; sleep 1; }
+open_demo_panel() {
+  dump || return 1
+  remember_bounds
+  texts | grep -qE "못한 주차|못한 점검" && return 0
+  # Reuse the fresh dump. tap_text below waits for the opened panel before playing.
+  tap_cached "시연"
+}
 T0=$(date +%s); mark() { echo "  [t+$(( $(date +%s) - T0 ))s] $1"; }
 FAIL=0
 

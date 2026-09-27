@@ -75,6 +75,10 @@ internal fun deltaLines(delta: ParkingDelta?): List<DeltaLine> = if (delta == nu
 }
 
 internal fun badgeText(badge: AvailabilityBadge) = "실신호 ${badge.live} · 시뮬레이션 ${badge.simulated} · 미측정 ${badge.missing}"
+// The current coach contract still prefixes the summary with "과제, 모드 N회.".
+// Keep task/mode and explicit newlines; attempt counts belong to the record graphic and details.
+internal fun driverReportSummary(summary: String) = summary.replace(
+    Regex("(?m)^(.* 모드) \\d+회\\.(?=\\n|$)"), "$1.")
 internal fun signalLabel(signal: SignalAvailability) = when (signal) {
     SignalAvailability.LIVE -> "실신호"
     SignalAvailability.SIMULATED -> "시뮬레이션"
@@ -108,6 +112,8 @@ internal fun ManeuverDisplayState.diagramDescription() = buildList {
     add("차량 도식, 뒤쪽이 화면 위")
     add("조향각 ${steeringDeg?.let { "${it.roundToInt()}도" } ?: "미측정"}, ${signalLabel(steeringSignal)}")
     add("기어 ${gear ?: "미측정"}, ${signalLabel(gearSignal)}")
+    if (gear == "R") add("후진 중")
+    if (steeringDeg != null) add("조향 방향 호")
     add(rearDistanceCm?.let { "뒤 ${it.roundToInt()} cm" } ?: "뒤 거리 미측정")
     add(signalLabel(distanceSignal))
     if (proximityAlert()) add("뒤가 가까워요")
@@ -115,9 +121,11 @@ internal fun ManeuverDisplayState.diagramDescription() = buildList {
 
 // Wheelbase ratio is illustrative, not a measured road-wheel angle. Preserve COVESA's positive-left sign.
 internal fun wheelRotation(steeringDeg: Float?) = ((steeringDeg ?: 0f) / 15f).coerceIn(-38f, 38f)
+// Positive means left steering: with the nose down, its arc bends to screen-right.
+internal fun steeringArcBend(steeringDeg: Float?) = steeringDeg?.let { (it / 450f).coerceIn(-1f, 1f) }
 internal fun distanceFraction(distanceCm: Float?) = ((distanceCm ?: 0f) / 250f).coerceIn(0f, 1f)
 
 // lastSpoken can still contain the previous Done/Report sentence at the next attempt.
 // Do not bring a prior result back onto the moving screen through free-form speech text.
-private val scoreText = Regex("점수|감점|\\d+\\s*점")
+private val scoreText = Regex("점수|감점|\\d+\\s*점|이동\\s*\\d+회|\\d+\\s*초")
 internal fun maneuverText(text: String?): String? = text?.takeUnless { scoreText.containsMatchIn(it) }
