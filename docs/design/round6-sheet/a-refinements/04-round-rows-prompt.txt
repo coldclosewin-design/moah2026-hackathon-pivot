@@ -1,0 +1,18 @@
+Use case: ui-mockup / compositing two existing design proposals into ONE hybrid.
+Image1 = "02-round-bays.png": reference ONLY for its circular UPPER CATEGORY NAVIGATION.
+Image2 = "01-folder-rows.png": MAIN EDIT TARGET, keep its LEFT CAR, entire LOWER TASK LIST, mode chips, footer, typography, colors and overall framing.
+User request: combine the top categories of Image1 with the lower categories of Image2. Deliver ONE complete app screen, no side-by-side comparison, no new design direction.
+
+Replace ONLY Image2's four folder-shaped category tabs with Image1's four circular category selectors, retaining the order and exact Korean text "주차", "주행", "조작", "지식". Parking circle is saturated Signal red #F52D48 with Paper white text. Other three circles are very pale Lavender with faded readable Ink text. Preserve the small "준비 중" directly beneath the Driving circle. Preserve Image1's short red vertical connector beneath the Parking circle. Keep all circles on the same baseline and the category row horizontally spaced.
+Fit the circles into the available upper region without colliding with the section below. On the approximately1781×883 reference canvas, use circles about142px diameter, aroundy104..246, evenly across the right sheet; the Driving status and short Parking connector sit immediately below, abovey280. Leave comfortable space before the heading "주차 세부 과제" aroundy290. This is the only geometry adjustment needed.
+
+Everything below MUST remain the LIST from Image2, NOT the parking-bay diagrams from Image1:
+heading exactly "주차 세부 과제";
+first full-width Ink navy selected row "후면 직각 주차" with white check on the far right;
+second wide Paper row "평행 주차", right-aligned "준비 중";
+third wide Paper row "전면 직각 주차", right-aligned "준비 중";
+fourth wide Paper row "사선 주차", right-aligned "준비 중";
+thin Lavender rules between rows. Exactly FOUR task rows. No task icons, cars, bays, ticket shapes, folder tabs or task cards anywhere in the lower section.
+
+Preserve Image2's small one-line "DRIVE COACH" above the car, the flat geometric car illustration and its crop. Preserve eyebrow "연습할 과제", unlabelled Lavender demo pill at top right. Keep bottom "모드" with rectangular "가이드", "힌트", "평가" chips, only Hint selected in Periwinkle; simple "돌아가기" text link and wide red rounded "시작" pill plus right arrow. All four tasks and bottom controls fully visible with no overlap.
+Palette: Ink #070827, Paper #FCFCFA, Periwinkle #5B60A1, Lavender #E5E6F0, Signal #F52D48, with muted opacity blends for unselected top categories. Flat solid fills, no texture, gradients or shadows. Regular Korean type, accurate spelling, no new text, no counts or numbers. Retain the full app landscape aspect ratio near2.019:1, design reference2560×1268. Do not change any correct labels or selected states.

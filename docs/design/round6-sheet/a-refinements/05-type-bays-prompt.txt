@@ -1,0 +1,18 @@
+Use case: ui-mockup / precise compositing of two existing app concepts.
+USER CORRECTION: combine the UPPER CATEGORY MENU of concept3 with the LOWER PARKING-BAY TASK AREA of concept2.
+Image1 = concept3 "03-type-tickets.png": use ONLY its TOP TYPOGRAPHIC CATEGORY NAVIGATION.
+Image2 = concept2 "02-round-bays.png": use as the BASE IMAGE, preserve its LEFT CAR illustration, LOWER FOUR PARKING-BAY ITEMS, mode and footer.
+Create one complete hybrid app screen, not a comparison board.
+
+Replace Image2's circular category selectors with Image1's large WORD-ONLY horizontal navigation, exactly as concept3: categories “주차”, “주행”, “조작”, “지식” in that order. Active “주차” is Signal red, with its thick short red underline and small downward red triangle. Other category names have muted/faded Ink-Periwinkle tone, no background shapes. “주행” has the small “준비 중” underneath it. Keep top eyebrow “연습할 과제”. NO circles, NO folder tabs, NO filled rectangular category cards in the upper menu. Give the type menu its open Paper whitespace. Preserve the small unlabelled Lavender pill at upper right from Image1.
+Keep the typographic navigation in the same upper area as the original circles, with enough vertical clearance before the lower heading.
+
+Preserve Image2's LOWER design faithfully: heading “주차 세부 과제”, then FOUR U-shaped parking-bay frames in ONE HORIZONTAL ROW. Keep the simple top-down car/parking diagrams in these frames.
+First selected bay: dark Ink outline and car diagram, label “후면 직각 주차” on two lines, small red circular check badge at bottom of bay.
+Second bay: pale outline/car diagram, title “평행 주차”, status “준비 중”.
+Third bay: pale outline/car diagram, title “전면 직각 주차” on two lines, status “준비 중”.
+Fourth bay: pale outline/angled car diagram, title “사선 주차”, status “준비 중”.
+Keep all four bay frames and titles fully visible. DO NOT use Image1's cut-corner tickets, two-by-two grid, full-width text rows, or any list/table below. The bottom area is the parking-bay illustration layout from Image2 only.
+
+Keep the left geometric poster car and small regular one-line “DRIVE COACH” brand from Image2. Preserve “모드” and compact rectangular chips “가이드”, “힌트”, “평가” (Hint selected purple), text link “돌아가기”, and the wide rounded Signal-red “시작” button plus right arrow. No overlap or clipped content.
+Palette stays Ink #070827, Paper #FCFCFA, Periwinkle #5B60A1, Lavender #E5E6F0, Signal #F52D48 and muted opacity blends. Flat solid color, no texture, gradient or shadow. Accurate Korean wording, regular body type, no new text or numbers. Overall full app landscape aspect ratio near2.019:1, target design canvas2560×1268. This should look like concept3 at the TOP and concept2 from the task heading DOWN.
