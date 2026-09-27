@@ -10,6 +10,7 @@ import android.view.accessibility.AccessibilityNodeInfo
 import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import com.moah.hackathon.App
 import com.moah.hackathon.data.SeedCatalog
@@ -19,6 +20,7 @@ import com.moah.hackathon.ui.concepts.DesignScale
 import com.moah.hackathon.ui.lesson.*
 import com.moah.hackathon.vehicle.*
 import java.io.File
+import java.io.FileInputStream
 
 /** Platform accessibility checks and screenshots; no additional Gradle dependency is needed. */
 class LessonScreenInstrumentation : Instrumentation() {
@@ -43,7 +45,8 @@ class LessonScreenInstrumentation : Instrumentation() {
                     "처음은 제가 순서대로 함께할게요.", SeedCatalog.reservation, "오늘은 편안한 곳에서 주차부터 연습해 봐요.",
                     { id, mode -> started = id to mode }, setupDemo)
             }
-            check(texts().containsAll(listOf(setupProposal(TaskType.PARKING), "시작", "시연")))
+            check(allText().containsAll(listOf(setupProposal(TaskType.PARKING), "시작", "시연")))
+            assertDriverButton(activity, "시작")
             assertPanelCollapsed()
             capture("setup")
             val proposalBounds = textBounds(setupProposal(TaskType.PARKING))
@@ -61,6 +64,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             val planned = SeedCatalog.tasks.first { !it.isReady }
             check(nodes().none { it.isClickable && descendants(it).any { child -> child.text?.toString() == planned.title } })
             check(texts().contains("준비 중"))
+            assertDriverButton(activity, "시작")
             capture("setup-sheet")
             click("힌트")
             click("시작")
@@ -93,10 +97,28 @@ class LessonScreenInstrumentation : Instrumentation() {
             check(allText().any { "뒤 85 cm" in it })
             assertNoScores()
             check(texts().contains("${task.title} · 1회차"))
-            check(allText().any { "후진 중" in it && "조향 방향 호" in it })
+            check(allText().any { "후진 중" in it && "조향 방향 호" in it && "보조선" in it })
+            check(texts().containsAll(listOf("오른쪽 450°", "오른쪽으로 한 바퀴", "코치")))
             assertPanelCollapsed()
             capture("maneuver")
             capture("maneuver-b")
+            capture("maneuver-guides")
+            capture("demo-toggle-pill")
+            val pillBounds = buttonBounds("시연")
+            // Compose expands the 64 x 32 drawing to a 64 x 48 accessibility touch target.
+            check(pillBounds.width() == 64 && pillBounds.height() == 48) { "Pill touch bounds: $pillBounds" }
+            check(textBounds("3 km/h").top - (pillBounds.bottom - 8) == 24) { "Pill/speed gap: $pillBounds / ${textBounds("3 km/h")}" }
+            render(activity) {
+                CompositionLocalProvider(LocalDemoToggleStyle provides DemoToggleStyle.TEXT) {
+                    ManeuverScreen(moving, false, false, "다 돌렸어요. 이제 천천히 후진하세요.", {}, demo)
+                }
+            }
+            capture("demo-toggle-text")
+            click("시연")
+            check(texts().contains("잘한 주차"))
+            click("잘한 주차")
+            assertPanelCollapsed()
+            render(activity) { ManeuverScreen(moving, false, false, "다 돌렸어요. 이제 천천히 후진하세요.", {}, demo) }
             val gearBounds = textBounds("R")
             val distanceBounds = textBounds("85 cm")
             click("시연")
@@ -108,7 +130,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             capture("maneuver-collapsed")
             render(activity) { ManeuverScreen(moving.copy(speed = "0"), false, true, null, {}, demo) }
             check(textBounds("R") == gearBounds && textBounds("85 cm") == distanceBounds) { "Telemetry shifted when finish button appeared" }
-            check(textBounds("다 됐어요").width() > 0)
+            assertDriverButton(activity, "다 됐어요")
             assertNoScores()
 
             render(activity) {
@@ -146,7 +168,8 @@ class LessonScreenInstrumentation : Instrumentation() {
             check(allText().any { it.contains("뒤 거리 미측정") })
             check(texts().count { it == "미측정" } >= 3)
             check(texts().contains(longSubtitle))
-            check(allText().none { "조향 방향 호" in it || "후진 중" in it })
+            check(allText().none { "조향 방향 호" in it || "보조선" in it || "후진 중" in it })
+            check(texts().none { it == "중립" || it.startsWith("오른쪽으로") || it.startsWith("왼쪽으로") })
             capture("missing")
             click("다 됐어요")
             runOnMainSync { check(finished == 1) }
@@ -239,6 +262,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             check(allText().none { it == "추정 궤적" })
             check(texts().count { it == record.remark } == 1) { "Repeated remark in subtitle footer" }
             capture("done")
+            assertDriverButton(activity, "한 번 더")
             click("한 번 더")
             click("오늘은 여기까지")
             runOnMainSync { check(again == 1 && ended == 1) }
@@ -247,7 +271,15 @@ class LessonScreenInstrumentation : Instrumentation() {
                 PathPoint(4_000, -3f, -7f, -45f, true))
             val pathRecord = record.copy(path = path, delta = ParkingDelta(-2, -4, -1, -1),
                 score = score.copy(metrics = metrics.copy(harshEvents = listOf(HarshEvent(1_100, HarshKind.BRAKING, -4f)))))
+            val replayVisible = mutableStateOf(true)
+            render(activity) {
+                if (replayVisible.value) DoneScreen(task, 1, pathRecord, null, { replayVisible.value = false }, {}, demo)
+                else LessonText("다음 회차")
+            }
+            click("한 번 더") // 700 ms render + 300 ms click: still inside the three-second replay.
+            check(texts().contains("다음 회차")) { "Replay blocked the next attempt action" }
             render(activity) { DoneScreen(task, 1, pathRecord, null, {}, {}, demo) }
+            Thread.sleep(3_000) // 500 ms initial delay + 3 s playback, including render's 700 ms.
             check(allText().contains("추정 궤적"))
             assertPanelCollapsed()
             check(texts().containsAll(listOf("신호로 추정한 궤적이에요.", "실제 위치와 다를 수 있어요.")))
@@ -295,6 +327,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             check(texts().contains("100"))
             check(texts().contains("다시 시작"))
             capture("report-100")
+            recordMotionClips(activity, moving, pathRecord)
             finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Lesson contract passed\n") })
         } catch (failure: Throwable) {
             finish(Activity.RESULT_CANCELED, Bundle().apply { putString("stream", failure.stackTraceToString()) })
@@ -306,6 +339,30 @@ class LessonScreenInstrumentation : Instrumentation() {
         Thread.sleep(700)
         runOnMainSync {}
     }
+    private fun recordMotionClips(activity: MainActivity, moving: ManeuverDisplayState, record: AttemptRecord) {
+        // Recording is a review artifact; the animation still receives only the supplied signal/path data.
+        val angle = mutableStateOf(0f)
+        render(activity) { ManeuverScreen(moving.copy(steeringDeg = angle.value), false, false, null, {}) }
+        recordClip("steering") {
+            Thread.sleep(900)
+            runOnMainSync { angle.value = -450f }
+            Thread.sleep(1_500)
+            runOnMainSync { angle.value = 0f }
+        }
+        recordClip("done") {
+            render(activity) { DoneScreen(SeedCatalog.parkingTask, 1, record, null, {}, {}) }
+        }
+        pass("5-second screenrecord clips: /sdcard/lesson-round4-steering.mp4 and /sdcard/lesson-round4-done.mp4")
+    }
+    private fun recordClip(name: String, changes: () -> Unit) {
+        val command = "screenrecord --display-id 4619827259835644672 --size 1280x720 --bit-rate 4M --time-limit 5 /sdcard/lesson-round4-$name.mp4"
+        uiAutomation.executeShellCommand(command).use { output ->
+            Thread.sleep(250)
+            changes()
+            val errors = FileInputStream(output.fileDescriptor).bufferedReader().readText()
+            check(errors.isBlank()) { "screenrecord $name: $errors" }
+        }
+    }
     private fun hasTouchAction(node: AccessibilityNodeInfo) = node.isClickable || node.isLongClickable || node.isScrollable
     private fun nodes() = descendants(checkNotNull(uiAutomation.rootInActiveWindow))
     private fun texts() = nodes().mapNotNull { it.text?.toString() }
@@ -313,7 +370,7 @@ class LessonScreenInstrumentation : Instrumentation() {
     private fun assertNoScores() { check(allText().none { Regex("점수|감점|\\d+\\s*점|이동 \\d+회|\\d+초").containsMatchIn(it) }) }
     private fun assertNoDoneMetrics() { check(allText().none { Regex("\\d+회(?!차)|\\d+초|지난번보다|cm").containsMatchIn(it) }) }
     private fun assertPanelCollapsed() {
-        check(texts().contains("시연"))
+        check(allText().contains("시연"))
         check(texts().none { it in listOf("잘한 주차", "못한 주차", "잘한 점검", "못한 점검", "문 열기") })
     }
     private fun textBounds(label: String) = Rect().also { rect ->
@@ -324,9 +381,24 @@ class LessonScreenInstrumentation : Instrumentation() {
         repeat(node.childCount) { node.getChild(it)?.let { child -> addAll(descendants(child)) } }
     }
     private fun click(label: String) {
-        val button = nodes().first { it.isClickable && descendants(it).any { node -> node.text?.toString() == label } }
+        val button = buttonNode(label)
         check(button.performAction(AccessibilityNodeInfo.ACTION_CLICK))
         Thread.sleep(300)
+    }
+    private fun buttonNode(label: String) = nodes().first { it.isClickable && descendants(it).any { node ->
+        node.text?.toString() == label || node.contentDescription?.toString() == label
+    } }
+    private fun buttonBounds(label: String) = Rect().also { buttonNode(label).getBoundsInScreen(it) }
+    private fun assertDriverButton(activity: MainActivity, label: String) {
+        val bounds = buttonBounds(label)
+        var density = 1f
+        runOnMainSync {
+            val content = activity.findViewById<android.view.View>(android.R.id.content)
+            density = checkNotNull(com.moah.hackathon.ui.concepts.designDensity(content.width, content.height))
+        }
+        check(kotlin.math.abs(bounds.height() / density - 140f) <= 1f && bounds.width() / density >= 719f) {
+            "$label driver bounds: $bounds / $density"
+        }
     }
     private fun scrollTo(label: String) {
         repeat(12) {

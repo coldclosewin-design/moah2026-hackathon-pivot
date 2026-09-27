@@ -1,15 +1,21 @@
 package com.moah.hackathon.ui.lesson
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -17,9 +23,10 @@ import androidx.compose.ui.unit.dp
 import com.moah.hackathon.feature.lesson.ManeuverDisplayState
 import com.moah.hackathon.ui.CoachColors
 
-/** B: the rear faces up, all four wheels stay fixed, and only the direction arc bends. */
+/** B: rear up. One measured angle drives the front wheels, direction arc and wheel guides. */
 @Composable
 internal fun VehicleDiagram(state: ManeuverDisplayState, modifier: Modifier) {
+    val angle by animateFloatAsState(state.steeringDeg ?: 0f, tween(350, easing = FastOutSlowInEasing), label = "steering")
     Canvas(modifier.semantics { contentDescription = state.diagramDescription() }) {
         val carHeight = size.height * .66f
         val carWidth = carHeight * .43f
@@ -37,7 +44,7 @@ internal fun VehicleDiagram(state: ManeuverDisplayState, modifier: Modifier) {
             translate(cx - carWidth / 2, top)
             scale(carWidth / 100f, carHeight / 250f, Offset.Zero)
         }) {
-            // One shaped body, two separate bonnet/trunk panels, four glass faces, mirrors and four fixed wheels.
+            // One shaped body, two separate bonnet/trunk panels, four glass faces and mirrors.
             drawPath(Path().apply {
                 moveTo(25f, 1f); cubicTo(10f, 3f, 6f, 12f, 5f, 28f)
                 lineTo(2f, 46f); lineTo(5f, 76f); lineTo(5f, 173f)
@@ -79,20 +86,30 @@ internal fun VehicleDiagram(state: ManeuverDisplayState, modifier: Modifier) {
                         quadraticTo(-8f, 152f, -6f, 159f)
                         quadraticTo(-4f, 162f, 7f, 165f); close()
                     }, CoachColors.Paper)
-                    listOf(27f, 198f).forEach { y ->
-                        drawRoundRect(CoachColors.Periwinkle, Offset(3f, y), Size(8f, 30f), CornerRadius(3f))
-                    }
+                }
+            }
+            listOf(7f, 93f).forEach { x ->
+                drawRoundRect(CoachColors.Periwinkle, Offset(x - 4f, 27f), Size(8f, 30f), CornerRadius(3f))
+                // Positive-left signal becomes screen-right with the nose down. Avoid mirroring the rotation.
+                rotate(if (state.steeringDeg == null) 0f else -wheelRotation(angle), Offset(x, 213f)) {
+                    drawRoundRect(CoachColors.Periwinkle, Offset(x - 4f, 198f), Size(8f, 30f), CornerRadius(3f))
                 }
             }
         }
-        steeringArcBend(state.steeringDeg)?.let { bend ->
+        steeringArcBend(angle.takeIf { state.steeringDeg != null })?.let { bend ->
             val y = top + carHeight + 16.dp.toPx()
             val reach = size.height * .13f
-            drawPath(Path().apply {
-                moveTo(cx, y)
-                cubicTo(cx, y + reach * .55f, cx + bend * carWidth * .20f, y + reach * .85f,
-                    cx + bend * carWidth * .48f, y + reach)
-            }, CoachColors.Periwinkle, style = Stroke(6.dp.toPx()))
+            fun arc(x: Float, startY: Float) = Path().apply {
+                moveTo(x, startY)
+                cubicTo(x, startY + reach * .55f, x + bend * carWidth * .20f, startY + reach * .85f,
+                    x + bend * carWidth * .48f, startY + reach)
+            }
+            listOf(-.43f, .43f).forEach { wheelX ->
+                drawPath(arc(cx + wheelX * carWidth, top + carHeight * (213f / 250f)),
+                    CoachColors.Periwinkle.copy(alpha = .4f), style = Stroke(4.dp.toPx(),
+                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(12.dp.toPx(), 12.dp.toPx()))))
+            }
+            drawPath(arc(cx, y), CoachColors.Periwinkle, style = Stroke(6.dp.toPx()))
         }
     }
 }

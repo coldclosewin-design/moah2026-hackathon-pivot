@@ -69,7 +69,7 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
                             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceBetween) {
                                 TextAction(stringResource(R.string.lesson_back), { sheet = false })
-                                PrimaryPill(stringResource(R.string.lesson_start), start)
+                                PrimaryPill(stringResource(R.string.lesson_start), start, driver = true)
                             }
                         } else {
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
@@ -81,7 +81,7 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
                                 Spacer(Modifier.height(20.dp))
                                 LessonText(selectionReason(task, mode, suggestedTask, suggestedMode, reason), 40, CoachColors.Muted)
                                 Spacer(Modifier.height(48.dp))
-                                PrimaryPill(stringResource(R.string.lesson_start), start, Modifier.fillMaxWidth())
+                                PrimaryPill(stringResource(R.string.lesson_start), start, Modifier.fillMaxWidth(), driver = true)
                                 Spacer(Modifier.height(16.dp))
                                 TextAction(stringResource(R.string.lesson_change_task_mode), { sheet = true })
                             }
@@ -101,12 +101,19 @@ private fun TaskChoice(task: Task, chosen: Boolean, modifier: Modifier, onClick:
     val foreground = when { !task.isReady -> CoachColors.Muted; chosen -> CoachColors.Paper; else -> CoachColors.Ink }
     // Disabled tasks deliberately have no onClick semantics (even a disabled clickable action would leak).
     val action = if (task.isReady) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier.semantics { disabled() }
-    Box(modifier.background(background).then(action).semantics { selected = chosen }.padding(20.dp)) {
-        Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
+    val stripe = when (task.type) {
+        TaskType.PARKING -> if (chosen && task.isReady) CoachColors.Paper else CoachColors.Periwinkle
+        TaskType.DRIVING -> CoachColors.Ink
+        TaskType.CHECKLIST -> CoachColors.Signal
+        TaskType.KNOWLEDGE -> CoachColors.Periwinkle.copy(alpha = .4f)
+    }
+    Box(modifier.background(background).then(action).semantics { selected = chosen }) {
+        Box(Modifier.width(12.dp).fillMaxHeight().background(stripe))
+        Column(Modifier.fillMaxSize().padding(start = 32.dp, end = 20.dp, top = 20.dp, bottom = 20.dp), verticalArrangement = Arrangement.SpaceBetween) {
             LessonText(task.title, 40, foreground, modifier = Modifier.padding(end = if (task.isReady) 0.dp else 116.dp), maxLines = 2)
             LessonText("${taskTypeLabel(task.type)} · ${task.difficulty.label}", 32, foreground, maxLines = 1)
         }
-        if (!task.isReady) LessonText(task.status.label, 32, CoachColors.Muted, modifier = Modifier.align(Alignment.TopEnd))
+        if (!task.isReady) LessonText(task.status.label, 32, CoachColors.Muted, modifier = Modifier.align(Alignment.TopEnd).padding(20.dp))
     }
 }
 

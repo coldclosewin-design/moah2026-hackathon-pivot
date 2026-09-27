@@ -4,4 +4,5 @@ PASS Maneuver: no scores, exact lock/stop boundaries, missing signals, four-line
 PASS Checklist: belt/gear/ignition, no parking telemetry, missing signals, locked touch gate
 PASS Quiz: five questions, choice dispatch, answer explanations, next/result, lock, keyed results and restart
 PASS Done actions and Report badge, certificate sharing choices, restart
+PASS 5-second screenrecord clips: /sdcard/lesson-round4-steering.mp4 and /sdcard/lesson-round4-done.mp4
 Lesson contract passed

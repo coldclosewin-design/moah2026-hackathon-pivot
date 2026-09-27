@@ -51,3 +51,20 @@ internal fun pathLegs(path: List<PathPoint>): List<PathLeg> {
 }
 
 internal fun nearestPathPoint(path: List<PathPoint>, tMillis: Long) = path.minByOrNull { kotlin.math.abs(it.tMillis - tMillis) }
+
+/** Reveal measured time, not sample index; the partial segment keeps its destination gear. */
+internal fun pathThroughTime(path: List<PathPoint>, tMillis: Long): List<PathPoint> {
+    if (path.isEmpty()) return emptyList()
+    if (tMillis < path.first().tMillis) return listOf(path.first())
+    val next = path.indexOfFirst { it.tMillis > tMillis }
+    if (next == -1) return path
+    val before = path[next - 1]
+    if (before.tMillis == tMillis) return path.take(next)
+    val after = path[next]
+    val fraction = (tMillis - before.tMillis).toFloat() / (after.tMillis - before.tMillis)
+    val headingDelta = ((after.headingDeg - before.headingDeg + 540f) % 360f) - 180f
+    return path.take(next) + PathPoint(tMillis,
+        before.x + (after.x - before.x) * fraction,
+        before.y + (after.y - before.y) * fraction,
+        before.headingDeg + headingDelta * fraction, after.reversing)
+}
