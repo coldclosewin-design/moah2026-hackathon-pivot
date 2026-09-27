@@ -275,7 +275,8 @@ class LessonStateMachineTest {
         assertTrue(done.record.remark, !done.record.remark.contains("초.") && done.record.remark.endsWith("다음엔 벨트가 먼저, 시동은 그다음이에요."))
         h.machine.endSession(); advanceUntilIdle()
         val report = (h.machine.phase.value as LessonPhase.Report).report
-        assertTrue(report.summary, report.summary.startsWith("출발 전 점검, 힌트 모드 1회."))
+        assertTrue(report.summary, report.summary.startsWith("한 번 해 봤어요.") && report.summary.lines().size == 2
+            && !Regex("\\d").containsMatchIn(report.summary))
         h.scope.cancel()
     }
 

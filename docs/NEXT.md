@@ -2,7 +2,7 @@
 
 새 Claude Code 세션이 이 파일 하나로 이어받을 수 있게 쓴 인계 문서. **작업을 마칠 때마다 이 파일을 갱신한다**(끝난 것은 지우고, 새로 생긴 것은 추가). 과거의 경위는 `docs/journal/`, 규칙은 `AGENTS.md`·`CLAUDE.md`, **제품 정의는 `docs/topics/01_driving_coach.md` v2**.
 
-마지막 갱신: 2026-09-27 · `main = 10e4d1a`(PR #1~#23) · **Codex 가 `codex/ui-round3`(라운드 3, `.worktrees/ui-round3`) 구현 중 — PR 없음** · Claude 는 `.worktrees/hybrid` 에서 리뷰 뒤 단계 선반영(대본·컷 목록·주제 정의, 이 문서 PR) · 마감 2026-10-07. **새 세션은 여기서: Codex 라운드 3 PR 이 오면 §Step 9d 리뷰 루틴 → 재녹화 → 대본 시각 실측.**
+마지막 갱신: 2026-09-27 · `main = c0c3dfa`(PR #1~#25, **라운드 3 머지**) · 이 문서 PR = 총평 머리말 제거 후속 · 마감 2026-10-07. **새 세션은 여기서: §Step 9d 남은 것 = B안 재녹화(사용자 또는 Claude `screenrecord`) → 컷 길이 실측 → 스크린샷·덱 교체 → 사내(8d).**
 
 ## 1. 지금 되는 것 (한 문단)
 
@@ -12,7 +12,7 @@
 
 **시작 가능한 과제(READY) 셋**: 출발 전 점검(Step 11, 가이드·힌트·평가, 차는 서 있음) · 후면 직각 주차(시연 본편) · 지식 테스트(Step 10, 화면은 라운드 2 에서 완성). 나머지 6개는 "준비 중". 단위 테스트 141(main `10e4d1a`, 9/27 확인).
 
-**9/27 결정 3건이 main 에 반영됨(PR #21)**: 운전자 문장에 숫자 없음("서두.\n조언." 두 문장 + 총평 세 문장) · 회차 시작 발화 · `SHOW_DEMO_PANEL` 플래그 · `AttemptRecord.path`(추정 궤적). 화면 반영은 라운드 3(Codex).
+**9/27 결정 3건이 main 에 반영됨(PR #21 → 화면 PR #25)**: 운전자 문장에 숫자 없음("서두.\n조언." 두 문장 + 총평 "흐름.\n안전." 두 문장) · 회차 시작 발화 · `SHOW_DEMO_PANEL` 플래그 · `AttemptRecord.path`(추정 궤적 — Done 왼쪽에 그려짐). 시연 패널은 기본 접힘(`시연`). 단위 테스트 147.
 
 ## 2. 남은 일 (의존 순서. 날짜 배정이 아니다)
 
@@ -84,7 +84,7 @@
 | 9f | **라운드 2 Codex PR #18** — 리뷰 완료(빌드·137·`emu_flow` PASS 98 s·`lesson_shots` PASS·캡처 21장 vs 시안). 시연 영상 녹화 중 **경합 발견 → PR #19**(`publishManeuver` CAS: delta 코루틴이 Done 을 묵은 Maneuver 로 덮어쓰던 것). 영상(2분 14초)은 #18 + #19 빌드 | ⬜ 사용자 승인 대기: **#18 → #19 순서로 머지** |
 | 9g | **라운드 2 영상 피드백 22건 분류** → `docs/design/03_round2_feedback.md`. 결정 3건 ✅(9/27): 숫자는 운전자 문장에서 전부 순화 / 궤적 시뮬레이션 진행 / 패널은 자동 접힘. **A 묶음(Claude, 브랜치 `claude/driver-copy-path`)**: `CoachPort` 두 문장(`AdviceRules` 조언 + 서두 풀), 총평 숫자 제거, 회차 시작 발화, `SHOW_DEMO_PANEL` 플래그, `PathReconstructor` → `AttemptRecord.path`. **디자인 세션 발주** `docs/handoffs/2026-09-27_codex_design_topview.md`(차 도식 3~4안·후진 도형·Done 궤적 시안) | 🟡 A 묶음 PR 대기 · 디자인 세션 → 사용자 선택 → 라운드 3 발주서(Claude) |
 | 9h | **A 묶음 PR #21 머지**(`955adfa`). 디자인 시안 PR #22 머지(`88c29fe`) → **사용자 선택 B**(고정 바퀴 + 방향 호 + 후진 셰브론), Done 궤적 시안 확정 | ✅ |
-| 9d | **라운드 3 발주서** `docs/handoffs/2026-09-27_codex_ui_round3.md` — 세 규칙(패널 접힘·숫자 없음·Headline 자동 축소) + Setup 시트 30/70·Briefing 정리·Maneuver B 도식(방향 호·셰브론)·Done 추정 궤적·Report 신호 출처 + 불변 표 + 캡처 교체. `emu_flow.sh` 는 접힌 패널을 `문 열기` 전에 다시 연다 | ✅ 발주 → 🟡 **Codex 구현 중**(`codex/ui-round3`, 9/27 시점 `ui/` 8파일 + `VehicleDiagram.kt` 미커밋, PR 없음) → ⬜ Claude 리뷰 → ⬜ 재녹화(B안) → ⬜ 대본·컷 목록 시각 실측 |
+| 9d | **라운드 3 발주서** `docs/handoffs/2026-09-27_codex_ui_round3.md` — 세 규칙(패널 접힘·숫자 없음·Headline 자동 축소) + Setup 시트 30/70·Briefing 정리·Maneuver B 도식(방향 호·셰브론)·Done 추정 궤적·Report 신호 출처 + 불변 표 + 캡처 교체. `emu_flow.sh` 는 접힌 패널을 `문 열기` 전에 다시 연다 | ✅ 발주 → ✅ **Codex PR #25 머지 `c0c3dfa`**(리뷰: 빌드·147·`emu_flow` PASS 108 s·`lesson_shots` PASS·캡처 24장 vs 시안·불변 표 — 관찰 3: 총평 머리말 중복(Claude 후속 ✅ 이 PR), 회차 1 유예 여유 2 s(대본 사고 대응에 기록), `시연` 토글 상단 여백) → ✅ 대본 시각 실측 반영(`05_demo_script.md`) → ⬜ **재녹화(B안)** → ⬜ 컷 목록 "길이" 열 실측 · 스크린샷·덱 교체 |
 | 9d-준비 ✅ | 리뷰 뒤 단계 **선반영**(9/27, 브랜치 `claude/round3-prep`): `docs/05_demo_script.md`(패널 `시연` 조작·두 문장 멘트·탑뷰 B·추정 궤적·`신호 출처`·사고 대응 2줄, **시각은 잠정**), `presentation/02_video_shotlist.md`(컷 7·9 궤적, 편집 원칙 "숫자 보이면 옛 빌드", 녹화 함정 ③④), `01_deck_outline.md`(5·6장 화면 파일명·한 줄), `topics/01` §4.1·§4.5 Done 문장. main `10e4d1a` 기준선: 빌드·141 통과 | ✅ |
 
 리뷰 루틴(Claude): worktree 에서 head 빌드 → `emu_flow.sh` → `lesson_shots.sh` → 캡처를 시안(`docs/design/round3-topview/`)과 나란히 눈으로 → 발주서 §2 불변 표 grep(`이동 \d+회`·`\d+초` 가 `Maneuver`·`Done` 에 없음, `추정 궤적` 캡션 두 줄, `신호 출처`, 패널 기본 접힘) → PR 코멘트. `codex/design-refs`(이미지만) 는 바로 머지. **리뷰 뒤**: `emu_flow.sh` 의 `[t+NNs]` 로 대본 시각 열을 고치고, 컷 목록 "길이" 열은 재녹화에서 잰다.
@@ -155,7 +155,7 @@
 | 도구 | `tools/emu_flow.sh`(주차 세션 자동 재생 — 라운드 3 부터 `시연` 으로 패널을 열고 누른다), `lesson_shots.sh`(계측 캡처), `README.md`(함정 목록) |
 | 시연 대본 | `docs/05_demo_script.md` — 라운드 3 선반영, **시각은 라운드 2 실측(약 100 s) 잠정** |
 | 발표·영상 | `docs/presentation/01_deck_outline.md`(12장·대본·예상 질문), `02_video_shotlist.md`(컷 13·녹화 절차 A/B·함정 4) |
-| 화면 캡처 | `docs/screenshots/lesson/` — 라운드 2 계측 21장(라운드 3 에서 전부 교체 + `lesson-done-path.png`·`lesson-maneuver-b.png` 추가 예정) |
+| 화면 캡처 | `docs/screenshots/lesson/` — 라운드 3 계측 24장 + 실제 세션 `lesson-done-path.png`·`lesson-maneuver-b.png`·`lesson-panel-open.png`, 검증 로그 `flow.txt`·`flow-round3-*.txt` |
 | 디자인 | `docs/design/02_design_brief.md`(불변 규칙·채울 것), `03_round2_feedback.md`(피드백 22건·결정 3), `round3-topview/`(탑뷰 B·Done 궤적 시안), `references/`, `01_ui_concept_candidates.md`(16번 후보 20) |
 | 가정 원장 | `docs/INTEGRATION.md` B절 |
 

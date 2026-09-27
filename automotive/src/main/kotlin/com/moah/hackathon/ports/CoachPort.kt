@@ -102,6 +102,7 @@ class FakeCoachPort(private val pool: RemarkPool, private val rubric: ParkingRub
             task.type == TaskType.CHECKLIST -> "안전 쪽을 먼저 봐야 해요. 벨트나 기어, 아니면 점검 중에 차가 움직였어요."
             else -> "안전 쪽을 먼저 봐야 해요. 급조작이나 근접이 있었어요."
         }
-        return "${task.title}, ${mode.label} 모드 ${attempts.size}회.\n$trend\n$safety"
+        // 과제·모드·회차 수 머리말은 붙이지 않는다 — 화면이 과제·모드를 따로 쓰고, 회차 수는 리포트 그래픽·자세히 보기에 있다(9/27 라운드 3 리뷰).
+        return "$trend\n$safety"
     }
 }
