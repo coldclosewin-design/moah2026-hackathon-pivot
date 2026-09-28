@@ -2,7 +2,7 @@
 
 새 Claude Code 세션이 이 파일 하나로 이어받을 수 있게 쓴 인계 문서. **작업을 마칠 때마다 이 파일을 갱신한다**(끝난 것은 지우고, 새로 생긴 것은 추가). 과거의 경위는 `docs/journal/`, 규칙은 `AGENTS.md`·`CLAUDE.md`, **제품 정의는 `docs/topics/01_driving_coach.md` v2**.
 
-마지막 갱신: 2026-09-28 · `main = d66f31d`(PR #1~#50) · 단위 테스트 183 · 마감 2026-10-07. 오늘: 라운드 7(#46, 지식 테스트 답 표시·그만하기·조향 애커만·동승자 화면 제거) → **결정 D1·D3** → Claude 선행 2(#47 점검 7단계 모델 · #48 예약 모델) → Codex 화면 2(#49 점검 칩 7·리포트 체크 표 · #50 시험장 목록→시간·코스→확인·취소→Setup 배지) 전부 리뷰·머지. `lesson_shots` 12묶음(≈2 분, adb 타임아웃 300 s). **새 세션은 여기서: ① Claude 동승자 모델·시드·`emu_flow` 선택 단계·대본 2:25·컷 11b 제거(Step 12) ② 재녹화(예약 배지 상태로 시작) → 컷 길이·덱 5·6·12장 스크린샷 ③ 사내(8d).** 관찰 후보: 리포트 체크 표 안전벨트 행이 시동 미측정이면 미측정(§C) · 계측 퀴즈 클릭 직후 노드 수 검사 흔들림(Codex 폴링 요청).
+마지막 갱신: 2026-09-28 · `main = d66f31d`(PR #1~#50) · 단위 테스트 183 · 마감 2026-10-07. 오늘: 라운드 7(#46, 지식 테스트 답 표시·그만하기·조향 애커만·동승자 화면 제거) → **결정 D1·D3** → Claude 선행 2(#47 점검 7단계 모델 · #48 예약 모델) → Codex 화면 2(#49 점검 칩 7·리포트 체크 표 · #50 시험장 목록→시간·코스→확인·취소→Setup 배지) 전부 리뷰·머지. `lesson_shots` 12묶음(≈2 분, adb 타임아웃 300 s). **새 세션은 여기서: ① 재녹화(예약 배지 상태로 시작, 동승자 없음) → 컷 길이·덱 5·6·12장 스크린샷 ③ 사내(8d).** 관찰 후보: 리포트 체크 표 안전벨트 행이 시동 미측정이면 미측정(§C) · 계측 퀴즈 클릭 직후 노드 수 검사 흔들림(Codex 폴링 요청).
 
 ## 1. 지금 되는 것 (한 문단)
 
@@ -125,7 +125,7 @@
 | 13b | Codex: 시트 `제휴 시험장` 층(카드 3 → 시간·코스 칩 → `예약` → 확인 카드·`취소`), Setup 배지 `예약 · …`, 계측·캡처 4장 | ✅ Codex PR #50 → ✅ **리뷰·머지 `d66f31d`**(#49 뒤 리베이스 1곳 · 빌드·183·`emu_flow` PASS·`lesson_shots` PASS 12묶음(타임아웃 300 s 로) · 캡처 6장. 소유 예외로 `ReservationCard`·`Setup.reservation` 삭제됨) |
 | 13c | 대본 0:10 배지·덱 12장 "있는 것" | ✅ 이 PR(대본 준비 절 한 줄 · 덱 12장 "있는 것" = 예약 + 점검 7단계) |
 
-### Step 12 — 동승자 공유 — ⛔ **화면 제거 완료(PR #46), 모델·시드·`emu_flow`·대본·덱은 Claude 후속**(9/28 사용자: "운전자 입장에서 불필요"). 화면은 라운드 7(Codex), 모델·시드·`emu_flow`·대본·덱은 그 뒤 Claude. 이력은 PR #40~#43 · 발주서 `docs/handoffs/2026-09-28_codex_companion_share.md`
+### Step 12 — 동승자 공유 — ⛔ **제거 완료**(9/28 사용자: "운전자 입장에서 불필요". 화면 PR #46, 모델·시드·`emu_flow`·대본·컷·덱 = 이 PR). 이력은 PR #40~#43 · 발주서 `docs/handoffs/2026-09-28_codex_companion_share.md`(기록용)
 | # | 일 | 상태 |
 |---|---|---|
 | 12a | Claude 선행: `CompanionShareLevel`·`CompanionNote`(`CoachPort.companionNote`, Fake = `CompanionRules`(밴드 풀 + `AdviceRules.Advice` 운전자/동승자 쌍), Cloud 프롬프트·폴백)·`LessonReport.companion/companionShareLevels/cheers`·`Setup.cheer`·상태기계 `shareWithCompanion`/`cheer`(`ProgressStore`, `reset` 이 안 지움)·`SeedCatalog.cheers`·`emu_flow` 선택 단계(화면 없으면 건너뜀) | ✅ PR #41 머지 `98ec8f8`(단위 테스트 164) |

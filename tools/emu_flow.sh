@@ -127,19 +127,6 @@ now_texts | grep -q "다시 시작" || { echo "  !! report screen not reached: $
 now_texts | grep -qE "실신호|시뮬레이션|미측정" || { echo "  !! report has no availability badge"; FAIL=1; }
 echo "  texts: $(texts)"
 
-# 동승자 공유(Step 12, 선택 단계) — 화면이 아직 없으면 건너뛴다(판정 무관). 있으면: 동승자 탭 → 첫 응원 → 다시 시작 → Setup 첫 줄에 응원
-CHEER="오늘도 천천히 가요"
-if now_texts | grep -q "동승자"; then
-  echo "== companion: 동승자 탭 → 응원 → 다시 시작"
-  tap_text "동승자"; sleep 1; shot 18_companion
-  now_texts | grep -q "예시입니다" || { echo "  !! companion tab has no 예시 line"; FAIL=1; }
-  tap_text "$CHEER"; wait_log "companion: cheer=" 5 || FAIL=1
-  tap_text "다시 시작"; sleep 2; shot 19_setup_cheer
-  now_texts | grep -q "$CHEER" || { echo "  !! cheer not shown on setup: $(texts)"; FAIL=1; }
-else
-  echo "== companion: tab not present yet — skipped"
-fi
-
 echo "== logcat"; adb logcat -d -s "$TAG" | grep -v "beginning of" | cut -c20-220
 echo "== uiautomator clashes (0 = clean single-instance run): $(adb logcat -d | grep -c "UiAutomationService.*already registered")"
 echo "== result: $([ $FAIL = 0 ] && echo PASS || echo FAIL) (힌트 3종 · 회차 2 채점 고정값 · 리포트 배지)"

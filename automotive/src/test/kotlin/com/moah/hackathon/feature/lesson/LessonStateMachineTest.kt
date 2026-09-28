@@ -45,7 +45,6 @@ class LessonStateMachineTest {
             vehicle = port, tts = tts, coach = coach ?: FakeCoachPort(RemarkPool(SeedCatalog.remarks, Random(3))),
             registry = SignalRegistry(ParkingRecorder.CHECKLIST_KEYS, simulated = true), store = store,
             tasks = SeedCatalog.tasks, guideFor = SeedCatalog::guideFor, quizFor = SeedCatalog::quizFor, venues = SeedCatalog.venues, benefits = SeedCatalog.benefits,
-            cheers = SeedCatalog.cheers,
             profile = SeedCatalog.demoProfile, scope = scope, clock = { testScheduler.currentTime }, briefingMillis = 0,
         )
         return Harness(port, tts, store, machine, scope)
@@ -74,33 +73,6 @@ class LessonStateMachineTest {
         val setup = h.machine.phase.value as LessonPhase.Setup
         assertEquals(SeedCatalog.TASK_PARKING_REAR, setup.suggestedTask.id)
         assertEquals(LessonMode.GUIDE, setup.suggestedMode)
-        assertEquals(null, setup.cheer)
-        // 리포트 밖에서는 동승자 동작을 받지 않는다
-        h.machine.cheer("오늘도 천천히 가요"); h.machine.shareWithCompanion(CompanionShareLevel.FULL)
-        assertEquals(null, h.store.cheer); assertEquals(null, h.store.companionShare)
-        h.scope.cancel()
-    }
-
-    @Test
-    fun `report carries the companion note and the cheer survives reset into the next setup`() = runTest {
-        val h = harness()
-        h.machine.begin(SeedCatalog.TASK_PARKING_REAR, LessonMode.HINT); advanceUntilIdle()
-        feed(h, ParkingScenarios.bad)
-        h.machine.finishAttempt(); advanceUntilIdle()
-        openDoor(h)
-        val report = (h.machine.phase.value as LessonPhase.Report).report
-        val note = report.companion
-        assertTrue(note.text, note.praise.isNotBlank() && !Regex("\\d").containsMatchIn(note.text))
-        assertEquals("출발 전에 벨트 같이 확인해 주세요.", note.help)   // 못한 주차 = 벨트 늦음
-        assertEquals(SeedCatalog.cheers, report.cheers)
-        assertEquals(CompanionShareLevel.entries.toList(), report.companionShareLevels)
-
-        h.machine.shareWithCompanion(CompanionShareLevel.PROCESS)
-        assertEquals(CompanionShareLevel.PROCESS, h.store.companionShare)
-        h.machine.cheer(" ${SeedCatalog.cheers[0]} ")
-        h.machine.reset()
-        val setup = h.machine.phase.value as LessonPhase.Setup
-        assertEquals(SeedCatalog.cheers[0], setup.cheer)   // 다음 세션 첫 줄. reset 이 지우지 않는다
         h.scope.cancel()
     }
 
@@ -397,7 +369,6 @@ class LessonStateMachineTest {
         val angry = object : CoachPort {
             override suspend fun remark(task: Task, score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int): String = throw IllegalStateException("no network")
             override suspend fun summarize(task: Task, mode: LessonMode, attempts: List<AttemptRecord>, profile: Profile): String = throw IllegalStateException("no network")
-            override suspend fun companionNote(task: Task, attempts: List<AttemptRecord>, profile: Profile): CompanionNote = throw IllegalStateException("no network")
         }
         val h = harness(angry)
         h.machine.begin(SeedCatalog.TASK_PARKING_REAR, LessonMode.EVALUATE)

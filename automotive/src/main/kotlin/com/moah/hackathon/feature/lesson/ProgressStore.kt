@@ -7,10 +7,6 @@ class ProgressStore {
     private val records = ArrayList<AttemptRecord>()
     private val quizzes = ArrayList<QuizRecord>()
 
-    /** 동승자가 리포트에서 고른 응원 한마디 — 다음 Setup 첫 줄. 세션을 다시 시작해도 남는다(그게 목적). */
-    var cheer: String? = null
-    /** 동승자 공유 범위 — 실제 전송은 없고 선택만 기록한다. */
-    var companionShare: CompanionShareLevel? = null
     /** 제휴 시험장 예약 — 하나만(§3.3, D3). Setup 에서만 바뀐다. `reset` 이 지우지 않는다. */
     var reservation: Reservation? = null
 

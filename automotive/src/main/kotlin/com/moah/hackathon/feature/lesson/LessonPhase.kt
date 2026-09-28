@@ -19,8 +19,6 @@ sealed interface LessonPhase {
         val suggestedTask: Task,
         val suggestedMode: LessonMode,
         val reason: String,
-        /** 직전 세션 리포트에서 동승자가 고른 응원 한마디. 없으면 null — 화면은 자리도 두지 않는다. `reset` 이 지우지 않는다. */
-        val cheer: String? = null,
         /** 제휴 시험장 목록(D3, 9/28). 화면의 시험장 층이 그린다. */
         val venues: List<Venue> = emptyList(),
         /** 지금 예약. 없으면 null — Setup 배지 자리도 없다. */

@@ -80,10 +80,6 @@ class LessonViewModel(
     fun nextAttempt() = machine.nextAttempt()
     fun endSession() = machine.endSession()
     fun restart() = machine.reset()
-    /** 리포트 동승자 탭 — 공유 범위(전송 없음, 기록만). */
-    fun shareWithCompanion(level: CompanionShareLevel) = machine.shareWithCompanion(level)
-    /** 리포트 동승자 탭 — 응원 한마디. 다음 Setup 첫 줄이 된다. */
-    fun cheer(text: String) = machine.cheer(text)
 
     /** 제휴 시험장 예약·취소 — Setup 에서만(D3). */
     fun reserve(venueId: String, slotId: String, courseId: String) = machine.reserve(venueId, slotId, courseId)

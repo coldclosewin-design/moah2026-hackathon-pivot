@@ -2,7 +2,6 @@ package com.moah.hackathon.ports
 
 import android.util.Log
 import com.moah.hackathon.feature.lesson.AttemptRecord
-import com.moah.hackathon.feature.lesson.CompanionNote
 import com.moah.hackathon.feature.lesson.LessonMode
 import com.moah.hackathon.feature.lesson.Profile
 import com.moah.hackathon.feature.lesson.ScoreBand
@@ -46,16 +45,6 @@ class CloudCoachPort(
         return ask(system, user, maxChars = CoachPrompts.SUMMARY_MAX_CHARS) ?: safe
     }
 
-    override suspend fun companionNote(task: Task, attempts: List<AttemptRecord>, profile: Profile): CompanionNote {
-        val safe = fallback.companionNote(task, attempts, profile)
-        if (attempts.isEmpty()) return safe
-        val (system, user) = CoachPrompts.companion(task, attempts, profile, seedLine = safe.text.replace('\n', ' '))
-        val answer = ask(system, user, maxChars = CoachPrompts.COMPANION_MAX_CHARS)?.let { CoachPrompts.twoLines(it) } ?: return safe
-        // 두 문장이 아니면 동승자 탭이 한 줄만 보여 주게 된다 — 규칙 문장으로
-        val lines = answer.lines().map { it.trim() }.filter { it.isNotEmpty() }
-        return if (lines.size == 2) CompanionNote(lines[0], lines[1]) else safe
-    }
-
     /** 성공하면 검증된 문장, 아니면 null(→ 호출자가 폴백). */
     private suspend fun ask(system: String, user: String, maxChars: Int): String? {
         val t = transport ?: run { Log.d(TAG, "no transport → fallback"); return null }
@@ -77,7 +66,6 @@ class CloudCoachPort(
 object CoachPrompts {
     const val REMARK_MAX_CHARS = 90
     const val SUMMARY_MAX_CHARS = 160
-    const val COMPANION_MAX_CHARS = 120
 
     /** 두려움을 줄이는 앱이 쓰지 않는 말(§3.4). 응답에 들어 있으면 버린다. */
     val BANNED: List<String> = listOf("하위", "실패", "못했", "형편없", "최악", "낙제", "불합격", "위험한 운전자")
@@ -123,19 +111,6 @@ object CoachPrompts {
             }
             appendLine("참고 문장(이 톤으로): ${seedLine.replace('\n', ' ')}")
             append("두 문장, ${SUMMARY_MAX_CHARS}자 이내로 오늘 세션 총평을 써 주세요. 첫 문장은 흐름(나아졌나), 둘째 문장은 안전 쪽 한 가지. 점수·횟수 숫자는 쓰지 마세요.")
-        }
-        return SYSTEM to user
-    }
-
-    /** 동승자 두 문장 — 상대가 운전자가 아니라 **옆자리 사람**이다. 잘한 것 하나 / 옆에서 도울 것 하나. */
-    fun companion(task: Task, attempts: List<AttemptRecord>, profile: Profile, seedLine: String): Pair<String, String> {
-        val best = attempts.maxBy { it.score.skill }
-        val last = attempts.last()
-        val user = buildString {
-            appendLine("운전자: ${profile.name}, 장롱면허 ${profile.rustyYears ?: "?"}년, 목표 ${profile.statement.goal ?: "-"}.")
-            appendLine("과제 ${task.title}, ${attempts.size}회차. 최고 회차 숙련 구간 ${ScoreBand.of(best.score.skill)}, 마지막 회차의 고칠 것: ${AdviceRules.pick(task, last.score).driver}")
-            appendLine("참고 문장(이 톤으로, 그대로 쓰지 말고 변주): $seedLine")
-            append("이 문장은 운전자가 아니라 **옆자리 동승자**에게 보여 줍니다. 두 문장, ${COMPANION_MAX_CHARS}자 이내: 첫 문장은 운전자가 오늘 잘한 것 하나, 둘째 문장은 동승자가 다음에 옆에서 도울 행동 하나(\"…해 주세요\"). 점수·횟수 숫자는 쓰지 마세요.")
         }
         return SYSTEM to user
     }
