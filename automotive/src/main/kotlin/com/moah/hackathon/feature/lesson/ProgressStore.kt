@@ -53,13 +53,13 @@ object ModeAdvisor {
     fun suggest(task: Task, store: ProgressStore): Suggestion {
         val attempts = store.forTask(task.id)
         if (attempts.isEmpty()) return Suggestion(LessonMode.GUIDE, "처음 하는 과제라 가이드부터 해요. 제가 단계마다 확인할게요.")
+        // 운전자에게 보이는·들리는 문장이라 숫자(점수·횟수)를 넣지 않는다(2026-09-27 규칙). 임계값은 위 상수로만.
         val hintPasses = attempts.count { it.mode == LessonMode.HINT && it.score.skill >= HINT_PASS_SKILL }
-        if (hintPasses >= PASSES_TO_EVALUATE) return Suggestion(LessonMode.EVALUATE, "힌트 없이도 ${HINT_PASS_SKILL}점을 ${hintPasses}번 넘었어요. 이번엔 조용히 볼게요.")
+        if (hintPasses >= PASSES_TO_EVALUATE) return Suggestion(LessonMode.EVALUATE, "힌트 없이도 잘 해냈어요. 이번엔 조용히 볼게요.")
         val guidePasses = attempts.count { it.mode == LessonMode.GUIDE && it.score.skill >= PASS_SKILL }
-        if (guidePasses >= PASSES_TO_HINT || attempts.any { it.mode != LessonMode.GUIDE }) {
-            return Suggestion(LessonMode.HINT, "가이드를 ${guidePasses}번 통과했어요. 이번엔 틀린 순간에만 말할게요.")
-        }
-        return Suggestion(LessonMode.GUIDE, "한 번 더 가이드로 해 봐요. 아직 ${PASS_SKILL}점을 ${PASSES_TO_HINT}번 넘지 않았어요.")
+        if (guidePasses >= PASSES_TO_HINT) return Suggestion(LessonMode.HINT, "가이드는 충분히 익혔어요. 이번엔 틀린 순간에만 말할게요.")
+        if (attempts.any { it.mode != LessonMode.GUIDE }) return Suggestion(LessonMode.HINT, "지난번처럼 힌트 모드로 가요. 틀린 순간에만 말할게요.")
+        return Suggestion(LessonMode.GUIDE, "한 번 더 가이드로 해 봐요. 아직 순서가 손에 붙지 않았어요.")
     }
 
     /** 과제 제안 — **시작 가능한(READY) 과제 중에서** 무서운 것(진술) → 관측된 약한 과제 → 첫 쉬운 과제. READY 가 없으면 카탈로그 첫 항목. */
