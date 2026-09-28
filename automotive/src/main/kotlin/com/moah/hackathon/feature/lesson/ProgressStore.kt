@@ -11,6 +11,8 @@ class ProgressStore {
     var cheer: String? = null
     /** 동승자 공유 범위 — 실제 전송은 없고 선택만 기록한다. */
     var companionShare: CompanionShareLevel? = null
+    /** 제휴 시험장 예약 — 하나만(§3.3, D3). Setup 에서만 바뀐다. `reset` 이 지우지 않는다. */
+    var reservation: Reservation? = null
 
     fun add(record: AttemptRecord) { records += record }
     fun addQuiz(record: QuizRecord) { quizzes += record }
@@ -62,14 +64,27 @@ object ModeAdvisor {
         return Suggestion(LessonMode.GUIDE, "한 번 더 가이드로 해 봐요. 아직 순서가 손에 붙지 않았어요.")
     }
 
-    /** 과제 제안 — **시작 가능한(READY) 과제 중에서** 무서운 것(진술) → 관측된 약한 과제 → 첫 쉬운 과제. READY 가 없으면 카탈로그 첫 항목. */
-    fun suggestTask(profile: Profile, tasks: List<Task>): Task {
+    /**
+     * 과제 제안 — **시작 가능한(READY) 과제 중에서** 예약한 코스의 과제(D3, 9/28) → 무서운 것(진술) → 관측된 약한 과제 → 첫 쉬운 과제.
+     * READY 가 없으면 카탈로그 첫 항목. 예약 코스에 READY 가 없으면 예약을 무시한다.
+     */
+    fun suggestTask(profile: Profile, tasks: List<Task>, reservation: Reservation? = null, venues: List<Venue> = emptyList()): Task {
         val ready = tasks.filter { it.isReady }.ifEmpty { tasks }
+        reservedTask(ready, reservation, venues)?.let { return it }
         profile.observation.weakTaskId?.let { id -> ready.firstOrNull { it.id == id }?.let { return it } }
         val fear = profile.statement.fear
         if (fear != null) ready.firstOrNull { it.title.contains(fear) || fear.contains(it.type.koreanKey()) }?.let { return it }
         return ready.firstOrNull { it.difficulty == Difficulty.EASY } ?: ready.first()
     }
+
+    /** 예약한 코스의 과제 중 첫 READY. 코스 순서대로. 없으면 null. */
+    fun reservedTask(tasks: List<Task>, reservation: Reservation?, venues: List<Venue>): Task? {
+        val course = reservation?.course(venues) ?: return null
+        return course.taskIds.firstNotNullOfOrNull { id -> tasks.firstOrNull { it.id == id && it.isReady } }
+    }
+
+    /** 제안 이유 앞에 붙이는 한 문장(숫자 없음) — 과제가 예약 코스에서 왔을 때만. */
+    const val RESERVED_REASON = "예약한 코스의 과제부터 해요."
 
     private fun TaskType.koreanKey(): String = when (this) {
         TaskType.PARKING -> "주차"

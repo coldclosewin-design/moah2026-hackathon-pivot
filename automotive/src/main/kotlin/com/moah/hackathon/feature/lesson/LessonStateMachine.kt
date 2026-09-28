@@ -49,6 +49,8 @@ class LessonStateMachine(
     private val guideFor: (Task) -> List<GuideStep>,
     private val quizFor: (Task) -> List<QuizItem> = { emptyList() },
     private val reservation: ReservationCard?,
+    /** 제휴 시험장(D3). 비어 있으면 예약 진입점은 무시된다. */
+    private val venues: List<Venue> = emptyList(),
     private val benefits: List<String>,
     /** 동승자 응원 한마디 후보(시드 3). 리포트 동승자 탭의 칩. */
     private val cheers: List<String> = emptyList(),
@@ -238,6 +240,29 @@ class LessonStateMachine(
         }
     }
 
+    // ───────── 제휴 시험장 예약 (§3.3, D3 = (나)) — Setup 에서만. 실제 연계 없음 ─────────
+
+    /** 예약. 시험장·시간대·코스가 시드에 있고 시간대가 비어 있을 때만. 로그 `reservation: …`. 성공하면 Setup 을 다시 그린다(제안 과제가 바뀔 수 있다). */
+    fun reserve(venueId: String, slotId: String, courseId: String) {
+        if (_phase.value !is LessonPhase.Setup) return
+        val venue = venues.firstOrNull { it.id == venueId } ?: run { Log.w(TAG, "reservation: unknown venue $venueId"); return }
+        val slot = venue.slots.firstOrNull { it.id == slotId } ?: run { Log.w(TAG, "reservation: unknown slot $slotId"); return }
+        if (venue.courses.none { it.id == courseId }) { Log.w(TAG, "reservation: unknown course $courseId"); return }
+        if (!slot.available) { Log.w(TAG, "reservation: slot $slotId not available"); return }
+        store.reservation = Reservation(venueId, slotId, courseId, madeAtMillis = clock())
+        Log.i(TAG, "reservation: made venue=$venueId slot=$slotId course=$courseId")
+        _phase.value = setup()
+    }
+
+    /** 예약 취소 — Setup 에서만. 제안이 원래 규칙으로 돌아간다. */
+    fun cancelReservation() {
+        if (_phase.value !is LessonPhase.Setup) return
+        val had = store.reservation ?: return
+        store.reservation = null
+        Log.i(TAG, "reservation: cancelled venue=${had.venueId} slot=${had.slotId}")
+        _phase.value = setup()
+    }
+
     // ───────── 동승자 공유 (§3.5) — 리포트에서만. 실제 전송은 없다 ─────────
 
     /** 동승자 공유 범위 선택. 전송 없이 기록만(로그 `companion: share=`). */
@@ -269,9 +294,14 @@ class LessonStateMachine(
     // ───────── 내부 ─────────
 
     private fun setup(): LessonPhase.Setup {
-        val task = ModeAdvisor.suggestTask(profile, tasks)
+        val booking = store.reservation
+        val task = ModeAdvisor.suggestTask(profile, tasks, booking, venues)
         val s = ModeAdvisor.suggest(task, store)
-        return LessonPhase.Setup(profile, tasks, task, s.mode, s.reason, reservation, cheer = store.cheer)
+        val fromReservation = booking != null && ModeAdvisor.reservedTask(tasks.filter { it.isReady }, booking, venues)?.id == task.id
+        val reason = if (fromReservation) "${ModeAdvisor.RESERVED_REASON} ${s.reason}" else s.reason
+        // 옛 카드: 예약이 있으면 그 예약을, 없으면 시드 예시(Codex 화면 전환 뒤 제거)
+        val card = booking?.toCard(venues) ?: reservation
+        return LessonPhase.Setup(profile, tasks, task, s.mode, reason, card, cheer = store.cheer, venues = venues, booking = booking)
     }
 
     private fun briefingLine(task: Task, mode: LessonMode): String {

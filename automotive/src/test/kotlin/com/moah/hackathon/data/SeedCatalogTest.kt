@@ -65,4 +65,17 @@ class SeedCatalogTest {
         assertEquals(5, SeedCatalog.profileQuestions.size)
         assertEquals(10, SeedCatalog.demoProfile.rustyYears)
     }
+
+    @Test
+    fun `venues - three with courses whose task ids exist in the catalog, and one slot per venue is unavailable`() {
+        assertEquals(3, SeedCatalog.venues.size)
+        val ids = SeedCatalog.tasks.map { it.id }.toSet()
+        for (v in SeedCatalog.venues) {
+            assertTrue(v.name, v.courses.isNotEmpty() && v.slots.size == 3)
+            assertEquals(v.name, 1, v.slots.count { !it.available })
+            for (c in v.courses) for (id in c.taskIds) assertTrue("${c.id}: $id", id in ids)
+        }
+        // 주차 3종의 첫 과제가 READY(시연 본편) — 예약 제안이 실제로 뜨는 근거
+        assertTrue(SeedCatalog.courses.first { it.id == SeedCatalog.COURSE_PARKING }.taskIds.first() == SeedCatalog.TASK_PARKING_REAR)
+    }
 }

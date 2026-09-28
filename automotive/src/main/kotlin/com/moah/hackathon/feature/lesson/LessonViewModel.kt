@@ -85,6 +85,10 @@ class LessonViewModel(
     /** 리포트 동승자 탭 — 응원 한마디. 다음 Setup 첫 줄이 된다. */
     fun cheer(text: String) = machine.cheer(text)
 
+    /** 제휴 시험장 예약·취소 — Setup 에서만(D3). */
+    fun reserve(venueId: String, slotId: String, courseId: String) = machine.reserve(venueId, slotId, courseId)
+    fun cancelReservation() = machine.cancelReservation()
+
     companion object {
         fun factory(container: AppContainer): ViewModelProvider.Factory = viewModelFactory {
             initializer { LessonViewModel(container.lesson, container.tts, container.vehicle, container.scenarios, container.scenariosFor) }

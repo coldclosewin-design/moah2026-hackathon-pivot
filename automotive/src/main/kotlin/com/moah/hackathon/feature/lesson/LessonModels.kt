@@ -146,7 +146,54 @@ enum class ShareLevel(val label: String, val description: String) {
     RAW("원시 신호", "회차의 속도·조향각 시계열까지"),
 }
 
+/**
+ * 시트 아래 카드 한 장(9/26). **9/28 결정 D3 (나) 로 [Venue]·[Reservation] 흐름이 대체한다** — Codex 화면 전환(`codex/reservation`) 뒤 삭제.
+ * 그때까지 [LessonPhase.Setup.reservation] 은 예약이 있으면 그 예약을, 없으면 시드 예시를 이 모양으로 준다.
+ */
 data class ReservationCard(val venue: String, val slot: String, val course: String, val note: String)
+
+// ───────── 제휴 시험장 예약 (§3.3 "장소", 결정 D3 = (나), 9/28) — 실제 연계 없음("예시") ─────────
+
+/** 시험장. [distanceKm] 은 U3(위치) 미결이라 예시값, 모르면 null. */
+data class Venue(
+    val id: String,
+    val name: String,
+    val area: String,
+    val distanceKm: Float?,
+    val courses: List<Course>,
+    val slots: List<Slot>,
+)
+
+/** 코스 — 그 시험장에서 연습하는 과제 묶음. [taskIds] 는 카탈로그 과제 id(계획 과제 포함, 제안은 READY 만). */
+data class Course(val id: String, val title: String, val taskIds: List<String>)
+
+/** 오늘의 시간대. [start]/[end] 는 "14:00" 꼴 — 정차 중 선택 화면이라 시각 숫자는 허용. */
+data class Slot(val id: String, val start: String, val end: String, val available: Boolean) {
+    val label: String get() = "$start–$end"
+}
+
+/** 예약 한 건 — 세션 저장소([ProgressStore.reservation])에 하나만. 전송·연계 없음. */
+data class Reservation(val venueId: String, val slotId: String, val courseId: String, val madeAtMillis: Long) {
+    fun venue(venues: List<Venue>): Venue? = venues.firstOrNull { it.id == venueId }
+    fun course(venues: List<Venue>): Course? = venue(venues)?.courses?.firstOrNull { it.id == courseId }
+    fun slot(venues: List<Venue>): Slot? = venue(venues)?.slots?.firstOrNull { it.id == slotId }
+
+    /** 옛 카드 모양(화면 전환 전 호환). 시험장을 못 찾으면 null. */
+    fun toCard(venues: List<Venue>): ReservationCard? {
+        val v = venue(venues) ?: return null
+        return ReservationCard(
+            venue = v.name,
+            slot = slot(venues)?.let { "오늘 ${it.label}" } ?: "오늘",
+            course = course(venues)?.title ?: "",
+            note = EXAMPLE_NOTE,
+        )
+    }
+
+    companion object {
+        /** 화면·확인 카드에 그대로 쓰는 문장(진단서와 같은 방식). */
+        const val EXAMPLE_NOTE = "예시입니다 — 실제 예약 연계 없음"
+    }
+}
 
 // ───────── 동승자 공유 (§3.5 수신자 "동승자" · 덱 12장) — 옆자리 사람을 코치에서 응원자로. 실제 전송은 없다 ─────────
 

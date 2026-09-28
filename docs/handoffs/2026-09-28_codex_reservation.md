@@ -15,7 +15,7 @@
 
 제품 축 §3.3 "장소"(실도로 / 편안한 주차공간 / 제휴 시험장) 중 셋째가 카드 한 장으로만 있었다. 실제 예약 API 는 없고 앞으로도 시연 범위 밖 — 화면에 "예시입니다 — 실제 예약 연계 없음" 을 진단서와 같은 방식으로 쓴다.
 
-## 1. Claude 선행 (모델·시드·상태기계·제안) — ⬜
+## 1. Claude 선행 (모델·시드·상태기계·제안) — ✅ (`claude/reservation-model`, 9/28)
 
 | # | 무엇 | 어디 |
 |---|---|---|
@@ -25,6 +25,13 @@
 | A4 | `ModeAdvisor.suggestTask(profile, tasks, reservation)` — 예약이 있으면 그 코스의 **READY 과제**를 먼저(없으면 기존 순서). 제안 이유 문장에 "예약한 코스" 언급(숫자 없음) | `ProgressStore.kt` |
 | A5 | 테스트: 예약 → Setup 제안이 코스 과제 / 취소 → 원래대로 / Setup 밖에서 무시 / 시드 코스의 taskId 가 카탈로그에 존재 | `LessonStateMachineTest`, `SeedCatalogTest` |
 | A6 | `emu_flow.sh`: 변경 없음(시트 첫 렌더 불변). 선택 단계로 "예약 → Setup 배지" 를 넣을지는 Codex 화면 뒤 판단 | — |
+
+구현 메모(9/28, Codex 가 알아야 할 것 — A1·A3 에서 두 가지가 발주서와 다르다):
+- **`ReservationCard` 는 아직 남겨 두었다**(`ui/TaskSheet.kt`·`SetupScreen.kt`·`LessonRoute.kt`·계측이 쓰고 있어 내가 지우면 Codex 영역이 깨진다). `LessonPhase.Setup.reservation: ReservationCard?` 는 그대로 있되 **예약이 있으면 그 예약을 카드 모양으로**(`Reservation.toCard(venues)`), 없으면 시드 예시를 준다. 새 필드는 **`Setup.venues: List<Venue>`** 와 **`Setup.booking: Reservation?`**(발주서의 `reservation: Reservation?` 대신 — 이름 충돌 회피). 화면을 `venues`/`booking` 으로 옮긴 뒤 **`ReservationCard`·`SeedCatalog.reservation`·`Setup.reservation`·상태기계 생성자 인자 `reservation` 삭제는 Codex PR 에서 함께 해도 된다**(소유 예외 허용, 순수 삭제 + 테스트 `assertNotNull(setup.reservation)` 한 줄 제거). 그때 `booking` → `reservation` 개명은 하지 않는다(그대로 `booking`).
+- 시드 id: 시험장 `venue-seocho`·`venue-gangnam`·`venue-bundang`, 시간대 `slot-14`·`slot-16`·`slot-18`(서초는 16시, 강남은 14시, 분당은 18시가 자리 없음), 코스 `SeedCatalog.COURSE_PARKING`(주차 3종: 후면 직각·평행·전면 직각)·`COURSE_ROAD_A`(단순 전진·좌회전 지시등)·`COURSE_ROAD_B`(차선 변경·회전교차로). 강남은 주차·도로 A, 분당은 주차·도로 B. `Slot.label` = `14:00–15:00`. 이름·지역·거리는 예시 — 다듬어도 된다(테스트는 개수·id·`available` 만 본다).
+- 진입점: `vm.reserve(venueId, slotId, courseId)` / `vm.cancelReservation()` — Setup 밖·모르는 id·`available=false` 는 조용히 무시(로그 `reservation: …`). 성공하면 Setup 이 다시 그려지고 **제안 과제가 그 코스의 첫 READY**(주차 3종 → 후면 직각), 이유 문장 앞에 `ModeAdvisor.RESERVED_REASON`("예약한 코스의 과제부터 해요.")이 붙는다. 도로 A/B 는 전부 계획 과제라 예약해도 제안은 원래 규칙. `reset` 은 예약을 지우지 않는다(응원과 같은 규칙).
+- 문장: `Reservation.EXAMPLE_NOTE` = "예시입니다 — 실제 예약 연계 없음" — 화면·확인 카드가 이 상수를 그대로 쓰면 된다.
+- 단위 테스트 166 → 168(`LessonStateMachineTest` 예약 흐름 · `SeedCatalogTest` 시드 · `ProgressStoreTest` 제안). `emu_flow` PASS(시트 첫 렌더 불변).
 
 ## 2. Codex — 화면 (정차 중 선택 화면 — 시간·거리 숫자 허용, 점수·횟수 숫자는 없음)
 

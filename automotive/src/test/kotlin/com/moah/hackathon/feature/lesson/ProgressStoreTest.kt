@@ -74,4 +74,16 @@ class ProgressStoreTest {
         val ready = SeedCatalog.tasks.map { it.copy(status = TaskStatus.READY) }
         assertEquals(Difficulty.EASY, ModeAdvisor.suggestTask(noFear, ready).difficulty)
     }
+
+    @Test
+    fun `task suggestion prefers the reserved course's first READY task - and ignores a reservation whose course has none`() {
+        val noFear = Profile("x", ProfileStatement())
+        val parking = Reservation("venue-seocho", "slot-14", SeedCatalog.COURSE_PARKING, 0L)
+        assertEquals(SeedCatalog.TASK_PARKING_REAR, ModeAdvisor.suggestTask(noFear, SeedCatalog.tasks, parking, SeedCatalog.venues).id)
+        // 도로 A 는 전부 계획 과제 → 예약을 무시하고 원래 규칙(첫 쉬운 과제)
+        val roadA = Reservation("venue-seocho", "slot-14", SeedCatalog.COURSE_ROAD_A, 0L)
+        assertEquals(SeedCatalog.TASK_PREDRIVE, ModeAdvisor.suggestTask(noFear, SeedCatalog.tasks, roadA, SeedCatalog.venues).id)
+        // 모르는 시험장 → 무시
+        assertEquals(SeedCatalog.TASK_PREDRIVE, ModeAdvisor.suggestTask(noFear, SeedCatalog.tasks, parking.copy(venueId = "nope"), SeedCatalog.venues).id)
+    }
 }
