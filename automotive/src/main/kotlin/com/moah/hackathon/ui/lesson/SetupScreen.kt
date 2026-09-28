@@ -1,11 +1,24 @@
 package com.moah.hackathon.ui.lesson
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -29,17 +42,28 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
     val selectedTask = task.takeIf { it.isReady && it.type.name == categoryName }
     val mode = supportedMode(task, LessonMode.valueOf(modeName))
     val start = { if (task.isReady && (!sheet || selectedTask != null)) onBegin(task.id, mode) }
+    val fraction by animateFloatAsState(if (sheet) .30f else .53f,
+        tween(400, easing = FastOutSlowInEasing), label = "poster")
+    val slide = with(LocalDensity.current) { 40.dp.roundToPx() }
     PosterSurface {
         Box(Modifier.fillMaxSize()) {
             Row(Modifier.fillMaxSize()) {
-                Box(Modifier.weight(if (sheet) .30f else .53f).fillMaxHeight()) {
-                    Image(painterResource(R.drawable.poster_car), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                Box(Modifier.weight(fraction).fillMaxHeight().clipToBounds().testTag("setup-poster")) {
+                    Image(painterResource(R.drawable.poster_car), null, Modifier.fillMaxSize().graphicsLayer {
+                        scaleX = 1f + (.53f - fraction) * .35f
+                        scaleY = scaleX
+                        translationX = -(.53f - fraction) * 220.dp.toPx()
+                    }, contentScale = ContentScale.Crop, alignment = Alignment.CenterStart)
                     BrandMark(Modifier.padding(start = 180.dp, top = 64.dp))
                 }
-                Row(Modifier.weight(if (sheet) .70f else .47f).fillMaxHeight().padding(start = 64.dp, end = 64.dp, top = if (sheet) 64.dp else 96.dp, bottom = 52.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Column(Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(24.dp)) {
-                        if (sheet) {
+                AnimatedContent(sheet, Modifier.weight(1f - fraction).fillMaxHeight(),
+                    transitionSpec = {
+                        (fadeIn(tween(300)) + slideInHorizontally(tween(300)) { slide }) togetherWith fadeOut(tween(300))
+                    }, label = "setup-content") { showSheet ->
+                    Column(Modifier.fillMaxSize().padding(start = 64.dp, end = 64.dp,
+                        top = if (showSheet) 64.dp else 96.dp, bottom = 52.dp),
+                        verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                        if (showSheet) {
                             if (venuesOpen) VenueSheet(venues, booking, onReserve, onCancelReservation,
                                 onBack = { venuesOpen = false }, onDone = { venuesOpen = false; sheet = false })
                             else TaskSheet(tasks, TaskType.valueOf(categoryName), selectedTask, mode,
