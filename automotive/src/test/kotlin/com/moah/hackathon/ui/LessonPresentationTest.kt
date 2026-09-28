@@ -9,6 +9,32 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class LessonPresentationTest {
+    @Test fun neutralWheelsAreStraight() {
+        assertEquals(0f to 0f, wheelAngles(0f))
+    }
+
+    @Test fun leftAndRightTurnsMirrorTheInnerWheel() {
+        assertEquals(37.5f to 30f, wheelAngles(450f))
+        assertEquals(-30f to -37.5f, wheelAngles(-450f))
+    }
+
+    @Test fun missingSteeringKeepsBothWheelsStraight() {
+        assertEquals(0f to 0f, wheelAngles(null))
+    }
+
+    @Test fun innerWheelAlwaysTurnsFurtherAndStopsAtFortyFiveDegrees() {
+        listOf(1f, 45f, 450f, 900f, 1080f).forEach { angle ->
+            val (left, right) = wheelAngles(angle)
+            assertTrue(left > right)
+            assertTrue(left <= 45f && right <= 38f)
+            val (negativeLeft, negativeRight) = wheelAngles(-angle)
+            assertTrue(kotlin.math.abs(negativeRight) > kotlin.math.abs(negativeLeft))
+            assertEquals(-right to -left, negativeLeft to negativeRight)
+        }
+        assertEquals(45f to 38f, wheelAngles(900f))
+        assertEquals(-38f to -45f, wheelAngles(-900f))
+    }
+
     @Test fun categoriesFollowTheDemoOrderRatherThanEnumOrder() {
         assertEquals(listOf(TaskType.PARKING, TaskType.DRIVING, TaskType.CHECKLIST, TaskType.KNOWLEDGE), categoryOrder())
         assertEquals(TaskType.entries.toSet(), categoryOrder().toSet())

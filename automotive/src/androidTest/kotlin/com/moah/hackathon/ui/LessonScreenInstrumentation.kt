@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.compositeOver
 import com.moah.hackathon.App
 import com.moah.hackathon.data.SeedCatalog
 import com.moah.hackathon.feature.lesson.*
@@ -170,7 +171,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             assertPanelCollapsed()
             capture("maneuver")
             capture("maneuver-b")
-            capture("maneuver-guides")
+            capture("maneuver-guides") { bitmap -> assertWheelGuidePixels(bitmap, -1) }
             capture("demo-toggle-pill")
             val pillBounds = buttonBounds("시연")
             // Compose expands the 64 x 32 drawing to a 64 x 48 accessibility touch target.
@@ -189,6 +190,14 @@ class LessonScreenInstrumentation : Instrumentation() {
             check(textBounds("R") == gearBounds && textBounds("85 cm") == distanceBounds) { "Telemetry shifted when finish button appeared" }
             assertDriverButton(activity, "다 됐어요")
             assertNoScores()
+
+            listOf(450f, 0f).forEach { steering ->
+                render(activity) { ManeuverScreen(moving.copy(steeringDeg = steering), false, false, null, {}) }
+                capture(if (steering == 0f) "maneuver-guides-straight" else "maneuver-guides-left") { bitmap ->
+                    assertWheelGuidePixels(bitmap, if (steering == 0f) 0 else 1)
+                }
+            }
+            pass("Steering guide pixels: concentric turns widen toward the bottom in both directions; neutral guides stay straight")
 
             render(activity) {
                 ManeuverScreen(moving.copy(steeringSignal = SignalAvailability.LIVE,
@@ -263,35 +272,86 @@ class LessonScreenInstrumentation : Instrumentation() {
             pass("Checklist: belt/gear/ignition, no parking telemetry, missing signals, locked touch gate")
 
             var nextCount = 0
+            var quitCount = 0
             SeedCatalog.quiz.forEachIndexed { index, item ->
                 val chosen = mutableStateOf<Int?>(null)
                 render(activity) { QuizScreen(knowledge, index, SeedCatalog.quiz.size, item, false,
-                    chosen.value, index, { chosen.value = it }, { nextCount++ }) }
+                    chosen.value, index, { chosen.value = it }, { nextCount++ }, { quitCount++ }) }
                 check(item.choices.all { it in texts() })
-                check(nodes().count { it.isClickable } == item.choices.size)
+                check(nodes().count { it.isClickable } == item.choices.size + 1)
+                check(texts().contains("그만하기"))
                 check(texts().none { it in listOf("다음 문제", "결과 보기") })
                 if (index == 0) capture("quiz")
                 val selected = if (index == 0) (item.answer + 1) % item.choices.size else item.answer
                 click(item.choices[selected])
                 runOnMainSync { check(chosen.value == selected) }
                 check(texts().contains(item.why))
-                check(nodes().count { it.isClickable } == 1)
-                if (index == 0) capture("quiz-answered")
+                check(nodes().count { it.isClickable } == 2)
+                val correctChoice = item.choices[item.answer]
+                if (selected != item.answer) {
+                    check(texts().containsAll(listOf("내 답", "정답")))
+                    check(texts().none { it == "내 답 · 정답" })
+                    check(textBounds("내 답").right < textBounds(item.choices[selected]).left)
+                    check(textBounds("정답").right < textBounds(correctChoice).left)
+                    capture("quiz-answered") { bitmap ->
+                        val selectedCell = Rect().also { bounds ->
+                            nodes().first { (it.isSelected || it.isChecked || it.stateDescription?.toString() in listOf("Selected", "선택됨")) && descendants(it).any { child ->
+                                child.text?.toString() == item.choices[selected]
+                            } }.getBoundsInScreen(bounds)
+                        }
+                        val scale = designScale(activity)
+                        val outline = colorBounds(bitmap, selectedCell, CoachColors.Signal.toArgb())
+                        check(outline == selectedCell) { "Wrong answer outline: $outline / $selectedCell" }
+                        val y = selectedCell.top + (12 * scale).toInt()
+                        check(bitmap.getPixel(selectedCell.left + (2 * scale).toInt(), y) == CoachColors.Signal.toArgb())
+                        check(bitmap.getPixel(selectedCell.left + (6 * scale).toInt(), y) == CoachColors.Lavender.toArgb())
+                        check(!colorBounds(bitmap, textBounds(item.choices[selected]), CoachColors.Ink.toArgb()).isEmpty)
+                        check(!colorBounds(bitmap, textBounds("내 답"), CoachColors.Signal.toArgb()).isEmpty)
+                        check(!colorBounds(bitmap, textBounds("정답"), CoachColors.Periwinkle.toArgb()).isEmpty)
+                        check(!colorBounds(bitmap, textBounds(correctChoice), CoachColors.Paper.toArgb()).isEmpty)
+                    }
+                } else {
+                    check(texts().contains("내 답 · 정답"))
+                    check(texts().none { it == "내 답" || it == "정답" })
+                }
                 click(if (index == SeedCatalog.quiz.lastIndex) "결과 보기" else "다음 문제")
             }
             runOnMainSync { check(nextCount == SeedCatalog.quiz.size) }
             listOf<Int?>(null, 0).forEach { chosen ->
-                render(activity) { QuizScreen(knowledge, 0, 5, SeedCatalog.quiz.first(), true, chosen, 0, {}, {}) }
+                render(activity) { QuizScreen(knowledge, 0, 5, SeedCatalog.quiz.first(), true, chosen, 0, {}, {}, { quitCount++ }) }
                 check(texts().contains("정차 후 답해 주세요"))
                 check(SeedCatalog.quiz.first().choices.none { it in texts() })
+                check(texts().none { it == "그만하기" })
                 check(nodes().none(::hasTouchAction))
             }
             capture("quiz-locked")
+            runOnMainSync { check(quitCount == 0) }
+            listOf<Int?>(null, 0).forEachIndexed { index, chosen ->
+                val inQuiz = mutableStateOf(true)
+                render(activity) {
+                    if (inQuiz.value) QuizScreen(knowledge, 0, SeedCatalog.quiz.size, SeedCatalog.quiz.first(), false,
+                        chosen, 0, {}, {}, { quitCount++; inQuiz.value = false })
+                    else SetupScreen(SeedCatalog.demoProfile, SeedCatalog.tasks, task, LessonMode.GUIDE,
+                        "처음은 제가 순서대로 함께할게요.", SeedCatalog.reservation, null, { _, _ -> })
+                }
+                click("그만하기")
+                runOnMainSync { check(quitCount == index + 1) }
+                check(texts().containsAll(listOf("시작", "과제·모드 바꾸기")))
+            }
             val items = SeedCatalog.quiz.take(3)
-            val results = listOf(QuizResult(items[1].id, items[1].answer, true), QuizResult(items[0].id, 0, false))
+            val wrongChoice = (items[0].answer + 1) % items[0].choices.size
+            val results = listOf(QuizResult(items[1].id, items[1].answer, true), QuizResult(items[0].id, wrongChoice, false))
             var quizRestarted = 0
             render(activity) { QuizDoneScreen(knowledge, results, items, "이유까지 기억하면 충분해요.", { quizRestarted++ }) }
-            check(texts().contains("정답: ${items[0].choices[items[0].answer]}"))
+            val answerLine = "${items[0].choices[wrongChoice]} → ${items[0].choices[items[0].answer]}"
+            check(texts().contains(answerLine))
+            capture("quiz-done-results") { bitmap ->
+                val bounds = textBounds(answerLine)
+                check(bounds.height() / designScale(activity) < 60f) { "Answer comparison must fit on one line" }
+                val mine = colorBounds(bitmap, bounds, CoachColors.Signal.toArgb())
+                val correct = colorBounds(bitmap, bounds, CoachColors.Periwinkle.toArgb())
+                check(!mine.isEmpty && !correct.isEmpty && mine.right < correct.left)
+            }
             check(texts().contains(items[0].why))
             check(texts().none { it == items[1].why })
             check(texts().contains("맞았어요"))
@@ -300,10 +360,10 @@ class LessonScreenInstrumentation : Instrumentation() {
             click("다시 시작")
             runOnMainSync { check(quizRestarted == 1) }
             render(activity) { QuizDoneScreen(knowledge, SeedCatalog.quiz.mapIndexed { index, item ->
-                QuizResult(item.id, if (index == 0) 0 else item.answer, index != 0)
+                QuizResult(item.id, if (index == 0) wrongChoice else item.answer, index != 0)
             }, SeedCatalog.quiz, "5문제 중 4개를 맞혔어요. 이유까지 기억하면 충분해요.", {}) }
             capture("quiz-done")
-            pass("Quiz: five questions, choice dispatch, answer explanations, next/result, lock, keyed results and restart")
+            pass("Quiz: wrong/correct answer eyebrows and outline, explanations, next/result, stopped quit once before/after answering, locked touch zero, colored keyed comparisons and restart")
 
             val metrics = ParkingMetrics(MotionSummary(4, 44_000, 26_000, 4f, 1_000), emptyList(),
                 SteeringSummary(3, 450f), GearSummary(2, true, true), ProximitySummary(1, 35f), PreDriveSummary(false, true))
@@ -369,15 +429,12 @@ class LessonScreenInstrumentation : Instrumentation() {
             val report = LessonReport(task, LessonMode.HINT, listOf(record), score,
                 "후면 직각 주차, 힌트 모드 1회.\n다음에는 뒤 거리를 조금 더 남겨 볼까요?\n주변도 함께 살펴요.",
                 task, LessonMode.GUIDE, "핸들 타이밍을 한 단계씩 함께 익혀요.", ShareLevel.entries,
-                SeedCatalog.benefits, listOf("안전벨트 확인"),
-                companion = CompanionNote("오늘은 한 번에 들어갔어요.", "오늘은 그냥 잘했다고 해 주세요."),
-                cheers = SeedCatalog.cheers)
+                SeedCatalog.benefits, listOf("안전벨트 확인"))
             var restarted = 0
-            val shares = mutableListOf<CompanionShareLevel>()
-            val cheers = mutableListOf<String>()
-            render(activity) { ReportScreen(report, { restarted++ }, { shares += it }, { cheers += it }) }
-            check(texts().containsAll(listOf(badgeText(score.badge), "다시 시작", "진단서", "동승자", "신호 출처", "이 신호는 이 차에서 받지 못했어요")))
-            val reportActions = listOf("자세히 보기", "진단서", "동승자").map(::textBounds)
+            render(activity) { ReportScreen(report, { restarted++ }) }
+            check(texts().containsAll(listOf(badgeText(score.badge), "다시 시작", "진단서", "신호 출처", "이 신호는 이 차에서 받지 못했어요")))
+            check(allText().none { "동승자" in it })
+            val reportActions = listOf("자세히 보기", "진단서").map(::textBounds)
             check(reportActions.zipWithNext().all { (left, right) -> left.right < right.left && left.top == right.top })
             check(texts().contains(driverReportSummary(report.summary)))
             check(texts().none { Regex("\\d+회\\.").containsMatchIn(it) })
@@ -398,97 +455,8 @@ class LessonScreenInstrumentation : Instrumentation() {
             click("다시 시작")
             runOnMainSync { check(restarted == 1) }
             pass("Done actions and Report badge, certificate sharing choices, restart")
-            click("돌아가기")
-            click("동승자")
-            check(texts().containsAll(listOf("동승자에게", "예시입니다 — 실제 전송은 없습니다",
-                report.companion.text, "공유 범위", "응원 한마디", "돌아가기", "다시 시작") +
-                report.companionShareLevels.flatMap { listOf(it.label, it.description) } + report.cheers))
-            assertExclusiveSelection(report.companionShareLevels.map { it.label }, CompanionShareLevel.SUMMARY.label)
-            assertExclusiveSelection(report.cheers, null)
-            runOnMainSync { check(shares.isEmpty() && cheers.isEmpty()) }
-            assertDriverButton(activity, "다시 시작")
-            val companionRestart = buttonBounds("다시 시작")
-            val graphicCount = report.attempts.size.toString().padStart(2, '0')
-            check(allText().filterNot { it == graphicCount }.none { Regex("\\d").containsMatchIn(it) })
-            assertNoScores()
-            val chipBounds = report.cheers.map(::buttonBounds)
-            chipBounds.forEach { bounds ->
-                check(kotlin.math.abs(bounds.height() / designScale(activity) - 96f) <= 1f)
-                check(bounds.bottom < companionRestart.top) { "Cheer clipped by footer: $bounds" }
-            }
-            check(chipBounds.first().width() < chipBounds.last().width()) { "Cheer chips must fit their content" }
-            report.cheers.forEach { cheer ->
-                check(textBounds(cheer).height() / designScale(activity) < 60f) { "Cheer must stay on one line" }
-            }
-            capture("companion")
-            // Compose omits the click action for an already selected radio; change away, then back.
-            val shareChoices = report.companionShareLevels.drop(1) + report.companionShareLevels.first()
-            shareChoices.forEachIndexed { index, level ->
-                click(level.label)
-                assertExclusiveSelection(report.companionShareLevels.map { it.label }, level.label)
-                runOnMainSync { check(shares == shareChoices.take(index + 1)) }
-            }
-            report.cheers.forEachIndexed { index, cheer ->
-                click(cheer)
-                assertExclusiveSelection(report.cheers, cheer)
-                runOnMainSync { check(cheers == report.cheers.take(index + 1)) }
-            }
-            capture("companion-selected") { bitmap ->
-                report.cheers.forEachIndexed { index, cheer ->
-                    val bounds = chipBounds[index]
-                    val expected = if (cheer == report.cheers.last()) CoachColors.Periwinkle else CoachColors.Lavender
-                    check(bitmap.getPixel(bounds.left + 2, bounds.top + 2) == expected.toArgb())
-                }
-            }
-            click("돌아가기")
-            click("동승자")
-            assertExclusiveSelection(report.companionShareLevels.map { it.label }, shareChoices.last().label)
-            assertExclusiveSelection(report.cheers, report.cheers.last())
-            check(buttonBounds("다시 시작") == companionRestart)
-            runOnMainSync { check(shares.size == 3 && cheers.size == 3) }
-            click("다시 시작")
-            runOnMainSync { check(restarted == 2) }
-            pass("Companion: action order, example/note, no numbers/scores, three exclusive radios/chips, callbacks once per tap, retained selections, 96 dp chips and 140 dp restart")
 
-            val longNote = CompanionNote(report.companion.praise, "뒤를 같이 봐 주세요. 가까우면 손으로 알려 주세요.")
-            render(activity) { ReportScreen(report.copy(companion = longNote), {}, {}, {}) }
-            click("동승자")
-            val longNoteFooter = buttonBounds("다시 시작")
-            capture("companion-long-note")
-            (report.companionShareLevels.map { it.description } + report.cheers).forEach { label ->
-                check(label in texts()) { "Long note hid $label: ${texts()}" }
-                check(textBounds(label).bottom < longNoteFooter.top) { "Long note clipped an option: $label" }
-            }
-
-            val selectedCheer = cheers.last()
-            render(activity) {
-                SetupScreen(SeedCatalog.demoProfile, SeedCatalog.tasks, task, LessonMode.GUIDE,
-                    "처음은 제가 순서대로 함께할게요.", SeedCatalog.reservation, "오늘은 편안한 곳에서 주차부터 연습해 봐요.",
-                    { _, _ -> }, setupDemo, selectedCheer)
-            }
-            val cheerLabel = "동승자 · $selectedCheer"
-            check(texts().contains(cheerLabel))
-            check(textBounds(cheerLabel).bottom < textBounds(profileLine(SeedCatalog.demoProfile)).top)
-            assertDriverButton(activity, "시작")
-            capture("setup-cheer") { bitmap ->
-                check(!colorBounds(bitmap, textBounds(cheerLabel), CoachColors.Periwinkle.toArgb()).isEmpty)
-            }
-            click("과제·모드 바꾸기")
-            check(allText().none { it.startsWith("동승자 · ") })
-            click("돌아가기")
-            check(texts().contains(cheerLabel))
-            render(activity) {
-                SetupScreen(SeedCatalog.demoProfile, SeedCatalog.tasks, task, LessonMode.GUIDE,
-                    "처음은 제가 순서대로 함께할게요.", SeedCatalog.reservation, "오늘은 편안한 곳에서 주차부터 연습해 봐요.",
-                    { _, _ -> }, setupDemo, cheer = null)
-            }
-            check(allText().none { it.startsWith("동승자 · ") })
-            check(textBounds(setupProposal(TaskType.PARKING)) == proposalBounds) { "Absent cheer reserved space on Setup" }
-            render(activity) { BriefingScreen(task, LessonMode.GUIDE, line, line) }
-            check(allText().none { it.startsWith("동승자 · ") })
-            pass("Setup cheer: above profile in Periwinkle, hidden on sheet/Briefing, no reserved space when absent")
-
-            render(activity) { ReportScreen(report.copy(attempts = List(100) { record.copy(index = it + 1) }), {}, {}, {}) }
+            render(activity) { ReportScreen(report.copy(attempts = List(100) { record.copy(index = it + 1) }), {}) }
             check(texts().contains("100"))
             check(texts().contains("다시 시작"))
             capture("report-100")
@@ -533,18 +501,14 @@ class LessonScreenInstrumentation : Instrumentation() {
     private fun texts() = nodes().mapNotNull { it.text?.toString() }
     private fun allText() = nodes().flatMap { listOfNotNull(it.text?.toString(), it.contentDescription?.toString(), it.stateDescription?.toString()) }
     private fun assertSelected(label: String) {
-        val matches = nodes().filter { descendants(it).any { child -> child.text?.toString() == label } }
         // Selected tabs omit the click action; buttons and radio buttons expose other selection fields.
-        check(matches.any { it.isSelected || it.isChecked || it.stateDescription?.toString() in listOf("Selected", "선택됨") }) {
-            "Missing selected semantics for $label: $matches"
+        // Switching categories replaces the subtree; accessibility can lag behind the drawn frame.
+        repeat(10) {
+            val matches = nodes().filter { descendants(it).any { child -> child.text?.toString() == label } }
+            if (matches.any { it.isSelected || it.isChecked || it.stateDescription?.toString() in listOf("Selected", "선택됨") }) return
+            Thread.sleep(100)
         }
-    }
-    private fun assertExclusiveSelection(labels: List<String>, selected: String?) {
-        labels.forEach { label ->
-            val selectedNodes = nodes().filter { it.isSelected || it.isChecked || it.stateDescription?.toString() in listOf("Selected", "선택됨") }
-            val isSelected = selectedNodes.any { descendants(it).any { child -> child.text?.toString() == label } }
-            check(isSelected == (label == selected)) { "Unexpected selection for $label; expected $selected" }
-        }
+        error("Missing selected semantics for $label")
     }
     private fun assertPlannedTask(label: String) {
         val ancestors = nodes().filter { descendants(it).any { child -> child.text?.toString() == label } }
@@ -572,6 +536,8 @@ class LessonScreenInstrumentation : Instrumentation() {
         val button = buttonNode(label)
         check(button.performAction(AccessibilityNodeInfo.ACTION_CLICK))
         Thread.sleep(300)
+        // Read the updated semantics after Compose's accessibility events, not a cached subtree.
+        uiAutomation.waitForIdle(100, 2_000)
     }
     private fun buttonNode(label: String) = nodes().first { it.isClickable && descendants(it).any { node ->
         node.text?.toString() == label || node.contentDescription?.toString() == label
@@ -600,6 +566,41 @@ class LessonScreenInstrumentation : Instrumentation() {
             Thread.sleep(350)
         }
         error("Not visible after scrolling: $label")
+    }
+    private fun assertWheelGuidePixels(bitmap: Bitmap, direction: Int) {
+        val diagram = Rect().also { bounds ->
+            nodes().first { it.contentDescription?.contains("조향 방향 호") == true }.getBoundsInScreen(bounds)
+        }
+        val color = CoachColors.Periwinkle.copy(alpha = .4f).compositeOver(CoachColors.Ink).toArgb()
+        // The renderer truncates premultiplied alpha channels; Color.toArgb rounds them.
+        fun isGuide(pixel: Int) = listOf(0, 8, 16).all { shift ->
+            kotlin.math.abs(((pixel ushr shift) and 255) - ((color ushr shift) and 255)) <= 1
+        }
+        // Below the body, only the translucent guides have this color. Scan shared dash rows
+        // rather than relying on a particular dash phase or the centre solid arc.
+        fun guidePair(from: Float, to: Float): Pair<Float, Float> {
+            for (y in (diagram.top + diagram.height() * from).toInt() until (diagram.top + diagram.height() * to).toInt()) {
+                val pixels = (diagram.left until diagram.right).filter { isGuide(bitmap.getPixel(it, y)) }
+                val gap = pixels.zipWithNext().indexOfFirst { (left, right) -> right - left > 20 }
+                if (gap < 0) continue
+                val left = (pixels.first() + pixels[gap]) / 2f
+                val right = (pixels[gap + 1] + pixels.last()) / 2f
+                return left to right
+            }
+            error("Both guide dashes missing in $from..$to of $diagram")
+        }
+        val top = guidePair(.82f, .88f)
+        val bottom = guidePair(.95f, .995f)
+        val topGap = top.second - top.first
+        val bottomGap = bottom.second - bottom.first
+        if (direction == 0) {
+            check(kotlin.math.abs(top.first - bottom.first) <= 1f && kotlin.math.abs(top.second - bottom.second) <= 1f)
+        } else {
+            check(bottomGap > topGap + 2f) { "Guides must have different radii: top=$top, bottom=$bottom" }
+            check((bottom.first - top.first) * direction > 0f && (bottom.second - top.second) * direction > 0f) {
+                "Guides turn away from the shared centre: top=$top, bottom=$bottom"
+            }
+        }
     }
     private fun colorBounds(bitmap: Bitmap, region: Rect, color: Int): Rect {
         val bounds = Rect()

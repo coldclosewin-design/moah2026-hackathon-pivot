@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.semantics.contentDescription
@@ -22,6 +23,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.moah.hackathon.feature.lesson.ManeuverDisplayState
 import com.moah.hackathon.ui.CoachColors
+import kotlin.math.abs
+import kotlin.math.tan
 
 /** B: rear up. One measured angle drives the front wheels, direction arc and wheel guides. */
 @Composable
@@ -32,6 +35,7 @@ internal fun VehicleDiagram(state: ManeuverDisplayState, modifier: Modifier) {
         val carWidth = carHeight * .43f
         val cx = size.width / 2
         val top = size.height * .15f
+        val (leftAngle, rightAngle) = wheelAngles(angle.takeIf { state.steeringDeg != null })
         if (state.gear == "R") {
             val y = top - 38.dp.toPx()
             drawPath(Path().apply {
@@ -91,7 +95,8 @@ internal fun VehicleDiagram(state: ManeuverDisplayState, modifier: Modifier) {
             listOf(7f, 93f).forEach { x ->
                 drawRoundRect(CoachColors.Periwinkle, Offset(x - 4f, 27f), Size(8f, 30f), CornerRadius(3f))
                 // Positive-left signal becomes screen-right with the nose down. Avoid mirroring the rotation.
-                rotate(if (state.steeringDeg == null) 0f else -wheelRotation(angle), Offset(x, 213f)) {
+                // Driver's right is screen-left because the front of the car points down.
+                rotate(-if (x < 50f) rightAngle else leftAngle, Offset(x, 213f)) {
                     drawRoundRect(CoachColors.Periwinkle, Offset(x - 4f, 198f), Size(8f, 30f), CornerRadius(3f))
                 }
             }
@@ -104,10 +109,30 @@ internal fun VehicleDiagram(state: ManeuverDisplayState, modifier: Modifier) {
                 cubicTo(x, startY + reach * .55f, x + bend * carWidth * .20f, startY + reach * .85f,
                     x + bend * carWidth * .48f, startY + reach)
             }
-            listOf(-.43f, .43f).forEach { wheelX ->
-                drawPath(arc(cx + wheelX * carWidth, top + carHeight * (213f / 250f)),
-                    CoachColors.Periwinkle.copy(alpha = .4f), style = Stroke(4.dp.toPx(),
-                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(12.dp.toPx(), 12.dp.toPx()))))
+            val frontAxleY = top + carHeight * (213f / 250f)
+            val outerAngle = wheelRotation(angle)
+            val guideStyle = Stroke(4.dp.toPx(),
+                pathEffect = PathEffect.dashPathEffect(floatArrayOf(12.dp.toPx(), 12.dp.toPx())))
+            val guideColor = CoachColors.Periwinkle.copy(alpha = .4f)
+            // Full quarter-circles share a centre beside the front axle. Clip at the diagram edge
+            // so their continuation cannot cover the steering label below the canvas.
+            clipRect {
+                if (outerAngle == 0f) {
+                    listOf(-.43f, .43f).forEach { wheelX ->
+                        val x = cx + wheelX * carWidth
+                        drawPath(Path().apply { moveTo(x, frontAxleY); lineTo(x, size.height) }, guideColor, style = guideStyle)
+                    }
+                } else {
+                    val radius = carHeight * .6f / tan(Math.toRadians(abs(outerAngle).toDouble())).toFloat()
+                    val centerX = cx + if (outerAngle < 0f) -radius else radius
+                    listOf(-.43f, .43f).forEach { wheelX ->
+                        val wheelRadius = abs(cx + wheelX * carWidth - centerX)
+                        drawArc(guideColor, if (outerAngle < 0f) 0f else 180f,
+                            if (outerAngle < 0f) 90f else -90f, false,
+                            Offset(centerX - wheelRadius, frontAxleY - wheelRadius),
+                            Size(wheelRadius * 2f, wheelRadius * 2f), style = guideStyle)
+                    }
+                }
             }
             drawPath(arc(cx, y), CoachColors.Periwinkle, style = Stroke(6.dp.toPx()))
         }

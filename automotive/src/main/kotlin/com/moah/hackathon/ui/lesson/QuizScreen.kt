@@ -2,6 +2,7 @@ package com.moah.hackathon.ui.lesson
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
@@ -22,7 +23,7 @@ import com.moah.hackathon.ui.CoachColors
 
 @Composable
 internal fun QuizScreen(task: Task, index: Int, total: Int, item: QuizItem, locked: Boolean,
-    chosen: Int?, correctSoFar: Int, onAnswer: (Int) -> Unit, onNext: () -> Unit) {
+    chosen: Int?, correctSoFar: Int, onAnswer: (Int) -> Unit, onNext: () -> Unit, onRestart: () -> Unit) {
     PosterSurface {
         Row(Modifier.fillMaxSize()) {
             QuizNumber((index + 1).toString().padStart(2, '0'), "${index + 1} / $total", Modifier.weight(.38f))
@@ -37,22 +38,35 @@ internal fun QuizScreen(task: Task, index: Int, total: Int, item: QuizItem, lock
                 } else {
                     item.choices.forEachIndexed { choiceIndex, choice ->
                         val correct = chosen != null && choiceIndex == item.answer
+                        val mine = choiceIndex == chosen
+                        val eyebrow = when {
+                            correct && mine -> "내 답 · 정답"
+                            correct -> "정답"
+                            mine -> "내 답"
+                            else -> null
+                        }
                         val foreground = when {
                             correct -> CoachColors.Paper
-                            chosen == null -> CoachColors.Ink
-                            choiceIndex == chosen -> CoachColors.Muted
-                            else -> CoachColors.Ink.copy(alpha = .36f)
+                            chosen == null || mine -> CoachColors.Ink
+                            else -> CoachColors.Muted
                         }
                         val action = if (chosen == null) Modifier.clickable(role = Role.Button) { onAnswer(choiceIndex) }
                             else Modifier
-                        Row(Modifier.fillMaxWidth().heightIn(min = 120.dp)
-                            .background(if (correct) CoachColors.Periwinkle else CoachColors.Lavender)
-                            .then(action).semantics { selected = choiceIndex == chosen }
-                            .padding(horizontal = 32.dp, vertical = 20.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(32.dp)) {
-                            LessonText("${choiceIndex + 1}", 32, foreground)
-                            LessonText(choice, 48, foreground)
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Box(Modifier.width(220.dp)) {
+                                if (eyebrow != null) Eyebrow(eyebrow,
+                                    color = if (correct) CoachColors.Periwinkle else CoachColors.Signal)
+                            }
+                            Row(Modifier.weight(1f).heightIn(min = 120.dp)
+                                .background(if (correct) CoachColors.Periwinkle else CoachColors.Lavender)
+                                .then(if (mine && !correct) Modifier.border(4.dp, CoachColors.Signal) else Modifier)
+                                .then(action).semantics { selected = mine }
+                                .padding(horizontal = 32.dp, vertical = 20.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(32.dp)) {
+                                LessonText("${choiceIndex + 1}", 32, foreground)
+                                LessonText(choice, 48, foreground)
+                            }
                         }
                     }
                     if (chosen != null) {
@@ -63,7 +77,11 @@ internal fun QuizScreen(task: Task, index: Int, total: Int, item: QuizItem, lock
                 }
                 Spacer(Modifier.weight(1f))
                 PosterRule()
-                LessonText("맞은 문제 $correctSoFar", 32, CoachColors.Muted)
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically) {
+                    if (!locked) TextAction(stringResource(R.string.lesson_quit), onRestart)
+                    LessonText("맞은 문제 $correctSoFar", 32, CoachColors.Muted)
+                }
             }
         }
     }
