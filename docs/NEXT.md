@@ -115,6 +115,13 @@
 
 단위 테스트 113 → 129. `emu_flow.sh`(주차) 는 영향 없음 — 시연 본편은 그대로 주차.
 
+### Step 12 — 동승자 공유 (Claude 선행 ⬜ → Codex 화면 ⬜) — 발주서 `docs/handoffs/2026-09-28_codex_companion_share.md`
+| # | 일 | 상태 |
+|---|---|---|
+| 12a | Claude 선행: `CompanionShareLevel`·`CompanionNote`(`CoachPort.companionNote`, Fake 규칙 = 밴드 풀 + `AdviceRules` 동승자 매핑, Cloud 프롬프트·폴백)·`LessonReport.companion/companionShareLevels/cheers`·`Setup.cheer`·상태기계 `shareWithCompanion`/`cheer`(`ProgressStore`, `reset` 이 안 지움)·`emu_flow` 선택 단계 | ⬜ |
+| 12b | Codex: Report `동승자` 탭(두 문장·공유 범위 3·응원 칩 3·`다시 시작`), Setup 응원 눈썹, 계측·캡처 2장 | ⬜ 12a 뒤 |
+| 12c | 대본: 진단서 15 s → 진단서 10 s + 동승자 10 s, 덱 12장 "확장" → "있는 것" | ⬜ 12b 뒤 |
+
 ### 사용자 결정·행동이 필요한 것
 | # | 일 | 상태 |
 |---|---|---|
