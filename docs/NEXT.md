@@ -121,7 +121,7 @@
 ### Step 13 — 제휴 시험장 예약 (결정 D3 = (나), 9/28) — 발주서 `docs/handoffs/2026-09-28_codex_reservation.md`
 | # | 일 | 상태 |
 |---|---|---|
-| 13a | Claude 선행: `Venue`·`Course`·`Slot`·`Reservation`(`ReservationCard` 제거), 시드 시험장 3·코스 3·시간대 3, `ProgressStore.reservation`, 상태기계 `reserve`/`cancelReservation`(Setup 에서만), `Setup.venues/reservation`, `ModeAdvisor.suggestTask` 예약 코스 우선, 테스트 | ⬜ |
+| 13a | Claude 선행: `Venue`·`Course`·`Slot`·`Reservation`(`ReservationCard` 제거), 시드 시험장 3·코스 3·시간대 3, `ProgressStore.reservation`, 상태기계 `reserve`/`cancelReservation`(Setup 에서만), `Setup.venues/reservation`, `ModeAdvisor.suggestTask` 예약 코스 우선, 테스트 | ✅ (`claude/reservation-model`, 이 PR — `ReservationCard` 는 Codex 화면 전환 때 함께 삭제, `Setup.booking`·`venues` 추가 · 테스트 168 · `emu_flow` PASS) |
 | 13b | Codex: 시트 `제휴 시험장` 층(카드 3 → 시간·코스 칩 → `예약` → 확인 카드·`취소`), Setup 배지 `예약 · …`, 계측·캡처 4장 | ⬜ 13a 뒤 |
 | 13c | 대본 0:10 배지·덱 12장 "있는 것" | ⬜ 13b 뒤 |
 

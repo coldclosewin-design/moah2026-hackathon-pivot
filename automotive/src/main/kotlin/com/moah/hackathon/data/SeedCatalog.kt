@@ -7,7 +7,10 @@ import com.moah.hackathon.feature.lesson.ProfileQuestion
 import com.moah.hackathon.feature.lesson.ProfileStatement
 import com.moah.hackathon.feature.lesson.QuizItem
 import com.moah.hackathon.feature.lesson.RemarkTemplate
+import com.moah.hackathon.feature.lesson.Course
 import com.moah.hackathon.feature.lesson.ReservationCard
+import com.moah.hackathon.feature.lesson.Slot
+import com.moah.hackathon.feature.lesson.Venue
 import com.moah.hackathon.feature.lesson.ScoreBand
 import com.moah.hackathon.feature.lesson.Task
 import com.moah.hackathon.feature.lesson.TaskStatus
@@ -167,6 +170,33 @@ object SeedCatalog {
 
     // ───────── 장소·보상 (§3.3·§3.5) — 시드, 실제 연계 없음 ─────────
 
+    // ───────── 제휴 시험장 (§3.3 "장소", 결정 D3 = (나), 9/28) — 시드, 실제 연계 없음. 지명·거리는 예시(U3 미결). 문구는 Codex 가 다듬는다 ─────────
+
+    const val COURSE_PARKING = "course-parking-3"
+    const val COURSE_ROAD_A = "course-road-a"
+    const val COURSE_ROAD_B = "course-road-b"
+
+    /** 코스 3 — 과제 id 는 카탈로그와 일치해야 한다(`SeedCatalogTest`). 제안은 READY 만 고르므로 계획 과제가 섞여도 된다. */
+    val courses: List<Course> = listOf(
+        Course(COURSE_PARKING, "주차 3종", listOf(TASK_PARKING_REAR, "parking-parallel", "parking-front")),
+        Course(COURSE_ROAD_A, "도로 A", listOf("straight-stop", "left-turn-signal")),
+        Course(COURSE_ROAD_B, "도로 B", listOf("lane-change", "roundabout")),
+    )
+
+    private fun slotsToday(unavailable: Int): List<Slot> = listOf(
+        Slot("slot-14", "14:00", "15:00", available = unavailable != 0),
+        Slot("slot-16", "16:00", "17:00", available = unavailable != 1),
+        Slot("slot-18", "18:00", "19:00", available = unavailable != 2),
+    )
+
+    /** 시험장 3. 시간대는 오늘 3(하나는 자리 없음). */
+    val venues: List<Venue> = listOf(
+        Venue("venue-seocho", "제휴 도로주행시험장 서초", "서초", 3f, courses, slotsToday(unavailable = 1)),
+        Venue("venue-gangnam", "제휴 도로주행시험장 강남", "강남", 6f, listOf(courses[0], courses[1]), slotsToday(unavailable = 0)),
+        Venue("venue-bundang", "제휴 도로주행시험장 분당", "분당", 14f, listOf(courses[0], courses[2]), slotsToday(unavailable = 2)),
+    )
+
+    /** 옛 카드(9/26) — Codex 화면 전환 뒤 [venues] 로 대체·삭제. 예약이 없을 때 Setup 이 보여 주는 예시. */
     val reservation: ReservationCard = ReservationCard(
         venue = "제휴 도로주행시험장 (서초)",
         slot = "오늘 14:00 – 15:00 비어 있음",
