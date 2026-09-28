@@ -139,6 +139,23 @@ enum class ShareLevel(val label: String, val description: String) {
 
 data class ReservationCard(val venue: String, val slot: String, val course: String, val note: String)
 
+// ───────── 동승자 공유 (§3.5 수신자 "동승자" · 덱 12장) — 옆자리 사람을 코치에서 응원자로. 실제 전송은 없다 ─────────
+
+/** 동승자에게 보여 주는 범위. 진단서 [ShareLevel] 과 같은 3단계 구조, 라벨만 동승자용. */
+enum class CompanionShareLevel(val label: String, val description: String) {
+    SUMMARY("총평만", "잘한 것·도울 것 두 문장"),
+    PROCESS("과정까지", "회차별 궤적과 힌트 이력"),
+    FULL("진단서 전체", "항목별 수치까지"),
+}
+
+/**
+ * 동승자에게 건네는 두 문장 — 점수가 아니다. [praise] 오늘 잘한 것 하나, [help] 다음에 옆에서 도울 것 하나.
+ * 운전자 멘트와 같은 규칙: 숫자(횟수·초·점수) 없음. 화면은 "praise\nhelp" 두 줄로 그린다.
+ */
+data class CompanionNote(val praise: String, val help: String) {
+    val text: String get() = "$praise\n$help"
+}
+
 // ───────── 지식 테스트 (§3.2) — 정차 중 3지선다. STT 는 사내 확인 뒤, 지금은 화면 버튼 ─────────
 
 data class QuizItem(
@@ -173,4 +190,9 @@ data class LessonReport(
     val benefits: List<String>,
     /** 가이드 모드에서 신호가 없어 확인 없이 읽고 넘긴 단계. 리포트에 "확인할 수 없었어요" 로. */
     val unverifiedGuideSteps: List<String>,
+    /** 동승자 탭 — 잘한 것 하나·도울 것 하나. 상태기계가 [com.moah.hackathon.ports.CoachPort.companionNote] 로 채운다. */
+    val companion: CompanionNote = CompanionNote("", ""),
+    val companionShareLevels: List<CompanionShareLevel> = CompanionShareLevel.entries.toList(),
+    /** 동승자가 고르는 응원 한마디 후보(시드 3). 고른 문장은 다음 세션 [LessonPhase.Setup.cheer] 가 된다. */
+    val cheers: List<String> = emptyList(),
 )

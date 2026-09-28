@@ -172,6 +172,13 @@ object SeedCatalog {
         "제휴 시험장 대여료 할인",
     )
 
+    /** 동승자가 리포트에서 고르는 응원 한마디(§3.5 동승자 공유). 고른 문장이 다음 세션 Setup 첫 줄. 숫자 없음. 문구는 Codex 가 다듬는다. */
+    val cheers: List<String> = listOf(
+        "오늘도 천천히 가요",
+        "지난번보다 나아졌어요, 내가 봤어요",
+        "다음엔 내가 옆에서 조용히 있을게요",
+    )
+
     /** 정차 중 3지선다 (§3.2 지식 테스트). 채점보다 `why` 를 듣는 것이 목적. 문항 내용은 Codex 가 다듬는다. */
     fun quizFor(task: Task): List<QuizItem> = when (task.id) {
         TASK_KNOWLEDGE -> quiz

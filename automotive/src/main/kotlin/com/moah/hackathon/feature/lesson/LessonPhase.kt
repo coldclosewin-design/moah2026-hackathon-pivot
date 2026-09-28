@@ -20,6 +20,8 @@ sealed interface LessonPhase {
         val suggestedMode: LessonMode,
         val reason: String,
         val reservation: ReservationCard?,
+        /** 직전 세션 리포트에서 동승자가 고른 응원 한마디. 없으면 null — 화면은 자리도 두지 않는다. `reset` 이 지우지 않는다. */
+        val cheer: String? = null,
     ) : LessonPhase
 
     /** "후면 직각 주차, 가이드 모드. 오늘은 핸들 방향과 기어 전환을 봅니다." */
