@@ -1,17 +1,24 @@
-# UI 라운드 5 검증 캡처
+# UI 라운드 6 검증 캡처
 
-2026-09-28 · `codex/ui-round5` · 기준 `origin/main=1364e91` · CSTDe_API_34 2560×1440 · 기본 Fake, 배율 1.0. Done을 Maneuver와 같은 **뒤가 위** 관습으로 맞췄다. 라운드 4에서 확정한 알약 토글·`코치`는 유지한다.
+2026-09-28 · `codex/ui-round6` · 기준 `origin/main=7b5e3f2` · CSTDe_API_34 2560×1440 · 기본 Fake, 배율 1.0. [라운드 6 발주서](../../handoffs/2026-09-28_codex_ui_round6.md)의 사용자 선택 시안 05를 구현했다.
 
-- `lesson-done-path-contract.png`: 전후진·급정지·회전을 포함한 고정 입력. Ink 완료 차량이 위, Lavender 3dp 시작 윤곽이 아래에 있다. 계측에서 Canvas 내부 색상 bounds를 검사한다.
-- `lesson-done-path.png` / `16_done_2.png`: 이번 `emu_flow`의 실제 잘한 주차 두 번째 회차 Done 원본(두 파일은 동일). 4초 대기 뒤의 정지 그림이다.
-- `lesson-done.png`: 이번 `emu_flow`의 실제 못한 주차 첫 회차 Done(`14_done_1.png`), 역시 4초 대기 뒤 정지 그림.
-- `lesson-setup-sheet.png`: 선택 카드의 12dp Ink 띠. 계측에서 띠 전체 폭과 바로 옆 Periwinkle 바탕을 픽셀로 확인한다.
-- 그 외 화면은 변경이 없어 라운드 4 캡처를 유지한다. 전체 화면의 이번 재검증 캡처는 `build/round5-shots/`, 실제 흐름 캡처는 `build/round5-flow/`에 있다.
+| 시안 05 | 에뮬레이터 캡처 |
+|---|---|
+| ![시안 05](../../design/round6-sheet/a-refinements/05-type-bays.png) | ![주차 시트](lesson-setup-sheet.png) |
 
-`flow.txt`: 수정 없는 원본 `tools/emu_flow.sh` **PASS**, uiautomator clashes 0, 리포트까지 120초. 첫 회차 60/55·이동 4회, 두 번째 100/100·이동 2회, 힌트 3종·잘한 주차 추가 힌트 0건·도어·배지 확인. main에 반영된 Done 4초 대기를 그대로 사용했다.
+- `lesson-setup-sheet.png`: 주차가 펼쳐진 시트. 제안 과제인 후면 직각 주차가 선택되어 있고, 주차 네 칸과 가이드·힌트·평가·시작이 함께 보인다. 비교를 위해 첫 렌더에서 힌트만 선택한 뒤 캡처했다.
+- `lesson-setup-sheet-driving.png`: 준비 중인 주행 과제 네 칸과 다음 칸의 일부. 모드와 시작은 없다.
+- `lesson-setup-sheet-driving-end.png`: 가로 스크롤 끝의 회전교차로까지 확인한다. 준비 중 다섯 과제 모두 클릭 액션 없이 disabled로 노출된다.
+- `lesson-setup-knowledge.png`: 지식 카테고리로 이동해 과제를 고르고 닫았다가 다시 연 화면. 지식 테스트 모드만 보이며 시작은 `(knowledge-hazard-weather, QUIZ)`를 전달한다.
 
-Done 재생 클립(저장소에 커밋하지 않음): `C:/Project/17_hackathon-pivot/build/round5-clips/lesson-round4-done.mp4`. 계측의 `/sdcard/lesson-round4-done.mp4`를 파일명·내용 그대로 가져왔다. 1280×720, `screenrecord --time-limit 5`의 원본이며 변화 없는 마지막 구간은 프레임으로 저장되지 않아 파일 길이는 약 3.723초다. 후진 중 셰브론 표시, 전진 보정 중 숨김, 마지막 정지 프레임에서 숨김을 확인했다. 기록 데이터·순수 함수·0.5초 대기와 3초 재생 속도는 그대로다.
+주차에만 160dp 차량 도식을 그리고, 다른 카테고리에는 같은 높이의 빈 도식 공간을 둔다. 글자 메뉴 56sp, 과제 제목 40sp·최대 두 줄, 상태·난이도 32sp, 각진 U자 윤곽 4dp(선택 6dp), 체크 원 64dp를 사용한다. 제목 영역은 한글 두 줄의 실제 글꼴 여백까지 담도록 120dp다. 예약 예시는 공간에 맞춰 접히며, 펼친 본문만 스크롤하고 토글과 하단 컨트롤은 고정된다.
 
-`flow-round3-default.txt`는 수정 전 원본의 중복 조회로 시간 감점 경계를 넘어 첫 회차 58점이 된 실패 기록이다. `flow-round3-proposal.txt`는 같은 패치를 임시 사본으로 먼저 검증한 PASS 기록(109초)이며, `flow-{initial,baseline,proposal}.txt`는 라운드 2 이력이다.
+`build-round6.txt`: PowerShell `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` 성공. 단위 테스트 **157개, 실패·오류 0**. 카테고리 순서, 준비 중 주차 시드 두 개의 순서·난이도·상태, READY 세 개 유지 검사를 포함한다.
 
-`build-round5.txt`: `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` 성공. 단위 테스트 154개, 실패·오류 0. `contract.txt`: **Lesson contract passed**. 회전 방향·선택 띠 픽셀 검사와 정지 상태의 셰브론 언급 없음 검사를 추가했다. 기존 알약 접근성·잠금·140dp × 720dp 이상 주 버튼·미측정·보조선·재생 중 다음 회차 전환·Done 숫자 금지·캡션 계약도 통과했다. `ui/`의 Bold 0건, 색 리터럴은 `CoachStyle.kt`의 5토큰만 확인했다.
+`contract-round6.txt`: 수정 없는 `tools/lesson_shots.sh build/round6-shots-delivery`에서 **Lesson contract passed**. 첫 렌더·카테고리 순서·준비 중 클릭 차단·주행 스크롤·조작/지식 시작 전달·재개방 선택·모드 필터·예약 펼침 후 고정 하단을 검사했다. 준비 중 목록을 둘러본 뒤 돌아가도 직전 READY 과제·모드를 유지한다. Signal 글자·밑줄·아래 화살표, 선택 칸의 Ink 윤곽과 빨간 체크 원·흰 체크를 픽셀로 확인했다. 원 외곽의 안티앨리어싱 때문에 정확한 단색 픽셀 범위는 양쪽 한 픽셀씩의 여유를 둔다.
+
+기존 네 주 버튼 140dp × 720dp 이상, 시연 알약·패널 접힘, 잠금 터치 0, 미측정·자막·퀴즈·Done/Report 계약도 통과했다. 전체 이번 캡처는 `build/round6-shots-delivery/`에 있으며, 이 폴더의 다른 화면 PNG와 기존 라운드 로그는 이전 검증 이력이다.
+
+정적 확인: `ui/`의 `FontWeight.Bold` 0, `Color(0x`는 `CoachStyle.kt`의 다섯 토큰뿐, 문자열 리소스 변경 0. `tools/`, 빌드 파일, 상태기계·차량·포트·채점과 데이터 구조는 변경하지 않았다. 시드 내용에 준비 중 주차 두 개만 추가했다.
+
+`flow-round6.txt`: 수정 없는 `tools/emu_flow.sh build/round6-flow` **PASS**, uiautomator 충돌 **0**. 시트를 연 직후 기존 `힌트` → `시작` 조작으로 세션에 들어간다. 못한 주차 60/55·이동 4회와 안전벨트·근접·급제동 힌트, 잘한 주차 100/100·이동 2회·추가 힌트 없음, 도어 열림 → 리포트·배지를 확인했다. 세션 시작부터 리포트까지 **124초**이며 원본 캡처는 `build/round6-flow/`에 있다.

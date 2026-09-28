@@ -2,11 +2,25 @@ package com.moah.hackathon.data
 
 import com.moah.hackathon.feature.lesson.Difficulty
 import com.moah.hackathon.feature.lesson.TaskType
+import com.moah.hackathon.feature.lesson.TaskStatus
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class SeedCatalogTest {
+    @Test
+    fun `parking variants are ordered catalogue entries and remain planned`() {
+        assertEquals(11, SeedCatalog.tasks.size)
+        val parking = SeedCatalog.tasks.filter { it.type == TaskType.PARKING }
+        assertEquals(listOf(SeedCatalog.TASK_PARKING_REAR, "parking-parallel", "parking-front", "parking-angle"), parking.map { it.id })
+        assertEquals(listOf(Difficulty.MEDIUM, Difficulty.HARD), parking.takeLast(2).map { it.difficulty })
+        parking.drop(1).forEach {
+            assertEquals(TaskStatus.PLANNED, it.status)
+            assertTrue(SeedCatalog.guideFor(it).isEmpty())
+        }
+        assertEquals(3, SeedCatalog.tasks.count { it.isReady })
+    }
+
     @Test
     fun `task ids are unique and every difficulty is represented`() {
         assertEquals(SeedCatalog.tasks.size, SeedCatalog.tasks.map { it.id }.toSet().size)

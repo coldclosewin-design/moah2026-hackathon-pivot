@@ -27,6 +27,7 @@ import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.selected
@@ -50,10 +51,10 @@ internal fun PosterSurface(content: @Composable () -> Unit) {
 
 @Composable
 internal fun LessonText(text: String, size: Int = 36, color: Color = CoachColors.Ink,
-    bold: Boolean = false, modifier: Modifier = Modifier, maxLines: Int = Int.MAX_VALUE) {
+    bold: Boolean = false, modifier: Modifier = Modifier, maxLines: Int = Int.MAX_VALUE, textAlign: TextAlign? = null) {
     Text(text, modifier, color = color, fontSize = size.sp, lineHeight = (size * 1.3f).sp,
         maxLines = maxLines, overflow = if (maxLines == Int.MAX_VALUE) TextOverflow.Clip else TextOverflow.Ellipsis,
-        fontWeight = if (bold) FontWeight.Medium else FontWeight.Normal,
+        fontWeight = if (bold) FontWeight.Medium else FontWeight.Normal, textAlign = textAlign,
         style = TextStyle(localeList = LocaleList("ko-KR"),
             lineBreak = LineBreak.Paragraph.copy(wordBreak = LineBreak.WordBreak.Phrase)))
 }
