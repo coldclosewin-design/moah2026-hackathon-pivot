@@ -2,7 +2,7 @@
 
 새 Claude Code 세션이 이 파일 하나로 이어받을 수 있게 쓴 인계 문서. **작업을 마칠 때마다 이 파일을 갱신한다**(끝난 것은 지우고, 새로 생긴 것은 추가). 과거의 경위는 `docs/journal/`, 규칙은 `AGENTS.md`·`CLAUDE.md`, **제품 정의는 `docs/topics/01_driving_coach.md` v2**.
 
-마지막 갱신: 2026-09-28 · `main = 697f7c0`(PR #1~#43) · 동승자 포함 재녹화(`build/demo-companion.mp4`, 133 s) → **피드백 6건** `docs/design/05_round7_feedback.md` → **라운드 7 발주** `docs/handoffs/2026-09-28_codex_ui_round7.md`(지식 테스트 답 표시·그만하기 · 조향 애커만 · **동승자 화면 제거**)(이 PR) · 단위 테스트 165 · 마감 2026-10-07. **새 세션은 여기서: ① Codex 라운드 7 PR → 리뷰 → 머지 → Claude 가 동승자 모델·시드·`emu_flow`·대본·덱 제거 ② 사용자 결정 D1(출발 전 점검 7단계)·D3(시험장 예약 범위 가/나/다) → 발주(Claude 선행 → Codex) ③ 재녹화 → 컷 길이·덱 → 사내(8d).**
+마지막 갱신: 2026-09-28 · `main = 697f7c0`(PR #1~#43) · 동승자 포함 재녹화(`build/demo-companion.mp4`, 133 s) → **피드백 6건** `docs/design/05_round7_feedback.md` → **라운드 7 발주** `docs/handoffs/2026-09-28_codex_ui_round7.md`(지식 테스트 답 표시·그만하기 · 조향 애커만 · **동승자 화면 제거**)(이 PR) · 단위 테스트 165 · 마감 2026-10-07. **결정 D1 = 7단계 · D3 = (나)**(9/28) → 발주서 2: `docs/handoffs/2026-09-28_codex_predrive_7steps.md`(Step 11 확장) · `docs/handoffs/2026-09-28_codex_reservation.md`(Step 13)(이 PR). **새 세션은 여기서: ① Codex 라운드 7 PR → 리뷰 → 머지 → Claude 동승자 모델·시드·`emu_flow`·대본·덱 제거 ② Claude 선행 A(점검 7단계 → 예약 모델) 각각 PR → Codex 화면 ③ 재녹화 → 컷 길이·덱 → 사내(8d).**
 
 ## 1. 지금 되는 것 (한 문단)
 
@@ -115,6 +115,15 @@
 | 11e | 화면: 점검 과제용 `Maneuver` 칩 3개·`Done/Report` 행 교체 — C절 요청 | ⬜ Codex(UI 재설계 라운드 2 에 함께) |
 
 단위 테스트 113 → 129. `emu_flow.sh`(주차) 는 영향 없음 — 시연 본편은 그대로 주차.
+
+| 11f | **7단계 확장**(결정 D1, 9/28): 도어 → 벨트 → P → 브레이크+시동 → 좌 지시등 → 우 지시등 → 비상등. 새 VSS 경로 없음(스텁의 `Door`·`DirectionIndicator`·`Hazard`·`Brake.PedalPosition`). 발주서 `docs/handoffs/2026-09-28_codex_predrive_7steps.md` — Claude 선행 A1~A10(스냅샷 필드·점검 키 집합(주차 배지 불변)·`PreDriveSummary`·채점·가이드 7·힌트 2·조언 3·시나리오 2벌·표시 상태·B절) → Codex(칩 7·리포트 체크 표·문구) | ✅ 발주 → ⬜ Claude 선행 → ⬜ Codex → ⬜ 리뷰 |
+
+### Step 13 — 제휴 시험장 예약 (결정 D3 = (나), 9/28) — 발주서 `docs/handoffs/2026-09-28_codex_reservation.md`
+| # | 일 | 상태 |
+|---|---|---|
+| 13a | Claude 선행: `Venue`·`Course`·`Slot`·`Reservation`(`ReservationCard` 제거), 시드 시험장 3·코스 3·시간대 3, `ProgressStore.reservation`, 상태기계 `reserve`/`cancelReservation`(Setup 에서만), `Setup.venues/reservation`, `ModeAdvisor.suggestTask` 예약 코스 우선, 테스트 | ⬜ |
+| 13b | Codex: 시트 `제휴 시험장` 층(카드 3 → 시간·코스 칩 → `예약` → 확인 카드·`취소`), Setup 배지 `예약 · …`, 계측·캡처 4장 | ⬜ 13a 뒤 |
+| 13c | 대본 0:10 배지·덱 12장 "있는 것" | ⬜ 13b 뒤 |
 
 ### Step 12 — 동승자 공유 — ⛔ **제거 예정**(9/28 사용자: "운전자 입장에서 불필요"). 화면은 라운드 7(Codex), 모델·시드·`emu_flow`·대본·덱은 그 뒤 Claude. 이력은 PR #40~#43 · 발주서 `docs/handoffs/2026-09-28_codex_companion_share.md`
 | # | 일 | 상태 |
