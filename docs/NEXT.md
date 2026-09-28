@@ -2,7 +2,7 @@
 
 새 Claude Code 세션이 이 파일 하나로 이어받을 수 있게 쓴 인계 문서. **작업을 마칠 때마다 이 파일을 갱신한다**(끝난 것은 지우고, 새로 생긴 것은 추가). 과거의 경위는 `docs/journal/`, 규칙은 `AGENTS.md`·`CLAUDE.md`, **제품 정의는 `docs/topics/01_driving_coach.md` v2**.
 
-마지막 갱신: 2026-09-28 · `main = 697f7c0`(PR #1~#43) · 동승자 포함 재녹화(`build/demo-companion.mp4`, 133 s) → **피드백 6건** `docs/design/05_round7_feedback.md` → **라운드 7 발주** `docs/handoffs/2026-09-28_codex_ui_round7.md`(지식 테스트 답 표시·그만하기 · 조향 애커만 · **동승자 화면 제거**)(이 PR) · 단위 테스트 165 · 마감 2026-10-07. **결정 D1 = 7단계 · D3 = (나)**(9/28) → 발주서 2: `docs/handoffs/2026-09-28_codex_predrive_7steps.md`(Step 11 확장) · `docs/handoffs/2026-09-28_codex_reservation.md`(Step 13)(이 PR). **새 세션은 여기서: ① Codex 라운드 7 PR → 리뷰 → 머지 → Claude 동승자 모델·시드·`emu_flow`·대본·덱 제거 ② Claude 선행 A(점검 7단계 → 예약 모델) 각각 PR → Codex 화면 ③ 재녹화 → 컷 길이·덱 → 사내(8d).**
+마지막 갱신: 2026-09-28 · `main = d66f31d`(PR #1~#50) · 단위 테스트 183 · 마감 2026-10-07. 오늘: 라운드 7(#46, 지식 테스트 답 표시·그만하기·조향 애커만·동승자 화면 제거) → **결정 D1·D3** → Claude 선행 2(#47 점검 7단계 모델 · #48 예약 모델) → Codex 화면 2(#49 점검 칩 7·리포트 체크 표 · #50 시험장 목록→시간·코스→확인·취소→Setup 배지) 전부 리뷰·머지. `lesson_shots` 12묶음(≈2 분, adb 타임아웃 300 s). **새 세션은 여기서: ① Claude 동승자 모델·시드·`emu_flow` 선택 단계·대본 2:25·컷 11b 제거(Step 12) ② 재녹화(예약 배지 상태로 시작) → 컷 길이·덱 5·6·12장 스크린샷 ③ 사내(8d).** 관찰 후보: 리포트 체크 표 안전벨트 행이 시동 미측정이면 미측정(§C) · 계측 퀴즈 클릭 직후 노드 수 검사 흔들림(Codex 폴링 요청).
 
 ## 1. 지금 되는 것 (한 문단)
 
@@ -116,14 +116,14 @@
 
 단위 테스트 113 → 129. `emu_flow.sh`(주차) 는 영향 없음 — 시연 본편은 그대로 주차.
 
-| 11f | **7단계 확장**(결정 D1, 9/28): 도어 → 벨트 → P → 브레이크+시동 → 좌 지시등 → 우 지시등 → 비상등. 새 VSS 경로 없음(스텁의 `Door`·`DirectionIndicator`·`Hazard`·`Brake.PedalPosition`). 발주서 `docs/handoffs/2026-09-28_codex_predrive_7steps.md` — Claude 선행 A1~A10(스냅샷 필드·점검 키 집합(주차 배지 불변)·`PreDriveSummary`·채점·가이드 7·힌트 2·조언 3·시나리오 2벌·표시 상태·B절) → Codex(칩 7·리포트 체크 표·문구) | ✅ 발주 → ✅ Claude 선행(`claude/predrive-7-model`, 이 PR — 단위 테스트 166 · `emu_flow` PASS 배지 8 불변 · 못한 점검 30/40) → ⬜ Codex(`codex/predrive-7`) → ⬜ 리뷰 |
+| 11f | **7단계 확장**(결정 D1, 9/28): 도어 → 벨트 → P → 브레이크+시동 → 좌 지시등 → 우 지시등 → 비상등. 새 VSS 경로 없음(스텁의 `Door`·`DirectionIndicator`·`Hazard`·`Brake.PedalPosition`). 발주서 `docs/handoffs/2026-09-28_codex_predrive_7steps.md` — Claude 선행 A1~A10(스냅샷 필드·점검 키 집합(주차 배지 불변)·`PreDriveSummary`·채점·가이드 7·힌트 2·조언 3·시나리오 2벌·표시 상태·B절) → Codex(칩 7·리포트 체크 표·문구) | ✅ 발주 → ✅ Claude 선행(`claude/predrive-7-model`, 이 PR — 단위 테스트 166 · `emu_flow` PASS 배지 8 불변 · 못한 점검 30/40) → ✅ Codex PR #49 → ✅ **리뷰·머지 `7959727`**(빌드·179·`emu_flow` PASS 배지 8·`lesson_shots` PASS 11묶음·캡처 4장: 칩 7 = 4+3·미측정 회색·혼합 출처·리포트 ✓/✗ 7행) |
 
 ### Step 13 — 제휴 시험장 예약 (결정 D3 = (나), 9/28) — 발주서 `docs/handoffs/2026-09-28_codex_reservation.md`
 | # | 일 | 상태 |
 |---|---|---|
-| 13a | Claude 선행: `Venue`·`Course`·`Slot`·`Reservation`(`ReservationCard` 제거), 시드 시험장 3·코스 3·시간대 3, `ProgressStore.reservation`, 상태기계 `reserve`/`cancelReservation`(Setup 에서만), `Setup.venues/reservation`, `ModeAdvisor.suggestTask` 예약 코스 우선, 테스트 | ✅ (`claude/reservation-model`, 이 PR — `ReservationCard` 는 Codex 화면 전환 때 함께 삭제, `Setup.booking`·`venues` 추가 · 테스트 168 · `emu_flow` PASS) |
-| 13b | Codex: 시트 `제휴 시험장` 층(카드 3 → 시간·코스 칩 → `예약` → 확인 카드·`취소`), Setup 배지 `예약 · …`, 계측·캡처 4장 | ⬜ 13a 뒤 |
-| 13c | 대본 0:10 배지·덱 12장 "있는 것" | ⬜ 13b 뒤 |
+| 13a | Claude 선행: `Venue`·`Course`·`Slot`·`Reservation`(`ReservationCard` 제거), 시드 시험장 3·코스 3·시간대 3, `ProgressStore.reservation`, 상태기계 `reserve`/`cancelReservation`(Setup 에서만), `Setup.venues/reservation`, `ModeAdvisor.suggestTask` 예약 코스 우선, 테스트 | ✅ PR #48 `97d81c8`(`ReservationCard` 는 Codex 화면 전환 때 함께 삭제, `Setup.booking`·`venues` 추가 · 테스트 168 · `emu_flow` PASS) |
+| 13b | Codex: 시트 `제휴 시험장` 층(카드 3 → 시간·코스 칩 → `예약` → 확인 카드·`취소`), Setup 배지 `예약 · …`, 계측·캡처 4장 | ✅ Codex PR #50 → ✅ **리뷰·머지 `d66f31d`**(#49 뒤 리베이스 1곳 · 빌드·183·`emu_flow` PASS·`lesson_shots` PASS 12묶음(타임아웃 300 s 로) · 캡처 6장. 소유 예외로 `ReservationCard`·`Setup.reservation` 삭제됨) |
+| 13c | 대본 0:10 배지·덱 12장 "있는 것" | ✅ 이 PR(대본 준비 절 한 줄 · 덱 12장 "있는 것" = 예약 + 점검 7단계) |
 
 ### Step 12 — 동승자 공유 — ⛔ **화면 제거 완료(PR #46), 모델·시드·`emu_flow`·대본·덱은 Claude 후속**(9/28 사용자: "운전자 입장에서 불필요"). 화면은 라운드 7(Codex), 모델·시드·`emu_flow`·대본·덱은 그 뒤 Claude. 이력은 PR #40~#43 · 발주서 `docs/handoffs/2026-09-28_codex_companion_share.md`
 | # | 일 | 상태 |

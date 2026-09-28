@@ -33,6 +33,7 @@ bash tools/lesson_shots.sh /tmp/shots  # 고정 데이터로 5화면 계약 검�
 | **덤프 전에 양쪽 파일 삭제, 실패는 `<DUMP_FAILED/>`** | 도식처럼 계속 갱신되는 화면에서는 `uiautomator dump` 가 "could not get idle state" 로 실패하고 파일을 만들지 않는다. 예전 파일을 읽으면 낡은 화면을 현재로 착각한다 |
 | **진행 판정은 앱 로그(`MOAH/LessonStateMachine`)로** (`wait_log`), 버튼은 좌표를 기억해 둔다 | 위와 같은 이유. 화면 텍스트는 정지 화면(Setup·Done·Report)에서만 믿는다. 시연 패널·회차 버튼은 화면마다 같은 자리라 덤프가 될 때 좌표를 기억했다가 안 될 때 그 좌표로 누른다 |
 | **화면을 검사할 때는 `now_texts`** (덤프 후 읽기) | `texts` 는 마지막 덤프를 읽는다. 탭·대기 뒤에 `texts` 만 부르면 한 단계 전 화면이 나온다 |
+| **`lesson_shots` 의 adb 타임아웃 300 s** (2026-09-28, 120 → 300) | 계약이 12묶음(≈2 분)이 되자 120 s 에 `am instrument -w` 가 끊겨 화면 검사는 전부 PASS 인데 결과 보고("Lesson contract passed")만 못 받아 FAIL 로 찍혔다(기기 로그 `Failure reporting to instrumentation watcher`). 묶음이 더 늘면 다시 올린다 |
 | **탭 라벨은 정확히 일치** (`text="라벨"`) | 접두사 매칭은 안내 문구를 잘못 누른다(16번 2026-09-19). 라벨은 발주서의 `strings.xml` 문자열 그대로 |
 | **`adb shell wm density <값>` 을 쓴 뒤에는 에뮬을 재부팅** | `wm density reset` 뒤 에뮬이 불안정해져 타이밍 계측이 무작위로 실패했다(16번 2026-09-21). 실패가 새 변경 탓인지 의심되면 **main 빌드로 같은 검사를 돌려 가른다** |
 | `MSYS_NO_PATHCONV=1`, 모든 adb 호출에 `</dev/null`, 로컬 경로는 `cygpath -w` | 경로 변환으로 `/sdcard` 가 깨지고, stdin 이 열려 있으면 `adb shell` 이 멈춘다 |
