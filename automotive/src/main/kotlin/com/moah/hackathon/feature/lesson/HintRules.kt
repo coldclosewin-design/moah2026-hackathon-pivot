@@ -30,8 +30,16 @@ class HintRules(private val cooldownMillis: Long = 5_000L, private val checklist
             if (checklist) {
                 val pd = metrics.preDrive
                 // 시동이 켜지는 순간 벨트가 아직이면 — 순서가 바뀌었다. 한 번만(전이).
-                if (pd.ignitionOnMillis != null && prev?.preDrive?.ignitionOnMillis == null && pd.beltOnMillis == null) {
+                val ignitionJustOn = pd.ignitionOnMillis != null && prev?.preDrive?.ignitionOnMillis == null
+                if (ignitionJustOn && pd.beltOnMillis == null) {
                     fire(out, "order", nowMillis, "시동보다 안전벨트가 먼저예요. 지금 매 주세요.", SpeechPriority.URGENT)
+                }
+                // 7단계(9/28): 시동 순간의 도어·브레이크 — 한 번만(전이). 신호가 없으면(null) 말하지 않는다
+                if (ignitionJustOn && pd.doorClosedBeforeIgnition == false) {
+                    fire(out, "door", nowMillis, "문이 아직 열려 있어요. 닫고 시작해요.", SpeechPriority.NORMAL)
+                }
+                if (ignitionJustOn && pd.brakeBeforeIgnition == false) {
+                    fire(out, "brake", nowMillis, "시동은 브레이크를 밟고 켜요.", SpeechPriority.NORMAL)
                 }
                 if (grew(metrics.motion.movingSegments, prev?.motion?.movingSegments)) {
                     fire(out, "moved", nowMillis, "아직 출발 전이에요. 차는 세운 채로 점검만 해요.", SpeechPriority.NORMAL)

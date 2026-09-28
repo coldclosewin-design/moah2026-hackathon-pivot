@@ -45,10 +45,14 @@ class SignalRegistry(
 
     fun isAvailable(key: String): Boolean = availability(key) != SignalAvailability.MISSING
 
-    fun snapshot(): Map<String, SignalAvailability> = keys.associateWith { availability(it) }
+    /**
+     * @param subset 배지의 분모로 삼을 키 — 과제마다 다르다(주차 8 · 출발 전 점검 12, 9/28). 기본은 등록된 키 전부.
+     *   레지스트리는 상위 집합으로 만들고, 과제가 자기 키로 잘라 본다 → 주차 배지가 점검 신호 때문에 "미측정 4" 가 되지 않는다.
+     */
+    fun snapshot(subset: Set<String> = keys): Map<String, SignalAvailability> = subset.associateWith { availability(it) }
 
-    fun badge(): AvailabilityBadge {
-        val s = snapshot().values
+    fun badge(subset: Set<String> = keys): AvailabilityBadge {
+        val s = snapshot(subset).values
         return AvailabilityBadge(
             live = s.count { it == SignalAvailability.LIVE },
             simulated = s.count { it == SignalAvailability.SIMULATED },
@@ -56,7 +60,7 @@ class SignalRegistry(
         )
     }
 
-    fun missingKeys(): List<String> = keys.filter { it !in seen }
+    fun missingKeys(subset: Set<String> = keys): List<String> = subset.filter { it !in seen }
 
     companion object {
         /** 포트 종류를 보고 알맞은 레지스트리를 만든다. 조립 지점(App.kt)에서 쓴다. */

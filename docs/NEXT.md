@@ -116,7 +116,7 @@
 
 단위 테스트 113 → 129. `emu_flow.sh`(주차) 는 영향 없음 — 시연 본편은 그대로 주차.
 
-| 11f | **7단계 확장**(결정 D1, 9/28): 도어 → 벨트 → P → 브레이크+시동 → 좌 지시등 → 우 지시등 → 비상등. 새 VSS 경로 없음(스텁의 `Door`·`DirectionIndicator`·`Hazard`·`Brake.PedalPosition`). 발주서 `docs/handoffs/2026-09-28_codex_predrive_7steps.md` — Claude 선행 A1~A10(스냅샷 필드·점검 키 집합(주차 배지 불변)·`PreDriveSummary`·채점·가이드 7·힌트 2·조언 3·시나리오 2벌·표시 상태·B절) → Codex(칩 7·리포트 체크 표·문구) | ✅ 발주 → ⬜ Claude 선행 → ⬜ Codex → ⬜ 리뷰 |
+| 11f | **7단계 확장**(결정 D1, 9/28): 도어 → 벨트 → P → 브레이크+시동 → 좌 지시등 → 우 지시등 → 비상등. 새 VSS 경로 없음(스텁의 `Door`·`DirectionIndicator`·`Hazard`·`Brake.PedalPosition`). 발주서 `docs/handoffs/2026-09-28_codex_predrive_7steps.md` — Claude 선행 A1~A10(스냅샷 필드·점검 키 집합(주차 배지 불변)·`PreDriveSummary`·채점·가이드 7·힌트 2·조언 3·시나리오 2벌·표시 상태·B절) → Codex(칩 7·리포트 체크 표·문구) | ✅ 발주 → ✅ Claude 선행(`claude/predrive-7-model`, 이 PR — 단위 테스트 166 · `emu_flow` PASS 배지 8 불변 · 못한 점검 30/40) → ⬜ Codex(`codex/predrive-7`) → ⬜ 리뷰 |
 
 ### Step 13 — 제휴 시험장 예약 (결정 D3 = (나), 9/28) — 발주서 `docs/handoffs/2026-09-28_codex_reservation.md`
 | # | 일 | 상태 |

@@ -90,6 +90,11 @@ data class VehicleSnapshot(
     val doorOpen: Boolean = false,
     val rearDistanceCm: Float? = null,
     val obstacleWarning: Boolean? = null,
+    /** 출발 전 점검 7단계(9/28)용. 신호가 없으면 null(미측정). */
+    val brakePressed: Boolean? = null,
+    val indicatorLeft: Boolean? = null,
+    val indicatorRight: Boolean? = null,
+    val hazard: Boolean? = null,
 ) {
     val stopped: Boolean get() = speedKmh < STOP_SPEED_KMH
     val moving: Boolean get() = speedKmh > MOVING_SPEED_KMH
@@ -104,6 +109,10 @@ data class VehicleSnapshot(
         doorOpen = delta[VssConstants.DOOR_DRIVER_ISOPEN]?.toVssBoolean() ?: doorOpen,
         rearDistanceCm = delta[VssConstants.OBSTACLE_REAR_DISTANCE_CM]?.toVssFloat() ?: rearDistanceCm,
         obstacleWarning = delta[VssConstants.OBSTACLE_IS_WARNING]?.toVssBoolean() ?: obstacleWarning,
+        brakePressed = delta[VssConstants.BRAKE_PEDAL_POSITION]?.toVssFloat()?.let { it > 0f } ?: brakePressed,
+        indicatorLeft = delta[VssConstants.LIGHT_INDICATOR_LEFT]?.toVssBoolean() ?: indicatorLeft,
+        indicatorRight = delta[VssConstants.LIGHT_INDICATOR_RIGHT]?.toVssBoolean() ?: indicatorRight,
+        hazard = delta[VssConstants.LIGHT_HAZARD]?.toVssBoolean() ?: hazard,
     )
 
     companion object {

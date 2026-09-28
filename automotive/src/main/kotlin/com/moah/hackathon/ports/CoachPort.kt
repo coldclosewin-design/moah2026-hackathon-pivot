@@ -54,8 +54,11 @@ object AdviceRules {
         // 출발 전 점검
         BELT_BEFORE_IGNITION("다음엔 벨트가 먼저, 시동은 그다음이에요.", "시동 켜기 전에 벨트부터 같이 봐 주세요."),
         BELT_MISSING("벨트를 매고 시작하는 것부터 몸에 붙여요.", "출발 전에 벨트 매는 걸 같이 확인해 주세요."),
+        DOOR_OPEN_AT_IGNITION("문을 닫고 시동을 켜요.", "시동 켜기 전에 문이 닫혔는지 봐 주세요."),
+        NO_BRAKE_AT_IGNITION("시동은 브레이크를 밟은 채로요.", "시동 켤 때 브레이크 밟는지 봐 주세요."),
         MOVED_DURING_CHECK("점검은 차를 세운 채로 해요. 움직이는 건 그다음.", "점검 중엔 브레이크를 밟고 있는지 봐 주세요."),
         CHECK_PARK("시동을 켤 땐 기어가 P 인지 한 번 더 봐요.", "시동 켜기 전에 기어 P 를 같이 확인해 주세요."),
+        LIGHTS_SKIPPED("지시등과 비상등도 출발 전에 한 번씩 켜 봐요.", "출발 전에 지시등·비상등 켜 보는 걸 같이 챙겨 주세요."),
         KEEP_ORDER("이 순서 그대로 몸에 남겨 두세요.", "오늘은 그냥 잘했다고 해 주세요."),
         // 주차
         BELT_FIRST("다음엔 벨트를 먼저 매고 출발해요.", "출발 전에 벨트 같이 확인해 주세요."),
@@ -75,8 +78,11 @@ object AdviceRules {
             return when {
                 pd.beltBeforeIgnition == false -> Advice.BELT_BEFORE_IGNITION
                 pd.beltOnMillis == null && score.missingSignals.none { it.contains("IsBelted") } -> Advice.BELT_MISSING
+                pd.doorClosedBeforeIgnition == false -> Advice.DOOR_OPEN_AT_IGNITION
+                pd.brakeBeforeIgnition == false -> Advice.NO_BRAKE_AT_IGNITION
                 m.motion.movingSegments > 0 -> Advice.MOVED_DURING_CHECK
                 m.gear?.endedInPark == false -> Advice.CHECK_PARK
+                pd.skippedLights > 0 -> Advice.LIGHTS_SKIPPED
                 else -> Advice.KEEP_ORDER
             }
         }

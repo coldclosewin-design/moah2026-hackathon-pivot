@@ -18,6 +18,13 @@ data class ChecklistRubric(
     val penaltyMoved: Int = 30,
     val penaltyNotInPark: Int = 30,
     val penaltyNoBeltSafety: Int = 40,
+    // 7단계 확장(9/28) — 신호가 MISSING 이면 무감점
+    /** 숙련: 브레이크를 밟지 않고 시동. */
+    val penaltyNoBrakeAtIgnition: Int = 20,
+    /** 숙련: 좌/우 지시등·비상등 확인을 건너뜀 — 등화당. */
+    val penaltyPerSkippedLight: Int = 10,
+    /** 안전: 운전석 도어가 열린 채 시동. */
+    val penaltyDoorOpenAtIgnition: Int = 30,
 )
 
 /**
@@ -39,6 +46,8 @@ object ChecklistScorer {
         if (beltMeasured && pd.beltOnMillis == null) skill -= rubric.penaltyNoBelt
         if (ignitionMeasured && pd.ignitionOnMillis == null) skill -= rubric.penaltyNoIgnition
         if (pd.beltBeforeIgnition == false) skill -= rubric.penaltyBeltAfterIgnition
+        if (pd.brakeBeforeIgnition == false) skill -= rubric.penaltyNoBrakeAtIgnition
+        skill -= pd.skippedLights * rubric.penaltyPerSkippedLight
         val extraSeconds = maxOf(0L, completionMillis(metrics) / 1000 - rubric.graceSeconds)
         skill -= (extraSeconds / 10).toInt() * rubric.penaltyPerExtra10s
 
@@ -46,11 +55,13 @@ object ChecklistScorer {
         if (metrics.motion.movingSegments > 0) safety -= rubric.penaltyMoved
         if (metrics.gear?.endedInPark == false) safety -= rubric.penaltyNotInPark
         if (beltMeasured && pd.beltOnMillis == null) safety -= rubric.penaltyNoBeltSafety
+        if (pd.doorClosedBeforeIgnition == false) safety -= rubric.penaltyDoorOpenAtIgnition
 
         return ParkingScore(skill.coerceIn(0, 100), safety.coerceIn(0, 100), metrics, badge, missingSignals)
     }
 
-    /** 점검이 끝난 시각 — 벨트·시동 중 늦은 쪽. 둘 다 없으면 회차 전체 시간. 회차 멘트 머리말("출발 준비 N초")의 근거. */
+    /** 점검이 끝난 시각 — 벨트·시동·등화 확인 중 늦은 쪽. 아무것도 없으면 회차 전체 시간. 리포트 자세히 보기("출발 준비 N초")의 근거. */
     fun completionMillis(metrics: ParkingMetrics): Long =
-        listOfNotNull(metrics.preDrive.beltOnMillis, metrics.preDrive.ignitionOnMillis).maxOrNull() ?: metrics.motion.totalMillis
+        listOfNotNull(metrics.preDrive.beltOnMillis, metrics.preDrive.ignitionOnMillis, metrics.preDrive.lightsDoneMillis).maxOrNull()
+            ?: metrics.motion.totalMillis
 }
