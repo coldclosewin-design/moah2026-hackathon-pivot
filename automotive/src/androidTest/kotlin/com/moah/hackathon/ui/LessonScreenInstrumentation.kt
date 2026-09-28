@@ -61,26 +61,69 @@ class LessonScreenInstrumentation : Instrumentation() {
             check(texts().contains("연습할 과제"))
             check(texts().containsAll(listOf("가이드", "힌트", "평가")))
             check(texts().none { it == "지식 테스트" })
-            val planned = SeedCatalog.tasks.first { !it.isReady }
-            check(nodes().none { it.isClickable && descendants(it).any { child -> child.text?.toString() == planned.title } })
+            val parkingTasks = SeedCatalog.tasks.filter { it.type == TaskType.PARKING }
+            check(texts().containsAll(parkingTasks.map { it.title })) { "Parking must show all four bays" }
+            parkingTasks.filterNot { it.isReady }.forEach { assertPlannedTask(it.title) }
+            assertSelected(task.title)
+            assertSelected("주차")
+            val categoryCenters = categoryOrder().map { textBounds(taskTypeLabel(it)).centerX() }
+            check(categoryCenters == categoryCenters.sorted())
+            check(allText().none { Regex("\\d").containsMatchIn(it) }) { "Sheet leaked task counts or numbers: ${allText()}" }
             check(texts().contains("준비 중"))
             assertDriverButton(activity, "시작")
+            val sheetStartBounds = buttonBounds("시작")
+            click("힌트")
             val selectedBounds = buttonBounds(task.title)
+            val categoryTitleBounds = textBounds("주차")
             capture("setup-sheet") { bitmap ->
-                val stripeWidth = (12 * designScale(activity)).toInt()
-                (0 until stripeWidth).forEach { x ->
-                    check(bitmap.getPixel(selectedBounds.left + x, selectedBounds.centerY()) == CoachColors.Ink.toArgb()) {
-                        "Selected task stripe is not Ink at x=$x"
+                val scale = designScale(activity)
+                val checkCircle = colorBounds(bitmap, selectedBounds, CoachColors.Signal.toArgb())
+                // Exact-color bounds exclude the antialiased boundary pixel on each side of a circle.
+                check(kotlin.math.abs(checkCircle.width() - 64f * scale) <= 2f &&
+                    kotlin.math.abs(checkCircle.height() - 64f * scale) <= 2f) { "Selected bay check circle: $checkCircle" }
+                check(kotlin.math.abs(checkCircle.centerY() - (selectedBounds.bottom - 32 * scale)) <= 1f)
+                check(bitmap.getPixel(checkCircle.centerX() - (4 * scale).toInt(),
+                    checkCircle.centerY() + (11 * scale).toInt()) == CoachColors.Paper.toArgb()) { "Missing white check" }
+                check(bitmap.getPixel(selectedBounds.left + (3 * scale).toInt(), selectedBounds.centerY()) == CoachColors.Ink.toArgb())
+                check(!colorBounds(bitmap, categoryTitleBounds, CoachColors.Signal.toArgb()).isEmpty) { "Expanded category text must be Signal" }
+                listOf(10, 26).forEach { belowTitle ->
+                    check(bitmap.getPixel(categoryTitleBounds.centerX(), categoryTitleBounds.bottom + (belowTitle * scale).toInt()) == CoachColors.Signal.toArgb()) {
+                        "Missing Signal underline or downward triangle"
                     }
                 }
-                check(bitmap.getPixel(selectedBounds.left + stripeWidth + 1, selectedBounds.centerY()) == CoachColors.Periwinkle.toArgb())
             }
-            pass("Selected task has a 12 dp Ink stripe on Periwinkle")
-            click("힌트")
+            pass("Setup first render: four parking bays, suggested selection, three modes/start, Signal category and 64 dp checked circle")
+            click("제휴 시험장 예시")
+            check(texts().any { SeedCatalog.reservation.venue in it }) { "Reservation cannot expand" }
+            check(buttonBounds("시작") == sheetStartBounds) { "Reservation moved the footer" }
+            click("제휴 시험장 예시")
             click("시작")
             runOnMainSync { check(started == task.id to LessonMode.HINT) }
+            click("주행")
+            assertSelected("주행")
+            check(texts().none { it in listOf("시작", "가이드", "힌트", "평가", "지식 테스트") })
+            val driving = SeedCatalog.tasks.filter { it.type == TaskType.DRIVING }
+            check(driving.size == 5)
+            driving.take(4).forEach { assertPlannedTask(it.title) }
+            capture("setup-sheet-driving")
+            val taskRow = nodes().first { it.isScrollable }
+            check(taskRow.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD))
+            Thread.sleep(350)
+            assertPlannedTask(driving.last().title)
+            capture("setup-sheet-driving-end")
+            click("돌아가기")
+            check(texts().contains(setupProposal(TaskType.PARKING)))
+            click("과제·모드 바꾸기")
+            assertSelected("주차")
+            assertSelected(task.title)
+            click("조작")
+            assertSelected(SeedCatalog.predriveTask.title)
+            check(texts().containsAll(listOf("가이드", "힌트", "평가", "시작")))
+            click("시작")
+            runOnMainSync { check(started == SeedCatalog.predriveTask.id to LessonMode.HINT) }
             val knowledge = SeedCatalog.tasks.first { it.type == TaskType.KNOWLEDGE }
-            scrollTo(knowledge.title)
+            click("지식")
+            assertSelected(knowledge.title)
             click(knowledge.title)
             check(texts().contains("지식 테스트")) { "Knowledge selection: ${texts()}" }
             check(texts().none { it in listOf("가이드", "힌트", "평가") })
@@ -88,8 +131,22 @@ class LessonScreenInstrumentation : Instrumentation() {
             runOnMainSync { check(started == knowledge.id to LessonMode.QUIZ) }
             click("돌아가기")
             check(texts().contains(setupProposal(TaskType.KNOWLEDGE)))
+            click("과제·모드 바꾸기")
+            assertSelected("지식")
+            assertSelected(knowledge.title)
+            check(buttonBounds("시작") == sheetStartBounds)
             capture("setup-knowledge")
-            pass("Setup selection dispatches task and mode; demo collapsed, opens on 시연, collapses on play without resizing text")
+            click("주행")
+            check(texts().none { it == "시작" })
+            click("돌아가기")
+            check(texts().contains(setupProposal(TaskType.KNOWLEDGE))) { "Browsing planned tasks lost the last ready selection" }
+            click("과제·모드 바꾸기")
+            assertSelected("지식")
+            assertSelected("지식 테스트")
+            click("주차")
+            assertSelected(task.title)
+            assertSelected("가이드")
+            pass("Setup categories: planned driving scroll/no start, checklist dispatch, knowledge QUIZ, reopen selection and mode filtering; fixed footer")
 
             val line = "후면 직각 주차, 가이드 모드. 오늘은 핸들 방향과 기어 전환을 봅니다."
             render(activity) { BriefingScreen(task, LessonMode.GUIDE, line, line) }
@@ -378,6 +435,21 @@ class LessonScreenInstrumentation : Instrumentation() {
     private fun nodes() = descendants(checkNotNull(uiAutomation.rootInActiveWindow))
     private fun texts() = nodes().mapNotNull { it.text?.toString() }
     private fun allText() = nodes().flatMap { listOfNotNull(it.text?.toString(), it.contentDescription?.toString(), it.stateDescription?.toString()) }
+    private fun assertSelected(label: String) {
+        val matches = nodes().filter { descendants(it).any { child -> child.text?.toString() == label } }
+        // Selected tabs omit the click action; buttons and radio buttons expose other selection fields.
+        check(matches.any { it.isSelected || it.isChecked || it.stateDescription?.toString() in listOf("Selected", "선택됨") }) {
+            "Missing selected semantics for $label: $matches"
+        }
+    }
+    private fun assertPlannedTask(label: String) {
+        val ancestors = nodes().filter { descendants(it).any { child -> child.text?.toString() == label } }
+        check(ancestors.isNotEmpty()) { "Planned task not visible: $label" }
+        check(ancestors.none { it.isClickable || it.actionList.any { action -> action.id == AccessibilityNodeInfo.ACTION_CLICK } }) {
+            "Planned task exposes a click action: $label"
+        }
+        check(ancestors.any { !it.isEnabled }) { "Planned task lacks disabled semantics: $label" }
+    }
     private fun assertNoScores() { check(allText().none { Regex("점수|감점|\\d+\\s*점|이동 \\d+회|\\d+초").containsMatchIn(it) }) }
     private fun assertNoDoneMetrics() { check(allText().none { Regex("\\d+회(?!차)|\\d+초|지난번보다|cm").containsMatchIn(it) }) }
     private fun assertPanelCollapsed() {

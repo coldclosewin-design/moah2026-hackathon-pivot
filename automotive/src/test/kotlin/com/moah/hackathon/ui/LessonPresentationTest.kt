@@ -9,6 +9,12 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class LessonPresentationTest {
+    @Test fun categoriesFollowTheDemoOrderRatherThanEnumOrder() {
+        assertEquals(listOf(TaskType.PARKING, TaskType.DRIVING, TaskType.CHECKLIST, TaskType.KNOWLEDGE), categoryOrder())
+        assertEquals(TaskType.entries.toSet(), categoryOrder().toSet())
+        assertEquals(listOf("주차", "주행", "조작", "지식"), categoryOrder().map(::taskTypeLabel))
+    }
+
     @Test fun steeringTurnsMissingAndNeutral() {
         assertNull(steeringTurnsLabel(null))
         listOf(-44.99f, 0f, 44.99f).forEach { assertEquals("중립", steeringTurnsLabel(it)) }

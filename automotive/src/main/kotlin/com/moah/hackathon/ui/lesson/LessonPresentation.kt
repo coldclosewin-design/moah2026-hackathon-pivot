@@ -21,6 +21,9 @@ internal fun taskTypeLabel(type: TaskType): String = when (type) {
     TaskType.KNOWLEDGE -> "지식"
 }
 
+internal fun categoryOrder(): List<TaskType> =
+    listOf(TaskType.PARKING, TaskType.DRIVING, TaskType.CHECKLIST, TaskType.KNOWLEDGE)
+
 internal fun selectionReason(task: Task, mode: LessonMode, suggestedTask: Task, suggestedMode: LessonMode, reason: String) =
     if (task.id == suggestedTask.id && mode == suggestedMode) reason else task.summary
 
