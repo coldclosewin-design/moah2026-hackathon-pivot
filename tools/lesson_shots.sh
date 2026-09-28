@@ -16,7 +16,7 @@ if ! mkdir "$LOCK" 2>/dev/null; then echo "!! another instance is running (pid $
 echo $$ > "$PIDFILE"
 trap 'rmdir "$LOCK" 2>/dev/null; rm -f "$PIDFILE"' EXIT
 if ! command timeout 20 "$ADB" -s emulator-5554 get-state </dev/null 2>/dev/null | grep -q device; then echo "!! no device. abort."; exit 4; fi
-adb() { command timeout 120 "$ADB" "$@" </dev/null; }
+adb() { command timeout 300 "$ADB" "$@" </dev/null; }
 
 for f in automotive/build/outputs/apk/debug/automotive-debug.apk automotive/build/outputs/apk/androidTest/debug/automotive-debug-androidTest.apk; do
   [ -f "$f" ] || { echo "!! missing $f (build first)"; exit 2; }
