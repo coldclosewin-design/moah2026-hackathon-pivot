@@ -20,15 +20,17 @@
 
 공유 범위는 진단서와 같은 구조(3단계)지만 라벨이 다르다(§2). 실제 전송·계정·네트워크는 없다 — 화면에 "예시입니다 — 실제 전송은 없습니다" 를 진단서 탭과 같은 자리에 쓴다.
 
-## 1. Claude 선행 (데이터·코치·상태기계) — ⬜ PR 뒤 Codex 시작
+## 1. Claude 선행 (데이터·코치·상태기계) — ✅ 완료(브랜치 `claude/companion-model`, 아래 표대로 구현 · 단위 테스트 164) → Codex 시작 가능
 
 | # | 무엇 | 어디 |
 |---|---|---|
 | A1 | `CompanionShareLevel { SUMMARY("총평만", "잘한 것·도울 것 두 문장"), PROCESS("과정까지", "회차별 궤적과 힌트 이력"), FULL("진단서 전체", "항목별 수치까지") }` | `feature/lesson/LessonModels.kt` |
-| A2 | `CompanionNote(praise: String, help: String)` — 두 문장. `CoachPort.companionNote(task, attempts, profile)`; `FakeCoachPort` 는 규칙: praise = 최고 회차 밴드별 풀(숫자 없음, 4밴드 × 2), help = `AdviceRules.advice` 를 동승자 문장으로 매핑(벨트 → "출발 전에 벨트 같이 확인해 주세요" / 급제동 → "멈추기 전에 '천천히' 한 마디" / 근접 → "뒤를 같이 봐 주세요" / 조향 왕복·기어 전환·구간 수 → "핸들 타이밍은 말없이 기다려 주세요" / P → "다 들어오면 P 까지 같이 확인" / 없음 → "오늘은 그냥 잘했다고 해 주세요"). `CloudCoachPort` 는 프롬프트 + 검증 + 폴백(회차 멘트와 같은 규칙) | `ports/CoachPort.kt`, `feature/lesson/RemarkPool.kt`(풀), 단위 테스트 |
+| A2 | `CompanionNote(praise: String, help: String)` — 두 문장(`text` = "praise\nhelp"). `CoachPort.companionNote(task, attempts, profile)`; `FakeCoachPort` 는 `CompanionRules.note`: praise = **최고 회차** 밴드별 풀 `CompanionRules.PRAISE`(주차 4밴드 × 2, 점검 × 1, 숫자 없음), help = **마지막 회차**의 `AdviceRules.pick(...)` → `Advice.companion`(`AdviceRules.Advice` enum 이 운전자 문장·동승자 문장을 쌍으로 가짐: 벨트 → "출발 전에 벨트 같이 확인해 주세요." / 급제동 → "멈추기 전에 '천천히' 한 마디만 해 주세요." / 근접 → "뒤를 같이 봐 주세요. 가까우면 손으로 알려 주세요." / 조향·기어·구간 → "핸들 타이밍은 말없이 기다려 주세요." / P → "다 들어오면 기어 P 까지 같이 확인해 주세요." / 없음 → "오늘은 그냥 잘했다고 해 주세요."). `CloudCoachPort.companionNote` 는 프롬프트(`CoachPrompts.companion`, 120자) + 검증 + 두 줄이 아니면 폴백 | `ports/CoachPort.kt`(`AdviceRules.Advice`·`CompanionRules`), `ports/CloudCoachPort.kt`, `CompanionRulesTest`·`CloudCoachPortTest` |
 | A3 | `LessonReport.companion: CompanionNote`, `LessonReport.companionShareLevels: List<CompanionShareLevel>`, `LessonReport.cheers: List<String>`(시드 3: "오늘도 천천히 가요" / "지난번보다 나아졌어요, 내가 봤어요" / "다음엔 내가 옆에서 조용히 있을게요") | `LessonModels.kt`, `data/SeedCatalog.kt`(문구는 Codex 가 다듬음) |
 | A4 | `LessonStateMachine.shareWithCompanion(level: CompanionShareLevel)` → 로그 `companion: share=<LEVEL>`(전송 없음), `cheer(text: String)` → `ProgressStore.cheer = text` → 다음 `Setup` 의 `LessonPhase.Setup.cheer: String?`. `LessonViewModel` 에 두 진입점. `reset()` 은 cheer 를 지우지 않는다(다음 세션에 보이는 게 목적) | `LessonStateMachine.kt`, `LessonPhase.kt`, `ProgressStore.kt`, `LessonViewModel.kt`, 테스트 |
-| A5 | `emu_flow.sh`: Report 뒤 선택 단계 — `동승자` 탭 → 응원 첫 문장 → `다시 시작` → Setup 에 그 문장이 있는지 확인(`companion:` 로그 + 텍스트). 기본 흐름 판정(힌트 3종·채점·배지)은 불변 | `tools/emu_flow.sh` |
+| A5 | `emu_flow.sh`: Report 뒤 선택 단계 — 화면에 `동승자` 가 **있으면** 탭 → `예시입니다` 확인 → 첫 응원 `오늘도 천천히 가요` → `companion: cheer=` 로그 → `다시 시작` → Setup 텍스트에 그 문장(`18_companion.png`·`19_setup_cheer.png`). **없으면 건너뛴다**(지금 main 은 건너뜀 — Codex 화면이 들어오면 자동으로 검사). 기본 흐름 판정 불변 | `tools/emu_flow.sh` |
+
+Codex 가 화면에서 쓸 진입점·필드는 §4 그대로: `vm.shareWithCompanion(level)`·`vm.cheer(text)`, `report.companion.praise/help`(또는 `.text`), `report.companionShareLevels`, `report.cheers`, `LessonPhase.Setup.cheer`. `LessonReport`·`Setup` 의 새 필드는 기본값이 있어 계측의 기존 생성자 호출은 그대로 컴파일된다 — 동승자 검사에는 `cheers = SeedCatalog.cheers`, `companion = CompanionNote(...)` 를 명시해라.
 
 ## 2. Codex — 화면
 
