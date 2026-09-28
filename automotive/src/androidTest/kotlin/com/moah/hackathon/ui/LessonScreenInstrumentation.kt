@@ -46,6 +46,7 @@ class LessonScreenInstrumentation : Instrumentation() {
                     { id, mode -> started = id to mode }, setupDemo)
             }
             check(allText().containsAll(listOf(setupProposal(TaskType.PARKING), "시작", "시연")))
+            check(allText().none { it.startsWith("동승자 · ") })
             assertDriverButton(activity, "시작")
             assertPanelCollapsed()
             capture("setup")
@@ -368,10 +369,16 @@ class LessonScreenInstrumentation : Instrumentation() {
             val report = LessonReport(task, LessonMode.HINT, listOf(record), score,
                 "후면 직각 주차, 힌트 모드 1회.\n다음에는 뒤 거리를 조금 더 남겨 볼까요?\n주변도 함께 살펴요.",
                 task, LessonMode.GUIDE, "핸들 타이밍을 한 단계씩 함께 익혀요.", ShareLevel.entries,
-                SeedCatalog.benefits, listOf("안전벨트 확인"))
+                SeedCatalog.benefits, listOf("안전벨트 확인"),
+                companion = CompanionNote("오늘은 한 번에 들어갔어요.", "오늘은 그냥 잘했다고 해 주세요."),
+                cheers = SeedCatalog.cheers)
             var restarted = 0
-            render(activity) { ReportScreen(report, { restarted++ }) }
-            check(texts().containsAll(listOf(badgeText(score.badge), "다시 시작", "진단서", "신호 출처", "이 신호는 이 차에서 받지 못했어요")))
+            val shares = mutableListOf<CompanionShareLevel>()
+            val cheers = mutableListOf<String>()
+            render(activity) { ReportScreen(report, { restarted++ }, { shares += it }, { cheers += it }) }
+            check(texts().containsAll(listOf(badgeText(score.badge), "다시 시작", "진단서", "동승자", "신호 출처", "이 신호는 이 차에서 받지 못했어요")))
+            val reportActions = listOf("자세히 보기", "진단서", "동승자").map(::textBounds)
+            check(reportActions.zipWithNext().all { (left, right) -> left.right < right.left && left.top == right.top })
             check(texts().contains(driverReportSummary(report.summary)))
             check(texts().none { Regex("\\d+회\\.").containsMatchIn(it) })
             capture("report")
@@ -391,7 +398,97 @@ class LessonScreenInstrumentation : Instrumentation() {
             click("다시 시작")
             runOnMainSync { check(restarted == 1) }
             pass("Done actions and Report badge, certificate sharing choices, restart")
-            render(activity) { ReportScreen(report.copy(attempts = List(100) { record.copy(index = it + 1) }), {}) }
+            click("돌아가기")
+            click("동승자")
+            check(texts().containsAll(listOf("동승자에게", "예시입니다 — 실제 전송은 없습니다",
+                report.companion.text, "공유 범위", "응원 한마디", "돌아가기", "다시 시작") +
+                report.companionShareLevels.flatMap { listOf(it.label, it.description) } + report.cheers))
+            assertExclusiveSelection(report.companionShareLevels.map { it.label }, CompanionShareLevel.SUMMARY.label)
+            assertExclusiveSelection(report.cheers, null)
+            runOnMainSync { check(shares.isEmpty() && cheers.isEmpty()) }
+            assertDriverButton(activity, "다시 시작")
+            val companionRestart = buttonBounds("다시 시작")
+            val graphicCount = report.attempts.size.toString().padStart(2, '0')
+            check(allText().filterNot { it == graphicCount }.none { Regex("\\d").containsMatchIn(it) })
+            assertNoScores()
+            val chipBounds = report.cheers.map(::buttonBounds)
+            chipBounds.forEach { bounds ->
+                check(kotlin.math.abs(bounds.height() / designScale(activity) - 96f) <= 1f)
+                check(bounds.bottom < companionRestart.top) { "Cheer clipped by footer: $bounds" }
+            }
+            check(chipBounds.first().width() < chipBounds.last().width()) { "Cheer chips must fit their content" }
+            report.cheers.forEach { cheer ->
+                check(textBounds(cheer).height() / designScale(activity) < 60f) { "Cheer must stay on one line" }
+            }
+            capture("companion")
+            // Compose omits the click action for an already selected radio; change away, then back.
+            val shareChoices = report.companionShareLevels.drop(1) + report.companionShareLevels.first()
+            shareChoices.forEachIndexed { index, level ->
+                click(level.label)
+                assertExclusiveSelection(report.companionShareLevels.map { it.label }, level.label)
+                runOnMainSync { check(shares == shareChoices.take(index + 1)) }
+            }
+            report.cheers.forEachIndexed { index, cheer ->
+                click(cheer)
+                assertExclusiveSelection(report.cheers, cheer)
+                runOnMainSync { check(cheers == report.cheers.take(index + 1)) }
+            }
+            capture("companion-selected") { bitmap ->
+                report.cheers.forEachIndexed { index, cheer ->
+                    val bounds = chipBounds[index]
+                    val expected = if (cheer == report.cheers.last()) CoachColors.Periwinkle else CoachColors.Lavender
+                    check(bitmap.getPixel(bounds.left + 2, bounds.top + 2) == expected.toArgb())
+                }
+            }
+            click("돌아가기")
+            click("동승자")
+            assertExclusiveSelection(report.companionShareLevels.map { it.label }, shareChoices.last().label)
+            assertExclusiveSelection(report.cheers, report.cheers.last())
+            check(buttonBounds("다시 시작") == companionRestart)
+            runOnMainSync { check(shares.size == 3 && cheers.size == 3) }
+            click("다시 시작")
+            runOnMainSync { check(restarted == 2) }
+            pass("Companion: action order, example/note, no numbers/scores, three exclusive radios/chips, callbacks once per tap, retained selections, 96 dp chips and 140 dp restart")
+
+            val longNote = CompanionNote(report.companion.praise, "뒤를 같이 봐 주세요. 가까우면 손으로 알려 주세요.")
+            render(activity) { ReportScreen(report.copy(companion = longNote), {}, {}, {}) }
+            click("동승자")
+            val longNoteFooter = buttonBounds("다시 시작")
+            capture("companion-long-note")
+            (report.companionShareLevels.map { it.description } + report.cheers).forEach { label ->
+                check(label in texts()) { "Long note hid $label: ${texts()}" }
+                check(textBounds(label).bottom < longNoteFooter.top) { "Long note clipped an option: $label" }
+            }
+
+            val selectedCheer = cheers.last()
+            render(activity) {
+                SetupScreen(SeedCatalog.demoProfile, SeedCatalog.tasks, task, LessonMode.GUIDE,
+                    "처음은 제가 순서대로 함께할게요.", SeedCatalog.reservation, "오늘은 편안한 곳에서 주차부터 연습해 봐요.",
+                    { _, _ -> }, setupDemo, selectedCheer)
+            }
+            val cheerLabel = "동승자 · $selectedCheer"
+            check(texts().contains(cheerLabel))
+            check(textBounds(cheerLabel).bottom < textBounds(profileLine(SeedCatalog.demoProfile)).top)
+            assertDriverButton(activity, "시작")
+            capture("setup-cheer") { bitmap ->
+                check(!colorBounds(bitmap, textBounds(cheerLabel), CoachColors.Periwinkle.toArgb()).isEmpty)
+            }
+            click("과제·모드 바꾸기")
+            check(allText().none { it.startsWith("동승자 · ") })
+            click("돌아가기")
+            check(texts().contains(cheerLabel))
+            render(activity) {
+                SetupScreen(SeedCatalog.demoProfile, SeedCatalog.tasks, task, LessonMode.GUIDE,
+                    "처음은 제가 순서대로 함께할게요.", SeedCatalog.reservation, "오늘은 편안한 곳에서 주차부터 연습해 봐요.",
+                    { _, _ -> }, setupDemo, cheer = null)
+            }
+            check(allText().none { it.startsWith("동승자 · ") })
+            check(textBounds(setupProposal(TaskType.PARKING)) == proposalBounds) { "Absent cheer reserved space on Setup" }
+            render(activity) { BriefingScreen(task, LessonMode.GUIDE, line, line) }
+            check(allText().none { it.startsWith("동승자 · ") })
+            pass("Setup cheer: above profile in Periwinkle, hidden on sheet/Briefing, no reserved space when absent")
+
+            render(activity) { ReportScreen(report.copy(attempts = List(100) { record.copy(index = it + 1) }), {}, {}, {}) }
             check(texts().contains("100"))
             check(texts().contains("다시 시작"))
             capture("report-100")
@@ -440,6 +537,13 @@ class LessonScreenInstrumentation : Instrumentation() {
         // Selected tabs omit the click action; buttons and radio buttons expose other selection fields.
         check(matches.any { it.isSelected || it.isChecked || it.stateDescription?.toString() in listOf("Selected", "선택됨") }) {
             "Missing selected semantics for $label: $matches"
+        }
+    }
+    private fun assertExclusiveSelection(labels: List<String>, selected: String?) {
+        labels.forEach { label ->
+            val selectedNodes = nodes().filter { it.isSelected || it.isChecked || it.stateDescription?.toString() in listOf("Selected", "선택됨") }
+            val isSelected = selectedNodes.any { descendants(it).any { child -> child.text?.toString() == label } }
+            check(isSelected == (label == selected)) { "Unexpected selection for $label; expected $selected" }
         }
     }
     private fun assertPlannedTask(label: String) {

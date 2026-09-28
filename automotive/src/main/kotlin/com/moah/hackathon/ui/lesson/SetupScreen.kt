@@ -16,7 +16,7 @@ import com.moah.hackathon.ui.CoachColors
 @Composable
 internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Task, suggestedMode: LessonMode,
     reason: String, reservation: ReservationCard?, subtitle: String?, onBegin: (String, LessonMode) -> Unit,
-    demo: (@Composable () -> Unit)? = null) {
+    demo: (@Composable () -> Unit)? = null, cheer: String? = null) {
     var selectedTaskId by rememberSaveable(suggestedTask.id) { mutableStateOf(suggestedTask.id) }
     var categoryName by rememberSaveable(suggestedTask.id) { mutableStateOf(suggestedTask.type.name) }
     var modeName by rememberSaveable(suggestedMode) { mutableStateOf(suggestedMode.name) }
@@ -57,6 +57,10 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
                                 onBack = { sheet = false }, onStart = start)
                         } else {
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
+                                if (cheer != null) {
+                                    Eyebrow("동승자 · $cheer", color = CoachColors.Periwinkle)
+                                    Spacer(Modifier.height(16.dp))
+                                }
                                 Eyebrow(profileLine(profile), color = CoachColors.Muted)
                                 Spacer(Modifier.height(32.dp))
                                 Headline(setupProposal(task.type), size = 72)

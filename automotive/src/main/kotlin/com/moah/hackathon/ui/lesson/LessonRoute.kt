@@ -27,12 +27,12 @@ internal fun LessonRoute(vm: LessonViewModel) {
     }
     when (val state = phase) {
         is LessonPhase.Setup -> SetupScreen(state.profile, state.tasks, state.suggestedTask, state.suggestedMode,
-            state.reason, state.reservation, subtitle, vm::begin, demo)
+            state.reason, state.reservation, subtitle, vm::begin, demo, state.cheer)
         is LessonPhase.Briefing -> BriefingScreen(state.task, state.mode, state.line, subtitle)
         is LessonPhase.Maneuver -> ManeuverScreen(state.toDisplayState(), state.snapshot.locked, state.snapshot.stopped,
             subtitle, vm::finishAttempt, demo, state.task.title)
         is LessonPhase.Done -> DoneScreen(state.task, state.attempt, state.record, subtitle, vm::nextAttempt, vm::endSession, demo)
-        is LessonPhase.Report -> ReportScreen(state.report, vm::restart)
+        is LessonPhase.Report -> ReportScreen(state.report, vm::restart, vm::shareWithCompanion, vm::cheer)
         is LessonPhase.Quiz -> QuizScreen(state.task, state.index, state.total, state.item, state.locked,
             state.chosen, state.correctSoFar, vm::answer, vm::nextQuestion)
         is LessonPhase.QuizDone -> QuizDoneScreen(state.task, state.results, state.items, state.remark, vm::restart)

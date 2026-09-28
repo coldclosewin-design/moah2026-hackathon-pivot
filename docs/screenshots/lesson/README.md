@@ -1,4 +1,25 @@
-# UI 라운드 6 검증 캡처
+# 화면 검증 캡처
+
+## 동승자 공유 (2026-09-28)
+
+`codex/companion-share` · 기준 `origin/main=98ec8f8`(선행 모델 PR #41 머지) · CSTDe_API_34 2560×1440 · 기본 Fake, 배율 1.0. [동승자 공유 발주서](../../handoffs/2026-09-28_codex_companion_share.md) §2 구현.
+
+- `lesson-companion.png`: 원본 `emu_flow.sh`에서 못한 주차 → 잘한 주차를 마친 실제 두 회차 리포트의 동승자 탭. 칭찬·도움말, 예시 고지, 기본 총평만, 응원 세 개와 다시 시작을 보여 준다.
+- `lesson-setup-cheer.png`: 같은 실제 세션에서 `오늘도 천천히 가요`를 고르고 다시 시작한 Setup. 프로필 위에 `동승자 · 오늘도 천천히 가요`가 표시된다.
+
+`build-companion.txt`: PowerShell `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` 성공. 단위 테스트 **164개, 실패·오류 0**.
+
+`contract-companion.txt`: 수정 없는 `tools/lesson_shots.sh build/companion-contract-complete`에서 **Lesson contract passed**. 동승자 액션 순서·두 문장·예시 고지·숫자/점수 비노출, 공유 범위와 응원 각각 단일 선택, 모든 콜백의 인자·횟수, 탭 재진입 선택 유지, 칩 96dp·내용 폭·한 줄·선택 색, 다시 시작 140dp × 720dp 이상, 긴 조언의 옵션 노출을 검사했다. Setup은 응원 있음/없음, 프로필 위의 Periwinkle 눈썹, 시트·Briefing 비노출, 응원이 없을 때 첫 렌더 배치가 같은지 확인했다. 기존 잠금·패널·주 버튼·시트·퀴즈·Done/Report 계약도 통과했다.
+
+전체 계측 캡처는 `build/companion-contract-complete/`에 있다. `lesson-companion-selected.png`, `lesson-companion-long-note.png`, `lesson-setup-cheer.png`를 눈으로 확인했다. 공유 범위 여백을 줄여 72sp 조언이 세 줄이어도 마지막 설명이 하단 버튼에 가려지지 않게 했다.
+
+정적 확인: `ui/`의 `FontWeight.Bold` 0, `Color(0x`는 `CoachStyle.kt`에만 있다. 문자열 리소스는 `lesson_companion` 한 개만 추가했다. 차량·포트·채점·상태기계·데이터·빌드 파일·`tools/` 변경은 없다.
+
+`flow-companion.txt`: 수정 없는 `tools/emu_flow.sh build/companion-flow` **PASS**, uiautomator 충돌 **0**. 못한 주차 60/55·이동 4회·필수 힌트 세 종류 → 잘한 주차 100/100·이동 2회·추가 힌트 없음 → 도어 열림 후 리포트(세션 시작부터 **132초**) → 동승자 탭 → 첫 응원 선택 로그 → 다시 시작한 Setup에 응원이 보이는 전체 경로를 확인했다. 원본 캡처는 `build/companion-flow/`에 있다.
+
+기존 추천 문구의 `가이드를 0번 통과했어요`는 `feature/lesson/ProgressStore.kt`의 `ModeAdvisor`에서 온다. Setup 캡처와 자막에도 그대로 보이며, 발주서의 수정 금지 영역이므로 [INTEGRATION C절](../../INTEGRATION.md#c-요청-codex--claude--claude--codex)에 후속 수정 요청을 기록했다.
+
+## UI 라운드 6 검증 캡처
 
 2026-09-28 · `codex/ui-round6` · 기준 `origin/main=7b5e3f2` · CSTDe_API_34 2560×1440 · 기본 Fake, 배율 1.0. [라운드 6 발주서](../../handoffs/2026-09-28_codex_ui_round6.md)의 사용자 선택 시안 05를 구현했다.
 

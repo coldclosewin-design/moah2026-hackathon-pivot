@@ -23,14 +23,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.moah.hackathon.R
+import com.moah.hackathon.feature.lesson.CompanionShareLevel
 import com.moah.hackathon.feature.lesson.LessonReport
 import com.moah.hackathon.ui.CoachColors
 
-private enum class ReportPage { SUMMARY, DETAILS, CERTIFICATE }
+private enum class ReportPage { SUMMARY, DETAILS, CERTIFICATE, COMPANION }
 
 @Composable
-internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit) {
+internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit,
+    onShareWithCompanion: (CompanionShareLevel) -> Unit, onCheer: (String) -> Unit) {
     var page by rememberSaveable(report) { mutableStateOf(ReportPage.SUMMARY) }
+    var companionLevel by rememberSaveable(report) { mutableStateOf(CompanionShareLevel.SUMMARY.name) }
+    var selectedCheer by rememberSaveable(report) { mutableStateOf<String?>(null) }
     PosterSurface {
         Row(Modifier.fillMaxSize()) {
             RecordGraphic(report.attempts.size, Modifier.weight(.38f).fillMaxHeight())
@@ -50,6 +54,7 @@ internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit) {
                             Row(horizontalArrangement = Arrangement.spacedBy(64.dp)) {
                                 TextAction("자세히 보기", { page = ReportPage.DETAILS })
                                 TextAction("진단서", { page = ReportPage.CERTIFICATE })
+                                TextAction(stringResource(R.string.lesson_companion), { page = ReportPage.COMPANION })
                             }
                         }
                         ReportProvenance(report)
@@ -68,6 +73,52 @@ internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit) {
                             PrimaryPill(stringResource(R.string.lesson_restart), onRestart)
                         }
                     }
+                    ReportPage.COMPANION -> {
+                        CompanionContent(report, companionLevel, selectedCheer,
+                            onShare = { level -> companionLevel = level.name; onShareWithCompanion(level) },
+                            onCheer = { text -> selectedCheer = text; onCheer(text) }, Modifier.weight(1f))
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically) {
+                            TextAction("돌아가기", { page = ReportPage.SUMMARY })
+                            PrimaryPill(stringResource(R.string.lesson_restart), onRestart, driver = true)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CompanionContent(report: LessonReport, selectedLevel: String, selectedCheer: String?,
+    onShare: (CompanionShareLevel) -> Unit, onCheer: (String) -> Unit, modifier: Modifier) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(28.dp)) {
+        Eyebrow("동승자에게")
+        LessonText("예시입니다 — 실제 전송은 없습니다", 40, CoachColors.Periwinkle)
+        Headline(report.companion.text, size = 72)
+        Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(48.dp)) {
+            Column(Modifier.weight(.36f).verticalScroll(rememberScrollState()).selectableGroup(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Eyebrow("공유 범위")
+                report.companionShareLevels.forEach { level ->
+                    PosterRule()
+                    Row(Modifier.fillMaxWidth().selectable(selectedLevel == level.name, role = Role.RadioButton,
+                        onClick = { onShare(level) }).padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.Top) {
+                        RadioButton(selectedLevel == level.name, onClick = null,
+                            colors = RadioButtonDefaults.colors(selectedColor = CoachColors.Periwinkle, unselectedColor = CoachColors.Muted))
+                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            LessonText(level.label, 40)
+                            LessonText(level.description, 32, CoachColors.Muted)
+                        }
+                    }
+                }
+            }
+            Column(Modifier.weight(.64f).verticalScroll(rememberScrollState()).selectableGroup(),
+                verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                Eyebrow("응원 한마디")
+                report.cheers.forEach { cheer ->
+                    SelectionChip(cheer, selectedCheer == cheer, { onCheer(cheer) }, Modifier.width(IntrinsicSize.Max))
                 }
             }
         }

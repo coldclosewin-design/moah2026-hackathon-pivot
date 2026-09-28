@@ -119,8 +119,8 @@ internal fun PosterRule(modifier: Modifier = Modifier, color: Color = CoachColor
     HorizontalDivider(modifier, thickness = 2.dp, color = color)
 
 @Composable
-internal fun SelectionChip(label: String, chosen: Boolean, onClick: () -> Unit) {
-    Box(Modifier.width(220.dp).height(96.dp).background(if (chosen) CoachColors.Periwinkle else CoachColors.Lavender)
+internal fun SelectionChip(label: String, chosen: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier.width(220.dp)) {
+    Box(modifier.height(96.dp).background(if (chosen) CoachColors.Periwinkle else CoachColors.Lavender)
         .clickable(role = Role.RadioButton, onClick = onClick).semantics { selected = chosen }
         .padding(horizontal = 4.dp), contentAlignment = Alignment.Center) {
         LessonText(label, 40, if (chosen) CoachColors.Paper else CoachColors.Ink, maxLines = 1)
