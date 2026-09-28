@@ -146,12 +146,6 @@ enum class ShareLevel(val label: String, val description: String) {
     RAW("원시 신호", "회차의 속도·조향각 시계열까지"),
 }
 
-/**
- * 시트 아래 카드 한 장(9/26). **9/28 결정 D3 (나) 로 [Venue]·[Reservation] 흐름이 대체한다** — Codex 화면 전환(`codex/reservation`) 뒤 삭제.
- * 그때까지 [LessonPhase.Setup.reservation] 은 예약이 있으면 그 예약을, 없으면 시드 예시를 이 모양으로 준다.
- */
-data class ReservationCard(val venue: String, val slot: String, val course: String, val note: String)
-
 // ───────── 제휴 시험장 예약 (§3.3 "장소", 결정 D3 = (나), 9/28) — 실제 연계 없음("예시") ─────────
 
 /** 시험장. [distanceKm] 은 U3(위치) 미결이라 예시값, 모르면 null. */
@@ -177,17 +171,6 @@ data class Reservation(val venueId: String, val slotId: String, val courseId: St
     fun venue(venues: List<Venue>): Venue? = venues.firstOrNull { it.id == venueId }
     fun course(venues: List<Venue>): Course? = venue(venues)?.courses?.firstOrNull { it.id == courseId }
     fun slot(venues: List<Venue>): Slot? = venue(venues)?.slots?.firstOrNull { it.id == slotId }
-
-    /** 옛 카드 모양(화면 전환 전 호환). 시험장을 못 찾으면 null. */
-    fun toCard(venues: List<Venue>): ReservationCard? {
-        val v = venue(venues) ?: return null
-        return ReservationCard(
-            venue = v.name,
-            slot = slot(venues)?.let { "오늘 ${it.label}" } ?: "오늘",
-            course = course(venues)?.title ?: "",
-            note = EXAMPLE_NOTE,
-        )
-    }
 
     companion object {
         /** 화면·확인 카드에 그대로 쓰는 문장(진단서와 같은 방식). */

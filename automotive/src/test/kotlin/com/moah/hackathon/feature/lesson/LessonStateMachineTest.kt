@@ -44,7 +44,7 @@ class LessonStateMachineTest {
         val machine = LessonStateMachine(
             vehicle = port, tts = tts, coach = coach ?: FakeCoachPort(RemarkPool(SeedCatalog.remarks, Random(3))),
             registry = SignalRegistry(ParkingRecorder.CHECKLIST_KEYS, simulated = true), store = store,
-            tasks = SeedCatalog.tasks, guideFor = SeedCatalog::guideFor, quizFor = SeedCatalog::quizFor, reservation = SeedCatalog.reservation, venues = SeedCatalog.venues, benefits = SeedCatalog.benefits,
+            tasks = SeedCatalog.tasks, guideFor = SeedCatalog::guideFor, quizFor = SeedCatalog::quizFor, venues = SeedCatalog.venues, benefits = SeedCatalog.benefits,
             cheers = SeedCatalog.cheers,
             profile = SeedCatalog.demoProfile, scope = scope, clock = { testScheduler.currentTime }, briefingMillis = 0,
         )
@@ -74,7 +74,6 @@ class LessonStateMachineTest {
         val setup = h.machine.phase.value as LessonPhase.Setup
         assertEquals(SeedCatalog.TASK_PARKING_REAR, setup.suggestedTask.id)
         assertEquals(LessonMode.GUIDE, setup.suggestedMode)
-        assertNotNull(setup.reservation)
         assertEquals(null, setup.cheer)
         // 리포트 밖에서는 동승자 동작을 받지 않는다
         h.machine.cheer("오늘도 천천히 가요"); h.machine.shareWithCompanion(CompanionShareLevel.FULL)
@@ -422,14 +421,13 @@ class LessonStateMachineTest {
             vehicle = h.port, tts = h.tts, coach = FakeCoachPort(RemarkPool(SeedCatalog.remarks, Random(3))),
             registry = SignalRegistry(ParkingRecorder.KEYS, simulated = true), store = h.store,
             tasks = SeedCatalog.tasks, guideFor = SeedCatalog::guideFor, quizFor = SeedCatalog::quizFor,
-            reservation = SeedCatalog.reservation, venues = SeedCatalog.venues, benefits = SeedCatalog.benefits,
+            venues = SeedCatalog.venues, benefits = SeedCatalog.benefits,
             profile = noFear, scope = h.scope, clock = { testScheduler.currentTime }, briefingMillis = 0,
         )
         val before = m.phase.value as LessonPhase.Setup
         assertEquals(SeedCatalog.TASK_PREDRIVE, before.suggestedTask.id)
         assertEquals(null, before.booking)
         assertEquals(3, before.venues.size)
-        assertEquals(SeedCatalog.reservation, before.reservation)   // 예약 없음 → 옛 카드는 시드 예시
 
         // 자리 없는 시간대·모르는 코스는 무시
         m.reserve("venue-seocho", "slot-16", SeedCatalog.COURSE_PARKING)
@@ -442,9 +440,6 @@ class LessonStateMachineTest {
         assertEquals("venue-seocho", h.store.reservation?.venueId)
         assertEquals(SeedCatalog.TASK_PARKING_REAR, booked.suggestedTask.id)        // 주차 3종의 첫 READY = 후면 직각
         assertTrue(booked.reason, booked.reason.startsWith(ModeAdvisor.RESERVED_REASON) && !Regex("\\d").containsMatchIn(booked.reason))
-        assertEquals("제휴 도로주행시험장 서초", booked.reservation?.venue)        // 옛 카드는 예약을 비춘다
-        assertEquals("오늘 14:00–15:00", booked.reservation?.slot)
-        assertEquals(Reservation.EXAMPLE_NOTE, booked.reservation?.note)
 
         // Setup 밖에서는 예약·취소를 받지 않는다
         m.begin(SeedCatalog.TASK_PARKING_REAR, LessonMode.HINT); advanceUntilIdle()

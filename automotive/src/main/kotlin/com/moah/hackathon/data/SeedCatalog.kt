@@ -8,7 +8,6 @@ import com.moah.hackathon.feature.lesson.ProfileStatement
 import com.moah.hackathon.feature.lesson.QuizItem
 import com.moah.hackathon.feature.lesson.RemarkTemplate
 import com.moah.hackathon.feature.lesson.Course
-import com.moah.hackathon.feature.lesson.ReservationCard
 import com.moah.hackathon.feature.lesson.Slot
 import com.moah.hackathon.feature.lesson.Venue
 import com.moah.hackathon.feature.lesson.ScoreBand
@@ -191,17 +190,9 @@ object SeedCatalog {
 
     /** 시험장 3. 시간대는 오늘 3(하나는 자리 없음). */
     val venues: List<Venue> = listOf(
-        Venue("venue-seocho", "제휴 도로주행시험장 서초", "서초", 3f, courses, slotsToday(unavailable = 1)),
-        Venue("venue-gangnam", "제휴 도로주행시험장 강남", "강남", 6f, listOf(courses[0], courses[1]), slotsToday(unavailable = 0)),
-        Venue("venue-bundang", "제휴 도로주행시험장 분당", "분당", 14f, listOf(courses[0], courses[2]), slotsToday(unavailable = 2)),
-    )
-
-    /** 옛 카드(9/26) — Codex 화면 전환 뒤 [venues] 로 대체·삭제. 예약이 없을 때 Setup 이 보여 주는 예시. */
-    val reservation: ReservationCard = ReservationCard(
-        venue = "제휴 도로주행시험장 (서초)",
-        slot = "오늘 14:00 – 15:00 비어 있음",
-        course = "코스 B · 주차 3종",
-        note = "시드 데이터 — 실제 예약 연계 없음",
+        Venue("venue-seocho", "서초 시험장", "서초", 3f, courses, slotsToday(unavailable = 1)),
+        Venue("venue-gangnam", "강남 시험장", "강남", 6f, listOf(courses[0], courses[1]), slotsToday(unavailable = 0)),
+        Venue("venue-bundang", "분당 시험장", "분당", 14f, listOf(courses[0], courses[2]), slotsToday(unavailable = 2)),
     )
 
     /** 진단서의 예상 혜택 예시. 실제 전송·계약은 없다(화면에 그렇게 밝힌다). */

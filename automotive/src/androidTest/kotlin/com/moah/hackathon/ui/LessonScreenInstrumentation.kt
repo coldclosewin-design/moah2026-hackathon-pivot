@@ -10,7 +10,10 @@ import android.view.accessibility.AccessibilityNodeInfo
 import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.compositeOver
 import com.moah.hackathon.App
@@ -43,8 +46,8 @@ class LessonScreenInstrumentation : Instrumentation() {
             var started: Pair<String, LessonMode>? = null
             render(activity) {
                 SetupScreen(SeedCatalog.demoProfile, SeedCatalog.tasks, task, LessonMode.GUIDE,
-                    "처음은 제가 순서대로 함께할게요.", SeedCatalog.reservation, "오늘은 편안한 곳에서 주차부터 연습해 봐요.",
-                    { id, mode -> started = id to mode }, setupDemo)
+                    "처음은 제가 순서대로 함께할게요.", "오늘은 편안한 곳에서 주차부터 연습해 봐요.",
+                    { id, mode -> started = id to mode }, setupDemo, venues = SeedCatalog.venues)
             }
             check(allText().containsAll(listOf(setupProposal(TaskType.PARKING), "시작", "시연")))
             check(allText().none { it.startsWith("동승자 · ") })
@@ -95,10 +98,12 @@ class LessonScreenInstrumentation : Instrumentation() {
                 }
             }
             pass("Setup first render: four parking bays, suggested selection, three modes/start, Signal category and 64 dp checked circle")
-            click("제휴 시험장 예시")
-            check(texts().any { SeedCatalog.reservation.venue in it }) { "Reservation cannot expand" }
-            check(buttonBounds("시작") == sheetStartBounds) { "Reservation moved the footer" }
-            click("제휴 시험장 예시")
+            click("제휴 시험장")
+            check(texts().contains(Reservation.EXAMPLE_NOTE))
+            check(texts().none { it in listOf("시작", "가이드", "힌트", "평가") })
+            click("돌아가기")
+            check(buttonBounds("시작") == sheetStartBounds) { "Returning from venues moved the footer" }
+            assertSelected("힌트")
             click("시작")
             runOnMainSync { check(started == task.id to LessonMode.HINT) }
             click("주행")
@@ -368,7 +373,7 @@ class LessonScreenInstrumentation : Instrumentation() {
                     if (inQuiz.value) QuizScreen(knowledge, 0, SeedCatalog.quiz.size, SeedCatalog.quiz.first(), false,
                         chosen, 0, {}, {}, { quitCount++; inQuiz.value = false })
                     else SetupScreen(SeedCatalog.demoProfile, SeedCatalog.tasks, task, LessonMode.GUIDE,
-                        "처음은 제가 순서대로 함께할게요.", SeedCatalog.reservation, null, { _, _ -> })
+                        "처음은 제가 순서대로 함께할게요.", null, { _, _ -> })
                 }
                 click("그만하기")
                 runOnMainSync { check(quitCount == index + 1) }
@@ -530,10 +535,126 @@ class LessonScreenInstrumentation : Instrumentation() {
             check(texts().none { it == "✗" })
             capture("report-checklist-missing")
             pass("Checklist Report: seven recorded checks, only belt/ignition timing, good/bad/missing distinction; Done retains two sentences")
+            reservationFlow(activity)
             recordMotionClips(activity, moving, pathRecord)
             finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Lesson contract passed\n") })
         } catch (failure: Throwable) {
             finish(Activity.RESULT_CANCELED, Bundle().apply { putString("stream", failure.stackTraceToString()) })
+        }
+    }
+
+    private fun reservationFlow(activity: MainActivity) {
+        val container = (activity.application as App).container
+        lateinit var vm: LessonViewModel
+        runOnMainSync {
+            vm = ViewModelProvider(activity, LessonViewModel.factory(container))[LessonViewModel::class.java]
+            vm.restart()
+            vm.cancelReservation()
+        }
+        var reserved: Triple<String, String, String>? = null
+        var reserveCalls = 0
+        var cancelCalls = 0
+        render(activity) {
+            val phase by vm.phase.collectAsStateWithLifecycle()
+            val setup = phase as LessonPhase.Setup
+            SetupScreen(setup.profile, setup.tasks, setup.suggestedTask, setup.suggestedMode, setup.reason, null, vm::begin,
+                venues = setup.venues, booking = setup.booking,
+                onReserve = { venue, slot, course -> reserveCalls++; reserved = Triple(venue, slot, course); vm.reserve(venue, slot, course) },
+                onCancelReservation = { cancelCalls++; vm.cancelReservation() })
+        }
+        check(texts().none { it.startsWith("예약 · ") })
+        val originalProfileBounds = textBounds(profileLine(SeedCatalog.demoProfile))
+        click("과제·모드 바꾸기")
+        // A manual choice must not hide the state machine's new recommendation after booking.
+        click("지식")
+        click("제휴 시험장")
+        val seocho = SeedCatalog.venues[0]
+        val gangnam = SeedCatalog.venues[1]
+        val parking = seocho.courses.first()
+        check(texts().containsAll(SeedCatalog.venues.map { it.name } + Reservation.EXAMPLE_NOTE))
+        check(texts().none { it == "예약" })
+        assertReservationNumbers()
+        capture("venues") { bitmap ->
+            SeedCatalog.venues.forEach { venue ->
+                val bounds = buttonBounds(venue.name)
+                check(kotlin.math.abs(bounds.height() / designScale(activity) - 220f) <= 1f)
+                check(bitmap.getPixel(bounds.left + 2, bounds.top + 2) == CoachColors.Lavender.toArgb())
+            }
+        }
+        click(seocho.name)
+        check(texts().containsAll(seocho.slots.map { it.label }))
+        assertPlannedTask(seocho.slots.single { !it.available }.label)
+        click(parking.title)
+        check(texts().none { it == "예약" }) { "Course alone exposed reservation" }
+        click(seocho.slots.first().label)
+        assertDriverButton(activity, "예약")
+        click(gangnam.name)
+        check(texts().none { it == "예약" }) { "Changing venue kept old slot/course selection" }
+        assertPlannedTask(gangnam.slots.single { !it.available }.label)
+        click(gangnam.slots.first { it.available }.label)
+        check(texts().none { it == "예약" }) { "Slot alone exposed reservation" }
+        click("돌아가기")
+        check(texts().none { it == "시간" || it == "예약" })
+        click(seocho.name)
+        click(seocho.slots.first().label)
+        check(texts().none { it == "예약" })
+        click(parking.title)
+        assertSelected(seocho.name)
+        assertSelected(seocho.slots.first().label)
+        assertSelected(parking.title)
+        assertDriverButton(activity, "예약")
+        assertReservationNumbers()
+        capture("venue-slots") { bitmap ->
+            val unavailable = textBounds(seocho.slots.single { !it.available }.label)
+            check(!colorBounds(bitmap, unavailable, CoachColors.Muted.compositeOver(CoachColors.Lavender).toArgb(), tolerance = 1).isEmpty)
+        }
+        click("예약")
+        runOnMainSync {
+            check(reserveCalls == 1 && reserved == Triple(seocho.id, seocho.slots.first().id, parking.id))
+            check(container.store.reservation?.courseId == parking.id)
+        }
+        check(texts().containsAll(listOf("예약 확인", "예약됨", "취소", Reservation.EXAMPLE_NOTE,
+            "서초 · 오늘 14:00–15:00 · 주차 3종")))
+        check(texts().none { it == "예약" })
+        assertReservationNumbers()
+        capture("reservation")
+        click("돌아가기")
+        val badge = "예약 · 서초 14:00 · 주차 3종"
+        check(texts().contains(badge))
+        check(textBounds(badge).bottom < textBounds(profileLine(SeedCatalog.demoProfile)).top)
+        check(texts().contains("${SeedCatalog.parkingTask.title} · 가이드 모드"))
+        check(texts().any { it.startsWith(ModeAdvisor.RESERVED_REASON) })
+        capture("setup-reserved") { bitmap ->
+            check(!colorBounds(bitmap, textBounds(badge), CoachColors.Periwinkle.toArgb()).isEmpty)
+        }
+        click("과제·모드 바꾸기")
+        assertSelected("주차")
+        assertSelected(SeedCatalog.parkingTask.title)
+        check(texts().containsAll(listOf("가이드", "힌트", "평가", "시작")))
+        click("제휴 시험장")
+        check(texts().contains("예약됨"))
+        capture("venues-booked") { bitmap ->
+            val bounds = buttonBounds(seocho.name)
+            check(bitmap.getPixel(bounds.left + 2, bounds.top + 2) == CoachColors.Periwinkle.toArgb())
+        }
+        click(seocho.name)
+        check(texts().contains("예약 확인"))
+        runOnMainSync { check(reserveCalls == 1) }
+        click("취소")
+        runOnMainSync { check(cancelCalls == 1 && container.store.reservation == null) }
+        check(texts().containsAll(SeedCatalog.venues.map { it.name }))
+        check(texts().none { it == "예약됨" || it == "예약 확인" })
+        click("돌아가기")
+        click("돌아가기")
+        check(texts().none { it.startsWith("예약 · ") })
+        check(textBounds(profileLine(SeedCatalog.demoProfile)) == originalProfileBounds) { "Cancelled badge left empty space" }
+        pass("Reservation: three 220 dp cards, unavailable slot disabled, both choices required/reset per venue, reserve/cancel once, real ViewModel recommendation, confirmation/reopen, badge without leftover space")
+    }
+
+    private fun assertReservationNumbers() {
+        allText().forEach { text ->
+            val withoutAllowed = text.replace(Regex("\\d{2}:\\d{2}|\\d+(?:\\.\\d+)? km|주차 3종"), "")
+            check(!Regex("\\d|점수|감점").containsMatchIn(withoutAllowed)) { "Reservation leaked other numbers: $text" }
         }
     }
 
@@ -672,10 +793,14 @@ class LessonScreenInstrumentation : Instrumentation() {
             }
         }
     }
-    private fun colorBounds(bitmap: Bitmap, region: Rect, color: Int): Rect {
+    private fun colorBounds(bitmap: Bitmap, region: Rect, color: Int, tolerance: Int = 0): Rect {
         val bounds = Rect()
         for (y in region.top until region.bottom) for (x in region.left until region.right) {
-            if (bitmap.getPixel(x, y) == color) bounds.union(x, y, x + 1, y + 1)
+            val pixel = bitmap.getPixel(x, y)
+            val matches = if (tolerance == 0) pixel == color else listOf(0, 8, 16).all { shift ->
+                kotlin.math.abs(((pixel ushr shift) and 255) - ((color ushr shift) and 255)) <= tolerance
+            }
+            if (matches) bounds.union(x, y, x + 1, y + 1)
         }
         return bounds
     }

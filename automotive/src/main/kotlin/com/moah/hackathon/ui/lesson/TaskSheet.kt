@@ -6,10 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -32,11 +29,11 @@ import com.moah.hackathon.R
 import com.moah.hackathon.feature.lesson.*
 import com.moah.hackathon.ui.CoachColors
 
-/** Category navigation and the footer stay fixed; only the task row and reservation can scroll. */
+/** Category navigation and the footer stay fixed; the reservation action opens a separate sheet layer. */
 @Composable
 internal fun TaskSheet(tasks: List<Task>, category: TaskType, task: Task?, mode: LessonMode,
-    reservation: ReservationCard?, onCategory: (TaskType) -> Unit, onTask: (Task) -> Unit,
-    onMode: (LessonMode) -> Unit, onBack: () -> Unit, onStart: () -> Unit) {
+    onCategory: (TaskType) -> Unit, onTask: (Task) -> Unit,
+    onMode: (LessonMode) -> Unit, onBack: () -> Unit, onStart: () -> Unit, onVenues: () -> Unit) {
     val groups = tasks.groupBy { it.type }
     Column(Modifier.fillMaxSize()) {
         Eyebrow("연습할 과제", color = CoachColors.Periwinkle)
@@ -62,8 +59,9 @@ internal fun TaskSheet(tasks: List<Task>, category: TaskType, task: Task?, mode:
                 }
             }
         }
-        BoxWithConstraints(Modifier.weight(1f).fillMaxWidth().padding(vertical = 12.dp)) {
-            reservation?.let { ReservationInfo(it, compact = maxHeight < 300.dp) }
+        Column(Modifier.weight(1f).fillMaxWidth().padding(vertical = 12.dp)) {
+            PosterRule()
+            TextAction("제휴 시험장", onVenues, size = 32)
         }
         // Keep the footer at the same position even when a category has no ready task.
         Column(Modifier.height(146.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -212,31 +210,4 @@ private fun ParkingTaskDiagram(id: String, color: Color, modifier: Modifier) {
             }
         }
     }
-}
-
-@Composable
-private fun ReservationInfo(card: ReservationCard, compact: Boolean) {
-    var expanded by rememberSaveable { mutableStateOf(false) }
-    Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        PosterRule()
-        if (compact) {
-            // The toggle remains reachable while the expanded details scroll in the remaining space.
-            Row(Modifier.weight(1f).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                TextAction("제휴 시험장 예시", { expanded = !expanded }, size = 32)
-                if (expanded) Column(Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)) { ReservationDetails(card) }
-            }
-        } else {
-            Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Eyebrow("제휴 시험장 예시", color = CoachColors.Periwinkle)
-                ReservationDetails(card)
-            }
-        }
-    }
-}
-
-@Composable
-private fun ReservationDetails(card: ReservationCard) {
-    LessonText("${card.venue}\n${card.slot}\n${card.course}", 40)
-    LessonText(if (card.note.contains("실제 예약 연계 없음")) card.note else "${card.note} · 실제 예약 연계 없음", 32, CoachColors.Muted)
 }
