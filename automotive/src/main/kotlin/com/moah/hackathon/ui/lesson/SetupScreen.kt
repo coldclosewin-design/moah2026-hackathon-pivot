@@ -15,12 +15,14 @@ import com.moah.hackathon.ui.CoachColors
 
 @Composable
 internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Task, suggestedMode: LessonMode,
-    reason: String, reservation: ReservationCard?, subtitle: String?, onBegin: (String, LessonMode) -> Unit,
-    demo: (@Composable () -> Unit)? = null) {
-    var selectedTaskId by rememberSaveable(suggestedTask.id) { mutableStateOf(suggestedTask.id) }
-    var categoryName by rememberSaveable(suggestedTask.id) { mutableStateOf(suggestedTask.type.name) }
-    var modeName by rememberSaveable(suggestedMode) { mutableStateOf(suggestedMode.name) }
+    reason: String, subtitle: String?, onBegin: (String, LessonMode) -> Unit,
+    demo: (@Composable () -> Unit)? = null, venues: List<Venue> = emptyList(), booking: Reservation? = null,
+    onReserve: (String, String, String) -> Unit = { _, _, _ -> }, onCancelReservation: () -> Unit = {}) {
+    var selectedTaskId by rememberSaveable(suggestedTask.id, booking) { mutableStateOf(suggestedTask.id) }
+    var categoryName by rememberSaveable(suggestedTask.id, booking) { mutableStateOf(suggestedTask.type.name) }
+    var modeName by rememberSaveable(suggestedMode, booking) { mutableStateOf(suggestedMode.name) }
     var sheet by rememberSaveable { mutableStateOf(false) }
+    var venuesOpen by rememberSaveable { mutableStateOf(false) }
     val expansion = rememberSaveable { mutableStateOf(false) }
     val task = tasks.firstOrNull { it.id == selectedTaskId && it.isReady } ?: suggestedTask
     // Browsing a planned category clears its selection but retains the last ready choice on return.
@@ -38,7 +40,9 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
                     horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     Column(Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(24.dp)) {
                         if (sheet) {
-                            TaskSheet(tasks, TaskType.valueOf(categoryName), selectedTask, mode, reservation,
+                            if (venuesOpen) VenueSheet(venues, booking, onReserve, onCancelReservation,
+                                onBack = { venuesOpen = false }, onDone = { venuesOpen = false; sheet = false })
+                            else TaskSheet(tasks, TaskType.valueOf(categoryName), selectedTask, mode,
                                 onCategory = { category ->
                                     if (categoryName != category.name) {
                                         categoryName = category.name
@@ -54,9 +58,13 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
                                     modeName = supportedMode(item, mode).name
                                 },
                                 onMode = { modeName = it.name },
-                                onBack = { sheet = false }, onStart = start)
+                                onBack = { sheet = false }, onStart = start, onVenues = { venuesOpen = true })
                         } else {
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
+                                bookingDetails(booking, venues)?.let { details ->
+                                    Eyebrow(details.badge, color = CoachColors.Periwinkle)
+                                    Spacer(Modifier.height(20.dp))
+                                }
                                 Eyebrow(profileLine(profile), color = CoachColors.Muted)
                                 Spacer(Modifier.height(32.dp))
                                 Headline(setupProposal(task.type), size = 72)

@@ -48,7 +48,6 @@ class LessonStateMachine(
     private val tasks: List<Task>,
     private val guideFor: (Task) -> List<GuideStep>,
     private val quizFor: (Task) -> List<QuizItem> = { emptyList() },
-    private val reservation: ReservationCard?,
     /** 제휴 시험장(D3). 비어 있으면 예약 진입점은 무시된다. */
     private val venues: List<Venue> = emptyList(),
     private val benefits: List<String>,
@@ -299,9 +298,7 @@ class LessonStateMachine(
         val s = ModeAdvisor.suggest(task, store)
         val fromReservation = booking != null && ModeAdvisor.reservedTask(tasks.filter { it.isReady }, booking, venues)?.id == task.id
         val reason = if (fromReservation) "${ModeAdvisor.RESERVED_REASON} ${s.reason}" else s.reason
-        // 옛 카드: 예약이 있으면 그 예약을, 없으면 시드 예시(Codex 화면 전환 뒤 제거)
-        val card = booking?.toCard(venues) ?: reservation
-        return LessonPhase.Setup(profile, tasks, task, s.mode, reason, card, cheer = store.cheer, venues = venues, booking = booking)
+        return LessonPhase.Setup(profile, tasks, task, s.mode, reason, cheer = store.cheer, venues = venues, booking = booking)
     }
 
     private fun briefingLine(task: Task, mode: LessonMode): String {
