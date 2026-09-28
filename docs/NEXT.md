@@ -70,7 +70,7 @@
 |---|---|---|
 | 8a | `docs/presentation/01_deck_outline.md` — 12장·7분, 장마다 화면·말·근거·초, 길이 조절(3/5/7/10분), 예상 질문 8, 발표자가 채울 것 | ✅ 초안(9/26). ⚠ 8·9·11장은 사내 이관 뒤 숫자 갱신 |
 | 8b | `docs/presentation/02_video_shotlist.md` — 컷 13개(약 2분 05초), A 사내판(Hybrid·Signal Simulator)/B 외부판, 편집 원칙, 녹화 절차·함정 | ✅ 초안(9/26) |
-| 8c | **시연 영상 B안 녹화**(외부 에뮬, 사람이 직접 누름, 소리 포함은 PC 녹화) | 🟡 소리 없는 판은 ✅ 9/27 Claude(`screenrecord` + `emu_flow`, 1920×1080, 109 s, `build/demo-round3.mp4`). **소리 포함 제출용은 ⬜ 사용자**(PC 녹화, 대본 타임라인 그대로) |
+| 8c | **시연 영상 B안 녹화**(외부 에뮬, 사람이 직접 누름, 소리 포함은 PC 녹화) | 🟡 소리 없는 판은 ✅ **9/28 라운드 8** `build/demo-round8.mp4`(173 s, 예약 배지 상태로 시작 — `RESERVE=1 RECORD=` 옵션, 시작 → 리포트 135 s: 회차 1 `asked done` t+57 · Done t+61 · 회차 2 t+77 · `asked done` t+115 · 리포트 t+135. 9/27 판 `demo-round3.mp4` 109 s 는 옛 UI). **소리 포함 제출용은 ⬜ 사용자**(PC 녹화, 대본 타임라인 그대로) |
 | 8d | 사내: 이관 → A안 녹화 → Bitbucket 소스 → MarketUploader APK | ⬜ 사용자 |
 | 8e | 슬라이드를 사내 양식으로 옮기기, 2번 장 개인 계기 | ⬜ 사용자 |
 

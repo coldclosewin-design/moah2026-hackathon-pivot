@@ -90,6 +90,23 @@ FAIL=0
 echo "== start"; adb shell am force-stop com.moah.hackathon; adb logcat -c
 adb shell am start -n com.moah.hackathon/.ui.MainActivity >/dev/null; sleep 4
 shot 10_setup; echo "  texts: $(now_texts)"
+# 선택 단계(RESERVE=1, 기본 꺼짐 — 판정 불변): 시연 녹화용으로 예약 배지 상태에서 시작한다(대본 준비 절 9/28).
+# 시트 → 제휴 시험장 → 서초 → 14:00–15:00 → 주차 3종 → 예약 → 돌아가기. 예약은 인메모리라 force-stop 뒤 매번 다시 한다.
+if [ "${RESERVE:-0}" = "1" ]; then
+  echo "== reserve: 제휴 시험장 → 서초 14:00 주차 3종"
+  tap_text "과제·모드 바꾸기"; sleep 1; tap_text "제휴 시험장"; sleep 1; tap_text "서초 시험장"; sleep 1
+  tap_text "14:00–15:00"; sleep 1; tap_text "주차 3종"; sleep 1; tap_text "예약"
+  wait_log "reservation: made" 5 || FAIL=1
+  sleep 1; shot 10b_reservation; tap_text "돌아가기"; sleep 1; shot 10c_setup_reserved
+  now_texts | grep -q "예약 · 서초 14:00" || { echo "  !! reservation badge not on setup: $(texts)"; FAIL=1; }
+fi
+# 선택(RECORD=/sdcard/xxx.mp4): 여기서부터 화면 녹화 — 예약 조작(덤프 7번 ≈ 30 s)을 빼야 180 s 한도 안에 리포트까지 담긴다(9/28).
+# 래퍼 adb() 는 timeout 이 있어 녹화기는 원본 ADB 로 띄운다. 끝에서 SIGINT 로 멈추고 $OUT/demo.mp4 로 당긴다.
+if [ -n "${RECORD:-}" ]; then
+  adb shell rm -f "$RECORD" >/dev/null 2>&1
+  ( command "$ADB" shell screenrecord --size 1920x1080 --bit-rate 6000000 --time-limit 180 "$RECORD" </dev/null >/dev/null 2>&1 & )
+  sleep 2; echo "== record: $RECORD (screenrecord 180 s 한도)"
+fi
 # UI 라운드 2 부터 모드 선택은 "과제·모드 바꾸기" 시트 안에 있을 수 있다 — 첫 화면에 "힌트" 가 없으면 시트를 먼저 연다
 dump; texts | grep -q "힌트" || { tap_text "과제·모드 바꾸기"; sleep 1; }
 tap_text "힌트"; sleep 1; tap_text "시작"; sleep 1
@@ -127,6 +144,10 @@ now_texts | grep -q "다시 시작" || { echo "  !! report screen not reached: $
 now_texts | grep -qE "실신호|시뮬레이션|미측정" || { echo "  !! report has no availability badge"; FAIL=1; }
 echo "  texts: $(texts)"
 
+if [ -n "${RECORD:-}" ]; then
+  adb shell pkill -l2 screenrecord; sleep 3
+  adb pull "$RECORD" "$OUTW\demo.mp4" >/dev/null 2>&1 && echo "== record saved: $OUT/demo.mp4" || echo "  !! record pull failed"
+fi
 echo "== logcat"; adb logcat -d -s "$TAG" | grep -v "beginning of" | cut -c20-220
 echo "== uiautomator clashes (0 = clean single-instance run): $(adb logcat -d | grep -c "UiAutomationService.*already registered")"
 echo "== result: $([ $FAIL = 0 ] && echo PASS || echo FAIL) (힌트 3종 · 회차 2 채점 고정값 · 리포트 배지)"
