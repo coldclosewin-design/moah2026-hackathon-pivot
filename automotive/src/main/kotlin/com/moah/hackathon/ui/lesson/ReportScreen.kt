@@ -24,6 +24,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.moah.hackathon.R
 import com.moah.hackathon.feature.lesson.LessonReport
+import com.moah.hackathon.feature.lesson.TaskType
 import com.moah.hackathon.ui.CoachColors
 
 private enum class ReportPage { SUMMARY, DETAILS, CERTIFICATE }
@@ -108,7 +109,7 @@ private fun ReportProvenance(report: LessonReport) {
         Eyebrow("신호 출처", color = CoachColors.Muted)
         Row(Modifier.fillMaxWidth().padding(top = 16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
             LessonText(badgeText(report.best.badge), 32, CoachColors.Periwinkle)
-            LessonText("주차 과정만 측정했어요.", 32, CoachColors.Muted)
+            LessonText(if (report.task.type == TaskType.CHECKLIST) "출발 전 점검을 돌아봤어요." else "주차 과정만 측정했어요.", 32, CoachColors.Muted)
         }
         if (report.best.missingSignals.isNotEmpty()) {
             LessonText("이 신호는 이 차에서 받지 못했어요", 32, CoachColors.Muted)
@@ -123,7 +124,8 @@ private fun ReportProvenance(report: LessonReport) {
 
 @Composable
 private fun DetailsContent(report: LessonReport, modifier: Modifier) {
-    Column(modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(32.dp)) {
+    Column(modifier.verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(if (report.task.type == TaskType.CHECKLIST) 16.dp else 32.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(160.dp)) {
             Column { Eyebrow("숙련"); LessonText(report.best.skill.toString(), 96, bold = true) }
             Column { Eyebrow("안전"); LessonText(report.best.safety.toString(), 96, bold = true) }
@@ -135,10 +137,26 @@ private fun DetailsContent(report: LessonReport, modifier: Modifier) {
                 LessonText("${attempt.index}회차 ·", 40)
                 LessonText("숙련 ${attempt.score.skill}", 40, trendColor(attempt.score.skill, previous?.skill))
                 LessonText("· 안전 ${attempt.score.safety}", 40, trendColor(attempt.score.safety, previous?.safety))
-                LessonText("· 이동 ${attempt.score.metrics.motion.movingSegments}회", 40,
-                    trendColor(attempt.score.metrics.motion.movingSegments, previous?.metrics?.motion?.movingSegments, lowerBetter = true))
-                LessonText("· ${attempt.score.metrics.motion.totalMillis / 1000}초", 40,
-                    trendColor(attempt.score.metrics.motion.totalMillis, previous?.metrics?.motion?.totalMillis, lowerBetter = true))
+                if (report.task.type != TaskType.CHECKLIST) {
+                    LessonText("· 이동 ${attempt.score.metrics.motion.movingSegments}회", 40,
+                        trendColor(attempt.score.metrics.motion.movingSegments, previous?.metrics?.motion?.movingSegments, lowerBetter = true))
+                    LessonText("· ${attempt.score.metrics.motion.totalMillis / 1000}초", 40,
+                        trendColor(attempt.score.metrics.motion.totalMillis, previous?.metrics?.motion?.totalMillis, lowerBetter = true))
+                }
+            }
+            if (report.task.type == TaskType.CHECKLIST) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    checklistResults(attempt.score).forEach { result ->
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                            LessonText(result.label, 32, modifier = Modifier.width(280.dp))
+                            LessonText(result.mark, 32, when (result.passed) {
+                                true -> CoachColors.Periwinkle; false -> CoachColors.Signal; null -> CoachColors.Muted
+                            }, modifier = Modifier.width(120.dp))
+                            LessonText(result.detail, 32, CoachColors.Muted, modifier = Modifier.weight(1f))
+                        }
+                    }
+                }
             }
         }
         PosterRule()

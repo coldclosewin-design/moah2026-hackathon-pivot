@@ -250,26 +250,62 @@ class LessonScreenInstrumentation : Instrumentation() {
             pass("Maneuver: no scores, exact lock/stop boundaries, missing signals, four-line subtitle, hint expiry")
 
             val checklist = moving.copy(speed = "0", gear = "P", guideText = "브레이크를 밟고 시동을 켜 주세요.",
-                guideStep = "3/3", taskType = TaskType.CHECKLIST, belt = true, ignitionOn = false,
-                beltSignal = SignalAvailability.SIMULATED, ignitionSignal = SignalAvailability.SIMULATED)
+                guideStep = "4/7", taskType = TaskType.CHECKLIST, belt = true, ignitionOn = true,
+                doorOpen = false, brakePressed = true, indicatorLeft = true, indicatorRight = false, hazard = false,
+                beltSignal = SignalAvailability.SIMULATED, ignitionSignal = SignalAvailability.SIMULATED,
+                doorSignal = SignalAvailability.SIMULATED, brakeSignal = SignalAvailability.SIMULATED,
+                indicatorLeftSignal = SignalAvailability.SIMULATED, indicatorRightSignal = SignalAvailability.SIMULATED,
+                hazardSignal = SignalAvailability.SIMULATED)
             val checklistDemo: @Composable () -> Unit = {
                 DemoPanel(container.scenariosFor(SeedCatalog.predriveTask), null, {}, {}, {}, {}, {})
             }
             render(activity) { ManeuverScreen(checklist, false, true, null, {}, checklistDemo, SeedCatalog.predriveTask.title) }
-            check(texts().containsAll(listOf("안전벨트", "기어", "시동", "채움", "P", "꺼짐", "다 됐어요")))
+            val checklistLabels = listOf("도어", "안전벨트", "기어", "브레이크 / 시동", "좌 지시등", "우 지시등", "비상등")
+            check(texts().containsAll(checklistLabels + listOf("채움", "P", "닫힘", "밟음 → 켜짐", "확인", "아직", "다 됐어요")))
             check(allText().none { Regex("조향각|뒤 거리|cm|이동 \\d+회").containsMatchIn(it) })
             assertNoScores()
-            capture("maneuver-checklist")
+            assertDriverButton(activity, "다 됐어요")
+            assertPanelCollapsed()
+            val chipLabels = checklistLabels.map(::textBounds)
+            check(chipLabels.take(4).map { it.left }.distinct().size == 1)
+            check(chipLabels.drop(4).map { it.left }.distinct().size == 1)
+            check(chipLabels[0].left < chipLabels[4].left && chipLabels[0].top == chipLabels[4].top)
+            check(chipLabels.take(4).zipWithNext().all { (a, b) -> a.bottom < b.top })
+            check(chipLabels.drop(4).zipWithNext().all { (a, b) -> a.bottom < b.top })
+            fun chipColor(bitmap: Bitmap, label: String) = textBounds(label).let {
+                bitmap.getPixel(it.left - (12 * designScale(activity)).toInt(), it.centerY())
+            }
+            capture("maneuver-checklist") { bitmap ->
+                check(chipColor(bitmap, "도어") == CoachColors.Periwinkle.toArgb())
+                check(chipColor(bitmap, "비상등") == CoachColors.Ink.copy(alpha = .6f).compositeOver(CoachColors.Lavender).toArgb())
+            }
+            render(activity) { ManeuverScreen(checklist.copy(doorOpen = null, brakePressed = null,
+                indicatorLeft = null, indicatorRight = null, hazard = null,
+                doorSignal = SignalAvailability.MISSING, brakeSignal = SignalAvailability.MISSING,
+                indicatorLeftSignal = SignalAvailability.MISSING, indicatorRightSignal = SignalAvailability.MISSING,
+                hazardSignal = SignalAvailability.MISSING), false, true, null, {},
+                taskTitle = SeedCatalog.predriveTask.title) }
+            check(texts().count { it == "미측정" } == 5)
+            check(texts().containsAll(checklistLabels + listOf("P", "채움", "브레이크 미측정\n시동 시뮬레이션")))
+            check(texts().none { it == "시뮬레이션 신호" })
+            capture("maneuver-checklist-missing") { bitmap ->
+                listOf("도어", "브레이크 / 시동", "좌 지시등", "우 지시등", "비상등").forEach {
+                    check(chipColor(bitmap, it) == CoachColors.Lavender.toArgb())
+                }
+            }
+            render(activity) { ManeuverScreen(checklist.copy(brakeSignal = SignalAvailability.LIVE), false, true, null, {},
+                taskTitle = SeedCatalog.predriveTask.title) }
+            check(texts().contains("브레이크 실신호\n시동 시뮬레이션"))
+            check(texts().none { it == "시뮬레이션 신호" })
             render(activity) { ManeuverScreen(checklist.copy(belt = null, ignitionOn = null,
                 beltSignal = SignalAvailability.MISSING, ignitionSignal = SignalAvailability.MISSING), false, true, null, {},
                 taskTitle = SeedCatalog.predriveTask.title) }
-            check(texts().count { it == "미측정" } >= 2)
+            check(texts().count { it == "미측정" } == 2)
             check(texts().contains("P"))
-            capture("maneuver-checklist-missing")
             render(activity) { ManeuverScreen(checklist.copy(speed = "5"), true, false, null, {}, checklistDemo) }
             check(nodes().none(::hasTouchAction))
             assertNoScores()
-            pass("Checklist: belt/gear/ignition, no parking telemetry, missing signals, locked touch gate")
+            pass("Checklist: seven chips in 4+3 columns, complete/pending/missing colors, mixed brake/ignition sources, no parking telemetry, locked touch gate")
 
             var nextCount = 0
             var quitCount = 0
@@ -460,6 +496,40 @@ class LessonScreenInstrumentation : Instrumentation() {
             check(texts().contains("100"))
             check(texts().contains("다시 시작"))
             capture("report-100")
+
+            val goodChecklistScore = score.copy(skill = 100, safety = 100, badge = AvailabilityBadge(0, 12, 0), missingSignals = emptyList(),
+                metrics = metrics.copy(motion = metrics.motion.copy(movingSegments = 0, totalMillis = 16_000),
+                    preDrive = PreDriveSummary(true, true, 3_000, 8_000, true, true, true, true, true, 14_000)))
+            val checklistReport = report.copy(task = SeedCatalog.predriveTask,
+                attempts = listOf(checklistRecord.copy(score = goodChecklistScore)), best = goodChecklistScore,
+                unverifiedGuideSteps = emptyList())
+            render(activity) { ReportScreen(checklistReport, {}) }
+            check(texts().contains("출발 전 점검을 돌아봤어요."))
+            check(texts().none { it == "주차 과정만 측정했어요." })
+            click("자세히 보기")
+            check(texts().containsAll(checklistLabels))
+            check(texts().count { it == "✓" } == 7)
+            check(texts().containsAll(listOf("벨트 3초 · 벨트 먼저", "시동 8초 · 브레이크 밟고 시동")))
+            check(texts().none { Regex("이동 \\d+회|조향|뒤 거리|16초").containsMatchIn(it) })
+            capture("report-checklist")
+            val badChecklistScore = goodChecklistScore.copy(skill = 30, safety = 40,
+                metrics = goodChecklistScore.metrics.copy(preDrive = PreDriveSummary(false, true, 9_000, 2_000,
+                    false, false, true, true, false)))
+            render(activity) { ReportScreen(checklistReport.copy(attempts = listOf(checklistRecord.copy(score = badChecklistScore)),
+                best = badChecklistScore), {}) }
+            click("자세히 보기")
+            check(texts().count { it == "✗" } == 4 && texts().count { it == "✓" } == 3)
+            capture("report-checklist-bad")
+            val missingChecklistScore = goodChecklistScore.copy(badge = AvailabilityBadge(0, 8, 4),
+                missingSignals = (ParkingRecorder.CHECKLIST_KEYS - ParkingRecorder.KEYS).toList(),
+                metrics = goodChecklistScore.metrics.copy(preDrive = PreDriveSummary(true, true, 3_000, 8_000, true)))
+            render(activity) { ReportScreen(checklistReport.copy(attempts = listOf(checklistRecord.copy(score = missingChecklistScore)),
+                best = missingChecklistScore), {}) }
+            click("자세히 보기")
+            check(texts().count { it == "미측정" } == 4)
+            check(texts().none { it == "✗" })
+            capture("report-checklist-missing")
+            pass("Checklist Report: seven recorded checks, only belt/ignition timing, good/bad/missing distinction; Done retains two sentences")
             recordMotionClips(activity, moving, pathRecord)
             finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Lesson contract passed\n") })
         } catch (failure: Throwable) {

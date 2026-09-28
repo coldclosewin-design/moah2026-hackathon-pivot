@@ -113,9 +113,14 @@ class LessonPresentationTest {
             gearSignal = SignalAvailability.MISSING, distanceSignal = SignalAvailability.MISSING)
         assertNull(missing.commonSignal())
         val checklist = missing.copy(taskType = TaskType.CHECKLIST, beltSignal = SignalAvailability.LIVE,
-            gearSignal = SignalAvailability.LIVE, ignitionSignal = SignalAvailability.LIVE)
+            gearSignal = SignalAvailability.LIVE, ignitionSignal = SignalAvailability.LIVE,
+            doorSignal = SignalAvailability.LIVE, brakeSignal = SignalAvailability.LIVE,
+            indicatorLeftSignal = SignalAvailability.LIVE, indicatorRightSignal = SignalAvailability.LIVE,
+            hazardSignal = SignalAvailability.LIVE)
         assertEquals(SignalAvailability.LIVE, checklist.commonSignal())
         assertNull(checklist.copy(beltSignal = SignalAvailability.MISSING).commonSignal())
+        assertNull(checklist.copy(brakeSignal = SignalAvailability.MISSING).commonSignal())
+        assertNull(checklist.copy(hazardSignal = SignalAvailability.SIMULATED).commonSignal())
         assertEquals("시뮬레이션 신호", collapsedSignalLabel(SignalAvailability.SIMULATED))
     }
 
