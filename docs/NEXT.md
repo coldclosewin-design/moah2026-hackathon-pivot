@@ -6,11 +6,11 @@
 
 ## 1. 지금 되는 것 (한 문단)
 
-`main`(PR #5 `73ded64`)에서 앱을 켜면 **LessonRoute의 연수 세션 화면 5장과 Fake 전용 시연 패널**이 뜬다. Setup의 과제·모드·예약 예시, Briefing, 주차 도식, 회차 피드백, 오늘 리포트·진단서 탭까지 연결했다. Dashboard는 부트스트랩 참조용으로 남겼다. **빌드·단위테스트 99개 통과**, CSTDe_API_34에서 `Lesson contract passed`; 5화면과 진단서·잠금·미측정/4줄 자막 캡처는 `docs/screenshots/lesson/`. 플랫폼·상태기계·채점·시드 구조·Gradle 파일은 변경하지 않았다.
+`main`(`e4927f9`)에서 앱을 켜면 **기하학 포스터 디자인의 연수 세션 화면**(Setup → 과제 시트 두 층(시안 05) → Briefing → Maneuver(탑뷰 B·조향 애니메이션·보조선·풀이) → Done(추정 궤적 재생, 뒤가 위) → Report(신호 출처 배지) + Quiz 2장 + 점검 과제 변형)이 뜬다. 시연 조작 패널은 우상단 알약(`시연`)으로 접혀 있다. **빌드·단위테스트 157 통과**, CSTDe_API_34 에서 `Lesson contract passed`(10묶음, 픽셀 검사 포함)·`emu_flow.sh` PASS(리포트까지 약 120 s). 캡처는 `docs/screenshots/lesson/`(README 에 목록). 운전자 문장에 숫자 없음, 시간 감점 유예 60 s, 급제동 임계 -3.0(시나리오 -4.4).
 
 **제품 정의 v2 (9/26)**: 시연 본편은 **후면 직각 주차 과제**. `Setup(대화·제안) → Briefing → Maneuver(도식) → Done("다 됐어요") → Report(도어 열림)`. 채점은 과정만. 모드 가이드→힌트→평가→지식테스트. 상세는 `topics/01_driving_coach.md`.
 
-**시작 가능한 과제(READY) 셋**: 출발 전 점검(Step 11, 가이드·힌트·평가, 차는 서 있음) · 후면 직각 주차(시연 본편) · 지식 테스트(Step 10, 화면은 라운드 2 에서 완성). 나머지 8개는 "준비 중"(라운드 6: 전면 직각·사선 주차 추가). 단위 테스트 141(main `10e4d1a`, 9/27 확인).
+**시작 가능한 과제(READY) 셋**: 출발 전 점검(Step 11, 가이드·힌트·평가, 차는 서 있음) · 후면 직각 주차(시연 본편) · 지식 테스트(Step 10, 화면은 라운드 2 에서 완성). 나머지 8개는 "준비 중"(라운드 6: 전면 직각·사선 주차 추가, 카탈로그 11). 단위 테스트 157(main `e4927f9`, 9/28).
 
 **9/27 결정 3건이 main 에 반영됨(PR #21 → 화면 PR #25)**: 운전자 문장에 숫자 없음("서두.\n조언." 두 문장 + 총평 "흐름.\n안전." 두 문장) · 회차 시작 발화 · `SHOW_DEMO_PANEL` 플래그 · `AttemptRecord.path`(추정 궤적 — Done 왼쪽에 그려짐). 시연 패널은 기본 접힘(`시연`). 단위 테스트 147.
 
@@ -74,7 +74,7 @@
 | 8d | 사내: 이관 → A안 녹화 → Bitbucket 소스 → MarketUploader APK | ⬜ 사용자 |
 | 8e | 슬라이드를 사내 양식으로 옮기기, 2번 장 개인 계기 | ⬜ 사용자 |
 
-### Step 9 — UI 재설계 (Codex 별도 세션 · 기준 = 기하학 포스터) — 🟡 라운드 1·2 머지(PR #14·#18), 라운드 3 Codex 구현 중
+### Step 9 — UI 재설계 (Codex 별도 세션 · 기준 = 기하학 포스터) — 🟡 라운드 1~6 머지(PR #14·#18·#25·#29·#32·#37), 영상 피드백 루프 진행 중(라운드 7 후보 있음)
 | # | 일 | 상태 |
 |---|---|---|
 | 9a | `docs/design/02_design_brief.md` — 라운드 0~3, 채울 것 9, **불변 규칙 12** + 검사 수단. 레퍼런스 = `docs/design/geometric-poster-development/`(시안 4장·핸들 B·시각 규칙·색 토큰 5). 탐색 이력(종이 UI·미니멀·Pinterest)은 `docs/design/README.md`(Codex) | ✅ 채움(모션 포함 9개 모두 사용자 확인 9/26) |
@@ -90,9 +90,11 @@
 | 9k | **라운드 6 · 시안 05 구현**: 주차·주행·조작·지식 글자 메뉴 → U자 과제 칸. 주차 네 칸과 도식, 선택 Signal 메뉴·밑줄·화살표 + Ink 칸·빨간 체크. 제안 과제 카테고리로 열리고 모드·시작 고정, 주행 다섯 준비 중 과제는 가로 스크롤·시작 숨김, 지식은 QUIZ만. 준비 중 목록을 둘러본 뒤 돌아와도 직전 READY 선택을 유지한다. 예약은 접고 펼친 본문만 스크롤한다. 전면 직각·사선 주차 PLANNED 시드 추가. 빌드·157 테스트·계약·원본 흐름 PASS, 시안/캡처는 `docs/screenshots/lesson/README.md` | ✅ 발주(디자인 → 선택 05 → §1) → ✅ Codex PR #37 → ✅ **리뷰·머지 `4fa5ef7`**(빌드·157·`emu_flow` PASS 123 s·`lesson_shots` PASS 10묶음(Setup 첫 렌더·카테고리 경로 픽셀)·캡처 vs 시안 05. 관찰: 도식 없는 카테고리 칸 위쪽이 비어 보임(라운드 7 후보) / Codex 가 NEXT 를 직접 고침(다음부터 C절) / `emu_flow` 첫 캡처 스플래시(콜드 스타트, 판정 무관)) → ✅ 재녹화 `build/demo-round6.mp4` → ⬜ 사용자 검토 |
 | 9d-준비 ✅ | 리뷰 뒤 단계 **선반영**(9/27, 브랜치 `claude/round3-prep`): `docs/05_demo_script.md`(패널 `시연` 조작·두 문장 멘트·탑뷰 B·추정 궤적·`신호 출처`·사고 대응 2줄, **시각은 잠정**), `presentation/02_video_shotlist.md`(컷 7·9 궤적, 편집 원칙 "숫자 보이면 옛 빌드", 녹화 함정 ③④), `01_deck_outline.md`(5·6장 화면 파일명·한 줄), `topics/01` §4.1·§4.5 Done 문장. main `10e4d1a` 기준선: 빌드·141 통과 | ✅ |
 
-리뷰 루틴(Claude): worktree 에서 head 빌드 → `emu_flow.sh` → `lesson_shots.sh` → 캡처를 시안(`docs/design/round3-topview/`)과 나란히 눈으로 → 발주서 §2 불변 표 grep(`이동 \d+회`·`\d+초` 가 `Maneuver`·`Done` 에 없음, `추정 궤적` 캡션 두 줄, `신호 출처`, 패널 기본 접힘) → PR 코멘트. `codex/design-refs`(이미지만) 는 바로 머지. **리뷰 뒤**: `emu_flow.sh` 의 `[t+NNs]` 로 대본 시각 열을 고치고, 컷 목록 "길이" 열은 재녹화에서 잰다.
+리뷰 루틴(Claude): worktree 에서 head 빌드 → `emu_flow.sh`(원본, 유예 60·급제동 -3.0 기준) → `lesson_shots.sh` → 캡처를 그 라운드 시안(`docs/design/round3-topview/`·`round6-sheet/`)과 나란히 눈으로 → 애니메이션은 계측 클립(`/sdcard/lesson-round4-*.mp4`)을 `ffmpeg` 프레임 스트립으로 → 발주서 §2 불변 표 grep → PR 코멘트. 이미지만인 시안 PR 은 바로 머지. **리뷰 뒤**: 머지 → `screenrecord` + `emu_flow` 로 B안 재녹화(`build/demo-roundN.mp4`) → 사용자 검토 → 피드백은 `docs/design/0N_roundN_feedback.md` 로 분류(A Claude / B Codex / D 사용자) → 결정이 필요한 것은 **캡처로** 묻는다(두 안 비교·디자인 세션). 컷 목록 "길이" 열은 사람이 누른 녹화에서 잰다.
 
-**순서**: 디자인(9) → 녹화(8c) → 사내(8d). 디자인 뒤에 찍어야 두 번 찍지 않는다. **지금 트리 배치(9/27)**: 본 트리 = `codex/design-topview`(Codex 가 남긴 것, 건드리지 않음) · Codex = `.worktrees/ui-round3`(`codex/ui-round3`) · Claude = `.worktrees/hybrid` — 동시 작업 규칙(§3).
+**라운드 7 후보(피드백 오면 묶어서)**: 도식 없는 카테고리(주행·조작·지식)의 세부 칸 위쪽이 비어 보임 → 칸 높이 축소 또는 제목 세로 가운데 · `시연` 알약 위치는 확정됨.
+
+**순서**: 디자인(9) → 녹화(8c) → 사내(8d). 디자인 뒤에 찍어야 두 번 찍지 않는다. **지금 트리 배치(9/28)**: 본 트리 = Codex 것(Claude 는 `git checkout` 하지 않음) · Codex = 본 트리 또는 `.worktrees/ui-roundN` · Claude = `.worktrees/hybrid`(항상 main 으로 되돌려 둔다) — 동시 작업 규칙(§3). 재녹화 mp4 는 `.worktrees/hybrid/build/`(저장소 밖).
 
 ### Step 10 — 지식 테스트 (Claude 상태기계 ✅ PR #9 · Codex 화면 ⬜)
 | # | 일 | 상태 |
