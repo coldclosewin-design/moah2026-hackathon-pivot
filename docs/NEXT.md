@@ -2,7 +2,7 @@
 
 새 Claude Code 세션이 이 파일 하나로 이어받을 수 있게 쓴 인계 문서. **작업을 마칠 때마다 이 파일을 갱신한다**(끝난 것은 지우고, 새로 생긴 것은 추가). 과거의 경위는 `docs/journal/`, 규칙은 `AGENTS.md`·`CLAUDE.md`, **제품 정의는 `docs/topics/01_driving_coach.md` v2**.
 
-마지막 갱신: 2026-09-28 · `main = db30ab8`(PR #1~#42, **동승자 공유 화면 머지**) · 이 PR = 추천 이유 숫자 제거 + 12c 대본·컷·덱 · 단위 테스트 165 · 마감 2026-10-07. **새 세션은 여기서: 동승자 포함 B안 재녹화 → 사용자 영상 검토 → 라운드 7 후보(도식 없는 칸 높이) 또는 컷 길이 실측·덱 5·6·12장 스크린샷 교체(8a) → 사내 이관(8d). 열린 PR 없음.**
+마지막 갱신: 2026-09-28 · `main = 697f7c0`(PR #1~#43) · 동승자 포함 재녹화(`build/demo-companion.mp4`, 133 s) → **피드백 6건** `docs/design/05_round7_feedback.md` → **라운드 7 발주** `docs/handoffs/2026-09-28_codex_ui_round7.md`(지식 테스트 답 표시·그만하기 · 조향 애커만 · **동승자 화면 제거**)(이 PR) · 단위 테스트 165 · 마감 2026-10-07. **새 세션은 여기서: ① Codex 라운드 7 PR → 리뷰 → 머지 → Claude 가 동승자 모델·시드·`emu_flow`·대본·덱 제거 ② 사용자 결정 D1(출발 전 점검 7단계)·D3(시험장 예약 범위 가/나/다) → 발주(Claude 선행 → Codex) ③ 재녹화 → 컷 길이·덱 → 사내(8d).**
 
 ## 1. 지금 되는 것 (한 문단)
 
@@ -88,6 +88,7 @@
 | 9i | **라운드 3 영상 피드백 11건** → `docs/design/04_round3_feedback.md`(B 9 · D 2 · A 0 — "움직임과 손맛"). **라운드 4 발주서** `docs/handoffs/2026-09-28_codex_ui_round4.md`: 조향 애니메이션(바퀴 회전 + 호 굴곡 + 점선 보조선 2) · Done 궤적 3 초 재생 · 주 버튼 규칙(140 dp × ≥ 720 dp: 시트 `시작`·`한 번 더`) · 시트 카테고리 띠 · 시연 토글 두 안 캡처 + 레일 정리 · 조향각 풀이(`오른쪽으로 한 바퀴 반`) · `조수석` 눈썹. 선행: `emu_flow.sh` 가 `시연` 을 `text`/`content-desc` 로 찾음 · **`ParkingRubric.graceSeconds` 45 → 60**(55 s 경계에서 60/58 이 흔들려 — 일지 9/28) | ✅ 발주 → ✅ 드래프트 PR #29 → ✅ 결정(D1 알약 · D2 `코치`) → ✅ **리뷰·머지 `090ec40`**(빌드·154·`emu_flow` PASS 115 s·`lesson_shots` PASS 25장·클립 2개 프레임 스트립·불변 표. 관찰: 선택 카드 `Paper` 띠가 바탕과 같아 안 보임 → 라운드 5 후보 / Done 캡처 대기 4 s·발주서 §2 오기 → ✅ 이 PR) → ⬜ 재녹화 |
 | 9j | **라운드 4 영상 피드백**: "주차 후기 시뮬레이션이 주차에서 나오는 느낌" → 시간 순서·물리는 맞고(`pathThroughTime` 시작→끝, +y = 앞) **관습이 Maneuver("뒤가 위")와 반대**라 후진이 전진으로 읽힘. **라운드 5 발주서** `docs/handoffs/2026-09-28_codex_ui_round5.md`: Done 캔버스 180° 회전(뒤가 위, 오른쪽 조향 후진이 화면 왼쪽으로) · 후진 구간 재생 중 빨간 셰브론 · 시작 차는 윤곽선만 · 선택 카드 띠 `Ink`(라운드 4 관찰). 데이터·채점 불변 | ✅ 발주 → ✅ Codex PR #32 → ✅ **리뷰·머지 `49f5254`**(빌드·154·`emu_flow` PASS 120 s·`lesson_shots` PASS 9묶음(띠·뒤가 위 픽셀 검사 추가)·Done 캡처·클립: 아래에서 위로 후진, 후진 구간 셰브론, 끝 차가 위·왼쪽) → ✅ 재녹화 `build/demo-round5.mp4` → ⬜ 사용자 검토 |
 | 9k | **라운드 6 · 시안 05 구현**: 주차·주행·조작·지식 글자 메뉴 → U자 과제 칸. 주차 네 칸과 도식, 선택 Signal 메뉴·밑줄·화살표 + Ink 칸·빨간 체크. 제안 과제 카테고리로 열리고 모드·시작 고정, 주행 다섯 준비 중 과제는 가로 스크롤·시작 숨김, 지식은 QUIZ만. 준비 중 목록을 둘러본 뒤 돌아와도 직전 READY 선택을 유지한다. 예약은 접고 펼친 본문만 스크롤한다. 전면 직각·사선 주차 PLANNED 시드 추가. 빌드·157 테스트·계약·원본 흐름 PASS, 시안/캡처는 `docs/screenshots/lesson/README.md` | ✅ 발주(디자인 → 선택 05 → §1) → ✅ Codex PR #37 → ✅ **리뷰·머지 `4fa5ef7`**(빌드·157·`emu_flow` PASS 123 s·`lesson_shots` PASS 10묶음(Setup 첫 렌더·카테고리 경로 픽셀)·캡처 vs 시안 05. 관찰: 도식 없는 카테고리 칸 위쪽이 비어 보임(라운드 7 후보) / Codex 가 NEXT 를 직접 고침(다음부터 C절) / `emu_flow` 첫 캡처 스플래시(콜드 스타트, 판정 무관)) → ✅ 재녹화 `build/demo-round6.mp4` → ⬜ 사용자 검토 |
+| 9l | **라운드 6·동승자 영상 피드백 6건** → `docs/design/05_round7_feedback.md`: 지식 테스트 내 답·정답 표시(B) · 중간 `그만하기` → Setup(B) · 조향 앞바퀴 좌우 각 분리 + 보조선을 회전 중심 공유 두 호로(B + 순수 함수) · 출발 전 점검 확장(**D1** 7단계 제안) · **동승자 제거**(결정됨 — 화면 라운드 7, 모델은 Claude 후속) · 시험장 예약 시스템(**D3** 범위 가/나/다, 제안 나). **라운드 7 발주서** `docs/handoffs/2026-09-28_codex_ui_round7.md` | ✅ 발주 → ⬜ Codex → ⬜ 리뷰 → ⬜ Claude 동승자 모델 제거 → ⬜ D1·D3 결정 → 발주 |
 | 9d-준비 ✅ | 리뷰 뒤 단계 **선반영**(9/27, 브랜치 `claude/round3-prep`): `docs/05_demo_script.md`(패널 `시연` 조작·두 문장 멘트·탑뷰 B·추정 궤적·`신호 출처`·사고 대응 2줄, **시각은 잠정**), `presentation/02_video_shotlist.md`(컷 7·9 궤적, 편집 원칙 "숫자 보이면 옛 빌드", 녹화 함정 ③④), `01_deck_outline.md`(5·6장 화면 파일명·한 줄), `topics/01` §4.1·§4.5 Done 문장. main `10e4d1a` 기준선: 빌드·141 통과 | ✅ |
 
 리뷰 루틴(Claude): worktree 에서 head 빌드 → `emu_flow.sh`(원본, 유예 60·급제동 -3.0 기준) → `lesson_shots.sh` → 캡처를 그 라운드 시안(`docs/design/round3-topview/`·`round6-sheet/`)과 나란히 눈으로 → 애니메이션은 계측 클립(`/sdcard/lesson-round4-*.mp4`)을 `ffmpeg` 프레임 스트립으로 → 발주서 §2 불변 표 grep → PR 코멘트. 이미지만인 시안 PR 은 바로 머지. **리뷰 뒤**: 머지 → `screenrecord` + `emu_flow` 로 B안 재녹화(`build/demo-roundN.mp4`) → 사용자 검토 → 피드백은 `docs/design/0N_roundN_feedback.md` 로 분류(A Claude / B Codex / D 사용자) → 결정이 필요한 것은 **캡처로** 묻는다(두 안 비교·디자인 세션). 컷 목록 "길이" 열은 사람이 누른 녹화에서 잰다.
@@ -115,7 +116,7 @@
 
 단위 테스트 113 → 129. `emu_flow.sh`(주차) 는 영향 없음 — 시연 본편은 그대로 주차.
 
-### Step 12 — 동승자 공유 (Claude 선행 ✅ → Codex 화면 ✅ 리뷰·머지 대기) — 발주서 `docs/handoffs/2026-09-28_codex_companion_share.md`
+### Step 12 — 동승자 공유 — ⛔ **제거 예정**(9/28 사용자: "운전자 입장에서 불필요"). 화면은 라운드 7(Codex), 모델·시드·`emu_flow`·대본·덱은 그 뒤 Claude. 이력은 PR #40~#43 · 발주서 `docs/handoffs/2026-09-28_codex_companion_share.md`
 | # | 일 | 상태 |
 |---|---|---|
 | 12a | Claude 선행: `CompanionShareLevel`·`CompanionNote`(`CoachPort.companionNote`, Fake = `CompanionRules`(밴드 풀 + `AdviceRules.Advice` 운전자/동승자 쌍), Cloud 프롬프트·폴백)·`LessonReport.companion/companionShareLevels/cheers`·`Setup.cheer`·상태기계 `shareWithCompanion`/`cheer`(`ProgressStore`, `reset` 이 안 지움)·`SeedCatalog.cheers`·`emu_flow` 선택 단계(화면 없으면 건너뜀) | ✅ PR #41 머지 `98ec8f8`(단위 테스트 164) |
