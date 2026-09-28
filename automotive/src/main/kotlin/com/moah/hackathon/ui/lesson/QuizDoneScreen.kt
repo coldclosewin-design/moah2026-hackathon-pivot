@@ -3,10 +3,15 @@ package com.moah.hackathon.ui.lesson
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.moah.hackathon.R
 import com.moah.hackathon.feature.lesson.QuizItem
 import com.moah.hackathon.feature.lesson.QuizResult
@@ -31,12 +36,18 @@ internal fun QuizDoneScreen(task: Task, results: List<QuizResult>, items: List<Q
                         val result = byItem[item.id]
                         PosterRule()
                         LessonText("${index + 1}. ${item.question}", 40)
-                        LessonText(when {
-                            result == null -> "안 풀었어요"
-                            result.correct -> "맞았어요"
-                            else -> "정답: ${item.choices[item.answer]}"
-                        }, 40, if (result?.correct == true) CoachColors.Periwinkle else CoachColors.Muted)
-                        if (result?.correct == false) LessonText(item.why, 32, CoachColors.Muted)
+                        when {
+                            result == null -> LessonText("안 풀었어요", 40, CoachColors.Muted)
+                            result.correct -> LessonText("맞았어요", 40, CoachColors.Periwinkle)
+                            else -> {
+                                Text(buildAnnotatedString {
+                                    withStyle(SpanStyle(color = CoachColors.Signal)) { append(item.choices[result.chosen]) }
+                                    withStyle(SpanStyle(color = CoachColors.Muted)) { append(" → ") }
+                                    withStyle(SpanStyle(color = CoachColors.Periwinkle)) { append(item.choices[item.answer]) }
+                                }, fontSize = 40.sp, lineHeight = 52.sp)
+                                LessonText(item.why, 32, CoachColors.Muted)
+                            }
+                        }
                     }
                 }
                 PrimaryPill(stringResource(R.string.lesson_restart), onRestart)

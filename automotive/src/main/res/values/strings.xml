@@ -8,7 +8,7 @@
     <string name="lesson_again">한 번 더</string>
     <string name="lesson_end">오늘은 여기까지</string>
     <string name="lesson_restart">다시 시작</string>
-    <string name="lesson_companion">동승자</string>
+    <string name="lesson_quit">그만하기</string>
     <string name="lesson_next_question">다음 문제</string>
     <string name="lesson_quiz_result">결과 보기</string>
     <string name="lesson_change_task_mode">과제·모드 바꾸기</string>

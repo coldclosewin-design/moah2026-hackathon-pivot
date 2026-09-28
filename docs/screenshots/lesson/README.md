@@ -1,23 +1,24 @@
 # 화면 검증 캡처
 
-## 동승자 공유 (2026-09-28)
+## UI 라운드 7 (2026-09-28)
 
-`codex/companion-share` · 기준 `origin/main=98ec8f8`(선행 모델 PR #41 머지) · CSTDe_API_34 2560×1440 · 기본 Fake, 배율 1.0. [동승자 공유 발주서](../../handoffs/2026-09-28_codex_companion_share.md) §2 구현.
+`codex/ui-round7` · 기준 `origin/main=2173242`(PR #44) · CSTDe_API_34 2560×1440 · 기본 Fake, 배율 1.0. [라운드 7 발주서](../../handoffs/2026-09-28_codex_ui_round7.md)를 구현했다.
 
-- `lesson-companion.png`: 원본 `emu_flow.sh`에서 못한 주차 → 잘한 주차를 마친 실제 두 회차 리포트의 동승자 탭. 칭찬·도움말, 예시 고지, 기본 총평만, 응원 세 개와 다시 시작을 보여 준다.
-- `lesson-setup-cheer.png`: 같은 실제 세션에서 `오늘도 천천히 가요`를 고르고 다시 시작한 Setup. 프로필 위에 `동승자 · 오늘도 천천히 가요`가 표시된다.
+- `lesson-quiz-answered.png`: 정답은 Periwinkle 바탕·Paper 글자와 `정답` 눈썹, 내가 고른 오답은 Lavender 바탕·Ink 글자·Signal 4dp 윤곽과 `내 답` 눈썹. 맞게 고르면 `내 답 · 정답`으로 합쳐진다.
+- `lesson-quiz.png`·`lesson-quiz-locked.png`: 정차 중 하단 왼쪽의 `그만하기`, 잠금 시 선택지·그만하기·다음 액션 제거.
+- `lesson-quiz-done.png`: 틀린 문제의 내 답(Signal) → 정답(Periwinkle)과 이유. 맞은 문제는 `맞았어요`, 미응답은 `안 풀었어요`를 유지한다.
+- `lesson-maneuver-guides.png`: 운전자 기준 오른쪽 조향에서 오른쪽 앞바퀴(화면 왼쪽)가 더 꺾인다. 점선 두 개는 앞 차축 옆의 회전 중심을 공유하며 아래로 진행한다. 도식 밖의 호는 잘라 조향각 글자에 겹치지 않게 했다.
+- `lesson-report.png`·`lesson-setup.png`: 동승자 탭·응원 눈썹이 없는 화면. `lesson-companion*.png`·`lesson-setup-cheer.png`를 삭제했다. 이전 동승자 구현·검증 이력은 PR #40~#43과 `build-companion.txt`·`contract-companion.txt`·`flow-companion.txt`에 남아 있다.
 
-`build-companion.txt`: PowerShell `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` 성공. 단위 테스트 **164개, 실패·오류 0**.
+`build-round7.txt`: PowerShell `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` 성공. 단위 테스트 **169개, 실패·오류 0**. `wheelAngles`의 중립·미측정·좌우 반전·안쪽 각 우위와 ±45°/±38° 제한을 네 테스트로 확인한다.
 
-`contract-companion.txt`: 수정 없는 `tools/lesson_shots.sh build/companion-contract-complete`에서 **Lesson contract passed**. 동승자 액션 순서·두 문장·예시 고지·숫자/점수 비노출, 공유 범위와 응원 각각 단일 선택, 모든 콜백의 인자·횟수, 탭 재진입 선택 유지, 칩 96dp·내용 폭·한 줄·선택 색, 다시 시작 140dp × 720dp 이상, 긴 조언의 옵션 노출을 검사했다. Setup은 응원 있음/없음, 프로필 위의 Periwinkle 눈썹, 시트·Briefing 비노출, 응원이 없을 때 첫 렌더 배치가 같은지 확인했다. 기존 잠금·패널·주 버튼·시트·퀴즈·Done/Report 계약도 통과했다.
+`contract-round7.txt`: 수정 없는 `tools/lesson_shots.sh build/round7-contract`에서 **Lesson contract passed**. 정답·오답 눈썹/글자색·4dp 윤곽, 정차 중 답변 전후 그만하기 콜백 각 1회와 Setup 표시, 잠금 터치 0, QuizDone의 색상 구분·정답/미응답 행을 확인했다. 좌/우 회전 점선의 아래쪽 간격이 위쪽보다 넓고 두 선이 같은 방향으로 휘며, 중립에서는 두 직선임을 캡처 픽셀로 검증한다. 반투명 합성의 채널값 차이는 ±1만 허용한다. 기존 패널·주 버튼·시트·미측정·Done/Report 계약도 통과했다. 클릭 뒤에는 접근성 이벤트가 안정될 때까지 기다려 이전 과제 시트의 캐시를 읽지 않게 했다.
 
-전체 계측 캡처는 `build/companion-contract-complete/`에 있다. `lesson-companion-selected.png`, `lesson-companion-long-note.png`, `lesson-setup-cheer.png`를 눈으로 확인했다. 공유 범위 여백을 줄여 72sp 조언이 세 줄이어도 마지막 설명이 하단 버튼에 가려지지 않게 했다.
+조향 영상 [lesson-round4-steering.mp4](lesson-round4-steering.mp4)(기존 계측 파일명 유지)와 [프레임 스트립](lesson-round7-steering-strip.png)을 확인했다. 중립 → 오른쪽 조향에서 좌우 바퀴 각 차이 → 중립 복귀가 보인다. 전체 원본 캡처·Done 영상은 `build/round7-contract/`에 있다.
 
-정적 확인: `ui/`의 `FontWeight.Bold` 0, `Color(0x`는 `CoachStyle.kt`에만 있다. 문자열 리소스는 `lesson_companion` 한 개만 추가했다. 차량·포트·채점·상태기계·데이터·빌드 파일·`tools/` 변경은 없다.
+정적 확인: `ui/`의 `FontWeight.Bold` 0, `Color(0x`는 `CoachStyle.kt`에만 있다. 문자열 리소스는 `lesson_quit` +1, `lesson_companion` −1. 차량·포트·채점·상태기계·데이터·빌드 파일·`tools/` 변경은 없다.
 
-`flow-companion.txt`: 수정 없는 `tools/emu_flow.sh build/companion-flow` **PASS**, uiautomator 충돌 **0**. 못한 주차 60/55·이동 4회·필수 힌트 세 종류 → 잘한 주차 100/100·이동 2회·추가 힌트 없음 → 도어 열림 후 리포트(세션 시작부터 **132초**) → 동승자 탭 → 첫 응원 선택 로그 → 다시 시작한 Setup에 응원이 보이는 전체 경로를 확인했다. 원본 캡처는 `build/companion-flow/`에 있다.
-
-기존 추천 문구의 `가이드를 0번 통과했어요`는 `feature/lesson/ProgressStore.kt`의 `ModeAdvisor`에서 온다. Setup 캡처와 자막에도 그대로 보이며, 발주서의 수정 금지 영역이므로 [INTEGRATION C절](../../INTEGRATION.md#c-요청-codex--claude--claude--codex)에 후속 수정 요청을 기록했다.
+`flow-round7.txt`: 수정 없는 `tools/emu_flow.sh build/round7-flow` **PASS**, uiautomator 충돌 **0**. 못한 주차 60/55·이동 4회·필수 힌트 세 종류 → 잘한 주차 100/100·이동 2회·추가 힌트 없음 → 운전석 도어 열림 후 리포트·신호 출처 배지를 확인했다. 세션 시작부터 리포트까지 **130초**. 동승자 탭이 없어 원본 스크립트가 해당 단계를 자동으로 건너뛰었다. 원본 캡처는 `build/round7-flow/`에 있다.
 
 ## UI 라운드 6 검증 캡처
 
