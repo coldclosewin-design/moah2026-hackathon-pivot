@@ -30,6 +30,13 @@
 | A9 | `ManeuverDisplayState` 점검 필드 확장: `doorOpen`, `brakePressed`, `indicatorLeft`, `indicatorRight`, `hazard` + 각 `…Signal`. `Task.watch`(브리핑 "오늘은 ○○을 봅니다")는 "도어와 벨트와 기어와 시동과 지시등" | `feature/lesson/ManeuverDisplayState.kt`, `SeedCatalog` |
 | A10 | `docs/INTEGRATION.md` B절: 점검 신호 4개의 경로 가정(COVESA) + 배지 12 | 문서 |
 
+구현 메모(9/28, PR #47 — Codex 가 알아야 할 것):
+- **1단계 "문" 은 회차 시작 때 이미 닫혀 있으면 곧바로 "닫혔어요." 로 확인되고 벨트로 넘어간다**(실차: 앉아서 시작하면 당연히 닫혀 있다). 시연에서 문 단계를 보이려면 시작 전에 시연 패널로 문을 열어 두면 된다. 점검 과제는 **회차 중 도어 열림이 종료가 아니다**(주차와 다름) — 리포트 진입은 Done 에서 문 열림.
+- 시나리오 고정값(`ChecklistScenarioTest`): 잘한 점검 16 s → **100/100**(점검 완료 14 s) · 못한 점검 20 s → **30/40**(숙련: 순서 -40 · 브레이크 -20 · 비상등 건너뜀 -10 / 안전: 문 열린 채 시동 -30 · 움직임 -30). 못한 점검은 비상등을 건너뛰므로 "다 되셨나요?" 를 묻지 않는다 — 버튼으로 끝낸다.
+- 힌트 문장(실제): "문이 아직 열려 있어요. 닫고 시작해요." / "시동은 브레이크를 밟고 켜요."(둘 다 NORMAL, 시동 전이 때 한 번). 가이드 확인 문장은 §2 예시대로 넣었다(마지막은 "비상등 확인. 출발 준비 끝. 다 됐으면 버튼을 눌러 주세요.") — Codex 가 다듬어도 된다. `LessonStateMachineTest` 는 `predriveGuide` 의 confirm 을 그대로 읽으므로 문장을 바꿔도 깨지지 않는다. 단 "운전석 문을 닫아 주세요."·"닫혔어요." 는 테스트가 문자열로 본다.
+- `ManeuverDisplayState` 새 필드: `doorOpen`·`brakePressed`·`indicatorLeft`·`indicatorRight`·`hazard`(+ `doorSignal`…`hazardSignal`). 브레이크는 `Brake.PedalPosition > 0`. `Task.watch` = 문·안전벨트·기어 P·시동·지시등(브리핑 "오늘은 문과 안전벨트와 기어 P와 시동과 지시등을 봅니다.").
+- 배지: 점검 12 · 주차 8(`emu_flow` PASS 로 확인). 등화·브레이크 신호가 없는 차에서는 새 항목이 전부 "미측정" 으로 빠지고 나머지로만 채점된다(테스트 있음).
+
 ## 2. Codex — 화면
 
 ### 점검 `Maneuver` (`ManeuverScreen.kt`) — 칩 3 → 7
