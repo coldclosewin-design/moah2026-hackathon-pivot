@@ -29,9 +29,11 @@ object SeedCatalog {
     const val TASK_KNOWLEDGE = "knowledge-hazard-weather"
 
     val tasks: List<Task> = listOf(
-        Task(TASK_PREDRIVE, "출발 전 점검", TaskType.CHECKLIST, Difficulty.EASY, "안전벨트·기어 P·시동을 순서대로. 차는 세운 채로.",
-            listOf("안전벨트", "기어 P", "시동"), setOf(V.SEAT_DRIVER_ISBELTED, V.TRANSMISSION_SELECTED_GEAR, V.LOW_VOLTAGE_SYSTEM_STATE), requiresDriving = false,
-            status = TaskStatus.READY),   // 가이드 3단계 + ChecklistScorer + 시나리오 2벌. 움직이지 않는 유일한 조작 과제
+        Task(TASK_PREDRIVE, "출발 전 점검", TaskType.CHECKLIST, Difficulty.EASY, "문·벨트·기어 P·브레이크와 시동·지시등·비상등을 순서대로. 차는 세운 채로.",
+            listOf("문", "안전벨트", "기어 P", "시동", "지시등"),
+            setOf(V.DOOR_DRIVER_ISOPEN, V.SEAT_DRIVER_ISBELTED, V.TRANSMISSION_SELECTED_GEAR, V.BRAKE_PEDAL_POSITION, V.LOW_VOLTAGE_SYSTEM_STATE,
+                V.LIGHT_INDICATOR_LEFT, V.LIGHT_INDICATOR_RIGHT, V.LIGHT_HAZARD), requiresDriving = false,
+            status = TaskStatus.READY),   // 가이드 7단계(9/28, D1) + ChecklistScorer + 시나리오 2벌. 움직이지 않는 유일한 조작 과제
         Task("straight-stop", "단순 전진 후 정지", TaskType.DRIVING, Difficulty.EASY, "천천히 출발해 부드럽게 멈추기.",
             listOf("출발", "정지"), setOf(V.VEHICLE_SPEED), requiresDriving = true),
         Task("left-turn-signal", "좌회전 방향지시등", TaskType.DRIVING, Difficulty.EASY, "좌회전 3초 전에 켜고, 돌고 나서 끄기.",
@@ -85,11 +87,18 @@ object SeedCatalog {
         GuideStep("park", "다 들어왔으면 멈추고 기어 P.", V.TRANSMISSION_SELECTED_GEAR, "다 되셨나요? 다 됐으면 버튼을 눌러 주세요.") { s, _ -> s.stopped && s.gear == Gear.PARK },
     )
 
-    /** 출발 전 점검 — 시동 꺼진 차에서 시작한다. 벨트 → 기어 P 확인 → 브레이크 밟고 시동. 첫 단계는 주차 가이드와 같은 것. */
+    /**
+     * 출발 전 점검 7단계(9/28, 결정 D1) — 시동 꺼진 차에서 시작한다. 문 → 벨트 → 기어 P 확인 → 브레이크 밟고 시동 → 좌 지시등 → 우 지시등 → 비상등.
+     * 확인 신호는 전부 스텁에 있던 것(새 VSS 경로 없음). **문장은 Codex 가 다듬는다.**
+     */
     val predriveGuide: List<GuideStep> = listOf(
+        GuideStep("door", "운전석 문을 닫아 주세요.", V.DOOR_DRIVER_ISOPEN, "닫혔어요.") { s, _ -> !s.doorOpen },
         parkingGuide.first { it.id == "belt" },
         GuideStep("park-check", "기어가 P에 있는지 확인해 주세요.", V.TRANSMISSION_SELECTED_GEAR, "P 맞아요.") { s, _ -> s.gear == Gear.PARK },
-        GuideStep("ignition", "브레이크를 밟고 시동을 켜 주세요.", V.LOW_VOLTAGE_SYSTEM_STATE, "시동 켜졌어요. 출발 준비 끝. 다 됐으면 버튼을 눌러 주세요.") { s, _ -> s.ignitionOn == true },
+        GuideStep("ignition", "브레이크를 밟고 시동을 켜 주세요.", V.LOW_VOLTAGE_SYSTEM_STATE, "시동 켜졌어요.") { s, _ -> s.ignitionOn == true },
+        GuideStep("indicator-left", "왼쪽 방향지시등을 켜 보세요.", V.LIGHT_INDICATOR_LEFT, "왼쪽 켜졌어요. 이제 오른쪽.") { s, _ -> s.indicatorLeft == true },
+        GuideStep("indicator-right", "오른쪽 방향지시등을 켜 보세요.", V.LIGHT_INDICATOR_RIGHT, "오른쪽도 좋아요.") { s, _ -> s.indicatorRight == true },
+        GuideStep("hazard", "비상등을 켰다가 꺼 주세요.", V.LIGHT_HAZARD, "비상등 확인. 출발 준비 끝. 다 됐으면 버튼을 눌러 주세요.") { s, _ -> s.hazard == true },
     )
 
     // ───────── 프로필 (§3.4) — 첫 설정 대화 5문항 + 시연용 예시 프로필 ─────────

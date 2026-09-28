@@ -46,11 +46,12 @@ class HintRulesTest {
     }
 
     @Test
-    fun `checklist rules - ignition before belt is urgent and once, a creep is a calm reminder, a good check is silent`() {
+    fun `checklist rules - ignition before belt is urgent and once, door and brake at ignition once, a creep is a calm reminder, a good check is silent`() {
         assertTrue(run(ChecklistScenarios.good, checklist = true).isEmpty())
         val hints = run(ChecklistScenarios.bad, checklist = true)
-        assertEquals(listOf("시동보다 안전벨트가 먼저예요. 지금 매 주세요.", "아직 출발 전이에요. 차는 세운 채로 점검만 해요."), hints.map { it.text })
-        assertEquals(listOf(SpeechPriority.URGENT, SpeechPriority.NORMAL), hints.map { it.priority })
+        assertEquals(listOf("시동보다 안전벨트가 먼저예요. 지금 매 주세요.", "문이 아직 열려 있어요. 닫고 시작해요.", "시동은 브레이크를 밟고 켜요.",
+            "아직 출발 전이에요. 차는 세운 채로 점검만 해요."), hints.map { it.text })
+        assertEquals(listOf(SpeechPriority.URGENT, SpeechPriority.NORMAL, SpeechPriority.NORMAL, SpeechPriority.NORMAL), hints.map { it.priority })
         // 점검 과제에서는 주차 규칙(벨트 없이 이동)을 따로 외치지 않는다 — 한 상황에 한 마디
         assertTrue(hints.none { it.text == "안전벨트가 아직이에요." })
     }

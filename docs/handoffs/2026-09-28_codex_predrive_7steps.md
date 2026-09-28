@@ -15,7 +15,7 @@
 
 원칙: **새 VSS 경로 없이** 스텁에 이미 있는 신호(`Door`·`DirectionIndicator.Left/Right`·`Hazard`·`Brake.PedalPosition`)만 쓴다 → 사내 이관 위험 0. 신호가 `MISSING` 이면 그 단계는 확인 없이 읽고 넘기고 감점하지 않는다(기존 규칙).
 
-## 1. Claude 선행 (신호·채점·가이드·시나리오·표시 상태) — ⬜
+## 1. Claude 선행 (신호·채점·가이드·시나리오·표시 상태) — ✅ (`claude/predrive-7-model`, 9/28)
 
 | # | 무엇 | 어디 |
 |---|---|---|

@@ -13,7 +13,10 @@ import mobis.vss.VssConstants
  *
  * 신호가 [SignalRegistry] 에서 MISSING 이면 해당 B층 지표는 null 이다 — 시계열이 비어 있어서 자연히 그렇게 된다.
  */
-class ParkingRecorder(private val registry: SignalRegistry) {
+class ParkingRecorder(private val registry: SignalRegistry, keys: Set<String> = KEYS) {
+    /** 이 회차의 배지 분모 — 주차는 [KEYS], 출발 전 점검은 [CHECKLIST_KEYS]. 상태기계가 회차 시작 때 과제에 맞춰 놓는다. */
+    var keys: Set<String> = keys
+
     private val speed = ArrayList<SpeedSample>()
     private val angle = ArrayList<AngleSample>()
     private val gear = ArrayList<GearSample>()
@@ -21,6 +24,11 @@ class ParkingRecorder(private val registry: SignalRegistry) {
     private val warning = ArrayList<FlagSample>()
     private val belt = ArrayList<FlagSample>()
     private val ignition = ArrayList<FlagSample>()
+    private val door = ArrayList<FlagSample>()       // true = 열림
+    private val brake = ArrayList<FlagSample>()      // true = 밟음(PedalPosition > 0)
+    private val indicatorLeft = ArrayList<FlagSample>()
+    private val indicatorRight = ArrayList<FlagSample>()
+    private val hazard = ArrayList<FlagSample>()
 
     private var lastMillis = 0L
 
@@ -34,6 +42,11 @@ class ParkingRecorder(private val registry: SignalRegistry) {
         delta[VssConstants.OBSTACLE_IS_WARNING]?.toVssBoolean()?.let { warning.add(Sample(tMillis, it)) }
         delta[VssConstants.SEAT_DRIVER_ISBELTED]?.toVssBoolean()?.let { belt.add(Sample(tMillis, it)) }
         delta[VssConstants.LOW_VOLTAGE_SYSTEM_STATE]?.toVssIgnitionOn()?.let { ignition.add(Sample(tMillis, it)) }
+        delta[VssConstants.DOOR_DRIVER_ISOPEN]?.toVssBoolean()?.let { door.add(Sample(tMillis, it)) }
+        delta[VssConstants.BRAKE_PEDAL_POSITION]?.toVssFloat()?.let { brake.add(Sample(tMillis, it > 0f)) }
+        delta[VssConstants.LIGHT_INDICATOR_LEFT]?.toVssBoolean()?.let { indicatorLeft.add(Sample(tMillis, it)) }
+        delta[VssConstants.LIGHT_INDICATOR_RIGHT]?.toVssBoolean()?.let { indicatorRight.add(Sample(tMillis, it)) }
+        delta[VssConstants.LIGHT_HAZARD]?.toVssBoolean()?.let { hazard.add(Sample(tMillis, it)) }
     }
 
     /**
@@ -48,27 +61,29 @@ class ParkingRecorder(private val registry: SignalRegistry) {
             steering = SteeringReversalCounter.summarize(angle),
             gear = GearShiftCounter.summarize(gear),
             proximity = ProximityMonitor.fromDistance(distance) ?: ProximityMonitor.fromWarningFlag(warning),
-            preDrive = PreDriveChecklist.summarize(belt, ignition, motion.firstMoveMillis),
+            preDrive = PreDriveChecklist.summarize(belt, ignition, motion.firstMoveMillis,
+                door = door, brake = brake, indicatorLeft = indicatorLeft, indicatorRight = indicatorRight, hazard = hazard),
         )
     }
 
     fun score(rubric: ParkingRubric = ParkingRubric(), untilMillis: Long? = null): ParkingScore? =
-        metrics(untilMillis)?.let { ParkingScorer.score(it, registry.badge(), registry.missingKeys(), rubric) }
+        metrics(untilMillis)?.let { ParkingScorer.score(it, registry.badge(keys), registry.missingKeys(keys), rubric) }
 
     /** 출발 전 점검 과제 — 같은 시계열을 [ChecklistScorer] 로. 움직이지 않아도 속도 0 샘플이 있으면 채점된다. */
     fun scoreChecklist(rubric: ChecklistRubric = ChecklistRubric(), untilMillis: Long? = null): ParkingScore? =
-        metrics(untilMillis)?.let { ChecklistScorer.score(it, registry.badge(), registry.missingKeys(), rubric) }
+        metrics(untilMillis)?.let { ChecklistScorer.score(it, registry.badge(keys), registry.missingKeys(keys), rubric) }
 
     /** 회차의 추정 궤적(dead-reckoning). 속도 샘플이 없으면 빈 목록. 화면은 "추정" 이라고 쓴다. */
     fun path(): List<PathPoint> = PathReconstructor.reconstruct(speed, angle, gear)
 
     fun reset() {
         speed.clear(); angle.clear(); gear.clear(); distance.clear(); warning.clear(); belt.clear(); ignition.clear()
+        door.clear(); brake.clear(); indicatorLeft.clear(); indicatorRight.clear(); hazard.clear()
         lastMillis = 0L
     }
 
     companion object {
-        /** 주차 회차가 구독하는 키 전부. 배지의 분모. */
+        /** 주차 회차가 구독하는 키 전부. 주차 배지의 분모(8). */
         val KEYS: Set<String> = setOf(
             VssConstants.VEHICLE_SPEED,
             VssConstants.STEERING_WHEEL_ANGLE,
@@ -79,5 +94,16 @@ class ParkingRecorder(private val registry: SignalRegistry) {
             VssConstants.LOW_VOLTAGE_SYSTEM_STATE,
             VssConstants.DOOR_DRIVER_ISOPEN,
         )
+
+        /** 출발 전 점검 7단계(9/28)가 구독하는 키 — 주차 키 + 브레이크·지시등·비상등. 점검 배지의 분모(12). 새 VSS 경로는 없다(스텁에 있던 것). */
+        val CHECKLIST_KEYS: Set<String> = KEYS + setOf(
+            VssConstants.BRAKE_PEDAL_POSITION,
+            VssConstants.LIGHT_INDICATOR_LEFT,
+            VssConstants.LIGHT_INDICATOR_RIGHT,
+            VssConstants.LIGHT_HAZARD,
+        )
+
+        /** 과제 유형별 구독 키. */
+        fun keysFor(checklist: Boolean): Set<String> = if (checklist) CHECKLIST_KEYS else KEYS
     }
 }

@@ -35,6 +35,17 @@ internal data class ManeuverDisplayState(
     val ignitionOn: Boolean? = null,
     val beltSignal: SignalAvailability = SignalAvailability.MISSING,
     val ignitionSignal: SignalAvailability = SignalAvailability.MISSING,
+    /** 7단계 확장(9/28): 문·브레이크·좌/우 지시등·비상등. 신호가 없으면 null(미측정). */
+    val doorOpen: Boolean? = null,
+    val brakePressed: Boolean? = null,
+    val indicatorLeft: Boolean? = null,
+    val indicatorRight: Boolean? = null,
+    val hazard: Boolean? = null,
+    val doorSignal: SignalAvailability = SignalAvailability.MISSING,
+    val brakeSignal: SignalAvailability = SignalAvailability.MISSING,
+    val indicatorLeftSignal: SignalAvailability = SignalAvailability.MISSING,
+    val indicatorRightSignal: SignalAvailability = SignalAvailability.MISSING,
+    val hazardSignal: SignalAvailability = SignalAvailability.MISSING,
 )
 
 internal fun LessonPhase.Maneuver.toDisplayState() = ManeuverDisplayState(
@@ -59,6 +70,16 @@ internal fun LessonPhase.Maneuver.toDisplayState() = ManeuverDisplayState(
     ignitionOn = snapshot.ignitionOn,
     beltSignal = availability[VssConstants.SEAT_DRIVER_ISBELTED] ?: SignalAvailability.MISSING,
     ignitionSignal = availability[VssConstants.LOW_VOLTAGE_SYSTEM_STATE] ?: SignalAvailability.MISSING,
+    doorOpen = snapshot.doorOpen.takeIf { availability[VssConstants.DOOR_DRIVER_ISOPEN] != SignalAvailability.MISSING },
+    brakePressed = snapshot.brakePressed,
+    indicatorLeft = snapshot.indicatorLeft,
+    indicatorRight = snapshot.indicatorRight,
+    hazard = snapshot.hazard,
+    doorSignal = availability[VssConstants.DOOR_DRIVER_ISOPEN] ?: SignalAvailability.MISSING,
+    brakeSignal = availability[VssConstants.BRAKE_PEDAL_POSITION] ?: SignalAvailability.MISSING,
+    indicatorLeftSignal = availability[VssConstants.LIGHT_INDICATOR_LEFT] ?: SignalAvailability.MISSING,
+    indicatorRightSignal = availability[VssConstants.LIGHT_INDICATOR_RIGHT] ?: SignalAvailability.MISSING,
+    hazardSignal = availability[VssConstants.LIGHT_HAZARD] ?: SignalAvailability.MISSING,
 )
 
 internal fun Gear.label(): String = when (this) {

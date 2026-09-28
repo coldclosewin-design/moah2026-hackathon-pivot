@@ -44,11 +44,11 @@ class SeedCatalogTest {
     }
 
     @Test
-    fun `parking guide has six steps, predrive three, and planned tasks have none`() {
+    fun `parking guide has six steps, predrive seven, and planned tasks have none`() {
         assertEquals(6, SeedCatalog.guideFor(SeedCatalog.parkingTask).size)
         assertTrue(SeedCatalog.guideFor(SeedCatalog.tasks.first { it.id == "road-course" }).isEmpty())
         assertEquals(listOf("belt", "ignition", "reverse", "steer-right", "center", "park"), SeedCatalog.parkingGuide.map { it.id })
-        assertEquals(listOf("belt", "park-check", "ignition"), SeedCatalog.guideFor(SeedCatalog.predriveTask).map { it.id })
+        assertEquals(listOf("door", "belt", "park-check", "ignition", "indicator-left", "indicator-right", "hazard"), SeedCatalog.guideFor(SeedCatalog.predriveTask).map { it.id })
         assertTrue(SeedCatalog.predriveGuide.last().confirm.contains("버튼을 눌러 주세요"))
     }
 

@@ -47,7 +47,8 @@ class AppContainer(context: Context) {
     }
 
     /** 이 세션이 관심 있는 신호와 그 출처(실신호/시뮬/미측정). Hybrid 면 키별로 갈린다 — 리포트 배지의 근거. */
-    val registry = SignalRegistry.forPort(ParkingRecorder.KEYS, vehicle)
+    // 상위 집합으로 만들고 과제가 자기 키로 잘라 본다(주차 8 · 점검 12) — 주차 배지가 점검 신호 때문에 "미측정" 을 세지 않게
+    val registry = SignalRegistry.forPort(ParkingRecorder.CHECKLIST_KEYS, vehicle)
     val store = ProgressStore()
     /**
      * 코치. 전송 계층(`CoachTransport`)은 사내 Cloud Copilot 인증 방식이 확인되기 전까지 null → 항상 시드 멘트 풀로 폴백한다.

@@ -43,7 +43,7 @@ class LessonStateMachineTest {
         val store = ProgressStore()
         val machine = LessonStateMachine(
             vehicle = port, tts = tts, coach = coach ?: FakeCoachPort(RemarkPool(SeedCatalog.remarks, Random(3))),
-            registry = SignalRegistry(ParkingRecorder.KEYS, simulated = true), store = store,
+            registry = SignalRegistry(ParkingRecorder.CHECKLIST_KEYS, simulated = true), store = store,
             tasks = SeedCatalog.tasks, guideFor = SeedCatalog::guideFor, quizFor = SeedCatalog::quizFor, reservation = SeedCatalog.reservation, benefits = SeedCatalog.benefits,
             cheers = SeedCatalog.cheers,
             profile = SeedCatalog.demoProfile, scope = scope, clock = { testScheduler.currentTime }, briefingMillis = 0,
@@ -251,12 +251,13 @@ class LessonStateMachineTest {
     }
 
     @Test
-    fun `predrive check - guide confirms belt P ignition without moving, scores 100 and the door opens the report`() = runTest {
+    fun `predrive check - guide confirms door belt P ignition and three lights without moving, scores 100 and the door opens the report`() = runTest {
         val h = harness()
         h.machine.begin(SeedCatalog.TASK_PREDRIVE, LessonMode.GUIDE)
         advanceUntilIdle()
         val m0 = h.machine.phase.value as LessonPhase.Maneuver
-        assertEquals("안전벨트를 매 주세요.", m0.guide!!.say)
+        assertEquals("안전벨트를 매 주세요.", m0.guide!!.say)   // 7단계(9/28): 1단계 "문" 은 이미 닫혀 있어 시작과 함께 확인된다
+        assertTrue(h.tts.spoken.toString(), "운전석 문을 닫아 주세요." in h.tts.spoken && "닫혔어요." in h.tts.spoken)
         assertTrue(h.tts.spoken.first(), h.tts.spoken.first().startsWith("출발 전 점검, 가이드 모드"))
 
         feed(h, ChecklistScenarios.good)
@@ -284,22 +285,23 @@ class LessonStateMachineTest {
     }
 
     @Test
-    fun `predrive check - hint mode speaks the order hint when the engine starts before the belt and scores 60 70`() = runTest {
+    fun `predrive check - hint mode speaks order door brake hints when the engine starts wrong and scores 30 40`() = runTest {
         val h = harness()
         h.machine.begin(SeedCatalog.TASK_PREDRIVE, LessonMode.HINT)
         advanceUntilIdle()
         feed(h, ChecklistScenarios.bad)
         assertTrue(h.tts.spoken.toString(), "시동보다 안전벨트가 먼저예요. 지금 매 주세요." in h.tts.spoken)
         assertTrue(h.tts.spoken.any { it.startsWith("아직 출발 전이에요") })
+        assertTrue(h.tts.spoken.toString(), "문이 아직 열려 있어요. 닫고 시작해요." in h.tts.spoken && "시동은 브레이크를 밟고 켜요." in h.tts.spoken)
         val m = h.machine.phase.value as LessonPhase.Maneuver
-        assertTrue(m.askedDone)                        // 벨트·시동·P 가 다 보이면 "다 되셨나요?"
-        assertTrue(h.tts.spoken.any { it.startsWith("다 되셨나요?") })
+        assertTrue(!m.askedDone)                       // 비상등을 건너뛰어 아직 "다 되셨나요?" 를 묻지 않는다(7단계: 신호 있는 등화까지 봐야 끝) — 버튼으로 끝낸다
+        assertTrue(h.tts.spoken.none { it.startsWith("다 되셨나요?") })
 
         h.machine.finishAttempt()
         advanceUntilIdle()
         val done = h.machine.phase.value as LessonPhase.Done
-        assertEquals(60, done.record.score.skill)
-        assertEquals(70, done.record.score.safety)
+        assertEquals(30, done.record.score.skill)
+        assertEquals(40, done.record.score.safety)
         assertTrue(done.record.remark, !done.record.remark.contains("초.") && done.record.remark.endsWith("다음엔 벨트가 먼저, 시동은 그다음이에요."))
         h.machine.endSession(); advanceUntilIdle()
         val report = (h.machine.phase.value as LessonPhase.Report).report
@@ -337,7 +339,7 @@ class LessonStateMachineTest {
         assertTrue(h.tts.spoken.last(), h.tts.spoken.last().endsWith("오늘은 핸들 방향과 기어 전환과 뒤 거리를 봅니다."))
         h.machine.reset()
         h.machine.begin(SeedCatalog.TASK_PREDRIVE, LessonMode.HINT)
-        assertTrue(h.tts.spoken.last(), h.tts.spoken.last().endsWith("오늘은 안전벨트와 기어 P와 시동을 봅니다."))
+        assertTrue(h.tts.spoken.last(), h.tts.spoken.last().endsWith("오늘은 문과 안전벨트와 기어 P와 시동과 지시등을 봅니다."))
         h.scope.cancel()
     }
 

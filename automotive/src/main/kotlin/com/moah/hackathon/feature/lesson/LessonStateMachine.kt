@@ -287,14 +287,16 @@ class LessonStateMachine(
     private suspend fun startAttempt() {
         val (task, mode) = current ?: return
         attempt++
+        val checklist = task.type == TaskType.CHECKLIST
         recorder.reset()
-        hints = HintRules(checklist = task.type == TaskType.CHECKLIST)
+        recorder.keys = ParkingRecorder.keysFor(checklist)   // 배지 분모 — 주차 8 · 점검 12(9/28)
+        hints = HintRules(checklist = checklist)
         attemptStartMillis = clock()
         lastHint = null
         askedDone = false
         finishing = false
         // 가이드가 "어느 신호를 확인할 수 있나"를 알려면 현재값을 먼저 봐야 한다 — 구독의 첫 emit 을 기다리지 않고 직접 읽는다.
-        val now = vehicle.get(ParkingRecorder.KEYS.toList())
+        val now = vehicle.get(recorder.keys.toList())
         registry.onValues(now)
         snapshot = snapshot.apply(now)
         recorder.onDelta(0L, now)
@@ -302,7 +304,7 @@ class LessonStateMachine(
         if (!doorArmed) Log.i(TAG, "door already open at attempt start → door exit disarmed until it closes")
         guide = if (mode == LessonMode.GUIDE) GuideRunner(guideFor(task), registry) else null
         publishManeuver(task, mode, enter = true)
-        ensureVehicleSubscription()
+        ensureVehicleSubscription(recorder.keys)
         guide?.start()?.forEach { tts.speak(it) }
         guide?.unverified?.forEach { unverifiedSteps += it.say }
         publishManeuver(task, mode)
@@ -312,12 +314,12 @@ class LessonStateMachine(
             LessonMode.EVALUATE -> tts.speak(if (attempt > 1) "${attempt}회차예요. 조용히 볼게요." else "조용히 볼게요.")
             else -> {}
         }
-        Log.i(TAG, "attempt $attempt start (${mode}) missing=${registry.missingKeys()}")
+        Log.i(TAG, "attempt $attempt start (${mode}) missing=${registry.missingKeys(recorder.keys)}")
     }
 
-    private fun ensureVehicleSubscription() {
+    private fun ensureVehicleSubscription(keys: Set<String> = ParkingRecorder.KEYS) {
         if (vehicleJob?.isActive == true) return
-        vehicleJob = vehicle.observe(ParkingRecorder.KEYS.toList())
+        vehicleJob = vehicle.observe(keys.toList())
             .onEach { delta -> onDelta(delta) }
             .launchIn(scope)
     }
@@ -345,7 +347,10 @@ class LessonStateMachine(
                 }
                 // 다 된 것 같으면 한 번 묻는다 — 주차: 움직인 뒤 기어 P + 정차 / 출발 전 점검: 벨트·시동·P 가 다 보임(MISSING 이면 안 묻고 버튼을 기다린다)
                 val looksDone = if (p.task.type == TaskType.CHECKLIST) {
-                    snapshot.belt == true && snapshot.ignitionOn == true && snapshot.gear == com.moah.hackathon.vehicle.Gear.PARK
+                    // 7단계(9/28): 벨트·시동·P + 신호가 있는 등화는 전부 확인됐을 때. 미측정(null)은 제외 — 안 묻고 버튼을 기다린다
+                    val pd = recorder.metrics()?.preDrive
+                    snapshot.belt == true && snapshot.ignitionOn == true && snapshot.gear == com.moah.hackathon.vehicle.Gear.PARK &&
+                        pd?.leftIndicatorChecked != false && pd?.rightIndicatorChecked != false && pd?.hazardChecked != false
                 } else {
                     snapshot.stopped && snapshot.gear == com.moah.hackathon.vehicle.Gear.PARK && recorder.metrics()?.motion?.firstMoveMillis != null
                 }
@@ -356,7 +361,8 @@ class LessonStateMachine(
                 }
                 if (guide?.finished == true && !askedDone) { askedDone = true; Log.i(TAG, "asked done (attempt $attempt, guide finished)") }
                 publishManeuver(p.task, p.mode)
-                if (doorExit) {
+                // 출발 전 점검(7단계, 9/28)은 "문 닫기" 가 1단계라 회차 중 도어 열림이 종료가 아니다 — 리포트 진입은 Done 에서만
+                if (doorExit && p.task.type != TaskType.CHECKLIST) {
                     Log.i(TAG, "door opened while stopped → finish + report")
                     finishAttempt()
                     scope.launch { toReport() }
@@ -384,7 +390,7 @@ class LessonStateMachine(
             movingSegments = recorder.metrics()?.motion?.movingSegments ?: 0,
             elapsedMillis = clock() - attemptStartMillis,
             askedDone = askedDone,
-            availability = registry.snapshot(),
+            availability = registry.snapshot(recorder.keys),
         )
         if (enter) _phase.value = next
         else _phase.update { current -> if (current is LessonPhase.Maneuver && !finishing) next else current }
