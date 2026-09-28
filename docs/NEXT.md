@@ -2,7 +2,7 @@
 
 새 Claude Code 세션이 이 파일 하나로 이어받을 수 있게 쓴 인계 문서. **작업을 마칠 때마다 이 파일을 갱신한다**(끝난 것은 지우고, 새로 생긴 것은 추가). 과거의 경위는 `docs/journal/`, 규칙은 `AGENTS.md`·`CLAUDE.md`, **제품 정의는 `docs/topics/01_driving_coach.md` v2**.
 
-마지막 갱신: 2026-09-28 · `main = 98ec8f8`(PR #1~#41, **동승자 공유 선행 모델 머지**) · B안 재녹화 `build/demo-round6.mp4`(저장소 밖) · 단위 테스트 164 · 마감 2026-10-07. **새 세션은 여기서: `codex/companion-share` 화면 PR 리뷰·머지 → Step 12c 대본·덱 반영.** Step 12b는 빌드·계측·원본 시연 PASS, 실제 캡처 두 장까지 완료했다. 기존 영상 검토·컷 길이 실측·덱 5·6장 캡처 교체(8a)·사내 이관(8d)은 계속 남아 있다. 재시작 Setup의 기존 추천 문구 숫자 노출은 `INTEGRATION.md` C절 후속 요청을 확인할 것.
+마지막 갱신: 2026-09-28 · `main = db30ab8`(PR #1~#42, **동승자 공유 화면 머지**) · 이 PR = 추천 이유 숫자 제거 + 12c 대본·컷·덱 · 단위 테스트 165 · 마감 2026-10-07. **새 세션은 여기서: 동승자 포함 B안 재녹화 → 사용자 영상 검토 → 라운드 7 후보(도식 없는 칸 높이) 또는 컷 길이 실측·덱 5·6·12장 스크린샷 교체(8a) → 사내 이관(8d). 열린 PR 없음.**
 
 ## 1. 지금 되는 것 (한 문단)
 
@@ -120,7 +120,8 @@
 |---|---|---|
 | 12a | Claude 선행: `CompanionShareLevel`·`CompanionNote`(`CoachPort.companionNote`, Fake = `CompanionRules`(밴드 풀 + `AdviceRules.Advice` 운전자/동승자 쌍), Cloud 프롬프트·폴백)·`LessonReport.companion/companionShareLevels/cheers`·`Setup.cheer`·상태기계 `shareWithCompanion`/`cheer`(`ProgressStore`, `reset` 이 안 지움)·`SeedCatalog.cheers`·`emu_flow` 선택 단계(화면 없으면 건너뜀) | ✅ PR #41 머지 `98ec8f8`(단위 테스트 164) |
 | 12b | Codex: Report `동승자` 탭(두 문장·공유 범위 3·응원 칩 3·`다시 시작`), Setup 응원 눈썹, 계측·캡처 2장 | ✅ `codex/companion-share` 구현·검증 완료, 리뷰·머지 대기. 빌드·단위 테스트 164·계측 APK, `Lesson contract passed`, 원본 `emu_flow` PASS·clashes 0(응원 선택 → Setup 포함). 캡처·로그는 `docs/screenshots/lesson/README.md` |
-| 12c | 대본: 진단서 15 s → 진단서 10 s + 동승자 10 s, 덱 12장 "확장" → "있는 것" | ⬜ 12b 뒤 |
+| 12b-후속 | Codex C절 요청: 재시작 Setup 추천 이유 "가이드를 0번 통과했어요"(숫자·어색) → `ModeAdvisor.suggest` 세 문장 숫자 없이(`ModeAdvisorReasonTest`) | ✅ 이 PR |
+| 12c | 대본: 진단서 뒤 동승자 10 s(2:25 행), 컷 목록 11b, 덱 12장 동승자 공유를 "있는 것" 으로 | ✅ 이 PR |
 
 ### 사용자 결정·행동이 필요한 것
 | # | 일 | 상태 |
