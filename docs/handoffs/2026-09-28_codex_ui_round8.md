@@ -6,12 +6,12 @@
 작업: ① 시트 과제 칸을 테두리 없는 면 카드로(모드 칩과 같은 색) ② Setup → 시트 전환에서 왼쪽 일러스트를 모핑(비율·크롭 연속 애니메이션) ③ Done 추정 궤적 — **결정 D1 = (나) 도착 칸**(§3 (나)). (가) 는 만들지 않는다.
 제약: vehicle/, ports/, scoring/, feature/lesson/, data/ 의 구조, build 파일, tools/ 는 수정 금지. docs/NEXT.md 는 고치지 말고 docs/INTEGRATION.md C절에 적어라.
 완료 기준: .\gradlew.bat assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest 통과(PowerShell), bash tools/lesson_shots.sh → "Lesson contract passed", bash tools/emu_flow.sh → result: PASS(원본 — 시트 첫 렌더 `힌트`·`시작` 불변),
-          docs/screenshots/lesson/ 에 lesson-setup-sheet.png 교체 + lesson-setup-morph-strip.png(전환 중 프레임 5장 스트립) + (③이면) lesson-done.png 교체·lesson-round4-done.mp4 클립, gh pr create.
+          docs/screenshots/lesson/ 에 lesson-setup-sheet.png 교체 + lesson-setup-morph-strip.png(전환 중 프레임 5장 스트립) + lesson-done.png 교체·lesson-round4-done.mp4 클립(도착 칸), gh pr create.
 ```
 
 ## 0. 왜
 
-라운드 8 영상(`build/demo-round8.mp4`) 피드백 3건 — `docs/design/06_round8_feedback.md`. ①②는 바로, ③은 시간 순서 문제라 사용자 결정(D1) 뒤.
+라운드 8 영상(`build/demo-round8.mp4`) 피드백 3건 — `docs/design/06_round8_feedback.md`. ①②는 바로, ③은 시간 순서 문제라 사용자 결정 D1 을 물었고 **(나) 도착 칸**으로 결정됐다(9/28).
 
 ## 1. 시트 과제 칸 — 테두리 → 면 카드 (#1, `TaskSheet.kt` `TaskBay`)
 
