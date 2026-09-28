@@ -1,0 +1,12 @@
+PASS Setup first render: four parking bays, suggested selection, three modes/start, Signal category and 64 dp checked circle
+PASS Setup categories: planned driving scroll/no start, checklist dispatch, knowledge QUIZ, reopen selection and mode filtering; fixed footer
+PASS Briefing has its full sentence and no touch targets
+PASS Steering guide pixels: concentric turns widen toward the bottom in both directions; neutral guides stay straight
+PASS Maneuver: no scores, exact lock/stop boundaries, missing signals, four-line subtitle, hint expiry
+PASS Checklist: seven chips in 4+3 columns, complete/pending/missing colors, mixed brake/ignition sources, no parking telemetry, locked touch gate
+PASS Quiz: wrong/correct answer eyebrows and outline, explanations, next/result, stopped quit once before/after answering, locked touch zero, colored keyed comparisons and restart
+PASS Done rear-up pixels: Ink end car above, Lavender start outline below; settled semantics have no chevron or metrics
+PASS Done actions and Report badge, certificate sharing choices, restart
+PASS Checklist Report: seven recorded checks, only belt/ignition timing, good/bad/missing distinction; Done retains two sentences
+PASS 5-second screenrecord clips: /sdcard/lesson-round4-steering.mp4 and /sdcard/lesson-round4-done.mp4
+Lesson contract passed

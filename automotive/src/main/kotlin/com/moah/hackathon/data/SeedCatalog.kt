@@ -101,7 +101,7 @@ object SeedCatalog {
         GuideStep("ignition", "브레이크를 밟고 시동을 켜 주세요.", V.LOW_VOLTAGE_SYSTEM_STATE, "시동 켜졌어요.") { s, _ -> s.ignitionOn == true },
         GuideStep("indicator-left", "왼쪽 방향지시등을 켜 보세요.", V.LIGHT_INDICATOR_LEFT, "왼쪽 켜졌어요. 이제 오른쪽.") { s, _ -> s.indicatorLeft == true },
         GuideStep("indicator-right", "오른쪽 방향지시등을 켜 보세요.", V.LIGHT_INDICATOR_RIGHT, "오른쪽도 좋아요.") { s, _ -> s.indicatorRight == true },
-        GuideStep("hazard", "비상등을 켰다가 꺼 주세요.", V.LIGHT_HAZARD, "비상등 확인. 출발 준비 끝. 다 됐으면 버튼을 눌러 주세요.") { s, _ -> s.hazard == true },
+        GuideStep("hazard", "비상등을 켜 보세요.", V.LIGHT_HAZARD, "비상등 확인. 이제 끄고 버튼을 눌러 주세요.") { s, _ -> s.hazard == true },
     )
 
     // ───────── 프로필 (§3.4) — 첫 설정 대화 5문항 + 시연용 예시 프로필 ─────────

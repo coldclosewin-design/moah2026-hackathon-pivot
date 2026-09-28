@@ -51,12 +51,25 @@ internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stoppe
                                 40, CoachColors.Paper.copy(alpha = .7f))
                         }
                     } else if (checklist) {
-                        Column(Modifier.weight(1f).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically)) {
-                            ChecklistValue("안전벨트", state.belt?.let { if (it) "채움" else "아직" }, state.belt == true,
-                                state.beltSignal, commonSignal == null)
-                            ChecklistValue("기어", state.gear, state.gear == "P", state.gearSignal, commonSignal == null)
-                            ChecklistValue("시동", state.ignitionOn?.let { if (it) "켜짐" else "꺼짐" }, state.ignitionOn == true,
-                                state.ignitionSignal, commonSignal == null)
+                        Row(Modifier.weight(1f).fillMaxWidth().padding(top = 24.dp), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                                ChecklistValue("도어", state.doorOpen?.let { if (it) "열림" else "닫힘" }, state.doorOpen == false,
+                                    state.doorSignal, commonSignal == null)
+                                ChecklistValue("안전벨트", state.belt?.let { if (it) "채움" else "아직" }, state.belt == true,
+                                    state.beltSignal, commonSignal == null)
+                                ChecklistValue("기어", state.gear, state.gear == "P", state.gearSignal, commonSignal == null)
+                                val ignition = state.checklistIgnition()
+                                ChecklistValue("브레이크 / 시동", ignition.value, ignition.satisfied,
+                                    ignition.signal, commonSignal == null, ignition.source)
+                            }
+                            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                                ChecklistValue("좌 지시등", state.indicatorLeft?.let { if (it) "확인" else "아직" }, state.indicatorLeft == true,
+                                    state.indicatorLeftSignal, commonSignal == null)
+                                ChecklistValue("우 지시등", state.indicatorRight?.let { if (it) "확인" else "아직" }, state.indicatorRight == true,
+                                    state.indicatorRightSignal, commonSignal == null)
+                                ChecklistValue("비상등", state.hazard?.let { if (it) "확인" else "아직" }, state.hazard == true,
+                                    state.hazardSignal, commonSignal == null)
+                            }
                         }
                     } else {
                         Box(Modifier.weight(1f).fillMaxWidth()) {
@@ -74,7 +87,7 @@ internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stoppe
                         }
                     }
                     Spacer(Modifier.height(24.dp))
-                    Eyebrow(if (checklist) "출발 전 점검" else "조향 방향 도식", color = CoachColors.Paper.copy(alpha = .7f))
+                    Eyebrow(if (checklist) "출발 전 점검 · 현재 상태" else "조향 방향 도식", color = CoachColors.Paper.copy(alpha = .7f))
                 }
                 Row(Modifier.weight(.47f).fillMaxHeight().padding(start = 64.dp, end = 64.dp, top = 96.dp, bottom = 52.dp),
                     horizontalArrangement = Arrangement.spacedBy(32.dp)) {
@@ -134,16 +147,21 @@ internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stoppe
 }
 
 @Composable
-private fun ChecklistValue(label: String, value: String?, satisfied: Boolean, signal: SignalAvailability, showSource: Boolean) {
+private fun ChecklistValue(label: String, value: String?, satisfied: Boolean, signal: SignalAvailability,
+    showSource: Boolean, source: String = signalLabel(signal)) {
     val measured = value != null && signal != SignalAvailability.MISSING
-    Row(Modifier.fillMaxWidth().heightIn(min = 220.dp), verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.width(8.dp).height(180.dp).background(
-            if (measured && satisfied) CoachColors.Periwinkle else CoachColors.Ink))
-        Column(Modifier.padding(start = 32.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Eyebrow(label, color = CoachColors.Paper)
-            LessonText(if (measured) value!! else "미측정", 80,
-                if (measured && satisfied) CoachColors.Paper else CoachColors.Paper.copy(alpha = .6f), bold = true)
-            if (showSource) StateLabel(signalLabel(if (measured) signal else SignalAvailability.MISSING), signal, onInk = true)
+    val background = when {
+        !measured -> CoachColors.Lavender
+        satisfied -> CoachColors.Periwinkle
+        else -> CoachColors.Ink.copy(alpha = .6f)
+    }
+    val foreground = if (measured) CoachColors.Paper else CoachColors.Muted
+    Column(Modifier.fillMaxWidth().height(240.dp).background(CoachColors.Lavender).background(background)
+        .padding(horizontal = 24.dp, vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Eyebrow(label, color = foreground)
+        LessonText(if (measured) value!! else "미측정", 48, foreground, bold = true)
+        if (showSource && (measured || source != "미측정")) {
+            LessonText(source, 32, foreground)
         }
     }
 }

@@ -99,12 +99,15 @@ internal fun signalName(key: String): String = when (key) {
     V.DOOR_DRIVER_ISOPEN -> "운전석 도어"
     V.LIGHT_INDICATOR_LEFT -> "왼쪽 방향지시등"
     V.LIGHT_INDICATOR_RIGHT -> "오른쪽 방향지시등"
+    V.LIGHT_HAZARD -> "비상등"
+    V.BRAKE_PEDAL_POSITION -> "브레이크"
     else -> "기타 차량 신호"
 }
 
 internal fun ManeuverDisplayState.proximityAlert() = obstacleWarning || (rearDistanceCm?.let { it < 40f } == true)
 internal fun ManeuverDisplayState.commonSignal(): SignalAvailability? {
-    val signals = if (taskType == TaskType.CHECKLIST) listOf(beltSignal, gearSignal, ignitionSignal)
+    val signals = if (taskType == TaskType.CHECKLIST) listOf(doorSignal, beltSignal, gearSignal, brakeSignal,
+        ignitionSignal, indicatorLeftSignal, indicatorRightSignal, hazardSignal)
         else listOf(steeringSignal, gearSignal, distanceSignal)
     return signals.first().takeIf { it != SignalAvailability.MISSING && signals.all { value -> value == it } }
 }
