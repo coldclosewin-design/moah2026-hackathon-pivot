@@ -33,24 +33,6 @@ class CloudCoachPortTest {
     }
 
     @Test
-    fun `companion note uses a two-line cloud answer and falls back otherwise`() = runTest {
-        val attempts = listOf(AttemptRecord(1, SeedCatalog.TASK_PARKING_REAR, LessonMode.HINT, score(), null, "서두.\n조언.", 0))
-        var captured = ""
-        val good = CloudCoachPort(fallback, transport { _, user -> captured = user; "오늘은 끝까지 해냈어요. 다음엔 출발 전에 벨트를 같이 봐 주세요." })
-        val note = good.companionNote(SeedCatalog.parkingTask, attempts, profile)
-        assertEquals("오늘은 끝까지 해냈어요.", note.praise)
-        assertEquals("다음엔 출발 전에 벨트를 같이 봐 주세요.", note.help)
-        assertTrue(captured, captured.contains("동승자") && captured.contains("벨트"))
-
-        val oneLine = CloudCoachPort(fallback, transport { _, _ -> "한 문장뿐이에요" })
-        assertEquals(fallback.companionNote(SeedCatalog.parkingTask, attempts, profile).help, oneLine.companionNote(SeedCatalog.parkingTask, attempts, profile).help)
-        val banned = CloudCoachPort(fallback, transport { _, _ -> "실패했어요. 다음엔 잘해 주세요." })
-        assertFalse(banned.companionNote(SeedCatalog.parkingTask, attempts, profile).text.contains("실패"))
-        val none = CloudCoachPort(fallback, transport = null)
-        assertTrue(none.companionNote(SeedCatalog.parkingTask, emptyList(), profile).praise.isNotBlank())
-    }
-
-    @Test
     fun `no transport falls back to the seed pool with the numeric head`() = runTest {
         val coach = CloudCoachPort(fallback, transport = null)
         val text = coach.remark(SeedCatalog.parkingTask, score(), null, profile, 1)

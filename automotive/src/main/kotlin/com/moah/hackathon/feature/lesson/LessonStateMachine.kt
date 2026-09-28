@@ -51,8 +51,6 @@ class LessonStateMachine(
     /** 제휴 시험장(D3). 비어 있으면 예약 진입점은 무시된다. */
     private val venues: List<Venue> = emptyList(),
     private val benefits: List<String>,
-    /** 동승자 응원 한마디 후보(시드 3). 리포트 동승자 탭의 칩. */
-    private val cheers: List<String> = emptyList(),
     profile: Profile,
     private val scope: CoroutineScope,
     private val clock: () -> Long = { System.currentTimeMillis() },
@@ -262,24 +260,6 @@ class LessonStateMachine(
         _phase.value = setup()
     }
 
-    // ───────── 동승자 공유 (§3.5) — 리포트에서만. 실제 전송은 없다 ─────────
-
-    /** 동승자 공유 범위 선택. 전송 없이 기록만(로그 `companion: share=`). */
-    fun shareWithCompanion(level: CompanionShareLevel) {
-        if (_phase.value !is LessonPhase.Report) return
-        store.companionShare = level
-        Log.i(TAG, "companion: share=$level")
-    }
-
-    /** 동승자가 고른 응원 한마디 — 다음 세션 Setup 첫 줄이 된다. [reset] 이 지우지 않는다. */
-    fun cheer(text: String) {
-        if (_phase.value !is LessonPhase.Report) return
-        val trimmed = text.trim()
-        if (trimmed.isEmpty()) return
-        store.cheer = trimmed
-        Log.i(TAG, "companion: cheer=$trimmed")
-    }
-
     /** 리포트에서 "다시 시작" 또는 오류 복구. */
     fun reset() {
         briefingJob?.cancel(); briefingJob = null
@@ -298,7 +278,7 @@ class LessonStateMachine(
         val s = ModeAdvisor.suggest(task, store)
         val fromReservation = booking != null && ModeAdvisor.reservedTask(tasks.filter { it.isReady }, booking, venues)?.id == task.id
         val reason = if (fromReservation) "${ModeAdvisor.RESERVED_REASON} ${s.reason}" else s.reason
-        return LessonPhase.Setup(profile, tasks, task, s.mode, reason, cheer = store.cheer, venues = venues, booking = booking)
+        return LessonPhase.Setup(profile, tasks, task, s.mode, reason, venues = venues, booking = booking)
     }
 
     private fun briefingLine(task: Task, mode: LessonMode): String {
@@ -439,12 +419,6 @@ class LessonStateMachine(
             Log.w(TAG, "coach.summarize failed → rule sentence", e)
             "${task.title} ${attempts.size}회.\n오늘도 끝까지 했어요. 수고했어요."
         }
-        val companion = try {
-            coach.companionNote(task, attempts, profile)
-        } catch (e: RuntimeException) {
-            Log.w(TAG, "coach.companionNote failed → rule sentences", e)
-            com.moah.hackathon.ports.CompanionRules.note(task, attempts, RemarkPool(com.moah.hackathon.ports.CompanionRules.PRAISE), rubric)
-        }
         val nextTask = ModeAdvisor.suggestTask(profile, tasks)
         val next = ModeAdvisor.suggest(task, store)
         vehicleJob?.cancel(); vehicleJob = null
@@ -455,7 +429,6 @@ class LessonStateMachine(
                 nextTask = nextTask, nextMode = next.mode, nextReason = next.reason,
                 shareLevels = ShareLevel.entries.toList(), benefits = benefits,
                 unverifiedGuideSteps = unverifiedSteps.toList(),
-                companion = companion, cheers = cheers,
             ),
         )
         tts.speak("$summary\n다음엔 ${next.mode.label} 모드 어때요? ${next.reason}", SpeechPriority.URGENT)
