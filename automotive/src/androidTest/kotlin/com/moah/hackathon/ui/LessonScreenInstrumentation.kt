@@ -187,11 +187,10 @@ class LessonScreenInstrumentation : Instrumentation() {
             val twoReady = SeedCatalog.tasks.map { if (it.id == "parking-parallel") it.copy(status = TaskStatus.READY) else it }
             render(activity) { SetupScreen(SeedCatalog.demoProfile, twoReady, task, LessonMode.GUIDE, "", null, { _, _ -> }) }
             click("과제·모드 바꾸기")
-            Thread.sleep(450)
-            uiAutomation.waitForIdle(100, 2_000)
+            val ready = twoReady.first { it.id == "parking-parallel" }
+            val readyBounds = awaitSettledBay(ready.title, CoachColors.Lavender.toArgb())
             capture("setup-sheet-ready-contract") { bitmap ->
-                val ready = twoReady.first { it.id == "parking-parallel" }
-                assertBayFill(bitmap, buttonBounds(ready.title), CoachColors.Lavender.toArgb())
+                assertBayFill(bitmap, readyBounds, CoachColors.Lavender.toArgb())
                 check(!colorBounds(bitmap, textBounds(ready.title), CoachColors.Ink.toArgb()).isEmpty)
             }
 
@@ -812,6 +811,30 @@ class LessonScreenInstrumentation : Instrumentation() {
         nodes().first { node ->
             (node.isClickable || !node.isEnabled) && descendants(node).any { it.text?.toString() == label }
         }.getBoundsInScreen(bounds)
+    }
+    private fun awaitSettledBay(label: String, color: Int): Rect {
+        val deadline = SystemClock.uptimeMillis() + 2_000
+        var previous: Rect? = null
+        var pixel: Int? = null
+        while (SystemClock.uptimeMillis() < deadline) {
+            val bounds = buttonBounds(label)
+            if (bounds == previous) {
+                val screenshot = checkNotNull(uiAutomation.takeScreenshot())
+                try {
+                    val sampled = screenshot.getPixel(bounds.left + 4, bounds.top + 4)
+                    pixel = sampled
+                    val matches = listOf(0, 8, 16).all {
+                        abs(((sampled ushr it) and 255) - ((color ushr it) and 255)) <= 1
+                    }
+                    if (matches && SystemClock.uptimeMillis() <= deadline) return bounds
+                } finally { screenshot.recycle() }
+            }
+            previous = bounds
+            val remaining = deadline - SystemClock.uptimeMillis()
+            if (remaining <= 0) break
+            Thread.sleep(minOf(100L, remaining))
+        }
+        error("$label did not settle within 2 s: bounds=$previous, face pixel=$pixel / $color")
     }
     private fun assertBayFill(bitmap: Bitmap, bounds: Rect, color: Int) {
         // Sample the face and the former top/side outline positions, outside all illustration/text.
