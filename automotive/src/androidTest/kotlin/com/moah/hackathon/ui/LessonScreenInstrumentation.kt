@@ -6,16 +6,29 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.os.Bundle
+import android.os.SystemClock
+import android.view.View
+import android.view.ViewGroup
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.BroadcastFrameClock
+import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.node.RootForTest
+import androidx.compose.ui.platform.AndroidUiDispatcher
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import com.moah.hackathon.App
 import com.moah.hackathon.data.SeedCatalog
 import com.moah.hackathon.feature.lesson.*
@@ -25,6 +38,13 @@ import com.moah.hackathon.ui.lesson.*
 import com.moah.hackathon.vehicle.*
 import java.io.File
 import java.io.FileInputStream
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.roundToInt
 
 /** Platform accessibility checks and screenshots; no additional Gradle dependency is needed. */
 class LessonScreenInstrumentation : Instrumentation() {
@@ -35,6 +55,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as MainActivity
         try {
             val task = SeedCatalog.parkingTask
+            captureSetupMorph(activity)
             val container = (activity.application as App).container
             var played: String? = null
             val setupDemo: @Composable () -> Unit = {
@@ -63,6 +84,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             runOnMainSync { check(played == container.scenarios.first { it.title == "잘한 주차" }.id) }
             assertPanelCollapsed()
             click("과제·모드 바꾸기")
+            uiAutomation.waitForIdle(100, 2_000)
             check(texts().contains("연습할 과제"))
             check(texts().containsAll(listOf("가이드", "힌트", "평가")))
             check(texts().none { it == "지식 테스트" })
@@ -89,7 +111,14 @@ class LessonScreenInstrumentation : Instrumentation() {
                 check(kotlin.math.abs(checkCircle.centerY() - (selectedBounds.bottom - 32 * scale)) <= 1f)
                 check(bitmap.getPixel(checkCircle.centerX() - (4 * scale).toInt(),
                     checkCircle.centerY() + (11 * scale).toInt()) == CoachColors.Paper.toArgb()) { "Missing white check" }
-                check(bitmap.getPixel(selectedBounds.left + (3 * scale).toInt(), selectedBounds.centerY()) == CoachColors.Ink.toArgb())
+                assertBayFill(bitmap, selectedBounds, CoachColors.Periwinkle.toArgb())
+                check(!colorBounds(bitmap, textBounds(task.title), CoachColors.Paper.toArgb()).isEmpty)
+                val diagram = Rect(selectedBounds.left, selectedBounds.top, selectedBounds.right,
+                    selectedBounds.top + (184 * scale).toInt())
+                check(!colorBounds(bitmap, diagram, CoachColors.Paper.toArgb()).isEmpty) { "Selected diagram must be Paper" }
+                parkingTasks.filterNot { it.isReady }.forEach { planned ->
+                    assertBayFill(bitmap, taskBounds(planned.title), CoachColors.Lavender.copy(alpha = .4f).compositeOver(CoachColors.Paper).toArgb())
+                }
                 check(!colorBounds(bitmap, categoryTitleBounds, CoachColors.Signal.toArgb()).isEmpty) { "Expanded category text must be Signal" }
                 listOf(10, 26).forEach { belowTitle ->
                     check(bitmap.getPixel(categoryTitleBounds.centerX(), categoryTitleBounds.bottom + (belowTitle * scale).toInt()) == CoachColors.Signal.toArgb()) {
@@ -97,7 +126,7 @@ class LessonScreenInstrumentation : Instrumentation() {
                     }
                 }
             }
-            pass("Setup first render: four parking bays, suggested selection, three modes/start, Signal category and 64 dp checked circle")
+            pass("Setup first render: filled Periwinkle/40% Lavender bays without outlines, Paper selection, modes/start, Signal category and 64 dp checked circle")
             click("제휴 시험장")
             check(texts().contains(Reservation.EXAMPLE_NOTE))
             check(texts().none { it in listOf("시작", "가이드", "힌트", "평가") })
@@ -154,6 +183,16 @@ class LessonScreenInstrumentation : Instrumentation() {
             assertSelected(task.title)
             assertSelected("가이드")
             pass("Setup categories: planned driving scroll/no start, checklist dispatch, knowledge QUIZ, reopen selection and mode filtering; fixed footer")
+            // The live catalog has one READY task per category. Exercise an unselected READY bay too.
+            val twoReady = SeedCatalog.tasks.map { if (it.id == "parking-parallel") it.copy(status = TaskStatus.READY) else it }
+            render(activity) { SetupScreen(SeedCatalog.demoProfile, twoReady, task, LessonMode.GUIDE, "", null, { _, _ -> }) }
+            click("과제·모드 바꾸기")
+            val ready = twoReady.first { it.id == "parking-parallel" }
+            val readyBounds = awaitSettledBay(ready.title, CoachColors.Lavender.toArgb())
+            capture("setup-sheet-ready-contract") { bitmap ->
+                assertBayFill(bitmap, readyBounds, CoachColors.Lavender.toArgb())
+                check(!colorBounds(bitmap, textBounds(ready.title), CoachColors.Ink.toArgb()).isEmpty)
+            }
 
             val line = "후면 직각 주차, 가이드 모드. 오늘은 핸들 방향과 기어 전환을 봅니다."
             render(activity) { BriefingScreen(task, LessonMode.GUIDE, line, line) }
@@ -327,7 +366,7 @@ class LessonScreenInstrumentation : Instrumentation() {
                 click(item.choices[selected])
                 runOnMainSync { check(chosen.value == selected) }
                 check(texts().contains(item.why))
-                check(nodes().count { it.isClickable } == 2)
+                awaitClickableCount(2)
                 val correctChoice = item.choices[item.answer]
                 if (selected != item.answer) {
                     check(texts().containsAll(listOf("내 답", "정답")))
@@ -419,7 +458,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             assertPanelCollapsed()
             check(allText().none { it == "추정 궤적" })
             check(texts().count { it == record.remark } == 1) { "Repeated remark in subtitle footer" }
-            capture("done")
+            capture("done-no-path")
             assertDriverButton(activity, "한 번 더")
             click("한 번 더")
             click("오늘은 여기까지")
@@ -437,24 +476,18 @@ class LessonScreenInstrumentation : Instrumentation() {
             click("한 번 더") // 700 ms render + 300 ms click: still inside the three-second replay.
             check(texts().contains("다음 회차")) { "Replay blocked the next attempt action" }
             render(activity) { DoneScreen(task, 1, pathRecord, null, {}, {}, demo) }
+            capture("done-arrival-empty") { bitmap -> assertArrivalBay(activity, bitmap, path, settled = false) }
             Thread.sleep(3_000) // 500 ms initial delay + 3 s playback, including render's 700 ms.
             check(allText().contains("추정 궤적"))
             assertPanelCollapsed()
             check(texts().containsAll(listOf("신호로 추정한 궤적이에요.", "실제 위치와 다를 수 있어요.")))
             assertNoDoneMetrics()
             check(allText().none { "셰브론" in it })
-            val pathBounds = Rect().also { bounds ->
-                nodes().first { it.contentDescription?.toString() == "추정 궤적" }.getBoundsInScreen(bounds)
-            }
             capture("done-path-contract") { bitmap ->
-                val endCar = colorBounds(bitmap, pathBounds, CoachColors.Ink.toArgb())
-                val startOutline = colorBounds(bitmap, pathBounds, CoachColors.Lavender.toArgb())
-                check(!endCar.isEmpty && !startOutline.isEmpty) { "Missing end car or start outline" }
-                check(endCar.centerY() < pathBounds.centerY() && startOutline.centerY() > pathBounds.centerY()) {
-                    "Done must be rear-up: end=$endCar, start=$startOutline, canvas=$pathBounds"
-                }
+                assertArrivalBay(activity, bitmap, path, settled = true)
             }
-            pass("Done rear-up pixels: Ink end car above, Lavender start outline below; settled semantics have no chevron or metrics")
+            capture("done")
+            pass("Done rear-up arrival bay: present before arrival, Periwinkle sides/rear and open front, settled car corners inside, 12 dp start dot without outline; no chevron or metrics")
             render(activity) { DoneScreen(task, 1, record.copy(path = listOf(path.first(), path.first().copy(y = .49f))), null, {}, {}) }
             check(allText().none { it == "추정 궤적" })
             val checklistRecord = record.copy(taskId = SeedCatalog.predriveTask.id, remark = "순서를 잘 익혔어요.\n다음에도 벨트부터 확인해요.",
@@ -662,6 +695,212 @@ class LessonScreenInstrumentation : Instrumentation() {
         runOnMainSync { activity.setContent { MaterialTheme(colorScheme = coachColorScheme()) { DesignScale { content() } } } }
         Thread.sleep(700)
         runOnMainSync {}
+    }
+    @OptIn(ExperimentalComposeUiApi::class)
+    private fun composeNodes(activity: MainActivity): List<SemanticsNode> {
+        fun roots(view: View): List<RootForTest> = when (view) {
+            is RootForTest -> listOf(view)
+            is ViewGroup -> (0 until view.childCount).flatMap { roots(view.getChildAt(it)) }
+            else -> emptyList()
+        }
+        fun descendants(node: SemanticsNode): List<SemanticsNode> = listOf(node) + node.children.flatMap(::descendants)
+        return roots(activity.window.decorView).flatMap { descendants(it.semanticsOwner.rootSemanticsNode) }
+    }
+    private fun captureSetupMorph(activity: MainActivity) {
+        // Drive Compose's real animation clock explicitly: cold layout/accessibility IPC must not
+        // turn the requested 100 ms samples into several copies of the same physical frame.
+        val clock = BroadcastFrameClock()
+        val scope = CoroutineScope(AndroidUiDispatcher.Main + clock)
+        val recomposer = Recomposer(scope.coroutineContext)
+        lateinit var view: ComposeView
+        runOnMainSync {
+            view = ComposeView(activity).apply {
+                setParentCompositionContext(recomposer)
+                setContent { MaterialTheme(colorScheme = coachColorScheme()) { DesignScale {
+                    SetupScreen(SeedCatalog.demoProfile, SeedCatalog.tasks, SeedCatalog.parkingTask,
+                        LessonMode.GUIDE, "처음은 제가 순서대로 함께할게요.", null, { _, _ -> })
+                } } }
+            }
+            activity.setContentView(view)
+            scope.launch { recomposer.runRecomposeAndApplyChanges() }
+        }
+        var frameMillis = 16L
+        fun advance(millis: Long) {
+            frameMillis += millis
+            // Flush recomposition, layout and effect launches at the same animation timestamp.
+            repeat(3) {
+                runOnMainSync { clock.sendFrame(frameMillis * 1_000_000) }
+                waitForIdleSync()
+                Thread.sleep(40)
+            }
+        }
+        fun posterWidth(): Float {
+            var width = 0f
+            runOnMainSync { width = composeNodes(activity).first {
+                it.config.getOrNull(SemanticsProperties.TestTag) == "setup-poster"
+            }.boundsInWindow.width }
+            return width
+        }
+        fun activate(label: String) = runOnMainSync {
+            val button = composeNodes(activity).first { node ->
+                node.config.getOrNull(SemanticsProperties.Text)?.any { it.text == label } == true &&
+                    node.config.getOrNull(SemanticsActions.OnClick) != null
+            }
+            check(button.config[SemanticsActions.OnClick].action?.invoke() == true)
+        }
+        try {
+            advance(0)
+            advance(500) // Finish the independent PosterSurface entry animation.
+            for (opening in listOf(true, false)) {
+                val frames = mutableListOf<Bitmap>()
+                val widths = mutableListOf<Float>()
+                try {
+                    activate(if (opening) "과제·모드 바꾸기" else "돌아가기")
+                    for (index in 0..4) {
+                        advance(if (index == 0) 0 else 100)
+                        widths += posterWidth()
+                        if (index == 0 && opening) runOnMainSync {
+                            val labels = composeNodes(activity).flatMap {
+                                it.config.getOrNull(SemanticsProperties.Text).orEmpty()
+                            }.map { it.text }
+                            check(labels.containsAll(listOf("가이드", "힌트", "평가", "시작"))) {
+                                "First sheet frame must already contain modes and start"
+                            }
+                        }
+                        frames += checkNotNull(uiAutomation.takeScreenshot())
+                    }
+                    val scale = designScale(activity)
+                    check(abs(widths.first() - 2560 * scale * if (opening) .53f else .30f) <= 2)
+                    check(abs(widths.last() - 2560 * scale * if (opening) .30f else .53f) <= 2)
+                    check(widths.zipWithNext().all { (a, b) -> if (opening) a > b else a < b }) {
+                        "Poster must continuously change width: $widths"
+                    }
+                    check(widths[2] > 2560 * scale * .30f + 4 && widths[2] < 2560 * scale * .53f - 4)
+                    val frameWidth = 640
+                    val frameHeight = (frames[0].height * frameWidth.toFloat() / frames[0].width).roundToInt()
+                    val strip = Bitmap.createBitmap(frameWidth * 5, frameHeight + 36, Bitmap.Config.ARGB_8888)
+                    try {
+                        val canvas = android.graphics.Canvas(strip)
+                        canvas.drawColor(CoachColors.Paper.toArgb())
+                        val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+                            color = CoachColors.Ink.toArgb(); textSize = 22f; isFilterBitmap = true
+                        }
+                        frames.forEachIndexed { index, frame ->
+                            canvas.drawText("${index * 100} ms", (index * frameWidth + 12).toFloat(), 26f, paint)
+                            canvas.drawBitmap(frame, null, Rect(index * frameWidth, 36, (index + 1) * frameWidth, frameHeight + 36), paint)
+                        }
+                        val name = if (opening) "setup-morph-strip" else "setup-morph-return-strip"
+                        File(targetContext.filesDir, "lesson-$name.png").outputStream().use { strip.compress(Bitmap.CompressFormat.PNG, 100, it) }
+                    } finally { strip.recycle() }
+                    pass("Setup ${if (opening) "opening" else "return"} morph: 0/100/200/300/400 ms poster widths $widths; first-frame modes/start present")
+                } finally { frames.forEach { it.recycle() } }
+            }
+        } finally {
+            runOnMainSync { view.disposeComposition(); recomposer.cancel(); scope.cancel() }
+        }
+    }
+    private fun awaitClickableCount(expected: Int) {
+        val deadline = SystemClock.uptimeMillis() + 1_000
+        do {
+            if (nodes().count { it.isClickable } == expected) return
+            Thread.sleep(50)
+        } while (SystemClock.uptimeMillis() < deadline)
+        check(nodes().count { it.isClickable } == expected) { "Clickable node count did not settle to $expected within 1 s" }
+    }
+    private fun taskBounds(label: String) = Rect().also { bounds ->
+        nodes().first { node ->
+            (node.isClickable || !node.isEnabled) && descendants(node).any { it.text?.toString() == label }
+        }.getBoundsInScreen(bounds)
+    }
+    private fun awaitSettledBay(label: String, color: Int): Rect {
+        val deadline = SystemClock.uptimeMillis() + 2_000
+        var previous: Rect? = null
+        var pixel: Int? = null
+        while (SystemClock.uptimeMillis() < deadline) {
+            val bounds = buttonBounds(label)
+            if (bounds == previous) {
+                val screenshot = checkNotNull(uiAutomation.takeScreenshot())
+                try {
+                    val sampled = screenshot.getPixel(bounds.left + 4, bounds.top + 4)
+                    pixel = sampled
+                    val matches = listOf(0, 8, 16).all {
+                        abs(((sampled ushr it) and 255) - ((color ushr it) and 255)) <= 1
+                    }
+                    if (matches && SystemClock.uptimeMillis() <= deadline) return bounds
+                } finally { screenshot.recycle() }
+            }
+            previous = bounds
+            val remaining = deadline - SystemClock.uptimeMillis()
+            if (remaining <= 0) break
+            Thread.sleep(minOf(100L, remaining))
+        }
+        error("$label did not settle within 2 s: bounds=$previous, face pixel=$pixel / $color")
+    }
+    private fun assertBayFill(bitmap: Bitmap, bounds: Rect, color: Int) {
+        // Sample the face and the former top/side outline positions, outside all illustration/text.
+        listOf(4 to 4, bounds.width() / 2 to 2, 2 to bounds.height() / 2,
+            bounds.width() - 3 to bounds.height() / 2).forEach { (x, y) ->
+            val pixel = bitmap.getPixel(bounds.left + x, bounds.top + y)
+            check(listOf(0, 8, 16).all { abs(((pixel ushr it) and 255) - ((color ushr it) and 255)) <= 1 }) {
+                "Bay face/edge differs at ($x,$y) in $bounds: $pixel / $color"
+            }
+        }
+    }
+    private fun assertArrivalBay(activity: MainActivity, bitmap: Bitmap, path: List<PathPoint>, settled: Boolean) {
+        val bounds = Rect().also { rect ->
+            nodes().first { it.contentDescription?.toString() == "추정 궤적" }.getBoundsInScreen(rect)
+        }
+        val density = designScale(activity)
+        val viewport = pathViewport(path, bounds.width() / density, bounds.height() / density)
+        val scale = viewport.scale * density
+        val arrival = path.last()
+        val cx = bounds.right - viewport.x(arrival.x) * density
+        val cy = bounds.bottom - viewport.y(arrival.y) * density
+        val angle = Math.toRadians((180f - arrival.headingDeg).toDouble())
+        val c = cos(angle).toFloat(); val s = sin(angle).toFloat()
+        fun screen(x: Float, y: Float) = (cx + c * x - s * y).roundToInt() to (cy + s * x + c * y).roundToInt()
+        fun pixelNear(x: Float, y: Float, color: Int): Boolean {
+            val (px, py) = screen(x, y)
+            return (-1..1).any { dx -> (-1..1).any { dy -> bitmap.getPixel(px + dx, py + dy) == color } }
+        }
+        val halfWidth = .9f * scale * 1.25f
+        val halfDepth = 2.25f * scale * 1.15f
+        for (side in listOf(-1, 1)) for (along in listOf(-.8f, 0f, .8f)) {
+            check(pixelNear(side * halfWidth, along * halfDepth, CoachColors.Periwinkle.toArgb())) { "Arrival side missing" }
+        }
+        for (across in listOf(-.8f, 0f, .8f)) {
+            check(pixelNear(across * halfWidth, halfDepth, CoachColors.Periwinkle.toArgb())) { "Arrival rear line missing" }
+        }
+        check(pixelNear(0f, -halfDepth, CoachColors.Paper.toArgb())) { "Arrival bay front must remain open" }
+        if (!settled) {
+            check(pixelNear(0f, 0f, CoachColors.Paper.toArgb())) { "Arrival bay must be empty during initial replay" }
+            return
+        }
+        // Measure the drawn car in arrival-local axes, then check all four bounding corners.
+        var left = Float.POSITIVE_INFINITY; var right = Float.NEGATIVE_INFINITY
+        var top = Float.POSITIVE_INFINITY; var bottom = Float.NEGATIVE_INFINITY
+        for (y in bounds.top until bounds.bottom) for (x in bounds.left until bounds.right) {
+            if (bitmap.getPixel(x, y) == CoachColors.Ink.toArgb()) {
+                val dx = x - cx; val dy = y - cy
+                val localX = c * dx + s * dy; val localY = -s * dx + c * dy
+                left = minOf(left, localX); right = maxOf(right, localX)
+                top = minOf(top, localY); bottom = maxOf(bottom, localY)
+            }
+        }
+        check(right > left && bottom > top) { "Missing arrival car" }
+        check(abs((right - left) - 1.8f * scale) < 4 * density && abs((bottom - top) - 4.5f * scale) < 4 * density)
+        for (x in listOf(left, right)) for (y in listOf(top, bottom)) {
+            check(abs(x) < halfWidth - 2 * density && abs(y) < halfDepth - 2 * density) { "Arrival car corner outside bay: $x,$y" }
+        }
+        val start = path.first()
+        val startX = bounds.right - viewport.x(start.x) * density
+        val startY = bounds.bottom - viewport.y(start.y) * density
+        val startRegion = Rect((startX - .95f * scale).toInt(), (startY - 2.3f * scale).toInt(),
+            (startX + .95f * scale).toInt(), (startY + 2.3f * scale).toInt())
+        val dot = colorBounds(bitmap, startRegion, CoachColors.Lavender.toArgb())
+        check(!dot.isEmpty && dot.width() <= 12 * density + 1 && dot.height() <= 12 * density + 1) { "Start outline remains: $dot" }
+        check(abs(dot.exactCenterX() - startX) <= 1 && abs(dot.exactCenterY() - startY) <= 1)
+        check(cy < startY) { "Rear-up orientation changed" }
     }
     private fun recordMotionClips(activity: MainActivity, moving: ManeuverDisplayState, record: AttemptRecord) {
         // Recording is a review artifact; the animation still receives only the supplied signal/path data.

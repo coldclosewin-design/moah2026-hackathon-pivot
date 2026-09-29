@@ -44,6 +44,8 @@ internal fun EstimatedPath(record: AttemptRecord, modifier: Modifier) {
             fun position(point: PathPoint) = Offset(viewport.x(point.x).dp.toPx(), viewport.y(point.y).dp.toPx())
             // Match Maneuver's rear-up convention without changing recorded coordinates or time.
             rotate(180f, pivot = center) {
+                val arrival = record.path.last()
+                arrivalBay(position(arrival), arrival.headingDeg, viewport.scale.dp.toPx())
                 pathLegs(revealed).forEach { leg ->
                     drawPath(Path().apply {
                         leg.points.forEachIndexed { index, point ->
@@ -53,8 +55,7 @@ internal fun EstimatedPath(record: AttemptRecord, modifier: Modifier) {
                     }, if (leg.reversing) CoachColors.Periwinkle else CoachColors.Lavender,
                         style = Stroke(6.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
                 }
-                pathCar(position(record.path.first()), record.path.first().headingDeg, viewport.scale.dp.toPx(),
-                    CoachColors.Lavender, outline = true)
+                drawCircle(CoachColors.Lavender, 6.dp.toPx(), position(record.path.first()))
                 val current = revealed.last()
                 pathCar(position(current), current.headingDeg, viewport.scale.dp.toPx(), CoachColors.Ink,
                     reversing = time.isRunning && elapsed < record.path.last().tMillis && current.reversing)
@@ -70,19 +71,28 @@ internal fun EstimatedPath(record: AttemptRecord, modifier: Modifier) {
     }
 }
 
+/** The arrival pose defines this illustrative bay; its open edge faces the car's front. */
+private fun DrawScope.arrivalBay(center: Offset, heading: Float, scale: Float) {
+    val halfWidth = 1.8f * scale * 1.25f / 2
+    val halfDepth = 4.5f * scale * 1.15f / 2
+    rotate(-heading, center) {
+        drawPath(Path().apply {
+            moveTo(center.x - halfWidth, center.y - halfDepth)
+            lineTo(center.x - halfWidth, center.y + halfDepth)
+            lineTo(center.x + halfWidth, center.y + halfDepth)
+            lineTo(center.x + halfWidth, center.y - halfDepth)
+        }, CoachColors.Periwinkle, style = Stroke(4.dp.toPx()))
+    }
+}
+
 private fun DrawScope.pathCar(center: Offset, heading: Float, scale: Float, color: Color,
-    outline: Boolean = false, reversing: Boolean = false) {
+    reversing: Boolean = false) {
     val width = 1.8f * scale
     val height = 4.5f * scale
     // Compose rotates clockwise; PathPoint heading is counterclockwise from screen-up.
     rotate(-heading, center) {
         val left = center.x - width / 2
         val top = center.y - height / 2
-        if (outline) {
-            drawRoundRect(color, Offset(left, top), Size(width, height), CornerRadius(width * .28f),
-                style = Stroke(3.dp.toPx()))
-            return@rotate
-        }
         drawRoundRect(color, Offset(left, top), Size(width, height), CornerRadius(width * .28f))
         drawPath(Path().apply {
             moveTo(left + width * .12f, top + height * .24f)

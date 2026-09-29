@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.withTransform
@@ -115,19 +116,14 @@ private fun CategoryChoice(type: TaskType, expanded: Boolean, ready: Boolean, mo
 
 @Composable
 private fun TaskBay(task: Task, chosen: Boolean, modifier: Modifier, onClick: () -> Unit) {
-    val foreground = if (task.isReady) CoachColors.Ink else CoachColors.Periwinkle.copy(alpha = .4f)
-    val outline = when { chosen -> CoachColors.Ink; task.isReady -> CoachColors.Periwinkle; else -> CoachColors.Lavender }
+    val foreground = when { chosen -> CoachColors.Paper; task.isReady -> CoachColors.Ink; else -> CoachColors.Muted }
+    val background = when { chosen -> CoachColors.Periwinkle; task.isReady -> CoachColors.Lavender; else -> CoachColors.Lavender.copy(alpha = .4f) }
     // Planned bays have disabled semantics and no click action, including through their children.
     val action = if (task.isReady) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier.semantics { disabled() }
     Box(modifier.then(action).semantics(mergeDescendants = true) { selected = chosen }) {
+        Box(Modifier.matchParentSize().padding(bottom = 32.dp).background(background))
         Canvas(Modifier.fillMaxSize()) {
-            val stroke = (if (chosen) 6.dp else 4.dp).toPx()
-            val edge = stroke / 2
             val bottom = size.height - 32.dp.toPx()
-            drawPath(Path().apply {
-                moveTo(edge, 0f); lineTo(edge, bottom)
-                lineTo(size.width - edge, bottom); lineTo(size.width - edge, 0f)
-            }, outline, style = Stroke(stroke))
             if (chosen) {
                 val center = Offset(size.width / 2, bottom)
                 drawCircle(CoachColors.Paper, 40.dp.toPx(), center)
@@ -143,7 +139,7 @@ private fun TaskBay(task: Task, chosen: Boolean, modifier: Modifier, onClick: ()
             horizontalAlignment = Alignment.CenterHorizontally) {
             Box(Modifier.fillMaxWidth().height(176.dp), contentAlignment = Alignment.Center) {
                 if (task.type == TaskType.PARKING) {
-                    ParkingTaskDiagram(task.id, if (chosen) CoachColors.Ink else CoachColors.Periwinkle.copy(alpha = if (task.isReady) 1f else .4f),
+                    ParkingTaskDiagram(task.id, foreground, background.compositeOver(CoachColors.Paper),
                         Modifier.size(240.dp, 176.dp))
                 }
             }
@@ -161,7 +157,7 @@ private fun TaskBay(task: Task, chosen: Boolean, modifier: Modifier, onClick: ()
 
 /** Static catalogue illustration: body and windows only, with a 160 dp car; no live vehicle data. */
 @Composable
-private fun ParkingTaskDiagram(id: String, color: Color, modifier: Modifier) {
+private fun ParkingTaskDiagram(id: String, color: Color, window: Color, modifier: Modifier) {
     Canvas(modifier) {
         val carHeight = 160.dp.toPx()
         val carWidth = carHeight * .43f
@@ -194,17 +190,17 @@ private fun ParkingTaskDiagram(id: String, color: Color, modifier: Modifier) {
                 drawPath(Path().apply {
                     moveTo(23f, 32f); quadraticTo(50f, 26f, 77f, 32f)
                     lineTo(74f, 55f); quadraticTo(50f, 60f, 26f, 55f); close()
-                }, CoachColors.Paper)
+                }, window)
                 drawPath(Path().apply {
                     moveTo(22f, 137f); quadraticTo(50f, 143f, 78f, 137f)
                     lineTo(86f, 170f); quadraticTo(50f, 190f, 14f, 170f); close()
-                }, CoachColors.Paper)
+                }, window)
                 listOf(false, true).forEach { rightWindow ->
                     withTransform({ if (rightWindow) { translate(100f, 0f); scale(-1f, 1f, Offset.Zero) } }) {
                         drawPath(Path().apply {
                             moveTo(17f, 62f); quadraticTo(24f, 90f, 19f, 126f)
                             lineTo(11f, 154f); lineTo(11f, 93f); close()
-                        }, CoachColors.Paper)
+                        }, window)
                     }
                 }
             }

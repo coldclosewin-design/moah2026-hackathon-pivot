@@ -1,5 +1,22 @@
 # 화면 검증 캡처
 
+## UI 라운드 8 (2026-09-29)
+
+`codex/ui-round8` · 기준 `origin/main=c013d39`(PR #54) · CSTDe_API_34 2560×1440 · 기본 Fake, 배율 1.0. [발주서](../../handoffs/2026-09-28_codex_ui_round8.md)의 ①②③을 구현했으며, ③은 §3 (나) 도착 칸이다.
+
+- [과제 시트](lesson-setup-sheet.png): U자 테두리를 삭제하고 선택 `Periwinkle`·준비 `Lavender`·계획 `Lavender` 40% 면으로 바꿨다. 선택 글자·도식·난이도는 `Paper`, 준비는 `Ink`, 계획은 `Muted`. 차의 창은 카드 바탕색으로 뚫어 흰 실루엣에서도 구분된다. 카드 아래 변은 기존 체크 원 중심(전체 높이 − 32 dp)에 맞추고 흰 테·빨간 원·크기·간격·스크롤·고정 하단은 유지했다. [준비 상태 검사용 캡처](lesson-setup-sheet-ready-contract.png)는 비선택 READY 색 검사를 위해 평행 주차만 READY로 복사한 계측 데이터이며 시드는 변경하지 않았다.
+- [열기 5프레임](lesson-setup-morph-strip.png)·[돌아가기 5프레임](lesson-setup-morph-return-strip.png): 실제 Compose 애니메이션 시계를 0·100·200·300·400 ms로 전진시키고 각 시점의 에뮬 화면을 캡처했다. 왼쪽 폭은 열기 `1357 → 1217 → 900 → 792 → 768 px`, 돌아가기 `768 → 907 → 1225 → 1333 → 1357 px`. `FastOutSlowInEasing` 400 ms, `CenterStart` 크롭, 같은 비율에서 확대·왼쪽 이동을 보간한다. 오른쪽 본문은 300 ms fade/40 dp slide이며 시트 첫 프레임부터 모드·시작 노드가 있다. 시계 제어는 계측에만 있고 앱은 정상 프레임 시계를 사용한다.
+- [Done](lesson-done.png)·[빈 도착 칸](lesson-done-arrival-empty.png): 시작 윤곽 대신 지름 12 dp `Lavender` 점, 도착 자세에 폭 ×1.25·깊이 ×1.15의 `Periwinkle` 4 dp U자 칸을 그린다. 열린 변은 차 앞이다. 원본 경로·뷰포트·시간 순서·3초 재생·뒤가 위 관습·후진 셰브론·급정지 점은 유지한다. [경로 없는 Done](lesson-done-no-path.png)도 기존 폴백을 검증한다.
+- [Done 재생 클립](lesson-round4-done.mp4)과 [프레임 스트립](lesson-round8-done-strip.png)을 확인했다. 빈 칸으로 진입해 칸 안에서 끝나며 마지막 프레임에는 셰브론이 없다. 스트립의 마지막 정지 프레임은 빈 셀을 없애기 위해 연장했다. 영상 이름은 기존 계측 계약을 유지한다.
+
+`build-round8.txt`: PowerShell `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` 성공. 단위 테스트 **179개, 실패·오류 0**.
+
+`contract-round8.txt`: 수정 없는 `tools/lesson_shots.sh build/round8-contract-final`에서 **Lesson contract passed**. 카드 안쪽/옛 윤곽 위치 색·선택 글자/도식·체크 원, 양방향 200 ms 중간 폭·첫 프레임 컨트롤, 도착 전 칸 선·열린 앞쪽·도착 차량의 네 모서리·시작 윤곽 부재를 검사했다. 퀴즈 답 클릭 후 클릭 가능 노드 두 개 검사는 최대 1초 동안 50 ms 간격으로 폴링한다. 기존 주 버튼·잠금·숫자·미측정·점검·리포트·실제 VM 예약/취소 계약도 통과했다. 전체 원본 캡처는 `build/round8-contract-final/`에 있다.
+
+정적 확인: `ui/`의 `FontWeight.Bold` 0, `Color(0x`는 `CoachStyle.kt`에만 있다. 새 문자열 리소스 0. `PathPresentation.kt`·`pathViewport`·차량·포트·채점·상태기계·데이터·빌드·`tools/`·`docs/NEXT.md` 변경 없음.
+
+`flow-round8.txt`: 수정 없는 `tools/emu_flow.sh build/round8-flow` **PASS·uiautomator 충돌 0**. 시트 첫 렌더의 `힌트` → `시작`, 필수 힌트 세 종류, 못한 주차 **60/55·이동 4회** → 잘한 주차 **100/100·이동 2회·추가 힌트 없음**, 도어 열림 → 리포트·`실신호 0 · 시뮬레이션 8 · 미측정 0`을 확인했다. 리포트까지 **139초**. 실제 두 번째 회차의 [도착 칸](lesson-done-path.png)·`16_done_2.png`도 교체했다.
+
 ## 출발 전 점검 7단계 (2026-09-28)
 
 `codex/predrive-7` · 기준 `origin/main=97d81c8`(PR #47 선행 포함) · CSTDe_API_34 2560×1440 · 기본 Fake, 배율 1.0. [발주서 §2](../../handoffs/2026-09-28_codex_predrive_7steps.md)의 화면을 구현했다.
