@@ -7,7 +7,7 @@
 ```bash
 # 기본 빌드를 설치한 뒤 (PowerShell: .\gradlew.bat assembleDebug ; adb install -r automotive/build/outputs/apk/debug/automotive-debug.apk)
 bash tools/emu_flow.sh /tmp/flow      # Setup(힌트) → 못한 주차 → 다 됐어요 → 한 번 더 → 잘한 주차 → 다 됐어요 → 문 열기 → Report
-RESERVE=1 RECORD=/sdcard/demo.mp4 bash tools/emu_flow.sh build/rec   # 9/28: 예약 배지 상태로 시작(시트 → 제휴 시험장 → 서초 14:00 주차 3종 → 예약) + 예약 뒤부터 screenrecord(1920×1080, 180 s 한도) → build/rec/demo.mp4. 둘 다 기본 꺼짐, 판정 불변
+RESERVE=1 RECORD=/sdcard/demo.mp4 bash tools/emu_flow.sh build/rec   # 9/28: 예약 배지 상태로 시작(시트 → 제휴 시험장 → 서초 14:00 주차 3종 → 예약) + 예약 뒤부터 screenrecord(1920×1080, time-limit 0 = 무제한, 끝에 SIGINT) → build/rec/demo.mp4. 둘 다 기본 꺼짐, 판정 불변
 # 계측 APK 까지 빌드한 뒤 (.\gradlew.bat assembleDebug :automotive:assembleDebugAndroidTest)
 bash tools/lesson_shots.sh /tmp/shots  # 고정 데이터로 5화면 계약 검사 + 캡처
 ```
