@@ -2,7 +2,7 @@
 
 새 Claude Code 세션이 이 파일 하나로 이어받을 수 있게 쓴 인계 문서. **작업을 마칠 때마다 이 파일을 갱신한다**(끝난 것은 지우고, 새로 생긴 것은 추가). 과거의 경위는 `docs/journal/`, 규칙은 `AGENTS.md`·`CLAUDE.md`, **제품 정의는 `docs/topics/01_driving_coach.md` v2**.
 
-마지막 갱신: 2026-09-29 · `main = 3398a2f`(PR #1~#56) · 태그 **`inhouse-20260929`** = `3398a2f` · 단위 테스트 179 · 마감 2026-10-07. 9/28 저녁~9/29: 라운드 7(#46) → D1·D3 선행 2(#47·#48) → Codex 화면 2(#49·#50) → 동승자 제거(#52) → 라운드 8 피드백 3건(#54, D1 = (나) 도착 칸) → Codex 라운드 8(#55: 면 카드·모핑·도착 칸, 계측 정착 폴링) → 재녹화 최종본 `build/demo-round8b.mp4` 187 s → 이관 파일(`build/moah2026-20260929.bundle` 94 MB · `-src.zip` 88 MB · `-src-noshots.zip` 0.5 MB, clone 테스트 통과). **새 세션은 여기서: ① 사내 이관(8d — 런북 `06` 0→8, 첫날 로그 3개: `MOAH/DesignScale window=`·`attempt 1 start missing=[…]`·배지 `실신호 N`) ② 사용자 영상 검토 → 라운드 9 ③ 소리 포함 제출 녹화·덱 5·6·12장 스크린샷.** 리뷰 전 `adb shell uptime` — 오래 켠 에뮬은 재부팅 뒤 부하가 내려갈 때까지 기다린다(9/29).
+마지막 갱신: 2026-09-29 · `main = 511a0e8`(PR #1~#57) · 이관 태그 **`inhouse-20260929-2`** = `511a0e8`(번들 기준 — 앞선 `inhouse-20260929` = `3398a2f` 는 문서만 다르고 남겨 둠) · 단위 테스트 179 · 마감 2026-10-07. 9/28 저녁~9/29: 라운드 7(#46) → D1·D3 선행 2(#47·#48) → Codex 화면 2(#49·#50) → 동승자 제거(#52) → 라운드 8 피드백 3건(#54, D1 = (나) 도착 칸) → Codex 라운드 8(#55: 면 카드·모핑·도착 칸, 계측 정착 폴링) → 재녹화 최종본 `build/demo-round8b.mp4` 187 s → 이관 파일(`build/moah2026-20260929.bundle` 94 MB · `-src.zip` 88 MB · `-src-noshots.zip` 0.5 MB, clone 테스트 통과). **새 세션은 여기서: ① 사내 이관(8d — 런북 `06` 0→8, 첫날 로그 3개: `MOAH/DesignScale window=`·`attempt 1 start missing=[…]`·배지 `실신호 N`) ② 사용자 영상 검토 → 라운드 9 ③ 소리 포함 제출 녹화·덱 5·6·12장 스크린샷.** 리뷰 전 `adb shell uptime` — 오래 켠 에뮬은 재부팅 뒤 부하가 내려갈 때까지 기다린다(9/29).
 
 ## 1. 지금 되는 것 (한 문단)
 
@@ -71,7 +71,7 @@
 | 8a | `docs/presentation/01_deck_outline.md` — 12장·7분, 장마다 화면·말·근거·초, 길이 조절(3/5/7/10분), 예상 질문 8, 발표자가 채울 것 | ✅ 초안(9/26). ⚠ 8·9·11장은 사내 이관 뒤 숫자 갱신 |
 | 8b | `docs/presentation/02_video_shotlist.md` — 컷 13개(약 2분 05초), A 사내판(Hybrid·Signal Simulator)/B 외부판, 편집 원칙, 녹화 절차·함정 | ✅ 초안(9/26) |
 | 8c | **시연 영상 B안 녹화**(외부 에뮬, 사람이 직접 누름, 소리 포함은 PC 녹화) | 🟡 소리 없는 판은 ✅ **9/29 라운드 8b** `build/demo-round8b.mp4`(187 s, 면 카드·모핑·도착 칸 화면, 시작 → 리포트 145 s; 9/28 판 `demo-round8.mp4` 173 s, 예약 배지 상태로 시작 — `RESERVE=1 RECORD=` 옵션, 시작 → 리포트 135 s: 회차 1 `asked done` t+57 · Done t+61 · 회차 2 t+77 · `asked done` t+115 · 리포트 t+135. 9/27 판 `demo-round3.mp4` 109 s 는 옛 UI). **소리 포함 제출용은 ⬜ 사용자**(PC 녹화, 대본 타임라인 그대로) |
-| 8d | 사내: 이관 → A안 녹화 → Bitbucket 소스 → MarketUploader APK | ⬜ 사용자 — **9/29 준비 완료**: 태그 `inhouse-20260929`(`3398a2f`) · 번들 `build/moah2026-20260929.bundle`(브랜치·태그 포함, clone 테스트) · zip 2종. 사내 GitHub 가 열리면 clone + `git checkout inhouse-20260929`, 막히면 번들 반입 |
+| 8d | 사내: 이관 → A안 녹화 → Bitbucket 소스 → MarketUploader APK | ⬜ 사용자 — **9/29 준비 완료**: 태그 `inhouse-20260929-2`(`511a0e8`, 일지·NEXT 포함 — 이전 `inhouse-20260929` = `3398a2f`) · 번들 `build/moah2026-20260929.bundle`(HEAD·브랜치·태그 포함, 기본 clone 이 곧바로 `inhouse-20260929-2` 체크아웃) · zip 2종. 사내 GitHub 가 열리면 clone + `git checkout inhouse-20260929-2`, 막히면 번들 반입 |
 | 8e | 슬라이드를 사내 양식으로 옮기기, 2번 장 개인 계기 | ⬜ 사용자 |
 
 ### Step 9 — UI 재설계 (Codex 별도 세션 · 기준 = 기하학 포스터) — 🟡 라운드 1~6 머지(PR #14·#18·#25·#29·#32·#37), 영상 피드백 루프 진행 중(라운드 7 후보 있음)
