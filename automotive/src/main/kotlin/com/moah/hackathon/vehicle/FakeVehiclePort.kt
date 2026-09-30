@@ -44,6 +44,13 @@ class FakeVehiclePort(
     private val scope = CoroutineScope(SupervisorJob() + dispatcher)
     private var simulationJob: Job? = null
 
+    /**
+     * 값을 저장·emit 하기 **직전**에 부르는 훅(2026-09-30). [HybridVehiclePort] 가 여기에 "실물에 먼저 쓰기" 를 건다 —
+     * 시연 패널·시나리오 조작이 실차의 live 키에도 먹게. Fake 단독이면 null.
+     */
+    @Volatile
+    var writeThrough: (suspend (Map<String, String>) -> Unit)? = null
+
     private val _playback = MutableStateFlow<ScenarioPlayback?>(null)
     /** 재생 중인 시나리오. null = 기본 시뮬레이션 또는 정지. */
     val playback: StateFlow<ScenarioPlayback?> = _playback
@@ -57,6 +64,7 @@ class FakeVehiclePort(
 
     override suspend fun set(values: Map<String, String>): List<String> {
         if (values.isEmpty()) return emptyList()
+        writeThrough?.invoke(values)
         store.putAll(values)
         changes.emit(values)
         return emptyList()
@@ -77,6 +85,7 @@ class FakeVehiclePort(
 
     /** 테스트/데모용: 외부에서 sensor 값을 주입한다 (실차라면 앱이 쓸 수 없는 신호). */
     suspend fun inject(values: Map<String, String>) {
+        writeThrough?.invoke(values)
         store.putAll(values)
         changes.emit(values)
     }
