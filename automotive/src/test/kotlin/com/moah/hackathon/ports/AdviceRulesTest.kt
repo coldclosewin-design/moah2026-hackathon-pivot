@@ -12,6 +12,10 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import com.moah.hackathon.feature.lesson.AttemptRecord
+import com.moah.hackathon.feature.lesson.LessonMode
+import com.moah.hackathon.feature.lesson.RemarkPool
+import kotlinx.coroutines.test.runTest
 
 /** 조언 한 문장 — 가장 먼저 고칠 것 하나, 숫자 없음. (동승자 판은 9/28 제거 — `CompanionRulesTest` 에서 운전자 부분만 남김) */
 class AdviceRulesTest {
@@ -50,5 +54,13 @@ class AdviceRulesTest {
     fun `bad predrive check maps to belt before ignition first - before door brake and lights`() {
         assertEquals(AdviceRules.Advice.BELT_BEFORE_IGNITION, AdviceRules.pick(SeedCatalog.predriveTask, checklist(ChecklistScenarios.bad)))
         assertEquals(AdviceRules.Advice.KEEP_ORDER, AdviceRules.pick(SeedCatalog.predriveTask, checklist(ChecklistScenarios.good)))
+    }
+
+    @Test
+    fun `a rough predrive session names the door too in the safety sentence - seven steps since 9-28`() = runTest {
+        val record = AttemptRecord(1, SeedCatalog.TASK_PREDRIVE, LessonMode.HINT, checklist(ChecklistScenarios.bad), null, "서두.\n조언.", 0)
+        val summary = FakeCoachPort(RemarkPool(SeedCatalog.remarks)).summarize(SeedCatalog.predriveTask, LessonMode.HINT, listOf(record), SeedCatalog.demoProfile)
+        assertTrue(summary, summary.lines().last().contains("문이나 벨트"))
+        assertFalse(summary, digits.containsMatchIn(summary))
     }
 }

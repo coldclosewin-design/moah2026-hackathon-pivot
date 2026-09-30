@@ -78,4 +78,9 @@ class SeedCatalogTest {
         // 주차 3종의 첫 과제가 READY(시연 본편) — 예약 제안이 실제로 뜨는 근거
         assertTrue(SeedCatalog.courses.first { it.id == SeedCatalog.COURSE_PARKING }.taskIds.first() == SeedCatalog.TASK_PARKING_REAR)
     }
+
+    @Test
+    fun `the knowledge quiz is an easy task - three choices while parked is not harder than rear parking`() {
+        assertEquals(Difficulty.EASY, SeedCatalog.tasks.first { it.id == SeedCatalog.TASK_KNOWLEDGE }.difficulty)
+    }
 }
