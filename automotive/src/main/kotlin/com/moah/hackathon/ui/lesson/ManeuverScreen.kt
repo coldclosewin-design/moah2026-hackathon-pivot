@@ -63,11 +63,14 @@ internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stoppe
                                     ignition.signal, commonSignal == null, ignition.source)
                             }
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                                ChecklistValue("좌 지시등", state.indicatorLeft?.let { if (it) "확인" else "아직" }, state.indicatorLeft == true,
+                                ChecklistValue("좌 지시등", checklistLightValue(state.indicatorLeft, state.leftIndicatorChecked),
+                                    state.indicatorLeft == true || state.leftIndicatorChecked == true,
                                     state.indicatorLeftSignal, commonSignal == null)
-                                ChecklistValue("우 지시등", state.indicatorRight?.let { if (it) "확인" else "아직" }, state.indicatorRight == true,
+                                ChecklistValue("우 지시등", checklistLightValue(state.indicatorRight, state.rightIndicatorChecked),
+                                    state.indicatorRight == true || state.rightIndicatorChecked == true,
                                     state.indicatorRightSignal, commonSignal == null)
-                                ChecklistValue("비상등", state.hazard?.let { if (it) "확인" else "아직" }, state.hazard == true,
+                                ChecklistValue("비상등", checklistLightValue(state.hazard, state.hazardChecked),
+                                    state.hazard == true || state.hazardChecked == true,
                                     state.hazardSignal, commonSignal == null)
                             }
                         }
@@ -83,11 +86,14 @@ internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stoppe
                                 else CoachColors.Paper, bold = true)
                             // Muted on the ink panel needs the same contrast treatment as the other on-ink labels.
                             steeringTurnsLabel(state.steeringDeg)?.let { LessonText(it, 32, CoachColors.Paper.copy(alpha = .6f)) }
-                            if (commonSignal == null) StateLabel(signalLabel(state.steeringSignal), state.steeringSignal, onInk = true)
+                            if (commonSignal == null && state.steeringDeg != null) {
+                                StateLabel(signalLabel(state.steeringSignal), state.steeringSignal, onInk = true)
+                            }
                         }
                     }
                     Spacer(Modifier.height(24.dp))
-                    Eyebrow(if (checklist) "출발 전 점검 · 현재 상태" else "조향 방향 도식", color = CoachColors.Paper.copy(alpha = .7f))
+                    if (!locked) Eyebrow(if (checklist) "출발 전 점검 · 확인 상태" else "조향 방향 도식",
+                        color = CoachColors.Paper.copy(alpha = .7f))
                 }
                 Row(Modifier.weight(.47f).fillMaxHeight().padding(start = 64.dp, end = 64.dp, top = 96.dp, bottom = 52.dp),
                     horizontalArrangement = Arrangement.spacedBy(32.dp)) {
@@ -172,7 +178,7 @@ private fun SignalValue(label: String, value: String, signal: SignalAvailability
         Eyebrow(label)
         LessonText(value, if (value == "미측정") 56 else 80,
             if (value == "미측정") CoachColors.Muted else CoachColors.Ink, bold = true)
-        if (showSource) StateLabel(signalLabel(signal), signal)
+        if (showSource && value != "미측정") StateLabel(signalLabel(signal), signal)
     }
 }
 

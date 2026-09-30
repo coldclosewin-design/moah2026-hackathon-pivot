@@ -135,15 +135,19 @@ private fun TaskBay(task: Task, chosen: Boolean, modifier: Modifier, onClick: ()
                 }, CoachColors.Paper, style = Stroke(6.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
             }
         }
-        Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally) {
-            Box(Modifier.fillMaxWidth().height(176.dp), contentAlignment = Alignment.Center) {
-                if (task.type == TaskType.PARKING) {
-                    ParkingTaskDiagram(task.id, foreground, background.compositeOver(CoachColors.Paper),
-                        Modifier.size(240.dp, 176.dp))
+        val hasDiagram = task.type == TaskType.PARKING || task.type == TaskType.CHECKLIST
+        Column(Modifier.fillMaxSize().padding(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 40.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = if (hasDiagram) Arrangement.Top else Arrangement.Center) {
+            if (hasDiagram) {
+                Box(Modifier.fillMaxWidth().height(176.dp), contentAlignment = Alignment.Center) {
+                    if (task.type == TaskType.PARKING) {
+                        ParkingTaskDiagram(task.id, foreground, background.compositeOver(CoachColors.Paper),
+                            Modifier.size(240.dp, 176.dp))
+                    } else ChecklistTaskDiagram(foreground, Modifier.size(240.dp, 176.dp))
                 }
+                Spacer(Modifier.height(8.dp))
             }
-            Spacer(Modifier.height(8.dp))
             // Include Korean font metrics as well as both 52 sp line boxes; 104 dp ellipsizes a line.
             Box(Modifier.fillMaxWidth().height(120.dp), contentAlignment = Alignment.Center) {
                 LessonText(task.title, 40, foreground, modifier = Modifier.widthIn(max = if (task.type == TaskType.PARKING) 220.dp else 252.dp),
@@ -151,6 +155,22 @@ private fun TaskBay(task: Task, chosen: Boolean, modifier: Modifier, onClick: ()
             }
             Spacer(Modifier.height(4.dp))
             LessonText(if (task.isReady) task.difficulty.label else task.status.label, 32, foreground, maxLines = 1)
+        }
+    }
+}
+
+@Composable
+private fun ChecklistTaskDiagram(color: Color, modifier: Modifier) {
+    Canvas(modifier) {
+        val stroke = 4.dp.toPx()
+        repeat(3) { row ->
+            val y = (40 + row * 48).dp.toPx()
+            drawPath(Path().apply {
+                moveTo(36.dp.toPx(), y)
+                lineTo(46.dp.toPx(), y + 10.dp.toPx())
+                lineTo(64.dp.toPx(), y - 12.dp.toPx())
+            }, color, style = Stroke(stroke))
+            drawLine(color, Offset(88.dp.toPx(), y), Offset(204.dp.toPx(), y), stroke)
         }
     }
 }

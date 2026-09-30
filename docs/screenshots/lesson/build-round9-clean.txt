@@ -1,0 +1,132 @@
+> Task :automotive:clean
+> Task :vss-stub:clean
+> Task :automotive:preBuild UP-TO-DATE
+> Task :automotive:preDebugBuild UP-TO-DATE
+> Task :automotive:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :automotive:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :automotive:generateDebugBuildConfig
+> Task :automotive:generateDebugResValues
+> Task :automotive:checkDebugAarMetadata
+> Task :automotive:mapDebugSourceSetPaths
+> Task :automotive:generateDebugResources
+> Task :automotive:packageDebugResources
+> Task :automotive:createDebugCompatibleScreenManifests
+> Task :automotive:extractDeepLinksDebug
+> Task :automotive:parseDebugLocalResources
+> Task :automotive:processDebugMainManifest
+> Task :automotive:processDebugManifest
+> Task :vss-stub:preBuild UP-TO-DATE
+> Task :vss-stub:preDebugBuild UP-TO-DATE
+> Task :vss-stub:generateDebugResValues
+> Task :vss-stub:generateDebugResources
+> Task :vss-stub:packageDebugResources
+> Task :vss-stub:parseDebugLocalResources
+> Task :vss-stub:javaPreCompileDebug
+> Task :automotive:javaPreCompileDebug
+> Task :automotive:mergeDebugShaders
+> Task :automotive:compileDebugShaders NO-SOURCE
+> Task :automotive:generateDebugAssets UP-TO-DATE
+> Task :automotive:mergeDebugAssets
+> Task :automotive:compressDebugAssets
+> Task :automotive:desugarDebugFileDependencies
+> Task :vss-stub:generateDebugRFile
+> Task :automotive:checkDebugDuplicateClasses
+> Task :vss-stub:compileDebugJavaWithJavac
+> Task :vss-stub:bundleLibCompileToJarDebug
+> Task :automotive:mergeDebugJniLibFolders
+> Task :automotive:mergeLibDexDebug
+> Task :automotive:validateSigningDebug
+> Task :automotive:writeDebugAppMetadata
+> Task :automotive:writeDebugSigningConfigVersions
+> Task :automotive:mergeDebugNativeLibs
+> Task :vss-stub:mergeDebugJniLibFolders
+> Task :automotive:processDebugManifestForPackage
+> Task :vss-stub:mergeDebugNativeLibs NO-SOURCE
+> Task :vss-stub:stripDebugDebugSymbols NO-SOURCE
+> Task :vss-stub:copyDebugJniLibsProjectAndLocalJars
+
+> Task :automotive:stripDebugDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so.
+
+> Task :vss-stub:extractDebugAnnotations
+> Task :vss-stub:extractDeepLinksForAarDebug UP-TO-DATE
+> Task :vss-stub:mergeDebugGeneratedProguardFiles UP-TO-DATE
+> Task :vss-stub:mergeDebugConsumerProguardFiles UP-TO-DATE
+> Task :vss-stub:mergeDebugShaders
+> Task :vss-stub:compileDebugShaders NO-SOURCE
+> Task :vss-stub:generateDebugAssets UP-TO-DATE
+> Task :vss-stub:packageDebugAssets
+> Task :vss-stub:prepareDebugArtProfile UP-TO-DATE
+> Task :vss-stub:prepareLintJarForPublish UP-TO-DATE
+> Task :vss-stub:processDebugJavaRes NO-SOURCE
+> Task :automotive:preDebugUnitTestBuild UP-TO-DATE
+> Task :vss-stub:writeDebugAarMetadata
+> Task :automotive:javaPreCompileDebugUnitTest
+> Task :vss-stub:mergeDebugJavaResource
+> Task :vss-stub:bundleLibRuntimeToJarDebug
+> Task :vss-stub:processDebugManifest
+> Task :vss-stub:syncDebugLibJars
+> Task :vss-stub:bundleDebugAar
+> Task :vss-stub:assembleDebug
+> Task :vss-stub:preDebugUnitTestBuild UP-TO-DATE
+> Task :vss-stub:processDebugUnitTestJavaRes NO-SOURCE
+> Task :automotive:preDebugAndroidTestBuild SKIPPED
+> Task :vss-stub:javaPreCompileDebugUnitTest
+> Task :vss-stub:generateDebugUnitTestStubRFile
+> Task :automotive:processDebugAndroidTestManifest
+> Task :vss-stub:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :vss-stub:testDebugUnitTest NO-SOURCE
+> Task :automotive:generateDebugAndroidTestBuildConfig
+> Task :automotive:checkDebugAndroidTestAarMetadata
+> Task :automotive:generateDebugAndroidTestResValues
+> Task :automotive:mapDebugAndroidTestSourceSetPaths
+> Task :automotive:generateDebugAndroidTestResources
+> Task :automotive:mergeDebugAndroidTestResources
+> Task :automotive:javaPreCompileDebugAndroidTest
+> Task :automotive:mergeDebugAndroidTestShaders
+> Task :automotive:compileDebugAndroidTestShaders NO-SOURCE
+> Task :automotive:generateDebugAndroidTestAssets UP-TO-DATE
+> Task :automotive:mergeDebugAndroidTestAssets
+> Task :automotive:compressDebugAndroidTestAssets
+> Task :automotive:desugarDebugAndroidTestFileDependencies
+> Task :automotive:checkDebugAndroidTestDuplicateClasses
+> Task :automotive:mergeExtDexDebugAndroidTest
+> Task :automotive:mergeLibDexDebugAndroidTest
+> Task :automotive:mergeDebugAndroidTestJniLibFolders
+> Task :automotive:mergeDebugAndroidTestNativeLibs NO-SOURCE
+> Task :automotive:stripDebugAndroidTestDebugSymbols NO-SOURCE
+> Task :automotive:validateSigningDebugAndroidTest
+> Task :automotive:writeDebugAndroidTestSigningConfigVersions
+> Task :automotive:mergeDebugResources
+> Task :automotive:processDebugAndroidTestResources
+> Task :automotive:processDebugResources
+> Task :automotive:mergeExtDexDebug
+> Task :automotive:compileDebugKotlin
+> Task :automotive:compileDebugJavaWithJavac
+> Task :automotive:dexBuilderDebug
+> Task :automotive:mergeDebugGlobalSynthetics
+> Task :automotive:processDebugJavaRes
+> Task :automotive:mergeProjectDexDebug
+> Task :automotive:bundleDebugClassesToRuntimeJar
+> Task :automotive:bundleDebugClassesToCompileJar
+> Task :automotive:mergeDebugJavaResource
+> Task :automotive:packageDebug
+> Task :automotive:createDebugApkListingFileRedirect
+> Task :automotive:assembleDebug
+> Task :automotive:compileDebugAndroidTestKotlin
+> Task :automotive:compileDebugUnitTestKotlin
+> Task :automotive:compileDebugAndroidTestJavaWithJavac
+> Task :automotive:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :automotive:processDebugUnitTestJavaRes
+> Task :automotive:testDebugUnitTest
+> Task :automotive:dexBuilderDebugAndroidTest
+> Task :automotive:mergeDebugAndroidTestGlobalSynthetics
+> Task :automotive:processDebugAndroidTestJavaRes
+> Task :automotive:mergeDebugAndroidTestJavaResource
+> Task :automotive:mergeProjectDexDebugAndroidTest
+> Task :automotive:packageDebugAndroidTest
+> Task :automotive:createDebugAndroidTestApkListingFileRedirect
+> Task :automotive:assembleDebugAndroidTest
+
+BUILD SUCCESSFUL in 36s
+99 actionable tasks: 94 executed, 5 up-to-date

@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import com.moah.hackathon.R
 import com.moah.hackathon.feature.lesson.AttemptRecord
 import com.moah.hackathon.feature.lesson.Task
+import com.moah.hackathon.feature.lesson.TaskType
 import com.moah.hackathon.ui.CoachColors
 
 @Composable
@@ -21,7 +22,26 @@ internal fun DoneScreen(task: Task, attempt: Int, record: AttemptRecord, subtitl
     PosterSurface {
         Box(Modifier.fillMaxSize()) {
             Row(Modifier.fillMaxSize()) {
-                if (showPath) {
+                if (task.type == TaskType.CHECKLIST) {
+                    Column(Modifier.fillMaxHeight().fillMaxWidth(.38f).background(CoachColors.Ink)
+                        .padding(start = 120.dp, end = 72.dp, top = 96.dp, bottom = 52.dp)) {
+                        Eyebrow("출발 전 점검", color = CoachColors.Paper)
+                        Column(Modifier.weight(1f).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(40.dp, Alignment.CenterVertically)) {
+                            checklistResults(record.score).forEach { result ->
+                                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                                    LessonText(result.label, 40, CoachColors.Paper, modifier = Modifier.weight(1f))
+                                    LessonText(result.mark, 40, when (result.passed) {
+                                        true -> CoachColors.Periwinkle
+                                        false -> CoachColors.Signal
+                                        // Muted uses translucent Paper on the Ink panel, as in Maneuver.
+                                        null -> CoachColors.Paper.copy(alpha = .6f)
+                                    })
+                                }
+                            }
+                        }
+                    }
+                } else if (showPath) {
                     Box(Modifier.fillMaxHeight().fillMaxWidth(.38f)) {
                         Box(Modifier.fillMaxHeight().fillMaxWidth(.06f / .38f).background(CoachColors.Ink))
                         EstimatedPath(record, Modifier.fillMaxSize().padding(start = (2560 * .06f).dp))

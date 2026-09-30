@@ -71,7 +71,11 @@ internal fun VenueSheet(venues: List<Venue>, booking: Reservation?, onReserve: (
                             SelectionChip(item.title, item.id == courseId, { courseId = item.id }, Modifier.width(360.dp))
                         }
                     }
-                } else LessonText(if (venues.isEmpty()) "이용 가능한 시험장이 없어요." else "연습할 시험장을 골라 주세요.", 48)
+                } else LessonText(when {
+                    venues.isEmpty() -> "이용 가능한 시험장이 없어요."
+                    booking != null -> "예약한 시험장을 누르면 확인할 수 있어요."
+                    else -> "연습할 시험장을 골라 주세요."
+                }, 48)
             }
             Row(Modifier.fillMaxWidth().height(140.dp), horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically) {
