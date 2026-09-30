@@ -18,6 +18,7 @@ interface TtsPort {
     /** 자막. 실제 음성 엔진에서는 **지금 말하기 시작한 문장**이다(큐에 넣은 문장이 아니다) — 음성과 자막이 어긋나지 않게. */
     val lastSpoken: StateFlow<String?>
     fun speak(text: String, priority: SpeechPriority = SpeechPriority.NORMAL)
+    /** 말하던 것과 대기열을 버리고 **자막도 지운다**(9/30 — 퀴즈 "그만하기" 뒤 Setup 에 지난 해설이 남던 것). */
     fun stop()
     fun dispose()
 }
@@ -69,7 +70,7 @@ class FakeTtsPort : TtsPort {
         _lastSpoken.value = text.asCaption()
     }
 
-    override fun stop() {}
+    override fun stop() { _lastSpoken.value = null }
     override fun dispose() {}
 }
 
@@ -210,6 +211,7 @@ class AndroidTtsPort(
         synchronized(pending) { pending.clear() }
         texts.clear()
         if (ready) tts.stop()
+        _lastSpoken.value = null
     }
 
     override fun dispose() {

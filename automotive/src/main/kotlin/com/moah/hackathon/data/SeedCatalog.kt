@@ -57,7 +57,7 @@ object SeedCatalog {
             status = TaskStatus.PLANNED),
         Task("roundabout", "회전교차로", TaskType.DRIVING, Difficulty.HARD, "우선순위 확인 → 진입 → 지시등으로 진출.",
             listOf("속도", "방향지시등"), setOf(V.VEHICLE_SPEED, V.LIGHT_INDICATOR_RIGHT), requiresDriving = true),
-        Task(TASK_KNOWLEDGE, "비상등·날씨별 행동", TaskType.KNOWLEDGE, Difficulty.HARD, "정차 중 3지선다 5문제. 채점보다 이유를 듣는 것.",
+        Task(TASK_KNOWLEDGE, "비상등·날씨별 행동", TaskType.KNOWLEDGE, Difficulty.EASY, "정차 중 3지선다 5문제. 채점보다 이유를 듣는 것.",
             listOf("비상등", "우천", "야간"), emptySet(), requiresDriving = false,
             status = TaskStatus.READY),   // 지식 테스트 모드로만 시작된다(Task.supports)
     )

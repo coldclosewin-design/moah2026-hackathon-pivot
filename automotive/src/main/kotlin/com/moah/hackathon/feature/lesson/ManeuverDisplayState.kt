@@ -46,6 +46,14 @@ internal data class ManeuverDisplayState(
     val indicatorLeftSignal: SignalAvailability = SignalAvailability.MISSING,
     val indicatorRightSignal: SignalAvailability = SignalAvailability.MISSING,
     val hazardSignal: SignalAvailability = SignalAvailability.MISSING,
+    /**
+     * 출발 전 점검 **기록**(9/30): 회차 중 한 번이라도 켜 봤나 / 시동 순간 브레이크를 밟았나. 켰다 끈 뒤에도 true 로 남는다.
+     * 신호 없음·아직 시동 전 → null. 칩의 완료 색은 이것으로(현재 값 [indicatorLeft] 등은 "지금 켜짐" 표시용).
+     */
+    val leftIndicatorChecked: Boolean? = null,
+    val rightIndicatorChecked: Boolean? = null,
+    val hazardChecked: Boolean? = null,
+    val brakeAtIgnition: Boolean? = null,
 )
 
 internal fun LessonPhase.Maneuver.toDisplayState() = ManeuverDisplayState(
@@ -80,6 +88,10 @@ internal fun LessonPhase.Maneuver.toDisplayState() = ManeuverDisplayState(
     indicatorLeftSignal = availability[VssConstants.LIGHT_INDICATOR_LEFT] ?: SignalAvailability.MISSING,
     indicatorRightSignal = availability[VssConstants.LIGHT_INDICATOR_RIGHT] ?: SignalAvailability.MISSING,
     hazardSignal = availability[VssConstants.LIGHT_HAZARD] ?: SignalAvailability.MISSING,
+    leftIndicatorChecked = preDrive?.leftIndicatorChecked,
+    rightIndicatorChecked = preDrive?.rightIndicatorChecked,
+    hazardChecked = preDrive?.hazardChecked,
+    brakeAtIgnition = preDrive?.brakeBeforeIgnition,
 )
 
 internal fun Gear.label(): String = when (this) {

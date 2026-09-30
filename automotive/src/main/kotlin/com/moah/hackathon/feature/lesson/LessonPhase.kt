@@ -1,5 +1,6 @@
 package com.moah.hackathon.feature.lesson
 
+import com.moah.hackathon.scoring.PreDriveSummary
 import com.moah.hackathon.vehicle.SignalAvailability
 
 /**
@@ -45,6 +46,11 @@ sealed interface LessonPhase {
         val askedDone: Boolean,
         /** 도식이 "시뮬"·"미측정" 칩을 달 수 있게. */
         val availability: Map<String, SignalAvailability>,
+        /**
+         * 출발 전 점검의 **기록된** 확인(9/30) — 지시등·비상등은 켰다 끄는 게 정상이라 [snapshot] 만 보면 확인 뒤 곧 "아직" 이 된다.
+         * 회차 시작부터 지금까지의 요약. 주차 과제·기록 없음은 null.
+         */
+        val preDrive: PreDriveSummary? = null,
     ) : LessonPhase
 
     /** 운전자가 "다 됐어요" → 회차 결과와 멘트. 다음 회차 또는 세션 종료. */
