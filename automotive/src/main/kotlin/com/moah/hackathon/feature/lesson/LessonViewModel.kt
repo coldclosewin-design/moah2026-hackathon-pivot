@@ -57,7 +57,7 @@ class LessonViewModel(
         fun stopCar() { viewModelScope.launch { fake.holdSpeed(0f) } }
         fun resumeCar() { fake.speedOverrideKmh = null }
         fun setDoor(open: Boolean) {
-            viewModelScope.launch { fake.set(mapOf(VssConstants.DOOR_DRIVER_ISOPEN to VssValues.ofBoolean(open))) }
+            viewModelScope.launch { fake.set(mapOf(VssConstants.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN to VssValues.ofBoolean(open))) }
         }
     }
 

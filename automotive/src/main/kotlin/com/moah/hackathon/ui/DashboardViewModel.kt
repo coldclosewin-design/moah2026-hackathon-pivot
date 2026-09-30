@@ -32,7 +32,7 @@ class DashboardViewModel(private val port: VehiclePort) : ViewModel() {
 
     private val keys = listOf(
         VssConstants.VEHICLE_SPEED,
-        VssConstants.DOOR_DRIVER_ISOPEN,
+        VssConstants.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN,
         VssConstants.VEHICLE_ADAS_ABS_ISENABLED,
     )
 
@@ -46,14 +46,14 @@ class DashboardViewModel(private val port: VehiclePort) : ViewModel() {
     fun toggleDriverDoor() {
         viewModelScope.launch {
             val next = !(_state.value.driverDoorOpen ?: false)
-            val failed = port.set(mapOf(VssConstants.DOOR_DRIVER_ISOPEN to VssValues.ofBoolean(next)))
+            val failed = port.set(mapOf(VssConstants.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN to VssValues.ofBoolean(next)))
             _state.update { it.copy(lastSetError = failed.takeIf { f -> f.isNotEmpty() }?.joinToString()) }
         }
     }
 
     private fun DashboardState.apply(delta: Map<String, String>): DashboardState = copy(
         speedKmh = delta[VssConstants.VEHICLE_SPEED]?.toVssFloat() ?: speedKmh,
-        driverDoorOpen = delta[VssConstants.DOOR_DRIVER_ISOPEN]?.toVssBoolean() ?: driverDoorOpen,
+        driverDoorOpen = delta[VssConstants.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN]?.toVssBoolean() ?: driverDoorOpen,
         absEnabled = delta[VssConstants.VEHICLE_ADAS_ABS_ISENABLED]?.toVssBoolean() ?: absEnabled,
     )
 

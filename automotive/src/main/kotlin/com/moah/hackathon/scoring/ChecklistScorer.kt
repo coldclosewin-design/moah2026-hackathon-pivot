@@ -39,8 +39,8 @@ object ChecklistScorer {
         rubric: ChecklistRubric = ChecklistRubric(),
     ): ParkingScore {
         val pd = metrics.preDrive
-        val beltMeasured = VssConstants.SEAT_DRIVER_ISBELTED !in missingSignals
-        val ignitionMeasured = VssConstants.LOW_VOLTAGE_SYSTEM_STATE !in missingSignals
+        val beltMeasured = VssConstants.VEHICLE_CABIN_SEAT_ROW1_DRIVERSIDE_ISBELTED !in missingSignals
+        val ignitionMeasured = VssConstants.VEHICLE_LOWVOLTAGESYSTEMSTATE !in missingSignals
 
         var skill = 100
         if (beltMeasured && pd.beltOnMillis == null) skill -= rubric.penaltyNoBelt

@@ -1,5 +1,6 @@
 package com.moah.hackathon.ui.lesson
 
+import com.moah.hackathon.vehicle.SimOnlySignals
 import com.moah.hackathon.feature.lesson.*
 import com.moah.hackathon.scoring.ParkingDelta
 import com.moah.hackathon.scoring.ParkingMetrics
@@ -90,17 +91,17 @@ internal fun signalLabel(signal: SignalAvailability) = when (signal) {
 
 internal fun signalName(key: String): String = when (key) {
     V.VEHICLE_SPEED -> "속도"
-    V.STEERING_WHEEL_ANGLE -> "조향각"
-    V.TRANSMISSION_SELECTED_GEAR -> "기어"
-    V.OBSTACLE_REAR_DISTANCE_CM -> "뒤 거리"
-    V.OBSTACLE_IS_WARNING -> "근접 경고"
-    V.SEAT_DRIVER_ISBELTED -> "안전벨트"
-    V.LOW_VOLTAGE_SYSTEM_STATE -> "시동"
-    V.DOOR_DRIVER_ISOPEN -> "운전석 도어"
-    V.LIGHT_INDICATOR_LEFT -> "왼쪽 방향지시등"
-    V.LIGHT_INDICATOR_RIGHT -> "오른쪽 방향지시등"
-    V.LIGHT_HAZARD -> "비상등"
-    V.BRAKE_PEDAL_POSITION -> "브레이크"
+    V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE -> "조향각"
+    V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR -> "기어"
+    SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM -> "뒤 거리"
+    V.VEHICLE_ADAS_OBSTACLEDETECTION_ISWARNING -> "근접 경고"
+    V.VEHICLE_CABIN_SEAT_ROW1_DRIVERSIDE_ISBELTED -> "안전벨트"
+    V.VEHICLE_LOWVOLTAGESYSTEMSTATE -> "시동"
+    V.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN -> "운전석 도어"
+    V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING -> "왼쪽 방향지시등"
+    V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING -> "오른쪽 방향지시등"
+    V.VEHICLE_BODY_LIGHTS_HAZARD_ISSIGNALING -> "비상등"
+    V.VEHICLE_CHASSIS_BRAKE_PEDALPOSITION -> "브레이크"
     else -> "기타 차량 신호"
 }
 

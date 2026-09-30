@@ -54,18 +54,18 @@ public class VssConstants {               // "Vehicle.Xxx.Yyy" dot 경로 문자
     public static final String VEHICLE_ADAS_CRUISECONTROL_SPEEDSET = "Vehicle.ADAS.CruiseControl.SpeedSet"; // float, km/h
     public static final String VEHICLE_BODY_HORN_ISACTIVE = "Vehicle.Body.Horn.IsActive";         // boolean
     // 도어 예제 신호 (Template App 기준)
-    public static final String DOOR_DRIVER_ISOPEN = "Vehicle.Cabin.Door.Row1.DriverSide.IsOpen";  // boolean
+    public static final String VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN = "Vehicle.Cabin.Door.Row1.DriverSide.IsOpen";  // boolean
 
-    // 2026-09-26 운전 연수 B층 채점용 — COVESA VSS 표준명 기준 **추정**, 전부 사내 미확인 (INTEGRATION.md B절)
-    public static final String STEERING_WHEEL_ANGLE = "Vehicle.Chassis.SteeringWheel.Angle";                   // int16/float, degree, 양수 = 왼쪽
-    public static final String TRANSMISSION_SELECTED_GEAR = "Vehicle.Powertrain.Transmission.SelectedGear";     // int8: 0=N, 1..=D, -1..=R, 126=P, 127=D
-    public static final String SEAT_DRIVER_ISBELTED = "Vehicle.Cabin.Seat.Row1.DriverSide.IsBelted";           // boolean
-    public static final String LOW_VOLTAGE_SYSTEM_STATE = "Vehicle.LowVoltageSystemState";                      // string: UNDEFINED/LOCK/OFF/ACC/ON/START
-    public static final String LIGHT_INDICATOR_LEFT = "Vehicle.Body.Lights.DirectionIndicator.Left.IsSignaling";   // boolean
-    public static final String LIGHT_INDICATOR_RIGHT = "Vehicle.Body.Lights.DirectionIndicator.Right.IsSignaling"; // boolean
-    public static final String LIGHT_HAZARD = "Vehicle.Body.Lights.Hazard.IsSignaling";                        // boolean
-    public static final String BRAKE_PEDAL_POSITION = "Vehicle.Chassis.Brake.PedalPosition";                   // uint8, percent
-    public static final String OBSTACLE_IS_WARNING = "Vehicle.ADAS.ObstacleDetection.IsWarning";                // boolean (표준)
+    // 2026-09-26 운전 연수 B층 채점용 — 2026-09-30 사내 이관 1차에서 경로·이름 확인(이름 = 경로 대문자·밑줄). Rear.Distance 는 실물에 없어 앱 SimOnlySignals 로
+    public static final String VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE = "Vehicle.Chassis.SteeringWheel.Angle";                   // int16/float, degree, 양수 = 왼쪽
+    public static final String VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR = "Vehicle.Powertrain.Transmission.SelectedGear";     // int8: 0=N, 1..=D, -1..=R, 126=P, 127=D
+    public static final String VEHICLE_CABIN_SEAT_ROW1_DRIVERSIDE_ISBELTED = "Vehicle.Cabin.Seat.Row1.DriverSide.IsBelted";           // boolean
+    public static final String VEHICLE_LOWVOLTAGESYSTEMSTATE = "Vehicle.LowVoltageSystemState";                      // string: UNDEFINED/LOCK/OFF/ACC/ON/START
+    public static final String VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING = "Vehicle.Body.Lights.DirectionIndicator.Left.IsSignaling";   // boolean
+    public static final String VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING = "Vehicle.Body.Lights.DirectionIndicator.Right.IsSignaling"; // boolean
+    public static final String VEHICLE_BODY_LIGHTS_HAZARD_ISSIGNALING = "Vehicle.Body.Lights.Hazard.IsSignaling";                        // boolean
+    public static final String VEHICLE_CHASSIS_BRAKE_PEDALPOSITION = "Vehicle.Chassis.Brake.PedalPosition";                   // uint8, percent
+    public static final String VEHICLE_ADAS_OBSTACLEDETECTION_ISWARNING = "Vehicle.ADAS.ObstacleDetection.IsWarning";                // boolean (표준)
     public static final String OBSTACLE_REAR_DISTANCE_CM = "Vehicle.ADAS.ObstacleDetection.Rear.Distance";     // float, cm — **비표준 추정**, 없을 가능성 가장 높음
     // ... 앱에 필요한 신호만 추가 (전체 목록: pageId 1323873443, 1,251개)
 }

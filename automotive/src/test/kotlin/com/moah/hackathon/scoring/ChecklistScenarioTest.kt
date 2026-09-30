@@ -1,5 +1,6 @@
 package com.moah.hackathon.scoring
 
+import com.moah.hackathon.vehicle.SimOnlySignals
 import com.moah.hackathon.data.ChecklistScenarios
 import com.moah.hackathon.vehicle.Scenario
 import com.moah.hackathon.vehicle.SignalRegistry
@@ -12,8 +13,8 @@ import org.junit.Test
 class ChecklistScenarioTest {
 
     private val BASELINE = mapOf(
-        mobis.vss.VssConstants.STEERING_WHEEL_ANGLE to "0", mobis.vss.VssConstants.OBSTACLE_REAR_DISTANCE_CM to "200",
-        mobis.vss.VssConstants.OBSTACLE_IS_WARNING to com.moah.hackathon.vehicle.VssValues.FALSE,
+        mobis.vss.VssConstants.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE to "0", SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM to "200",
+        mobis.vss.VssConstants.VEHICLE_ADAS_OBSTACLEDETECTION_ISWARNING to com.moah.hackathon.vehicle.VssValues.FALSE,
     )
 
     private fun record(scenario: Scenario, keys: Set<String> = ParkingRecorder.CHECKLIST_KEYS): ParkingRecorder {
@@ -66,8 +67,8 @@ class ChecklistScenarioTest {
         // 등화·브레이크 신호가 아예 안 오는 차(사내 실물 가능성): 나머지만으로 채점, 새 항목은 전부 null
         val recorder = ParkingRecorder(SignalRegistry(ParkingRecorder.CHECKLIST_KEYS, simulated = true), ParkingRecorder.CHECKLIST_KEYS)
         recorder.onDelta(0L, BASELINE)
-        val drop = setOf(mobis.vss.VssConstants.BRAKE_PEDAL_POSITION, mobis.vss.VssConstants.LIGHT_INDICATOR_LEFT,
-            mobis.vss.VssConstants.LIGHT_INDICATOR_RIGHT, mobis.vss.VssConstants.LIGHT_HAZARD)
+        val drop = setOf(mobis.vss.VssConstants.VEHICLE_CHASSIS_BRAKE_PEDALPOSITION, mobis.vss.VssConstants.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING,
+            mobis.vss.VssConstants.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING, mobis.vss.VssConstants.VEHICLE_BODY_LIGHTS_HAZARD_ISSIGNALING)
         for (step in ChecklistScenarios.good.steps) recorder.onDelta((step.atSeconds * 1000).toLong(), step.values.filterKeys { it !in drop })
         val score = recorder.scoreChecklist()!!
         val pd = score.metrics.preDrive

@@ -20,21 +20,22 @@ APK: `automotive/build/outputs/apk/debug/automotive-debug.apk`
 
 ```
 automotive/   AAOS 앱 (Kotlin, Compose). vehicle/ = VehiclePort + Fake/Real · ports/ = 음성·위치 · scoring/ = 채점(예정) · feature/lesson/ = 세션 상태기계(예정)
-vss-stub/     mobis.vss 컴파일 전용 스텁 (사내에서는 시스템 jar로 교체)
+vss-stub/     mobis.vss 컴파일 전용 스텁 (사내에서는 local.properties 의 mobis.vss.jar 로 시스템 jar 사용 — 코드 변경 없음)
 tools/        에뮬 자동 시연·캡처 스크립트 (새 흐름에 맞춰 수정 예정)
 docs/         가이드·계약·체크리스트·일지
 ```
 
-## 사내 머지 (두 줄)
+## 사내 빌드 (설정 한 줄 + jar 파일)
 
-`automotive/build.gradle.kts`:
+코드는 고치지 않는다. 저장소 밖(추적 안 되는) 파일 둘만 둔다:
 
-```kotlin
-// val vssApi: Any = project(":vss-stub")
-val vssApi: Any = files("/system/framework/mobis.framework.core.jar")
-buildConfigField("boolean", "USE_FAKE_VSS", "false")
+1. 사내 jar 를 `automotive/libs/mobis.framework.core.jar` 에 복사(경로는 자유, `automotive/libs/` 는 gitignore).
+2. `local.properties` 에 한 줄:
+
+```properties
+mobis.vss.jar=automotive/libs/mobis.framework.core.jar
 ```
 
-`settings.gradle.kts`에서 `include(":vss-stub")` 제거.
+이 키가 있으면 `settings.gradle.kts` 가 `:vss-stub` 을 빼고, `automotive/build.gradle.kts` 가 그 jar 로 `compileOnly` 하며 `USE_FAKE_VSS=false`(RealVehiclePort) 로 빌드한다. 키가 없으면 사외와 똑같이 스텁·Fake. 빌드 로그 첫 줄 `mobis.vss: …` 로 어느 쪽인지 확인한다.
 
-전체 절차는 [docs/06_inhouse_migration.md](docs/06_inhouse_migration.md), 체크 항목·가정 로그는 [docs/INTEGRATION.md](docs/INTEGRATION.md).
+전체 절차는 [docs/06_inhouse_migration.md](docs/06_inhouse_migration.md), 체크 항목·가정 로그는 [docs/INTEGRATION.md](docs/INTEGRATION.md), 사외/사내 역할은 [docs/07_two_site_workflow.md](docs/07_two_site_workflow.md).

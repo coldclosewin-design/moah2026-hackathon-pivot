@@ -40,9 +40,9 @@ private class ScriptedRealPort(initial: Map<String, String>) : VehiclePort {
 @OptIn(ExperimentalCoroutinesApi::class)
 class HybridVehiclePortTest {
     private val speed = VssConstants.VEHICLE_SPEED
-    private val door = VssConstants.DOOR_DRIVER_ISOPEN
-    private val steering = VssConstants.STEERING_WHEEL_ANGLE
-    private val gear = VssConstants.TRANSMISSION_SELECTED_GEAR
+    private val door = VssConstants.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN
+    private val steering = VssConstants.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE
+    private val gear = VssConstants.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR
 
     @Test
     fun `get fills only the keys the real port does not know and marks the rest live`() = runTest {

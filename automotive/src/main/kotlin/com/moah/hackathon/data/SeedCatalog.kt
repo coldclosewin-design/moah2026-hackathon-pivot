@@ -1,5 +1,6 @@
 package com.moah.hackathon.data
 
+import com.moah.hackathon.vehicle.SimOnlySignals
 import com.moah.hackathon.feature.lesson.Difficulty
 import com.moah.hackathon.feature.lesson.GuideStep
 import com.moah.hackathon.feature.lesson.Profile
@@ -33,30 +34,30 @@ object SeedCatalog {
     val tasks: List<Task> = listOf(
         Task(TASK_PREDRIVE, "출발 전 점검", TaskType.CHECKLIST, Difficulty.EASY, "문·벨트·기어 P·브레이크와 시동·지시등·비상등을 순서대로. 차는 세운 채로.",
             listOf("문", "안전벨트", "기어 P", "시동", "지시등"),
-            setOf(V.DOOR_DRIVER_ISOPEN, V.SEAT_DRIVER_ISBELTED, V.TRANSMISSION_SELECTED_GEAR, V.BRAKE_PEDAL_POSITION, V.LOW_VOLTAGE_SYSTEM_STATE,
-                V.LIGHT_INDICATOR_LEFT, V.LIGHT_INDICATOR_RIGHT, V.LIGHT_HAZARD), requiresDriving = false,
+            setOf(V.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN, V.VEHICLE_CABIN_SEAT_ROW1_DRIVERSIDE_ISBELTED, V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR, V.VEHICLE_CHASSIS_BRAKE_PEDALPOSITION, V.VEHICLE_LOWVOLTAGESYSTEMSTATE,
+                V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING, V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING, V.VEHICLE_BODY_LIGHTS_HAZARD_ISSIGNALING), requiresDriving = false,
             status = TaskStatus.READY),   // 가이드 7단계(9/28, D1) + ChecklistScorer + 시나리오 2벌. 움직이지 않는 유일한 조작 과제
         Task("straight-stop", "단순 전진 후 정지", TaskType.DRIVING, Difficulty.EASY, "천천히 출발해 부드럽게 멈추기.",
             listOf("출발", "정지"), setOf(V.VEHICLE_SPEED), requiresDriving = true),
         Task("left-turn-signal", "좌회전 방향지시등", TaskType.DRIVING, Difficulty.EASY, "좌회전 3초 전에 켜고, 돌고 나서 끄기.",
-            listOf("방향지시등", "핸들"), setOf(V.LIGHT_INDICATOR_LEFT, V.STEERING_WHEEL_ANGLE), requiresDriving = true),
+            listOf("방향지시등", "핸들"), setOf(V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING, V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE), requiresDriving = true),
         Task("lane-change", "차선 변경", TaskType.DRIVING, Difficulty.MEDIUM, "지시등 → 확인 → 부드럽게 이동.",
-            listOf("방향지시등", "핸들", "속도"), setOf(V.LIGHT_INDICATOR_LEFT, V.LIGHT_INDICATOR_RIGHT, V.STEERING_WHEEL_ANGLE), requiresDriving = true),
+            listOf("방향지시등", "핸들", "속도"), setOf(V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING, V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING, V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE), requiresDriving = true),
         Task("road-course", "일반 도로 코스", TaskType.DRIVING, Difficulty.MEDIUM, "구간마다 기대 행동이 있는 실생활 경로.",
             listOf("속도 유지", "급조작", "방향지시등"), setOf(V.VEHICLE_SPEED), requiresDriving = true),
         Task(TASK_PARKING_REAR, "후면 직각 주차", TaskType.PARKING, Difficulty.HARD, "핸들 끝까지 → 후진 → 45°에서 중립 → 곧게.",
-            listOf("핸들 방향", "기어 전환", "뒤 거리"), setOf(V.STEERING_WHEEL_ANGLE, V.TRANSMISSION_SELECTED_GEAR, V.OBSTACLE_REAR_DISTANCE_CM), requiresDriving = true,
+            listOf("핸들 방향", "기어 전환", "뒤 거리"), setOf(V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE, V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR, SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM), requiresDriving = true,
             status = TaskStatus.READY),   // 채점기·가이드·시나리오가 있는 유일한 과제. 나머지는 카탈로그(계획)만
         Task("parking-parallel", "평행 주차", TaskType.PARKING, Difficulty.HARD, "길가 한 칸에 뒤로 들어가기.",
-            listOf("핸들 방향", "기어 전환", "뒤 거리"), setOf(V.STEERING_WHEEL_ANGLE, V.TRANSMISSION_SELECTED_GEAR, V.OBSTACLE_REAR_DISTANCE_CM), requiresDriving = true),
+            listOf("핸들 방향", "기어 전환", "뒤 거리"), setOf(V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE, V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR, SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM), requiresDriving = true),
         Task("parking-front", "전면 직각 주차", TaskType.PARKING, Difficulty.MEDIUM, "앞을 살피며 주차 칸에 곧게 들어가기.",
-            listOf("핸들 방향", "기어 전환", "뒤 거리"), setOf(V.STEERING_WHEEL_ANGLE, V.TRANSMISSION_SELECTED_GEAR, V.OBSTACLE_REAR_DISTANCE_CM), requiresDriving = true,
+            listOf("핸들 방향", "기어 전환", "뒤 거리"), setOf(V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE, V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR, SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM), requiresDriving = true,
             status = TaskStatus.PLANNED),
         Task("parking-angle", "사선 주차", TaskType.PARKING, Difficulty.HARD, "기울어진 주차 칸의 방향에 맞춰 들어가기.",
-            listOf("핸들 방향", "기어 전환", "뒤 거리"), setOf(V.STEERING_WHEEL_ANGLE, V.TRANSMISSION_SELECTED_GEAR, V.OBSTACLE_REAR_DISTANCE_CM), requiresDriving = true,
+            listOf("핸들 방향", "기어 전환", "뒤 거리"), setOf(V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE, V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR, SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM), requiresDriving = true,
             status = TaskStatus.PLANNED),
         Task("roundabout", "회전교차로", TaskType.DRIVING, Difficulty.HARD, "우선순위 확인 → 진입 → 지시등으로 진출.",
-            listOf("속도", "방향지시등"), setOf(V.VEHICLE_SPEED, V.LIGHT_INDICATOR_RIGHT), requiresDriving = true),
+            listOf("속도", "방향지시등"), setOf(V.VEHICLE_SPEED, V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING), requiresDriving = true),
         Task(TASK_KNOWLEDGE, "비상등·날씨별 행동", TaskType.KNOWLEDGE, Difficulty.EASY, "정차 중 3지선다 5문제. 채점보다 이유를 듣는 것.",
             listOf("비상등", "우천", "야간"), emptySet(), requiresDriving = false,
             status = TaskStatus.READY),   // 지식 테스트 모드로만 시작된다(Task.supports)
@@ -81,12 +82,12 @@ object SeedCatalog {
     }
 
     val parkingGuide: List<GuideStep> = listOf(
-        GuideStep("belt", "안전벨트를 매 주세요.", V.SEAT_DRIVER_ISBELTED, "확인했어요.") { s, _ -> s.belt == true },
-        GuideStep("ignition", "브레이크를 밟고 시동을 켜 주세요.", V.LOW_VOLTAGE_SYSTEM_STATE, "좋아요.") { s, _ -> s.ignitionOn == true },
-        GuideStep("reverse", "기어를 R로 넣어 주세요.", V.TRANSMISSION_SELECTED_GEAR, "좋아요.") { s, _ -> s.gear == Gear.REVERSE },
-        GuideStep("steer-right", "핸들을 오른쪽 끝까지 돌리세요.", V.STEERING_WHEEL_ANGLE, "다 돌렸어요. 이제 천천히 후진하세요.") { s, _ -> (s.steeringDeg ?: 0f) <= -400f },
-        GuideStep("center", "차가 45도쯤 되면 핸들을 중립으로 돌려 주세요.", V.STEERING_WHEEL_ANGLE, "곧게 후진하세요.") { s, moved -> moved && kotlin.math.abs(s.steeringDeg ?: 999f) < 30f },
-        GuideStep("park", "다 들어왔으면 멈추고 기어 P.", V.TRANSMISSION_SELECTED_GEAR, "다 되셨나요? 다 됐으면 버튼을 눌러 주세요.") { s, _ -> s.stopped && s.gear == Gear.PARK },
+        GuideStep("belt", "안전벨트를 매 주세요.", V.VEHICLE_CABIN_SEAT_ROW1_DRIVERSIDE_ISBELTED, "확인했어요.") { s, _ -> s.belt == true },
+        GuideStep("ignition", "브레이크를 밟고 시동을 켜 주세요.", V.VEHICLE_LOWVOLTAGESYSTEMSTATE, "좋아요.") { s, _ -> s.ignitionOn == true },
+        GuideStep("reverse", "기어를 R로 넣어 주세요.", V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR, "좋아요.") { s, _ -> s.gear == Gear.REVERSE },
+        GuideStep("steer-right", "핸들을 오른쪽 끝까지 돌리세요.", V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE, "다 돌렸어요. 이제 천천히 후진하세요.") { s, _ -> (s.steeringDeg ?: 0f) <= -400f },
+        GuideStep("center", "차가 45도쯤 되면 핸들을 중립으로 돌려 주세요.", V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE, "곧게 후진하세요.") { s, moved -> moved && kotlin.math.abs(s.steeringDeg ?: 999f) < 30f },
+        GuideStep("park", "다 들어왔으면 멈추고 기어 P.", V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR, "다 되셨나요? 다 됐으면 버튼을 눌러 주세요.") { s, _ -> s.stopped && s.gear == Gear.PARK },
     )
 
     /**
@@ -94,13 +95,13 @@ object SeedCatalog {
      * 확인 신호는 전부 스텁에 있던 것(새 VSS 경로 없음). **문장은 Codex 가 다듬는다.**
      */
     val predriveGuide: List<GuideStep> = listOf(
-        GuideStep("door", "운전석 문을 닫아 주세요.", V.DOOR_DRIVER_ISOPEN, "닫혔어요.") { s, _ -> !s.doorOpen },
+        GuideStep("door", "운전석 문을 닫아 주세요.", V.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN, "닫혔어요.") { s, _ -> !s.doorOpen },
         parkingGuide.first { it.id == "belt" },
-        GuideStep("park-check", "기어가 P에 있는지 확인해 주세요.", V.TRANSMISSION_SELECTED_GEAR, "P 맞아요.") { s, _ -> s.gear == Gear.PARK },
-        GuideStep("ignition", "브레이크를 밟고 시동을 켜 주세요.", V.LOW_VOLTAGE_SYSTEM_STATE, "시동 켜졌어요.") { s, _ -> s.ignitionOn == true },
-        GuideStep("indicator-left", "왼쪽 방향지시등을 켜 보세요.", V.LIGHT_INDICATOR_LEFT, "왼쪽 켜졌어요. 이제 오른쪽.") { s, _ -> s.indicatorLeft == true },
-        GuideStep("indicator-right", "오른쪽 방향지시등을 켜 보세요.", V.LIGHT_INDICATOR_RIGHT, "오른쪽도 좋아요.") { s, _ -> s.indicatorRight == true },
-        GuideStep("hazard", "비상등을 켜 보세요.", V.LIGHT_HAZARD, "비상등 확인. 이제 끄고 버튼을 눌러 주세요.") { s, _ -> s.hazard == true },
+        GuideStep("park-check", "기어가 P에 있는지 확인해 주세요.", V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR, "P 맞아요.") { s, _ -> s.gear == Gear.PARK },
+        GuideStep("ignition", "브레이크를 밟고 시동을 켜 주세요.", V.VEHICLE_LOWVOLTAGESYSTEMSTATE, "시동 켜졌어요.") { s, _ -> s.ignitionOn == true },
+        GuideStep("indicator-left", "왼쪽 방향지시등을 켜 보세요.", V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING, "왼쪽 켜졌어요. 이제 오른쪽.") { s, _ -> s.indicatorLeft == true },
+        GuideStep("indicator-right", "오른쪽 방향지시등을 켜 보세요.", V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING, "오른쪽도 좋아요.") { s, _ -> s.indicatorRight == true },
+        GuideStep("hazard", "비상등을 켜 보세요.", V.VEHICLE_BODY_LIGHTS_HAZARD_ISSIGNALING, "비상등 확인. 이제 끄고 버튼을 눌러 주세요.") { s, _ -> s.hazard == true },
     )
 
     // ───────── 프로필 (§3.4) — 첫 설정 대화 5문항 + 시연용 예시 프로필 ─────────

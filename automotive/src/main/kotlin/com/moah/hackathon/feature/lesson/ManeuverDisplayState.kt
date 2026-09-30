@@ -1,5 +1,6 @@
 package com.moah.hackathon.feature.lesson
 
+import com.moah.hackathon.vehicle.SimOnlySignals
 import com.moah.hackathon.vehicle.Gear
 import com.moah.hackathon.vehicle.SignalAvailability
 import mobis.vss.VssConstants
@@ -69,25 +70,25 @@ internal fun LessonPhase.Maneuver.toDisplayState() = ManeuverDisplayState(
     movingSegments = movingSegments,
     elapsedSeconds = elapsedMillis / 1000,
     askedDone = askedDone,
-    steeringSignal = availability[VssConstants.STEERING_WHEEL_ANGLE] ?: SignalAvailability.MISSING,
-    gearSignal = availability[VssConstants.TRANSMISSION_SELECTED_GEAR] ?: SignalAvailability.MISSING,
-    distanceSignal = availability[VssConstants.OBSTACLE_REAR_DISTANCE_CM]
-        ?: availability[VssConstants.OBSTACLE_IS_WARNING] ?: SignalAvailability.MISSING,
+    steeringSignal = availability[VssConstants.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE] ?: SignalAvailability.MISSING,
+    gearSignal = availability[VssConstants.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR] ?: SignalAvailability.MISSING,
+    distanceSignal = availability[SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM]
+        ?: availability[VssConstants.VEHICLE_ADAS_OBSTACLEDETECTION_ISWARNING] ?: SignalAvailability.MISSING,
     taskType = task.type,
     belt = snapshot.belt,
     ignitionOn = snapshot.ignitionOn,
-    beltSignal = availability[VssConstants.SEAT_DRIVER_ISBELTED] ?: SignalAvailability.MISSING,
-    ignitionSignal = availability[VssConstants.LOW_VOLTAGE_SYSTEM_STATE] ?: SignalAvailability.MISSING,
-    doorOpen = snapshot.doorOpen.takeIf { availability[VssConstants.DOOR_DRIVER_ISOPEN] != SignalAvailability.MISSING },
+    beltSignal = availability[VssConstants.VEHICLE_CABIN_SEAT_ROW1_DRIVERSIDE_ISBELTED] ?: SignalAvailability.MISSING,
+    ignitionSignal = availability[VssConstants.VEHICLE_LOWVOLTAGESYSTEMSTATE] ?: SignalAvailability.MISSING,
+    doorOpen = snapshot.doorOpen.takeIf { availability[VssConstants.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN] != SignalAvailability.MISSING },
     brakePressed = snapshot.brakePressed,
     indicatorLeft = snapshot.indicatorLeft,
     indicatorRight = snapshot.indicatorRight,
     hazard = snapshot.hazard,
-    doorSignal = availability[VssConstants.DOOR_DRIVER_ISOPEN] ?: SignalAvailability.MISSING,
-    brakeSignal = availability[VssConstants.BRAKE_PEDAL_POSITION] ?: SignalAvailability.MISSING,
-    indicatorLeftSignal = availability[VssConstants.LIGHT_INDICATOR_LEFT] ?: SignalAvailability.MISSING,
-    indicatorRightSignal = availability[VssConstants.LIGHT_INDICATOR_RIGHT] ?: SignalAvailability.MISSING,
-    hazardSignal = availability[VssConstants.LIGHT_HAZARD] ?: SignalAvailability.MISSING,
+    doorSignal = availability[VssConstants.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN] ?: SignalAvailability.MISSING,
+    brakeSignal = availability[VssConstants.VEHICLE_CHASSIS_BRAKE_PEDALPOSITION] ?: SignalAvailability.MISSING,
+    indicatorLeftSignal = availability[VssConstants.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING] ?: SignalAvailability.MISSING,
+    indicatorRightSignal = availability[VssConstants.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING] ?: SignalAvailability.MISSING,
+    hazardSignal = availability[VssConstants.VEHICLE_BODY_LIGHTS_HAZARD_ISSIGNALING] ?: SignalAvailability.MISSING,
     leftIndicatorChecked = preDrive?.leftIndicatorChecked,
     rightIndicatorChecked = preDrive?.rightIndicatorChecked,
     hazardChecked = preDrive?.hazardChecked,

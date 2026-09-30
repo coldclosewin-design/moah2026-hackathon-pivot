@@ -41,19 +41,22 @@ git clone ssh://git@bitbucket.mobis.co.kr:7999/mobis_sw_hackathon/moah_template_
 
 템플릿이 Compose 를 안 쓰거나 Kotlin/AGP 버전이 다르면: 외부 기준은 AGP 8.7.3 / Kotlin 2.0.21 / Compose 컴파일러 플러그인(`org.jetbrains.kotlin.plugin.compose`) / JDK 17 / compileSdk 35. Kotlin 이 2.0 미만이면 Compose 컴파일러 설정 방식이 다르다(`composeOptions.kotlinCompilerExtensionVersion`) — 템플릿 버전을 보고 그 자리에서 결정한다.
 
-## 2. 스위치 (이게 전부여야 한다)
+## 2. 스위치 (설정 한 줄 + jar 파일 — 코드 변경 없음)
 
-`automotive/build.gradle.kts`:
+2026-09-30 사내 이관 1차 뒤 "두 줄 교체" 를 없앴다. 같은 커밋이 사외(Fake)와 사내(Real)에서 그대로 빌드된다.
 
-```kotlin
-// val vssApi: Any = project(":vss-stub")
-val vssApi: Any = files("/system/framework/mobis.framework.core.jar")
-buildConfigField("boolean", "USE_FAKE_VSS", "false")
+1. 사내 jar 를 `automotive/libs/mobis.framework.core.jar` 로 복사한다(`automotive/libs/` 는 gitignore — 절대 커밋하지 않는다). jar 경로는 가이드 문서 기준이고 WebIDE 에서 다르면 `find / -name "mobis.framework*.jar" 2>/dev/null` 로 찾는다.
+2. `local.properties`(추적 안 됨)에 한 줄:
+
+```properties
+mobis.vss.jar=automotive/libs/mobis.framework.core.jar
 ```
 
-`settings.gradle.kts` 에서 `include(":vss-stub")` 제거 (경로 A 일 때만. B 는 애초에 없다).
+효과: `settings.gradle.kts` 가 `:vss-stub` 을 포함하지 않고, `automotive/build.gradle.kts` 가 그 jar 로 `compileOnly` + `USE_FAKE_VSS=false`. 빌드 로그 첫 줄 `mobis.vss: jar … → USE_FAKE_VSS=false` 로 확인. 키를 지우면 사외와 같다.
 
-jar 경로는 가이드 문서 기준이다. WebIDE 에서 다르면 `find / -name "mobis.framework*.jar" 2>/dev/null` 로 찾는다.
+매니페스트의 `<uses-library android:name="mobis.framework" android:required="false"/>` 가 런타임에 `mobis.vss` 를 시스템에서 받게 한다(사외 에뮬에서는 없어도 설치·실행이 막히지 않는다).
+
+`gradlew` 는 실행 비트가 있어야 한다(사내 Linux 에서 126 으로 실패했던 것 — 9/30 부터 저장소에 `+x` 로 들어 있다. 안 되면 `chmod +x gradlew`).
 
 ## 3. 빌드 — 예상되는 실패와 대응
 
@@ -70,7 +73,7 @@ jar 경로는 가이드 문서 기준이다. WebIDE 에서 다르면 `find / -na
 | 의존성 resolve 실패 / 타임아웃 | 사내망에서 외부 저장소 차단 | 경로 B 로 전환(템플릿의 저장소 설정 사용) |
 | 단위 테스트가 jar 를 못 읽음 | `testImplementation(vssApi)` | `assembleDebug` 만. 테스트는 외부에서 이미 통과 |
 
-앱이 참조하는 VSS 상수: **A층(필수)** `VEHICLE_SPEED`, `DOOR_DRIVER_ISOPEN` — 이 둘만 있으면 세션·채점·리포트가 전부 성립한다. **B층(선택)** 안전벨트·기어·방향지시등·조향각·브레이크·비상등·IGN — `docs/topics/01_driving_coach.md` 신호 표. 경로가 실물과 다르면 **컴파일은 되지만 값이 안 온다**(조용히 무시) → 앱이 `MISSING` 으로 표시하고 채점에서 뺀다. 이름이 비슷하게 있으면 `VssConstants` 의 문자열만 고쳐 살린다. `VEHICLE_ADAS_ABS_ISENABLED`, `VEHICLE_ADAS_CRUISECONTROL_SPEEDSET`, `VEHICLE_BODY_HORN_ISACTIVE` 는 초기 대시보드·Fake 기본값용이라 없으면 지워도 된다.
+앱이 참조하는 VSS 상수: **A층(필수)** `VEHICLE_SPEED`, `VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN` — 이 둘만 있으면 세션·채점·리포트가 전부 성립한다. **B층(선택)** 안전벨트·기어·방향지시등·조향각·브레이크·비상등·IGN — `docs/topics/01_driving_coach.md` 신호 표. 경로가 실물과 다르면 **컴파일은 되지만 값이 안 온다**(조용히 무시) → 앱이 `MISSING` 으로 표시하고 채점에서 뺀다. 이름이 비슷하게 있으면 `VssConstants` 의 문자열만 고쳐 살린다. `VEHICLE_ADAS_ABS_ISENABLED`, `VEHICLE_ADAS_CRUISECONTROL_SPEEDSET`, `VEHICLE_BODY_HORN_ISACTIVE` 는 초기 대시보드·Fake 기본값용이라 없으면 지워도 된다.
 
 ## 4. 설치 · 첫 실행 · Real 모드에서 달라지는 것
 
