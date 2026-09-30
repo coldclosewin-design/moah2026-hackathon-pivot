@@ -29,6 +29,8 @@ class LessonViewModel(
     private val scenarios: List<Scenario> = emptyList(),
     /** 과제별 시나리오 — 시연 패널이 지금 과제에 맞는 버튼만 보이게. 기본은 전부. */
     private val scenariosFor: (Task) -> List<Scenario> = { scenarios },
+    /** AI 코치 인증(9/30). 없으면(플래그 off) null — 패널이 AI 줄을 숨긴다. */
+    private val ai: com.moah.hackathon.ports.copilot.CopilotAuth? = null,
 ) : ViewModel() {
 
     val phase: StateFlow<LessonPhase> = machine.phase
@@ -59,6 +61,10 @@ class LessonViewModel(
         fun setDoor(open: Boolean) {
             viewModelScope.launch { fake.set(mapOf(VssConstants.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN to VssValues.ofBoolean(open))) }
         }
+        /** AI 코치 상태(패널 맨 아래 `AI 코치 · <상태>`). 플래그 off 면 null. */
+        val aiState: StateFlow<com.moah.hackathon.ports.copilot.CopilotAuth.State>? get() = ai?.state
+        /** `AI 연결` 버튼 — NeedsLogin·Error 일 때만 보인다. device code 흐름 시작. */
+        fun connectAi() { ai?.connect() }
     }
 
     private fun currentTask(): Task? = when (val p = phase.value) {
@@ -87,7 +93,7 @@ class LessonViewModel(
 
     companion object {
         fun factory(container: AppContainer): ViewModelProvider.Factory = viewModelFactory {
-            initializer { LessonViewModel(container.lesson, container.tts, container.vehicle, container.scenarios, container.scenariosFor) }
+            initializer { LessonViewModel(container.lesson, container.tts, container.vehicle, container.scenarios, container.scenariosFor, container.copilot) }
         }
     }
 }

@@ -48,6 +48,8 @@ android {
         buildConfigField("double", "DEMO_SPEED_FACTOR", (project.findProperty("demoSpeed") ?: "1.0").toString().toDouble().toString())
         // 시연 조작 패널(Fake 신호 버튼). 녹화·사내에서 화면에서 지우려면 -PdemoPanel=false — 그때는 스크립트도 못 누른다
         buildConfigField("boolean", "SHOW_DEMO_PANEL", (project.findProperty("demoPanel") ?: "true").toString())
+        // AI 코치 전송 계층(Cloud Copilot). -PcloudCoach=false 면 항상 시드 문장. 설정 파일(/data/local/tmp/copilot_config.json)이 없어도 시드로 폴백한다
+        buildConfigField("boolean", "CLOUD_COACH", (project.findProperty("cloudCoach") ?: "true").toString())
     }
 
     buildTypes {

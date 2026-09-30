@@ -8,6 +8,9 @@
     <!-- GpsLocationPort 용. 거부되면 속도 적분 Fake 로 폴백한다 -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Cloud Copilot 코치(CopilotAuth·CopilotCoachTransport, 9/30). 없으면 시드 문장으로 폴백 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:name=".App"

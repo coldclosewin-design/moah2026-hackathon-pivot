@@ -18,6 +18,11 @@ import com.moah.hackathon.ports.GpsLocationPort
 import com.moah.hackathon.ports.LatLng
 import com.moah.hackathon.ports.LocationPort
 import com.moah.hackathon.ports.TtsPort
+import com.moah.hackathon.ports.copilot.CopilotAuth
+import com.moah.hackathon.ports.copilot.CopilotCoachTransport
+import com.moah.hackathon.ports.copilot.CopilotConfig
+import com.moah.hackathon.ports.copilot.PrefsTokenStore
+import com.moah.hackathon.ports.copilot.UrlHttpClient
 import com.moah.hackathon.scoring.ParkingRecorder
 import com.moah.hackathon.vehicle.Scenario
 import com.moah.hackathon.vehicle.SignalRegistry
@@ -54,7 +59,16 @@ class AppContainer(context: Context) {
      * 코치. 전송 계층(`CoachTransport`)은 사내 Cloud Copilot 인증 방식이 확인되기 전까지 null → 항상 시드 멘트 풀로 폴백한다.
      * 확인되면 `CoachTransport` 구현체 하나를 여기 넘기면 끝.
      */
-    val coach: CoachPort = CloudCoachPort(fallback = FakeCoachPort(RemarkPool(SeedCatalog.remarks)), transport = null)
+    /**
+     * Cloud Copilot 인증(9/30 사내 실측: 폴백 0회, "다 됐어요" → Done 2~4 s). `CLOUD_COACH=false` 또는 설정 파일 없음 → null/시드.
+     * 시연 패널이 [CopilotAuth.state] 를 보여 주고 `connect()` 로 device code 로그인을 시작한다.
+     */
+    val copilot: CopilotAuth? = if (BuildConfig.CLOUD_COACH) CopilotAuth(CopilotConfig.load(), PrefsTokenStore(context), UrlHttpClient(), appScope).also { it.prewarm() } else null
+    val coach: CoachPort = CloudCoachPort(
+        fallback = FakeCoachPort(RemarkPool(SeedCatalog.remarks)),
+        transport = copilot?.config?.let { cfg -> CopilotCoachTransport(copilot, cfg, UrlHttpClient()) },
+        timeoutMillis = 5_000L,
+    )
     /** 시연 조작 패널이 고르는 Fake 시나리오(전체). 진행 중인 과제가 정해지면 [scenariosFor] 로 좁힌다. Real 에서는 쓰이지 않는다. */
     val scenarios: List<Scenario> = ParkingScenarios.all + ChecklistScenarios.all
     val scenariosFor: (Task) -> List<Scenario> = SeedCatalog::scenariosFor

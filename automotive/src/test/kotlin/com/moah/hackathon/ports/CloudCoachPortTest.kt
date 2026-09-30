@@ -102,4 +102,18 @@ class CloudCoachPortTest {
         assertEquals("오늘은 여기까지 잘 왔어요. 뒤 거리만 조금 더.", coach.summarize(SeedCatalog.parkingTask, LessonMode.HINT, listOf(record), profile))
         assertTrue(coach.summarize(SeedCatalog.parkingTask, LessonMode.HINT, emptyList(), profile).contains("움직이지 않았어요"))
     }
+
+    @Test
+    fun `two lines split at the first sentence end whichever mark - and checked exceptions from the transport still fall back`() = runTest {
+        assertEquals("좋았어요!\n다음엔 벨트부터요.", CoachPrompts.twoLines("좋았어요! 다음엔 벨트부터요."))
+        assertEquals("정말요?\n그럼 한 번 더.", CoachPrompts.twoLines("정말요? 그럼 한 번 더."))
+        assertEquals("한 문장뿐이에요.", CoachPrompts.twoLines("한 문장뿐이에요."))
+        val io = CloudCoachPort(fallback, transport { _, _ -> throw java.io.IOException("copilot: HTTP 500") })
+        val text = io.remark(SeedCatalog.parkingTask, score(), null, profile, 1)
+        assertTrue(text, text.contains("\n") && !text.contains("500"))
+        // 9/30 사내 관찰: 총평이 측정 안 하는 항목("뒤쪽 시야 확보")을 조언함 → SYSTEM 에 한 줄
+        var system = ""
+        CloudCoachPort(fallback, transport { s, _ -> system = s; "네. 네." }).remark(SeedCatalog.parkingTask, score(), null, profile, 1)
+        assertTrue(system, system.contains("과정 지표에 없는 항목") && system.contains("조언하지 않습니다"))
+    }
 }
