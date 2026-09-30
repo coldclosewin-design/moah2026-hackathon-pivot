@@ -3,7 +3,7 @@
 ```
 프로젝트: C:\Project\17_hackathon-pivot (AAOS 앱, Kotlin/Compose). 먼저 AGENTS.md, docs/design/07_round9_selfcheck.md(점검 목록·분류·근거 캡처), 라운드 8 발주서(면 카드·정착 폴링)를 읽어라.
 브랜치: codex/ui-round9 를 origin/main 에서 새로 만들어 작업(이 발주서 PR 머지 뒤).
-작업: §1(규칙 위반 1건 — 반드시) → §2(화면 다듬기) → §3(계측 흔들림). §4 는 결정이 적힌 것만.
+작업: §1(규칙 위반 1건 — 반드시) → §2(화면 다듬기) → §3(계측 흔들림) → §4(결정 2건 — 9/30 확정).
 제약: vehicle/, ports/, scoring/, feature/lesson/, data/ 의 구조, build 파일, tools/ 는 수정 금지. docs/NEXT.md 는 고치지 말고 docs/INTEGRATION.md C절에 적어라.
 완료 기준: .\gradlew.bat assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest 통과(PowerShell), bash tools/lesson_shots.sh → "Lesson contract passed"(리뷰 환경에서 3회 연속), bash tools/emu_flow.sh → result: PASS(원본),
           docs/screenshots/lesson/ 의 해당 캡처 교체(§별 목록), gh pr create.
@@ -67,10 +67,19 @@
 - 예약 흐름의 칩 `click` 뒤 기대 상태(`예약` 노드 등장 등)를 ≤ 1 s 폴링으로 확인하고 없으면 한 번 재탭(#55 리뷰 5회 중 1회).
 - 완료 기준의 "리뷰 환경에서 3회 연속 PASS" 를 PR 본문에 3회 로그로.
 
-## 4. 결정이 필요한 것 (적힌 것만 한다)
+## 4. 결정된 것 (2026-09-30 사용자: "추천대로 두 개 다 진행")
 
-- 4.1 **자세히 보기에 항목별 수치**(조향 왕복·기어 전환·근접·급정지)를 회차 행 아래에 — 진단서 공유 범위 "항목별" 과 맞추기. 데이터는 `ParkingMetrics` 에 이미 있다. **결정: (사용자)**
-- 4.2 **브리핑 제목에 볼 항목 전부** — 지금은 앞 두 개만(`briefingHeadline`). 추천: 주차는 셋 전부, 점검은 `문부터 비상등까지\n순서대로 볼게요.`(개수를 말하지 않는다). **결정: (사용자)**
+### 4.1 자세히 보기에 항목별 수치 — ✅ 넣는다 (`ReportScreen.kt` `DetailsContent`)
+- 주차 과제의 회차 행(`N회차 · 숙련 · 안전 · 이동 N회 · N초`) **아래 한 줄**(32 sp `Muted`): `조향 왕복 N · 기어 전환 N · 근접 N · 급정지 N`.
+- 데이터(전부 `attempt.score.metrics`, 새 필드 없음): 조향 왕복 `steering?.reversals` · 기어 전환 `gear?.reverseDriveShifts` · 근접 `proximity?.warnings` · 급정지 `harshEvents.count { it.kind == HarshKind.BRAKING }`(급가속이 있으면 `급가속 N` 을 뒤에 한 칸 더).
+- 신호가 없어 null 인 항목은 `미측정`(예: `조향 왕복 미측정`). 숫자는 이 화면에만 허용(AGENTS 숫자 규칙의 예외 자리 — 리포트 자세히 보기).
+- 회차가 여럿이면 회차마다 한 줄씩. 점검 과제는 지금의 7행 체크 표 그대로(이 줄 없음).
+- 캡처 `lesson-details.png` 교체(못한 주차 1회차 = 조향 왕복 3 · 기어 전환 2 · 근접 1 · 급정지 1 가 보이게 — `ParkingRecorderScenarioTest` 고정값).
+
+### 4.2 브리핑 제목에 볼 항목 전부 — ✅ 주차 셋 전부 · 점검은 말로 (`LessonPresentation.kt` `briefingHeadline`)
+- 항목이 3개 이하: 전부 이어 쓴다 — `핸들 방향과 기어 전환과\n뒤 거리를 볼게요.`(두 줄, 줄바꿈은 마지막 항목 앞).
+- 4개 이상(출발 전 점검 5개): `문부터 지시등까지\n순서대로 볼게요.` 처럼 **첫 항목과 마지막 항목**으로 — 개수를 말하지 않는다(운전자 문장 숫자 금지). 조사는 `withObjectParticle` 류로 맞춘다.
+- 단위 테스트(`LessonPresentationTest`): 0·1·2·3·5 항목. 캡처 `lesson-briefing.png` 교체.
 
 ## 5. 불변
 
