@@ -205,6 +205,7 @@ class LessonStateMachineTest {
         assertTrue(done.remark, done.remark.contains("5문제 중 4개"))
         assertEquals(1, h.store.quizzes().size)
         h.machine.reset()
+        assertEquals(null, h.tts.lastSpoken.value)     // 9/30: 그만하기·다시 시작 뒤 Setup 에 지난 해설 자막이 남지 않는다
         assertTrue(h.machine.phase.value is LessonPhase.Setup)
         h.scope.cancel()
     }
@@ -237,6 +238,10 @@ class LessonStateMachineTest {
         val m1 = h.machine.phase.value as LessonPhase.Maneuver
         assertTrue(m1.askedDone)                       // 가이드가 끝났다
         assertEquals(0, m1.movingSegments)
+        // 9/30: 등화는 켰다 끄므로 지금 값은 꺼짐이지만, 기록된 확인은 남는다(칩 완료 색의 근거). 시동 순간 브레이크도
+        val d1 = m1.toDisplayState()
+        assertEquals(false, d1.indicatorLeft); assertEquals(false, d1.hazard)
+        assertEquals(listOf(true, true, true, true), listOf(d1.leftIndicatorChecked, d1.rightIndicatorChecked, d1.hazardChecked, d1.brakeAtIgnition))
         assertTrue(h.tts.spoken.none { it.startsWith("다 되셨나요?") })   // 가이드 모드는 마지막 단계 확인 문장이 그 역할
 
         h.machine.finishAttempt()

@@ -398,6 +398,7 @@ class LessonStateMachine(
             elapsedMillis = clock() - attemptStartMillis,
             askedDone = askedDone,
             availability = registry.snapshot(recorder.keys),
+            preDrive = if (task.type == TaskType.CHECKLIST) recorder.metrics()?.preDrive else null,
         )
         if (enter) _phase.value = next
         else _phase.update { current -> if (current is LessonPhase.Maneuver && !finishing) next else current }
