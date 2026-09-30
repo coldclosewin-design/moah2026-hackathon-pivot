@@ -16,6 +16,7 @@ Claude Code와 Codex가 공유하는 단일 지침. 세부 문서는 `docs/`.
 - **외부 PC에서 개발 → GitHub private → 사내에서 clone → 머지·빌드·시연.** 사내 개발환경(WebIDE, infoLINK 에뮬, VSS 실물)은 외부에서 접근 불가.
 - 사내 빌드는 **코드 변경 없이** `local.properties` 의 `mobis.vss.jar=<jar 경로>` 한 줄 + jar 파일(`automotive/libs/`, gitignore)로 끝나야 한다(9/30 — 그 전엔 compileOnly 한 줄 교체였다). 같은 커밋이 사외(Fake)·사내(Real)에서 그대로 빌드된다. 이 원칙을 깨는 변경은 금지.
 - **전 포트 Fake 로 인터넷·키·실신호 없이 전체 시연이 완결**되어야 한다. 사내 네트워크·TTS·신호 경로가 전부 미확인이기 때문이다.
+- **두 자리 작업 방식(9/30 확정, `docs/07_two_site_workflow.md`)**: 사외 = 개발 전부(UI·상태기계·채점·프롬프트·테스트·문서, 완료 기준 Fake 전체 흐름 + 단위 테스트) / 사내 = 검증·녹화·제출뿐, **사내에서 코드를 고치지 않는다**. 사내 결과는 `INTEGRATION.md` B절 형식 관찰 노트로 사람이 요지만 옮기고, 사외 → 사내 전달 단위는 태그 `inhouse-YYYYMMDD-N`. 사내 세션 시작: `adb root` · Wi-Fi · `copilot_config.json` push · `logcat -G 16M` · `tools/inhouse_check.sh`.
 
 ## 절대 규칙
 
@@ -66,7 +67,14 @@ Claude Code와 Codex가 공유하는 단일 지침. 세부 문서는 `docs/`.
 ## 브랜치 · 커밋
 
 - `main`은 항상 빌드 통과. 작업은 `claude/<topic>` / `codex/<topic>` 브랜치 → PR → Claude 리뷰 → squash merge. **머지 승인 없이 다음 작업을 쌓지 않는다.**
-- 커밋 메시지 `<scope>: <요약>` (scope: build, stub, vehicle, ports, scoring, feature, ui, data, docs, test, tools).
+- 커밋 규칙(2026-09-30, 사내 브랜치에 먼저 넣은 것과 같은 내용 — `docs/07_two_site_workflow.md` §5):
+  1. 한 커밋 = 한 논리 변경. 제목 `<scope>: <무엇을 어떻게>` — 한국어 50자 안팎, 마침표 없음, `fix`/`update`/`wip` 금지. scope: build, stub, vehicle, ports, scoring, feature, ui, data, docs, test, tools, **inhouse**(사내 전용 변경 표시).
+  2. 본문 `- ` 불릿 2~5개(무엇·왜·영향), 끝에 `검증: 빌드 · 단위 테스트 N`(+ 실제로 한 확인만).
+  3. 코드+테스트+관련 문서는 같은 커밋. 이름 바꾸기·포맷팅과 동작 변경은 분리.
+  4. 모든 커밋이 빌드·테스트 통과.
+  5. push 전 실험·진단 커밋은 `git commit --fixup` → `GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash <기준>` 으로 합친다. push 뒤에는 이력 재작성·force push 금지.
+  6. PR 제목 = squash 커밋 제목(같은 형식).
+  7. `submission` 브랜치 = 사외 태그 + `inhouse:` 커밋 1개(사내 jar).
 
 ## 참고 문서
 
@@ -76,7 +84,7 @@ Claude Code와 Codex가 공유하는 단일 지침. 세부 문서는 `docs/`.
 - `docs/02_vss_api_contract.md` — VSS API 시그니처·타입·함정
 - `docs/03_environment.md` — 이 PC 환경·에뮬
 - `docs/04_agent_workflow.md` — 분담·핸드오프 템플릿·리뷰 체크리스트
-- `docs/06_inhouse_migration.md` — 사내 이관 런북
+- `docs/06_inhouse_migration.md` — 사내 이관 런북 · `docs/07_two_site_workflow.md` — 사외/사내 역할·태그·커밋 규칙
 - `docs/INTEGRATION.md` — 사내 수렴 체크리스트·가정 로그·요청
 - `docs/topics/01_driving_coach.md` — 확정 주제 정의·채점 설계·신호 표. `_comparison.md` 에 피벗 결정 기록
 - `docs/05_demo_script.md` — 시연 대본(실측 시각·시간 조절·사고 대응). `docs/presentation/` — 발표 덱 구성·시연 영상 컷 목록
