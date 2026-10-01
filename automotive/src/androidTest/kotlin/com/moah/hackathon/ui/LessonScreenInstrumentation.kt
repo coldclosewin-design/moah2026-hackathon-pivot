@@ -15,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.BroadcastFrameClock
 import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModelProvider
@@ -29,9 +30,12 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.unit.sp
 import com.moah.hackathon.App
 import com.moah.hackathon.data.SeedCatalog
 import com.moah.hackathon.feature.lesson.*
+import com.moah.hackathon.ports.copilot.CopilotAuth
 import com.moah.hackathon.scoring.*
 import com.moah.hackathon.ui.concepts.DesignScale
 import com.moah.hackathon.ui.lesson.*
@@ -41,6 +45,8 @@ import java.io.FileInputStream
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
@@ -58,8 +64,11 @@ class LessonScreenInstrumentation : Instrumentation() {
             captureSetupMorph(activity)
             val container = (activity.application as App).container
             var played: String? = null
+            val panelAi = mutableStateOf<StateFlow<CopilotAuth.State>?>(null)
+            var aiConnections = 0
             val setupDemo: @Composable () -> Unit = {
-                DemoPanel(container.scenarios, null, { played = it }, {}, {}, {}, {})
+                DemoPanel(container.scenarios, null, { played = it }, {}, {}, {}, {},
+                    aiState = panelAi.value, onConnectAi = { aiConnections++ })
             }
             val demo: @Composable () -> Unit = {
                 DemoPanel(container.scenariosFor(task), null, {}, {}, {}, {}, {})
@@ -79,7 +88,8 @@ class LessonScreenInstrumentation : Instrumentation() {
             click("시연")
             check(texts().containsAll(listOf("잘한 주차", "못한 주차")))
             check(textBounds(setupProposal(TaskType.PARKING)) == proposalBounds) { "Demo rail resized the reading area" }
-            capture("panel-open")
+            checkAiPanel(activity, panelAi)
+            runOnMainSync { check(aiConnections == 2) { "AI connect/reconnect must dispatch exactly once per click" } }
             click("잘한 주차")
             runOnMainSync { check(played == container.scenarios.first { it.title == "잘한 주차" }.id) }
             assertPanelCollapsed()
@@ -680,7 +690,14 @@ class LessonScreenInstrumentation : Instrumentation() {
         click("돌아가기")
         click("돌아가기")
         check(texts().none { it.startsWith("예약 · ") })
-        check(textBounds(profileLine(SeedCatalog.demoProfile)) == originalProfileBounds) { "Cancelled badge left empty space" }
+        val profileLabel = profileLine(SeedCatalog.demoProfile)
+        val deadline = SystemClock.uptimeMillis() + 1_000
+        while (textBounds(profileLabel) != originalProfileBounds && SystemClock.uptimeMillis() < deadline) {
+            Thread.sleep(50)
+        }
+        check(textBounds(profileLabel) == originalProfileBounds) {
+            "Cancelled badge left empty space after morph settled: ${textBounds(profileLabel)} / $originalProfileBounds"
+        }
         pass("Reservation: three 220 dp cards, unavailable slot disabled, both choices required/reset per venue, reserve/cancel once, real ViewModel recommendation, confirmation/reopen, badge without leftover space")
     }
 
@@ -689,6 +706,70 @@ class LessonScreenInstrumentation : Instrumentation() {
             val withoutAllowed = text.replace(Regex("\\d{2}:\\d{2}|\\d+(?:\\.\\d+)? km|주차 3종"), "")
             check(!Regex("\\d|점수|감점").containsMatchIn(withoutAllowed)) { "Reservation leaked other numbers: $text" }
         }
+    }
+
+    private fun checkAiPanel(activity: MainActivity, state: MutableState<StateFlow<CopilotAuth.State>?>) {
+        val labels = listOf("시연", "잘한 주차", "못한 주차", "잘한 점검", "못한 점검",
+            "정차", "출발", "문 열기", "문 닫기", "시나리오 정지")
+        val originalBounds = labels.associateWith(::buttonBounds)
+        check(allText().none { it.startsWith("AI ") }) { "Null aiState must render no AI nodes" }
+        val auth = MutableStateFlow<CopilotAuth.State>(CopilotAuth.State.NeedsLogin)
+        runOnMainSync { state.value = auth }
+        fun awaitLine(line: AiLine, detail: String = line.detail) {
+            val deadline = SystemClock.uptimeMillis() + 1_000
+            fun matches(): Boolean = texts().let { current ->
+                line.title in current && detail in current && ("AI 연결" in current) == line.showConnect
+            }
+            while (!matches() && SystemClock.uptimeMillis() < deadline) Thread.sleep(50)
+            check(matches()) { "AI StateFlow update did not render $line: ${texts()}" }
+            originalBounds.forEach { (label, bounds) ->
+                check(buttonBounds(label) == bounds) { "AI section moved $label" }
+            }
+        }
+        awaitLine(checkNotNull(aiLine(CopilotAuth.State.NeedsLogin)))
+        check(texts().containsAll(listOf("GitHub 에서 코드를 넣고 Authorize 까지 눌러 주세요", "AI 연결")))
+        check(textBounds("AI 코치 · 로그인 필요").top > originalBounds.getValue("시나리오 정지").bottom)
+        capture("panel-open")
+        click("AI 연결")
+
+        val code = CopilotAuth.State.Code("ABCD-1234", "https://github.com/login/device")
+        runOnMainSync { auth.value = code }
+        val detail = "github.com/login/device  ABCD-1234"
+        awaitLine(checkNotNull(aiLine(code)), detail)
+        check(detail in texts()) { "Device URI and code must remain readable verbatim" }
+        check("AI 연결" !in texts())
+        runOnMainSync {
+            val node = composeNodes(activity).first { node ->
+                node.config.getOrNull(SemanticsProperties.Text)?.any { it.text == detail } == true
+            }
+            val layouts = mutableListOf<TextLayoutResult>()
+            check(node.config.getOrNull(SemanticsActions.GetTextLayoutResult)?.action?.invoke(layouts) == true)
+            val layout = layouts.single()
+            check(!layout.hasVisualOverflow) { "Device code is clipped" }
+            val codeStyle = layout.layoutInput.text.spanStyles.single()
+            check(codeStyle.item.fontSize == 40.sp && codeStyle.item.color == CoachColors.Ink)
+            check(layout.layoutInput.text.text.substring(codeStyle.start, codeStyle.end) == code.userCode)
+        }
+        capture("panel-ai-code") { bitmap ->
+            val bounds = textBounds(detail)
+            check(bounds.bottom <= bitmap.height && bounds.right <= bitmap.width)
+            check(!colorBounds(bitmap, bounds, CoachColors.Ink.toArgb()).isEmpty) { "Code Ink glyphs are missing" }
+        }
+        listOf(CopilotAuth.State.Ready, CopilotAuth.State.NoConfig, CopilotAuth.State.Error("인증 만료")).forEach { value ->
+            runOnMainSync { auth.value = value }
+            val line = checkNotNull(aiLine(value))
+            awaitLine(line)
+            check(line.detail in texts())
+            check(("AI 연결" in texts()) == line.showConnect)
+        }
+        click("AI 연결")
+        runOnMainSync { state.value = null }
+        val hiddenDeadline = SystemClock.uptimeMillis() + 1_000
+        while (allText().any { it.startsWith("AI ") } && SystemClock.uptimeMillis() < hiddenDeadline) Thread.sleep(50)
+        uiAutomation.waitForIdle(100, 2_000)
+        check(allText().none { it.startsWith("AI ") || it == "인증 만료" })
+        originalBounds.forEach { (label, bounds) -> check(buttonBounds(label) == bounds) }
+        pass("AI panel: null hides all AI nodes; five live states, connect/reconnect, exact 40 sp Ink code without overflow; toggle/scenario bounds unchanged")
     }
 
     private fun render(activity: MainActivity, content: @Composable () -> Unit) {
