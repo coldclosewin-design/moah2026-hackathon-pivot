@@ -13,8 +13,8 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.withTimeoutOrNull
 
 /**
- * LLM 호출의 전송 계층. **사내 Cloud Copilot 인증 방식이 확인되기 전까지 구현체가 없다**(docs/INTEGRATION.md B절 9/26).
- * 확인되면 이 인터페이스 하나만 구현해 [CloudCoachPort] 에 넘긴다. 반환은 본문 텍스트 한 덩어리.
+ * LLM 호출의 전송 계층. 구현체는 `ports/copilot/CopilotCoachTransport`(device code 인증 → 세션 토큰 → chat, 10/1 사내 통과).
+ * null 이면 [CloudCoachPort] 가 항상 시드 문장으로 폴백한다. 반환은 본문 텍스트 한 덩어리.
  */
 interface CoachTransport {
     suspend fun complete(system: String, user: String): String
