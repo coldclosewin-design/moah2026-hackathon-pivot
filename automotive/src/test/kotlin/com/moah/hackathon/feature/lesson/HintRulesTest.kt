@@ -62,4 +62,20 @@ class HintRulesTest {
         assertEquals(1, few.count { it.text.startsWith("핸들을 조금 더 유지") })
         assertEquals(1, few.count { it.text.startsWith("전진으로 보정") })
     }
+
+    @Test
+    fun `a harsh acceleration gets its own sentence - not the braking one`() {
+        // 감사 08 A3-06: harshEvents 증가를 전부 "제동이 급했어요" 로 말하던 것
+        val speed = mobis.vss.VssConstants.VEHICLE_SPEED
+        val belt = mobis.vss.VssConstants.VEHICLE_CABIN_SEAT_ROW1_DRIVERSIDE_ISBELTED
+        val jump = com.moah.hackathon.vehicle.Scenario("accel", "급출발", listOf(
+            com.moah.hackathon.vehicle.ScenarioStep(0.0, mapOf(belt to "true", speed to "0.0")),
+            com.moah.hackathon.vehicle.ScenarioStep(1.0, mapOf(speed to "0.0")),
+            com.moah.hackathon.vehicle.ScenarioStep(1.3, mapOf(speed to "15.0")),     // 0 → 15 km/h in 300 ms ≈ 13.9 m/s²
+            com.moah.hackathon.vehicle.ScenarioStep(2.0, mapOf(speed to "15.0")),
+        ))
+        val texts = run(jump).map { it.text }
+        assertTrue(texts.toString(), "출발이 급했어요. 가속은 천천히 해요." in texts)
+        assertTrue(texts.none { it.startsWith("제동이 급했어요") })
+    }
 }
