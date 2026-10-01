@@ -1,6 +1,7 @@
 package com.moah.hackathon.feature.lesson
 
 import com.moah.hackathon.ports.SpeechPriority
+import com.moah.hackathon.scoring.HarshKind
 import com.moah.hackathon.scoring.ParkingMetrics
 
 data class Hint(val text: String, val priority: SpeechPriority)
@@ -52,7 +53,10 @@ class HintRules(private val cooldownMillis: Long = 5_000L, private val checklist
                 fire(out, "proximity", nowMillis, "뒤가 가까워요. 멈추세요.", SpeechPriority.URGENT)
             }
             if (grew(metrics.harshEvents.size, prev?.harshEvents?.size)) {
-                fire(out, "harsh", nowMillis, "제동이 급했어요. 브레이크는 천천히 밟아요.", SpeechPriority.URGENT)
+                // 급가속과 급제동은 다른 조언 — 마지막 사건의 종류로 고른다(감사 08 A3-06: 전부 "제동" 으로 말하던 것)
+                val text = if (metrics.harshEvents.last().kind == HarshKind.ACCELERATION) "출발이 급했어요. 가속은 천천히 해요."
+                    else "제동이 급했어요. 브레이크는 천천히 밟아요."
+                fire(out, "harsh", nowMillis, text, SpeechPriority.URGENT)
             }
             if (metrics.preDrive.beltBeforeFirstMove == false && prev?.preDrive?.beltBeforeFirstMove != false) {
                 fire(out, "belt", nowMillis, "안전벨트가 아직이에요.", SpeechPriority.URGENT)
