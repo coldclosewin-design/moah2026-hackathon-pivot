@@ -1,6 +1,7 @@
 # 사내 자료 / 대용량 — 절대 커밋 금지
 tmp-info/
 emulator/
+automotive/libs/      # 사내 jar 자리(local.properties mobis.vss.jar) — git add -A 로도 안 들어가게. e541131 에서 빠져 10/1 보강
 *.apk
 *.aab
 *.img

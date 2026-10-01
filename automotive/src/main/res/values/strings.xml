@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- 제품명은 가칭. 확정되면 여기 한 곳만 바꾼다 -->
-    <string name="app_name">DriveCoach</string>
+    <!-- 제품명(9/30 사내 확정, AGENTS "드라이브 코치"). MarketUploader·런처 라벨이 이 값이다 -->
+    <string name="app_name">드라이브 코치</string>
     <string name="brand">DRIVE COACH</string>
     <string name="lesson_start">시작</string>
     <string name="lesson_finish">다 됐어요</string>
