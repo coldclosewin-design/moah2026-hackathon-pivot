@@ -35,7 +35,7 @@ class RealVehiclePort(context: Context) : VehiclePort {
     override suspend fun get(keys: List<String>): Map<String, String> = withContext(dispatcher) {
         try {
             vss.getVSS(keys).orEmpty()
-                .filter { it.nodePath != null && it.value != null }
+                .filter { it.nodePath != null && !it.value.isNullOrBlank() }   // 빈 문자열도 미수신(사내: LowVoltageSystemState 가 "" — 9/30)
                 .associate { it.nodePath to it.value }
         } catch (e: RuntimeException) {
             Log.w(TAG, "getVSS failed for $keys", e)
@@ -60,7 +60,7 @@ class RealVehiclePort(context: Context) : VehiclePort {
 
         val listener = VSSManager.OnDataChangedListener { data ->
             val delta = data.orEmpty()
-                .filter { it.nodePath != null && it.value != null }
+                .filter { it.nodePath != null && !it.value.isNullOrBlank() }   // 빈 문자열도 미수신(사내: LowVoltageSystemState 가 "" — 9/30)
                 .associate { it.nodePath to it.value }
             if (delta.isNotEmpty()) trySend(delta)
         }

@@ -17,17 +17,20 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-/** 속도·도어만 아는 "실차". 조향각·기어 등 나머지 키는 모른다(get 에서 빠지고, set 은 실패 목록으로). */
-private class ScriptedRealPort(initial: Map<String, String>) : VehiclePort {
+/**
+ * "실차" 대역. [initial] 의 키만 안다(get 에서 나오고, 구독으로 돌아온다). 모르는 키는 get 에서 빠지고 set 은 실패 목록으로.
+ * [readOnly] 키는 알지만 **쓰기를 거부**한다(읽기 전용 sensor — 실패 목록으로 돌려준다).
+ */
+private class ScriptedRealPort(initial: Map<String, String>, private val readOnly: Set<String> = emptySet()) : VehiclePort {
     val store = initial.toMutableMap()
     private val changes = MutableSharedFlow<Map<String, String>>(extraBufferCapacity = 16)
     val setCalls = mutableListOf<Map<String, String>>()
     override suspend fun get(keys: List<String>) = keys.mapNotNull { k -> store[k]?.let { k to it } }.toMap()
     override suspend fun set(values: Map<String, String>): List<String> {
         setCalls += values
-        val known = values.filterKeys { it in store }
-        store.putAll(known); if (known.isNotEmpty()) changes.emit(known)
-        return values.keys.filter { it !in store }
+        val accepted = values.filterKeys { it in store && it !in readOnly }
+        store.putAll(accepted); if (accepted.isNotEmpty()) changes.emit(accepted)
+        return values.keys.filter { it !in store || it in readOnly }
     }
     override fun observe(keys: List<String>): Flow<Map<String, String>> = flow {
         emit(get(keys))
@@ -58,7 +61,8 @@ class HybridVehiclePortTest {
     }
 
     @Test
-    fun `observe passes real deltas, drops fake deltas for live keys, keeps fake deltas for the rest`() = runTest {
+    fun `fake operations go through the real port and come back as live values - fake deltas for live keys are dropped`() = runTest {
+        // 9/30 사내 관찰: 회차 시작 get 에서 속도·조향·기어 등이 실신호라 시연 패널의 시나리오가 live 키에 먹지 않았다 → write-through
         val dispatcher = StandardTestDispatcher(testScheduler)
         val real = ScriptedRealPort(mapOf(speed to "0.0", door to "false"))
         val fake = FakeVehiclePort(simulate = false, dispatcher = dispatcher)
@@ -67,15 +71,39 @@ class HybridVehiclePortTest {
         val job = launch(dispatcher) { hybrid.observe(listOf(speed, steering)).collect { seen += it } }
         advanceUntilIdle()
         assertEquals(1, seen.size)                                    // 병합 스냅샷
-        real.push(mapOf(speed to "5.5")); advanceUntilIdle()
-        fake.inject(mapOf(speed to "99.0")); advanceUntilIdle()       // live 키 → 버림
-        fake.inject(mapOf(steering to "-450.0")); advanceUntilIdle()  // Fake 만 아는 키 → 통과
-        assertEquals(listOf(mapOf(speed to "5.5"), mapOf(steering to "-450.0")), seen.drop(1))
+        real.push(mapOf(speed to "5.5")); advanceUntilIdle()          // 실물 delta 통과
+        fake.inject(mapOf(speed to "99.0")); advanceUntilIdle()       // Fake 조작 → 실물에 먼저 써지고(setCalls) → Real 구독으로 돌아온다
+        assertEquals(listOf(mapOf(speed to "99.0")), real.setCalls)
+        assertEquals("99.0", real.store[speed])
+        fake.inject(mapOf(steering to "-450.0")); advanceUntilIdle()  // 실물이 모르는 키 → 실패 목록 → forced 가 아니라 그냥 Fake 통과(live 아님)
+        assertEquals(listOf(mapOf(speed to "5.5"), mapOf(speed to "99.0"), mapOf(steering to "-450.0")), seen.drop(1))
+        assertTrue(hybrid.isLive(speed)); assertFalse(hybrid.isLive(steering))
+        job.cancel(); hybrid.dispose()
+        assertEquals(null, fake.writeThrough)                         // dispose 가 훅을 푼다
+    }
+
+    @Test
+    fun `a read-only sensor the real port rejects is forced - fake values reach the screen and later real values are ignored`() = runTest {
+        val dispatcher = StandardTestDispatcher(testScheduler)
+        val real = ScriptedRealPort(mapOf(speed to "0.0", gear to "0"), readOnly = setOf(gear))
+        val fake = FakeVehiclePort(simulate = false, dispatcher = dispatcher)
+        val hybrid = HybridVehiclePort(real, fake)
+        val seen = mutableListOf<Map<String, String>>()
+        val job = launch(dispatcher) { hybrid.observe(listOf(speed, gear)).collect { seen += it } }
+        advanceUntilIdle()
+        assertTrue(hybrid.isLive(gear))                               // 처음엔 실물 값(0=N)이 있어 live
+        fake.inject(mapOf(gear to Gear.REVERSE.vss)); advanceUntilIdle()   // 실물이 거부 → forced → Fake 값이 화면까지
+        assertEquals(mapOf(gear to Gear.REVERSE.vss), seen.last())
+        assertFalse(hybrid.isLive(gear)); assertTrue(gear in hybrid.forcedKeys)
+        real.push(mapOf(gear to "0")); advanceUntilIdle()             // 이후 실물 값은 무시
+        assertEquals(mapOf(gear to Gear.REVERSE.vss), seen.last())
+        assertEquals(Gear.REVERSE.vss, hybrid.get(listOf(gear))[gear])   // get 도 Fake 값
+        assertFalse(hybrid.isLive(gear))                              // markLive 가 forced 키를 되살리지 않는다
         job.cancel(); hybrid.dispose()
     }
 
     @Test
-    fun `set goes to the real port and keys it rejects fall through to the fake`() = runTest {
+    fun `set goes to the real port through the fake and keys it rejects stay in the fake`() = runTest {
         val real = ScriptedRealPort(mapOf(door to "false"))
         val fake = FakeVehiclePort(simulate = false, dispatcher = StandardTestDispatcher(testScheduler))
         val hybrid = HybridVehiclePort(real, fake)
