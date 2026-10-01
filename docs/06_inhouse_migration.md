@@ -68,7 +68,7 @@ mobis.vss.jar=automotive/libs/mobis.framework.core.jar
 |---|---|---|
 | `exception RemoteException is never thrown` | 어딘가에서 RemoteException 을 catch | 외부에서는 0건(grep 확인). 나오면 그 catch 를 지운다 |
 | `cannot find symbol` / 인자 타입 불일치 (`VSSManager`, `VSSAppData`, 리스너) | 스텁 시그니처 ≠ 실물 | 고칠 곳은 **`RealVehiclePort.kt` 하나**. 실제 시그니처를 메모 → 외부에서 `vss-stub` 과 `02_vss_api_contract.md` 갱신 |
-| `VssConstants.XXX` 없음 | 상수 이름이 실물과 다름 | 앱이 쓰는 상수는 5개(아래). 실물 이름으로 바꾸고 메모 |
+| `VssConstants.XXX` 없음 | 상수 이름이 실물과 다름 | 상수 이름은 **경로를 대문자·밑줄로 바꾼 것**(9/30 사내 규칙, AGENTS 규칙 4). 앱이 쓰는 12개(아래)는 그 규칙으로 이미 맞췄다. 그래도 없으면 실물 이름으로 바꾸고 메모 |
 | `Duplicate class mobis.vss.*` | `vss-stub` 이 아직 include 됨 | 2절 |
 | 의존성 resolve 실패 / 타임아웃 | 사내망에서 외부 저장소 차단 | 경로 B 로 전환(템플릿의 저장소 설정 사용) |
 | 단위 테스트가 jar 를 못 읽음 | `testImplementation(vssApi)` | `assembleDebug` 만. 테스트는 외부에서 이미 통과 |
@@ -102,7 +102,7 @@ Real 모드에서 달라지는 동작:
 
 1. Signal Simulator 에서 `Vehicle.Speed` 를 바꾼다 → `Maneuver` 우상단 속도 숫자가 따라오는지, 5 를 넘기면 버튼·패널이 사라지는지. **안 따라오면** 경로 오타(조용히 무시됨) 또는 구독 실패 → `MOAH/RealVehiclePort` 로그.
 2. 값 포맷을 로그로 확인: 속도가 `"3.0"` 인지 `"3"` 인지, 정차 시 정확히 `0` 인지(노이즈가 있으면 `STOP_SPEED_KMH = 1` 을 못 넘어 "다 됐어요" 가 안 뜬다), 도어가 `"true"/"false"` 소문자인지. 파서는 `VssValues.kt`·`VssGear.kt` 두 곳.
-3. **B층 키 10개 대조** (`docs/topics/01_driving_coach.md` §5 표 ↔ pageId 1323873443): 회차 시작 로그 `missing=[…]` 에 든 키는 실물 이름이 다르다. 비슷한 이름을 찾아 `VssConstants.java` 의 **문자열만** 고친다(상수명은 그대로). 특히 `SelectedGear`(P=126/D=127 인코딩이 다르면 `VssGear.kt` 파서), `SteeringWheel.Angle` 부호(양수=왼쪽 가정), `ObstacleDetection.Rear.Distance`(비표준 — 없을 가능성 가장 높음 → `IsWarning` 만으로 근접 경고).
+3. **B층 키 10개 대조** (`docs/topics/01_driving_coach.md` §5 표 ↔ pageId 1323873443): 회차 시작 로그 `missing=[…]` 에 든 키는 실물 이름이 다르다. 비슷한 경로를 찾아 `VssConstants.java` 의 문자열과 **상수 이름을 함께**(이름 = 경로 대문자·밑줄 규칙) 고친다(상수명은 그대로). 특히 `SelectedGear`(P=126/D=127 인코딩이 다르면 `VssGear.kt` 파서), `SteeringWheel.Angle` 부호(양수=왼쪽 가정), `ObstacleDetection.Rear.Distance`(비표준 — 없을 가능성 가장 높음 → `IsWarning` 만으로 근접 경고).
 4. Signal Simulator 에 조향각·기어가 있으면 넣어 본다 → 도식의 바퀴·기어 글자가 따라오고 칩이 "시뮬" → **"실신호"** 로 바뀌는지. 리포트 배지의 `실신호 N` 이 올라간 화면을 **메모로만** 적어 온다(캡처 반출 금지).
 5. 도어 `Vehicle.Cabin.Door.Row1.DriverSide.IsOpen` 을 3D 에뮬에서 연다(정차 상태에서) → `Done` 또는 `Maneuver` 에서 `Report` 로 넘어가는지. 주행 중 열면 무해해야 한다.
 6. 콜백 스레드·ANR: **시작** 을 눌러 Briefing → Maneuver 로 갈 때 화면이 멎지 않는지.
