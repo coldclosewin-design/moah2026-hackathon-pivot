@@ -20,6 +20,12 @@
         android:supportsRtl="true"
         android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
 
+        <!-- 사내 런타임이 mobis.vss(VSSManager) 를 주게 한다. 사외 에뮬에는 라이브러리가 없어도 required=false 라 설치·실행이 막히지 않는다(Fake).
+             e541131(10/1 A) 본문에는 적혔지만 커밋에서 빠져 사내 검증 #2 가 Fake 로 폴백했다 → 10/1 보강 -->
+        <uses-library
+            android:name="mobis.framework"
+            android:required="false" />
+
         <activity
             android:name=".ui.MainActivity"
             android:exported="true"
