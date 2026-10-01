@@ -77,7 +77,7 @@
 ### Step 14 — 사내 이관 1차 결과 반영 A~F (9/30 사내 관찰 요지 문서 → 사외, 10/1) — 발주 원문은 사내 문서(반입 캡처 4장, 저장소 밖)
 | # | 일 | 상태 |
 |---|---|---|
-| 14A | 사내 전환을 "설정"으로: `local.properties` `mobis.vss.jar` 한 줄 + jar(`automotive/libs/` gitignore) → `settings`/`build.gradle.kts` 스위치, `USE_FAKE_VSS` 자동, `uses-library mobis.framework`, versionName 1.0.0, `gradlew +x`, README·06 §2 | ✅ PR #62 |
+| 14A | 사내 전환을 "설정"으로: `local.properties` `mobis.vss.jar` 한 줄 + jar(`automotive/libs/` gitignore) → `settings`/`build.gradle.kts` 스위치, `USE_FAKE_VSS` 자동, `uses-library mobis.framework`, versionName 1.0.0, `gradlew +x`, README·06 §2 | ✅ PR #62 — **단, 매니페스트 `uses-library`·`.gitignore` `automotive/libs/`·`app_name` 은 e541131 에서 빠졌다**(본문에만 적힘, 사내 검증 #2 가 Fake 폴백으로 잡음) → ✅ PR #68 보강 |
 | 14B | VSS 상수 이름 = 경로 대문자·밑줄(사내 jar 규칙) 10개 치환(28 파일), `Rear.Distance` → `vehicle/SimOnlySignals.kt`(실물에 없음), AGENTS 규칙 4 | ✅ PR #62 |
 | 14C | Real/Hybrid 보정: 빈 값 미수신, `FakeVehiclePort.writeThrough` → Hybrid 가 실물에 먼저 씀, `forced`(실물이 거부한 키), 진단 로그, 테스트 2 | ✅ PR #63 (#62 위) |
 | 14D | Cloud Copilot 전송 계층 `ports/copilot/`(device code → OAuth(device-protected) → 세션 토큰 → chat/completions, 401 1회 재시도), `CloudCoachPort` 5 s·모든 Exception 폴백·`twoLines . ! ?`·SYSTEM 한 줄, `CLOUD_COACH` 플래그, `DemoControls.aiState/connectAi` | ✅ PR #64 (#63 위) → ✅ Codex 패널 `AI 코치` 줄 **PR #66 머지 `6463120`**(`docs/handoffs/2026-10-01_codex_ai_panel.md` — 리뷰: 빌드·197·`emu_flow` PASS·`lesson_shots` 3/5(2회는 라운드 8 `captureSetupMorph` 첫 `takeScreenshot()` null, 이 PR 무관)·캡처 2장 NeedsLogin/Code 40 sp) |

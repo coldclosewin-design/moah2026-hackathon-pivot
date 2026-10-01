@@ -54,7 +54,7 @@ mobis.vss.jar=automotive/libs/mobis.framework.core.jar
 
 효과: `settings.gradle.kts` 가 `:vss-stub` 을 포함하지 않고, `automotive/build.gradle.kts` 가 그 jar 로 `compileOnly` + `USE_FAKE_VSS=false`. 빌드 로그 첫 줄 `mobis.vss: jar … → USE_FAKE_VSS=false` 로 확인. 키를 지우면 사외와 같다.
 
-매니페스트의 `<uses-library android:name="mobis.framework" android:required="false"/>` 가 런타임에 `mobis.vss` 를 시스템에서 받게 한다(사외 에뮬에서는 없어도 설치·실행이 막히지 않는다).
+매니페스트의 `<uses-library android:name="mobis.framework" android:required="false"/>` 가 런타임에 `mobis.vss` 를 시스템에서 받게 한다(사외 에뮬에서는 없어도 설치·실행이 막히지 않는다). **10/1 사내 검증 #2**: 이 줄이 e541131 커밋에서 빠져(본문에만 적힘) 사내 Real 빌드가 `NoClassDefFoundError: mobis/vss/VSSManager` 로 Fake 폴백했다 → PR #68 에서 보강. 사내에서 임시로 넣으니 실신호 7 · 시뮬레이션 1.
 
 `gradlew` 는 실행 비트가 있어야 한다(사내 Linux 에서 126 으로 실패했던 것 — 9/30 부터 저장소에 `+x` 로 들어 있다. 안 되면 `chmod +x gradlew`).
 
