@@ -77,6 +77,13 @@ class ParkingRecorder(private val registry: SignalRegistry, keys: Set<String> = 
     /** 회차의 추정 궤적(dead-reckoning). 속도 샘플이 없으면 빈 목록. 화면은 "추정" 이라고 쓴다. */
     fun path(): List<PathPoint> = PathReconstructor.reconstruct(speed, angle, gear)
 
+    /** 네 가지 판정(docs/design/09). 점수와 같은 지표에서 파생. 속도 샘플이 없으면 null. */
+    fun verdict(untilMillis: Long? = null, targetHeadingDeg: Float = ParkingVerdicts.PERPENDICULAR_TARGET_DEG): ParkingVerdict? =
+        metrics(untilMillis)?.let { m ->
+            val lastSpeed = speed.lastOrNull()?.value ?: 0f
+            ParkingVerdicts.of(m, path(), angle.lastOrNull()?.value, stopped = lastSpeed < 1f, targetHeadingDeg = targetHeadingDeg)
+        }
+
     fun reset() {
         speed.clear(); angle.clear(); gear.clear(); distance.clear(); warning.clear(); belt.clear(); ignition.clear()
         door.clear(); brake.clear(); indicatorLeft.clear(); indicatorRight.clear(); hazard.clear()

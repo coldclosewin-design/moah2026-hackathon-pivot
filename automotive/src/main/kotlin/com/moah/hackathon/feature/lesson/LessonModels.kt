@@ -3,6 +3,7 @@ package com.moah.hackathon.feature.lesson
 import com.moah.hackathon.vehicle.SimOnlySignals
 import com.moah.hackathon.scoring.ParkingDelta
 import com.moah.hackathon.scoring.ParkingScore
+import com.moah.hackathon.scoring.ParkingVerdict
 import com.moah.hackathon.scoring.PathPoint
 import com.moah.hackathon.vehicle.Gear
 import com.moah.hackathon.vehicle.toVssBoolean
@@ -138,6 +139,8 @@ data class AttemptRecord(
     val atMillis: Long,
     /** 속도·기어·조향각으로 **추정**한 회차 궤적(미터, 시작 = 원점, +y = 시작 방향). Done 화면의 탑뷰 시뮬레이션. 실제 위치가 아니다. */
     val path: List<PathPoint> = emptyList(),
+    /** 네 가지 판정(한 번에·방향(추정)·마무리·안전, docs/design/09). 점검 과제는 null. 운전자 화면은 점수 대신 이것을 보여 준다. */
+    val verdict: ParkingVerdict? = null,
 )
 
 /** 진단서 공유 범위 (§3.5, 구조 A). 단계가 올라갈수록 보상이 커진다. 실제 전송은 없다. */

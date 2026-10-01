@@ -210,7 +210,8 @@ class LessonStateMachine(
                 Log.w(TAG, "coach.remark failed → rule sentence", e)
                 "수고했어요.\n${com.moah.hackathon.ports.AdviceRules.advice(p.task, score, rubric)}"
             }
-            val record = AttemptRecord(attempt, p.task.id, p.mode, score, delta, remark, clock(), path = recorder.path())
+            val record = AttemptRecord(attempt, p.task.id, p.mode, score, delta, remark, clock(), path = recorder.path(),
+                verdict = if (checklist) null else recorder.verdict(until))
             store.add(record)
             sessionRecords += record
             profile = profile.copy(observation = store.observation())
