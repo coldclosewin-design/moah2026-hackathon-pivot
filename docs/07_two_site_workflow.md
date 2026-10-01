@@ -53,3 +53,4 @@ bash tools/inhouse_check.sh
 5. push 전 실험·진단 커밋은 `git commit --fixup` → `GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash <기준>` 으로 합치고, push 뒤에는 이력 재작성·force push 금지.
 6. PR 제목 = squash 커밋 제목(같은 형식).
 7. scope 에 `inhouse` 추가 — 사내 전용 변경 표시. `submission` = 사외 태그 + `inhouse:` 커밋 1개(사내 jar).
+8. **PR 하나 = 한 scope · 한 변경**(10/1 사내 검증 #2 — A+B 처럼 둘을 한 PR 에 넣지 않는다). PR 본문 = 커밋 본문 그대로(`- ` 불릿 2~5 + 마지막 `검증:` 줄, `## 검증` 헤더 없이). 이미 머지된 것은 다시 쓰지 않는다.
