@@ -38,7 +38,7 @@ class LessonPresentationTest {
     @Test fun categoriesFollowTheDemoOrderRatherThanEnumOrder() {
         assertEquals(listOf(TaskType.PARKING, TaskType.DRIVING, TaskType.CHECKLIST, TaskType.KNOWLEDGE), categoryOrder())
         assertEquals(TaskType.entries.toSet(), categoryOrder().toSet())
-        assertEquals(listOf("주차", "주행", "조작", "지식"), categoryOrder().map(::taskTypeLabel))
+        assertEquals(listOf("주차", "주행", "점검", "지식"), categoryOrder().map(::taskTypeLabel))
     }
 
     @Test fun steeringTurnsMissingAndNeutral() {
@@ -94,10 +94,23 @@ class LessonPresentationTest {
         assertEquals(LessonMode.HINT, supportedMode(SeedCatalog.parkingTask, LessonMode.HINT))
     }
 
-    @Test fun briefingUsesTheCorrectKoreanParticlesAndOnlyTwoWatchItems() {
-        assertEquals("핸들 방향과\n기어 전환을 볼게요.", briefingHeadline(SeedCatalog.parkingTask.watch))
-        assertEquals("뒤 거리와\n시동을 볼게요.", briefingHeadline(listOf("뒤 거리", "시동", "벨트")))
+    @Test fun briefingIncludesUpToThreeItemsAndSummarizesLongerListsWithoutCounts() {
+        assertEquals("오늘의 연습을\n함께 준비할게요.", briefingHeadline(emptyList()))
         assertEquals("안전벨트를\n볼게요.", briefingHeadline(listOf("안전벨트")))
+        assertEquals("뒤 거리와\n시동을 볼게요.", briefingHeadline(listOf("뒤 거리", "시동")))
+        assertEquals("핸들 방향과 기어 전환과\n뒤 거리를 볼게요.", briefingHeadline(SeedCatalog.parkingTask.watch))
+        assertEquals("문부터 지시등까지\n순서대로 볼게요.", briefingHeadline(listOf("문", "벨트", "기어", "시동", "지시등")))
+        assertFalse(Regex("\\d").containsMatchIn(briefingHeadline(SeedCatalog.predriveTask.watch)))
+    }
+
+    @Test fun parkingDetailsShowRecordedCountsMissingValuesAndOptionalAcceleration() {
+        val recorder = ParkingRecorder(SignalRegistry(ParkingRecorder.KEYS, simulated = true))
+        com.moah.hackathon.data.ParkingScenarios.bad.steps.forEach { recorder.onDelta((it.atSeconds * 1000).toLong(), it.values) }
+        assertEquals("조향 왕복 3 · 기어 전환 2 · 근접 1 · 급정지 1", parkingDetailLine(recorder.metrics()!!))
+        assertEquals("조향 왕복 미측정 · 기어 전환 미측정 · 근접 미측정 · 급정지 0",
+            parkingDetailLine(metrics.copy(steering = null, gear = null, proximity = null, harshEvents = emptyList())))
+        assertEquals("조향 왕복 3 · 기어 전환 2 · 근접 1 · 급정지 1 · 급가속 1",
+            parkingDetailLine(recorder.metrics()!!.let { it.copy(harshEvents = it.harshEvents + HarshEvent(1_000, HarshKind.ACCELERATION, 4f)) }))
     }
 
     @Test fun checklistDoneOmitsParkingAndUnavailableTiming() {

@@ -95,9 +95,10 @@ private fun RecordGraphic(attempts: Int, modifier: Modifier) {
         }
         BrandMark(Modifier.padding(start = 180.dp, top = 64.dp), CoachColors.Paper)
         Column(Modifier.align(Alignment.CenterStart).padding(start = 150.dp, bottom = 90.dp)) {
-            Eyebrow("연습 기록", color = CoachColors.Paper)
+            Eyebrow("연습한 회차", color = CoachColors.Paper)
             val count = attempts.toString().padStart(2, '0')
             Headline(count, size = minOf(400, 820 / count.length), color = CoachColors.Paper)
+            LessonText("회", 40, CoachColors.Paper.copy(alpha = .6f))
         }
     }
 }
@@ -144,7 +145,9 @@ private fun DetailsContent(report: LessonReport, modifier: Modifier) {
                         trendColor(attempt.score.metrics.motion.totalMillis, previous?.metrics?.motion?.totalMillis, lowerBetter = true))
                 }
             }
-            if (report.task.type == TaskType.CHECKLIST) {
+            if (report.task.type == TaskType.PARKING) {
+                LessonText(parkingDetailLine(attempt.score.metrics), 32, CoachColors.Muted)
+            } else if (report.task.type == TaskType.CHECKLIST) {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     checklistResults(attempt.score).forEach { result ->
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,

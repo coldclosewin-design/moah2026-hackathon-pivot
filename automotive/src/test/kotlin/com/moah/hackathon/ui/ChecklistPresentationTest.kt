@@ -48,7 +48,7 @@ class ChecklistPresentationTest {
 
     private val state = ManeuverDisplayState("0", null, "P", null, false, null, null, null, 1, 0, 0, false,
         SignalAvailability.MISSING, SignalAvailability.LIVE, SignalAvailability.MISSING,
-        taskType = TaskType.CHECKLIST, brakePressed = true, ignitionOn = true,
+        taskType = TaskType.CHECKLIST, brakePressed = true, ignitionOn = true, brakeAtIgnition = true,
         brakeSignal = SignalAvailability.LIVE, ignitionSignal = SignalAvailability.SIMULATED)
 
     @Test fun combinedChipPreservesMixedSourcesAndRequiresBothReadings() {
@@ -57,15 +57,25 @@ class ChecklistPresentationTest {
         assertTrue(combined.satisfied)
         assertEquals("브레이크 실신호\n시동 시뮬레이션", combined.source)
         listOf(state.copy(brakeSignal = SignalAvailability.MISSING), state.copy(ignitionSignal = SignalAvailability.MISSING),
-            state.copy(brakePressed = null), state.copy(ignitionOn = null)).forEach {
+            state.copy(brakeAtIgnition = null), state.copy(ignitionOn = null)).forEach {
             assertNull(it.checklistIgnition().value)
             assertFalse(it.checklistIgnition().satisfied)
         }
     }
 
-    @Test fun ignitionWithoutCurrentBrakeIsNotShownAsBrakeConfirmed() {
-        assertEquals("시동 켜짐", state.copy(brakePressed = false).checklistIgnition().value)
-        assertFalse(state.copy(brakePressed = false).checklistIgnition().satisfied)
+    @Test fun ignitionKeepsRecordedBrakeAfterReleaseAndRejectsLateBrake() {
+        assertEquals("밟음 → 켜짐", state.copy(brakePressed = false).checklistIgnition().value)
+        assertTrue(state.copy(brakePressed = false).checklistIgnition().satisfied)
+        assertEquals("브레이크 없이 켜짐", state.copy(brakeAtIgnition = false).checklistIgnition().value)
+        assertFalse(state.copy(brakeAtIgnition = false).checklistIgnition().satisfied)
         assertEquals("꺼짐", state.copy(ignitionOn = false).checklistIgnition().value)
+    }
+
+    @Test fun lightsDistinguishCurrentlyOnPreviouslyCheckedPendingAndMissing() {
+        assertEquals("켜짐", checklistLightValue(true, true))
+        assertEquals("켜짐", checklistLightValue(true, false))
+        assertEquals("확인", checklistLightValue(false, true))
+        assertEquals("아직", checklistLightValue(false, false))
+        assertNull(checklistLightValue(null, null))
     }
 }

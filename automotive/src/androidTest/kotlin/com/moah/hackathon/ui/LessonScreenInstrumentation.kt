@@ -31,6 +31,8 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import com.moah.hackathon.App
 import com.moah.hackathon.data.SeedCatalog
+import com.moah.hackathon.data.ChecklistScenarios
+import com.moah.hackathon.data.ParkingScenarios
 import com.moah.hackathon.feature.lesson.*
 import com.moah.hackathon.scoring.*
 import com.moah.hackathon.ui.concepts.DesignScale
@@ -152,9 +154,11 @@ class LessonScreenInstrumentation : Instrumentation() {
             click("과제·모드 바꾸기")
             assertSelected("주차")
             assertSelected(task.title)
-            click("조작")
+            click("점검")
             assertSelected(SeedCatalog.predriveTask.title)
             check(texts().containsAll(listOf("가이드", "힌트", "평가", "시작")))
+            check(texts().contains("점검 세부 과제"))
+            capture("setup-sheet-checklist")
             click("시작")
             runOnMainSync { check(started == SeedCatalog.predriveTask.id to LessonMode.HINT) }
             val knowledge = SeedCatalog.tasks.first { it.type == TaskType.KNOWLEDGE }
@@ -194,11 +198,12 @@ class LessonScreenInstrumentation : Instrumentation() {
                 check(!colorBounds(bitmap, textBounds(ready.title), CoachColors.Ink.toArgb()).isEmpty)
             }
 
-            val line = "후면 직각 주차, 가이드 모드. 오늘은 핸들 방향과 기어 전환을 봅니다."
+            val line = "후면 직각 주차, 가이드 모드. 오늘은 핸들 방향과 기어 전환과 뒤 거리를 봅니다."
             render(activity) { BriefingScreen(task, LessonMode.GUIDE, line, line) }
             check(allText().contains(line))
             check(texts().none { it == line })
             check(nodes().none(::hasTouchAction))
+            check(texts().contains("핸들 방향과 기어 전환과\n뒤 거리를 볼게요."))
             capture("briefing")
             pass("Briefing has its full sentence and no touch targets")
 
@@ -259,6 +264,7 @@ class LessonScreenInstrumentation : Instrumentation() {
                         "주변을 살피며 운전에 집중해 주세요.", {}, demo)
                 }
                 check(nodes().none(::hasTouchAction)) { "Locked Maneuver leaked a touch action at $speed" }
+                check(texts().none { it == "조향 방향 도식" })
                 assertNoScores()
             }
             capture("locked")
@@ -276,7 +282,13 @@ class LessonScreenInstrumentation : Instrumentation() {
                     distanceSignal = SignalAvailability.MISSING), false, true, longSubtitle, { finished++ })
             }
             check(allText().any { it.contains("뒤 거리 미측정") })
-            check(texts().count { it == "미측정" } >= 3)
+            check(texts().count { it == "미측정" } == 3) { "Each telemetry cell must show missing only once" }
+            listOf("조향각", "기어", "뒤 거리").forEach { label ->
+                val title = textBounds(label)
+                val missingValues = nodes().filter { it.text?.toString() == "미측정" }.map { Rect().also(it::getBoundsInScreen) }
+                check(missingValues.count { it.top >= title.bottom && it.top - title.bottom < 32 * designScale(activity) &&
+                    abs(it.centerX() - title.centerX()) < 200 * designScale(activity) } == 1) { "Duplicate or missing value under $label" }
+            }
             check(texts().contains(longSubtitle))
             check(allText().none { "조향 방향 호" in it || "보조선" in it || "후진 중" in it })
             check(texts().none { it == "중립" || it.startsWith("오른쪽으로") || it.startsWith("왼쪽으로") })
@@ -295,7 +307,8 @@ class LessonScreenInstrumentation : Instrumentation() {
 
             val checklist = moving.copy(speed = "0", gear = "P", guideText = "브레이크를 밟고 시동을 켜 주세요.",
                 guideStep = "4/7", taskType = TaskType.CHECKLIST, belt = true, ignitionOn = true,
-                doorOpen = false, brakePressed = true, indicatorLeft = true, indicatorRight = false, hazard = false,
+                doorOpen = false, brakePressed = true, brakeAtIgnition = true,
+                indicatorLeft = true, indicatorRight = false, hazard = false,
                 beltSignal = SignalAvailability.SIMULATED, ignitionSignal = SignalAvailability.SIMULATED,
                 doorSignal = SignalAvailability.SIMULATED, brakeSignal = SignalAvailability.SIMULATED,
                 indicatorLeftSignal = SignalAvailability.SIMULATED, indicatorRightSignal = SignalAvailability.SIMULATED,
@@ -305,7 +318,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             }
             render(activity) { ManeuverScreen(checklist, false, true, null, {}, checklistDemo, SeedCatalog.predriveTask.title) }
             val checklistLabels = listOf("도어", "안전벨트", "기어", "브레이크 / 시동", "좌 지시등", "우 지시등", "비상등")
-            check(texts().containsAll(checklistLabels + listOf("채움", "P", "닫힘", "밟음 → 켜짐", "확인", "아직", "다 됐어요")))
+            check(texts().containsAll(checklistLabels + listOf("채움", "P", "닫힘", "밟음 → 켜짐", "켜짐", "아직", "다 됐어요")))
             check(allText().none { Regex("조향각|뒤 거리|cm|이동 \\d+회").containsMatchIn(it) })
             assertNoScores()
             assertDriverButton(activity, "다 됐어요")
@@ -319,11 +332,26 @@ class LessonScreenInstrumentation : Instrumentation() {
             fun chipColor(bitmap: Bitmap, label: String) = textBounds(label).let {
                 bitmap.getPixel(it.left - (12 * designScale(activity)).toInt(), it.centerY())
             }
-            capture("maneuver-checklist") { bitmap ->
+            capture("maneuver-checklist-pending") { bitmap ->
                 check(chipColor(bitmap, "도어") == CoachColors.Periwinkle.toArgb())
                 check(chipColor(bitmap, "비상등") == CoachColors.Ink.copy(alpha = .6f).compositeOver(CoachColors.Lavender).toArgb())
             }
-            render(activity) { ManeuverScreen(checklist.copy(doorOpen = null, brakePressed = null,
+            val (goodChecklistScore, completedChecklist) = replayChecklist(ChecklistScenarios.good)
+            val (badChecklistScore, badChecklist) = replayChecklist(ChecklistScenarios.bad)
+            check(completedChecklist.brakePressed == false && completedChecklist.indicatorLeft == false &&
+                completedChecklist.indicatorRight == false && completedChecklist.hazard == false)
+            render(activity) { ManeuverScreen(completedChecklist, false, true, null, {}, checklistDemo, SeedCatalog.predriveTask.title) }
+            check(texts().count { it == "확인" } == 3)
+            check(texts().contains("밟음 → 켜짐"))
+            capture("maneuver-checklist") { bitmap ->
+                checklistLabels.forEach { check(chipColor(bitmap, it) == CoachColors.Periwinkle.toArgb()) { "$it lost recorded completion" } }
+            }
+            render(activity) { ManeuverScreen(badChecklist, false, true, null, {}, taskTitle = SeedCatalog.predriveTask.title) }
+            check(texts().contains("브레이크 없이 켜짐"))
+            capture("maneuver-checklist-bad") { bitmap ->
+                check(chipColor(bitmap, "브레이크 / 시동") == CoachColors.Ink.copy(alpha = .6f).compositeOver(CoachColors.Lavender).toArgb())
+            }
+            render(activity) { ManeuverScreen(checklist.copy(doorOpen = null, brakePressed = null, brakeAtIgnition = null,
                 indicatorLeft = null, indicatorRight = null, hazard = null,
                 doorSignal = SignalAvailability.MISSING, brakeSignal = SignalAvailability.MISSING,
                 indicatorLeftSignal = SignalAvailability.MISSING, indicatorRightSignal = SignalAvailability.MISSING,
@@ -403,6 +431,13 @@ class LessonScreenInstrumentation : Instrumentation() {
                 check(SeedCatalog.quiz.first().choices.none { it in texts() })
                 check(texts().none { it == "그만하기" })
                 check(nodes().none(::hasTouchAction))
+                val numberPanelRight = textBounds("01").right
+                check(nodes().filter { node ->
+                    Rect().also(node::getBoundsInScreen).left > numberPanelRight
+                }.none { node ->
+                    Regex("\\d").containsMatchIn(listOfNotNull(node.text, node.contentDescription).joinToString(" "))
+                }) { "Locked quiz leaked numbers outside the question number panel" }
+                check(allText().none { it.startsWith("맞은 문제") })
             }
             capture("quiz-locked")
             runOnMainSync { check(quitCount == 0) }
@@ -445,8 +480,9 @@ class LessonScreenInstrumentation : Instrumentation() {
             capture("quiz-done")
             pass("Quiz: wrong/correct answer eyebrows and outline, explanations, next/result, stopped quit once before/after answering, locked touch zero, colored keyed comparisons and restart")
 
-            val metrics = ParkingMetrics(MotionSummary(4, 44_000, 26_000, 4f, 1_000), emptyList(),
-                SteeringSummary(3, 450f), GearSummary(2, true, true), ProximitySummary(1, 35f), PreDriveSummary(false, true))
+            val metrics = ParkingRecorder(SignalRegistry(ParkingRecorder.KEYS, simulated = true)).apply {
+                ParkingScenarios.bad.steps.forEach { onDelta((it.atSeconds * 1000).toLong(), it.values) }
+            }.metrics()!!
             val score = ParkingScore(60, 55, metrics, AvailabilityBadge(0, 7, 1), listOf(ParkingRecorder.KEYS.last()))
             val record = AttemptRecord(1, task.id, LessonMode.HINT, score, null,
                 "장롱의 문 정도는 열었습니다.\n좋은 출발이에요.", 0)
@@ -491,14 +527,20 @@ class LessonScreenInstrumentation : Instrumentation() {
             render(activity) { DoneScreen(task, 1, record.copy(path = listOf(path.first(), path.first().copy(y = .49f))), null, {}, {}) }
             check(allText().none { it == "추정 궤적" })
             val checklistRecord = record.copy(taskId = SeedCatalog.predriveTask.id, remark = "순서를 잘 익혔어요.\n다음에도 벨트부터 확인해요.",
-                score = score.copy(metrics = metrics.copy(preDrive = PreDriveSummary(true, true, 2_000, 5_000),
-                    motion = metrics.motion.copy(movingSegments = 0))))
+                score = goodChecklistScore)
             render(activity) { DoneScreen(SeedCatalog.predriveTask, 1, checklistRecord, null, {}, {}, checklistDemo) }
             check(texts().contains(checklistRecord.remark))
             assertNoDoneMetrics()
             check(allText().none { it == "추정 궤적" })
             check(texts().none { Regex("조향|뒤 최소|칸 안의 위치").containsMatchIn(it) })
+            check(texts().containsAll(checklistLabels))
+            check(texts().count { it == "✓" } == 7)
             capture("done-checklist")
+            render(activity) { DoneScreen(SeedCatalog.predriveTask, 1, checklistRecord.copy(score = badChecklistScore,
+                remark = "서두르지 않아도 괜찮아요.\n문과 브레이크부터 확인해요."), null, {}, {}, checklistDemo) }
+            check(texts().count { it == "✗" } == 4 && texts().count { it == "✓" } == 3)
+            assertNoDoneMetrics()
+            capture("done-checklist-bad")
 
             val report = LessonReport(task, LessonMode.HINT, listOf(record), score,
                 "후면 직각 주차, 힌트 모드 1회.\n다음에는 뒤 거리를 조금 더 남겨 볼까요?\n주변도 함께 살펴요.",
@@ -511,6 +553,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             val reportActions = listOf("자세히 보기", "진단서").map(::textBounds)
             check(reportActions.zipWithNext().all { (left, right) -> left.right < right.left && left.top == right.top })
             check(texts().contains(driverReportSummary(report.summary)))
+            check(texts().containsAll(listOf("연습한 회차", "회")))
             check(texts().none { Regex("\\d+회\\.").containsMatchIn(it) })
             capture("report")
             click("진단서")
@@ -522,22 +565,32 @@ class LessonScreenInstrumentation : Instrumentation() {
             click("돌아가기")
             click("자세히 보기")
             check(texts().containsAll(listOf("숙련", "안전", "60", "55")))
+            val parkingDetails = "조향 왕복 3 · 기어 전환 2 · 근접 1 · 급정지 1"
+            check(texts().contains(parkingDetails))
             check(texts().any { it.startsWith("다음엔 ") })
-            capture("details")
+            capture("details") {
+                check(textBounds(parkingDetails).height() / designScale(activity) < 50f) { "Parking details must fit on one line" }
+            }
             click("돌아가기")
             click("진단서")
             click("다시 시작")
             runOnMainSync { check(restarted == 1) }
             pass("Done actions and Report badge, certificate sharing choices, restart")
 
+            val unmeasuredRecord = record.copy(index = 2, score = score.copy(metrics = metrics.copy(
+                steering = null, gear = null, proximity = null, harshEvents = emptyList())))
+            render(activity) { ReportScreen(report.copy(attempts = listOf(record, unmeasuredRecord)), {}) }
+            check(texts().none { it.startsWith("조향 왕복") })
+            click("자세히 보기")
+            check(texts().containsAll(listOf(parkingDetails,
+                "조향 왕복 미측정 · 기어 전환 미측정 · 근접 미측정 · 급정지 0")))
+            capture("details-multiple-missing")
+
             render(activity) { ReportScreen(report.copy(attempts = List(100) { record.copy(index = it + 1) }), {}) }
             check(texts().contains("100"))
             check(texts().contains("다시 시작"))
             capture("report-100")
 
-            val goodChecklistScore = score.copy(skill = 100, safety = 100, badge = AvailabilityBadge(0, 12, 0), missingSignals = emptyList(),
-                metrics = metrics.copy(motion = metrics.motion.copy(movingSegments = 0, totalMillis = 16_000),
-                    preDrive = PreDriveSummary(true, true, 3_000, 8_000, true, true, true, true, true, 14_000)))
             val checklistReport = report.copy(task = SeedCatalog.predriveTask,
                 attempts = listOf(checklistRecord.copy(score = goodChecklistScore)), best = goodChecklistScore,
                 unverifiedGuideSteps = emptyList())
@@ -550,9 +603,6 @@ class LessonScreenInstrumentation : Instrumentation() {
             check(texts().containsAll(listOf("벨트 3초 · 벨트 먼저", "시동 8초 · 브레이크 밟고 시동")))
             check(texts().none { Regex("이동 \\d+회|조향|뒤 거리|16초").containsMatchIn(it) })
             capture("report-checklist")
-            val badChecklistScore = goodChecklistScore.copy(skill = 30, safety = 40,
-                metrics = goodChecklistScore.metrics.copy(preDrive = PreDriveSummary(false, true, 9_000, 2_000,
-                    false, false, true, true, false)))
             render(activity) { ReportScreen(checklistReport.copy(attempts = listOf(checklistRecord.copy(score = badChecklistScore)),
                 best = badChecklistScore), {}) }
             click("자세히 보기")
@@ -561,6 +611,15 @@ class LessonScreenInstrumentation : Instrumentation() {
             val missingChecklistScore = goodChecklistScore.copy(badge = AvailabilityBadge(0, 8, 4),
                 missingSignals = (ParkingRecorder.CHECKLIST_KEYS - ParkingRecorder.KEYS).toList(),
                 metrics = goodChecklistScore.metrics.copy(preDrive = PreDriveSummary(true, true, 3_000, 8_000, true)))
+            render(activity) { DoneScreen(SeedCatalog.predriveTask, 1, checklistRecord.copy(score = missingChecklistScore), null, {}, {}) }
+            check(texts().count { it == "미측정" } == 4)
+            assertNoDoneMetrics()
+            capture("done-checklist-missing") { bitmap ->
+                val mutedOnInk = CoachColors.Paper.copy(alpha = .6f).compositeOver(CoachColors.Ink).toArgb()
+                nodes().filter { it.text?.toString() == "미측정" }.forEach { node ->
+                    check(!colorBounds(bitmap, Rect().also(node::getBoundsInScreen), mutedOnInk, tolerance = 1).isEmpty)
+                }
+            }
             render(activity) { ReportScreen(checklistReport.copy(attempts = listOf(checklistRecord.copy(score = missingChecklistScore)),
                 best = missingChecklistScore), {}) }
             click("자세히 보기")
@@ -574,6 +633,23 @@ class LessonScreenInstrumentation : Instrumentation() {
         } catch (failure: Throwable) {
             finish(Activity.RESULT_CANCELED, Bundle().apply { putString("stream", failure.stackTraceToString()) })
         }
+    }
+
+    private fun replayChecklist(scenario: Scenario): Pair<ParkingScore, ManeuverDisplayState> {
+        val registry = SignalRegistry(ParkingRecorder.CHECKLIST_KEYS, simulated = true)
+        val recorder = ParkingRecorder(registry, ParkingRecorder.CHECKLIST_KEYS)
+        // Reuse the existing fake's initial values; androidTest has no direct VSS stub dependency.
+        recorder.onDelta(0L, ParkingScenarios.good.steps.first().values)
+        var snapshot = VehicleSnapshot()
+        scenario.steps.forEach { step ->
+            recorder.onDelta((step.atSeconds * 1000).toLong(), step.values)
+            snapshot = snapshot.apply(step.values)
+        }
+        val score = checkNotNull(recorder.scoreChecklist())
+        val phase = LessonPhase.Maneuver(SeedCatalog.predriveTask, LessonMode.GUIDE, 1, snapshot, null, null,
+            score.metrics.motion.movingSegments, score.metrics.motion.totalMillis, true,
+            registry.snapshot(), score.metrics.preDrive)
+        return score to phase.toDisplayState()
     }
 
     private fun reservationFlow(activity: MainActivity) {
@@ -614,24 +690,24 @@ class LessonScreenInstrumentation : Instrumentation() {
                 check(bitmap.getPixel(bounds.left + 2, bounds.top + 2) == CoachColors.Lavender.toArgb())
             }
         }
-        click(seocho.name)
+        clickAndAwait(seocho.name) { texts().containsAll(seocho.slots.map { it.label }) }
         check(texts().containsAll(seocho.slots.map { it.label }))
         assertPlannedTask(seocho.slots.single { !it.available }.label)
-        click(parking.title)
+        clickAndAwait(parking.title) { isSelected(parking.title) }
         check(texts().none { it == "예약" }) { "Course alone exposed reservation" }
-        click(seocho.slots.first().label)
+        clickAndAwait(seocho.slots.first().label) { isSelected(seocho.slots.first().label) && "예약" in texts() }
         assertDriverButton(activity, "예약")
-        click(gangnam.name)
+        clickAndAwait(gangnam.name) { isSelected(gangnam.name) && "예약" !in texts() }
         check(texts().none { it == "예약" }) { "Changing venue kept old slot/course selection" }
         assertPlannedTask(gangnam.slots.single { !it.available }.label)
-        click(gangnam.slots.first { it.available }.label)
+        clickAndAwait(gangnam.slots.first { it.available }.label) { isSelected(gangnam.slots.first { it.available }.label) }
         check(texts().none { it == "예약" }) { "Slot alone exposed reservation" }
         click("돌아가기")
         check(texts().none { it == "시간" || it == "예약" })
-        click(seocho.name)
-        click(seocho.slots.first().label)
+        clickAndAwait(seocho.name) { texts().containsAll(seocho.slots.map { it.label }) }
+        clickAndAwait(seocho.slots.first().label) { isSelected(seocho.slots.first().label) }
         check(texts().none { it == "예약" })
-        click(parking.title)
+        clickAndAwait(parking.title) { isSelected(parking.title) && "예약" in texts() }
         assertSelected(seocho.name)
         assertSelected(seocho.slots.first().label)
         assertSelected(parking.title)
@@ -666,11 +742,12 @@ class LessonScreenInstrumentation : Instrumentation() {
         check(texts().containsAll(listOf("가이드", "힌트", "평가", "시작")))
         click("제휴 시험장")
         check(texts().contains("예약됨"))
+        check(texts().contains("예약한 시험장을 누르면 확인할 수 있어요."))
         capture("venues-booked") { bitmap ->
             val bounds = buttonBounds(seocho.name)
             check(bitmap.getPixel(bounds.left + 2, bounds.top + 2) == CoachColors.Periwinkle.toArgb())
         }
-        click(seocho.name)
+        clickAndAwait(seocho.name) { "예약 확인" in texts() }
         check(texts().contains("예약 확인"))
         runOnMainSync { check(reserveCalls == 1) }
         click("취소")
@@ -680,8 +757,34 @@ class LessonScreenInstrumentation : Instrumentation() {
         click("돌아가기")
         click("돌아가기")
         check(texts().none { it.startsWith("예약 · ") })
-        check(textBounds(profileLine(SeedCatalog.demoProfile)) == originalProfileBounds) { "Cancelled badge left empty space" }
+        val profileLabel = profileLine(SeedCatalog.demoProfile)
+        val deadline = SystemClock.uptimeMillis() + 1_000
+        while (textBounds(profileLabel) != originalProfileBounds && SystemClock.uptimeMillis() < deadline) {
+            Thread.sleep(50)
+        }
+        check(textBounds(profileLabel) == originalProfileBounds) {
+            "Cancelled badge left empty space after morph settled: ${textBounds(profileLabel)} / $originalProfileBounds"
+        }
         pass("Reservation: three 220 dp cards, unavailable slot disabled, both choices required/reset per venue, reserve/cancel once, real ViewModel recommendation, confirmation/reopen, badge without leftover space")
+    }
+
+    /** Selection/navigation only: never retry reserve/cancel callbacks. Reacquire after a missed tap. */
+    private fun clickAndAwait(label: String, expected: () -> Boolean) {
+        repeat(2) { attempt ->
+            if (attempt > 0 && expected()) return
+            check(buttonNode(label).performAction(AccessibilityNodeInfo.ACTION_CLICK))
+            val deadline = SystemClock.uptimeMillis() + 1_000
+            do {
+                if (expected()) return
+                Thread.sleep(50)
+            } while (SystemClock.uptimeMillis() < deadline)
+        }
+        error("$label did not reach the expected state after one retry (1 s polling per tap)")
+    }
+
+    private fun isSelected(label: String) = nodes().any { node ->
+        (node.isSelected || node.isChecked || node.stateDescription?.toString() in listOf("Selected", "선택됨")) &&
+            descendants(node).any { it.text?.toString() == label }
     }
 
     private fun assertReservationNumbers() {

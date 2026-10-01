@@ -100,3 +100,41 @@ Maneuver는 `ManeuverDisplayState`의 **현재 값**을 그대로 표시한다(�
 필수 캡처 `lesson-venues.png`·`lesson-venue-slots.png`·`lesson-reservation.png`·`lesson-setup-reserved.png`를 추가하고 직접 확인했다. 카드 상태 문구를 포함해 글자 잘림·겹침은 없다. 예약된 카드의 Periwinkle 배경은 `lesson-venues-booked.png`, 새 진입 액션과 기존 힌트·시작은 교체한 `lesson-setup-sheet.png`에서 볼 수 있다. 전체 캡처는 `build/reservation-contract-final/`에 있다.
 
 `flow-reservation.txt`: 수정 없는 `tools/emu_flow.sh build/reservation-flow` **PASS**, uiautomator 충돌 **0**. 시트 첫 렌더의 `힌트` → `시작` 경로, 필수 힌트 세 종류, 못한 주차 60/55·이동 4회 → 잘한 주차 100/100·이동 2회, 도어 열림 → 리포트를 확인했다. 배지는 `실신호 0 · 시뮬레이션 8 · 미측정 0` 그대로, 리포트까지 **136초**다.
+
+## UI 라운드 9 (2026-10-01)
+
+`codex/ui-round9` · 기준 `origin/main=05b7f79` · CSTDe_API_34 2560×1440 · 기본 Fake, 배율 1.0. [발주서](../../handoffs/2026-09-30_codex_ui_round9.md)의 §1 → §2 → §3 → §4 순서로 구현했다.
+
+| 절 | 반영 및 캡처 |
+|---|---|
+| §1.1 | 퀴즈 잠금 시 하단 누계·그만하기·구분선 제거. 문제 번호 패널 밖 숫자 및 터치 액션 0 검사. `lesson-quiz-locked.png` |
+| §2.1–2.2 | 미측정 값마다 텍스트 노드 하나, 잠금 도식 눈썹 제거. `lesson-missing.png`, `lesson-mixed.png`, `lesson-locked.png` |
+| §2.3 | 점검 Done 왼쪽 38% 패널에 리포트와 같은 일곱 결과를 기호로 표시. `lesson-done-checklist.png`, `-bad.png`, `-missing.png` |
+| §2.4·2.8 | 주행·지식 카드의 빈 도식 칸 제거 및 중앙 정렬, 점검에는 같은 4dp 선의 체크 도식. 조작 → 점검. `lesson-setup-sheet-driving.png`, `-driving-end.png`, `lesson-setup-knowledge.png`, `lesson-setup-sheet-checklist.png` |
+| §2.5–2.7 | 퀴즈 연보라 사각형 제거, 예약 뒤 목록 문구 수정, 리포트 눈썹 `연습한 회차`·단위 `회`. 관련 퀴즈·예약·리포트 캡처 교체 |
+| §2.9 | 기록된 등화 확인과 시동 순간 브레이크로 완료 상태 유지. 실제 `ChecklistScenarios`를 recorder·snapshot·display mapper에 재생해 검사. `lesson-maneuver-checklist.png`는 등화와 브레이크를 모두 끈 뒤 일곱 칩이 완료색. `-pending.png`, `-bad.png`, `-missing.png`도 보존 |
+| §3 | 예약 선택 칩은 기대 상태를 50ms 간격으로 최대 1초 폴링, 미반영 시 한 번 재탭. 예약/취소 콜백은 재탭 대상에서 제외하고 각각 한 번 호출됨을 검사. 취소 뒤 복귀 모핑도 원래 좌표에 정착했는지 최대 1초 확인 |
+| §4.1 | 주차 회차마다 상세 수치 한 줄(32sp Muted), null은 미측정, 급가속이 있으면 추가. `lesson-details.png`의 못한 주차는 실제 시나리오 지표 `조향 왕복 3 · 기어 전환 2 · 근접 1 · 급정지 1`. 복수 회차·미측정과 점검 표 유지도 검사 |
+| §4.2 | 0·1·2·3·5 항목과 한국어 조사 단위 검사. 주차의 세 항목을 두 줄로 모두 표시. `lesson-briefing.png` |
+
+점검 Done의 미측정은 Ink 바탕과 구분되도록 기존 Maneuver와 같은 **Paper 60%**로 표시한다. `CoachColors.Muted`는 Ink 60%라 Ink 위에서는 보이지 않는다. 새 색 토큰은 추가하지 않았고 픽셀로 가독성을 확인했다.
+
+필수 캡처와 추가 상태 캡처를 직접 확인했다. Done 기호·점검 완료 칩·카드 제목·주차 브리핑 두 줄·상세 수치 한 줄에 잘림이나 겹침이 없다. 32개 관련 PNG(카테고리 이름이 바뀐 모핑 스트립 포함)를 최종 코드 첫 PASS 실행에서 교체/추가했다.
+
+빌드: `build-round9-clean.txt`는 캐시를 끈 clean 빌드(`:automotive:clean :vss-stub:clean assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest --no-build-cache --no-configuration-cache --no-parallel`)이며 단위 테스트 183개, 실패·오류 0. 이어 지정 명령 `.\gradlew.bat assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest`도 성공(`build-round9.txt`). 중간 증분 실행에서 Kotlin/JUnit의 `NoClassDefFoundError`·`Truncated class file`이 실행마다 다른 클래스에서 발생했고 clean 빌드로 해소했다. 빌드 설정·의존성 변경은 없다.
+
+첫 계측의 `contract-round9-before-settle.txt`는 예약 취소 뒤 복귀 모핑 도중 프로필 좌표를 비교해 실패했다. 원래 좌표를 완화하지 않고 최대 1초 정착 폴링을 추가했다. 이후 실행들은 같은 최종 코드·APK를 사용한다.
+
+정적 확인: `ui/`의 `FontWeight.Bold` 0, `Color(0x`는 `CoachStyle.kt`의 기존 다섯 토큰뿐, 새 문자열 리소스 0. `vehicle/`, `ports/`, `scoring/`, `feature/lesson/`, `data/`, 빌드 파일, `tools/`, `docs/NEXT.md` 변경 0. 시트 첫 렌더·주 버튼·알약·주행 잠금·Done 도착 칸 계약은 기존 계측으로 유지한다.
+
+같은 최종 APK로 수정 없는 `bash tools/lesson_shots.sh build/round9-contract-N`를 **3회 연속 PASS**했다. 각 로그는 기존 계약과 추가 검사를 포함하며 마지막 줄이 `Lesson contract passed`다.
+
+| 연속 실행 | 전체 로그 | 결과 |
+|---|---|---|
+| 1 | [contract-round9-1.txt](contract-round9-1.txt) | Lesson contract passed |
+| 2 | [contract-round9-2.txt](contract-round9-2.txt) | Lesson contract passed |
+| 3 | [contract-round9-3.txt](contract-round9-3.txt) | Lesson contract passed |
+
+APK SHA-256: 앱 `9FCBA44C9EDC6636B19D192552CA02D8A899B7D58CEC33B4626E17570D7AA198`, 계측 `7ED473DFD22214992E3695EA4C9A6897ECCF88CFF42AD3F9E595C30BD6134BA8`.
+
+원본 `bash tools/emu_flow.sh build/round9-flow` **PASS**, uiautomator 충돌 **0**([flow-round9.txt](flow-round9.txt)). 첫 회차 60/55·이동 4회, 잘한 주차 100/100·이동 2회, 필수 힌트 세 종류와 두 번째 회차 추가 힌트 없음, 문 열림 → 리포트·배지를 확인했다. 세션 시작부터 리포트까지 **124초**다.

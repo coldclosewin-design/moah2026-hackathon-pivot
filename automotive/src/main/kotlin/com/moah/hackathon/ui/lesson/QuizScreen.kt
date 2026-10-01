@@ -76,11 +76,13 @@ internal fun QuizScreen(task: Task, index: Int, total: Int, item: QuizItem, lock
                     }
                 }
                 Spacer(Modifier.weight(1f))
-                PosterRule()
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically) {
-                    if (!locked) TextAction(stringResource(R.string.lesson_quit), onRestart)
-                    LessonText("맞은 문제 $correctSoFar", 32, CoachColors.Muted)
+                if (!locked) {
+                    PosterRule()
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically) {
+                        TextAction(stringResource(R.string.lesson_quit), onRestart)
+                        LessonText("맞은 문제 $correctSoFar", 32, CoachColors.Muted)
+                    }
                 }
             }
         }
@@ -94,8 +96,6 @@ internal fun QuizNumber(number: String, label: String, modifier: Modifier) {
             drawArc(CoachColors.Periwinkle, 160f, 190f, false,
                 Offset(-size.width * .5f, size.height * .38f), Size(size.width * 1.5f, size.width * 1.5f),
                 style = androidx.compose.ui.graphics.drawscope.Stroke(110.dp.toPx()))
-            drawRect(CoachColors.Lavender, Offset(size.width * .85f, size.height * .85f),
-                Size(size.width * .15f, size.height * .15f))
         }
         BrandMark(Modifier.padding(start = 180.dp, top = 64.dp), CoachColors.Paper)
         Column(Modifier.align(Alignment.Center).padding(64.dp), horizontalAlignment = Alignment.CenterHorizontally) {

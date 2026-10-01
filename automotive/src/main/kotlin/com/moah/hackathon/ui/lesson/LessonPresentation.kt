@@ -4,6 +4,7 @@ import com.moah.hackathon.vehicle.SimOnlySignals
 import com.moah.hackathon.feature.lesson.*
 import com.moah.hackathon.scoring.ParkingDelta
 import com.moah.hackathon.scoring.ParkingMetrics
+import com.moah.hackathon.scoring.HarshKind
 import com.moah.hackathon.ports.withAndParticle
 import com.moah.hackathon.ports.withObjectParticle
 import com.moah.hackathon.vehicle.AvailabilityBadge
@@ -16,7 +17,7 @@ internal fun profileLine(profile: Profile): String = listOfNotNull(profile.name,
     profile.rustyYears?.let { "장롱 ${it}년차" }, profile.statement.goal?.let { "목표 $it" }).joinToString(" · ")
 
 internal fun taskTypeLabel(type: TaskType): String = when (type) {
-    TaskType.CHECKLIST -> "조작"
+    TaskType.CHECKLIST -> "점검"
     TaskType.DRIVING -> "주행"
     TaskType.PARKING -> "주차"
     TaskType.KNOWLEDGE -> "지식"
@@ -41,8 +42,18 @@ internal fun setupProposal(type: TaskType) = when (type) {
 internal fun briefingHeadline(watch: List<String>): String = when (watch.size) {
     0 -> "오늘의 연습을\n함께 준비할게요."
     1 -> "${watch.first().withObjectParticle()}\n볼게요."
-    else -> "${watch[0].withAndParticle()}\n${watch[1].withObjectParticle()} 볼게요."
+    2, 3 -> "${watch.dropLast(1).joinToString(" ") { it.withAndParticle() }}\n${watch.last().withObjectParticle()} 볼게요."
+    else -> "${watch.first()}부터 ${watch.last()}까지\n순서대로 볼게요."
 }
+
+internal fun parkingDetailLine(metrics: ParkingMetrics): String = buildList {
+    add("조향 왕복 ${metrics.steering?.reversals ?: "미측정"}")
+    add("기어 전환 ${metrics.gear?.reverseDriveShifts ?: "미측정"}")
+    add("근접 ${metrics.proximity?.warnings ?: "미측정"}")
+    add("급정지 ${metrics.harshEvents.count { it.kind == HarshKind.BRAKING }}")
+    val acceleration = metrics.harshEvents.count { it.kind == HarshKind.ACCELERATION }
+    if (acceleration > 0) add("급가속 $acceleration")
+}.joinToString(" · ")
 
 internal fun processLine(type: TaskType, metrics: ParkingMetrics): String =
     if (type == TaskType.CHECKLIST) buildList {

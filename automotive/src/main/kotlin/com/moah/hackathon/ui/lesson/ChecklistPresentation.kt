@@ -9,9 +9,17 @@ internal data class ChecklistIgnition(
     val value: String?, val satisfied: Boolean, val signal: SignalAvailability, val source: String,
 )
 
-/** Both current readings are required; ignition alone cannot confirm the brake. */
+internal fun checklistLightValue(on: Boolean?, checked: Boolean?): String? = when {
+    on == true -> "켜짐"
+    checked == true -> "확인"
+    on != null || checked != null -> "아직"
+    else -> null
+}
+
+/** Once started, use the brake reading recorded at ignition, even after the pedal is released. */
 internal fun ManeuverDisplayState.checklistIgnition(): ChecklistIgnition {
-    val brakeSource = brakeSignal.takeIf { brakePressed != null } ?: SignalAvailability.MISSING
+    val brake = if (ignitionOn == true) brakeAtIgnition else brakePressed
+    val brakeSource = brakeSignal.takeIf { brake != null } ?: SignalAvailability.MISSING
     val ignitionSource = ignitionSignal.takeIf { ignitionOn != null } ?: SignalAvailability.MISSING
     val measured = brakeSource != SignalAvailability.MISSING && ignitionSource != SignalAvailability.MISSING
     val source = if (brakeSource == ignitionSource) signalLabel(brakeSource)
@@ -20,10 +28,10 @@ internal fun ManeuverDisplayState.checklistIgnition(): ChecklistIgnition {
         value = when {
             !measured -> null
             ignitionOn == false -> "꺼짐"
-            brakePressed == true -> "밟음 → 켜짐"
-            else -> "시동 켜짐"
+            brake == true -> "밟음 → 켜짐"
+            else -> "브레이크 없이 켜짐"
         },
-        satisfied = measured && brakePressed == true && ignitionOn == true,
+        satisfied = measured && brake == true && ignitionOn == true,
         signal = if (!measured) SignalAvailability.MISSING else brakeSource,
         source = source,
     )
