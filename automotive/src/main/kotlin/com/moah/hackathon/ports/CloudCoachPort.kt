@@ -9,6 +9,7 @@ import com.moah.hackathon.feature.lesson.Task
 import com.moah.hackathon.feature.lesson.TaskType
 import com.moah.hackathon.scoring.ParkingDelta
 import com.moah.hackathon.scoring.ParkingScore
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.withTimeoutOrNull
 
 /**
@@ -28,7 +29,7 @@ interface CoachTransport {
 class CloudCoachPort(
     private val fallback: CoachPort,
     private val transport: CoachTransport?,
-    private val timeoutMillis: Long = 4_000L,
+    private val timeoutMillis: Long = 5_000L,   // 4 → 5 s (9/30 사내 실측: Done 2~4 s)
 ) : CoachPort {
 
     override suspend fun remark(task: Task, score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int): String {
@@ -50,7 +51,10 @@ class CloudCoachPort(
         val t = transport ?: run { Log.d(TAG, "no transport → fallback"); return null }
         val raw = try {
             withTimeoutOrNull(timeoutMillis) { t.complete(system, user) }
-        } catch (e: RuntimeException) {
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            // 안드로이드의 IOException·JSONException 은 checked 라 RuntimeException 만 잡으면 새어 나간다(9/30 사내) — 전부 폴백
             Log.w(TAG, "transport failed → fallback", e); return null
         }
         if (raw == null) { Log.w(TAG, "transport timed out (${timeoutMillis} ms) → fallback"); return null }
@@ -73,12 +77,13 @@ object CoachPrompts {
     private const val SYSTEM = """당신은 초보 운전자의 조수석에 앉은, 화내지 않는 운전 코치입니다.
 규칙: 한국어 존댓말, 정확히 두 문장 — 첫 문장은 응원하는 서두, 둘째 문장은 고칠 것 하나. 위트 있게 북돋우되 사실만.
 숫자(횟수·초·점수·등수)를 말하지 않습니다. 금지어: 하위, 실패, 못했, 최악, 낙제.
-운전자의 프로필(장롱면허 햇수, 목표, 무서운 것)과 이번 회차의 과정 지표만 근거로 씁니다. 차가 칸에 반듯이 들어갔는지는 모릅니다 — 말하지 않습니다."""
+운전자의 프로필(장롱면허 햇수, 목표, 무서운 것)과 이번 회차의 과정 지표만 근거로 씁니다. 차가 칸에 반듯이 들어갔는지는 모릅니다 — 말하지 않습니다.
+위 과정 지표에 없는 항목(예: 뒤쪽 시야 확보, 사이드미러)은 조언하지 않습니다."""
 
-    /** 응답을 문장 단위 두 줄로 — 첫 마침표 뒤에서 한 번만 줄을 바꾼다. 문장이 하나면 그대로. */
+    /** 응답을 문장 단위 두 줄로 — 첫 문장 끝(. ! ? 어느 것이든 — gpt-4o 가 ! 로 자주 끝낸다, 9/30) 뒤에서 한 번만 줄을 바꾼다. 문장이 하나면 그대로. */
     fun twoLines(text: String): String {
-        val idx = text.indexOf(". ")
-        return if (idx > 0 && idx < text.length - 2) text.substring(0, idx + 1) + "\n" + text.substring(idx + 2).trimStart() else text
+        val idx = listOf(". ", "! ", "? ").map { text.indexOf(it) }.filter { it > 0 }.minOrNull() ?: return text
+        return if (idx < text.length - 2) text.substring(0, idx + 1) + "\n" + text.substring(idx + 2).trimStart() else text
     }
 
     fun remark(task: Task, score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int, seedLine: String): Pair<String, String> {
