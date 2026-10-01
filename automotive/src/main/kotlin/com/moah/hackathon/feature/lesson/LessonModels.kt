@@ -1,5 +1,6 @@
 package com.moah.hackathon.feature.lesson
 
+import com.moah.hackathon.vehicle.SimOnlySignals
 import com.moah.hackathon.scoring.ParkingDelta
 import com.moah.hackathon.scoring.ParkingScore
 import com.moah.hackathon.scoring.PathPoint
@@ -102,17 +103,17 @@ data class VehicleSnapshot(
 
     fun apply(delta: Map<String, String>): VehicleSnapshot = copy(
         speedKmh = delta[VssConstants.VEHICLE_SPEED]?.toVssFloat()?.let { kotlin.math.abs(it) } ?: speedKmh,
-        gear = delta[VssConstants.TRANSMISSION_SELECTED_GEAR]?.toVssGear() ?: gear,
-        steeringDeg = delta[VssConstants.STEERING_WHEEL_ANGLE]?.toVssFloat() ?: steeringDeg,
-        belt = delta[VssConstants.SEAT_DRIVER_ISBELTED]?.toVssBoolean() ?: belt,
-        ignitionOn = delta[VssConstants.LOW_VOLTAGE_SYSTEM_STATE]?.toVssIgnitionOn() ?: ignitionOn,
-        doorOpen = delta[VssConstants.DOOR_DRIVER_ISOPEN]?.toVssBoolean() ?: doorOpen,
-        rearDistanceCm = delta[VssConstants.OBSTACLE_REAR_DISTANCE_CM]?.toVssFloat() ?: rearDistanceCm,
-        obstacleWarning = delta[VssConstants.OBSTACLE_IS_WARNING]?.toVssBoolean() ?: obstacleWarning,
-        brakePressed = delta[VssConstants.BRAKE_PEDAL_POSITION]?.toVssFloat()?.let { it > 0f } ?: brakePressed,
-        indicatorLeft = delta[VssConstants.LIGHT_INDICATOR_LEFT]?.toVssBoolean() ?: indicatorLeft,
-        indicatorRight = delta[VssConstants.LIGHT_INDICATOR_RIGHT]?.toVssBoolean() ?: indicatorRight,
-        hazard = delta[VssConstants.LIGHT_HAZARD]?.toVssBoolean() ?: hazard,
+        gear = delta[VssConstants.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR]?.toVssGear() ?: gear,
+        steeringDeg = delta[VssConstants.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE]?.toVssFloat() ?: steeringDeg,
+        belt = delta[VssConstants.VEHICLE_CABIN_SEAT_ROW1_DRIVERSIDE_ISBELTED]?.toVssBoolean() ?: belt,
+        ignitionOn = delta[VssConstants.VEHICLE_LOWVOLTAGESYSTEMSTATE]?.toVssIgnitionOn() ?: ignitionOn,
+        doorOpen = delta[VssConstants.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN]?.toVssBoolean() ?: doorOpen,
+        rearDistanceCm = delta[SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM]?.toVssFloat() ?: rearDistanceCm,
+        obstacleWarning = delta[VssConstants.VEHICLE_ADAS_OBSTACLEDETECTION_ISWARNING]?.toVssBoolean() ?: obstacleWarning,
+        brakePressed = delta[VssConstants.VEHICLE_CHASSIS_BRAKE_PEDALPOSITION]?.toVssFloat()?.let { it > 0f } ?: brakePressed,
+        indicatorLeft = delta[VssConstants.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING]?.toVssBoolean() ?: indicatorLeft,
+        indicatorRight = delta[VssConstants.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING]?.toVssBoolean() ?: indicatorRight,
+        hazard = delta[VssConstants.VEHICLE_BODY_LIGHTS_HAZARD_ISSIGNALING]?.toVssBoolean() ?: hazard,
     )
 
     companion object {

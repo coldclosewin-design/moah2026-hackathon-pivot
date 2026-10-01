@@ -4,7 +4,7 @@ Claude Code와 Codex가 공유하는 단일 지침. 세부 문서는 `docs/`.
 
 ## 프로젝트가 무엇인가
 
-- MOAH 2026 (MOBIS SW Hackathon) 출품용 **Android Automotive OS(AAOS) 앱**. 1인 팀. 마감 2026-10-07.
+- MOAH 2026 (MOBIS SW Hackathon) 출품용 **Android Automotive OS(AAOS) 앱**. 1인 팀. 마감 **2026-10-09(금)**(10-07 아님, 9/30 사내 확인). 제출 4종: PPT 1장(주최 양식) · 팀 Bitbucket `submission` 브랜치 · MarketUploader APK(카테고리 VEHICLE, 재업로드마다 versionCode +1) · 에뮬 시연 영상 → PPT·영상은 MOAH@mobis.com. 제품명 **"드라이브 코치"** 1.0.0.
 - **주제 (확정, 2026-09-25 피벗 · 9/26 v2): 운전 연수 어시스턴트 — "화내지 않는 조수석".** 초보·장롱면허 운전자가 두려운 상황을 **과제 단위**로 연습할 때,
   차량 신호로 **과정**을 측정해 **가이드 → 힌트 → 평가** 순으로 손을 떼 가며 코칭하고, 세션이 쌓이면 본인·동승자·(동의 시) 기관이 보는 진단 리포트가 된다.
   **시연 본편은 후면 직각 주차 과제.** 단계: `Setup(대화·제안) → Briefing → Maneuver(주차 중, 저속이라 화면 도식 허용) → Done("다 됐어요"·회차 멘트) → Report(운전석 도어 열림)`.
@@ -14,7 +14,7 @@ Claude Code와 Codex가 공유하는 단일 지침. 세부 문서는 `docs/`.
   신호마다 `LIVE / SIMULATED / MISSING` 상태를 갖고, `MISSING` 은 채점에서 빼고 "미측정"으로 표시한다. **무엇이 실신호이고 무엇이 시뮬레이션인지 화면·리포트에 정직하게 구분해 보여준다.**
 - **AI 경계**: 감점 순간은 규칙이 지연 0으로 TTS `URGENT` 발화. AI(`CoachPort`)는 구간 종료·정차·세션 종료의 총평만 맡고, 실패하면 규칙 문장으로 폴백한다. STT·주행 중 실시간 AI 발화는 넣지 않는다(`docs/NEXT.md` 미루는 항목).
 - **외부 PC에서 개발 → GitHub private → 사내에서 clone → 머지·빌드·시연.** 사내 개발환경(WebIDE, infoLINK 에뮬, VSS 실물)은 외부에서 접근 불가.
-- 사내 머지는 `automotive/build.gradle.kts`의 **compileOnly 한 줄 교체 + `USE_FAKE_VSS` 플래그 하나**로 끝나야 한다. 이 원칙을 깨는 변경은 금지.
+- 사내 빌드는 **코드 변경 없이** `local.properties` 의 `mobis.vss.jar=<jar 경로>` 한 줄 + jar 파일(`automotive/libs/`, gitignore)로 끝나야 한다(9/30 — 그 전엔 compileOnly 한 줄 교체였다). 같은 커밋이 사외(Fake)·사내(Real)에서 그대로 빌드된다. 이 원칙을 깨는 변경은 금지.
 - **전 포트 Fake 로 인터넷·키·실신호 없이 전체 시연이 완결**되어야 한다. 사내 네트워크·TTS·신호 경로가 전부 미확인이기 때문이다.
 
 ## 절대 규칙
@@ -22,7 +22,7 @@ Claude Code와 Codex가 공유하는 단일 지침. 세부 문서는 `docs/`.
 1. 차량 데이터는 **오직 `VehiclePort`** (`automotive/src/main/kotlin/com/moah/hackathon/vehicle/VehiclePort.kt`)를 통해서만 접근한다. `mobis.vss.VSSManager`를 직접 참조하는 파일은 `RealVehiclePort.kt` 하나뿐이다.
 2. `RemoteException`을 import/catch하지 않는다. VSS API는 unchecked `RuntimeException`을 던진다. (사내에서 "exception RemoteException is never thrown" 컴파일 에러)
 3. VSS 값은 전부 `String`이다. `VssValues.kt`의 파서(`toVssFloat()` 등)를 쓰고 직접 캐스팅하지 않는다.
-4. 신호 경로 문자열 리터럴 금지. `mobis.vss.VssConstants` 상수만 쓴다. 새 상수는 사내 문서(pageId 1323873443) 경로와 정확히 일치해야 하며 추가 시 `docs/INTEGRATION.md` B절에 가정을 기록한다. **경로가 틀려도 예외 없이 조용히 무시된다** — 그래서 모든 B층 신호는 `MISSING` 을 견디게 만든다.
+4. 신호 경로 문자열 리터럴 금지. `mobis.vss.VssConstants` 상수만 쓴다. 새 상수는 사내 문서(pageId 1323873443) 경로와 정확히 일치해야 하고, **이름은 경로를 그대로 대문자·밑줄로 바꾼 것**(`Vehicle.Cabin.Door.Row1.DriverSide.IsOpen` → `VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN` — 사내 jar 규칙, 2026-09-30)이어야 하며 추가 시 `docs/INTEGRATION.md` B절에 가정을 기록한다. 실물에 없는 경로(Fake 전용)는 `vehicle/SimOnlySignals.kt` 에 둔다. **경로가 틀려도 예외 없이 조용히 무시된다** — 그래서 모든 B층 신호는 `MISSING` 을 견디게 만든다.
 5. `getVSS/setVSS`는 동기·블로킹이다. UI 스레드에서 호출하지 않는다 (RealVehiclePort가 전용 스레드로 처리하므로 VehiclePort 호출자는 suspend/콜백 규약을 지킨다).
 6. 구독은 반드시 해제한다. 화면/뷰모델 수명 종료 시 `VehiclePort.dispose()` 또는 `observe`가 반환한 핸들을 닫는다.
 7. `vss-stub/` 시그니처는 `docs/02_vss_api_contract.md`와 문자 그대로 일치해야 한다. 스텁 메서드에 실제 동작을 구현하지 않는다(외부에서 실행되면 즉시 예외로 드러나야 함).

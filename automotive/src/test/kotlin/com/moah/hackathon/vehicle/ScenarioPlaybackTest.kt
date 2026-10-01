@@ -14,9 +14,9 @@ import org.junit.Test
 class ScenarioPlaybackTest {
 
     private val tiny = scenario("tiny", "테스트") {
-        at(0.0, VssConstants.TRANSMISSION_SELECTED_GEAR to Gear.REVERSE.vss)
+        at(0.0, VssConstants.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR to Gear.REVERSE.vss)
         speedRamp(1.0, 2.0, 0.0, 4.0)          // 1.0 → 0, 1.5 → 2, 2.0 → 4
-        at(3.0, VssConstants.TRANSMISSION_SELECTED_GEAR to Gear.PARK.vss)
+        at(3.0, VssConstants.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR to Gear.PARK.vss)
     }
 
     @Test
@@ -43,7 +43,7 @@ class ScenarioPlaybackTest {
         val port = FakeVehiclePort(simulate = false, dispatcher = StandardTestDispatcher(testScheduler))
         port.play(tiny, speedFactor = 2.0) // 3 s 시나리오 → 1.5 s
         testScheduler.runCurrent()
-        assertEquals(Gear.REVERSE.vss, port.get(listOf(VssConstants.TRANSMISSION_SELECTED_GEAR)).values.first())
+        assertEquals(Gear.REVERSE.vss, port.get(listOf(VssConstants.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR)).values.first())
         assertEquals("0.0", port.get(listOf(VssConstants.VEHICLE_SPEED)).values.first())
 
         testScheduler.advanceTimeBy(760); testScheduler.runCurrent()   // t = 1.5 s 시나리오 시각
@@ -51,7 +51,7 @@ class ScenarioPlaybackTest {
         assertFalse(port.playback.value!!.finished)
 
         testScheduler.advanceTimeBy(1000); testScheduler.runCurrent()  // 끝
-        assertEquals(Gear.PARK.vss, port.get(listOf(VssConstants.TRANSMISSION_SELECTED_GEAR)).values.first())
+        assertEquals(Gear.PARK.vss, port.get(listOf(VssConstants.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR)).values.first())
         assertEquals("4.0", port.get(listOf(VssConstants.VEHICLE_SPEED)).values.first())
         assertTrue(port.playback.value!!.finished)
 

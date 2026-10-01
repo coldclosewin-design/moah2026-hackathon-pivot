@@ -49,7 +49,7 @@ class ChecklistScorerTest {
 
     @Test
     fun `a MISSING signal is unmeasured - no penalty for what the car did not report`() {
-        val missing = listOf(VssConstants.SEAT_DRIVER_ISBELTED, VssConstants.LOW_VOLTAGE_SYSTEM_STATE)
+        val missing = listOf(VssConstants.VEHICLE_CABIN_SEAT_ROW1_DRIVERSIDE_ISBELTED, VssConstants.VEHICLE_LOWVOLTAGESYSTEMSTATE)
         val s = ChecklistScorer.score(metrics(beltOn = null, ignitionOn = null), badge, missing)
         assertEquals(100, s.skill)
         assertEquals(100, s.safety)

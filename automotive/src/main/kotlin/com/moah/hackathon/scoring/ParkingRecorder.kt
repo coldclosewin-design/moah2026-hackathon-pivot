@@ -1,5 +1,6 @@
 package com.moah.hackathon.scoring
 
+import com.moah.hackathon.vehicle.SimOnlySignals
 import com.moah.hackathon.vehicle.SignalRegistry
 import com.moah.hackathon.vehicle.toVssBoolean
 import com.moah.hackathon.vehicle.toVssFloat
@@ -36,17 +37,17 @@ class ParkingRecorder(private val registry: SignalRegistry, keys: Set<String> = 
         registry.onValues(delta)
         if (tMillis > lastMillis) lastMillis = tMillis
         delta[VssConstants.VEHICLE_SPEED]?.toVssFloat()?.let { speed.add(Sample(tMillis, kotlin.math.abs(it))) }
-        delta[VssConstants.STEERING_WHEEL_ANGLE]?.toVssFloat()?.let { angle.add(Sample(tMillis, it)) }
-        delta[VssConstants.TRANSMISSION_SELECTED_GEAR]?.toVssGear()?.let { gear.add(Sample(tMillis, it)) }
-        delta[VssConstants.OBSTACLE_REAR_DISTANCE_CM]?.toVssFloat()?.let { distance.add(Sample(tMillis, it)) }
-        delta[VssConstants.OBSTACLE_IS_WARNING]?.toVssBoolean()?.let { warning.add(Sample(tMillis, it)) }
-        delta[VssConstants.SEAT_DRIVER_ISBELTED]?.toVssBoolean()?.let { belt.add(Sample(tMillis, it)) }
-        delta[VssConstants.LOW_VOLTAGE_SYSTEM_STATE]?.toVssIgnitionOn()?.let { ignition.add(Sample(tMillis, it)) }
-        delta[VssConstants.DOOR_DRIVER_ISOPEN]?.toVssBoolean()?.let { door.add(Sample(tMillis, it)) }
-        delta[VssConstants.BRAKE_PEDAL_POSITION]?.toVssFloat()?.let { brake.add(Sample(tMillis, it > 0f)) }
-        delta[VssConstants.LIGHT_INDICATOR_LEFT]?.toVssBoolean()?.let { indicatorLeft.add(Sample(tMillis, it)) }
-        delta[VssConstants.LIGHT_INDICATOR_RIGHT]?.toVssBoolean()?.let { indicatorRight.add(Sample(tMillis, it)) }
-        delta[VssConstants.LIGHT_HAZARD]?.toVssBoolean()?.let { hazard.add(Sample(tMillis, it)) }
+        delta[VssConstants.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE]?.toVssFloat()?.let { angle.add(Sample(tMillis, it)) }
+        delta[VssConstants.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR]?.toVssGear()?.let { gear.add(Sample(tMillis, it)) }
+        delta[SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM]?.toVssFloat()?.let { distance.add(Sample(tMillis, it)) }
+        delta[VssConstants.VEHICLE_ADAS_OBSTACLEDETECTION_ISWARNING]?.toVssBoolean()?.let { warning.add(Sample(tMillis, it)) }
+        delta[VssConstants.VEHICLE_CABIN_SEAT_ROW1_DRIVERSIDE_ISBELTED]?.toVssBoolean()?.let { belt.add(Sample(tMillis, it)) }
+        delta[VssConstants.VEHICLE_LOWVOLTAGESYSTEMSTATE]?.toVssIgnitionOn()?.let { ignition.add(Sample(tMillis, it)) }
+        delta[VssConstants.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN]?.toVssBoolean()?.let { door.add(Sample(tMillis, it)) }
+        delta[VssConstants.VEHICLE_CHASSIS_BRAKE_PEDALPOSITION]?.toVssFloat()?.let { brake.add(Sample(tMillis, it > 0f)) }
+        delta[VssConstants.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING]?.toVssBoolean()?.let { indicatorLeft.add(Sample(tMillis, it)) }
+        delta[VssConstants.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING]?.toVssBoolean()?.let { indicatorRight.add(Sample(tMillis, it)) }
+        delta[VssConstants.VEHICLE_BODY_LIGHTS_HAZARD_ISSIGNALING]?.toVssBoolean()?.let { hazard.add(Sample(tMillis, it)) }
     }
 
     /**
@@ -86,21 +87,21 @@ class ParkingRecorder(private val registry: SignalRegistry, keys: Set<String> = 
         /** 주차 회차가 구독하는 키 전부. 주차 배지의 분모(8). */
         val KEYS: Set<String> = setOf(
             VssConstants.VEHICLE_SPEED,
-            VssConstants.STEERING_WHEEL_ANGLE,
-            VssConstants.TRANSMISSION_SELECTED_GEAR,
-            VssConstants.OBSTACLE_REAR_DISTANCE_CM,
-            VssConstants.OBSTACLE_IS_WARNING,
-            VssConstants.SEAT_DRIVER_ISBELTED,
-            VssConstants.LOW_VOLTAGE_SYSTEM_STATE,
-            VssConstants.DOOR_DRIVER_ISOPEN,
+            VssConstants.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE,
+            VssConstants.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR,
+            SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM,
+            VssConstants.VEHICLE_ADAS_OBSTACLEDETECTION_ISWARNING,
+            VssConstants.VEHICLE_CABIN_SEAT_ROW1_DRIVERSIDE_ISBELTED,
+            VssConstants.VEHICLE_LOWVOLTAGESYSTEMSTATE,
+            VssConstants.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN,
         )
 
         /** 출발 전 점검 7단계(9/28)가 구독하는 키 — 주차 키 + 브레이크·지시등·비상등. 점검 배지의 분모(12). 새 VSS 경로는 없다(스텁에 있던 것). */
         val CHECKLIST_KEYS: Set<String> = KEYS + setOf(
-            VssConstants.BRAKE_PEDAL_POSITION,
-            VssConstants.LIGHT_INDICATOR_LEFT,
-            VssConstants.LIGHT_INDICATOR_RIGHT,
-            VssConstants.LIGHT_HAZARD,
+            VssConstants.VEHICLE_CHASSIS_BRAKE_PEDALPOSITION,
+            VssConstants.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING,
+            VssConstants.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING,
+            VssConstants.VEHICLE_BODY_LIGHTS_HAZARD_ISSIGNALING,
         )
 
         /** 과제 유형별 구독 키. */

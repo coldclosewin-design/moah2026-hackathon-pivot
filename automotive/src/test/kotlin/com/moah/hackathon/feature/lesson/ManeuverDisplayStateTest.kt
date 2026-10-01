@@ -1,5 +1,6 @@
 package com.moah.hackathon.feature.lesson
 
+import com.moah.hackathon.vehicle.SimOnlySignals
 import com.moah.hackathon.data.SeedCatalog
 import com.moah.hackathon.vehicle.SignalAvailability
 import mobis.vss.VssConstants
@@ -12,19 +13,19 @@ class ManeuverDisplayStateTest {
 
     private fun phase(snapshot: VehicleSnapshot, availability: Map<String, SignalAvailability>) = LessonPhase.Maneuver(
         task = SeedCatalog.parkingTask, mode = LessonMode.HINT, attempt = 2, snapshot = snapshot,
-        guide = GuideStepView(3, 6, "핸들을 오른쪽 끝까지 돌리세요.", VssConstants.STEERING_WHEEL_ANGLE, unverified = false),
+        guide = GuideStepView(3, 6, "핸들을 오른쪽 끝까지 돌리세요.", VssConstants.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE, unverified = false),
         lastHint = "뒤가 가까워요. 멈추세요.", movingSegments = 3, elapsedMillis = 44_400, askedDone = false, availability = availability,
     )
 
     @Test
     fun `maps current values and progress - never a score`() {
         val snap = VehicleSnapshot().apply(mapOf(
-            VssConstants.VEHICLE_SPEED to "2.6", VssConstants.STEERING_WHEEL_ANGLE to "-450",
-            VssConstants.TRANSMISSION_SELECTED_GEAR to "-1", VssConstants.OBSTACLE_REAR_DISTANCE_CM to "35", VssConstants.OBSTACLE_IS_WARNING to "true",
+            VssConstants.VEHICLE_SPEED to "2.6", VssConstants.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE to "-450",
+            VssConstants.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR to "-1", SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM to "35", VssConstants.VEHICLE_ADAS_OBSTACLEDETECTION_ISWARNING to "true",
         ))
         val s = phase(snap, mapOf(
-            VssConstants.STEERING_WHEEL_ANGLE to SignalAvailability.SIMULATED,
-            VssConstants.TRANSMISSION_SELECTED_GEAR to SignalAvailability.LIVE,
+            VssConstants.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE to SignalAvailability.SIMULATED,
+            VssConstants.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR to SignalAvailability.LIVE,
         )).toDisplayState()
         assertEquals("3", s.speed)
         assertEquals(-450f, s.steeringDeg)
@@ -51,12 +52,12 @@ class ManeuverDisplayStateTest {
     @Test
     fun `checklist task carries belt and ignition for the three chips`() {
         val snap = VehicleSnapshot().apply(mapOf(
-            VssConstants.SEAT_DRIVER_ISBELTED to "true", VssConstants.LOW_VOLTAGE_SYSTEM_STATE to "OFF",
-            VssConstants.TRANSMISSION_SELECTED_GEAR to "126",
+            VssConstants.VEHICLE_CABIN_SEAT_ROW1_DRIVERSIDE_ISBELTED to "true", VssConstants.VEHICLE_LOWVOLTAGESYSTEMSTATE to "OFF",
+            VssConstants.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR to "126",
         ))
         val s = phase(snap, mapOf(
-            VssConstants.SEAT_DRIVER_ISBELTED to SignalAvailability.LIVE,
-            VssConstants.LOW_VOLTAGE_SYSTEM_STATE to SignalAvailability.SIMULATED,
+            VssConstants.VEHICLE_CABIN_SEAT_ROW1_DRIVERSIDE_ISBELTED to SignalAvailability.LIVE,
+            VssConstants.VEHICLE_LOWVOLTAGESYSTEMSTATE to SignalAvailability.SIMULATED,
         )).copy(task = SeedCatalog.predriveTask, guide = null).toDisplayState()
         assertEquals(TaskType.CHECKLIST, s.taskType)
         assertEquals(true, s.belt)

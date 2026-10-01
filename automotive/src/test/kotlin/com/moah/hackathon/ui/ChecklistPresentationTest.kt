@@ -34,14 +34,14 @@ class ChecklistPresentationTest {
 
     @Test fun missingNewSignalsAreUnmeasuredRatherThanFailed() {
         val results = checklistResults(score(ChecklistScenarios.good,
-            setOf(V.DOOR_DRIVER_ISOPEN, V.BRAKE_PEDAL_POSITION, V.LIGHT_INDICATOR_LEFT, V.LIGHT_INDICATOR_RIGHT, V.LIGHT_HAZARD)))
+            setOf(V.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN, V.VEHICLE_CHASSIS_BRAKE_PEDALPOSITION, V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING, V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING, V.VEHICLE_BODY_LIGHTS_HAZARD_ISSIGNALING)))
         assertEquals(listOf(null, true, true, null, null, null, null), results.map { it.passed })
         assertEquals(5, results.count { it.mark == "미측정" })
     }
 
     @Test fun missingBeltIgnitionAndGearDoNotLookLikeUncheckedActions() {
         val results = checklistResults(score(ChecklistScenarios.good,
-            setOf(V.SEAT_DRIVER_ISBELTED, V.LOW_VOLTAGE_SYSTEM_STATE, V.TRANSMISSION_SELECTED_GEAR)))
+            setOf(V.VEHICLE_CABIN_SEAT_ROW1_DRIVERSIDE_ISBELTED, V.VEHICLE_LOWVOLTAGESYSTEMSTATE, V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR)))
         assertTrue(results.take(4).all { it.passed == null })
         assertTrue(results.none { Regex("\\d").containsMatchIn(it.detail) })
     }

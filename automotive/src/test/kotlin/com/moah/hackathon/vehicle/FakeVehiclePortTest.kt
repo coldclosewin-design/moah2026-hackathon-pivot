@@ -31,9 +31,9 @@ class FakeVehiclePortTest {
     @Test
     fun `set stores value and returns no failures`() = runTest {
         val port = newPort(StandardTestDispatcher(testScheduler))
-        val failed = port.set(mapOf(VssConstants.DOOR_DRIVER_ISOPEN to VssValues.TRUE))
+        val failed = port.set(mapOf(VssConstants.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN to VssValues.TRUE))
         assertTrue(failed.isEmpty())
-        assertEquals(true, port.get(listOf(VssConstants.DOOR_DRIVER_ISOPEN))[VssConstants.DOOR_DRIVER_ISOPEN].toVssBoolean())
+        assertEquals(true, port.get(listOf(VssConstants.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN))[VssConstants.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN].toVssBoolean())
         port.dispose()
     }
 
@@ -42,19 +42,19 @@ class FakeVehiclePortTest {
         val port = newPort(StandardTestDispatcher(testScheduler))
         val collected = mutableListOf<Map<String, String>>()
         val job = launch {
-            port.observe(listOf(VssConstants.DOOR_DRIVER_ISOPEN)).take(2).toList(collected)
+            port.observe(listOf(VssConstants.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN)).take(2).toList(collected)
         }
         advanceUntilIdle()
         // 구독 키가 아닌 변경은 무시된다
         port.inject(mapOf(VssConstants.VEHICLE_SPEED to "42.0"))
         // 구독 키 변경은 전달된다
-        port.set(mapOf(VssConstants.DOOR_DRIVER_ISOPEN to VssValues.TRUE))
+        port.set(mapOf(VssConstants.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN to VssValues.TRUE))
         advanceUntilIdle()
         job.join()
 
         assertEquals(2, collected.size)
-        assertEquals(mapOf(VssConstants.DOOR_DRIVER_ISOPEN to VssValues.FALSE), collected[0])
-        assertEquals(mapOf(VssConstants.DOOR_DRIVER_ISOPEN to VssValues.TRUE), collected[1])
+        assertEquals(mapOf(VssConstants.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN to VssValues.FALSE), collected[0])
+        assertEquals(mapOf(VssConstants.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN to VssValues.TRUE), collected[1])
         port.dispose()
     }
 

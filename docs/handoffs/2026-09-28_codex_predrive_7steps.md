@@ -20,7 +20,7 @@
 | # | 무엇 | 어디 |
 |---|---|---|
 | A1 | `VehicleSnapshot` 에 `brakePressed: Boolean?`(PedalPosition > 0)·`indicatorLeft/Right: Boolean?`·`hazard: Boolean?` + `apply` 파싱 | `feature/lesson/LessonModels.kt` |
-| A2 | **점검 신호 집합** `ParkingRecorder.CHECKLIST_KEYS = KEYS + {LIGHT_INDICATOR_LEFT, LIGHT_INDICATOR_RIGHT, LIGHT_HAZARD, BRAKE_PEDAL_POSITION}`. 상태기계가 과제 유형별 키로 구독·레지스트리 시딩 → **주차 배지(실신호 0 · 시뮬 8)는 불변**, 점검 배지만 12 로 | `scoring/ParkingRecorder.kt`, `LessonStateMachine.kt`, `SignalRegistry`(키 집합 교체 가능하게) |
+| A2 | **점검 신호 집합** `ParkingRecorder.CHECKLIST_KEYS = KEYS + {VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING, VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING, VEHICLE_BODY_LIGHTS_HAZARD_ISSIGNALING, VEHICLE_CHASSIS_BRAKE_PEDALPOSITION}`. 상태기계가 과제 유형별 키로 구독·레지스트리 시딩 → **주차 배지(실신호 0 · 시뮬 8)는 불변**, 점검 배지만 12 로 | `scoring/ParkingRecorder.kt`, `LessonStateMachine.kt`, `SignalRegistry`(키 집합 교체 가능하게) |
 | A3 | `PreDriveSummary` 확장: `doorClosedBeforeIgnition: Boolean?`, `brakeBeforeIgnition: Boolean?`, `leftIndicatorChecked / rightIndicatorChecked / hazardChecked: Boolean?`(null = 미측정, false = 신호는 있는데 안 함). `PreDriveChecklist.summarize` 가 시계열에서 계산(시동 시각 전 도어 닫힘·브레이크 > 0, 세션 안에 지시등/비상등 true 가 한 번이라도) | `scoring/PreDriveChecklist.kt` |
 | A4 | `ChecklistRubric` 추가: 숙련 — 브레이크 없이 시동 -20 · 좌/우 지시등·비상등 건너뜀 각 -10 / 안전 — 도어 열린 채 시동 -30. `ChecklistScorer` 반영. 미측정은 무감점 | `scoring/ChecklistScorer.kt` |
 | A5 | 가이드 7단계(`SeedCatalog.predriveGuide`): 도어 → 벨트 → P 확인 → 브레이크 밟고 시동 → 좌 지시등 → 우 지시등 → 비상등 켰다 끄기. 확인 조건은 신호로. **문장은 Codex 가 다듬는다** | `data/SeedCatalog.kt` |

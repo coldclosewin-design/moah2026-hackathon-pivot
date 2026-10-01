@@ -63,7 +63,7 @@ class LessonStateMachineTest {
     }
 
     private suspend fun TestScope.openDoor(h: Harness) {
-        h.port.set(mapOf(VssConstants.DOOR_DRIVER_ISOPEN to VssValues.TRUE))
+        h.port.set(mapOf(VssConstants.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN to VssValues.TRUE))
         advanceUntilIdle()
     }
 
@@ -289,14 +289,14 @@ class LessonStateMachineTest {
     @Test
     fun `a door already open at attempt start does not end the attempt - closing then opening does`() = runTest {
         val h = harness()
-        h.port.set(mapOf(VssConstants.DOOR_DRIVER_ISOPEN to VssValues.TRUE))   // 타는 중 — 문이 열린 채 시작
+        h.port.set(mapOf(VssConstants.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN to VssValues.TRUE))   // 타는 중 — 문이 열린 채 시작
         h.machine.begin(SeedCatalog.TASK_PARKING_REAR, LessonMode.EVALUATE)
         advanceUntilIdle()
         assertTrue(h.machine.phase.value is LessonPhase.Maneuver)
         feed(h, ParkingScenarios.good)                 // 정차 구간이 여러 번 있지만 문이 계속 열려 있어도 끝나지 않는다
         assertTrue(h.machine.phase.value is LessonPhase.Maneuver)
         assertTrue(h.store.all().isEmpty())
-        h.port.set(mapOf(VssConstants.DOOR_DRIVER_ISOPEN to VssValues.FALSE)); advanceUntilIdle()   // 닫음 → 무장
+        h.port.set(mapOf(VssConstants.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN to VssValues.FALSE)); advanceUntilIdle()   // 닫음 → 무장
         assertTrue(h.machine.phase.value is LessonPhase.Maneuver)
         openDoor(h)                                    // 다시 열림 → 회차 종료 + 리포트
         assertTrue(h.machine.phase.value is LessonPhase.Report)
@@ -324,7 +324,7 @@ class LessonStateMachineTest {
         val h = harness()
         h.machine.begin(SeedCatalog.TASK_PARKING_REAR, LessonMode.EVALUATE)
         advanceUntilIdle()
-        h.port.inject(mapOf(VssConstants.VEHICLE_SPEED to "3.0", VssConstants.DOOR_DRIVER_ISOPEN to VssValues.TRUE))
+        h.port.inject(mapOf(VssConstants.VEHICLE_SPEED to "3.0", VssConstants.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN to VssValues.TRUE))
         advanceUntilIdle()
         assertTrue(h.machine.phase.value is LessonPhase.Maneuver)
         h.scope.cancel()

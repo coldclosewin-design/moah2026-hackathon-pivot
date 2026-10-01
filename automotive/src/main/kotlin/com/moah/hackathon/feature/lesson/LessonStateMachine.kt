@@ -130,7 +130,7 @@ class LessonStateMachine(
             return
         }
         quizResults.clear()
-        val now = vehicle.get(listOf(mobis.vss.VssConstants.VEHICLE_SPEED, mobis.vss.VssConstants.DOOR_DRIVER_ISOPEN))
+        val now = vehicle.get(listOf(mobis.vss.VssConstants.VEHICLE_SPEED, mobis.vss.VssConstants.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN))
         snapshot = snapshot.apply(now)
         ensureVehicleSubscription()
         publishQuiz(task, 0, chosen = null)

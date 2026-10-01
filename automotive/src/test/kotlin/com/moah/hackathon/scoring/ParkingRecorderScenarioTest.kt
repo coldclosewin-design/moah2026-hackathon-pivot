@@ -66,7 +66,7 @@ class ParkingRecorderScenarioTest {
     fun `badge - everything from the fake is SIMULATED and the door never arrives`() {
         val score = record(ParkingScenarios.good).score()!!
         assertEquals(AvailabilityBadge(live = 0, simulated = 7, missing = 1), score.badge)
-        assertEquals(listOf(VssConstants.DOOR_DRIVER_ISOPEN), score.missingSignals)
+        assertEquals(listOf(VssConstants.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN), score.missingSignals)
     }
 
     @Test
