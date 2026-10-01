@@ -46,11 +46,11 @@ AAOS 기반 플랫폼(infoLINK) 위에 APK를 얹어 **운전자에게 편의/�
 | — | Getting Started | 1328361635 |
 | — | 최종자료 제출 | 1317526558 |
 
-근거 페이지 URL 형식: `https://confluence.mobis.co.kr/pages/viewpage.action?pageId=<pageId>`
+근거 페이지 URL 형식: `<사내 Confluence>/pages/viewpage.action?pageId=<pageId>`
 
 ## 제출 절차 (사내에서 진행)
 
-1. **Source code** → 팀별 제공 Bitbucket 프로젝트에 업로드 (`bitbucket.mobis.co.kr/projects/MOBIS_SW_HACKATHON`)
+1. **Source code** → 팀별 제공 Bitbucket 프로젝트에 업로드 (`<사내 Bitbucket>/projects/MOBIS_SW_HACKATHON`)
 2. **APK** → WebIDE의 `market_uploader` 실행 → APK 선택 후 제출
 3. **시연 영상** → 3D 에뮬레이터 연동 동작 녹화 (세부 형식은 주최 공지 확인)
 
@@ -59,4 +59,4 @@ AAOS 기반 플랫폼(infoLINK) 위에 APK를 얹어 **운전자에게 편의/�
 - 사내 소스(Template App, copilot_reference_app, M.ADI SDK 등)의 개인 PC 반출/복제가 해커톤 규정·보안정책상 허용되는지 주최측에 먼저 확인한다. 되돌리기 어렵고 대외적 영향이 있는 사안이다.
 - 본 프로젝트의 방향(공개 문서 API 계약을 근거로 자작 스텁/Fake를 외부에서 작성, 실제 사내 소스는 반출하지 않음)은 이 리스크를 최소화한다.
 - **외부 → 사내 단방향(inbound only)** 원칙을 지키고, 사내 화면에서 확인한 정보의 외부 이전은 소속 정책 범위 내에서 판단한다.
-- 이 저장소는 사내 문서에서 파생된 내용을 포함하므로 **GitHub private** 로만 운영한다. 사내 스크린샷(`tmp-info/`)과 에뮬레이터 이미지(`emulator/`)는 git에 올리지 않는다.
+- 이 저장소는 **GitHub public** 으로 운영한다(10/1 확정: 사내에서 개인 계정 로그인이 안 돼 private 는 clone 할 수 없다 — 유일한 길). 그래서 사내 문서 파생 내용은 **pageId 만** 남기고 내부 호스트명·URL·계정·소스·jar·캡처는 올리지 않는다. 사내 스크린샷(`tmp-info/`)과 에뮬레이터 이미지(`emulator/`)는 git에 올리지 않는다.
