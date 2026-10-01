@@ -434,4 +434,27 @@ class LessonStateMachineTest {
         assertTrue(!after.reason.startsWith(ModeAdvisor.RESERVED_REASON))
         h.scope.cancel()
     }
+
+    @Test
+    fun `result screens lock while the car moves and unlock when it stops - door exit still works`() = runTest {
+        // 감사 08 A1-01: 정차 전용 결과 화면(Done·Report)에서 다시 움직이면 터치 타깃을 숨겨야 한다(절대 규칙 10)
+        val speed = mobis.vss.VssConstants.VEHICLE_SPEED
+        val h = harness()
+        h.machine.begin(SeedCatalog.TASK_PARKING_REAR, LessonMode.EVALUATE)
+        advanceUntilIdle()
+        feed(h, ParkingScenarios.good)
+        h.machine.finishAttempt(); advanceUntilIdle()
+        assertFalse((h.machine.phase.value as LessonPhase.Done).locked)
+        h.port.inject(mapOf(speed to "20.0")); testScheduler.runCurrent()
+        assertTrue((h.machine.phase.value as LessonPhase.Done).locked)
+        h.port.inject(mapOf(speed to "0.0")); testScheduler.runCurrent()
+        assertFalse((h.machine.phase.value as LessonPhase.Done).locked)
+        h.machine.endSession(); advanceUntilIdle()
+        assertFalse((h.machine.phase.value as LessonPhase.Report).locked)
+        h.port.inject(mapOf(speed to "20.0")); testScheduler.runCurrent()
+        assertTrue((h.machine.phase.value as LessonPhase.Report).locked)   // 리포트도 구독을 끊지 않는다
+        h.port.inject(mapOf(speed to "0.0")); testScheduler.runCurrent()
+        assertFalse((h.machine.phase.value as LessonPhase.Report).locked)
+        h.scope.cancel()
+    }
 }

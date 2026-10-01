@@ -164,9 +164,9 @@ class LessonStateMachine(
         val record = QuizRecord(task.id, quizResults.toList(), clock())
         store.addQuiz(record)
         val remark = quizRemark(record.correct, quizItems.size)
-        _phase.value = LessonPhase.QuizDone(task, record.results, quizItems, remark)
+        _phase.value = LessonPhase.QuizDone(task, record.results, quizItems, remark, locked = snapshot.locked)
         tts.speak(remark, SpeechPriority.URGENT)
-        vehicleJob?.cancel(); vehicleJob = null
+        // 구독은 유지 — QuizDone 도 움직이면 잠근다(절대 규칙 10, 감사 08 A1-01). reset 이 끊는다
         Log.i(TAG, "quiz done ${task.id}: ${record.correct}/${quizItems.size}")
     }
 
@@ -214,7 +214,7 @@ class LessonStateMachine(
             store.add(record)
             sessionRecords += record
             profile = profile.copy(observation = store.observation())
-            _phase.value = LessonPhase.Done(p.task, p.mode, attempt, record)
+            _phase.value = LessonPhase.Done(p.task, p.mode, attempt, record, locked = snapshot.locked)
             finishing = false
             tts.speak(remark, SpeechPriority.URGENT)
             Log.i(TAG, "attempt $attempt: skill=${score.skill} safety=${score.safety} segments=${score.metrics.motion.movingSegments} badge=${score.badge}")
@@ -375,10 +375,13 @@ class LessonStateMachine(
                     scope.launch { toReport() }
                 }
             }
-            is LessonPhase.Done -> if (doorExit) {
-                Log.i(TAG, "door opened → report")
-                scope.launch { toReport() }
+            // 결과 화면(정차 전용)에서 다시 움직이면 잠근다 — 화면은 버튼을 숨기고 "운전에 집중" 만(절대 규칙 10, 감사 08 A1-01)
+            is LessonPhase.Done -> {
+                if (p.locked != snapshot.locked) _phase.value = p.copy(locked = snapshot.locked)
+                if (doorExit) { Log.i(TAG, "door opened → report"); scope.launch { toReport() } }
             }
+            is LessonPhase.Report -> if (p.locked != snapshot.locked) _phase.value = p.copy(locked = snapshot.locked)
+            is LessonPhase.QuizDone -> if (p.locked != snapshot.locked) _phase.value = p.copy(locked = snapshot.locked)
             // 퀴즈는 정차 중에만 — 움직이면 잠금만 갱신하고(선택지 숨김), 도어는 무관
             is LessonPhase.Quiz -> if (p.locked != snapshot.locked) _phase.value = p.copy(locked = snapshot.locked)
             else -> {}
@@ -422,7 +425,7 @@ class LessonStateMachine(
         }
         val nextTask = ModeAdvisor.suggestTask(profile, tasks)
         val next = ModeAdvisor.suggest(task, store)
-        vehicleJob?.cancel(); vehicleJob = null
+        // 구독은 유지 — Report 도 움직이면 잠근다(절대 규칙 10, 감사 08 A1-01). reset 이 끊는다
         guide = null
         _phase.value = LessonPhase.Report(
             LessonReport(
@@ -431,6 +434,7 @@ class LessonStateMachine(
                 shareLevels = ShareLevel.entries.toList(), benefits = benefits,
                 unverifiedGuideSteps = unverifiedSteps.toList(),
             ),
+            locked = snapshot.locked,
         )
         tts.speak("$summary\n다음엔 ${next.mode.label} 모드 어때요? ${next.reason}", SpeechPriority.URGENT)
         Log.i(TAG, "report: attempts=${attempts.size} best=${best.skill}/${best.safety} badge=${best.badge}")
