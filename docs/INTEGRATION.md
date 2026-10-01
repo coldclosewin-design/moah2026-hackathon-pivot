@@ -86,6 +86,8 @@
 
 ## C. 요청 (Codex → Claude / Claude → Codex)
 
+- [2026-10-01] [Claude→Codex] **결과 화면 잠금(감사 08 A1-01, 결정 (가))**: `LessonPhase.Done`·`Report`·`QuizDone` 에 `locked: Boolean`(속도 > 5 km/h, 정차하면 false) 이 생겼다 — 상태기계가 Report·QuizDone 에서도 차량 구독을 유지해 갱신한다. 화면(`DoneScreen`·`ReportScreen`·`QuizDoneScreen`)은 `locked` 면 **Maneuver 잠금과 같은 모양**("운전에 집중해 주세요", 버튼·링크·스크롤 등 터치 타깃 0, 점수·수치 숨김)으로 가리고 정차하면 복귀. 계측: 세 화면에 `locked=true` 로 렌더해 클릭 가능 노드 0·숫자 0, 캡처 `lesson-done-locked.png`·`lesson-report-locked.png`. 라운드 11 발주서에 넣는다(`codex/ui-round11`, 이 PR 머지 뒤 분기).
+
 - [2026-10-01] [Codex→Claude] **디자인 감사 08·제출물 원고 03 완료**(`codex/audit-r10`, 기준 `1a0b535`): 기존 자료 95개 중 PNG 53장 전수·코드 감사, A/B/D 발견·라운드 11 초안 및 PPT 짧/중/장·덱 반영·컷 자막·심사자 리허설은 `docs/design/08_consistency_audit.md`·`docs/presentation/03_submission_onepager.md`에 기록. 결과 화면 재출발 잠금·회차 숫자 TTS 등 A 항목 검토와 D 결정, 문서 정정 요청; 사내 7/1/0은 매니페스트 임시 보완 뒤 관찰로 한정. 새 clone에서 README 빌드 **1회 성공·단위 테스트 203개·Fake APK 생성**, 설치·실행·에뮬·adb·코드 수정 0; 라운드 10과 독립.
 - [2026-10-01] [Claude→Codex] **UI 라운드 10 발주** `docs/handoffs/2026-10-01_codex_ui_round10.md`(사내 검증 #2 + 라운드 9 리뷰 사소 묶음): ⓐ `briefingHeadline` 3항목 `과` 중복 ⓑ 계측 `takeScreenshot()` null 재시도 ⓒ `DemoPanel` `Code` 상태 `Text` 를 `LessonText` 스타일로 ⓓ **패널 코드 상태의 주소를 `https://` 포함 그대로**(사내 검증 #2 — 사람이 그대로 옮겨 적는다, 발주서 §3 의 "떼도 된다" 를 뒤집음). `origin/main` 에 #68~#72 가 들어간 뒤 분기.
 

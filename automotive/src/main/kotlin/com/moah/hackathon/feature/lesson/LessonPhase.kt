@@ -54,10 +54,11 @@ sealed interface LessonPhase {
     ) : LessonPhase
 
     /** 운전자가 "다 됐어요" → 회차 결과와 멘트. 다음 회차 또는 세션 종료. */
-    data class Done(val task: Task, val mode: LessonMode, val attempt: Int, val record: AttemptRecord) : LessonPhase
+    /** 회차 끝 화면. [locked](속도 > 5) 면 화면은 버튼·터치 타깃을 숨기고 "운전에 집중" 안내만 — 정차 전용 화면에서 다시 움직였을 때(절대 규칙 10, 감사 08 A1-01). */
+    data class Done(val task: Task, val mode: LessonMode, val attempt: Int, val record: AttemptRecord, val locked: Boolean = false) : LessonPhase
 
     /** 세션 종료(버튼 또는 정차 + 운전석 도어 열림) → 진단 리포트. */
-    data class Report(val report: LessonReport) : LessonPhase
+    data class Report(val report: LessonReport, val locked: Boolean = false) : LessonPhase
 
     /**
      * 지식 테스트 한 문제. **정차 중에만** 답할 수 있다 — [locked](속도 > 5) 면 화면은 선택지를 숨기고 상태기계는 [LessonStateMachine.answer] 를 무시한다.
@@ -77,7 +78,7 @@ sealed interface LessonPhase {
     }
 
     /** 문제를 다 풀었거나 중간에 끝냄. 정답 수와 문제별 결과(복습용). */
-    data class QuizDone(val task: Task, val results: List<QuizResult>, val items: List<QuizItem>, val remark: String) : LessonPhase {
+    data class QuizDone(val task: Task, val results: List<QuizResult>, val items: List<QuizItem>, val remark: String, val locked: Boolean = false) : LessonPhase {
         val correct: Int get() = results.count { it.correct }
         val total: Int get() = items.size
     }
