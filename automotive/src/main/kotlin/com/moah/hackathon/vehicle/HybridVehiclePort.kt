@@ -1,6 +1,7 @@
 package com.moah.hackathon.vehicle
 
 import android.util.Log
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
@@ -18,8 +19,11 @@ import java.util.concurrent.ConcurrentHashMap
  *  2. **Fake 의 조작(시연 패널·시나리오)은 실물을 거쳐 돌아온다** — [FakeVehiclePort.writeThrough] 훅으로 Fake 가 값을 저장·emit 하기
  *     직전에 `real.set` 을 먼저 부른다. 실물이 받아 주면 Real 구독으로 같은 값이 돌아오고(live), Fake delta 는 버려진다.
  *     실물이 **실패 목록으로 돌려준 키 = [forced]**: live 에서 빼고 이후 `get`·Real 구독에서 그 키는 무시, Fake 값이 화면까지 간다(배지 "시뮬레이션").
- *     사내 관찰: 회차 시작 `get` 에서 주차 8키 중 6개가 실신호라 시연 패널의 시나리오가 live 키에 먹지 않아 시연이 멈췄다 → 이 훅으로 해결.
- *     실측: 속도·조향·기어·벨트·시동 모두 실물에 써졌고 실신호로 돌아와 가이드가 끝까지 진행.
+ *     forced 키는 실물에 다시 쓰지 않는다. 사내 관찰: 회차 시작 `get` 에서 주차 8키 중 6개가 실신호라 시연 패널의 시나리오가 live 키에
+ *     먹지 않아 시연이 멈췄다 → 이 훅으로 해결. 실측(10/1 사내 검증 #2): 실신호 7 · 시뮬레이션 1, write-through 정상.
+ *
+ * 취소는 거부가 아니다(10/1 사내 검증 #2): 시나리오 정지·교체로 Fake 의 job 이 취소되면 `real.set` 이 [CancellationException] 으로 끝나는데,
+ * 이것을 실패로 치면 그 스텝의 키가 영구 forced 가 되어 이후 실신호를 무시한다. 그래서 취소는 그대로 던지고 그 밖의 예외만 거부로 본다.
  *
  * 주의: `setVSS` 는 실물에 없는 경로에도 실패 목록을 비워 준다 — 성공 판정은 반환값이 아니라 **구독으로 값이 돌아오는지**다.
  * 그런 키는 live 가 되지 않으므로 어차피 Fake delta 가 통과한다.
@@ -48,7 +52,16 @@ class HybridVehiclePort(
     }
 
     private suspend fun writeThrough(values: Map<String, String>) {
-        val failed = runCatching { real.set(values) }.getOrElse { values.keys.toList() }
+        val toReal = values.filterKeys { it !in forced }          // 이미 forced 인 키는 실물에 다시 쓰지 않는다
+        if (toReal.isEmpty()) return
+        val failed = try {
+            real.set(toReal)
+        } catch (e: CancellationException) {
+            throw e                                                // 시나리오 정지·교체 — 거부가 아니다
+        } catch (e: Exception) {
+            Log.w(TAG, "setVSS threw ${e.javaClass.simpleName} → ${toReal.keys} forced", e)
+            toReal.keys.toList()
+        }
         if (failed.isEmpty()) return
         Log.i(TAG, "setVSS rejected $failed → forced (Fake 값 사용)")
         forced.addAll(failed)
@@ -56,11 +69,18 @@ class HybridVehiclePort(
     }
 
     override suspend fun get(keys: List<String>): Map<String, String> {
-        val fromReal = runCatching { real.get(keys) }.getOrElse { emptyMap() }.filterKeys { it !in forced }
+        val fromReal = try {
+            real.get(keys)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.w(TAG, "getVSS threw ${e.javaClass.simpleName} → Fake", e); emptyMap()
+        }.filterKeys { it !in forced }
         markLive(fromReal.keys)
         val missing = keys.filter { it !in fromReal }
         val fromFake = if (missing.isEmpty()) emptyMap() else fake.get(missing)
-        Log.i(TAG, "get real=${fromReal.keys.map { it.substringAfterLast('.') }} fake=${fromFake.keys.map { it.substringAfterLast('.') }}")
+        // 값까지 적는다 — 사내 관찰 노트에 키 이름만으로는 부족했다(10/1)
+        Log.i(TAG, "get real=${fromReal.short()} fake=${fromFake.short()}")
         return fromFake + fromReal   // 겹치면 Real
     }
 
@@ -83,6 +103,9 @@ class HybridVehiclePort(
         real.dispose()
         fake.dispose()
     }
+
+    private fun Map<String, String>.short(): String =
+        entries.joinToString(prefix = "[", postfix = "]") { "${it.key.substringAfterLast('.')}=${it.value}" }
 
     private companion object {
         const val TAG = "MOAH/HybridVehiclePort"

@@ -1,6 +1,7 @@
 package com.moah.hackathon.vehicle
 
 import com.moah.hackathon.scoring.ParkingRecorder
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -75,9 +76,9 @@ class HybridVehiclePortTest {
         fake.inject(mapOf(speed to "99.0")); advanceUntilIdle()       // Fake 조작 → 실물에 먼저 써지고(setCalls) → Real 구독으로 돌아온다
         assertEquals(listOf(mapOf(speed to "99.0")), real.setCalls)
         assertEquals("99.0", real.store[speed])
-        fake.inject(mapOf(steering to "-450.0")); advanceUntilIdle()  // 실물이 모르는 키 → 실패 목록 → forced 가 아니라 그냥 Fake 통과(live 아님)
+        fake.inject(mapOf(steering to "-450.0")); advanceUntilIdle()  // 실물이 모르는 키 → 실패 목록으로 돌아온다 → forced(이후 실물 값 무시) · Fake 값은 통과(live 아님)
         assertEquals(listOf(mapOf(speed to "5.5"), mapOf(speed to "99.0"), mapOf(steering to "-450.0")), seen.drop(1))
-        assertTrue(hybrid.isLive(speed)); assertFalse(hybrid.isLive(steering))
+        assertTrue(hybrid.isLive(speed)); assertFalse(hybrid.isLive(steering)); assertTrue(steering in hybrid.forcedKeys)
         job.cancel(); hybrid.dispose()
         assertEquals(null, fake.writeThrough)                         // dispose 가 훅을 푼다
     }
@@ -99,7 +100,32 @@ class HybridVehiclePortTest {
         assertEquals(mapOf(gear to Gear.REVERSE.vss), seen.last())
         assertEquals(Gear.REVERSE.vss, hybrid.get(listOf(gear))[gear])   // get 도 Fake 값
         assertFalse(hybrid.isLive(gear))                              // markLive 가 forced 키를 되살리지 않는다
+        fake.inject(mapOf(gear to "1")); advanceUntilIdle()           // forced 키는 실물에 다시 쓰지 않는다(10/1 사내 검증 #2)
+        assertEquals(1, real.setCalls.count { gear in it })
         job.cancel(); hybrid.dispose()
+    }
+
+    @Test
+    fun `a cancelled write-through is not a rejection - the key stays live and never becomes forced`() = runTest {
+        // 10/1 사내 검증 #2: 시나리오 정지·교체로 Fake 의 job 이 취소되면 real.set 이 CancellationException 으로 끝난다.
+        // 이것을 거부로 치면 그 스텝의 키가 영구 forced 가 되어 이후 실신호를 무시했다.
+        val dispatcher = StandardTestDispatcher(testScheduler)
+        val scripted = ScriptedRealPort(mapOf(speed to "0.0"))
+        val real = object : VehiclePort by scripted {
+            override suspend fun set(values: Map<String, String>): List<String> = throw CancellationException("scenario stopped")
+        }
+        val fake = FakeVehiclePort(simulate = false, dispatcher = dispatcher)
+        val hybrid = HybridVehiclePort(real, fake)
+        hybrid.get(listOf(speed)); assertTrue(hybrid.isLive(speed))
+        var cancelled = false
+        launch(dispatcher) {
+            try { fake.inject(mapOf(speed to "9.0")) } catch (e: CancellationException) { cancelled = true; throw e }
+        }
+        advanceUntilIdle()
+        assertTrue(cancelled)                                         // 취소는 그대로 전파된다
+        assertTrue(hybrid.forcedKeys.isEmpty()); assertTrue(hybrid.isLive(speed))
+        assertEquals("0.0", scripted.store[speed])                    // 실물 값 그대로
+        hybrid.dispose()
     }
 
     @Test
