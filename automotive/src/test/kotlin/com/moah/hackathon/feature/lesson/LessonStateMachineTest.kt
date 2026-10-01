@@ -339,6 +339,9 @@ class LessonStateMachineTest {
         h.machine.finishAttempt(); advanceUntilIdle()
         h.machine.nextAttempt(); advanceUntilIdle()
         assertEquals(2, (h.machine.phase.value as LessonPhase.Maneuver).attempt)
+        // 회차 시작 한 마디는 번호 없이(운전자 문장 숫자 금지 — 감사 08 A1-02)
+        assertTrue(h.tts.spoken.toString(), "다시 시작해요. 조용히 볼게요." in h.tts.spoken)
+        assertTrue(h.tts.spoken.none { it.contains("회차") && it.any(Char::isDigit) })
         feed(h, ParkingScenarios.good)
         h.machine.finishAttempt(); advanceUntilIdle()
         val done = h.machine.phase.value as LessonPhase.Done
