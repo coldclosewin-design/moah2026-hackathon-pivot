@@ -98,7 +98,7 @@ class LessonPresentationTest {
         assertEquals("오늘의 연습을\n함께 준비할게요.", briefingHeadline(emptyList()))
         assertEquals("안전벨트를\n볼게요.", briefingHeadline(listOf("안전벨트")))
         assertEquals("뒤 거리와\n시동을 볼게요.", briefingHeadline(listOf("뒤 거리", "시동")))
-        assertEquals("핸들 방향과 기어 전환과\n뒤 거리를 볼게요.", briefingHeadline(SeedCatalog.parkingTask.watch))
+        assertEquals("핸들 방향, 기어 전환과\n뒤 거리를 볼게요.", briefingHeadline(SeedCatalog.parkingTask.watch))
         assertEquals("문부터 지시등까지\n순서대로 볼게요.", briefingHeadline(listOf("문", "벨트", "기어", "시동", "지시등")))
         assertFalse(Regex("\\d").containsMatchIn(briefingHeadline(SeedCatalog.predriveTask.watch)))
     }
