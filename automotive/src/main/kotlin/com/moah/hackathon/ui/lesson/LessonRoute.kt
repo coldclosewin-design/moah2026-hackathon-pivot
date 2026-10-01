@@ -22,7 +22,8 @@ internal fun LessonRoute(vm: LessonViewModel) {
                 controls.resumeCar()
                 controls.play(id)
             }, controls::stopScenario,
-                controls::stopCar, controls::resumeCar, controls::setDoor)
+                controls::stopCar, controls::resumeCar, controls::setDoor,
+                aiState = controls.aiState, onConnectAi = { vm.demo?.connectAi() })
         }
     }
     when (val state = phase) {

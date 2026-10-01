@@ -7,11 +7,25 @@ import com.moah.hackathon.scoring.ParkingMetrics
 import com.moah.hackathon.scoring.HarshKind
 import com.moah.hackathon.ports.withAndParticle
 import com.moah.hackathon.ports.withObjectParticle
+import com.moah.hackathon.ports.copilot.CopilotAuth
 import com.moah.hackathon.vehicle.AvailabilityBadge
 import com.moah.hackathon.vehicle.SignalAvailability
 import mobis.vss.VssConstants as V
 import kotlin.math.abs
 import kotlin.math.roundToInt
+
+internal data class AiLine(val title: String, val detail: String, val showConnect: Boolean)
+
+internal fun aiLine(state: CopilotAuth.State?): AiLine? = when (state) {
+    null -> null
+    CopilotAuth.State.NoConfig -> AiLine("AI 코치 · 설정 없음",
+        "copilot_config.json 없음 — 시드 문장으로 말해요", false)
+    CopilotAuth.State.NeedsLogin -> AiLine("AI 코치 · 로그인 필요",
+        "GitHub 에서 코드를 넣고 Authorize 까지 눌러 주세요", true)
+    is CopilotAuth.State.Code -> AiLine("AI 코치 · 코드 입력 중", "${state.uri}  ${state.userCode}", false)
+    CopilotAuth.State.Ready -> AiLine("AI 코치 · 연결됨", "회차 멘트·총평을 Copilot 이 써요", false)
+    is CopilotAuth.State.Error -> AiLine("AI 코치 · 오류", state.message.take(80), true)
+}
 
 internal fun profileLine(profile: Profile): String = listOfNotNull(profile.name,
     profile.rustyYears?.let { "장롱 ${it}년차" }, profile.statement.goal?.let { "목표 $it" }).joinToString(" · ")

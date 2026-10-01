@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -16,18 +17,25 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.moah.hackathon.R
+import com.moah.hackathon.ports.copilot.CopilotAuth
 import com.moah.hackathon.ui.CoachColors
 import com.moah.hackathon.vehicle.Scenario
 import com.moah.hackathon.vehicle.ScenarioPlayback
+import kotlinx.coroutines.flow.StateFlow
 
 // The rail floats above the poster; opening it never changes the reading width.
 internal val LocalDemoExpansion = compositionLocalOf<MutableState<Boolean>?> { null }
 
 @Composable
 internal fun DemoPanel(scenarios: List<Scenario>, playback: ScenarioPlayback?, onPlay: (String) -> Unit,
-    onStopScenario: () -> Unit, onStopCar: () -> Unit, onResumeCar: () -> Unit, onDoor: (Boolean) -> Unit) {
+    onStopScenario: () -> Unit, onStopCar: () -> Unit, onResumeCar: () -> Unit, onDoor: (Boolean) -> Unit,
+    aiState: StateFlow<CopilotAuth.State>? = null, onConnectAi: () -> Unit = {}) {
     val ownExpansion = rememberSaveable { mutableStateOf(false) }
     val expansion = LocalDemoExpansion.current ?: ownExpansion
     val play: (String) -> Unit = { id -> expansion.value = false; onPlay(id) }
@@ -56,6 +64,23 @@ internal fun DemoPanel(scenarios: List<Scenario>, playback: ScenarioPlayback?, o
                 DemoButton(stringResource(R.string.demo_close_door), { onDoor(false) }, Modifier.weight(1f))
             }
             DemoButton(stringResource(R.string.demo_stop_scenario), onStopScenario)
+            val authState = aiState?.collectAsState()?.value
+            aiLine(authState)?.let { line ->
+                PosterRule(color = CoachColors.Periwinkle.copy(alpha = .4f))
+                LessonText(line.title, 32)
+                if (authState is CopilotAuth.State.Code) {
+                    Text(buildAnnotatedString {
+                        append(authState.uri.removePrefix("https://"))
+                        append("  ")
+                        withStyle(SpanStyle(color = CoachColors.Ink, fontSize = 40.sp)) {
+                            append(authState.userCode)
+                        }
+                    }, color = CoachColors.Muted, fontSize = 28.sp, lineHeight = 52.sp)
+                } else {
+                    LessonText(line.detail, 28, CoachColors.Muted)
+                }
+                if (line.showConnect) TextAction(stringResource(R.string.demo_connect_ai), onConnectAi)
+            }
         }
     }
 }
