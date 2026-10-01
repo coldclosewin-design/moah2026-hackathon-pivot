@@ -31,6 +31,8 @@ import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.intl.LocaleList
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.unit.sp
 import com.moah.hackathon.App
 import com.moah.hackathon.data.SeedCatalog
@@ -213,7 +215,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             check(allText().contains(line))
             check(texts().none { it == line })
             check(nodes().none(::hasTouchAction))
-            check(texts().contains("핸들 방향과 기어 전환과\n뒤 거리를 볼게요."))
+            check(texts().contains("핸들 방향, 기어 전환과\n뒤 거리를 볼게요."))
             capture("briefing")
             pass("Briefing has its full sentence and no touch targets")
 
@@ -830,7 +832,7 @@ class LessonScreenInstrumentation : Instrumentation() {
 
         val code = CopilotAuth.State.Code("ABCD-1234", "https://github.com/login/device")
         runOnMainSync { auth.value = code }
-        val detail = "github.com/login/device  ABCD-1234"
+        val detail = "https://github.com/login/device\nABCD-1234"
         awaitLine(checkNotNull(aiLine(code)), detail)
         check(detail in texts()) { "Device URI and code must remain readable verbatim" }
         check("AI 연결" !in texts())
@@ -842,7 +844,13 @@ class LessonScreenInstrumentation : Instrumentation() {
             check(node.config.getOrNull(SemanticsActions.GetTextLayoutResult)?.action?.invoke(layouts) == true)
             val layout = layouts.single()
             check(!layout.hasVisualOverflow) { "Device code is clipped" }
-            val codeStyle = layout.layoutInput.text.spanStyles.single()
+            check(layout.lineCount == 2 && layout.getLineStart(1) == code.uri.length + 1) {
+                "Device URI and code must each occupy one complete line"
+            }
+            check(layout.layoutInput.style.fontSize == 28.sp)
+            check(layout.layoutInput.style.localeList == LocaleList("ko-KR"))
+            check(layout.layoutInput.style.lineBreak.wordBreak == LineBreak.WordBreak.Phrase)
+            val codeStyle = layout.layoutInput.text.spanStyles.single { it.item.fontSize == 40.sp }
             check(codeStyle.item.fontSize == 40.sp && codeStyle.item.color == CoachColors.Ink)
             check(layout.layoutInput.text.text.substring(codeStyle.start, codeStyle.end) == code.userCode)
         }
@@ -944,7 +952,8 @@ class LessonScreenInstrumentation : Instrumentation() {
                                 "First sheet frame must already contain modes and start"
                             }
                         }
-                        frames += checkNotNull(uiAutomation.takeScreenshot())
+                        // The explicit Compose clock stays at this sample time during screenshot retries.
+                        frames += screenshot()
                     }
                     val scale = designScale(activity)
                     check(abs(widths.first() - 2560 * scale * if (opening) .53f else .30f) <= 2)
@@ -996,7 +1005,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         while (SystemClock.uptimeMillis() < deadline) {
             val bounds = buttonBounds(label)
             if (bounds == previous) {
-                val screenshot = checkNotNull(uiAutomation.takeScreenshot())
+                val screenshot = screenshot()
                 try {
                     val sampled = screenshot.getPixel(bounds.left + 4, bounds.top + 4)
                     pixel = sampled
@@ -1220,8 +1229,22 @@ class LessonScreenInstrumentation : Instrumentation() {
         }
         return bounds
     }
+    private fun screenshot(): Bitmap {
+        var bitmap: Bitmap? = null
+        repeat(3) { attempt ->
+            bitmap = try {
+                uiAutomation.takeScreenshot()
+            } catch (_: NullPointerException) {
+                // API 34 can dereference a null ScreenshotHardwareBuffer before returning a bitmap.
+                null
+            }
+            bitmap?.let { return it }
+            if (attempt < 2) Thread.sleep(50)
+        }
+        return checkNotNull(bitmap) { "UiAutomation.takeScreenshot() returned null after 3 attempts" }
+    }
     private fun capture(name: String, verify: (Bitmap) -> Unit = {}) {
-        val screenshot = checkNotNull(uiAutomation.takeScreenshot())
+        val screenshot = screenshot()
         try {
             File(targetContext.filesDir, "lesson-$name.png").outputStream().use { screenshot.compress(Bitmap.CompressFormat.PNG, 100, it) }
             verify(screenshot)

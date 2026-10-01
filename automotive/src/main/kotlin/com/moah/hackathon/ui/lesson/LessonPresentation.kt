@@ -56,7 +56,7 @@ internal fun setupProposal(type: TaskType) = when (type) {
 internal fun briefingHeadline(watch: List<String>): String = when (watch.size) {
     0 -> "오늘의 연습을\n함께 준비할게요."
     1 -> "${watch.first().withObjectParticle()}\n볼게요."
-    2, 3 -> "${watch.dropLast(1).joinToString(" ") { it.withAndParticle() }}\n${watch.last().withObjectParticle()} 볼게요."
+    2, 3 -> "${watch.dropLast(1).joinToString(", ").withAndParticle()}\n${watch.last().withObjectParticle()} 볼게요."
     else -> "${watch.first()}부터 ${watch.last()}까지\n순서대로 볼게요."
 }
 

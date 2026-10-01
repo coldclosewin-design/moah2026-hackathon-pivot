@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.LocaleList
@@ -51,6 +52,11 @@ internal fun PosterSurface(content: @Composable () -> Unit) {
 
 @Composable
 internal fun LessonText(text: String, size: Int = 36, color: Color = CoachColors.Ink,
+    bold: Boolean = false, modifier: Modifier = Modifier, maxLines: Int = Int.MAX_VALUE, textAlign: TextAlign? = null) =
+    LessonText(AnnotatedString(text), size, color, bold, modifier, maxLines, textAlign)
+
+@Composable
+internal fun LessonText(text: AnnotatedString, size: Int = 36, color: Color = CoachColors.Ink,
     bold: Boolean = false, modifier: Modifier = Modifier, maxLines: Int = Int.MAX_VALUE, textAlign: TextAlign? = null) {
     Text(text, modifier, color = color, fontSize = size.sp, lineHeight = (size * 1.3f).sp,
         maxLines = maxLines, overflow = if (maxLines == Int.MAX_VALUE) TextOverflow.Clip else TextOverflow.Ellipsis,

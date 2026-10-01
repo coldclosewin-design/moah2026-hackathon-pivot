@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -69,13 +68,15 @@ internal fun DemoPanel(scenarios: List<Scenario>, playback: ScenarioPlayback?, o
                 PosterRule(color = CoachColors.Periwinkle.copy(alpha = .4f))
                 LessonText(line.title, 32)
                 if (authState is CopilotAuth.State.Code) {
-                    Text(buildAnnotatedString {
-                        append(authState.uri.removePrefix("https://"))
-                        append("  ")
+                    LessonText(buildAnnotatedString {
+                        withStyle(SpanStyle(letterSpacing = (-1).sp)) {
+                            append(authState.uri)
+                        }
+                        append("\n")
                         withStyle(SpanStyle(color = CoachColors.Ink, fontSize = 40.sp)) {
                             append(authState.userCode)
                         }
-                    }, color = CoachColors.Muted, fontSize = 28.sp, lineHeight = 52.sp)
+                    }, size = 28, color = CoachColors.Muted)
                 } else {
                     LessonText(line.detail, 28, CoachColors.Muted)
                 }
