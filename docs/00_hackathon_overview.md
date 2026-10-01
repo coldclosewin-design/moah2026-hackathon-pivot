@@ -50,9 +50,10 @@ AAOS 기반 플랫폼(infoLINK) 위에 APK를 얹어 **운전자에게 편의/�
 
 ## 제출 절차 (사내에서 진행)
 
-1. **Source code** → 팀별 제공 Bitbucket 프로젝트에 업로드 (`<사내 Bitbucket>/projects/MOBIS_SW_HACKATHON`)
-2. **APK** → WebIDE의 `market_uploader` 실행 → APK 선택 후 제출
-3. **시연 영상** → 3D 에뮬레이터 연동 동작 녹화 (세부 형식은 주최 공지 확인)
+1. **Source code** → 팀별 제공 Bitbucket 프로젝트(`<사내 Bitbucket>/projects/MOBIS_SW_HACKATHON`)의 `submission` 브랜치(사외 태그 + 사내 jar 커밋 1개 — `docs/07` §4)
+2. **APK** → WebIDE의 `market_uploader` 실행 → APK 선택 후 제출(카테고리 VEHICLE, 재업로드마다 versionCode +1)
+3. **시연 영상** → 3D 에뮬레이터 연동 동작 녹화(세부 형식은 주최 공지 확인). 자막 원고 `presentation/03_submission_onepager.md` B3
+4. **PPT 1장**(주최 양식, pageId 1317526558) → 원고 `presentation/03_submission_onepager.md` B1. PPT·영상은 MOAH@mobis.com (9/30 사내 확인 — 제출은 3종이 아니라 **4종**)
 
 ## 정책·보안 유의 (반드시 선확인)
 

@@ -1,6 +1,12 @@
-# MOAH 2026 Hackathon App — 운전 연수 어시스턴트 (가칭 DriveCoach)
+# 드라이브 코치 — 화내지 않는 조수석 (MOAH 2026 Hackathon App)
 
-MOAH 2026 (MOBIS SW Hackathon) 출품용 Android Automotive OS 앱. 초보운전자가 혼자 도로에 나갈 때 차량 신호로 운전 행위를 측정해 **주행 중엔 음성으로 코칭**, **세우고 내릴 때 진단 리포트**를 펼친다. 외부 PC에서 개발하고 사내에서 머지·빌드·시연한다.
+MOAH 2026 (MOBIS SW Hackathon) 출품용 Android Automotive OS 앱. 초보·장롱면허 운전자가 두려운 상황(후면 직각 주차·출발 전 점검·지식 테스트)을 **과제 단위**로 연습할 때, 차량 신호로 **과정**을 측정해 가이드 → 힌트 → 평가 순으로 손을 떼 가며 코칭하고, 세우고 내리면 진단 리포트를 펼친다. 카메라는 없다 — 칸에 반듯이 들어갔는지는 모른다고 정직하게 둔다. **외부 PC 에서 개발(이 public 저장소) → 사내에서는 검증·녹화·제출만**(코드를 고치지 않는다, `docs/07_two_site_workflow.md`).
+
+## 처음 받는 사람이 10분 안에 돌리려면
+
+- 준비물: **JDK 17**(`JAVA_HOME`), **Android SDK**(`ANDROID_HOME` 또는 `local.properties` 의 `sdk.dir`) — 플랫폼 35 · Build-Tools 34/35. Android Studio 는 없어도 된다(Gradle CLI).
+- 사외(Fake): 아래 "빌드" 한 명령 → APK 가 나오면 끝. 에뮬(AAOS `CSTDe_API_34`)에 `adb install -r` 하고 런처에서 **"드라이브 코치"** 를 열면 Setup 화면("오늘은 가볍게, 주차부터 해볼까요?")이 뜬다. 인터넷·키·실신호 없이 전체 시연이 된다(전 포트 Fake).
+- 사내(Real): 아래 "사내 빌드" 의 설정 한 줄 + jar. 절차 전체는 `docs/06_inhouse_migration.md`.
 
 2026-09-25 에 `16_hackathon`(Gift Drive)에서 플랫폼 계층만 물려받아 아이템을 전면 교체했다. 경위는 [docs/journal/2026-09-25.md](docs/journal/2026-09-25.md), 주제 정의는 [docs/topics/01_driving_coach.md](docs/topics/01_driving_coach.md).
 
@@ -19,10 +25,10 @@ APK: `automotive/build/outputs/apk/debug/automotive-debug.apk`
 ## 구조
 
 ```
-automotive/   AAOS 앱 (Kotlin, Compose). vehicle/ = VehiclePort + Fake/Real · ports/ = 음성·위치 · scoring/ = 채점(예정) · feature/lesson/ = 세션 상태기계(예정)
+automotive/   AAOS 앱 (Kotlin, Compose). vehicle/ = VehiclePort + Fake/Real/Hybrid · ports/ = 음성(TTS)·위치·코치(Cloud Copilot + 시드 폴백, ports/copilot/) · scoring/ = 채점(A층 속도 미분 + B층 점검표) · feature/lesson/ = 세션 상태기계·ViewModel · data/ = 시드(과제·가이드·멘트·퀴즈) · ui/ = 화면(Setup·Briefing·Maneuver·Done·Report·Quiz·시연 패널)
 vss-stub/     mobis.vss 컴파일 전용 스텁 (사내에서는 local.properties 의 mobis.vss.jar 로 시스템 jar 사용 — 코드 변경 없음)
-tools/        에뮬 자동 시연·캡처 스크립트 (새 흐름에 맞춰 수정 예정)
-docs/         가이드·계약·체크리스트·일지
+tools/        에뮬 자동 시연(emu_flow.sh)·화면 계약 캡처(lesson_shots.sh)·사내 검증(inhouse_check.sh) 스크립트 — tools/README.md
+docs/         가이드·계약·체크리스트·일지·발주서·감사·발표 원고
 ```
 
 ## 사내 빌드 (설정 한 줄 + jar 파일)
