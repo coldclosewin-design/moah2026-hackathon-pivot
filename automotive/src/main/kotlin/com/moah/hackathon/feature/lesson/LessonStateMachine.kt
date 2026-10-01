@@ -315,10 +315,10 @@ class LessonStateMachine(
         guide?.start()?.forEach { tts.speak(it) }
         guide?.unverified?.forEach { unverifiedSteps += it.say }
         publishManeuver(task, mode)
-        // 회차 시작 한 마디 — 브리핑·지난 회차 멘트가 자막에 남지 않게 갈아 준다(가이드는 첫 단계 문장이 그 역할)
+        // 회차 시작 한 마디 — 브리핑·지난 회차 멘트가 자막에 남지 않게 갈아 준다(가이드는 첫 단계 문장이 그 역할). 회차 번호는 말하지 않는다(운전자 문장 숫자 금지 — 감사 08 A1-02)
         when (mode) {
-            LessonMode.HINT -> tts.speak(if (attempt > 1) "${attempt}회차예요. 필요할 때만 말할게요." else "필요할 때만 말할게요.")
-            LessonMode.EVALUATE -> tts.speak(if (attempt > 1) "${attempt}회차예요. 조용히 볼게요." else "조용히 볼게요.")
+            LessonMode.HINT -> tts.speak(if (attempt > 1) "다시 시작해요. 필요할 때만 말할게요." else "필요할 때만 말할게요.")
+            LessonMode.EVALUATE -> tts.speak(if (attempt > 1) "다시 시작해요. 조용히 볼게요." else "조용히 볼게요.")
             else -> {}
         }
         Log.i(TAG, "attempt $attempt start (${mode}) missing=${registry.missingKeys(recorder.keys)}")
@@ -418,7 +418,7 @@ class LessonStateMachine(
             coach.summarize(task, mode, attempts, profile)
         } catch (e: RuntimeException) {
             Log.w(TAG, "coach.summarize failed → rule sentence", e)
-            "${task.title} ${attempts.size}회.\n오늘도 끝까지 했어요. 수고했어요."
+            "${task.title} 연습을 마쳤어요.\n오늘도 끝까지 했어요. 수고했어요."
         }
         val nextTask = ModeAdvisor.suggestTask(profile, tasks)
         val next = ModeAdvisor.suggest(task, store)
