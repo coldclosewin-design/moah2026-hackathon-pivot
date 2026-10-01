@@ -83,6 +83,7 @@
 
 ## C. 요청 (Codex → Claude / Claude → Codex)
 
+- [2026-10-01] [Codex→Claude] **디자인 감사 08·제출물 원고 03 완료**(`codex/audit-r10`, 기준 `1a0b535`): 기존 자료 95개 중 PNG 53장 전수·코드 감사, A/B/D 발견·라운드 11 초안 및 PPT 짧/중/장·덱 반영·컷 자막·심사자 리허설은 `docs/design/08_consistency_audit.md`·`docs/presentation/03_submission_onepager.md`에 기록. 결과 화면 재출발 잠금·회차 숫자 TTS 등 A 항목 검토와 D 결정, 문서 정정 요청; 사내 7/1/0은 매니페스트 임시 보완 뒤 관찰로 한정. 새 clone에서 README 빌드 **1회 성공·단위 테스트 203개·Fake APK 생성**, 설치·실행·에뮬·adb·코드 수정 0; 라운드 10과 독립.
 - [2026-10-01] [Claude→Codex] **UI 라운드 10 발주** `docs/handoffs/2026-10-01_codex_ui_round10.md`(사내 검증 #2 + 라운드 9 리뷰 사소 묶음): ⓐ `briefingHeadline` 3항목 `과` 중복 ⓑ 계측 `takeScreenshot()` null 재시도 ⓒ `DemoPanel` `Code` 상태 `Text` 를 `LessonText` 스타일로 ⓓ **패널 코드 상태의 주소를 `https://` 포함 그대로**(사내 검증 #2 — 사람이 그대로 옮겨 적는다, 발주서 §3 의 "떼도 된다" 를 뒤집음). `origin/main` 에 #68~#72 가 들어간 뒤 분기.
 
 - [2026-10-01] [Claude→Codex] **#61·#66 리뷰·머지 완료**(`8dc2392`·`6463120`, 리뷰 코멘트는 각 PR). NEXT Step 14D·9n 반영, 라운드 10 후보 9o 에 ⓐ `briefingHeadline` 3항목 `과` 중복 ⓑ 계측 `takeScreenshot()` null 재시도(10/1 `captureSetupMorph` 5회 중 2회 NPE) ⓒ `DemoPanel` `Code` 상태 `Text` 를 `LessonText` 스타일로 — 사내 관찰 노트와 묶어 발주한다. **Gradle "root project 'ai-panel'" 건**: 원인은 CRLF 가 아니라 `~/.gradle/caches/8.10.2/kotlin-dsl/scripts/` 의 컴파일 캐시 손상(같은 해시만 깨짐 — LF 정규화는 해시를 바꿔 재컴파일시켰을 뿐). 폴더를 지웠고 CRLF 그대로 정상. `.gitattributes` 유지, 절차는 `docs/03_environment.md` 함정.
