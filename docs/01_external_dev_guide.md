@@ -141,7 +141,7 @@ android {
 ### 8.1 템플릿 기반 구조 맞추기 (권장)
 
 ```bash
-git clone ssh://git@bitbucket.mobis.co.kr:7999/mobis_sw_hackathon/moah_template_app.git
+git clone ssh://<사내 Bitbucket>/mobis_sw_hackathon/moah_template_app.git
 cd moah_template_app
 ```
 
@@ -168,7 +168,7 @@ adb install automotive/build/outputs/apk/debug/automotive-debug.apk
 
 ### 8.4 제출물 (3종)
 
-1. **Source code** → 팀별 제공 Bitbucket 프로젝트에 업로드 (`bitbucket.mobis.co.kr/projects/MOBIS_SW_HACKATHON`)
+1. **Source code** → 팀별 제공 Bitbucket 프로젝트에 업로드 (`<사내 Bitbucket>/projects/MOBIS_SW_HACKATHON`)
 2. **APK** → WebIDE의 `market_uploader` 실행 → APK 선택 후 제출
 3. **시연 영상** → 3D 에뮬레이터 연동 동작 녹화 (세부 형식은 주최 공지 확인)
 
@@ -196,11 +196,11 @@ adb install automotive/build/outputs/apk/debug/automotive-debug.apk
 
 ## 부록 B. 근거 페이지
 
-- Getting Started: https://confluence.mobis.co.kr/pages/viewpage.action?pageId=1328361635
-- VehicleAPI(VSS) Reference: https://confluence.mobis.co.kr/pages/viewpage.action?pageId=1037767644
-- Template App: https://confluence.mobis.co.kr/pages/viewpage.action?pageId=1324683678
-- 앱 제출 가이드: https://confluence.mobis.co.kr/pages/viewpage.action?pageId=1038298817
-- 최종자료 제출: https://confluence.mobis.co.kr/pages/viewpage.action?pageId=1317526558
-- 차량 신호(1,251개): https://confluence.mobis.co.kr/pages/viewpage.action?pageId=1323873443
+- Getting Started: <사내 Confluence>/pages/viewpage.action?pageId=1328361635
+- VehicleAPI(VSS) Reference: <사내 Confluence>/pages/viewpage.action?pageId=1037767644
+- Template App: <사내 Confluence>/pages/viewpage.action?pageId=1324683678
+- 앱 제출 가이드: <사내 Confluence>/pages/viewpage.action?pageId=1038298817
+- 최종자료 제출: <사내 Confluence>/pages/viewpage.action?pageId=1317526558
+- 차량 신호(1,251개): <사내 Confluence>/pages/viewpage.action?pageId=1323873443
 
 본 문서는 사내 Confluence 문서를 근거로 정리한 개인 개발용 참고 자료다. 공식 규칙·주제·평가·일정·제출 형식은 항상 주최측 최신 공지를 우선한다.

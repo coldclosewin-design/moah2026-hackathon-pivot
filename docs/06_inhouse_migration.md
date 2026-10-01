@@ -10,7 +10,7 @@
 
 - [ ] `main` 이 `.\gradlew.bat assembleDebug testDebugUnitTest` 통과, `bash tools/emu_flow.sh <폴더>` 가 `result: PASS`
 - [ ] 이관할 커밋에 태그: `git tag inhouse-YYYYMMDD && git push origin inhouse-YYYYMMDD` (사내에서 뭘 가져갔는지 나중에 알 수 있게)
-- [ ] 사내에서 GitHub private 저장소에 닿는 방법 확인(HTTPS + 토큰? 프록시?). **안 되면** `git bundle create moah.bundle main` 또는 소스 zip 을 반입 절차에 따라 옮긴다
+- [x] 사내에서 저장소에 닿는 방법: **public 저장소 익명 HTTPS clone**(개인 계정 로그인 불가 → private 는 안 됨, 10/1 확정). 막히면 `git bundle`(`build/moah2026-*.bundle`, 태그·main 포함) 을 반입 절차에 따라 옮긴다
 - [ ] 사내 Gradle 이 외부 저장소(google, mavenCentral, services.gradle.org)에 닿는지 모른다 → 1절의 "B. 템플릿에 얹기"를 기본 경로로 생각해 둔다
 
 ## 1. 코드 가져오기
@@ -18,13 +18,13 @@
 ### A. 저장소를 그대로 빌드 (인터넷·저장소 접근이 되는 경우)
 
 ```bash
-git clone <GitHub private URL> moah2026 && cd moah2026 && git checkout inhouse-YYYYMMDD
+git clone https://github.com/coldclosewin-design/moah2026-hackathon-pivot.git moah2026 && cd moah2026 && git checkout inhouse-YYYYMMDD-N
 ```
 
 ### B. 사내 템플릿에 얹기 (권장 기본값 — 사내 Gradle 설정·미러를 그대로 쓴다)
 
 ```bash
-git clone ssh://git@bitbucket.mobis.co.kr:7999/mobis_sw_hackathon/moah_template_app.git
+git clone ssh://<사내 Bitbucket>/mobis_sw_hackathon/moah_template_app.git
 ```
 
 템플릿의 `automotive` 모듈 위에 아래를 복사한다. **템플릿의 Gradle 래퍼·`settings.gradle*`·루트 `build.gradle*` 는 건드리지 않는다.**
@@ -135,6 +135,6 @@ Real 모드에서 달라지는 동작:
 
 ## 8. 제출
 
-1. **소스** → 팀 Bitbucket 프로젝트(`bitbucket.mobis.co.kr/projects/MOBIS_SW_HACKATHON`). `vss-stub` 제거·스위치 반영된 사내 빌드 상태 그대로
+1. **소스** → 팀 Bitbucket 프로젝트(`<사내 Bitbucket>/projects/MOBIS_SW_HACKATHON`). `vss-stub` 제거·스위치 반영된 사내 빌드 상태 그대로
 2. **APK** → WebIDE `market_uploader` 로 `automotive-debug.apk` 제출
 3. **시연 영상** → 3D 에뮬 연동 화면 녹화. 진행은 [05_demo_script.md](05_demo_script.md), 조작만 시연 버튼 → Signal Simulator 로 바뀐다. 형식·길이는 주최 공지 확인
