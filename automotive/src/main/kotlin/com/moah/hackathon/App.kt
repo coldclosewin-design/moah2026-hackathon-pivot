@@ -37,7 +37,7 @@ import kotlinx.coroutines.SupervisorJob
  *  - VehiclePort: BuildConfig.USE_FAKE_VSS 로 Fake/Real (VehiclePortFactory). 폴백으로 Fake 가 됐어도 `vehicle is FakeVehiclePort` 로 잡힌다
  *  - LocationPort: USE_FAKE_LOCATION 으로 Fake(속도 적분)/GPS — 도로 과제용, 주차 과제는 쓰지 않는다
  *  - TtsPort: Android TTS (엔진 없으면 자막만)
- *  - CoachPort: Fake(시드 멘트 풀). Cloud Copilot 은 사내 인증 확인 후
+ *  - CoachPort: CloudCoachPort = Cloud Copilot 전송 계층(ports/copilot, 10/1 사내 통과) + 시드 멘트 폴백. CLOUD_COACH=false·설정 없음·오류·5 s 초과 → 시드
  */
 class AppContainer(context: Context) {
     val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -55,10 +55,6 @@ class AppContainer(context: Context) {
     // 상위 집합으로 만들고 과제가 자기 키로 잘라 본다(주차 8 · 점검 12) — 주차 배지가 점검 신호 때문에 "미측정" 을 세지 않게
     val registry = SignalRegistry.forPort(ParkingRecorder.CHECKLIST_KEYS, vehicle)
     val store = ProgressStore()
-    /**
-     * 코치. 전송 계층(`CoachTransport`)은 사내 Cloud Copilot 인증 방식이 확인되기 전까지 null → 항상 시드 멘트 풀로 폴백한다.
-     * 확인되면 `CoachTransport` 구현체 하나를 여기 넘기면 끝.
-     */
     /**
      * Cloud Copilot 인증(9/30 사내 실측: 폴백 0회, "다 됐어요" → Done 2~4 s). `CLOUD_COACH=false` 또는 설정 파일 없음 → null/시드.
      * 시연 패널이 [CopilotAuth.state] 를 보여 주고 `connect()` 로 device code 로그인을 시작한다.

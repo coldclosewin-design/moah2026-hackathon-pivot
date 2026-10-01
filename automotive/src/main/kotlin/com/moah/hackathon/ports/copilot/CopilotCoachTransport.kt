@@ -6,7 +6,8 @@ import java.io.IOException
 
 /**
  * [CoachTransport] 의 Copilot 구현 — `POST {endpoint}/chat/completions`(Bearer 세션 토큰, `Copilot-Integration-Id: vscode-chat`,
- * max_tokens 200, temperature 0.7) → `choices[0].message.content`. 401 이면 세션을 무효화하고 **한 번** 재시도.
+ * `Openai-Intent: conversation-panel`, 에디터 헤더는 [CopilotAuth.EDITOR_HEADERS] — 10/1 사내에서 통과한 값),
+ * max_tokens 200, temperature 0.7 → `choices[0].message.content`. 401 이면 세션을 무효화하고 **한 번** 재시도.
  * 실패는 예외로 — [com.moah.hackathon.ports.CloudCoachPort] 가 잡아 시드 문장으로 폴백한다.
  */
 class CopilotCoachTransport(
@@ -34,6 +35,7 @@ class CopilotCoachTransport(
             "Authorization" to "Bearer $token",
             "Content-Type" to "application/json",
             "Copilot-Integration-Id" to "vscode-chat",
+            "Openai-Intent" to "conversation-panel",
         ) + CopilotAuth.EDITOR_HEADERS, payload)
     }
 

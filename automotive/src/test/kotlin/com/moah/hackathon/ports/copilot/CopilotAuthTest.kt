@@ -1,9 +1,11 @@
 package com.moah.hackathon.ports.copilot
 
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -125,6 +127,58 @@ class CopilotAuthTest {
         assertEquals(2, http.calls.drop(headers).count { it.second.endsWith("/chat/completions") })
         http.chat = { _, _ -> HttpResponse(500, "boom") }
         try { t.complete("s", "u"); assertTrue(false) } catch (e: IOException) { assertTrue(e.message!!.contains("500")) }
+    }
+
+    @Test
+    fun `sessionToken without oauth keeps the Code state while a login is in progress`() = runTest(StandardTestDispatcher()) {
+        // 10/1 사내 검증 #2: 코드 표시 중에 회차가 끝나 총평이 호출되면 NeedsLogin 으로 덮여 패널의 코드가 사라졌다
+        val gate = CompletableDeferred<Unit>()
+        val http = ScriptedHttp()
+        val store = MemoryTokenStore()
+        val a = CopilotAuth(config, store, http, this, clock = { 1_000_000L }, sleep = { gate.await() })
+        a.connect(); runCurrent()
+        assertEquals(CopilotAuth.State.Code("ABCD-1234", "https://github.com/login/device"), a.state.value)
+        assertNull(a.sessionToken())
+        assertEquals(CopilotAuth.State.Code("ABCD-1234", "https://github.com/login/device"), a.state.value)   // 그대로
+        http.polls += HttpResponse(200, """{"access_token":"gho_x","token_type":"bearer","scope":"copilot"}""")
+        gate.complete(Unit); advanceUntilIdle()
+        assertEquals(CopilotAuth.State.Ready, a.state.value)
+    }
+
+    @Test
+    fun `a transient session token failure returns null but keeps the state and the oauth`() = runTest {
+        // 10/1 사내 검증 #2: 5xx 에 Error 로 가면 패널에 AI 연결이 떠서 멀쩡한 OAuth 로 기기 인증을 다시 시작하게 된다
+        val http = ScriptedHttp().apply { session = { HttpResponse(503, "unavailable") } }
+        val store = MemoryTokenStore("gho_saved")
+        val a = auth(store, http)
+        assertNull(a.sessionToken())
+        assertEquals(CopilotAuth.State.Ready, a.state.value)
+        assertEquals("gho_saved", store.oauthToken())
+        http.session = { HttpResponse(200, """{"token":"s2","expires_at":${2_000_000_000L}}""") }
+        assertEquals("s2", a.sessionToken())                       // 회복되면 그대로 이어진다
+        http.session = { HttpResponse(200, """not json""") }
+        a.invalidateSession()
+        assertNull(a.sessionToken()); assertEquals(CopilotAuth.State.Ready, a.state.value)
+    }
+
+    @Test
+    fun `session and chat requests carry the editor headers that passed in-house and the chat intent`() = runTest {
+        val seen = mutableMapOf<String, Map<String, String>>()
+        val http = object : HttpClient {
+            val inner = ScriptedHttp()
+            override suspend fun request(method: String, url: String, headers: Map<String, String>, body: String?): HttpResponse {
+                seen[url] = headers; return inner.request(method, url, headers, body)
+            }
+        }
+        val a = auth(MemoryTokenStore("gho"), http)
+        assertEquals("좋았어요! 다음엔 벨트부터요.", CopilotCoachTransport(a, config, http).complete("s", "u"))
+        val session = seen.getValue(CopilotAuth.SESSION_TOKEN_URL)
+        assertEquals("vscode/1.95.0", session["Editor-Version"])
+        assertEquals("copilot-chat/0.25.2025010801", session["Editor-Plugin-Version"])
+        val chat = seen.entries.single { it.key.endsWith("/chat/completions") }.value
+        assertEquals("vscode/1.95.0", chat["Editor-Version"])
+        assertEquals("conversation-panel", chat["Openai-Intent"])
+        assertEquals("vscode-chat", chat["Copilot-Integration-Id"])
     }
 
     @Test
