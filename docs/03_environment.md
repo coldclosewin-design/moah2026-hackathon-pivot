@@ -23,6 +23,8 @@
 # APK: automotive\build\outputs\apk\debug\automotive-debug.apk
 ```
 
+**함정(10/1)** — `gradlew assembleDebug` 가 1 초 만에 `Task 'assembleDebug' not found in root project '<폴더이름>'` 으로 끝나고 `gradlew projects` 가 서브프로젝트 없이 폴더 이름만 보이면, `settings.gradle.kts` 가 평가는 되는데 **컴파일된 스크립트 캐시가 깨진 것**이다(`~/.gradle/caches/8.10.2/kotlin-dsl/scripts/` — 같은 내용 해시의 파일만 깨지고, 줄 하나를 바꾸거나 CRLF→LF 로 바꾸면 "고쳐진" 것처럼 보인다). 워크트리 `.gradle/`·`.kotlin/` 삭제·데몬 재시작으로는 안 낫는다. 해결: `./gradlew --stop` 뒤 그 `scripts/` 폴더 삭제(자동 재생성, 사용자 홈이라 승인 필요). `.gitattributes`(`* text=auto`) 는 바꾸지 않는다.
+
 ## 에뮬레이터 설치 (`emulator/setting.zip`)
 
 > **17번(피벗) 저장소 주석**: 이 zip(3.7 GB)은 `C:\Project\16_hackathon\emulator\setting.zip` 에 있고 이 저장소에는 복사하지 않았다. AVD `CSTDe_API_34` 는 `%LOCALAPPDATA%\Android\Sdk` 에 이미 설치되어 16번과 **공용**이므로 아래 설치 절차는 새 PC 에서만 필요하다.
