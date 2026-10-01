@@ -32,7 +32,7 @@ class GuideRunnerTest {
         // 확인 문장이 단계 순서대로 전부 나온다
         assertEquals(confirms, spoken.filter { it in confirms })
         assertEquals("안전벨트를 매 주세요.", spoken.first())
-        assertTrue(spoken.last().startsWith("다 되셨나요?"))
+        assertEquals("주차를 마쳤으면 버튼을 눌러 주세요.", spoken.last())
     }
 
     @Test
@@ -53,7 +53,7 @@ class GuideRunnerTest {
         snap = snap.apply(mapOf(VssConstants.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE to "-450", VssConstants.VEHICLE_SPEED to "3.0"))
         runner.onSnapshot(snap)
         snap = snap.apply(mapOf(VssConstants.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE to "0"))
-        assertEquals(listOf("곧게 후진하세요.", "다 들어왔으면 멈추고 기어 P."), runner.onSnapshot(snap))
+        assertEquals(listOf("곧게 후진해요.", "다 들어왔으면 멈추고 주차 기어에 놓아 주세요."), runner.onSnapshot(snap))
     }
 
     @Test
@@ -71,7 +71,7 @@ class GuideRunnerTest {
         snap = snap.apply(mapOf(VssConstants.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR to "-1"))
         val out = runner.onSnapshot(snap)
         // R 확인 → 조향각 두 단계는 신호가 없어 읽고 넘김 → P 단계에서 대기
-        assertEquals(listOf("좋아요.", "핸들을 오른쪽 끝까지 돌리세요.", "차가 45도쯤 되면 핸들을 중립으로 돌려 주세요.", "다 들어왔으면 멈추고 기어 P."), out)
+        assertEquals(listOf("좋아요.", "핸들을 오른쪽 끝까지 돌려 주세요.", "차가 비스듬해지면 핸들을 중립으로 돌려 주세요.", "다 들어왔으면 멈추고 주차 기어에 놓아 주세요."), out)
         assertEquals(listOf("steer-right", "center"), runner.unverified.map { it.id })
         assertEquals("park", runner.current!!.id)
         assertFalse(runner.view()!!.unverified)

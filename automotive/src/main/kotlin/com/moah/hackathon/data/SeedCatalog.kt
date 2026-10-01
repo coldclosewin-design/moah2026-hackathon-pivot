@@ -32,33 +32,33 @@ object SeedCatalog {
     const val TASK_KNOWLEDGE = "knowledge-hazard-weather"
 
     val tasks: List<Task> = listOf(
-        Task(TASK_PREDRIVE, "출발 전 점검", TaskType.CHECKLIST, Difficulty.EASY, "문·벨트·기어 P·브레이크와 시동·지시등·비상등을 순서대로. 차는 세운 채로.",
+        Task(TASK_PREDRIVE, "출발 전 점검", TaskType.CHECKLIST, Difficulty.EASY, "차를 세운 채로 문과 벨트, 주차 기어, 브레이크와 시동, 지시등과 비상등을 순서대로 확인해요.",
             listOf("문", "안전벨트", "기어 P", "시동", "지시등"),
             setOf(V.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN, V.VEHICLE_CABIN_SEAT_ROW1_DRIVERSIDE_ISBELTED, V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR, V.VEHICLE_CHASSIS_BRAKE_PEDALPOSITION, V.VEHICLE_LOWVOLTAGESYSTEMSTATE,
                 V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING, V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING, V.VEHICLE_BODY_LIGHTS_HAZARD_ISSIGNALING), requiresDriving = false,
             status = TaskStatus.READY),   // 가이드 7단계(9/28, D1) + ChecklistScorer + 시나리오 2벌. 움직이지 않는 유일한 조작 과제
-        Task("straight-stop", "단순 전진 후 정지", TaskType.DRIVING, Difficulty.EASY, "천천히 출발해 부드럽게 멈추기.",
+        Task("straight-stop", "단순 전진 후 정지", TaskType.DRIVING, Difficulty.EASY, "천천히 출발해 부드럽게 멈춰요.",
             listOf("출발", "정지"), setOf(V.VEHICLE_SPEED), requiresDriving = true),
-        Task("left-turn-signal", "좌회전 방향지시등", TaskType.DRIVING, Difficulty.EASY, "좌회전 3초 전에 켜고, 돌고 나서 끄기.",
+        Task("left-turn-signal", "좌회전 방향지시등", TaskType.DRIVING, Difficulty.EASY, "좌회전하기 전에 방향지시등을 미리 켜고, 돌고 나서 꺼요.",
             listOf("방향지시등", "핸들"), setOf(V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING, V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE), requiresDriving = true),
-        Task("lane-change", "차선 변경", TaskType.DRIVING, Difficulty.MEDIUM, "지시등 → 확인 → 부드럽게 이동.",
+        Task("lane-change", "차선 변경", TaskType.DRIVING, Difficulty.MEDIUM, "방향지시등을 켜고 주변을 확인한 뒤 부드럽게 이동해요.",
             listOf("방향지시등", "핸들", "속도"), setOf(V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING, V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING, V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE), requiresDriving = true),
-        Task("road-course", "일반 도로 코스", TaskType.DRIVING, Difficulty.MEDIUM, "구간마다 기대 행동이 있는 실생활 경로.",
+        Task("road-course", "일반 도로 코스", TaskType.DRIVING, Difficulty.MEDIUM, "일상에서 만나는 도로를 따라 구간마다 필요한 행동을 익혀요.",
             listOf("속도 유지", "급조작", "방향지시등"), setOf(V.VEHICLE_SPEED), requiresDriving = true),
-        Task(TASK_PARKING_REAR, "후면 직각 주차", TaskType.PARKING, Difficulty.HARD, "핸들 끝까지 → 후진 → 45°에서 중립 → 곧게.",
+        Task(TASK_PARKING_REAR, "후면 직각 주차", TaskType.PARKING, Difficulty.HARD, "핸들을 돌리고 천천히 후진하며 방향을 맞춰요.",
             listOf("핸들 방향", "기어 전환", "뒤 거리"), setOf(V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE, V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR, SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM), requiresDriving = true,
             status = TaskStatus.READY),   // 채점기·가이드·시나리오가 있는 유일한 과제. 나머지는 카탈로그(계획)만
-        Task("parking-parallel", "평행 주차", TaskType.PARKING, Difficulty.HARD, "길가 한 칸에 뒤로 들어가기.",
+        Task("parking-parallel", "평행 주차", TaskType.PARKING, Difficulty.HARD, "길가의 주차 칸에 뒤로 들어가요.",
             listOf("핸들 방향", "기어 전환", "뒤 거리"), setOf(V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE, V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR, SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM), requiresDriving = true),
-        Task("parking-front", "전면 직각 주차", TaskType.PARKING, Difficulty.MEDIUM, "앞을 살피며 주차 칸에 곧게 들어가기.",
+        Task("parking-front", "전면 직각 주차", TaskType.PARKING, Difficulty.MEDIUM, "앞을 살피며 주차 칸에 곧게 들어가요.",
             listOf("핸들 방향", "기어 전환", "뒤 거리"), setOf(V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE, V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR, SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM), requiresDriving = true,
             status = TaskStatus.PLANNED),
-        Task("parking-angle", "사선 주차", TaskType.PARKING, Difficulty.HARD, "기울어진 주차 칸의 방향에 맞춰 들어가기.",
+        Task("parking-angle", "사선 주차", TaskType.PARKING, Difficulty.HARD, "기울어진 주차 칸의 방향에 맞춰 들어가요.",
             listOf("핸들 방향", "기어 전환", "뒤 거리"), setOf(V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE, V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR, SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM), requiresDriving = true,
             status = TaskStatus.PLANNED),
-        Task("roundabout", "회전교차로", TaskType.DRIVING, Difficulty.HARD, "우선순위 확인 → 진입 → 지시등으로 진출.",
+        Task("roundabout", "회전교차로", TaskType.DRIVING, Difficulty.HARD, "우선순위를 확인하고 들어간 뒤 방향지시등을 켜고 나와요.",
             listOf("속도", "방향지시등"), setOf(V.VEHICLE_SPEED, V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING), requiresDriving = true),
-        Task(TASK_KNOWLEDGE, "비상등·날씨별 행동", TaskType.KNOWLEDGE, Difficulty.EASY, "정차 중 3지선다 5문제. 채점보다 이유를 듣는 것.",
+        Task(TASK_KNOWLEDGE, "비상등·날씨별 행동", TaskType.KNOWLEDGE, Difficulty.EASY, "정차 중에 문제를 풀고 이유를 함께 살펴봐요.",
             listOf("비상등", "우천", "야간"), emptySet(), requiresDriving = false,
             status = TaskStatus.READY),   // 지식 테스트 모드로만 시작된다(Task.supports)
     )
@@ -84,10 +84,10 @@ object SeedCatalog {
     val parkingGuide: List<GuideStep> = listOf(
         GuideStep("belt", "안전벨트를 매 주세요.", V.VEHICLE_CABIN_SEAT_ROW1_DRIVERSIDE_ISBELTED, "확인했어요.") { s, _ -> s.belt == true },
         GuideStep("ignition", "브레이크를 밟고 시동을 켜 주세요.", V.VEHICLE_LOWVOLTAGESYSTEMSTATE, "좋아요.") { s, _ -> s.ignitionOn == true },
-        GuideStep("reverse", "기어를 R로 넣어 주세요.", V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR, "좋아요.") { s, _ -> s.gear == Gear.REVERSE },
-        GuideStep("steer-right", "핸들을 오른쪽 끝까지 돌리세요.", V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE, "다 돌렸어요. 이제 천천히 후진하세요.") { s, _ -> (s.steeringDeg ?: 0f) <= -400f },
-        GuideStep("center", "차가 45도쯤 되면 핸들을 중립으로 돌려 주세요.", V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE, "곧게 후진하세요.") { s, moved -> moved && kotlin.math.abs(s.steeringDeg ?: 999f) < 30f },
-        GuideStep("park", "다 들어왔으면 멈추고 기어 P.", V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR, "다 되셨나요? 다 됐으면 버튼을 눌러 주세요.") { s, _ -> s.stopped && s.gear == Gear.PARK },
+        GuideStep("reverse", "기어를 후진에 놓아 주세요.", V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR, "좋아요.") { s, _ -> s.gear == Gear.REVERSE },
+        GuideStep("steer-right", "핸들을 오른쪽 끝까지 돌려 주세요.", V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE, "다 돌렸어요. 이제 천천히 후진해요.") { s, _ -> (s.steeringDeg ?: 0f) <= -400f },
+        GuideStep("center", "차가 비스듬해지면 핸들을 중립으로 돌려 주세요.", V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE, "곧게 후진해요.") { s, moved -> moved && kotlin.math.abs(s.steeringDeg ?: 999f) < 30f },
+        GuideStep("park", "다 들어왔으면 멈추고 주차 기어에 놓아 주세요.", V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR, "주차를 마쳤으면 버튼을 눌러 주세요.") { s, _ -> s.stopped && s.gear == Gear.PARK },
     )
 
     /**
@@ -97,11 +97,11 @@ object SeedCatalog {
     val predriveGuide: List<GuideStep> = listOf(
         GuideStep("door", "운전석 문을 닫아 주세요.", V.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN, "닫혔어요.") { s, _ -> !s.doorOpen },
         parkingGuide.first { it.id == "belt" },
-        GuideStep("park-check", "기어가 P에 있는지 확인해 주세요.", V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR, "P 맞아요.") { s, _ -> s.gear == Gear.PARK },
-        GuideStep("ignition", "브레이크를 밟고 시동을 켜 주세요.", V.VEHICLE_LOWVOLTAGESYSTEMSTATE, "시동 켜졌어요.") { s, _ -> s.ignitionOn == true },
-        GuideStep("indicator-left", "왼쪽 방향지시등을 켜 보세요.", V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING, "왼쪽 켜졌어요. 이제 오른쪽.") { s, _ -> s.indicatorLeft == true },
-        GuideStep("indicator-right", "오른쪽 방향지시등을 켜 보세요.", V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING, "오른쪽도 좋아요.") { s, _ -> s.indicatorRight == true },
-        GuideStep("hazard", "비상등을 켜 보세요.", V.VEHICLE_BODY_LIGHTS_HAZARD_ISSIGNALING, "비상등 확인. 이제 끄고 버튼을 눌러 주세요.") { s, _ -> s.hazard == true },
+        GuideStep("park-check", "기어가 주차에 있는지 확인해 주세요.", V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR, "주차 기어를 확인했어요.") { s, _ -> s.gear == Gear.PARK },
+        GuideStep("ignition", "브레이크를 밟고 시동을 켜 주세요.", V.VEHICLE_LOWVOLTAGESYSTEMSTATE, "시동이 켜졌어요.") { s, _ -> s.ignitionOn == true },
+        GuideStep("indicator-left", "왼쪽 방향지시등을 켜 봐요.", V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING, "왼쪽을 확인했어요. 이제 오른쪽도 켜 봐요.") { s, _ -> s.indicatorLeft == true },
+        GuideStep("indicator-right", "오른쪽 방향지시등을 켜 봐요.", V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING, "오른쪽도 확인했어요.") { s, _ -> s.indicatorRight == true },
+        GuideStep("hazard", "비상등을 켜 봐요.", V.VEHICLE_BODY_LIGHTS_HAZARD_ISSIGNALING, "비상등을 확인했어요. 이제 끄고 버튼을 눌러 주세요.") { s, _ -> s.hazard == true },
     )
 
     // ───────── 프로필 (§3.4) — 첫 설정 대화 5문항 + 시연용 예시 프로필 ─────────
@@ -128,44 +128,44 @@ object SeedCatalog {
      */
     val remarks: List<RemarkTemplate> = listOf(
         // EXCELLENT
-        RemarkTemplate(ScoreBand.EXCELLENT, setOf("rusty", "first"), "오랜만의 주차인데 몸이 기억하네요."),
-        RemarkTemplate(ScoreBand.EXCELLENT, setOf("rusty"), "장롱의 문을 활짝 열었어요. 이 정도면 마트 주차장은 됩니다."),
-        RemarkTemplate(ScoreBand.EXCELLENT, setOf("improved"), "핸들 움직임이 훨씬 매끈해졌어요."),
-        RemarkTemplate(ScoreBand.EXCELLENT, setOf("any"), "한 번에 들어갔어요. 이 감각을 몸이 기억하게."),
-        RemarkTemplate(ScoreBand.EXCELLENT, setOf("any"), "깔끔했어요. 옆자리에 누가 있었어도 할 말이 없었을 거예요."),
+        RemarkTemplate(ScoreBand.EXCELLENT, setOf("rusty", "first"), "오랜만에 시작한 주차 연습을 마쳤어요."),
+        RemarkTemplate(ScoreBand.EXCELLENT, setOf("rusty"), "다시 주차를 연습하며 감각을 익히고 있어요."),
+        RemarkTemplate(ScoreBand.EXCELLENT, setOf("improved"), "연습한 과정을 차근차근 돌아봐요."),
+        RemarkTemplate(ScoreBand.EXCELLENT, setOf("any"), "오늘의 연습을 끝까지 마쳤어요."),
+        RemarkTemplate(ScoreBand.EXCELLENT, setOf("any"), "연습을 마친 지금의 감각을 기억해 봐요."),
         // GOOD
-        RemarkTemplate(ScoreBand.GOOD, setOf("rusty", "first"), "장롱의 문 정도는 열었습니다. 좋은 출발이에요."),
-        RemarkTemplate(ScoreBand.GOOD, setOf("first"), "첫 회차에 이만큼이면 충분해요."),
-        RemarkTemplate(ScoreBand.GOOD, setOf("improved"), "아까보다 덜 헤맸어요. 방향이 맞아요."),
-        RemarkTemplate(ScoreBand.GOOD, setOf("regressed"), "아까보다 조금 더 움직였지만 안전했어요. 그게 더 중요해요."),
-        RemarkTemplate(ScoreBand.GOOD, setOf("any"), "좋아요. 한 번 더 하면 핸들 타이밍이 손에 붙을 거예요."),
-        RemarkTemplate(ScoreBand.GOOD, setOf("any"), "잘 들어왔어요. 오늘 이 정도면 충분해요."),
+        RemarkTemplate(ScoreBand.GOOD, setOf("rusty", "first"), "오랜만에 주차 연습을 다시 시작했어요."),
+        RemarkTemplate(ScoreBand.GOOD, setOf("first"), "주차 감각을 익히는 연습을 시작했어요."),
+        RemarkTemplate(ScoreBand.GOOD, setOf("improved"), "이어지는 연습 속에서 감각을 익히고 있어요."),
+        RemarkTemplate(ScoreBand.GOOD, setOf("regressed"), "이번 연습도 차근차근 돌아보면 돼요."),
+        RemarkTemplate(ScoreBand.GOOD, setOf("any"), "핸들을 움직였던 감각을 떠올려 봐요."),
+        RemarkTemplate(ScoreBand.GOOD, setOf("any"), "오늘도 주차를 연습하는 시간을 가졌어요."),
         // OK
-        RemarkTemplate(ScoreBand.OK, setOf("rusty", "first"), "오랜만의 연습인데 잘 마쳤어요."),
-        RemarkTemplate(ScoreBand.OK, setOf("first"), "처음이라 조금 헤맸어요. 그게 정상이에요."),
-        RemarkTemplate(ScoreBand.OK, setOf("improved"), "아까보다 나아졌어요. 이 방향 그대로."),
-        RemarkTemplate(ScoreBand.OK, setOf("regressed"), "이번엔 조금 헤맸어요. 괜찮아요, 헤매는 게 연습이에요."),
-        RemarkTemplate(ScoreBand.OK, setOf("any"), "시간이 조금 걸렸지만 잘 마쳤어요."),
-        RemarkTemplate(ScoreBand.OK, setOf("any"), "들어가긴 했어요. 다음엔 조금 더 가볍게."),
+        RemarkTemplate(ScoreBand.OK, setOf("rusty", "first"), "오랜만의 주차 연습을 끝까지 해 봤어요."),
+        RemarkTemplate(ScoreBand.OK, setOf("first"), "처음 시작한 연습을 함께 돌아봐요."),
+        RemarkTemplate(ScoreBand.OK, setOf("improved"), "연습을 이어 가며 주차 감각을 찾아가요."),
+        RemarkTemplate(ScoreBand.OK, setOf("regressed"), "익숙해지는 과정이니 서두르지 않아도 돼요."),
+        RemarkTemplate(ScoreBand.OK, setOf("any"), "연습을 마쳤으니 잠깐 숨을 골라도 돼요."),
+        RemarkTemplate(ScoreBand.OK, setOf("any"), "주차 과정을 천천히 익혀 가면 돼요."),
         // ROUGH
-        RemarkTemplate(ScoreBand.ROUGH, setOf("rusty", "first"), "오랜만에 다시 시작한 것만으로도 좋은 출발이에요."),
-        RemarkTemplate(ScoreBand.ROUGH, setOf("first"), "첫 회차는 원래 이래요. 다음엔 가이드 모드로 같이 해 봐요."),
-        RemarkTemplate(ScoreBand.ROUGH, setOf("any"), "많이 움직였지만 부딪히지 않았어요. 그게 오늘의 성과예요."),
-        RemarkTemplate(ScoreBand.ROUGH, setOf("any"), "힘들었죠. 그래도 끝까지 했어요."),
+        RemarkTemplate(ScoreBand.ROUGH, setOf("rusty", "first"), "오랜만에 다시 연습을 시작했어요."),
+        RemarkTemplate(ScoreBand.ROUGH, setOf("first"), "주차 연습은 천천히 익혀도 괜찮아요."),
+        RemarkTemplate(ScoreBand.ROUGH, setOf("any"), "오늘 해 본 연습부터 함께 돌아봐요."),
+        RemarkTemplate(ScoreBand.ROUGH, setOf("any"), "서두르지 않고 다시 연습해도 돼요."),
 
         // ── 출발 전 점검 (TaskType.CHECKLIST) — 차는 서 있으니 "들어갔다" 류의 주차 표현을 쓰지 않는다 ──
-        RemarkTemplate(ScoreBand.EXCELLENT, setOf("rusty", "first"), "오랜만인데 점검 순서가 손에 남아 있네요.", TaskType.CHECKLIST),
-        RemarkTemplate(ScoreBand.EXCELLENT, setOf("improved"), "점검 순서가 습관이 되고 있어요.", TaskType.CHECKLIST),
-        RemarkTemplate(ScoreBand.EXCELLENT, setOf("any"), "교과서 순서였어요. 지금 이 차에서 제일 안전한 사람은 당신이에요.", TaskType.CHECKLIST),
-        RemarkTemplate(ScoreBand.EXCELLENT, setOf("any"), "막힘이 없었어요. 이제 진짜 출발만 남았어요.", TaskType.CHECKLIST),
-        RemarkTemplate(ScoreBand.GOOD, setOf("rusty", "first"), "장롱의 문고리는 잡았어요. 문 여는 건 다음 과제에서.", TaskType.CHECKLIST),
-        RemarkTemplate(ScoreBand.GOOD, setOf("any"), "다 켜졌어요. 순서 한 번만 더 몸에 넣으면 끝이에요.", TaskType.CHECKLIST),
-        RemarkTemplate(ScoreBand.GOOD, setOf("any"), "좋아요. 출발 준비가 손에 익어 가요.", TaskType.CHECKLIST),
-        RemarkTemplate(ScoreBand.OK, setOf("any"), "순서가 한 번 바뀌었지만 다 켜졌어요.", TaskType.CHECKLIST),
-        RemarkTemplate(ScoreBand.OK, setOf("any"), "조금 헤맸지만 다 켜졌어요. 이 순서를 세 번만 반복해 봐요.", TaskType.CHECKLIST),
-        RemarkTemplate(ScoreBand.OK, setOf("rusty"), "오랜만의 출발 준비를 잘 마쳤어요.", TaskType.CHECKLIST),
-        RemarkTemplate(ScoreBand.ROUGH, setOf("any"), "빠진 게 있어요. 시동 꺼진 차 안이 제일 안전한 연습장이에요.", TaskType.CHECKLIST),
-        RemarkTemplate(ScoreBand.ROUGH, setOf("rusty"), "다시 운전석에 앉은 것부터가 좋은 출발이에요.", TaskType.CHECKLIST),
+        RemarkTemplate(ScoreBand.EXCELLENT, setOf("rusty", "first"), "오랜만에 출발 준비를 연습했어요.", TaskType.CHECKLIST),
+        RemarkTemplate(ScoreBand.EXCELLENT, setOf("improved"), "출발 준비를 차근차근 익히고 있어요.", TaskType.CHECKLIST),
+        RemarkTemplate(ScoreBand.EXCELLENT, setOf("any"), "점검을 연습한 과정을 함께 돌아봐요.", TaskType.CHECKLIST),
+        RemarkTemplate(ScoreBand.EXCELLENT, setOf("any"), "출발 전 점검 연습을 끝까지 마쳤어요.", TaskType.CHECKLIST),
+        RemarkTemplate(ScoreBand.GOOD, setOf("rusty", "first"), "다시 운전석에서 점검을 연습했어요.", TaskType.CHECKLIST),
+        RemarkTemplate(ScoreBand.GOOD, setOf("any"), "출발 전에 확인할 순서를 익혀 가요.", TaskType.CHECKLIST),
+        RemarkTemplate(ScoreBand.GOOD, setOf("any"), "출발 준비를 연습하는 시간을 가졌어요.", TaskType.CHECKLIST),
+        RemarkTemplate(ScoreBand.OK, setOf("any"), "점검 순서를 천천히 되짚어 봐요.", TaskType.CHECKLIST),
+        RemarkTemplate(ScoreBand.OK, setOf("any"), "이 순서를 다시 연습해 봐요.", TaskType.CHECKLIST),
+        RemarkTemplate(ScoreBand.OK, setOf("rusty"), "오랜만의 출발 준비 연습을 마쳤어요.", TaskType.CHECKLIST),
+        RemarkTemplate(ScoreBand.ROUGH, setOf("any"), "출발 준비도 서두르지 않고 익히면 돼요.", TaskType.CHECKLIST),
+        RemarkTemplate(ScoreBand.ROUGH, setOf("rusty"), "다시 시작한 점검 연습을 함께 돌아봐요.", TaskType.CHECKLIST),
     )
 
     // ───────── 장소·보상 (§3.3·§3.5) — 시드, 실제 연계 없음 ─────────
@@ -211,9 +211,9 @@ object SeedCatalog {
 
     val quiz: List<QuizItem> = listOf(
         QuizItem("roundabout-priority", "회전교차로에 들어갈 때 누가 우선인가요?", listOf("들어가는 차", "돌고 있는 차", "먼저 도착한 차"), 1, "회전 중인 차가 우선이에요. 들어가는 차가 양보하고, 빈틈이 생기면 천천히 들어가요."),
-        QuizItem("hazard-when", "비상등은 언제 켜나요?", listOf("차선을 바꿀 때", "갑자기 서거나 고장·사고로 서 있을 때", "터널에 들어갈 때"), 1, "뒤차에 위험을 알리는 신호예요. 차선 변경엔 방향지시등, 터널엔 전조등."),
+        QuizItem("hazard-when", "비상등은 언제 켜나요?", listOf("차선을 바꿀 때", "갑자기 서거나 고장·사고로 서 있을 때", "터널에 들어갈 때"), 1, "뒤차에 위험을 알리는 신호예요. 차선을 바꿀 때는 방향지시등을, 터널에 들어갈 때는 전조등을 켜요."),
         QuizItem("rain-braking", "비가 올 때 제동 거리는?", listOf("같다", "짧아진다", "길어진다"), 2, "노면 마찰이 줄어 제동 거리가 늘어요. 속도를 20% 줄이고 앞차와 거리를 더 둬요."),
-        QuizItem("night-highbeam", "밤에 마주 오는 차가 있을 때 상향등은?", listOf("켠다", "끈다", "깜빡인다"), 1, "상향등은 마주 오는 운전자의 눈을 멀게 해요. 마주 오는 차가 있으면 하향등."),
-        QuizItem("following-distance", "앞차와의 안전거리는 보통?", listOf("속도계 숫자만큼 m", "1 m", "차 두 대 길이"), 0, "시속 60이면 60 m 쯤. 비 오면 그 두 배. 초보 때는 넉넉할수록 좋아요."),
+        QuizItem("night-highbeam", "밤에 마주 오는 차가 있을 때 상향등은?", listOf("켠다", "끈다", "깜빡인다"), 1, "상향등은 마주 오는 운전자의 시야를 방해할 수 있어요. 마주 오는 차가 있으면 하향등으로 바꿔요."),
+        QuizItem("following-distance", "앞차와의 안전거리는 보통?", listOf("속도계 숫자만큼 m", "1 m", "차 두 대 길이"), 0, "시속 60이면 60 m 정도 거리를 둬요. 비가 오면 그 두 배로 늘려요. 초보 때는 넉넉할수록 좋아요."),
     )
 }

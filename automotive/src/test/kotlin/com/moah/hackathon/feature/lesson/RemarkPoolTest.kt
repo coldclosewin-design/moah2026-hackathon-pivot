@@ -20,7 +20,7 @@ class RemarkPoolTest {
     fun `situation tags are preferred over generic lines`() {
         val pool = RemarkPool(SeedCatalog.remarks, Random(1))
         val text = pool.pick(ScoreBand.GOOD, setOf("rusty", "first"), mapOf("years" to "10"))
-        assertEquals("장롱의 문 정도는 열었습니다. 좋은 출발이에요.", text)
+        assertEquals("오랜만에 주차 연습을 다시 시작했어요.", text)
     }
 
     @Test
@@ -59,5 +59,15 @@ class RemarkPoolTest {
             assertTrue("$band has $n", n >= 4)
         }
         assertFalse(SeedCatalog.remarks.any { it.text.contains("하위") })
+    }
+
+    @Test
+    fun `every seed opener is one complete polite sentence without counts`() {
+        SeedCatalog.remarks.forEach { template ->
+            val text = template.text
+            assertEquals(text, 1, Regex("[.!?]").findAll(text).count())
+            assertTrue(text, text.endsWith("요."))
+            assertFalse(text, Regex("\\d|[한두세네] 번|회차|[{}]").containsMatchIn(text))
+        }
     }
 }

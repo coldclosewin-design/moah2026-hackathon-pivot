@@ -9,6 +9,21 @@ import org.junit.Test
 
 class SeedCatalogTest {
     @Test
+    fun `spoken guides and task descriptions use complete sentences without symbols or numbers`() {
+        val lines = (SeedCatalog.parkingGuide + SeedCatalog.predriveGuide)
+            .flatMap { listOf(it.say, it.confirm) } + SeedCatalog.tasks.map { it.summary }
+        lines.forEach { text ->
+            assertTrue(text, text.endsWith("요."))
+            assertTrue(text, !Regex("[0-9A-Z°→]").containsMatchIn(text))
+        }
+        SeedCatalog.quiz.forEach { item ->
+            item.why.split(Regex("(?<=[.!?])\\s+")).forEach { assertTrue(it, it.endsWith("요.")) }
+        }
+        assertTrue(SeedCatalog.quiz.first { it.id == "rain-braking" }.why.contains("20%"))
+        assertTrue(SeedCatalog.quiz.first { it.id == "following-distance" }.why.contains("60 m"))
+    }
+
+    @Test
     fun `parking variants are ordered catalogue entries and remain planned`() {
         assertEquals(11, SeedCatalog.tasks.size)
         val parking = SeedCatalog.tasks.filter { it.type == TaskType.PARKING }
