@@ -43,3 +43,14 @@ bash tools/lesson_shots.sh /tmp/shots  # 고정 데이터로 5화면 계약 검�
 | **Gradle 은 PowerShell 로** | Git Bash 에서 `cmd //c gradlew.bat` 은 이 환경에서 실행되지 않는다(2026-09-26) |
 
 프로세스 이름으로 실행 여부를 확인하지 말 것: 검사 명령 자신이 패턴에 걸려 오탐이 난다. 잠금 디렉터리와 PID 파일이 기준이다.
+
+## `inhouse_check.sh` — 사내 검증 (2026-09-30, 작업 E)
+
+```bash
+bash tools/inhouse_check.sh [APK]        # 기본 automotive/build/outputs/apk/debug/automotive-debug.apk
+SKIP_WIFI=1 SKIP_INSTALL=1 SERIAL=<시리얼> bash tools/inhouse_check.sh
+```
+
+사내 세션을 "pull → 빌드 → 설치 → 이 스크립트" 로 끝내기 위한 것. adb 만 쓴다. 준비(`adb root` → Wi-Fi `AndroidWifi` → `logcat -G 16M` → 설치·실행) → 흐름(시작 → 패널 `못한 주차` → 대기 → `다 됐어요` → `한 번 더` → `잘한 주차` → `다 됐어요` → `오늘은 여기까지`) → **한 화면 요약**. 탭은 `emu_flow` 처럼 글자로 찾는다(시연 패널이 화면마다 위치가 달라 좌표 탭이 뒤 버튼을 눌렀다). 패널은 단계가 바뀌면 닫히므로 누를 때마다 알약(`시연`)을 다시 연다.
+
+합격 판정(로그 grep): `RealVehiclePort ready` · `attempt 1 start` · `attempt 2:` · `report:` · `badge=…live=` 값 출력 · `FATAL.*com.moah` 0 · `CloudCoachPort.*fallback` 개수(0 이 목표) · 각 `다 됐어요` → `attempt N:` 지연(ms). **캡처를 저장하지 않는다**(사내 캡처 반출 금지). 사외 Fake 빌드에서 돌리면 `RealVehiclePort ready` 만 FAIL 이고 나머지로 스크립트 자체를 점검할 수 있다.

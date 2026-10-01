@@ -2,7 +2,7 @@
 
 새 Claude Code 세션이 이 파일 하나로 이어받을 수 있게 쓴 인계 문서. **작업을 마칠 때마다 이 파일을 갱신한다**(끝난 것은 지우고, 새로 생긴 것은 추가). 과거의 경위는 `docs/journal/`, 규칙은 `AGENTS.md`·`CLAUDE.md`, **제품 정의는 `docs/topics/01_driving_coach.md` v2**.
 
-마지막 갱신: 2026-09-29 · `main = 511a0e8`(PR #1~#57) · 이관 태그 **`inhouse-20260929-2`** = `511a0e8`(번들 기준 — 앞선 `inhouse-20260929` = `3398a2f` 는 문서만 다르고 남겨 둠) · 단위 테스트 179 · 마감 2026-10-07. 9/28 저녁~9/29: 라운드 7(#46) → D1·D3 선행 2(#47·#48) → Codex 화면 2(#49·#50) → 동승자 제거(#52) → 라운드 8 피드백 3건(#54, D1 = (나) 도착 칸) → Codex 라운드 8(#55: 면 카드·모핑·도착 칸, 계측 정착 폴링) → 재녹화 최종본 `build/demo-round8b.mp4` 187 s → 이관 파일(`build/moah2026-20260929.bundle` 94 MB · `-src.zip` 88 MB · `-src-noshots.zip` 0.5 MB, clone 테스트 통과). **새 세션은 여기서: ⓪ 라운드 9(자체 점검 — `docs/design/07_round9_selfcheck.md`, 발주서 `2026-09-30_codex_ui_round9.md`, 결정 2 확정) ① 사내 이관(8d — 런북 `06` 0→8, 첫날 로그 3개: `MOAH/DesignScale window=`·`attempt 1 start missing=[…]`·배지 `실신호 N`) ② 사용자 영상 검토 → 라운드 9 ③ 소리 포함 제출 녹화·덱 5·6·12장 스크린샷.** 리뷰 전 `adb shell uptime` — 오래 켠 에뮬은 재부팅 뒤 부하가 내려갈 때까지 기다린다(9/29).
+마지막 갱신: 2026-10-01 · **마감 2026-10-09(금)**(10-07 아님 — 9/30 사내 확인) · 제품명 **"드라이브 코치"** 1.0.0 · 제출 4종(PPT 1장 주최 양식 · 팀 Bitbucket `submission` 브랜치 · MarketUploader APK(VEHICLE, 재업로드마다 versionCode +1) · 에뮬 시연 영상 → PPT·영상은 MOAH@mobis.com). **사내 이관 1차 성공(9/29~30)** → 사내 관찰 요지 문서 → 사외 반영 A~F 를 PR 4개로: ① #62 A 사내 전환 = `local.properties` 한 줄 + jar / B VSS 상수 이름 = 경로 규칙 ② #63 C Real/Hybrid 보정(빈 값 미수신·Fake 조작 write-through·forced) ③ #64 D Cloud Copilot 전송 계층 + 패널 발주 ④ E `tools/inhouse_check.sh` + F 문서(`docs/07`) + 태그 `inhouse-20261001-1`. **머지 순서 ① → ② → ③ → ④**(②③은 앞 PR 위에 쌓임 — 각각 머지 뒤 리베이스). Codex 라운드 9 PR #61 은 ① 뒤 리베이스. **일정**: ~10/3 A~F 머지 + 사내 재검증(`inhouse_check.sh` 합격이면 사내 `inhouse/real-vss` 폐기, 태그 기준) · ~10/6 기능 동결(버그·프롬프트·PPT 원고) · 10/7~8 사내 녹화 → `submission` → MarketUploader → 메일 · 10/9 예비. **새 세션은 여기서: 열린 PR 순서대로 리뷰·머지 → 태그 → Step 14 "사내에서 확인할 것".**
 
 ## 1. 지금 되는 것 (한 문단)
 
@@ -53,7 +53,7 @@
 - 원본 `tools/emu_flow.sh`는 PASS/clashes 0이지만 두 번째 회차가 끝나기 전에 완료할 수 있는 대기 조건 오류를 발견했다. `INTEGRATION.md` C절의 도구 수정 요청을 먼저 확인할 것.
 - 두 번째 `asked done`만 `(attempt 2)`로 한정한 로컬 검증본으로 전체 재생 PASS/clashes 0: 못한 주차 60/55·이동 4회, 잘한 주차 100/100·이동 2회, 도어 → Report. 시작부터 리포트 104초(덤프·탭 대기 포함), 회차 시간 53초/34초. 실시간 Fake 배지는 `실신호 0 · 시뮬레이션 8 · 미측정 0`으로 실제 수신 개수를 표시한다.
 
-### Step 6 — AI (Claude) — 🟡 전송 계층만 남음
+### Step 6 — AI (Claude) — ✅ 전송 계층 PR #64(Cloud Copilot, 9/30 사내 실측 폴백 0) · 패널 화면은 Codex 발주
 `ports/CoachPort.kt`(계약) + `FakeCoachPort`(시드 풀, Step 4) + **`CloudCoachPort(fallback, transport)`**(프롬프트 조립 `CoachPrompts`·타임아웃 4 s·응답 검증 길이/줄수/금지어·실패 시 폴백, 예외 안 던짐 — 테스트로 강제). `App.kt` 는 `transport = null` 로 배선 → 지금은 항상 시드 풀. **사내 Copilot 인증 방식 확인 → `CoachTransport.complete(system, user)` 구현체 하나** 넣으면 끝.
 
 ### Step 7 — 시연 파이프라인 (Claude) — ✅ 실행 검증 완료 (PR #6 에서 대기 조건·고정값 검증 보강)
@@ -71,8 +71,21 @@
 | 8a | `docs/presentation/01_deck_outline.md` — 12장·7분, 장마다 화면·말·근거·초, 길이 조절(3/5/7/10분), 예상 질문 8, 발표자가 채울 것 | ✅ 초안(9/26). ⚠ 8·9·11장은 사내 이관 뒤 숫자 갱신 |
 | 8b | `docs/presentation/02_video_shotlist.md` — 컷 13개(약 2분 05초), A 사내판(Hybrid·Signal Simulator)/B 외부판, 편집 원칙, 녹화 절차·함정 | ✅ 초안(9/26) |
 | 8c | **시연 영상 B안 녹화**(외부 에뮬, 사람이 직접 누름, 소리 포함은 PC 녹화) | 🟡 소리 없는 판은 ✅ **9/29 라운드 8b** `build/demo-round8b.mp4`(187 s, 면 카드·모핑·도착 칸 화면, 시작 → 리포트 145 s; 9/28 판 `demo-round8.mp4` 173 s, 예약 배지 상태로 시작 — `RESERVE=1 RECORD=` 옵션, 시작 → 리포트 135 s: 회차 1 `asked done` t+57 · Done t+61 · 회차 2 t+77 · `asked done` t+115 · 리포트 t+135. 9/27 판 `demo-round3.mp4` 109 s 는 옛 UI). **소리 포함 제출용은 ⬜ 사용자**(PC 녹화, 대본 타임라인 그대로) |
-| 8d | 사내: 이관 → A안 녹화 → Bitbucket 소스 → MarketUploader APK | ⬜ 사용자 — **9/29 준비 완료**: 태그 `inhouse-20260929-2`(`511a0e8`, 일지·NEXT 포함 — 이전 `inhouse-20260929` = `3398a2f`) · 번들 `build/moah2026-20260929.bundle`(HEAD·브랜치·태그 포함, 기본 clone 이 곧바로 `inhouse-20260929-2` 체크아웃) · zip 2종. 사내 GitHub 가 열리면 clone + `git checkout inhouse-20260929-2`, 막히면 번들 반입 |
+| 8d | 사내: 이관 → A안 녹화 → Bitbucket 소스 → MarketUploader APK | 🟡 **1차 이관 성공(9/29~30)** → 관찰 반영 Step 14 → 태그 `inhouse-20261001-1` 로 재검증. 9/29 준비: 태그 `inhouse-20260929-2`(`511a0e8`, 일지·NEXT 포함 — 이전 `inhouse-20260929` = `3398a2f`) · 번들 `build/moah2026-20260929.bundle`(HEAD·브랜치·태그 포함, 기본 clone 이 곧바로 `inhouse-20260929-2` 체크아웃) · zip 2종. 사내 GitHub 가 열리면 clone + `git checkout inhouse-20260929-2`, 막히면 번들 반입 |
 | 8e | 슬라이드를 사내 양식으로 옮기기, 2번 장 개인 계기 | ⬜ 사용자 |
+
+### Step 14 — 사내 이관 1차 결과 반영 A~F (9/30 사내 관찰 요지 문서 → 사외, 10/1) — 발주 원문은 사내 문서(반입 캡처 4장, 저장소 밖)
+| # | 일 | 상태 |
+|---|---|---|
+| 14A | 사내 전환을 "설정"으로: `local.properties` `mobis.vss.jar` 한 줄 + jar(`automotive/libs/` gitignore) → `settings`/`build.gradle.kts` 스위치, `USE_FAKE_VSS` 자동, `uses-library mobis.framework`, versionName 1.0.0, `gradlew +x`, README·06 §2 | ✅ PR #62 |
+| 14B | VSS 상수 이름 = 경로 대문자·밑줄(사내 jar 규칙) 10개 치환(28 파일), `Rear.Distance` → `vehicle/SimOnlySignals.kt`(실물에 없음), AGENTS 규칙 4 | ✅ PR #62 |
+| 14C | Real/Hybrid 보정: 빈 값 미수신, `FakeVehiclePort.writeThrough` → Hybrid 가 실물에 먼저 씀, `forced`(실물이 거부한 키), 진단 로그, 테스트 2 | ✅ PR #63 (#62 위) |
+| 14D | Cloud Copilot 전송 계층 `ports/copilot/`(device code → OAuth(device-protected) → 세션 토큰 → chat/completions, 401 1회 재시도), `CloudCoachPort` 5 s·모든 Exception 폴백·`twoLines . ! ?`·SYSTEM 한 줄, `CLOUD_COACH` 플래그, `DemoControls.aiState/connectAi` | ✅ PR #64 (#63 위) → ⬜ Codex 패널 `AI 코치` 줄(`docs/handoffs/2026-10-01_codex_ai_panel.md`) |
+| 14E | `tools/inhouse_check.sh`(adb 만: root·Wi-Fi·16M·설치·글자 탭 흐름·한 화면 요약, 캡처 없음) | ✅ 이 PR — 사외 Fake 로 흐름·요약 점검(`RealVehiclePort ready` 만 FAIL 이 정상) |
+| 14F | 문서: `docs/07_two_site_workflow.md`(사외/사내 역할·태그·세션 순서·submission·커밋 규칙), AGENTS "프로젝트가 무엇인가" 3줄 + 커밋 규칙 7, NEXT(마감 10/9·일정), INTEGRATION B 9/30 [inhouse]·[hybrid]·[ai] | ✅ 이 PR |
+| 14G | 태그 `inhouse-20261001-1`(④ 머지 뒤) → 사내: `local.properties` 한 줄로 Real 빌드 · `copilot_config.json` push · `tools/inhouse_check.sh` 합격 → 사내 `inhouse/real-vss` 폐기, 태그 기준으로 다시 | ⬜ 태그(Claude) → ⬜ 사내(사용자) |
+
+**사내에서 확인할 것(14G, 관찰 노트로 적어 오기)**: ① `inhouse_check.sh` 요약 전체(`badge=…live=` 값, `missing=[…]`, `live +[…]`/`setVSS rejected` 줄, fallback 수, "다 됐어요" → 채점 ms) ② `mobis.vss: jar … → USE_FAKE_VSS=false` 빌드 로그 첫 줄 ③ OAuth 가 `install -r` 뒤 유지되는지(패널 `AI 코치 · 연결됨` 그대로) ④ 총평이 측정 안 하는 항목을 또 조언하는지 ⑤ TTS 없는 사내 에뮬에서 자막만으로 시연이 읽히는지(대본 타이밍).
 
 ### Step 9 — UI 재설계 (Codex 별도 세션 · 기준 = 기하학 포스터) — 🟡 라운드 1~6 머지(PR #14·#18·#25·#29·#32·#37), 영상 피드백 루프 진행 중(라운드 7 후보 있음)
 | # | 일 | 상태 |
