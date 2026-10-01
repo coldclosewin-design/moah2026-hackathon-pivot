@@ -40,6 +40,7 @@ import com.moah.hackathon.data.ChecklistScenarios
 import com.moah.hackathon.data.ParkingScenarios
 import com.moah.hackathon.feature.lesson.*
 import com.moah.hackathon.ports.copilot.CopilotAuth
+import com.moah.hackathon.ports.FakeCoachPort
 import com.moah.hackathon.scoring.*
 import com.moah.hackathon.ui.concepts.DesignScale
 import com.moah.hackathon.ui.lesson.*
@@ -49,6 +50,7 @@ import java.io.FileInputStream
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlin.math.abs
@@ -58,12 +60,22 @@ import kotlin.math.roundToInt
 
 /** Platform accessibility checks and screenshots; no additional Gradle dependency is needed. */
 class LessonScreenInstrumentation : Instrumentation() {
-    override fun onCreate(arguments: Bundle?) { super.onCreate(arguments); start() }
+    private var seedSpeech = false
+    override fun onCreate(arguments: Bundle?) {
+        super.onCreate(arguments)
+        seedSpeech = arguments?.getString("seedSpeech") == "true"
+        start()
+    }
 
     override fun onStart() {
         val activity = startActivitySync(Intent(targetContext, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as MainActivity
         try {
+            if (seedSpeech) {
+                verifySeedSpeech()
+                finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Seed guide speech passed\n") })
+                return
+            }
             val task = SeedCatalog.parkingTask
             captureSetupMorph(activity)
             val container = (activity.application as App).container
@@ -220,9 +232,9 @@ class LessonScreenInstrumentation : Instrumentation() {
             pass("Briefing has its full sentence and no touch targets")
 
             val moving = ManeuverDisplayState("3", -450f, "R", 85f, false,
-                "핸들을 오른쪽 끝까지 돌리세요.", "4/6", null, 1, 2, 18, false,
+                SeedCatalog.parkingGuide[3].say, "4/6", null, 1, 2, 18, false,
                 SignalAvailability.SIMULATED, SignalAvailability.SIMULATED, SignalAvailability.SIMULATED)
-            render(activity) { ManeuverScreen(moving, false, false, "다 돌렸어요. 이제 천천히 후진하세요.", {}, demo) }
+            render(activity) { ManeuverScreen(moving, false, false, SeedCatalog.parkingGuide[3].confirm, {}, demo) }
             check(texts().none { it == "다 됐어요" })
             check(allText().any { "뒤 85 cm" in it })
             assertNoScores()
@@ -317,7 +329,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             check(texts().none { it == "잠깐 보이는 힌트" })
             pass("Maneuver: no scores, exact lock/stop boundaries, missing signals, four-line subtitle, hint expiry")
 
-            val checklist = moving.copy(speed = "0", gear = "P", guideText = "브레이크를 밟고 시동을 켜 주세요.",
+            val checklist = moving.copy(speed = "0", gear = "P", guideText = SeedCatalog.predriveGuide[3].say,
                 guideStep = "4/7", taskType = TaskType.CHECKLIST, belt = true, ignitionOn = true,
                 doorOpen = false, brakePressed = true, brakeAtIgnition = true,
                 indicatorLeft = true, indicatorRight = false, hazard = false,
@@ -402,7 +414,7 @@ class LessonScreenInstrumentation : Instrumentation() {
                 check(texts().contains("그만하기"))
                 check(texts().none { it in listOf("다음 문제", "결과 보기") })
                 if (index == 0) capture("quiz")
-                val selected = if (index == 0) (item.answer + 1) % item.choices.size else item.answer
+                val selected = if (index <= 1) (item.answer + 1) % item.choices.size else item.answer
                 click(item.choices[selected])
                 runOnMainSync { check(chosen.value == selected) }
                 check(texts().contains(item.why))
@@ -496,8 +508,9 @@ class LessonScreenInstrumentation : Instrumentation() {
                 ParkingScenarios.bad.steps.forEach { onDelta((it.atSeconds * 1000).toLong(), it.values) }
             }.metrics()!!
             val score = ParkingScore(60, 55, metrics, AvailabilityBadge(0, 7, 1), listOf(ParkingRecorder.KEYS.last()))
+            val seedCoach = FakeCoachPort(RemarkPool(SeedCatalog.remarks, kotlin.random.Random(3)))
             val record = AttemptRecord(1, task.id, LessonMode.HINT, score, null,
-                "장롱의 문 정도는 열었습니다.\n좋은 출발이에요.", 0)
+                runBlocking { seedCoach.remark(task, score, null, SeedCatalog.demoProfile, 1) }, 0)
             var again = 0
             var ended = 0
             render(activity) { DoneScreen(task, 1, record, record.remark, { again++ }, { ended++ }, demo) }
@@ -538,7 +551,8 @@ class LessonScreenInstrumentation : Instrumentation() {
             pass("Done rear-up arrival bay: present before arrival, Periwinkle sides/rear and open front, settled car corners inside, 12 dp start dot without outline; no chevron or metrics")
             render(activity) { DoneScreen(task, 1, record.copy(path = listOf(path.first(), path.first().copy(y = .49f))), null, {}, {}) }
             check(allText().none { it == "추정 궤적" })
-            val checklistRecord = record.copy(taskId = SeedCatalog.predriveTask.id, remark = "순서를 잘 익혔어요.\n다음에도 벨트부터 확인해요.",
+            val checklistRecord = record.copy(taskId = SeedCatalog.predriveTask.id,
+                remark = runBlocking { seedCoach.remark(SeedCatalog.predriveTask, goodChecklistScore, null, SeedCatalog.demoProfile, 1) },
                 score = goodChecklistScore)
             render(activity) { DoneScreen(SeedCatalog.predriveTask, 1, checklistRecord, null, {}, {}, checklistDemo) }
             check(texts().contains(checklistRecord.remark))
@@ -644,6 +658,36 @@ class LessonScreenInstrumentation : Instrumentation() {
             finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Lesson contract passed\n") })
         } catch (failure: Throwable) {
             finish(Activity.RESULT_CANCELED, Bundle().apply { putString("stream", failure.stackTraceToString()) })
+        }
+    }
+
+    /** Separate opt-in run: synthesize every guide/confirmation with the installed Korean TTS. */
+    private fun verifySeedSpeech() {
+        val initialized = java.util.concurrent.CountDownLatch(1)
+        var status = android.speech.tts.TextToSpeech.ERROR
+        val engine = android.speech.tts.TextToSpeech(targetContext) { status = it; initialized.countDown() }
+        try {
+            check(initialized.await(15, java.util.concurrent.TimeUnit.SECONDS) && status == android.speech.tts.TextToSpeech.SUCCESS)
+            check(engine.setLanguage(java.util.Locale.KOREAN) >= 0)
+            engine.voices.firstOrNull { it.name == com.moah.hackathon.BuildConfig.TTS_VOICE }?.let { engine.voice = it }
+            engine.setSpeechRate(1.05f)
+            val lines = (SeedCatalog.parkingGuide + SeedCatalog.predriveGuide).flatMap { listOf(it.say, it.confirm) }
+            lines.forEachIndexed { index, line ->
+                val done = java.util.concurrent.CountDownLatch(1)
+                var succeeded = false
+                engine.setOnUtteranceProgressListener(object : android.speech.tts.UtteranceProgressListener() {
+                    override fun onStart(id: String) {}
+                    override fun onDone(id: String) { succeeded = true; done.countDown() }
+                    @Deprecated("platform callback")
+                    override fun onError(id: String) { done.countDown() }
+                })
+                val file = File(targetContext.filesDir, "seed-guide-$index.wav")
+                check(engine.synthesizeToFile(line, Bundle(), file, "seed-$index") == android.speech.tts.TextToSpeech.SUCCESS)
+                check(done.await(20, java.util.concurrent.TimeUnit.SECONDS) && succeeded && file.length() > 44) { "TTS failed: $line" }
+                pass("Seed speech ${index + 1}/${lines.size}: $line")
+            }
+        } finally {
+            engine.shutdown()
         }
     }
 

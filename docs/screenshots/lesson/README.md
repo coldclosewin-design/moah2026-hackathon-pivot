@@ -138,3 +138,27 @@ Maneuver는 `ManeuverDisplayState`의 **현재 값**을 그대로 표시한다(�
 APK SHA-256: 앱 `9FCBA44C9EDC6636B19D192552CA02D8A899B7D58CEC33B4626E17570D7AA198`, 계측 `7ED473DFD22214992E3695EA4C9A6897ECCF88CFF42AD3F9E595C30BD6134BA8`.
 
 원본 `bash tools/emu_flow.sh build/round9-flow` **PASS**, uiautomator 충돌 **0**([flow-round9.txt](flow-round9.txt)). 첫 회차 60/55·이동 4회, 잘한 주차 100/100·이동 2회, 필수 힌트 세 종류와 두 번째 회차 추가 힌트 없음, 문 열림 → 리포트·배지를 확인했다. 세션 시작부터 리포트까지 **124초**다.
+
+## 라운드 11 ① 시드 톤 (2026-10-01)
+
+`codex/seed-tone` · 기준 `204a404` · 외부 CSTDe_API_34 · Fake 기본 배율 1.0. [발주서 ①](../../handoffs/2026-10-01_codex_ui_round11.md)의 시드 문구와 직접 관련된 검증·캡처다. 제품 화면 코드·데이터 구조·선택 조건·채점·힌트·라벨·예약 정보·퀴즈 정답 및 교육 수치는 그대로다. 모든 이미지는 **외부 fixture**이며 사내 신호를 실측한 캡처가 아니다.
+
+| 원 항목 | 교체 캡처 | 근거 |
+|---|---|---|
+| A3-01 | `lesson-maneuver-guides.png` | 시드의 오른쪽 조향 요청·후진 확인 문장을 직접 사용 |
+| A3-02 | `lesson-maneuver-checklist-pending.png` | 시드의 브레이크·시동 안내, 일곱 칩 대기 상태 |
+| A3-03·04 | `lesson-done.png`·`lesson-done-checklist.png` | 실제 `FakeCoachPort`가 바뀐 서두와 지표 기반 조언을 조합한 두 문장 |
+| A3-07 | `lesson-setup.png`·`lesson-setup-sheet.png` | 기존 선택 흐름 보존. UI에 있는 제안 띄어쓰기는 ②에서 처리 |
+| A3-08 | `lesson-quiz-answered.png` | 비상등 문항의 완결된 새 해설, 오답·정답 구분 유지 |
+
+단위 테스트 **207개, 실패·오류 0**, 지정 `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` 성공. 서두 33개 모두 문장 부호 하나·해요체·숫자/횟수 0, 주차·점검 실제 상태기계 흐름의 서두+조언 두 문장, 가이드 전체의 기호/숫자 제거를 확인했다. 문자열 리터럴을 제외한 `SeedCatalog.kt` 내용은 기준과 동일하다.
+
+동일 APK에서 원본 `tools/lesson_shots.sh` **3회 연속 Lesson contract passed**: `build/seed-pass-{1,2,3}/contract.txt`. 캡처는 첫 실행에서 가져왔고 점검 Done만 두 번째 실행이다. 첫 실행의 점검 Done PNG는 일부 글자·버튼 픽셀이 누락되어 사용하지 않았으며, 두 번째 원본에서 전문·브랜드·버튼을 직접 확인했다. 최종 7장 모두 잘림·겹침 없이 확인했다.
+
+앱 SHA-256 `C5A31DF43D2A88DD19F7773DFA1270AAE7D702D7FE898A9CE328CFDA75BFBFF3`, 계측 SHA-256 `CBA15350E3BF22868786B7BBADFB13E50BC7A186896AEDCF48065EF7CBF5CAD2`.
+
+별도 `am instrument --user 10 -w -e seedSpeech true com.moah.hackathon.test/com.moah.hackathon.ui.LessonScreenInstrumentation`에서 주차 **6단계**·점검 **7단계**의 요청/확인 **26문장 전부 한국어 TTS 합성 완료** 콜백과 WAV 생성을 확인했다(`build/seed-speech.txt`, `Seed guide speech passed`). 발주서 확인 열의 주차 7단계는 기존 실제 단계 수와 달라 6단계를 유지했다. 이 검증은 합성 성공과 원문 기호 검사이며 사람의 청취 평가는 아니다.
+
+범위 밖 한계: `AdviceRules`의 `MOVED_DURING_CHECK`·`SEGMENTS`는 조언만 두 문장이라 해당 분기에서는 총 세 문장이다. 조언의 횟수 표현과 함께 `INTEGRATION.md` C절에 ports 후속을 요청했다. 첫 PR에서 포트를 변경하거나 모든 조합이 두 문장이라고 판정하지 않는다.
+
+원본 `bash tools/emu_flow.sh build/seed-flow` **PASS·uiautomator clashes 0**, 리포트까지 **105초**. 필수 힌트 3종, 첫 회차 60/55·이동 4회, 두 번째 100/100·이동 2회·추가 힌트 0, 도어 열림 → 리포트와 출처 배지 0/8/0을 확인했다. 도구·기대 로그·채점은 수정하지 않았다. 로그는 `build/seed-flow/log.txt`에 보존했다.
