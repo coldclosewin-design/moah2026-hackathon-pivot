@@ -50,8 +50,8 @@ object AdviceRules {
         BELT_MISSING("벨트를 매고 시작하는 것부터 몸에 붙여요."),
         DOOR_OPEN_AT_IGNITION("문을 닫고 시동을 켜요."),
         NO_BRAKE_AT_IGNITION("시동은 브레이크를 밟은 채로요."),
-        MOVED_DURING_CHECK("점검은 차를 세운 채로 해요. 움직이는 건 그다음."),
-        CHECK_PARK("시동을 켤 땐 기어가 P 인지 한 번 더 봐요."),
+        MOVED_DURING_CHECK("점검은 차를 세운 채로 끝내고 나서 움직여요."),
+        CHECK_PARK("시동을 켤 땐 기어가 주차에 있는지 한 번 더 봐요."),
         LIGHTS_SKIPPED("지시등과 비상등도 출발 전에 한 번씩 켜 봐요."),
         KEEP_ORDER("이 순서 그대로 몸에 남겨 두세요."),
         // 주차
@@ -60,8 +60,8 @@ object AdviceRules {
         PROXIMITY("뒤 거리를 조금 더 남겨 보세요."),
         STEERING("핸들을 끝까지 꺾은 채 중립을 조금 늦게 잡아 보세요."),
         SHIFT("전진으로 보정할 때는 핸들을 반대로 돌려 두세요."),
-        SEGMENTS("한 번에 조금 더 깊이 들어가 봐요. 멈추는 횟수가 줄어요."),
-        PARK("다 들어왔으면 기어 P 까지가 마무리예요."),
+        SEGMENTS("멈추지 말고 한 번에 조금 더 깊이 들어가 봐요."),
+        PARK("다 들어왔으면 주차 기어까지가 마무리예요."),
         KEEP("이 감각 그대로 한 번만 더 해 봐요."),
     }
 

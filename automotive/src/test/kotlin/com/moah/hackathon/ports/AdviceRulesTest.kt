@@ -63,4 +63,14 @@ class AdviceRulesTest {
         assertTrue(summary, summary.lines().last().contains("문이나 벨트"))
         assertFalse(summary, digits.containsMatchIn(summary))
     }
+
+    @Test
+    fun `every advice is one polite sentence without digits or gear letters`() {
+        // 라운드 11 ① C 절(Codex): 두 문장 조언(MOVED_DURING_CHECK·SEGMENTS)이 서두와 합쳐 세 문장이 됐고 CHECK_PARK·PARK 가 `P` 를 읽었다
+        AdviceRules.Advice.entries.forEach { a ->
+            assertEquals(a.driver, 1, Regex("[.!?]").findAll(a.driver).count())
+            assertTrue(a.driver, a.driver.endsWith("요."))
+            assertFalse(a.driver, digits.containsMatchIn(a.driver) || Regex("(^| )[PRND]( |$)").containsMatchIn(a.driver))
+        }
+    }
 }
