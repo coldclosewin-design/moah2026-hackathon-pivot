@@ -132,10 +132,12 @@ internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stoppe
                                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(32.dp)) {
                                     SignalValue("기어", state.gear ?: "미측정", state.gearSignal, commonSignal == null,
                                         Modifier.weight(.8f))
-                                    Box(Modifier.width(2.dp).height(140.dp).background(CoachColors.Lavender))
-                                    SignalValue(if (state.proximityAlert()) "가까워요" else "뒤 거리",
-                                        state.rearDistanceCm?.let { "${it.roundToInt()} cm" } ?: "미측정",
-                                        state.distanceSignal, commonSignal == null, Modifier.weight(1.4f))
+                                    if (state.rearDistanceApplies) {
+                                        Box(Modifier.width(2.dp).height(140.dp).background(CoachColors.Lavender))
+                                        SignalValue(if (state.proximityAlert()) "가까워요" else "뒤 거리",
+                                            state.rearDistanceCm?.let { "${it.roundToInt()} cm" } ?: "미측정",
+                                            state.distanceSignal, commonSignal == null, Modifier.weight(1.4f))
+                                    }
                                 }
                             }
                             Spacer(Modifier.height(48.dp))

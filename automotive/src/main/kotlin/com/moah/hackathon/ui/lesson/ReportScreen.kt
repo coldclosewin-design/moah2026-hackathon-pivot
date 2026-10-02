@@ -165,7 +165,7 @@ private fun DetailsContent(report: LessonReport, modifier: Modifier) {
                 }
             }
             if (report.task.type == TaskType.PARKING) {
-                LessonText(parkingDetailLine(attempt.score.metrics), 32, CoachColors.Muted)
+                LessonText(parkingDetailLine(attempt.score.metrics, report.task.parkingSpec.usesRearDistance), 32, CoachColors.Muted)
                 LessonText(headingDetailLine(attempt.verdict), 32, CoachColors.Muted)
             } else if (report.task.type == TaskType.CHECKLIST) {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {

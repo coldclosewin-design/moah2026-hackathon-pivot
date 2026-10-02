@@ -50,14 +50,14 @@ internal fun DoneScreen(task: Task, attempt: Int, record: AttemptRecord, subtitl
                     Column(Modifier.fillMaxHeight().fillMaxWidth(.38f)) {
                         Box(Modifier.weight(1f).fillMaxWidth()) {
                             Box(Modifier.fillMaxHeight().width((2560 * .06f).dp).background(CoachColors.Ink))
-                            if (showPath) EstimatedPath(record, Modifier.fillMaxSize().padding(start = (2560 * .06f).dp))
+                            if (showPath) EstimatedPath(record, Modifier.fillMaxSize().padding(start = (2560 * .06f).dp), task.parkingSpec.entryGear)
                         }
                         VerdictPanel(record.verdict, Modifier.fillMaxWidth())
                     }
                 } else if (showPath) {
                     Box(Modifier.fillMaxHeight().fillMaxWidth(.38f)) {
                         Box(Modifier.fillMaxHeight().fillMaxWidth(.06f / .38f).background(CoachColors.Ink))
-                        EstimatedPath(record, Modifier.fillMaxSize().padding(start = (2560 * .06f).dp))
+                        EstimatedPath(record, Modifier.fillMaxSize().padding(start = (2560 * .06f).dp), task.parkingSpec.entryGear)
                     }
                 } else Box(Modifier.fillMaxHeight().fillMaxWidth(.12f).background(CoachColors.Ink))
                 Column(Modifier.weight(1f).fillMaxHeight().padding(start = 120.dp, end = 100.dp, top = 96.dp, bottom = 52.dp),
