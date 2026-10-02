@@ -10,7 +10,7 @@ import org.junit.Test
 class SeedCatalogTest {
     @Test
     fun `spoken guides and task descriptions use complete sentences without symbols or numbers`() {
-        val lines = (SeedCatalog.parkingGuide + SeedCatalog.predriveGuide)
+        val lines = (SeedCatalog.parkingGuide + SeedCatalog.frontParkingGuide + SeedCatalog.predriveGuide)
             .flatMap { listOf(it.say, it.confirm) } + SeedCatalog.tasks.map { it.summary }
         lines.forEach { text ->
             assertTrue(text, text.endsWith("요."))
@@ -24,16 +24,23 @@ class SeedCatalogTest {
     }
 
     @Test
-    fun `parking variants are ordered catalogue entries and remain planned`() {
+    fun `parking variants are ordered catalogue entries - rear and front ready, parallel and angle planned`() {
         assertEquals(11, SeedCatalog.tasks.size)
         val parking = SeedCatalog.tasks.filter { it.type == TaskType.PARKING }
-        assertEquals(listOf(SeedCatalog.TASK_PARKING_REAR, "parking-parallel", "parking-front", "parking-angle"), parking.map { it.id })
+        assertEquals(listOf(SeedCatalog.TASK_PARKING_REAR, "parking-parallel", SeedCatalog.TASK_PARKING_FRONT, "parking-angle"), parking.map { it.id })
         assertEquals(listOf(Difficulty.MEDIUM, Difficulty.HARD), parking.takeLast(2).map { it.difficulty })
-        parking.drop(1).forEach {
+        parking.filter { it.id in setOf("parking-parallel", "parking-angle") }.forEach {
             assertEquals(TaskStatus.PLANNED, it.status)
             assertTrue(SeedCatalog.guideFor(it).isEmpty())
         }
-        assertEquals(3, SeedCatalog.tasks.count { it.isReady })
+        assertEquals(4, SeedCatalog.tasks.count { it.isReady })
+        // 10/2: 전면 직각 주차 — 앞으로 들어가는 사양, 뒤 거리 없이 7키. 후면은 사양을 명시해도 기본과 같다
+        val front = SeedCatalog.frontParkingTask
+        assertTrue(front.isReady)
+        assertEquals(com.moah.hackathon.scoring.ParkingSpec.FRONT_PERPENDICULAR, front.parking)
+        assertEquals(listOf("핸들 방향", "기어 전환"), front.watch)
+        assertTrue(com.moah.hackathon.vehicle.SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM !in front.requiredSignals)
+        assertEquals(com.moah.hackathon.scoring.ParkingSpec.REAR_PERPENDICULAR, SeedCatalog.parkingTask.parkingSpec)
     }
 
     @Test
@@ -46,7 +53,7 @@ class SeedCatalogTest {
     @Test
     fun `predrive parking and knowledge tasks are READY - parking supports the three driving modes but not quiz`() {
         val ready = SeedCatalog.tasks.filter { it.isReady }
-        assertEquals(listOf(SeedCatalog.TASK_PREDRIVE, SeedCatalog.TASK_PARKING_REAR, SeedCatalog.TASK_KNOWLEDGE), ready.map { it.id })
+        assertEquals(listOf(SeedCatalog.TASK_PREDRIVE, SeedCatalog.TASK_PARKING_REAR, SeedCatalog.TASK_PARKING_FRONT, SeedCatalog.TASK_KNOWLEDGE), ready.map { it.id })
         assertTrue(!SeedCatalog.predriveTask.requiresDriving)
         assertTrue(SeedCatalog.predriveTask.supports(com.moah.hackathon.feature.lesson.LessonMode.GUIDE) && !SeedCatalog.predriveTask.supports(com.moah.hackathon.feature.lesson.LessonMode.QUIZ))
         assertEquals(5, SeedCatalog.quizFor(SeedCatalog.tasks.first { it.id == SeedCatalog.TASK_KNOWLEDGE }).size)
@@ -63,6 +70,9 @@ class SeedCatalogTest {
         assertEquals(6, SeedCatalog.guideFor(SeedCatalog.parkingTask).size)
         assertTrue(SeedCatalog.guideFor(SeedCatalog.tasks.first { it.id == "road-course" }).isEmpty())
         assertEquals(listOf("belt", "ignition", "reverse", "steer-right", "center", "park"), SeedCatalog.parkingGuide.map { it.id })
+        // 전면 6단계: 같은 뼈대, 기어가 주행(D). 벨트·시동·주차 단계는 후면 것을 공유
+        assertEquals(listOf("belt", "ignition", "drive", "steer-right", "center", "park"), SeedCatalog.guideFor(SeedCatalog.frontParkingTask).map { it.id })
+        assertTrue(SeedCatalog.frontParkingGuide.none { it.say.contains("후진") || it.confirm.contains("후진") })
         assertEquals(listOf("door", "belt", "park-check", "ignition", "indicator-left", "indicator-right", "hazard"), SeedCatalog.guideFor(SeedCatalog.predriveTask).map { it.id })
         assertTrue(SeedCatalog.predriveGuide.last().confirm.contains("버튼을 눌러 주세요"))
     }
@@ -70,6 +80,9 @@ class SeedCatalogTest {
     @Test
     fun `scenarios follow the task type`() {
         assertEquals(listOf("parking-good", "parking-bad"), SeedCatalog.scenariosFor(SeedCatalog.parkingTask).map { it.id })
+        assertEquals(listOf("parking-front-good", "parking-front-bad"), SeedCatalog.scenariosFor(SeedCatalog.frontParkingTask).map { it.id })
+        // 시연 패널 버튼 라벨은 과제가 달라도 같다(emu_flow·inhouse_check 가 글자로 누른다)
+        assertEquals(listOf("잘한 주차", "못한 주차"), SeedCatalog.scenariosFor(SeedCatalog.frontParkingTask).map { it.title })
         assertEquals(listOf("predrive-good", "predrive-bad"), SeedCatalog.scenariosFor(SeedCatalog.predriveTask).map { it.id })
         assertTrue(SeedCatalog.scenariosFor(SeedCatalog.tasks.first { it.id == SeedCatalog.TASK_KNOWLEDGE }).isEmpty())
     }
