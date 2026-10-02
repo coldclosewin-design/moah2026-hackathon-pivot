@@ -8,10 +8,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.moah.hackathon.scoring.ParkingVerdict
 import com.moah.hackathon.ui.CoachColors
+import com.moah.hackathon.ui.CoachTexture
 
 @Composable
 internal fun VerdictPanel(verdict: ParkingVerdict?, modifier: Modifier = Modifier, title: String? = null) {
-    Column(modifier.background(CoachColors.Ink).padding(start = 120.dp, end = 72.dp, top = 28.dp, bottom = 36.dp),
+    Column(modifier.surfaceTexture(CoachColors.Ink, CoachTexture.Panel).padding(start = 120.dp, end = 72.dp, top = 28.dp, bottom = 36.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)) {
         if (title != null) Eyebrow(title, color = CoachColors.Paper.copy(alpha = .6f))
         verdictLines(verdict).forEach { line ->

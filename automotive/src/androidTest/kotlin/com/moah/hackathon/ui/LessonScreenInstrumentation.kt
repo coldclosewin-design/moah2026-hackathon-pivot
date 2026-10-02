@@ -12,6 +12,10 @@ import android.view.ViewGroup
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.BroadcastFrameClock
 import androidx.compose.runtime.Recomposer
@@ -61,9 +65,11 @@ import kotlin.math.roundToInt
 /** Platform accessibility checks and screenshots; no additional Gradle dependency is needed. */
 class LessonScreenInstrumentation : Instrumentation() {
     private var seedSpeech = false
+    private var textureOnly = false
     override fun onCreate(arguments: Bundle?) {
         super.onCreate(arguments)
         seedSpeech = arguments?.getString("seedSpeech") == "true"
+        textureOnly = arguments?.getString("textureOnly") == "true"
         start()
     }
 
@@ -71,6 +77,11 @@ class LessonScreenInstrumentation : Instrumentation() {
         val activity = startActivitySync(Intent(targetContext, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as MainActivity
         try {
+            if (textureOnly) {
+                textureContract(activity)
+                finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Texture contract passed\n") })
+                return
+            }
             if (seedSpeech) {
                 verifySeedSpeech()
                 finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Seed guide speech passed\n") })
@@ -688,6 +699,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             seedVerdictOpeners(activity)
             reservationFlow(activity)
             recordMotionClips(activity, moving, pathRecord)
+            textureContract(activity)
             finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Lesson contract passed\n") })
         } catch (failure: Throwable) {
             finish(Activity.RESULT_CANCELED, Bundle().apply { putString("stream", failure.stackTraceToString()) })
@@ -1288,14 +1300,81 @@ class LessonScreenInstrumentation : Instrumentation() {
         error("$label did not settle within 2 s: bounds=$previous, face pixel=$pixel / $color")
     }
     private fun assertBayFill(bitmap: Bitmap, bounds: Rect, color: Int) {
-        // Sample the face and the former top/side outline positions, outside all illustration/text.
-        listOf(4 to 4, bounds.width() / 2 to 2, 2 to bounds.height() / 2,
+        // D7 permits the top highlight. The side edges and body below it retain the palette.
+        listOf(4 to 4, 2 to bounds.height() / 2,
             bounds.width() - 3 to bounds.height() / 2).forEach { (x, y) ->
             val pixel = bitmap.getPixel(bounds.left + x, bounds.top + y)
             check(listOf(0, 8, 16).all { abs(((pixel ushr it) and 255) - ((color ushr it) and 255)) <= 1 }) {
                 "Bay face/edge differs at ($x,$y) in $bounds: $pixel / $color"
             }
         }
+        val selected = color == CoachColors.Periwinkle.toArgb()
+        val ready = color == CoachColors.Lavender.toArgb()
+        val top = bitmap.getPixel(bounds.centerX(), bounds.top + 2)
+        if (selected || ready) {
+            val alpha = if (selected) .14f else .42f
+            val ceiling = CoachColors.Paper.copy(alpha = alpha)
+                .compositeOver(androidx.compose.ui.graphics.Color(color)).toArgb()
+            check(listOf(0, 8, 16).all { shift ->
+                val sample = (top ushr shift) and 255
+                sample in (((color ushr shift) and 255) + 1)..(((ceiling ushr shift) and 255) + 1)
+            }) { "Card highlight must brighten the top within D7: $top / $ceiling" }
+        } else check(top == color) { "Planned card must remain flat" }
+    }
+
+    private fun textureContract(activity: MainActivity) {
+        var clicks = 0
+        render(activity) {
+            PosterSurface {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    PrimaryPill("한 번 더", { clicks++ }, driver = true)
+                }
+            }
+        }
+        val bounds = buttonBounds("한 번 더")
+        val scale = designScale(activity)
+        val shadowY = bounds.bottom + (10 * scale).roundToInt()
+        val normal = screenshot()
+        val face = normal.getPixel(bounds.left + (80 * scale).roundToInt(), bounds.centerY())
+        check(face == CoachColors.Signal.toArgb()) { "Button text backing changed D6 contrast" }
+        val highlight = normal.getPixel(bounds.centerX(), bounds.top + (8 * scale).roundToInt())
+        check(highlight != face) { "Missing droplet highlight" }
+        val shadow = normal.getPixel(bounds.centerX(), shadowY)
+        check(shadow != CoachColors.Paper.toArgb()) { "Missing outer button shadow" }
+        val now = SystemClock.uptimeMillis()
+        val down = android.view.MotionEvent.obtain(now, now, android.view.MotionEvent.ACTION_DOWN,
+            bounds.centerX().toFloat(), bounds.centerY().toFloat(), 0)
+        check(uiAutomation.injectInputEvent(down, true))
+        down.recycle()
+        try {
+            Thread.sleep(150)
+            capture("texture-button-pressed") { pressed ->
+                val sample = pressed.getPixel(bounds.centerX(), shadowY)
+                val paper = CoachColors.Paper.toArgb()
+                // The green channel has enough headroom to distinguish 28% from half opacity.
+                val fullDelta = ((paper ushr 8) and 255) - ((shadow ushr 8) and 255)
+                val pressedDelta = ((paper ushr 8) and 255) - ((sample ushr 8) and 255)
+                check(fullDelta > 2 && abs(pressedDelta * 2 - fullDelta) <= 2) {
+                    "Pressed shadow is not half: $fullDelta / $pressedDelta"
+                }
+            }
+        } finally {
+            val cancel = android.view.MotionEvent.obtain(now, SystemClock.uptimeMillis(), android.view.MotionEvent.ACTION_CANCEL,
+                bounds.centerX().toFloat(), bounds.centerY().toFloat(), 0)
+            uiAutomation.injectInputEvent(cancel, true)
+            cancel.recycle()
+            normal.recycle()
+        }
+        runOnMainSync { check(clicks == 0) }
+        render(activity) { ResultLockedScreen() }
+        capture("texture-locked-flat") { bitmap ->
+            val ink = CoachColors.Ink.toArgb()
+            for (x in listOf(bounds.left, bounds.centerX(), bounds.right)) {
+                check(bitmap.getPixel(x, shadowY) == ink) { "Lock retained a shadow" }
+            }
+        }
+        check(nodes().none(::hasTouchAction))
+        pass("Texture B: bounded card highlight, original button text colour, half pressed shadow, flat touch-free lock")
     }
     private fun assertArrivalBay(activity: MainActivity, bitmap: Bitmap, path: List<PathPoint>, settled: Boolean) {
         val bounds = Rect().also { rect ->
