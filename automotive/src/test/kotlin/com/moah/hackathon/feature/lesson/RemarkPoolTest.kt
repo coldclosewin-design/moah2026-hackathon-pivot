@@ -83,7 +83,7 @@ class RemarkPoolTest {
     }
 
     @Test
-    fun `good parking scenario picks the one_go seed line and estimated heading before generic openers`() = runBlocking {
+    fun `good parking scenario prefers one_go then a fresh generic opener without aligned-only seeds`() = runBlocking {
         val recorder = ParkingRecorder(SignalRegistry(ParkingRecorder.KEYS, simulated = true))
         ParkingScenarios.good.steps.forEach { recorder.onDelta((it.atSeconds * 1000).toLong(), it.values) }
         val score = recorder.score()!!
@@ -93,7 +93,10 @@ class RemarkPoolTest {
         val openers = (1..2).map { attempt ->
             coach.remark(SeedCatalog.parkingTask, score, null, SeedCatalog.demoProfile, attempt, verdict).substringBefore('\n')
         }
-        assertEquals(setOf("한 번에 들어갔어요.", "신호로 추정하면 방향도 맞게 섰어요."), openers.toSet())
+        assertFalse(SeedCatalog.remarks.any { it.tags == setOf("aligned") })
+        assertEquals("한 번에 들어갔어요.", openers.first())
+        assertEquals(2, openers.toSet().size)
+        assertTrue(SeedCatalog.remarks.any { it.text == openers.last() && it.tags == setOf("any") })
     }
 
     @Test

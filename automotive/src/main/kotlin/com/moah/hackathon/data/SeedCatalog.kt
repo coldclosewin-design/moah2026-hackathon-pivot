@@ -148,7 +148,6 @@ object SeedCatalog {
         // 판정 문구는 #92의 필수 태그 필터를 거친다. 판정 없음·최근 문구 회피에는 기존 정성 문구를 쓴다.
         // EXCELLENT — 숙련 과정에 대한 긍정
         RemarkTemplate(ScoreBand.EXCELLENT, setOf("one_go"), "한 번에 들어갔어요."),
-        RemarkTemplate(ScoreBand.EXCELLENT, setOf("aligned"), "신호로 추정하면 방향도 맞게 섰어요."),
         RemarkTemplate(ScoreBand.EXCELLENT, setOf("rusty", "first"), "주차 과정을 능숙하게 이어 갔어요."),
         RemarkTemplate(ScoreBand.EXCELLENT, setOf("rusty"), "주차 동작이 전반적으로 매끄러웠어요."),
         RemarkTemplate(ScoreBand.EXCELLENT, setOf("improved"), "주차 흐름을 잘 이어 갔어요."),
@@ -157,7 +156,6 @@ object SeedCatalog {
         // GOOD
         RemarkTemplate(ScoreBand.GOOD, setOf("one_go"), "한 번에 들어갔어요."),
         RemarkTemplate(ScoreBand.GOOD, setOf("one_fix"), "한 번 다시 넣고 들어갔어요."),
-        RemarkTemplate(ScoreBand.GOOD, setOf("aligned"), "신호로 추정하면 방향도 맞게 섰어요."),
         RemarkTemplate(ScoreBand.GOOD, setOf("rusty", "first"), "주차 과정을 대체로 잘 이어 갔어요."),
         RemarkTemplate(ScoreBand.GOOD, setOf("first"), "주차 동작에서 좋은 감각이 보였어요."),
         RemarkTemplate(ScoreBand.GOOD, setOf("improved"), "주차 흐름에서 좋은 부분이 보였어요."),
@@ -242,5 +240,10 @@ object SeedCatalog {
         QuizItem("rain-braking", "비가 올 때 제동 거리는?", listOf("같다", "짧아진다", "길어진다"), 2, "노면 마찰이 줄어 제동 거리가 늘어요. 속도를 20% 줄이고 앞차와 거리를 더 둬요."),
         QuizItem("night-highbeam", "밤에 마주 오는 차가 있을 때 상향등은?", listOf("켠다", "끈다", "깜빡인다"), 1, "상향등은 마주 오는 운전자의 시야를 방해할 수 있어요. 마주 오는 차가 있으면 하향등으로 바꿔요."),
         QuizItem("following-distance", "앞차와의 안전거리는 보통?", listOf("속도계 숫자만큼 m", "1 m", "차 두 대 길이"), 0, "시속 60이면 60 m 정도 거리를 둬요. 비가 오면 그 두 배로 늘려요. 초보 때는 넉넉할수록 좋아요."),
+        QuizItem("parking-shift-stop", "주차 중 전진에서 후진으로 바꾸기 전에는?", listOf("차가 움직여도 바로 바꿔요", "차를 완전히 멈춘 뒤 바꿔요", "가속 페달을 밟으며 바꿔요"), 1, "차를 완전히 멈추고 브레이크를 밟은 상태에서 기어를 바꿔요. 움직이는 중에 후진으로 바꾸면 사고나 변속기 손상이 생길 수 있어요."),
+        QuizItem("parking-brake", "자동변속기 차량을 주차한 뒤에는?", listOf("주차 기어만 넣고 내려요", "중립 기어에 두고 내려요", "주차 기어와 주차 브레이크를 함께 사용해요"), 2, "차를 완전히 멈춘 뒤 주차 기어를 넣고 주차 브레이크도 작동해요. 주차 기어만으로 주차 브레이크를 대신하지 않아요."),
+        QuizItem("blocked-green", "초록불이지만 교차로 건너편이 막혀 있다면?", listOf("교차로 안에 멈추지 않도록 진입 전에 기다려요", "초록불이니 교차로 안까지 들어가요", "경적을 울리며 들어가요"), 0, "교차로 안에 멈춰 다른 차의 통행을 막을 상황이면 진입하지 않아요. 건너편에 빠져나갈 공간이 생길 때까지 기다려요."),
+        QuizItem("crosswalk-yield", "신호 없는 횡단보도에서 보행자가 건너려 한다면?", listOf("속도만 줄여서 지나가요", "횡단보도 앞에 멈춰 보행자에게 양보해요", "경적을 울려 보행자를 멈추게 해요"), 1, "보행자가 건너고 있거나 건너려 할 때는 횡단보도 앞에 일시정지해요. 정지선이 있으면 그 앞에 멈춰 보행자의 통행을 보호해요."),
+        QuizItem("highway-entry-priority", "일반 차량이 고속도로에 진입할 때는?", listOf("진입하는 차가 먼저 들어가요", "속도가 빠른 차가 우선이에요", "본선에서 달리는 차의 통행을 방해하지 않아요"), 2, "진입하는 차는 이미 고속도로를 달리는 차의 통행을 방해하지 않도록 양보해요. 안전한 간격을 확인하고 합류해요."),
     )
 }

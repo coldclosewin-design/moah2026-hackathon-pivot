@@ -261,3 +261,38 @@ PNG **12장(교체 4·추가 8)** 및 원본 클립 1개. 첫 전체 계약 실�
 차량·포트·채점·상태기계·시드·빌드 파일·tools·문자열 리소스·NEXT는 변경하지 않았다. 새 색 토큰·`FontWeight.Bold` 추가 0. 기존 잠금, 90/160자 결과 문장, 140 dp 결과 버튼, 88 dp 시연 알약, 최대 누락 목록 계약도 유지한다.
 
 동일한 최종 APK로 원본 `tools/lesson_shots.sh build/round12-pass-{1,2,3}` **3회 연속 Lesson contract passed**([계약 로그](contract-round12-ui.txt)). 원본 `tools/emu_flow.sh build/round12-flow`도 **PASS·uiautomator clashes 0·리포트까지 110초**([흐름 로그](flow-round12-ui.txt)): 첫 회차 60/55·4구간, 두 번째 100/100·2구간, 필수 벨트/근접/급제동 힌트·좋은 주차 추가 힌트 없음·도어 열림→리포트·배지 0/8/0을 확인했다. 위 고정 캡처의 0/7/1은 시나리오만 직접 재생해 도어 신호를 주지 않은 계측 기록이고, 실제 전체 흐름에서는 도어 신호까지 받아 0/8/0이다.
+
+## 라운드 13 ③ 서두 정리·지식 퀴즈 10문항 (2026-10-03)
+
+`codex/seed-round13` · 기준 `origin/main=11be5f6`(#117 이후) · 외부 CSTDe_API_34 · Fake 기본 배율 1.0. ①·②와 같은 main에서 독립 분기한 시드 **내용** PR이다. 제품 UI·채점·태그 필터·최근 문구 회피·상태기계·타입·필드·차량·포트·build·tools·NEXT는 그대로다. 리뷰·머지 순서는 ① → ② → ③이다.
+
+EXCELLENT/GOOD의 `aligned` 단독 서두 두 개만 제거해 전체 서두는 39개다. `one_go`가 실제 좋은 주차의 첫 선택이며, 좋은 주차가 연속되면 기존 최근 문구 회피에 따라 일반 서두로 돌아간다. 판정 필터·다른 밴드 폴백 검사는 그대로 유지한다. 과거 라운드 12 ①′의 `lesson-done-seed-aligned.png`는 당시 기록이며 현재 선택되는 문장이 아니다.
+
+기존 다섯 문항의 순서·선택지·정답·해설·교육 수치는 유지하고 아래 다섯 개를 뒤에 추가했다. 모두 3지선다·유일 ID·유효 정답·해설 `요.` 종결이며 새 숫자는 없다. 단위 검사는 10문항 완주(9정답)·다섯째에서 계속·열째에서 결과·중도 종료의 전체 수·주행 중 답변 잠금·저장을 확인한다.
+
+| 문항 | 내용 | 확인한 공식 근거(2026-10-03) |
+|---|---|---|
+| 6 `parking-shift-stop` | 완전히 멈추고 브레이크를 밟은 뒤 D→R | [기아 2026 셀토스 설명서, IVT 변속 위치/잠금](https://ownersmanual.kia.com/full_webhelp/SP2/2026/ko_KR/topics/chapter5_5_1.html) |
+| 7 `parking-brake` | 주차 기어와 주차 브레이크 함께 사용 | [같은 설명서, P(주차)](https://ownersmanual.kia.com/full_webhelp/SP2/2026/ko_KR/topics/chapter5_5_1.html) |
+| 8 `blocked-green` | 초록불이어도 교차로 안에 멈춰 통행을 막을 상황이면 진입 전 대기 | [도로교통법 제25조 제5항](https://www.law.go.kr/lsLawLinkInfo.do?chrClsCd=010202&lsJoLnkSeq=1000720047) |
+| 9 `crosswalk-yield` | 횡단 중이거나 횡단하려는 보행자 앞 일시정지 | [도로교통법 제27조 제1항](https://www.law.go.kr/lsLinkCommonInfo.do?lsJoLnkSeq=1000188979) |
+| 10 `highway-entry-priority` | 일반 차량 진입 시 본선 차량에 양보 | [도로교통법 제65조](https://www.law.go.kr/lsLawLinkInfo.do?chrClsCd=010202&lsJoLnkSeq=1000719974) |
+
+법령은 확인 시점에 시행 중인 2026-07-01 시행본을 기준으로 새 문항을 작성했다. 계측은 전체 문항을 선택·해설 확인 후 넘겨 마지막에만 `결과 보기`를 누르며, 새 해설 전문과 버튼의 비중첩도 검사한다.
+
+
+| 항목 | 교체·추가 캡처 | 확인 내용 |
+|---|---|---|
+| 퀴즈 진행·해설 | 교체 `lesson-quiz.png`, `lesson-quiz-answered.png`, `lesson-quiz-correct.png`, `lesson-quiz-locked.png` | 전체 수 10, 기존 정오답·해설·잠금 계약 유지 |
+| 새 퀴즈 다섯 개 | 추가 `lesson-quiz-round13-6.png` ~ `lesson-quiz-round13-10.png` | 문항·선택지·정답·해설 전문, 마지막 문항의 결과 보기 |
+| 퀴즈 결과 | 교체 `lesson-quiz-done.png` | 10문항 결과 목록과 다시 시작, 정답 요약 10문제 중 9개 |
+| 서두 선택 | 교체 `lesson-done-seed-one-go.png`, 추가 `lesson-done-seed-repeat.png` | 실제 좋은 시드의 one_go 우선과 같은 코치 풀에서 반복 시 일반 서두로 복귀. 판정 네 줄 유지 |
+| 실제 후면 흐름 | 교체 `lesson-done-seed-bad.png`, `lesson-done-seed-good.png` | 못한 주차 one_fix → 잘한 주차 one_go 서두, 고정 점수·판정 유지 |
+
+최종 계약 첫 실행에서 퀴즈 10장과 서두 2장, 원본 후면 시연에서 결과 2장을 반영한다(PNG 총 14장: 교체 8·추가 6). 새 문항 다섯 개의 질문·선택지·해설과 열째 결과 버튼, 기존 정오답/잠금/결과 화면, 일반 서두의 전문을 직접 확인했다. 후면 조향 도식과 Done 잠금의 앱 영역은 기존 캡처와 픽셀이 완전히 동일하다.
+
+지정 PowerShell `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` 성공, 단위 테스트 **235개(실패·오류·건너뜀 0)**. [빌드 로그](build-seed-round13.txt). 기존 테스트를 10문항과 두 템플릿 제거에 맞게 확장했으며 판정 필터 테스트는 유지했다. 앱 SHA-256 `C4C076A1334DDE9E1031C0D82DE4F46445693FFF0C7B934C50AF3433E55199EF`, 계측 SHA-256 `E22797418D947E59CAFFDC7DD0A0BE6410FDBBF6B5FFDD0DACDDB370F151DC8C`.
+
+동일 APK로 원본 `tools/lesson_shots.sh build/seed-round13-final-{1,2,3}` **3회 연속 Lesson contract passed**([계약 로그](contract-seed-round13.txt)). 전체 10문항, 잠금·터치·결과와 기존 판정·도식·예약 계약을 모두 통과했다.
+
+원본 `tools/emu_flow.sh build/seed-round13-flow` **PASS·clashes 0·112초**([흐름 로그](flow-seed-round13.txt)): 첫 회차 60/55·4구간·one_fix → 둘째 100/100·2구간·one_go, 필수 벨트/뒤 근접/급제동 힌트 3종·좋은 주차 추가 힌트 0·도어→Report·배지 0/8/0 유지. 두 실제 Done 캡처에서도 서두·판정 네 줄·궤적·버튼을 확인했다. ① 질감/② 전면 UI는 이 독립 브랜치에 포함되어 있지 않다.
