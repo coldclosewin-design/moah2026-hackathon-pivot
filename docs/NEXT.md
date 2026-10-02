@@ -18,7 +18,7 @@
 
 ## 2. 남은 일 (의존 순서. 날짜 배정이 아니다)
 
-### Step 3 — 신호 계층 + 채점 (Claude) — ✅ 2026-09-26 브랜치 `claude/signals-scoring` (PR 대기)
+### Step 3 — 신호 계층 + 채점 (Claude) — ✅ PR #1 머지 `4e6c1f0`(9/26) · 3g Hybrid 는 PR #4
 | # | 일 | 어디 |
 |---|---|---|
 | 3a ✅ | B층 상수 10개 | `vss-stub/.../VssConstants.java` (COVESA 추정, `SelectedGear` 로 P/D 표현), 파서 `vehicle/VssGear.kt`(`Gear.parse`, `toVssIgnitionOn`) |
@@ -31,7 +31,7 @@
 
 단위 테스트 21 → 62 (실패 0).
 
-### Step 4 — 상태기계 + 시드 (Claude) — ✅ 2026-09-26 브랜치 `claude/lesson-state-machine` (PR 대기)
+### Step 4 — 상태기계 + 시드 (Claude) — ✅ PR #2 머지 `6a6afb3`(9/26)
 | # | 일 | 어디 |
 |---|---|---|
 | 4a ✅ | `LessonPhase` — `Setup · Briefing · Maneuver · Done · Report` (+ `GuideStepView`) | `feature/lesson/LessonPhase.kt`. `Maneuver` 에는 점수 필드가 **타입상 없다** |
@@ -67,14 +67,14 @@
 | 7d | `DEMO_SPEED_FACTOR` 기본 10 → **1.0**(주차 시나리오는 실시간이 맞다). 상태기계에 스크립트용 로그 `hint:`·`asked done` | ✅ |
 | 7e | 화면 PR 리뷰 뒤: `emu_flow.sh` PASS → 대본 시각 실측 → 캡처를 눈으로. 계측 계약을 만들 때 `build.gradle.kts` 의 `testInstrumentationRunner` 주석을 먼저 읽는다 | ✅ 9/26 (Codex 는 자리표시자 첫 항목으로 함정 회피) |
 
-### Step 8 — 발표·영상·제출 — 🟡 문서 초안 완료
+### Step 8 — 발표·영상·제출 — 🟡 사내 Real 검증 PASS(10/2 #3). **남은 것 = 기능 동결(~10/6) 뒤 제출물 만들기**: 대본 시각 재실측 → 덱 5·6장 캡처 교체·8·9·11장 숫자 → PPT 1장 확정 → B안 재녹화(소리 포함) → 사내 A안 녹화 → `submission` → MarketUploader → 메일
 | # | 일 | 상태 |
 |---|---|---|
-| 8a | `docs/presentation/01_deck_outline.md` — 12장·7분, 장마다 화면·말·근거·초, 길이 조절(3/5/7/10분), 예상 질문 8, 발표자가 채울 것 | ✅ 초안(9/26). ⚠ 8·9·11장은 사내 이관 뒤 숫자 갱신 |
+| 8a | `docs/presentation/01_deck_outline.md` — 12장·7분, 장마다 화면·말·근거·초, 길이 조절(3/5/7/10분), 예상 질문 8, 발표자가 채울 것 | ✅ 초안(9/26) → 감사 03 반영(#85). ⬜ 8·9·11장 숫자를 **검증 #3 실측**으로(실신호 7·시뮬 1·미측정 0·폴백 0·"다 됐어요" → 채점 2.8 s/1.4 s — 일지 10/2 발표 소재) · 5·6장 캡처를 라운드 12 화면(판정 네 줄·조향 도식)으로 |
 | 8b | `docs/presentation/02_video_shotlist.md` — 컷 13개(약 2분 05초), A 사내판(Hybrid·Signal Simulator)/B 외부판, 편집 원칙, 녹화 절차·함정 | ✅ 초안(9/26) |
-| 8c | **시연 영상 B안 녹화**(외부 에뮬, 사람이 직접 누름, 소리 포함은 PC 녹화) | 🟡 소리 없는 판은 ✅ **9/29 라운드 8b** `build/demo-round8b.mp4`(187 s, 면 카드·모핑·도착 칸 화면, 시작 → 리포트 145 s; 9/28 판 `demo-round8.mp4` 173 s, 예약 배지 상태로 시작 — `RESERVE=1 RECORD=` 옵션, 시작 → 리포트 135 s: 회차 1 `asked done` t+57 · Done t+61 · 회차 2 t+77 · `asked done` t+115 · 리포트 t+135. 9/27 판 `demo-round3.mp4` 109 s 는 옛 UI). **소리 포함 제출용은 ⬜ 사용자**(PC 녹화, 대본 타임라인 그대로) |
-| 8d | 사내: 이관 → A안 녹화 → Bitbucket 소스 → MarketUploader APK | 🟡 **1차 이관 성공(9/29~30)** → 관찰 반영 Step 14 → 태그 `inhouse-20261001-1` 로 재검증. 9/29 준비: 태그 `inhouse-20260929-2`(`511a0e8`, 일지·NEXT 포함 — 이전 `inhouse-20260929` = `3398a2f`) · 번들 `build/moah2026-20260929.bundle`(HEAD·브랜치·태그 포함, 기본 clone 이 곧바로 `inhouse-20260929-2` 체크아웃) · zip 2종. 사내 GitHub 가 열리면 clone + `git checkout inhouse-20260929-2`, 막히면 번들 반입 |
-| 8e | 슬라이드를 사내 양식으로 옮기기, 2번 장 개인 계기 | ⬜ 사용자 |
+| 8c | **시연 영상 B안 녹화**(외부 에뮬, 사람이 직접 누름, 소리 포함은 PC 녹화) | 🟡 소리 없는 판은 ✅ **9/29 라운드 8b** `build/demo-round8b.mp4`(187 s, 면 카드·모핑·도착 칸 화면, 시작 → 리포트 145 s; 9/28 판 `demo-round8.mp4` 173 s, 예약 배지 상태로 시작 — `RESERVE=1 RECORD=` 옵션, 시작 → 리포트 135 s: 회차 1 `asked done` t+57 · Done t+61 · 회차 2 t+77 · `asked done` t+115 · 리포트 t+135. 9/27 판 `demo-round3.mp4` 109 s 는 옛 UI). **라운드 8b 판은 판정 네 줄·조향 도식(라운드 12) 전 화면** → ⬜ 기능 동결 뒤 **재녹화**(A6 컷 1·2·3~6·8·10·11, `emu_flow` + `screenrecord`) → **소리 포함 제출용은 ⬜ 사용자**(PC 녹화, 대본 타임라인 그대로 — 대본 시각은 라운드 12 화면으로 재실측 먼저) |
+| 8d | 사내: 이관 → A안 녹화 → Bitbucket 소스 → MarketUploader APK | 🟡 **이관·검증은 끝**(9/29~30 1차 → 검증 #2 10/1 → **검증 #3 10/2 Real 전부 PASS**, Step 14). 현재 전달 태그 **`inhouse-20261002-2`**(번들 `build/moah2026-20261002-2.bundle`, 전달 방법은 `docs/06`·`07`: public clone + `git checkout <태그>`, 막히면 번들). ⬜ 사내 재검증 `-2`(③~⑥ 관찰) → ⬜ 기능 동결 태그(~10/6) → ⬜ 10/7~8 사내: A안 녹화 · `submission` 브랜치(태그 + `inhouse:` 커밋 1개) · MarketUploader(VEHICLE, versionCode +1) · PPT·영상 메일 |
+| 8e | 슬라이드를 사내 양식으로 옮기기, 2번 장 개인 계기, **PPT 1장**(`docs/presentation/03_submission_onepager.md` 3안 중 B1) | ⬜ 사용자 |
 
 ### Step 14 — 사내 이관 1차 결과 반영 A~F (9/30 사내 관찰 요지 문서 → 사외, 10/1) — 발주 원문은 사내 문서(반입 캡처 4장, 저장소 밖)
 | # | 일 | 상태 |
@@ -92,7 +92,7 @@
 
 **사내에서 확인할 것(14G, 관찰 노트로 적어 오기 — 10/2 검증 #3 결과 반영)**: ① ✅ `inhouse_check.sh` 요약(검증 #3: 로그인 전 Real ready·실신호 7·시뮬 1·미측정 0·FATAL 0·폴백 3 / 로그인 후 폴백 0·채점 2.8 s·1.4 s. `missing=[…]`·`setVSS rejected` 줄은 노트에 없었다 — 다음엔 그 두 줄만) ② ✅ `USE_FAKE_VSS=false` 빌드 ③ 🟡 OAuth — 한 번 재로그인 뒤 `state=Ready`(예상대로). **`install -r` 뒤 유지**(패널 `AI 코치 · 연결됨` 그대로)는 다음 검증에서 ④ ⬜ 총평이 측정 안 하는 항목을 또 조언하는지 ⑤ ⬜ TTS 없는 사내 에뮬에서 자막만으로 시연이 읽히는지(대본 타이밍) ⑥ ⬜ **(10/2 추가) 판정 네 줄·`자세히 보기` 의 `방향 편차 N°` 가 실신호(실차 조향각·기어)로 말이 되는지** — 안 되면 `docs/design/09` V2 대로 방향 판정을 미측정으로 돌린다.
 
-### Step 9 — UI 재설계 (Codex 별도 세션 · 기준 = 기하학 포스터) — 🟡 라운드 1~6 머지(PR #14·#18·#25·#29·#32·#37), 영상 피드백 루프 진행 중(라운드 7 후보 있음)
+### Step 9 — UI 재설계 (Codex 별도 세션 · 기준 = 기하학 포스터) — ✅ 라운드 1~12 전부 머지(마지막 라운드 12 ② #94 `fb7e56e`, 10/2). 열린 발주 없음. 남은 사소 1(9r): `aligned` 단독 서두 제거(선택). 기능 동결(~10/6) 전까지 새 라운드는 사내 재검증 `-2` 관찰(③~⑥)에서 나온 것만
 | # | 일 | 상태 |
 |---|---|---|
 | 9a | `docs/design/02_design_brief.md` — 라운드 0~3, 채울 것 9, **불변 규칙 12** + 검사 수단. 레퍼런스 = `docs/design/geometric-poster-development/`(시안 4장·핸들 B·시각 규칙·색 토큰 5). 탐색 이력(종이 UI·미니멀·Pinterest)은 `docs/design/README.md`(Codex) | ✅ 채움(모션 포함 9개 모두 사용자 확인 9/26) |
@@ -117,26 +117,26 @@
 
 리뷰 루틴(Claude): worktree 에서 head 빌드 → `emu_flow.sh`(원본, 유예 60·급제동 -3.0 기준) → `lesson_shots.sh` → 캡처를 그 라운드 시안(`docs/design/round3-topview/`·`round6-sheet/`)과 나란히 눈으로 → 애니메이션은 계측 클립(`/sdcard/lesson-round4-*.mp4`)을 `ffmpeg` 프레임 스트립으로 → 발주서 §2 불변 표 grep → PR 코멘트. 이미지만인 시안 PR 은 바로 머지. **리뷰 뒤**: 머지 → `screenrecord` + `emu_flow` 로 B안 재녹화(`build/demo-roundN.mp4`) → 사용자 검토 → 피드백은 `docs/design/0N_roundN_feedback.md` 로 분류(A Claude / B Codex / D 사용자) → 결정이 필요한 것은 **캡처로** 묻는다(두 안 비교·디자인 세션). 컷 목록 "길이" 열은 사람이 누른 녹화에서 잰다.
 
-**라운드 7 후보(피드백 오면 묶어서)**: 도식 없는 카테고리(주행·조작·지식)의 세부 칸 위쪽이 비어 보임 → 칸 높이 축소 또는 제목 세로 가운데 · `시연` 알약 위치는 확정됨.
+**보류 후보(라운드 7 때 적은 것, 이후 피드백·감사 08 전수 캡처에서 재지적 없음)**: 도식 없는 카테고리(주행·조작·지식)의 세부 칸 위쪽이 비어 보임 → 칸 높이 축소 또는 제목 세로 가운데. 사용자가 다시 짚으면 그때 발주.
 
-**순서**: 디자인(9) → 녹화(8c) → 사내(8d). 디자인 뒤에 찍어야 두 번 찍지 않는다. **지금 트리 배치(9/28)**: 본 트리 = Codex 것(Claude 는 `git checkout` 하지 않음) · Codex = 본 트리 또는 `.worktrees/ui-roundN` · Claude = `.worktrees/hybrid`(항상 main 으로 되돌려 둔다) — 동시 작업 규칙(§3). 재녹화 mp4 는 `.worktrees/hybrid/build/`(저장소 밖).
+**순서**: 디자인(9, ✅ 10/2 라운드 12 로 끝) → 녹화(8c) → 사내(8d). 디자인 뒤에 찍어야 두 번 찍지 않는다 — 지금이 그 "뒤" 다. **지금 트리 배치(9/28)**: 본 트리 = Codex 것(Claude 는 `git checkout` 하지 않음) · Codex = 본 트리 또는 `.worktrees/ui-roundN` · Claude = `.worktrees/hybrid`(항상 main 으로 되돌려 둔다) — 동시 작업 규칙(§3). 재녹화 mp4 는 `.worktrees/hybrid/build/`(저장소 밖).
 
-### Step 10 — 지식 테스트 (Claude 상태기계 ✅ PR #9 · Codex 화면 ⬜)
+### Step 10 — 지식 테스트 (Claude 상태기계 ✅ PR #9 · Codex 화면 ✅ 라운드 2 #18 → 라운드 7 답·정답 표시·`그만하기` → 라운드 9 잠금 화면 숫자 제거 #61)
 | # | 일 | 상태 |
 |---|---|---|
 | 10a | `LessonPhase.Quiz`(index·item·locked·chosen·correctSoFar)·`QuizDone`(results·items·remark), `QuizItem`·`QuizResult`·`QuizRecord`. 상태기계 `answer(choice)`·`nextQuestion()`, 잠금(속도 > 5) 중 답 무시, `endSession` 은 푼 것까지로 결과. 문제·선택지·정답 이유를 음성으로 | ✅ |
 | 10b | 시드: 지식 과제 READY(QUIZ 모드만), 문항 5(회전교차로·비상등·우천 제동·야간 상향등·안전거리). 문구는 Codex 가 다듬는다 | ✅ |
-| 10c | 화면 `Quiz`·`QuizDone` — C절 요청. 그때까지 `LessonRoute` 에 `[cross]` 자리표시자(Briefing 화면 재사용, 자막으로 진행) | ⬜ Codex(UI 재설계 라운드 2 에 함께) |
+| 10c | 화면 `Quiz`·`QuizDone` — C절 요청. 그때까지 `LessonRoute` 에 `[cross]` 자리표시자(Briefing 화면 재사용, 자막으로 진행) | ✅ Codex 라운드 2 PR #18(Quiz 2장) → 라운드 7(내 답·정답 표시, 중간 `그만하기`) → 라운드 11 ② `QuizDone` 잠금 레이어(#90) |
 | 10d | (선택) `CloudCoachPort` 로 퀴즈 총평 변주 · STT 로 음성 답변(사내 확인 뒤) | ⬜ |
 
-### Step 11 — 출발 전 점검 과제 (Claude ✅ PR #10 머지 `08e966b` · Codex 화면 ⬜)
+### Step 11 — 출발 전 점검 과제 (Claude ✅ PR #10 머지 `08e966b` · Codex 화면 ✅ 라운드 2 칩 3 → 11f 7단계 #49)
 | # | 일 | 상태 |
 |---|---|---|
 | 11a | 시드 `TASK_PREDRIVE` READY(`CHECKLIST`, 주행 불필요), 가이드 3단계(벨트 → P 확인 → 시동), 점검 멘트 12, `SeedCatalog.scenariosFor(task)` | ✅ |
 | 11b | `PreDriveSummary` 에 `beltOnMillis`·`ignitionOnMillis`·`beltBeforeIgnition`(마지막 false→true 전이) · `ChecklistScorer`/`ChecklistRubric`(숙련 = 순서·완성·시간, 안전 = 움직임·P·벨트) · `ParkingRecorder.scoreChecklist` | ✅ |
 | 11c | 상태기계: 과제 유형으로 채점기 선택, 힌트 규칙 분리(`HintRules(checklist = true)` — 시동 먼저·움직임), "다 되셨나요?" 는 벨트·시동·P 가 다 보이면. `CoachPort.remark(task, …)` 로 과제 전달, 머리말 `attemptHead(task, score)`("출발 준비 N초."), `RemarkTemplate.taskType` 으로 멘트 풀 분리 | ✅ |
 | 11d | `ChecklistScenarios` 잘한 점검(8 s, 100/100) · 못한 점검(12 s, 60/70). `DemoControls.scenarios` 는 진행 중 과제의 것만 | ✅ |
-| 11e | 화면: 점검 과제용 `Maneuver` 칩 3개·`Done/Report` 행 교체 — C절 요청 | ⬜ Codex(UI 재설계 라운드 2 에 함께) |
+| 11e | 화면: 점검 과제용 `Maneuver` 칩 3개·`Done/Report` 행 교체 — C절 요청 | ✅ Codex 라운드 2 PR #18 → 11f 에서 칩 7·리포트 ✓/✗ 7행(#49) |
 
 단위 테스트 113 → 129. `emu_flow.sh`(주차) 는 영향 없음 — 시연 본편은 그대로 주차.
 
@@ -153,17 +153,19 @@
 | # | 일 | 상태 |
 |---|---|---|
 | 12a | Claude 선행: `CompanionShareLevel`·`CompanionNote`(`CoachPort.companionNote`, Fake = `CompanionRules`(밴드 풀 + `AdviceRules.Advice` 운전자/동승자 쌍), Cloud 프롬프트·폴백)·`LessonReport.companion/companionShareLevels/cheers`·`Setup.cheer`·상태기계 `shareWithCompanion`/`cheer`(`ProgressStore`, `reset` 이 안 지움)·`SeedCatalog.cheers`·`emu_flow` 선택 단계(화면 없으면 건너뜀) | ✅ PR #41 머지 `98ec8f8`(단위 테스트 164) |
-| 12b | Codex: Report `동승자` 탭(두 문장·공유 범위 3·응원 칩 3·`다시 시작`), Setup 응원 눈썹, 계측·캡처 2장 | ✅ `codex/companion-share` 구현·검증 완료, 리뷰·머지 대기. 빌드·단위 테스트 164·계측 APK, `Lesson contract passed`, 원본 `emu_flow` PASS·clashes 0(응원 선택 → Setup 포함). 캡처·로그는 `docs/screenshots/lesson/README.md` |
+| 12b | Codex: Report `동승자` 탭(두 문장·공유 범위 3·응원 칩 3·`다시 시작`), Setup 응원 눈썹, 계측·캡처 2장 | ✅ Codex PR #42 머지(빌드·단위 테스트 164·`Lesson contract passed`·`emu_flow` PASS) → ⛔ PR #46 에서 제거 |
 | 12b-후속 | Codex C절 요청: 재시작 Setup 추천 이유 "가이드를 0번 통과했어요"(숫자·어색) → `ModeAdvisor.suggest` 세 문장 숫자 없이(`ModeAdvisorReasonTest`) | ✅ 이 PR |
 | 12c | 대본: 진단서 뒤 동승자 10 s(2:25 행), 컷 목록 11b, 덱 12장 동승자 공유를 "있는 것" 으로 | ✅ 이 PR |
 
 ### 사용자 결정·행동이 필요한 것
 | # | 일 | 상태 |
 |---|---|---|
-| U1 | 제품명 | 가칭 DriveCoach. `res/values/strings.xml` 한 곳 |
-| U2 | 사내 출근 일정 | 제출물 3종이 사내 전용. 방침: 외부 개발 후 별도 절차. 가능하면 빈 껍데기로 clone→빌드→설치 경로 먼저 |
-| U3 | 주차장·코스 시드 좌표 | 없으면 서초 기준 임의, `INTEGRATION.md` 가정 표기 |
-| U4 | 라운드 1 드래프트 PR 캡처를 보고 톤 확정 (브리프 답 9개·이동 중 진행 정보 숨김은 ✅ 9/26 확인) | `docs/design/02_design_brief.md` "채울 것" 모션 행. 레퍼런스·나머지 8답은 ✅ (9/26 Codex 디자인 세션에서 도출) |
+| U1 | 제품명 | ✅ **"드라이브 코치"** 1.0.0(`app_name`, #68 — 검증 #3 APK 라벨 확인) |
+| U2 | 사내 출근 일정 | ✅ 이관 1차 9/29~30 · 검증 #2 10/1 · 검증 #3 10/2 PASS. 남은 사내 일정: ~10/3 재검증 `-2` · 10/7~8 녹화·제출 · 10/9 예비 |
+| U3 | 주차장·코스 시드 좌표 | ✅ Step 13 시드(시험장 3·코스 3·시간대 3)로 대체 — 시드 값이지 실측 아님 |
+| U4 | 라운드 1 드래프트 PR 캡처를 보고 톤 확정 | ✅ 9/26(9b) · 이후 라운드 2~12 피드백 전부 소진 |
+| U5 | **사내 재검증 `inhouse-20261002-2`** 관찰 노트 #4: ③ OAuth `install -r` 뒤 유지 ④ 총평 범위 밖 조언 ⑤ 자막만으로 시연 ⑥ 판정 네 줄·방향 편차가 실신호로 말이 되는지 + `inhouse_check.sh` 의 `missing=[…]`·`setVSS rejected` 두 줄 | ⬜ 사용자(~10/3). ⑥ 이 안 되면 `docs/design/09` V2(방향 미측정) |
+| U6 | 제출물 사람 몫: 소리 포함 B안 녹화(8c) · PPT 1장 B1 + 사내 양식·2번 장 개인 계기(8e) · 10/7~8 사내 A안 녹화·`submission`·MarketUploader·메일(8d) | ⬜ 사용자 |
 
 ### 뒤로 미루는 항목 (기술적 불확실성)
 | 항목 | 이유 |
@@ -174,9 +176,9 @@
 | 의사 3D 지도 | 도로 과제 화면에 필요하면 16번에서 되가져오기(§5) |
 
 ### 알고 있지만 검증하지 못한 것
-- B층 경로 전부 — 사내 1,251개 목록(pageId 1323873443)과 대조한 적 없음. **주차 시연은 조향각·기어 의존이 커서** 둘이 없으면 도식·가이드 확인이 전부 시뮬레이션이 된다(A층으로 회차 피드백은 성립).
-- 주차센서 VSS 경로는 추정조차 불확실.
-- 사내 환경 전부.
+- B층 경로 — 사내 실측(검증 #2 10/1 · #3 10/2) **실신호 7 · 시뮬레이션 1 · 미측정 0**. 어느 키가 시뮬 1 인지는 노트에 없어(`missing=[…]` 줄) 다음 검증에서 확인. 조향각·기어가 실신호로 오는 것은 도식·가이드가 사내에서 돌아간 것으로 간접 확인, **판정 네 줄·방향 편차가 실차 값으로 말이 되는지(⑥)는 미확인**.
+- 주차센서 VSS 경로는 추정조차 불확실 — 시뮬 1 이 이것일 가능성이 크다.
+- 사내 환경: 빌드(설정 한 줄)·설치·Real·Hybrid·Cloud Copilot 전송·기기 인증은 확인됨(검증 #1~#3). **미확인**: TTS 유무와 자막만의 시연(⑤), OAuth 가 `install -r` 뒤 유지되는지(③), MarketUploader 업로드 절차(10/7~8 에 처음).
 
 ## 3. 일하는 방식 (16번에서 굳은 것, 그대로)
 
