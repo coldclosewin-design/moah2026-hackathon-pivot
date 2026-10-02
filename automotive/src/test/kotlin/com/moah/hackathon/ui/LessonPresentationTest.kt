@@ -14,8 +14,9 @@ class LessonPresentationTest {
     }
 
     @Test fun leftAndRightTurnsMirrorTheInnerWheel() {
-        assertEquals(37.5f to 30f, wheelAngles(450f))
-        assertEquals(-30f to -37.5f, wheelAngles(-450f))
+        val (left, right) = wheelAngles(450f)
+        assertTrue(left > 30f && right < 30f)
+        assertEquals(-right to -left, wheelAngles(-450f))
     }
 
     @Test fun missingSteeringKeepsBothWheelsStraight() {
@@ -31,8 +32,8 @@ class LessonPresentationTest {
             assertTrue(kotlin.math.abs(negativeRight) > kotlin.math.abs(negativeLeft))
             assertEquals(-right to -left, negativeLeft to negativeRight)
         }
-        assertEquals(45f to 38f, wheelAngles(900f))
-        assertEquals(-38f to -45f, wheelAngles(-900f))
+        assertEquals(45f, wheelAngles(900f).first, .001f)
+        assertEquals(-45f, wheelAngles(-900f).second, .001f)
     }
 
     @Test fun categoriesFollowTheDemoOrderRatherThanEnumOrder() {

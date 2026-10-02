@@ -684,6 +684,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             capture("report-checklist-missing")
             pass("Checklist Report: seven recorded checks, only belt/ignition timing, good/bad/missing distinction; Done retains two sentences")
             round11Results(activity, record, pathRecord, checklistRecord, report, demo)
+            round12Verdicts(activity, report)
             seedVerdictOpeners(activity)
             reservationFlow(activity)
             recordMotionClips(activity, moving, pathRecord)
@@ -1352,6 +1353,92 @@ class LessonScreenInstrumentation : Instrumentation() {
         check(abs(dot.exactCenterX() - startX) <= 1 && abs(dot.exactCenterY() - startY) <= 1)
         check(cy < startY) { "Rear-up orientation changed" }
     }
+    private fun round12Verdicts(activity: MainActivity, baseReport: LessonReport) {
+        val task = SeedCatalog.parkingTask
+        val coach = FakeCoachPort(RemarkPool(SeedCatalog.remarks, kotlin.random.Random(7)))
+        fun attempt(good: Boolean, index: Int): AttemptRecord {
+            val registry = SignalRegistry(ParkingRecorder.KEYS, simulated = true)
+            val recorder = ParkingRecorder(registry).apply {
+                (if (good) ParkingScenarios.good else ParkingScenarios.bad).steps.forEach {
+                    onDelta((it.atSeconds * 1000).toLong(), it.values)
+                }
+            }
+            val score = ParkingScorer.score(recorder.metrics()!!, registry.badge(), registry.missingKeys())
+            val verdict = recorder.verdict()
+            return AttemptRecord(index, task.id, LessonMode.HINT, score, null,
+                runBlocking { coach.remark(task, score, null, SeedCatalog.demoProfile, index, verdict) }, 0,
+                path = recorder.path(), verdict = verdict)
+        }
+        val bad = attempt(false, 1)
+        val good = attempt(true, 2)
+        fun assertVerdict(record: AttemptRecord) {
+            val lines = verdictLines(record.verdict)
+            check(texts().containsAll(lines.map { it.text })) { "Verdict lines missing: ${texts()}" }
+            lines.groupingBy { it.mark.symbol }.eachCount().forEach { (mark, count) ->
+                check(texts().count { it == mark } == count) { "Wrong verdict marks: ${texts()}" }
+            }
+            check(("신호로 추정" in texts()) == lines.any { it.note != null })
+            check(texts().none { it.startsWith("방향 편차") })
+            lines.forEach { assertFullText(activity, it.text) }
+        }
+        for ((record, name) in listOf(good to "done", bad to "done-verdict-fix")) {
+            render(activity) { DoneScreen(task, record.index, record, null, {}, {}) }
+            Thread.sleep(3_000)
+            assertVerdict(record)
+            assertNoDoneMetrics()
+            assertFullText(activity, record.remark, "한 번 더")
+            capture(name)
+        }
+        val report = baseReport.copy(attempts = listOf(bad, good), best = good.score,
+            summary = runBlocking { coach.summarize(task, LessonMode.HINT, listOf(bad, good), SeedCatalog.demoProfile) },
+            unverifiedGuideSteps = emptyList())
+        render(activity) { ReportScreen(report, {}) }
+        assertVerdict(good)
+        check("마지막 회차의 판정" in texts())
+        capture("report")
+        click("자세히 보기")
+        check(texts().containsAll(listOf("방향 편차 17°", "방향 편차 2°")))
+        check(texts().none { it in verdictLines(good.verdict).map { line -> line.text } })
+        capture("details")
+        // A worse last attempt must not inherit the best score's favourable verdict.
+        render(activity) { ReportScreen(report.copy(attempts = listOf(good, bad.copy(index = 3))), {}) }
+        assertVerdict(bad)
+        capture("report-verdict-last")
+        val unknown = good.copy(verdict = good.verdict!!.copy(
+            heading = ParkingVerdict.Heading.UNKNOWN, headingErrorDeg = null))
+        render(activity) { DoneScreen(task, 2, unknown, null, {}, {}) }
+        assertVerdict(unknown)
+        capture("done-verdict-unknown") { bitmap ->
+            val muted = CoachColors.Muted.compositeOver(CoachColors.Lavender).toArgb()
+            check(!colorBounds(bitmap, textBounds("—"), muted, tolerance = 1).isEmpty)
+        }
+        render(activity) { ReportScreen(report.copy(attempts = listOf(unknown)), {}) }
+        assertVerdict(unknown)
+        click("자세히 보기")
+        check("방향 편차 미측정" in texts())
+        capture("details-verdict-missing")
+        val absent = good.copy(verdict = null)
+        render(activity) { DoneScreen(task, 2, absent, null, {}, {}) }
+        assertVerdict(absent)
+        capture("done-verdict-missing")
+        val locked = mutableStateOf(false)
+        fun assertLocked() {
+            runOnMainSync { locked.value = true }
+            Thread.sleep(350)
+            check(nodes().none(::hasTouchAction))
+            check(allText().none { Regex("\\d|✓|△|✗|—|방향|판정|신호로 추정").containsMatchIn(it) })
+            check("운전에 집중해 주세요" in texts())
+            runOnMainSync { locked.value = false }
+            Thread.sleep(350)
+            assertVerdict(good)
+        }
+        render(activity) { DoneScreen(task, 2, good, null, {}, {}, locked = locked.value) }
+        assertLocked()
+        render(activity) { ReportScreen(report, {}, locked.value) }
+        assertLocked()
+        pass("Round12 verdict: recorded good/fix/unknown/null, last attempt rather than best, angles only in details, Done/Report lock hides all four lines and restores them")
+    }
+
     private fun recordMotionClips(activity: MainActivity, moving: ManeuverDisplayState, record: AttemptRecord) {
         // Recording is a review artifact; the animation still receives only the supplied signal/path data.
         val angle = mutableStateOf(0f)
@@ -1473,6 +1560,9 @@ class LessonScreenInstrumentation : Instrumentation() {
         val bottom = guidePair(.95f, .995f)
         val topGap = top.second - top.first
         val bottomGap = bottom.second - bottom.first
+        val rear = CoachColors.Lavender.copy(alpha = .4f).compositeOver(CoachColors.Ink).toArgb()
+        val rearRegion = Rect(diagram.left, diagram.top, diagram.right, (diagram.top + diagram.height() * .14f).toInt())
+        check(!colorBounds(bitmap, rearRegion, rear, tolerance = 1).isEmpty) { "Rear wheel guides missing" }
         if (direction == 0) {
             check(kotlin.math.abs(top.first - bottom.first) <= 1f && kotlin.math.abs(top.second - bottom.second) <= 1f)
         } else {

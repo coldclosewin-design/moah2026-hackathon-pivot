@@ -46,6 +46,14 @@ internal fun DoneScreen(task: Task, attempt: Int, record: AttemptRecord, subtitl
                             }
                         }
                     }
+                } else if (task.type == TaskType.PARKING) {
+                    Column(Modifier.fillMaxHeight().fillMaxWidth(.38f)) {
+                        Box(Modifier.weight(1f).fillMaxWidth()) {
+                            Box(Modifier.fillMaxHeight().width((2560 * .06f).dp).background(CoachColors.Ink))
+                            if (showPath) EstimatedPath(record, Modifier.fillMaxSize().padding(start = (2560 * .06f).dp))
+                        }
+                        VerdictPanel(record.verdict, Modifier.fillMaxWidth())
+                    }
                 } else if (showPath) {
                     Box(Modifier.fillMaxHeight().fillMaxWidth(.38f)) {
                         Box(Modifier.fillMaxHeight().fillMaxWidth(.06f / .38f).background(CoachColors.Ink))
