@@ -1,6 +1,8 @@
 # VSS API 실제 계약 (외부에서 이대로 스텁 작성)
 
 > 근거: VehicleAPI(VSS) Reference (pageId 1037767644, 차량통신미들웨어팀, 2026-08-26 최종 변경). `vss-stub/src/main/java/mobis/vss/` 의 시그니처는 이 문서와 **문자 그대로** 일치해야 한다.
+>
+> **현재 상태(2026-10-02 밤, 태그 `inhouse-20261002-3`)**: 아래 시그니처와 상수 14개는 사내 jar 로 세 번 컴파일·실행됐다(9/30 이관 1차 · 10/1 검증 #2 · 10/2 검증 #3, 추적 소스 수정 0). 사내 실측 배지 **실신호 7 · 시뮬레이션 1 · 미측정 0**(주차 8키 — 시뮬 1 은 실물에 없는 `Rear.Distance`, `SimOnlySignals`). 스텁/jar 전환은 코드가 아니라 `local.properties` 한 줄(§"패키지 / 의존성").
 
 ## VSS란
 
@@ -13,8 +15,8 @@ VSS(Vehicle Signal Specification)는 차량의 각 신호를 `Vehicle.Speed`처�
 ## 패키지 / 의존성
 
 - import 패키지는 `mobis.vss.*` (jar 이름 `mobis.framework.core`와 다름 — 혼동 주의).
-- 사내 실물: `compileOnly files('/system/framework/mobis.framework.core.jar')`
-- 외부: `compileOnly project(':vss-stub')`
+- 외부: `compileOnly project(':vss-stub')` — 기본.
+- 사내 실물: `local.properties` 에 `mobis.vss.jar=automotive/libs/mobis.framework.core.jar` 한 줄(jar 는 gitignore). 이 키가 있으면 `settings.gradle.kts` 가 `:vss-stub` 을 빼고 `automotive/build.gradle.kts` 가 그 jar 를 `compileOnly`·`testImplementation` 으로 쓰며 `USE_FAKE_VSS=false`. 코드·Gradle 파일 수정 0(9/30, `docs/06` §2). 그 전의 "`compileOnly files('/system/framework/…jar')` 한 줄 교체" 는 폐기.
 
 ## 시그니처 전문
 
@@ -70,7 +72,7 @@ public class VssConstants {               // "Vehicle.Xxx.Yyy" dot 경로 문자
 }
 ```
 
-**경로가 틀리면 어떻게 되나 (함정 6의 실전 대응).** 위 B층 상수는 컴파일은 되지만 실물 이름이 다르면 값이 영영 오지 않는다. 앱은 `vehicle/SignalAvailability.kt` 의 `SignalRegistry` 로 세션 동안 값이 온 키를 기록해 `LIVE / SIMULATED / MISSING` 을 정하고, `MISSING` 인 신호가 필요한 채점 항목은 null(미측정)로 빼며 리포트에 "실신호 N · 시뮬레이션 N · 미측정 N" 배지를 단다. 사내 첫날 `missingKeys()` 를 로그로 찍어 pageId 1323873443 과 대조하고, 비슷한 이름이 있으면 **문자열만** 고친다.
+**경로가 틀리면 어떻게 되나 (함정 6의 실전 대응).** 위 B층 상수는 컴파일은 되지만 실물 이름이 다르면 값이 영영 오지 않는다. 앱은 `vehicle/SignalAvailability.kt` 의 `SignalRegistry` 로 세션 동안 값이 온 키를 기록해 `LIVE / SIMULATED / MISSING` 을 정하고, `MISSING` 인 신호가 필요한 채점 항목은 null(미측정)로 빼며 리포트에 "실신호 N · 시뮬레이션 N · 미측정 N" 배지를 단다. 사내 첫날 `missingKeys()` 를 로그로 찍어 pageId 1323873443 과 대조하고, 비슷한 이름이 있으면 **문자열만** 고친다. **사내 실측(9/30 → 10/1·10/2)**: 주차 8키 중 `Speed`·`SteeringWheel.Angle`·`SelectedGear`·`IsBelted`·`LowVoltageSystemState`·`Door.IsOpen`·`ObstacleDetection.IsWarning` 7개가 실신호, `Rear.Distance` 만 시뮬레이션, 미측정 0 — 경로 교정은 필요 없었다. `LowVoltageSystemState` 는 회차 시작 때 **빈 문자열**을 주므로 `RealVehiclePort` 가 `isNullOrBlank()` 를 미수신으로 버리고 Fake 가 채운다(INTEGRATION B 9/30 [hybrid]). 점검 12키 쪽(지시등·비상등·브레이크)은 사내에서 아직 돌리지 않았다.
 
 **기어 인코딩.** `SelectedGear` 의 COVESA 인코딩은 `vehicle/VssGear.kt` 의 `Gear.parse` 가 P/R/N/D 넷으로 접는다(문자 "P/R/N/D" 도 받음). 실물이 다른 인코딩이면 그 함수 한 곳만 고친다.
 
@@ -96,8 +98,8 @@ public class VssConstants {               // "Vehicle.Xxx.Yyy" dot 경로 문자
 | 2 | 모든 값은 String | `VSSAppData.value: String`, `VssValues.kt` 파싱 헬퍼 | 숫자 직접 캐스팅 금지 |
 | 3 | `getVSS/setVSS` 동기 → UI 스레드 호출 시 ANR | `RealVehiclePort`는 전용 단일 스레드 Executor에서 호출, 결과는 콜백/코루틴으로 전달 | UI 코드에서 `VSSManager` 직접 호출 금지 |
 | 4 | `getInstance` null 가능 | `RealVehiclePort` 생성자에서 null이면 `IllegalStateException` → `VehiclePortFactory`가 Fake로 폴백 + 경고 로그 | — |
-| 5 | compileOnly 경로 (스텁 vs 시스템 jar 동시 활성 시 duplicate class) | `automotive/build.gradle.kts`에 두 줄 중 하나만 활성 (주석) | 머지 시 한 줄 교체 |
-| 6 | `VssConstants` 경로 오타는 조용히 무시 | 경로 문자열은 `VssConstants`만 사용, 리터럴 금지 | 새 신호 추가 시 pageId 1323873443 원문과 대조 |
+| 5 | compileOnly 경로 (스텁 vs 시스템 jar 동시 활성 시 duplicate class) | `local.properties` 의 `mobis.vss.jar` 키 유무로 `settings.gradle.kts` 가 `:vss-stub` 포함 여부를 정한다 — 둘이 동시에 켜질 수 없다 | 사내 빌드 로그 첫 줄 `mobis.vss: jar … → USE_FAKE_VSS=false` · `REPO_ONLY=1 bash tools/inhouse_check.sh` 로 jar·`local.properties` 가 커밋에 안 들어가는지 |
+| 6 | `VssConstants` 경로 오타는 조용히 무시 | 경로 문자열은 `VssConstants`만 사용, 리터럴 금지. 상수 **이름 = 경로를 대문자·밑줄로**(사내 jar 규칙, 9/30) | 새 신호 추가 시 pageId 1323873443 원문과 대조, 이름 규칙 확인, INTEGRATION B 에 가정 한 줄 |
 
 ## 구독 수명주기
 
