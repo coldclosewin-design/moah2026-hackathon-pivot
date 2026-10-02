@@ -64,15 +64,10 @@ class PathPresentationTest {
         assertEquals(path.zipWithNext(), legs.flatMap { it.points.zipWithNext() })
     }
 
-    @Test fun harshMarkerUsesNearestTimestampAndSteeringArcUsesDriverCoordinates() {
+    @Test fun harshMarkerUsesNearestTimestamp() {
         val path = listOf(point(0, 0f, 0f), point(1_000, 1f, -1f), point(2_000, 2f, -2f))
         assertEquals(path[1], nearestPathPoint(path, 1_100))
         assertEquals(path[0], nearestPathPoint(path, -100))
         assertNull(nearestPathPoint(emptyList(), 10))
-        assertEquals(-1f, steeringArcBend(-450f)) // Right steering -> screen-left with the nose down.
-        assertEquals(1f, steeringArcBend(450f))
-        assertEquals(0f, steeringArcBend(0f))
-        assertEquals(1f, steeringArcBend(900f))
-        assertNull(steeringArcBend(null))
     }
 }

@@ -153,14 +153,6 @@ internal fun ManeuverDisplayState.diagramDescription() = buildList {
 
 // Wheelbase ratio is illustrative, not a measured road-wheel angle. Preserve COVESA's positive-left sign.
 internal fun wheelRotation(steeringDeg: Float?) = ((steeringDeg ?: 0f) / 15f).coerceIn(-38f, 38f)
-/** Driver-side left/right angles; the inner front wheel turns further toward the shared centre. */
-internal fun wheelAngles(steeringDeg: Float?): Pair<Float, Float> {
-    val outer = wheelRotation(steeringDeg)
-    val inner = (outer * 1.25f).coerceIn(-45f, 45f)
-    return if (outer < 0f) outer to inner else inner to outer
-}
-// Positive means left steering: with the nose down, its arc bends to screen-right.
-internal fun steeringArcBend(steeringDeg: Float?) = steeringDeg?.let { (it / 450f).coerceIn(-1f, 1f) }
 internal fun steeringTurnsLabel(deg: Float?): String? {
     val magnitude = abs(deg ?: return null)
     if (magnitude < 45f) return "중립"

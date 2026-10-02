@@ -38,7 +38,12 @@ internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit, locked: B
     }
     PosterSurface {
         Row(Modifier.fillMaxSize()) {
-            RecordGraphic(report.attempts.size, Modifier.weight(.38f).fillMaxHeight())
+            Box(Modifier.weight(.38f).fillMaxHeight()) {
+                val showVerdict = page == ReportPage.SUMMARY && report.task.type == TaskType.PARKING
+                RecordGraphic(report.attempts.size, Modifier.fillMaxSize(), compact = showVerdict)
+                if (showVerdict) VerdictPanel(report.attempts.lastOrNull()?.verdict,
+                    Modifier.align(Alignment.BottomStart).fillMaxWidth(), title = "마지막 회차의 판정")
+            }
             Column(Modifier.weight(.62f).fillMaxHeight().padding(start = 120.dp, end = 180.dp, top = 96.dp, bottom = 64.dp),
                 verticalArrangement = Arrangement.spacedBy(28.dp)) {
                 when (page) {
@@ -82,7 +87,7 @@ internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit, locked: B
 }
 
 @Composable
-private fun RecordGraphic(attempts: Int, modifier: Modifier) {
+private fun RecordGraphic(attempts: Int, modifier: Modifier, compact: Boolean = false) {
     Box(modifier.clipToBounds()) {
         Canvas(Modifier.fillMaxSize()) {
             drawArc(CoachColors.Periwinkle, -90f, 180f, false,
@@ -100,10 +105,11 @@ private fun RecordGraphic(attempts: Int, modifier: Modifier) {
                 Offset(size.width * .29f, size.height * .66f), strokeWidth = 14.dp.toPx())
         }
         BrandMark(Modifier.padding(start = 180.dp, top = 64.dp), CoachColors.Paper)
-        Column(Modifier.align(Alignment.CenterStart).padding(start = 150.dp, bottom = 90.dp)) {
+        Column(if (compact) Modifier.align(Alignment.TopStart).padding(start = 150.dp, top = 200.dp)
+            else Modifier.align(Alignment.CenterStart).padding(start = 150.dp, bottom = 90.dp)) {
             Eyebrow("연습한 회차", color = CoachColors.Paper)
             val count = attempts.toString().padStart(2, '0')
-            Headline(count, size = minOf(400, 820 / count.length), color = CoachColors.Paper)
+            Headline(count, size = minOf(if (compact) 320 else 400, 820 / count.length), color = CoachColors.Paper)
             LessonText("회", 40, CoachColors.Paper.copy(alpha = .6f))
         }
     }
@@ -160,6 +166,7 @@ private fun DetailsContent(report: LessonReport, modifier: Modifier) {
             }
             if (report.task.type == TaskType.PARKING) {
                 LessonText(parkingDetailLine(attempt.score.metrics), 32, CoachColors.Muted)
+                LessonText(headingDetailLine(attempt.verdict), 32, CoachColors.Muted)
             } else if (report.task.type == TaskType.CHECKLIST) {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     checklistResults(attempt.score).forEach { result ->

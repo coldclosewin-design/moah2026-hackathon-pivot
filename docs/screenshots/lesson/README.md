@@ -237,3 +237,27 @@ APK SHA-256: 앱 `9FCBA44C9EDC6636B19D192552CA02D8A899B7D58CEC33B4626E17570D7AA1
 같은 APK로 원본 `tools/lesson_shots.sh build/seed-lines-pass-{1,2,3}` **3회 연속 Lesson contract passed**([전체 로그](contract-seed-verdict-lines.txt)). 새 `Seed verdict openers` 검사와 기존 결과 잠금·긴 문장·출처 목록·예약·조향 도식 검사를 모두 통과했다. 네 문장별 캡처는 첫 실행에서 가져왔으며 전문·버튼·궤적을 직접 확인했다.
 
 원본 `tools/emu_flow.sh build/seed-lines-flow` **PASS·uiautomator clashes 0·리포트까지 109초**([흐름 로그](flow-seed-verdict-lines.txt)). 못한 주차는 `한 번 다시 넣고 들어갔어요.`·60/55·4구간, 잘한 주차는 `신호로 추정하면 방향도 맞게 섰어요.`·100/100·2구간을 표시했다. 필수 힌트 3종·잘한 주차 추가 힌트 없음·도어 열림 → 리포트·배지 0/8/0 유지. 실제 흐름 두 캡처도 직접 확인했으며 총 **6장(교체 3·추가 3)**을 반영했다. ②의 판정 네 줄·방향 편차·조향 도식은 이 PR에 포함하지 않는다.
+
+## 라운드 12 ② 판정 네 줄·조향 도식 (2026-10-02)
+
+`codex/ui-round12` · 기준 `origin/main=76b14fe`(#91·#93 반영) · 외부 CSTDe_API_34 · Fake 기본 배율 1.0. [발주서 ②](../../handoffs/2026-10-02_codex_ui_round12.md)의 UI 범위만 구현했다.
+
+| 항목 | 교체·추가 캡처 | 확인 내용 |
+|---|---|---|
+| 2.1 판정 네 줄 | 교체 `lesson-done.png`, `lesson-report.png`; 추가 `lesson-done-verdict-fix.png` | 실제 좋은 주차는 ✓ 네 개, 못한 주차는 ONE_FIX·SLIGHT·CLEAN·UNSAFE(△·△·✓·✗). Done은 궤적 아래 Ink 면, Report 요약은 왼쪽 아래 **마지막 회차의 판정** |
+| 2.1 미측정·회차 선택 | 추가 `lesson-done-verdict-unknown.png`, `lesson-done-verdict-missing.png`, `lesson-report-verdict-last.png` | 방향 UNKNOWN/null verdict 표시 경계 fixture. 좋은 회차 다음에 못한 회차를 넣어 최고 점수와 마지막 판정을 혼동하지 않는지 확인 |
+| 2.2 방향 편차 | 교체 `lesson-details.png`; 추가 `lesson-details-verdict-missing.png` | 실제 시나리오의 16.579°·1.515°를 17°·2°로 반올림, null은 미측정. 요약·Done의 네 줄에는 숫자 없음 |
+| 2.3 조향 도식 | 교체 `lesson-maneuver-guides.png`; 추가 `lesson-maneuver-guides-left.png`, `lesson-maneuver-guides-straight.png` | 발주서의 오른쪽/왼쪽/중립 세 장. 기준 main에는 왼쪽/중립 파일이 없어 새로 추적한다. 앞바퀴 점선 둘·중앙 실선·뒷바퀴 점선 둘이 뒷차축 위 같은 회전 중심 사용 |
+| 2.3 애니메이션 | 추가 [프레임 스트립](lesson-steering-round12-strip.png), [원본 조향 클립](lesson-steering-round12.mp4) | 첫 계약 실행의 5초 screenrecord. ffmpeg fps=10에서 0.9~1.6초 프레임을 왼쪽 패널로 크롭하고 시간 라벨만 붙였다. 350 ms 보간 중에도 바퀴와 호가 함께 움직임 |
+
+PNG **12장(교체 4·추가 8)** 및 원본 클립 1개. 첫 전체 계약 실행 `build/round12-pass-1`의 캡처를 사용했다. 필수 항목인 Done 좋은/수정, Report, 자세히 보기, 조향 세 방향과 스트립을 눈으로 점검했다. 경계 fixture는 좋은 기록의 verdict만 UNKNOWN/null로 바꿔 표현을 검사하며, 실차 측정 또는 조향 누락 시나리오를 재현한 자료가 아니다.
+
+`verdictLines`는 `AttemptRecord.verdict`의 72개 조합과 null을 네 줄로 옮기는 순수 함수다. 점수를 재판정하지 않는다. 방향이 측정되었을 때만 `신호로 추정` 꼬리표를 단다. ✓ Periwinkle·△ Paper 60%·✗ Signal을 사용하고, —는 Ink 위에서도 보이도록 Lavender 받침 위에 **기존 Muted**로 표시한다. 점검 결과에는 주차 판정을 넣지 않는다. 기존 Done/Report 잠금 분기 안에서 판정을 표시하며, 잠금 시 네 줄과 터치가 모두 사라지고 해제하면 복원된다.
+
+조향 기하는 도식 폭 100 단위·기존 차체 비율에서 계산한다. 중앙 바퀴각을 뒷차축의 회전 반경으로 바꾸고 각 앞바퀴의 접선 각도를 따로 구한다. 최대 조향은 안쪽 45°가 되는 **공통 반경**을 제한해 접선을 유지한다. 타이어는 화면 좌표에서 회전해 차체의 가로/세로 배율 차이가 각도를 왜곡하지 않게 했다. 중립 앞바퀴 중심은 차체 윤곽으로부터 폭의 1/6 안쪽(폭의 약 1/3이 밖), 뒷바퀴 궤적은 Lavender 40%. 모두 설명용 도식이며 실차 치수·보정값은 아니다. 공유 회전 중심·접선·좌우 대칭·중립 근처 연속성은 단위 테스트, 실제 앞쪽 곡률 차이와 뒷바퀴 점선은 픽셀 검사로 확인한다.
+
+지정 PowerShell `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` 성공, 단위 테스트 **226개(실패·오류·건너뜀 0)**. [빌드 로그](build-round12-ui.txt). 앱 SHA-256 `268446A9F588636C950ADD7F27B9FEC15398510E7EB03708E01C1D11F422CCFF`, 계측 SHA-256 `81DDA588C4679FE4F324FA03A7ADEE5375AB7C87BE384F8A8EF2797F87F7E1AA`.
+
+차량·포트·채점·상태기계·시드·빌드 파일·tools·문자열 리소스·NEXT는 변경하지 않았다. 새 색 토큰·`FontWeight.Bold` 추가 0. 기존 잠금, 90/160자 결과 문장, 140 dp 결과 버튼, 88 dp 시연 알약, 최대 누락 목록 계약도 유지한다.
+
+동일한 최종 APK로 원본 `tools/lesson_shots.sh build/round12-pass-{1,2,3}` **3회 연속 Lesson contract passed**([계약 로그](contract-round12-ui.txt)). 원본 `tools/emu_flow.sh build/round12-flow`도 **PASS·uiautomator clashes 0·리포트까지 110초**([흐름 로그](flow-round12-ui.txt)): 첫 회차 60/55·4구간, 두 번째 100/100·2구간, 필수 벨트/근접/급제동 힌트·좋은 주차 추가 힌트 없음·도어 열림→리포트·배지 0/8/0을 확인했다. 위 고정 캡처의 0/7/1은 시나리오만 직접 재생해 도어 신호를 주지 않은 계측 기록이고, 실제 전체 흐름에서는 도어 신호까지 받아 0/8/0이다.
