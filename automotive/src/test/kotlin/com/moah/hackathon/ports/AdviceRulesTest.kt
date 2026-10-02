@@ -51,6 +51,34 @@ class AdviceRulesTest {
     }
 
     @Test
+    fun `front parking spec - a reverse correction and a close call get the forward sentences`() {
+        // 전면 직각 주차(10/2): 같은 지표, 문장의 방향만 — 보정은 후진, 가까운 쪽은 앞
+        val front = SeedCatalog.parkingTask.copy(id = "parking-front", parking = com.moah.hackathon.scoring.ParkingSpec.FRONT_PERPENDICULAR)
+        val gear = mobis.vss.VssConstants.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR
+        val belt = mobis.vss.VssConstants.VEHICLE_CABIN_SEAT_ROW1_DRIVERSIDE_ISBELTED
+        val warn = mobis.vss.VssConstants.VEHICLE_ADAS_OBSTACLEDETECTION_ISWARNING
+        val fix = com.moah.hackathon.vehicle.scenario("front-fix", "후진 보정 한 번") {
+            at(0.0, belt to "true", gear to com.moah.hackathon.vehicle.Gear.DRIVE.vss, warn to "false"); speed(0.0, 0.0)
+            speedRamp(2.0, 3.0, 0.0, 3.0); speedRamp(6.0, 7.0, 3.0, 0.0)
+            at(8.0, gear to com.moah.hackathon.vehicle.Gear.REVERSE.vss)          // D → R → D = 전환 2
+            speedRamp(9.0, 10.0, 0.0, 3.0); speedRamp(12.0, 13.0, 3.0, 0.0)
+            at(14.0, gear to com.moah.hackathon.vehicle.Gear.DRIVE.vss)
+            speedRamp(15.0, 16.0, 0.0, 3.0); speedRamp(18.0, 19.0, 3.0, 0.0)
+            at(20.0, gear to com.moah.hackathon.vehicle.Gear.PARK.vss)
+        }
+        assertEquals(AdviceRules.Advice.SHIFT_FRONT, AdviceRules.pick(front, parking(fix)))
+        assertEquals(AdviceRules.Advice.SHIFT, AdviceRules.pick(SeedCatalog.parkingTask, parking(fix)))
+
+        val close = com.moah.hackathon.vehicle.scenario("front-close", "앞이 가까움") {
+            at(0.0, belt to "true", gear to com.moah.hackathon.vehicle.Gear.DRIVE.vss, warn to "false"); speed(0.0, 0.0)
+            speedRamp(2.0, 3.0, 0.0, 3.0); at(5.0, warn to "true"); at(6.0, warn to "false"); speedRamp(7.0, 8.0, 3.0, 0.0)
+            at(9.0, gear to com.moah.hackathon.vehicle.Gear.PARK.vss)
+        }
+        assertEquals(AdviceRules.Advice.PROXIMITY_FRONT, AdviceRules.pick(front, parking(close)))
+        assertEquals(AdviceRules.Advice.PROXIMITY, AdviceRules.pick(SeedCatalog.parkingTask, parking(close)))
+    }
+
+    @Test
     fun `bad predrive check maps to belt before ignition first - before door brake and lights`() {
         assertEquals(AdviceRules.Advice.BELT_BEFORE_IGNITION, AdviceRules.pick(SeedCatalog.predriveTask, checklist(ChecklistScenarios.bad)))
         assertEquals(AdviceRules.Advice.KEEP_ORDER, AdviceRules.pick(SeedCatalog.predriveTask, checklist(ChecklistScenarios.good)))

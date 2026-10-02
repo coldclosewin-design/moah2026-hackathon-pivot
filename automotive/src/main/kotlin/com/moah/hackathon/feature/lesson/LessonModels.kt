@@ -3,6 +3,7 @@ package com.moah.hackathon.feature.lesson
 import com.moah.hackathon.vehicle.SimOnlySignals
 import com.moah.hackathon.scoring.ParkingDelta
 import com.moah.hackathon.scoring.ParkingScore
+import com.moah.hackathon.scoring.ParkingSpec
 import com.moah.hackathon.scoring.ParkingVerdict
 import com.moah.hackathon.scoring.PathPoint
 import com.moah.hackathon.vehicle.Gear
@@ -36,8 +37,16 @@ data class Task(
     val requiredSignals: Set<String>,
     val requiresDriving: Boolean,
     val status: TaskStatus = TaskStatus.PLANNED,
+    /**
+     * 주차 과제의 사양(진입 기어·목표 각·구독 키, 10/2). null 이면 후면 직각([ParkingSpec.REAR_PERPENDICULAR]) — 9/26 부터의 동작 그대로.
+     * 상태기계·힌트·조언·화면(도식 방향)이 이것으로 "앞으로 들어가는 주차인가" 를 안다.
+     */
+    val parking: ParkingSpec? = null,
 ) {
     val isReady: Boolean get() = status == TaskStatus.READY
+
+    /** 주차 사양 — 과제에 없으면 후면 직각. 점검·주행 과제도 주차 채점기를 쓰므로 항상 값이 있다. */
+    val parkingSpec: ParkingSpec get() = parking ?: ParkingSpec.REAR_PERPENDICULAR
 
     /** 이 과제로 그 모드를 시작할 수 있나. 지식 테스트는 지식 과제에만, 나머지 셋은 주행·주차 과제에만. */
     fun supports(mode: LessonMode): Boolean = when (mode) {

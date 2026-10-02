@@ -203,7 +203,8 @@ class LessonStateMachine(
         finishing = true
         val previous = store.previous(p.task.id)
         val delta = previous?.let { ParkingDelta.of(score.metrics, it.score.metrics) }
-        val verdict = if (checklist) null else recorder.verdict(until)   // 네 가지 판정(docs/design/09) — 서두 선택의 조건이자 화면의 네 줄
+        // 네 가지 판정(docs/design/09) — 서두 선택의 조건이자 화면의 네 줄. 목표 각은 과제 사양(후면·전면 직각 모두 90°)
+        val verdict = if (checklist) null else recorder.verdict(until, p.task.parkingSpec.targetHeadingDeg)
         scope.launch {
             val remark = try {
                 coach.remark(p.task, score, delta, profile, attempt, verdict)
@@ -298,8 +299,10 @@ class LessonStateMachine(
         attempt++
         val checklist = task.type == TaskType.CHECKLIST
         recorder.reset()
-        recorder.keys = ParkingRecorder.keysFor(checklist)   // 배지 분모 — 주차 8 · 점검 12(9/28)
-        hints = HintRules(checklist = checklist)
+        // 배지 분모 — 점검 12(9/28) · 주차는 과제 사양의 키(후면 8 · 전면 7, 10/2). 힌트 문장도 진입 기어로 갈린다("전진/후진으로 보정")
+        val spec = task.parkingSpec
+        recorder.keys = if (checklist) ParkingRecorder.CHECKLIST_KEYS else spec.keys
+        hints = HintRules(checklist = checklist, entryGear = spec.entryGear)
         attemptStartMillis = clock()
         lastHint = null
         askedDone = false

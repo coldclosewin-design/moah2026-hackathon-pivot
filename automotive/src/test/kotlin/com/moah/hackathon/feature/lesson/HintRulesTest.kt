@@ -11,9 +11,10 @@ import org.junit.Test
 
 class HintRulesTest {
 
-    private fun run(scenario: com.moah.hackathon.vehicle.Scenario, cooldown: Long = 5_000L, checklist: Boolean = false): List<Hint> {
+    private fun run(scenario: com.moah.hackathon.vehicle.Scenario, cooldown: Long = 5_000L, checklist: Boolean = false,
+                    entryGear: com.moah.hackathon.vehicle.Gear = com.moah.hackathon.vehicle.Gear.REVERSE): List<Hint> {
         val recorder = ParkingRecorder(SignalRegistry(ParkingRecorder.KEYS, simulated = true))
-        val rules = HintRules(cooldown, checklist)
+        val rules = HintRules(cooldown, checklist, entryGear)
         var snap = VehicleSnapshot()
         val out = ArrayList<Hint>()
         for (step in scenario.steps) {
@@ -54,6 +55,18 @@ class HintRulesTest {
         assertEquals(listOf(SpeechPriority.URGENT, SpeechPriority.NORMAL, SpeechPriority.NORMAL, SpeechPriority.NORMAL), hints.map { it.priority })
         // 점검 과제에서는 주차 규칙(벨트 없이 이동)을 따로 외치지 않는다 — 한 상황에 한 마디
         assertTrue(hints.none { it.text == "안전벨트가 아직이에요." })
+    }
+
+    @Test
+    fun `front entry - the same rules speak forward words - front is close, fix by reversing`() {
+        // 전면 직각 주차(10/2): 규칙·시점은 후면과 같고 문장의 방향만 바뀐다. 같은 못한 주차 신호를 D 진입 사양으로 읽는다
+        val texts = run(ParkingScenarios.bad, entryGear = com.moah.hackathon.vehicle.Gear.DRIVE).map { it.text }
+        assertTrue(texts.toString(), "앞이 가까워요. 멈추세요." in texts)
+        assertTrue(texts.any { it.startsWith("후진으로 보정") })
+        assertTrue(texts.none { it.startsWith("뒤가") || it.startsWith("전진으로 보정") })
+        // 방향과 무관한 힌트는 그대로
+        assertTrue("안전벨트가 아직이에요." in texts)
+        assertTrue("제동이 급했어요. 브레이크는 천천히 밟아요." in texts)
     }
 
     @Test
