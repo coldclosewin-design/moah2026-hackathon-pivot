@@ -25,16 +25,17 @@ class PathReconstructorTest {
         val end = p.last()
         assertTrue("y=${end.y}", end.y < -3f)                 // 뒤로 갔다
         assertTrue("x=${end.x}", end.x > 0.5f)                // 오른쪽으로 꺾어 들어갔다
-        assertTrue("heading=${end.headingDeg}", end.headingDeg in 15f..120f)   // 차 앞이 왼쪽으로 돌았다(후진 우회전)
+        assertTrue("heading=${end.headingDeg}", end.headingDeg in 80f..100f)   // 직각 주차 목표 90° ± 10°
         val travelled = PathReconstructor.travelled(p)
-        assertTrue("travelled=$travelled", travelled in 4f..12f)   // 약 7~8 m
+        assertTrue("travelled=$travelled", travelled in 10f..12f)   // 회전 구간을 늘린 약 11 m
         assertTrue(p.drop(1).all { it.reversing })              // 전진 구간 없음
     }
 
     @Test
-    fun `bad parking - has a forward correction and moves further`() {
+    fun `bad parking - has a forward correction and finishes slightly short of a right angle`() {
         val p = path(ParkingScenarios.bad)
         assertTrue(p.any { !it.reversing && it.tMillis in 14_000L..20_000L })
+        assertTrue("heading=${p.last().headingDeg}", p.last().headingDeg in 65f..80f)
         assertTrue(PathReconstructor.travelled(p) > PathReconstructor.travelled(path(ParkingScenarios.good)))
     }
 

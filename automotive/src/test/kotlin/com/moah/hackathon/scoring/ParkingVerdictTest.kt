@@ -69,19 +69,19 @@ class ParkingVerdictTest {
     }
 
     @Test
-    fun `scenarios - good parking is one go clean and safe, bad parking is one fix and unsafe - heading is estimated for both`() {
+    fun `scenarios - good parking is one go aligned clean and safe, bad parking is one fix slightly angled and unsafe`() {
         val good = recorded(ParkingScenarios.good)
         assertEquals(good.toString(), ParkingVerdict.Entry.ONE_GO, good.entry)
         assertEquals(good.toString(), ParkingVerdict.Finish.CLEAN, good.finish)
         assertEquals(good.toString(), ParkingVerdict.Safety.SAFE, good.safety)
         assertNotNull(good.toString(), good.headingErrorDeg)
-        assertTrue(good.toString(), good.heading != ParkingVerdict.Heading.UNKNOWN)
-        // 10/2 실측: 잘한 주차 시나리오의 dead-reckoning 끝 헤딩은 약 41°(목표 90° 대비 49° → OFF), 못한 주차는 약 71°(SLIGHT).
-        // 판정 규칙이 아니라 Fake 시나리오의 기하(조향각·시간)가 직각 주차를 다 돌지 않는 것 — 시드 내용(Codex, 라운드 12)에서 맞춘다.
+        assertEquals(good.toString(), ParkingVerdict.Heading.ALIGNED, good.heading)
+        assertTrue(good.toString(), good.headingErrorDeg!! <= 10f)
 
         val bad = recorded(ParkingScenarios.bad)
         assertEquals(bad.toString(), ParkingVerdict.Entry.ONE_FIX, bad.entry)              // 4구간 · 전환 2
         assertEquals(bad.toString(), ParkingVerdict.Safety.UNSAFE, bad.safety)             // 벨트 없음 + 급제동 + 근접
         assertNotNull(bad.toString(), bad.headingErrorDeg)
+        assertEquals(bad.toString(), ParkingVerdict.Heading.SLIGHT, bad.heading)
     }
 }
