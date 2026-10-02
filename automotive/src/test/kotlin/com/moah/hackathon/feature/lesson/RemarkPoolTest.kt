@@ -20,7 +20,7 @@ class RemarkPoolTest {
     fun `situation tags are preferred over generic lines`() {
         val pool = RemarkPool(SeedCatalog.remarks, Random(1))
         val text = pool.pick(ScoreBand.GOOD, setOf("rusty", "first"), mapOf("years" to "10"))
-        assertEquals("오랜만에 주차 연습을 다시 시작했어요.", text)
+        assertEquals("주차 과정을 대체로 잘 이어 갔어요.", text)
     }
 
     @Test

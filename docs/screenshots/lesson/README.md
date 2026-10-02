@@ -185,3 +185,29 @@ APK SHA-256: 앱 `9FCBA44C9EDC6636B19D192552CA02D8A899B7D58CEC33B4626E17570D7AA1
 [빌드 로그](build-round11.txt) · [최종 계측 3회 로그](contract-round11.txt). 동일한 최종 APK로 원본 `tools/lesson_shots.sh build/round11-verified-{1,2,3}` **3회 연속 Lesson contract passed**. 최종 캡처는 첫 실행에서 가져왔다(변경 전 재현 두 장 제외). Muted 픽셀은 Paper 배경과 합성해 비교하고, 알약은 확대 영역 양 모서리에서 실제 터치한다. 이전 계측 fixture의 점검 잠금 기본 과제명이 주차로 나오는 것을 바로잡은 뒤 세 번을 다시 실행했다.
 
 원본 `bash tools/emu_flow.sh build/round11-flow` **PASS·uiautomator clashes 0**, 세션 시작부터 리포트까지 **104초**([흐름 로그](flow-round11.txt)). 필수 힌트 세 종류, 첫 회차 60/55·이동 4회, 두 번째 100/100·이동 2회·추가 힌트 없음, 도어 열림 → 리포트와 배지 0/8/0을 확인했다. 스크립트·힌트 기대 로그·채점은 수정하지 않았다. 위 목록은 교체 10장·추가 29장(변경 전 재현 2장 포함), 총 39장이다.
+
+## 라운드 12 ① 주차 서두·시나리오 기하 (2026-10-02)
+
+`codex/seed-verdict` · 기준 `origin/main=9f990a3` · 외부 CSTDe_API_34 · Fake 기본 배율 1.0. [발주서 ①](../../handoffs/2026-10-02_codex_ui_round12.md)의 데이터 **내용**과 관련 검증이다. 화면·계측·선택기·채점 규칙·빌드 파일·도구·NEXT는 바꾸지 않았다.
+
+| 항목 | 교체·추가 캡처 | 근거 |
+|---|---|---|
+| 1.1 서두 | 교체 `lesson-done.png` | 실제 시드의 새 서두와 지표 기반 조언. 궤적은 기존 화면 계약 fixture |
+| 1.2 시나리오 기하 | 추가 `lesson-done-seed-good.png`, `lesson-done-seed-bad.png` | 원본 `emu_flow`에서 실제 시나리오를 재생한 두 회차. 외부 Fake 신호이며 실차 관찰이 아님 |
+
+주차 서두 **18개**를 숙련 밴드에 근거한 긍정/보완 문장으로 정리했다. 전체 33개의 한 문장·횟수/숫자 없음·`요.` 가드, 과제별 분리, 반복 회피 검사는 유지했다. `RemarkTemplate`의 밴드·태그·순서와 `RemarkPool` 선택 로직도 그대로다. 아직 선택기가 verdict를 받지 않으므로 `한 번에 들어갔어요`·`방향도 맞게 섰어요`를 활성 풀에 넣지 않았으며, 판정별 후보·필수 조건 필터·최근 문구 폴백·측정 판정 표현의 가드 예외를 [INTEGRATION C](../../INTEGRATION.md)에 요청했다. 이는 판정 직접 연계가 끝난 상태를 뜻하지 않는다.
+
+좋은 주차는 첫 회전의 저속 유지 시간을 3.5초 늘렸고, 못한 주차는 마지막 회전의 중립 시점을 32초에서 27초로 앞당겼다. 두 회전 구간의 일정 속도도 기존 램프와 같은 0.5초 간격으로 주입해 긴 원호가 큰 직선 구간으로 적분되는 것을 피했다. 속도 크기·가감속 램프·기어 전환·안전 사건은 유지했다. 못한 주차의 변경 전 끝 방향은 현재 기준에서 **108.543°**로, 발주서의 약 71°와 달랐다. 판정 임계값을 바꾸지 않고 시나리오를 요구 범위로 맞췄다.
+
+| 시나리오 | 길이 | 끝 방향 | 목표 대비 편차 | 이동 거리 | 숙련/안전·구간 | 판정 |
+|---|---:|---:|---:|---:|---|---|
+| 잘한 주차 | 29.5 s | 88.485° | 1.515° | 11.389 m | 100/100 · 2 | ONE_GO · ALIGNED · CLEAN · SAFE |
+| 못한 주차 | 44.0 s | 73.421° | 16.579° | 17.144 m | 60/55 · 4 | ONE_FIX · SLIGHT · CLEAN · UNSAFE |
+
+위 수치는 시드 타임스탬프를 실제 `ParkingRecorder`에 넣은 JVM 재생 결과다([원문](geometry-seed-verdict.txt)). `ParkingVerdictTest`에 ALIGNED/SLIGHT, `PathReconstructorTest`에 80~100°/65~80°를 고정했다. 기존 60/55·100/100, 이동 4/2·조향 왕복 3/1·전환 2/0, 근접/급제동, 힌트 단위 검사도 유지된다.
+
+지정 PowerShell 빌드 `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` 성공, 단위 테스트 **215개(실패·오류·건너뜀 0)**([빌드 로그](build-seed-verdict.txt)). 앱 SHA-256 `2654F1E3F9BC25B070E91047817397AEE5B3707060EE764431FDDEDDBBEA23CE`, 계측 SHA-256 `7760181FFECCA231CD3F25C08ECB84CE18CB2DC2CC8D044AD727A65E767B0564`.
+
+동일 APK로 수정 없는 `tools/lesson_shots.sh build/seed-verdict-pass-{1,2,3}` **3회 연속 Lesson contract passed**([세 실행 로그](contract-seed-verdict.txt)). 기존 잠금·문구 길이·출처 목록·예약·픽셀·조향 도식 계약을 그대로 통과했다. 위 교체 캡처는 첫 실행 결과다.
+
+원본 `tools/emu_flow.sh build/seed-verdict-flow` **PASS·uiautomator clashes 0**, 세션 시작부터 리포트까지 **109초**([흐름 로그](flow-seed-verdict.txt)). 필수 힌트 3종, 못한 주차 60/55·4구간 → 잘한 주차 100/100·2구간·추가 힌트 없음, 도어 열림 → 리포트와 배지 0/8/0을 확인했다. 두 실제 흐름 캡처를 추가하고 세 장 모두 문구·버튼·궤적의 잘림이 없는지 직접 확인했다. 캡처 총 **3장(교체 1·추가 2)**. ②의 네 줄 판정·각도 상세·조향 도식 캡처는 이 PR 범위에 포함하지 않는다.

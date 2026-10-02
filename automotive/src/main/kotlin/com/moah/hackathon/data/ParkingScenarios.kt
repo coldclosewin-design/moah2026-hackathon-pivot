@@ -18,7 +18,7 @@ object ParkingScenarios {
     private const val LEFT_HALF = "300.0"
     private const val CENTER = "0.0"
 
-    /** 잘한 주차: 벨트 → R → 우 끝 → 후진 → 45°에서 정지·중립 → 곧게 후진 → P. 이동 2구간, 조향 1왕복, R↔D 전환 0, 근접 0. 약 26초. */
+    /** 잘한 주차: 벨트 → R → 우 끝 → 후진 → 약 90°에서 정지·중립 → 곧게 후진 → P. 이동 2구간, 조향 1왕복, R↔D 전환 0, 근접 0. 약 30초. */
     val good: Scenario = scenario("parking-good", "잘한 주차") {
         at(0.0, V.VEHICLE_LOWVOLTAGESYSTEMSTATE to "OFF", V.VEHICLE_CABIN_SEAT_ROW1_DRIVERSIDE_ISBELTED to VssValues.FALSE,
             V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR to Gear.PARK.vss, V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE to CENTER,
@@ -31,19 +31,21 @@ object ParkingScenarios {
         // 1구간: 핸들 끝까지 감은 채 천천히 후진
         speedRamp(10.0, 11.0, 0.0, 4.0)
         at(11.0, SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM to "200.0")
-        speedRamp(13.0, 14.0, 4.0, 0.0)
-        // 45° — 정지하고 핸들 중립
-        at(14.5, V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE to CENTER)
+        // 4 km/h 유지 시간을 3.5초 늘려 추정 끝 방향을 약 41° → 88°로 맞춘다.
+        speedRamp(11.0, 16.5, 4.0, 4.0) // 긴 원호도 기존 램프와 같은 간격으로 샘플링
+        speedRamp(16.5, 17.5, 4.0, 0.0)
+        // 직각에 가까워지면 정지하고 핸들 중립
+        at(18.0, V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE to CENTER)
         // 2구간: 곧게 후진
-        speedRamp(16.0, 17.0, 0.0, 3.0)
-        at(18.0, SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM to "120.0")
-        at(20.0, SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM to "80.0")
-        speedRamp(21.0, 22.0, 3.0, 0.0)
-        at(24.0, V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR to Gear.PARK.vss)
-        at(26.0, SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM to "80.0")
+        speedRamp(19.5, 20.5, 0.0, 3.0)
+        at(21.5, SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM to "120.0")
+        at(23.5, SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM to "80.0")
+        speedRamp(24.5, 25.5, 3.0, 0.0)
+        at(27.5, V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR to Gear.PARK.vss)
+        at(29.5, SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM to "80.0")
     }
 
-    /** 못한 주차: 벨트 없이 출발 → 너무 일찍 중립 → 전진 보정 → 다시 후진 → 근접 경고 + 급정지 → 다시 후진 → P. 이동 4구간, 조향 3왕복, R↔D 전환 2, 근접 1, 급정지 1. 약 60초. */
+    /** 못한 주차: 벨트 없이 출발 → 너무 일찍 중립 → 전진 보정 → 다시 후진 → 근접 경고 + 급정지 → 다시 후진 → P. 이동 4구간, 조향 3왕복, R↔D 전환 2, 근접 1, 급정지 1. 약 44초. */
     val bad: Scenario = scenario("parking-bad", "못한 주차") {
         at(0.0, V.VEHICLE_LOWVOLTAGESYSTEMSTATE to "OFF", V.VEHICLE_CABIN_SEAT_ROW1_DRIVERSIDE_ISBELTED to VssValues.FALSE,
             V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR to Gear.PARK.vss, V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE to CENTER,
@@ -66,13 +68,14 @@ object ParkingScenarios {
         at(21.0, V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR to Gear.REVERSE.vss)
         at(22.0, V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE to RIGHT_FULL)
         speedRamp(23.0, 24.0, 0.0, 4.8) // 잠금(> 5 km/h) 아래에서 최대한 — 급정지 Δv 를 벌린다
+        speedRamp(24.0, 28.5, 4.8, 4.8)
         at(26.0, SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM to "90.0")
+        at(27.0, V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE to CENTER) // 직각보다 덜 돈 약 73°에서 중립
         at(28.0, SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM to "35.0", V.VEHICLE_ADAS_OBSTACLEDETECTION_ISWARNING to VssValues.TRUE)
         // 4.8 km/h → 0 in 0.3 s ≈ -4.4 m/s². 임계 -3.0 까지 마지막 샘플이 144 ms 늦어도 잡힌다(4.0/-3.5 였을 땐 17 ms — 부하에서 빠짐)
         speedRamp(28.5, 28.8, 4.8, 0.0, stepSeconds = 0.15)
         at(30.0, SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM to "40.0", V.VEHICLE_ADAS_OBSTACLEDETECTION_ISWARNING to VssValues.FALSE)
-        // 4구간: 핸들 중립, 곧게 마무리
-        at(32.0, V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE to CENTER)
+        // 4구간: 중립을 유지한 채 곧게 마무리
         speedRamp(34.0, 35.0, 0.0, 2.0)
         at(37.0, SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM to "60.0")
         speedRamp(39.0, 40.0, 2.0, 0.0)

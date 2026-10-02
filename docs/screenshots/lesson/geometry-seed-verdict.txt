@@ -1,0 +1,2 @@
+parking-good: duration=29.5s heading=88.485deg end=(8.978, -4.522)m travelled=11.389m score=100/100 segments=2 verdict=ParkingVerdict(entry=ONE_GO, heading=ALIGNED, headingErrorDeg=1.5151138, finish=CLEAN, safety=SAFE)
+parking-bad: duration=44.0s heading=73.421deg end=(8.106, -6.588)m travelled=17.144m score=60/55 segments=4 verdict=ParkingVerdict(entry=ONE_FIX, heading=SLIGHT, headingErrorDeg=16.578865, finish=CLEAN, safety=UNSAFE)

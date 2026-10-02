@@ -127,30 +127,31 @@ object SeedCatalog {
      * 운전자에게 보여 주는 서두에는 횟수·초·점수·연차 숫자를 넣지 않는다.
      */
     val remarks: List<RemarkTemplate> = listOf(
-        // EXCELLENT
-        RemarkTemplate(ScoreBand.EXCELLENT, setOf("rusty", "first"), "오랜만에 시작한 주차 연습을 마쳤어요."),
-        RemarkTemplate(ScoreBand.EXCELLENT, setOf("rusty"), "다시 주차를 연습하며 감각을 익히고 있어요."),
-        RemarkTemplate(ScoreBand.EXCELLENT, setOf("improved"), "연습한 과정을 차근차근 돌아봐요."),
-        RemarkTemplate(ScoreBand.EXCELLENT, setOf("any"), "오늘의 연습을 끝까지 마쳤어요."),
-        RemarkTemplate(ScoreBand.EXCELLENT, setOf("any"), "연습을 마친 지금의 감각을 기억해 봐요."),
+        // 점수 밴드가 뒷받침하는 숙련 평가만 말한다. 진입·방향 등 개별 판정 문구는 판정 연계 뒤(C 절).
+        // EXCELLENT — 숙련 과정에 대한 긍정
+        RemarkTemplate(ScoreBand.EXCELLENT, setOf("rusty", "first"), "주차 과정을 능숙하게 이어 갔어요."),
+        RemarkTemplate(ScoreBand.EXCELLENT, setOf("rusty"), "주차 동작이 전반적으로 매끄러웠어요."),
+        RemarkTemplate(ScoreBand.EXCELLENT, setOf("improved"), "주차 흐름을 잘 이어 갔어요."),
+        RemarkTemplate(ScoreBand.EXCELLENT, setOf("any"), "주차 과정이 전반적으로 좋았어요."),
+        RemarkTemplate(ScoreBand.EXCELLENT, setOf("any"), "이번 주차의 좋은 감각을 기억해 봐요."),
         // GOOD
-        RemarkTemplate(ScoreBand.GOOD, setOf("rusty", "first"), "오랜만에 주차 연습을 다시 시작했어요."),
-        RemarkTemplate(ScoreBand.GOOD, setOf("first"), "주차 감각을 익히는 연습을 시작했어요."),
-        RemarkTemplate(ScoreBand.GOOD, setOf("improved"), "이어지는 연습 속에서 감각을 익히고 있어요."),
-        RemarkTemplate(ScoreBand.GOOD, setOf("regressed"), "이번 연습도 차근차근 돌아보면 돼요."),
-        RemarkTemplate(ScoreBand.GOOD, setOf("any"), "핸들을 움직였던 감각을 떠올려 봐요."),
-        RemarkTemplate(ScoreBand.GOOD, setOf("any"), "오늘도 주차를 연습하는 시간을 가졌어요."),
+        RemarkTemplate(ScoreBand.GOOD, setOf("rusty", "first"), "주차 과정을 대체로 잘 이어 갔어요."),
+        RemarkTemplate(ScoreBand.GOOD, setOf("first"), "주차 동작에서 좋은 감각이 보였어요."),
+        RemarkTemplate(ScoreBand.GOOD, setOf("improved"), "주차 흐름에서 좋은 부분이 보였어요."),
+        RemarkTemplate(ScoreBand.GOOD, setOf("regressed"), "이번 주차에서 아쉬운 부분을 가볍게 되짚어 봐요."),
+        RemarkTemplate(ScoreBand.GOOD, setOf("any"), "주차 동작을 조금 더 다듬으면 좋겠어요."),
+        RemarkTemplate(ScoreBand.GOOD, setOf("any"), "잘 이어 간 주차 감각을 기억해 봐요."),
         // OK
-        RemarkTemplate(ScoreBand.OK, setOf("rusty", "first"), "오랜만의 주차 연습을 끝까지 해 봤어요."),
-        RemarkTemplate(ScoreBand.OK, setOf("first"), "처음 시작한 연습을 함께 돌아봐요."),
-        RemarkTemplate(ScoreBand.OK, setOf("improved"), "연습을 이어 가며 주차 감각을 찾아가요."),
-        RemarkTemplate(ScoreBand.OK, setOf("regressed"), "익숙해지는 과정이니 서두르지 않아도 돼요."),
-        RemarkTemplate(ScoreBand.OK, setOf("any"), "연습을 마쳤으니 잠깐 숨을 골라도 돼요."),
+        RemarkTemplate(ScoreBand.OK, setOf("rusty", "first"), "주차 동작을 조금 더 익혀 가면 돼요."),
+        RemarkTemplate(ScoreBand.OK, setOf("first"), "이번 주차에는 다듬어 볼 부분이 있었어요."),
+        RemarkTemplate(ScoreBand.OK, setOf("improved"), "주차 흐름을 차근차근 익혀 가요."),
+        RemarkTemplate(ScoreBand.OK, setOf("regressed"), "아쉬웠던 주차 동작을 천천히 돌아봐요."),
+        RemarkTemplate(ScoreBand.OK, setOf("any"), "주차 흐름을 조금 더 다듬어 봐요."),
         RemarkTemplate(ScoreBand.OK, setOf("any"), "주차 과정을 천천히 익혀 가면 돼요."),
         // ROUGH
-        RemarkTemplate(ScoreBand.ROUGH, setOf("rusty", "first"), "오랜만에 다시 연습을 시작했어요."),
+        RemarkTemplate(ScoreBand.ROUGH, setOf("rusty", "first"), "주차 동작을 처음부터 천천히 되짚어 봐요."),
         RemarkTemplate(ScoreBand.ROUGH, setOf("first"), "주차 연습은 천천히 익혀도 괜찮아요."),
-        RemarkTemplate(ScoreBand.ROUGH, setOf("any"), "오늘 해 본 연습부터 함께 돌아봐요."),
+        RemarkTemplate(ScoreBand.ROUGH, setOf("any"), "어려웠던 주차 과정을 함께 돌아봐요."),
         RemarkTemplate(ScoreBand.ROUGH, setOf("any"), "서두르지 않고 다시 연습해도 돼요."),
 
         // ── 출발 전 점검 (TaskType.CHECKLIST) — 차는 서 있으니 "들어갔다" 류의 주차 표현을 쓰지 않는다 ──
