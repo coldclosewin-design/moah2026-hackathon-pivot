@@ -211,3 +211,29 @@ APK SHA-256: 앱 `9FCBA44C9EDC6636B19D192552CA02D8A899B7D58CEC33B4626E17570D7AA1
 동일 APK로 수정 없는 `tools/lesson_shots.sh build/seed-verdict-pass-{1,2,3}` **3회 연속 Lesson contract passed**([세 실행 로그](contract-seed-verdict.txt)). 기존 잠금·문구 길이·출처 목록·예약·픽셀·조향 도식 계약을 그대로 통과했다. 위 교체 캡처는 첫 실행 결과다.
 
 원본 `tools/emu_flow.sh build/seed-verdict-flow` **PASS·uiautomator clashes 0**, 세션 시작부터 리포트까지 **109초**([흐름 로그](flow-seed-verdict.txt)). 필수 힌트 3종, 못한 주차 60/55·4구간 → 잘한 주차 100/100·2구간·추가 힌트 없음, 도어 열림 → 리포트와 배지 0/8/0을 확인했다. 두 실제 흐름 캡처를 추가하고 세 장 모두 문구·버튼·궤적의 잘림이 없는지 직접 확인했다. 캡처 총 **3장(교체 1·추가 2)**. ②의 네 줄 판정·각도 상세·조향 도식 캡처는 이 PR 범위에 포함하지 않는다.
+
+## 라운드 12 ①′ 판정 서두 활성화 (2026-10-02)
+
+`codex/seed-verdict-lines` · 기준 `origin/main=041155f`(#91·#92 머지 뒤) · 외부 CSTDe_API_34 · Fake 기본 배율 1.0. #91 C 절의 후보 네 문장을 #92의 판정 필수 필터에 연결하는 시드 **내용** PR이다. 제품 화면·선택기·채점·시나리오·빌드·도구·NEXT는 그대로다.
+
+| 문장 | 필수 태그 | 밴드 |
+|---|---|---|
+| 한 번에 들어갔어요. | `one_go` | EXCELLENT · GOOD |
+| 한 번 다시 넣고 들어갔어요. | `one_fix` | GOOD · OK |
+| 여러 번 오가며 들어갔어요. | `many` | OK · ROUGH |
+| 신호로 추정하면 방향도 맞게 섰어요. | `aligned` | EXCELLENT · GOOD |
+
+8개 템플릿을 추가해 전체 서두는 **41개**다. 기존 33개 문구·밴드·태그와 순서는 유지했다. 전체 풀의 한 문장·숫자 없음·`요.` 종결 가드는 유지하며, 한글 횟수 표현은 요청된 두 진입 문장과 각 필수 태그의 조합에 한해서만 허용한다. 판정이 없거나 다른 경우와 최근 문구 회피 폴백을 실제 전체 시드로 반복 검사한다. 좋은 주차의 `ParkingRecorder → verdict → FakeCoachPort` 경로에서 첫 두 번의 선택은 `one_go`/`aligned` 문장이고, OK 밴드의 못한 주차는 `many`가 아닌 `one_fix` 문장이다.
+
+| 항목 | 교체·추가 캡처 | 확인 내용 |
+|---|---|---|
+| ①′ / 1.1 | 교체 `lesson-done.png` | 못한 주차의 실제 판정으로 선택한 `one_fix` 서두. 궤적은 기존 화면 계약 fixture |
+| ①′ / 1.1 | 추가 `lesson-done-seed-one-go.png`, `lesson-done-seed-aligned.png` | 잘한 주차 시드를 recorder로 재생하고 같은 코치 풀에서 두 판정 서두를 선택. 기존 Done 화면의 전문·버튼 비중첩 검사 |
+| ①′ / 1.1 | 추가 `lesson-done-seed-many-fixture.png` | 못한 주차 지표의 이동 구간을 다섯 개로 설정한 **외부 레이아웃 fixture**. 점수와 MANY 판정을 다시 계산하고 선택된 문장을 표시. 실주행 시나리오나 실차 측정이 아니며 궤적은 넣지 않음 |
+| ①′ / 실제 흐름 | 교체 `lesson-done-seed-good.png`, `lesson-done-seed-bad.png` | 원본 `emu_flow`의 두 실제 Fake 시나리오 결과. 판정에 맞는 새 서두 표시 |
+
+지정 PowerShell 빌드 `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` 성공, 단위 테스트 **220개(실패·오류·건너뜀 0)**([빌드 로그](build-seed-verdict-lines.txt)). 앱 SHA-256 `706F7CDD57D30E8F6F5E5185DFE60CDC91C1DD9A4F6EE9369682E68D21F8E812`, 계측 SHA-256 `82476273BB9DA3EFB803443E378DFD2EEECA1F20C063EC73E965B89F9673C483`.
+
+같은 APK로 원본 `tools/lesson_shots.sh build/seed-lines-pass-{1,2,3}` **3회 연속 Lesson contract passed**([전체 로그](contract-seed-verdict-lines.txt)). 새 `Seed verdict openers` 검사와 기존 결과 잠금·긴 문장·출처 목록·예약·조향 도식 검사를 모두 통과했다. 네 문장별 캡처는 첫 실행에서 가져왔으며 전문·버튼·궤적을 직접 확인했다.
+
+원본 `tools/emu_flow.sh build/seed-lines-flow` **PASS·uiautomator clashes 0·리포트까지 109초**([흐름 로그](flow-seed-verdict-lines.txt)). 못한 주차는 `한 번 다시 넣고 들어갔어요.`·60/55·4구간, 잘한 주차는 `신호로 추정하면 방향도 맞게 섰어요.`·100/100·2구간을 표시했다. 필수 힌트 3종·잘한 주차 추가 힌트 없음·도어 열림 → 리포트·배지 0/8/0 유지. 실제 흐름 두 캡처도 직접 확인했으며 총 **6장(교체 3·추가 3)**을 반영했다. ②의 판정 네 줄·방향 편차·조향 도식은 이 PR에 포함하지 않는다.
