@@ -190,12 +190,12 @@ class LessonStateMachineTest {
     }
 
     @Test
-    fun `quiz - five questions, verdict and reason spoken, done with the score, moving locks answers`() = runTest {
+    fun `quiz - ten questions, verdict and reason spoken, done with the score, moving locks answers`() = runTest {
         val h = harness()
         h.machine.begin(SeedCatalog.TASK_KNOWLEDGE, LessonMode.QUIZ)
         advanceUntilIdle()
         var q = h.machine.phase.value as LessonPhase.Quiz
-        assertEquals(0, q.index); assertEquals(5, q.total); assertFalse(q.answered); assertFalse(q.locked)
+        assertEquals(0, q.index); assertEquals(10, q.total); assertFalse(q.answered); assertFalse(q.locked)
         assertTrue(h.tts.spoken.last(), h.tts.spoken.last().startsWith("1번. 회전교차로"))
         assertTrue(h.tts.spoken.last().contains("둘째, 돌고 있는 차"))
 
@@ -227,13 +227,21 @@ class LessonStateMachineTest {
         h.machine.nextQuestion()
         h.machine.answer(2); h.machine.nextQuestion()  // 3번 정답
         h.machine.answer(1); h.machine.nextQuestion()  // 4번 정답
-        h.machine.answer(0)                            // 5번 정답 (마지막)
+        h.machine.answer(0)                            // 5번 정답, 아직 마지막이 아니다
+        assertFalse((h.machine.phase.value as LessonPhase.Quiz).isLast)
+        SeedCatalog.quiz.drop(5).forEachIndexed { index, item ->
+            h.machine.nextQuestion()
+            h.machine.answer(item.answer)
+            val current = h.machine.phase.value as LessonPhase.Quiz
+            assertEquals(index + 5, current.index)
+            assertEquals(index == 4, current.isLast)
+        }
         assertTrue((h.machine.phase.value as LessonPhase.Quiz).isLast)
         h.machine.nextQuestion()                       // 결과 보기
         val done = h.machine.phase.value as LessonPhase.QuizDone
-        assertEquals(4, done.correct); assertEquals(5, done.total)
-        assertEquals(listOf(true, false, true, true, true), done.results.map { it.correct })
-        assertTrue(done.remark, done.remark.contains("5문제 중 4개"))
+        assertEquals(9, done.correct); assertEquals(10, done.total)
+        assertEquals(listOf(true, false) + List(8) { true }, done.results.map { it.correct })
+        assertTrue(done.remark, done.remark.contains("10문제 중 9개"))
         assertEquals(1, h.store.quizzes().size)
         h.machine.reset()
         assertEquals(null, h.tts.lastSpoken.value)     // 9/30: 그만하기·다시 시작 뒤 Setup 에 지난 해설 자막이 남지 않는다
@@ -249,7 +257,7 @@ class LessonStateMachineTest {
         h.machine.answer(1); h.machine.nextQuestion(); h.machine.answer(0)
         h.machine.endSession()
         val done = h.machine.phase.value as LessonPhase.QuizDone
-        assertEquals(2, done.results.size); assertEquals(1, done.correct); assertEquals(5, done.total)
+        assertEquals(2, done.results.size); assertEquals(1, done.correct); assertEquals(10, done.total)
         h.scope.cancel()
     }
 

@@ -56,7 +56,7 @@ class SeedCatalogTest {
         assertEquals(listOf(SeedCatalog.TASK_PREDRIVE, SeedCatalog.TASK_PARKING_REAR, SeedCatalog.TASK_PARKING_FRONT, SeedCatalog.TASK_KNOWLEDGE), ready.map { it.id })
         assertTrue(!SeedCatalog.predriveTask.requiresDriving)
         assertTrue(SeedCatalog.predriveTask.supports(com.moah.hackathon.feature.lesson.LessonMode.GUIDE) && !SeedCatalog.predriveTask.supports(com.moah.hackathon.feature.lesson.LessonMode.QUIZ))
-        assertEquals(5, SeedCatalog.quizFor(SeedCatalog.tasks.first { it.id == SeedCatalog.TASK_KNOWLEDGE }).size)
+        assertEquals(10, SeedCatalog.quizFor(SeedCatalog.tasks.first { it.id == SeedCatalog.TASK_KNOWLEDGE }).size)
         assertTrue(SeedCatalog.quizFor(SeedCatalog.parkingTask).isEmpty())
         assertEquals(SeedCatalog.quiz.size, SeedCatalog.quiz.map { it.id }.toSet().size)
         val p = SeedCatalog.parkingTask
@@ -89,7 +89,17 @@ class SeedCatalogTest {
 
     @Test
     fun `quiz answers are in range and profile has five questions`() {
-        SeedCatalog.quiz.forEach { assertTrue(it.answer in it.choices.indices) }
+        assertEquals(10, SeedCatalog.quiz.size)
+        SeedCatalog.quiz.forEach {
+            assertEquals(it.id, 3, it.choices.size)
+            assertEquals(it.id, 3, it.choices.toSet().size)
+            assertTrue(it.id, it.answer in it.choices.indices)
+        }
+        assertEquals(listOf("roundabout-priority", "hazard-when", "rain-braking", "night-highbeam", "following-distance"),
+            SeedCatalog.quiz.take(5).map { it.id })
+        SeedCatalog.quiz.drop(5).forEach { item ->
+            assertTrue(item.id, !Regex("\\d").containsMatchIn(item.question + item.choices.joinToString() + item.why))
+        }
         assertEquals(5, SeedCatalog.profileQuestions.size)
         assertEquals(10, SeedCatalog.demoProfile.rustyYears)
     }

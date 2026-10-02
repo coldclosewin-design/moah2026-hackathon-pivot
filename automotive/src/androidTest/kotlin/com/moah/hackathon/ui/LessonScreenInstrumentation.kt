@@ -490,11 +490,16 @@ class LessonScreenInstrumentation : Instrumentation() {
                     if (index == 2) capture("quiz-correct")
                     check(texts().none { it == "내 답" || it == "정답" })
                 }
+                if (index >= 5) {
+                    assertFullText(activity, item.why, if (index == SeedCatalog.quiz.lastIndex) "결과 보기" else "다음 문제")
+                    check(texts().contains(item.question))
+                    capture("quiz-round13-${index + 1}")
+                }
                 click(if (index == SeedCatalog.quiz.lastIndex) "결과 보기" else "다음 문제")
             }
             runOnMainSync { check(nextCount == SeedCatalog.quiz.size) }
             listOf<Int?>(null, 0).forEach { chosen ->
-                render(activity) { QuizScreen(knowledge, 0, 5, SeedCatalog.quiz.first(), true, chosen, 0, {}, {}, { quitCount++ }) }
+                render(activity) { QuizScreen(knowledge, 0, SeedCatalog.quiz.size, SeedCatalog.quiz.first(), true, chosen, 0, {}, {}, { quitCount++ }) }
                 check(texts().contains("정차 후 답해 주세요"))
                 check(SeedCatalog.quiz.first().choices.none { it in texts() })
                 check(texts().none { it == "그만하기" })
@@ -544,7 +549,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             runOnMainSync { check(quizRestarted == 1) }
             render(activity) { QuizDoneScreen(knowledge, SeedCatalog.quiz.mapIndexed { index, item ->
                 QuizResult(item.id, if (index == 0) wrongChoice else item.answer, index != 0)
-            }, SeedCatalog.quiz, "5문제 중 4개를 맞혔어요. 이유까지 기억하면 충분해요.", {}) }
+            }, SeedCatalog.quiz, "10문제 중 9개를 맞혔어요. 이유까지 기억하면 충분해요.", {}) }
             assertDriverButton(activity, "다시 시작")
             capture("quiz-done")
             pass("Quiz: wrong/correct answer eyebrows and outline, explanations, next/result, stopped quit once before/after answering, locked touch zero, colored keyed comparisons and restart")
@@ -715,7 +720,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         }
     }
 
-    /** Actual good seed plus an explicit five-segment fixture: four guarded opener strings, existing Done layout. */
+    /** Actual good seed plus an explicit five-segment fixture: guarded openers and recent fallback, existing Done layout. */
     private fun seedVerdictOpeners(activity: MainActivity) {
         fun replay(scenario: Scenario) = ParkingRecorder(SignalRegistry(ParkingRecorder.KEYS, simulated = true)).apply {
             scenario.steps.forEach { onDelta((it.atSeconds * 1000).toLong(), it.values) }
@@ -735,9 +740,10 @@ class LessonScreenInstrumentation : Instrumentation() {
             render(activity) { DoneScreen(task, index + 1, record, null, {}, {}) }
             Thread.sleep(3_000)
             assertFullText(activity, remark, "한 번 더")
-            capture(if (opener == "한 번에 들어갔어요.") "done-seed-one-go" else "done-seed-aligned")
+            capture(if (opener == "한 번에 들어갔어요.") "done-seed-one-go" else "done-seed-repeat")
         }
-        check(seen == setOf("한 번에 들어갔어요.", "신호로 추정하면 방향도 맞게 섰어요."))
+        check(seen.size == 2 && "한 번에 들어갔어요." in seen)
+        check("신호로 추정하면 방향도 맞게 섰어요." !in seen)
 
         // This is a layout fixture, not a third driving scenario. Derive score/verdict from five measured segments.
         val bad = replay(ParkingScenarios.bad)
@@ -751,7 +757,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         render(activity) { DoneScreen(task, 1, many, null, {}, {}) }
         assertFullText(activity, manyRemark, "한 번 더")
         capture("done-seed-many-fixture")
-        pass("Seed verdict openers: one_go/one_fix/many/aligned come from the seed and fit the existing Done layout")
+        pass("Seed verdict openers: one_go/one_fix/many and recent fallback come from the seed without aligned-only openers and fit the existing Done layout")
     }
 
     /** External layout fixtures only: these do not represent measurements in a real vehicle. */
