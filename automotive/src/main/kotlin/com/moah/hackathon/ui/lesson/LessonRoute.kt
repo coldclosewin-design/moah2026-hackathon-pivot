@@ -32,10 +32,10 @@ internal fun LessonRoute(vm: LessonViewModel) {
         is LessonPhase.Briefing -> BriefingScreen(state.task, state.mode, state.line, subtitle)
         is LessonPhase.Maneuver -> ManeuverScreen(state.toDisplayState(), state.snapshot.locked, state.snapshot.stopped,
             subtitle, vm::finishAttempt, demo, state.task.title)
-        is LessonPhase.Done -> DoneScreen(state.task, state.attempt, state.record, subtitle, vm::nextAttempt, vm::endSession, demo)
-        is LessonPhase.Report -> ReportScreen(state.report, vm::restart)
+        is LessonPhase.Done -> DoneScreen(state.task, state.attempt, state.record, subtitle, vm::nextAttempt, vm::endSession, demo, state.locked)
+        is LessonPhase.Report -> ReportScreen(state.report, vm::restart, state.locked)
         is LessonPhase.Quiz -> QuizScreen(state.task, state.index, state.total, state.item, state.locked,
             state.chosen, state.correctSoFar, vm::answer, vm::nextQuestion, vm::restart)
-        is LessonPhase.QuizDone -> QuizDoneScreen(state.task, state.results, state.items, state.remark, vm::restart)
+        is LessonPhase.QuizDone -> QuizDoneScreen(state.task, state.results, state.items, state.remark, vm::restart, state.locked)
     }
 }

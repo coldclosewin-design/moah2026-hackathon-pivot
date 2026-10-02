@@ -20,7 +20,11 @@ import com.moah.hackathon.ui.CoachColors
 
 @Composable
 internal fun QuizDoneScreen(task: Task, results: List<QuizResult>, items: List<QuizItem>, remark: String,
-    onRestart: () -> Unit) {
+    onRestart: () -> Unit, locked: Boolean = false) {
+    if (locked) {
+        ResultLockedScreen()
+        return
+    }
     val byItem = results.associateBy { it.itemId }
     val correct = items.count { byItem[it.id]?.correct == true }
     PosterSurface {
@@ -50,7 +54,7 @@ internal fun QuizDoneScreen(task: Task, results: List<QuizResult>, items: List<Q
                         }
                     }
                 }
-                PrimaryPill(stringResource(R.string.lesson_restart), onRestart)
+                PrimaryPill(stringResource(R.string.lesson_restart), onRestart, driver = true)
             }
         }
     }

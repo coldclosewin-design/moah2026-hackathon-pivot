@@ -29,6 +29,9 @@ class ChecklistPresentationTest {
         val results = checklistResults(score(ChecklistScenarios.bad))
         assertEquals(listOf(false, false, true, false, true, true, false), results.map { it.passed })
         assertTrue(results[1].detail.contains("시동 먼저"))
+        assertEquals("시동 때 문 열림", results[0].detail)
+        assertEquals("시동 2초 · 브레이크 확인 안 됨", results[3].detail)
+        assertEquals("켜짐 확인 안 됨", results.last().detail)
         assertEquals("✗", results.last().mark)
     }
 
@@ -37,6 +40,9 @@ class ChecklistPresentationTest {
             setOf(V.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN, V.VEHICLE_CHASSIS_BRAKE_PEDALPOSITION, V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING, V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING, V.VEHICLE_BODY_LIGHTS_HAZARD_ISSIGNALING)))
         assertEquals(listOf(null, true, true, null, null, null, null), results.map { it.passed })
         assertEquals(5, results.count { it.mark == "미측정" })
+        assertEquals("순서를 확인할 수 없어요", results[0].detail)
+        assertEquals("시동 8초 · 순서를 확인할 수 없어요", results[3].detail)
+        assertTrue(results.takeLast(3).all { it.detail == "확인할 수 없어요" })
     }
 
     @Test fun missingBeltIgnitionAndGearDoNotLookLikeUncheckedActions() {
@@ -44,6 +50,26 @@ class ChecklistPresentationTest {
             setOf(V.VEHICLE_CABIN_SEAT_ROW1_DRIVERSIDE_ISBELTED, V.VEHICLE_LOWVOLTAGESYSTEMSTATE, V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR)))
         assertTrue(results.take(4).all { it.passed == null })
         assertTrue(results.none { Regex("\\d").containsMatchIn(it.detail) })
+    }
+
+    @Test fun missingSourcesHideStaleSuccessfulValuesAndTiming() {
+        val measured = score(ChecklistScenarios.good)
+        val results = checklistResults(measured.copy(missingSignals = ParkingRecorder.CHECKLIST_KEYS.toList()))
+        assertTrue(results.all { it.passed == null && it.mark == "미측정" })
+        assertTrue(results.none { Regex("\\d|먼저|밟고|켜짐 확인|시동 전|P로").containsMatchIn(it.detail) })
+    }
+
+    @Test fun uncompletedActionsAndUnknownOrderHaveDifferentDescriptions() {
+        val measured = score(ChecklistScenarios.good)
+        val pre = measured.metrics.preDrive
+        val results = checklistResults(measured.copy(metrics = measured.metrics.copy(
+            preDrive = pre.copy(beltOnMillis = null, ignitionOnMillis = null))))
+        assertEquals("벨트 착용 확인 안 됨", results[1].detail)
+        assertEquals("시동 확인 안 됨", results[3].detail)
+        val beltOnly = checklistResults(measured.copy(metrics = measured.metrics.copy(
+            preDrive = pre.copy(ignitionOnMillis = null))))
+        assertNull(beltOnly[1].passed)
+        assertEquals("벨트 3초 · 순서를 확인할 수 없어요", beltOnly[1].detail)
     }
 
     private val state = ManeuverDisplayState("0", null, "P", null, false, null, null, null, 1, 0, 0, false,

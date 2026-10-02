@@ -162,3 +162,26 @@ APK SHA-256: 앱 `9FCBA44C9EDC6636B19D192552CA02D8A899B7D58CEC33B4626E17570D7AA1
 범위 밖 한계: `AdviceRules`의 `MOVED_DURING_CHECK`·`SEGMENTS`는 조언만 두 문장이라 해당 분기에서는 총 세 문장이다. 조언의 횟수 표현과 함께 `INTEGRATION.md` C절에 ports 후속을 요청했다. 첫 PR에서 포트를 변경하거나 모든 조합이 두 문장이라고 판정하지 않는다.
 
 원본 `bash tools/emu_flow.sh build/seed-flow` **PASS·uiautomator clashes 0**, 리포트까지 **105초**. 필수 힌트 3종, 첫 회차 60/55·이동 4회, 두 번째 100/100·이동 2회·추가 힌트 0, 도어 열림 → 리포트와 출처 배지 0/8/0을 확인했다. 도구·기대 로그·채점은 수정하지 않았다. 로그는 `build/seed-flow/log.txt`에 보존했다.
+
+
+## 라운드 11 ② 결과 화면·계측 (2026-10-02)
+
+`codex/ui-round11` · 기준 `origin/main=f5b5822`(① #82 머지 뒤) · 외부 CSTDe_API_34 2560×1440 · 기본 Fake, 배율 1.0. [발주서 ② 2.1~2.7](../../handoffs/2026-10-01_codex_ui_round11.md)에 한정했다. 아래 이미지는 모두 **외부 fixture**이며 사내 실측 캡처가 아니다. 특히 `live7-sim1-fixture`는 사내 관찰 숫자 7/1/0을 외부 모델에 넣은 배지 표시 검사다.
+
+| 항목 | 교체·추가 캡처 | 확인 내용 |
+|---|---|---|
+| 2.1 결과 잠금 | 추가 `lesson-done-locked.png`, `lesson-done-checklist-locked.png`, `lesson-report-locked.png`, `lesson-report-locked-details.png`, `lesson-report-locked-certificate.png`, `lesson-quiz-done-locked.png` | `LessonRoute`가 세 단계의 `locked`를 화면에 전달. 잠금 중 결과 subtree를 남색 안내로 교체해 버튼·링크·스크롤·시연 알약과 숫자 0. 해제 후 결과·리포트 페이지·액션 복원, 시연 패널은 닫힘 |
+| 2.2 긴 메인 문장 | 추가 `lesson-done-long.png`, `lesson-done-checklist-long.png`, `lesson-report-long.png` | 명시 줄바꿈 네 줄과 Cloud 상한 90자/160자를 동시에 넣음. 결과 전용 글자 배치가 필요할 때 72→64→56→48→40→32 sp로 줄이며 줄 수 제한 없음. 전체 글자 layout·화면에서 보이는 높이·본문 32 sp 하한·주 버튼과 비중첩 검사. 줄바꿈 없는 160자도 검사. 기존 짧은 Headline의 최대 세 줄 규칙은 유지 |
+| 2.3 점검 설명 | 교체 `lesson-report-checklist-bad.png`, `lesson-report-checklist-missing.png`; 함께 교체 `lesson-report-checklist.png` | 성공·실패·미측정의 설명 시제를 `checklistResults`에서만 정리. 도어·벨트·기어·브레이크/시동·등화의 값과 기호는 원래 판정 그대로. 벨트·시동 시각은 측정됐을 때만 표시 |
+| 2.4 최대 누락 | 추가 `lesson-report-all-missing.png`, `lesson-report-all-missing-details.png`, `lesson-report-all-missing-scrolled.png`; 재현 근거 `lesson-report-all-missing-before.png`, `lesson-report-all-missing-details-before.png` | 변경 전 주차 키 8개·가이드 6개 누락을 먼저 재현. 고정 하단이 본문을 밀어내므로 긴 목록만 본문 스크롤로 이동. 변경 후 더 큰 점검 키 12개·가이드 7개 및 160자 총평을 주입해 마지막 목록까지 표시·스크롤 전후 배지와 돌아가기 좌표 고정 검사. 모든 키 누락 fixture는 **레이아웃 경계값**이며 실제 채점 결과를 뜻하지 않음 |
+| 2.5 카테고리 | 교체 `lesson-setup-sheet.png` | 닫힌 주행 메뉴 글자 Muted 픽셀 검사. 준비 중 과제 칸의 면·회색·클릭 불가 유지 |
+| 2.6 캡처 공백 | 추가 `lesson-briefing-checklist.png`, `lesson-briefing-knowledge.png`, `lesson-maneuver-hint.png`, `lesson-maneuver-evaluate.png`, `lesson-maneuver-checklist-locked.png`, `lesson-maneuver-checklist-mixed.png`, `lesson-report-parking-perfect.png`, `lesson-report-multiple.png`, `lesson-report-live7-sim1-fixture.png`, `lesson-report-live-missing-fixture.png`, `lesson-quiz-correct.png`, `lesson-quiz-long.png`, `lesson-panel-ai-no-config.png`, `lesson-panel-ai-ready.png`, `lesson-panel-ai-error.png`; 교체 `lesson-done.png` | 실제 시드·시나리오 및 화면용 fixture. 정답·긴 문항, AI 오류 80자도 표시하며 AI 상세의 기존 28 sp 유지. 긴 퀴즈는 기존 상향등 문항의 선택지·정답과 일치 |
+| 2.7 정차 조작 | 교체 `lesson-report.png`, `lesson-quiz-done.png`, `lesson-certificate.png`, `lesson-demo-toggle-pill.png` | 리포트 요약·진단서와 QuizDone 재시작을 기존 driver 규칙(높이 140 dp·최소 폭 720 dp)으로. 시연 알약은 64×32 dp 외형·좌표 그대로, 터치 영역만 88×88 dp. 확대 영역 양 끝 모서리에 실제 포인터를 넣어 열기 확인 |
+
+①에서 UI로 남긴 제안 띄어쓰기(`해 볼까요`·`익혀 볼까요`)도 완료해 `lesson-setup.png`를 교체했다. D1 숫자 메타·교육 수치, D2 정차 결과의 Signal 빨강, D3 패널 28 sp는 그대로다. 새 색 토큰·문자열 리소스·`FontWeight.Bold` 추가 없음. 차량·포트·채점·상태기계·데이터·빌드 파일·도구·`docs/NEXT.md`는 바꾸지 않았다.
+
+지정 PowerShell 빌드 `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` 성공, 단위 테스트 **215개(실패·오류·건너뜀 0)**. 앱 SHA-256 `01F0047193AD58E58846B2BDB5204F2D6E2C7E7DED6CC678B190630935B9D021`, 계측 SHA-256 `C3AB20F8F6F0AB07292FB39D36A9BC8C32042FC17481891E33AD78C2000D2B9B`.
+
+[빌드 로그](build-round11.txt) · [최종 계측 3회 로그](contract-round11.txt). 동일한 최종 APK로 원본 `tools/lesson_shots.sh build/round11-verified-{1,2,3}` **3회 연속 Lesson contract passed**. 최종 캡처는 첫 실행에서 가져왔다(변경 전 재현 두 장 제외). Muted 픽셀은 Paper 배경과 합성해 비교하고, 알약은 확대 영역 양 모서리에서 실제 터치한다. 이전 계측 fixture의 점검 잠금 기본 과제명이 주차로 나오는 것을 바로잡은 뒤 세 번을 다시 실행했다.
+
+원본 `bash tools/emu_flow.sh build/round11-flow` **PASS·uiautomator clashes 0**, 세션 시작부터 리포트까지 **104초**([흐름 로그](flow-round11.txt)). 필수 힌트 세 종류, 첫 회차 60/55·이동 4회, 두 번째 100/100·이동 2회·추가 힌트 없음, 도어 열림 → 리포트와 배지 0/8/0을 확인했다. 스크립트·힌트 기대 로그·채점은 수정하지 않았다. 위 목록은 교체 10장·추가 29장(변경 전 재현 2장 포함), 총 39장이다.

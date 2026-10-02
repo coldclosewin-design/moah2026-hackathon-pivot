@@ -16,8 +16,13 @@ import com.moah.hackathon.ui.CoachColors
 
 @Composable
 internal fun DoneScreen(task: Task, attempt: Int, record: AttemptRecord, subtitle: String?,
-    onAgain: () -> Unit, onEnd: () -> Unit, demo: (@Composable () -> Unit)? = null) {
+    onAgain: () -> Unit, onEnd: () -> Unit, demo: (@Composable () -> Unit)? = null, locked: Boolean = false) {
     val expansion = rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(locked) { if (locked) expansion.value = false }
+    if (locked) {
+        ResultLockedScreen()
+        return
+    }
     val showPath = remember(record.path) { hasEstimatedPath(record.path) }
     PosterSurface {
         Box(Modifier.fillMaxSize()) {
@@ -52,7 +57,7 @@ internal fun DoneScreen(task: Task, attempt: Int, record: AttemptRecord, subtitl
                     BrandMark()
                     Eyebrow("${task.title} · ${attempt}회차")
                     Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
-                        Headline(record.remark)
+                        ResultHeadline(record.remark)
                     }
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(48.dp)) {
                         PrimaryPill(stringResource(R.string.lesson_again), onAgain, driver = true)
