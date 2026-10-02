@@ -84,4 +84,26 @@ class ParkingVerdictTest {
         assertNotNull(bad.toString(), bad.headingErrorDeg)
         assertEquals(bad.toString(), ParkingVerdict.Heading.SLIGHT, bad.heading)
     }
+
+    @Test
+    fun `front scenarios - the same four verdicts hold when driving in - good one go aligned, bad one fix slight unsafe`() {
+        // 전면 직각 주차(10/2): 판정 규칙·경계는 후면과 같다. 궤적은 앞으로 도는 원호라 헤딩 부호만 반대(abs 로 무관)
+        val front = ParkingSpec.FRONT_PERPENDICULAR
+        fun recordedFront(scenario: Scenario): ParkingVerdict {
+            val r = ParkingRecorder(SignalRegistry(front.keys, simulated = true), front.keys)
+            for (s in scenario.steps) r.onDelta((s.atSeconds * 1000).toLong(), s.values)
+            return r.verdict(targetHeadingDeg = front.targetHeadingDeg)!!
+        }
+        val good = recordedFront(com.moah.hackathon.data.FrontParkingScenarios.good)
+        assertEquals(good.toString(), ParkingVerdict.Entry.ONE_GO, good.entry)
+        assertEquals(good.toString(), ParkingVerdict.Heading.ALIGNED, good.heading)
+        assertEquals(good.toString(), ParkingVerdict.Finish.CLEAN, good.finish)
+        assertEquals(good.toString(), ParkingVerdict.Safety.SAFE, good.safety)
+
+        val bad = recordedFront(com.moah.hackathon.data.FrontParkingScenarios.bad)
+        assertEquals(bad.toString(), ParkingVerdict.Entry.ONE_FIX, bad.entry)
+        assertEquals(bad.toString(), ParkingVerdict.Heading.SLIGHT, bad.heading)
+        assertEquals(bad.toString(), ParkingVerdict.Finish.CLEAN, bad.finish)
+        assertEquals(bad.toString(), ParkingVerdict.Safety.UNSAFE, bad.safety)
+    }
 }

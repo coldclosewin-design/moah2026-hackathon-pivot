@@ -1,6 +1,7 @@
 package com.moah.hackathon.feature.lesson
 
 import com.moah.hackathon.data.ChecklistScenarios
+import com.moah.hackathon.data.FrontParkingScenarios
 import com.moah.hackathon.data.ParkingScenarios
 import com.moah.hackathon.data.SeedCatalog
 import com.moah.hackathon.ports.CoachPort
@@ -136,6 +137,35 @@ class LessonStateMachineTest {
         assertEquals(60, done.record.score.skill)
         assertEquals(55, done.record.score.safety)
         assertEquals(4, done.record.score.metrics.motion.movingSegments)
+        h.scope.cancel()
+    }
+
+    @Test
+    fun `front parking hint mode - forward hints, seven key badge, same fixed scores and a one fix verdict`() = runTest {
+        // 전면 직각 주차(10/2): 상태기계는 과제 사양으로 키·힌트·판정을 고른다. 시연 본편(후면)은 그대로
+        val h = harness()
+        h.machine.begin(SeedCatalog.TASK_PARKING_FRONT, LessonMode.HINT)
+        advanceUntilIdle()
+        assertTrue(h.tts.spoken.any { it.startsWith("전면 직각 주차, 힌트 모드") && it.contains("핸들 방향과 기어 전환을") })
+        feed(h, FrontParkingScenarios.bad)
+        assertTrue(h.tts.spoken.toString(), "안전벨트가 아직이에요." in h.tts.spoken)
+        assertTrue(h.tts.spoken.toString(), "앞이 가까워요. 멈추세요." in h.tts.spoken)
+        assertTrue(h.tts.spoken.any { it.startsWith("후진으로 보정") })
+        assertTrue(h.tts.spoken.none { it.startsWith("뒤가") || it.startsWith("전진으로 보정") })
+        val m = h.machine.phase.value as LessonPhase.Maneuver
+        assertTrue(m.askedDone)
+        assertEquals(7, m.availability.size)   // 뒤 거리 없는 7키
+        assertTrue(com.moah.hackathon.vehicle.SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM !in m.availability)
+
+        h.machine.finishAttempt()
+        advanceUntilIdle()
+        val done = h.machine.phase.value as LessonPhase.Done
+        assertEquals(60, done.record.score.skill)
+        assertEquals(55, done.record.score.safety)
+        assertEquals(7, done.record.score.badge.simulated)
+        assertEquals(com.moah.hackathon.scoring.ParkingVerdict.Entry.ONE_FIX, done.record.verdict!!.entry)
+        assertEquals(com.moah.hackathon.scoring.ParkingVerdict.Heading.SLIGHT, done.record.verdict!!.heading)
+        assertTrue(done.record.remark, done.record.remark.lines().last() == "다음엔 벨트를 먼저 매고 출발해요.")
         h.scope.cancel()
     }
 
@@ -311,7 +341,7 @@ class LessonStateMachineTest {
     fun `spoken lines carry the right particles`() = runTest {
         val h = harness()
         h.machine.begin("road-course", LessonMode.HINT)
-        assertTrue(h.tts.spoken.last(), h.tts.spoken.last().startsWith("일반 도로 코스는 아직 준비 중이에요. 지금은 출발 전 점검·후면 직각 주차·비상등·날씨별 행동을 할 수 있어요."))
+        assertTrue(h.tts.spoken.last(), h.tts.spoken.last().startsWith("일반 도로 코스는 아직 준비 중이에요. 지금은 출발 전 점검·후면 직각 주차·전면 직각 주차·비상등·날씨별 행동을 할 수 있어요."))
         h.machine.begin(SeedCatalog.TASK_PARKING_REAR, LessonMode.QUIZ)
         assertTrue(h.tts.spoken.last().startsWith("후면 직각 주차는 지식 테스트 모드로는"))
         h.machine.begin(SeedCatalog.TASK_PARKING_REAR, LessonMode.GUIDE)

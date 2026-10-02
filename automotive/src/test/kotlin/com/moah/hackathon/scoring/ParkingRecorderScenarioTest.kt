@@ -29,6 +29,48 @@ class ParkingRecorderScenarioTest {
         assertEquals(100 - 15 - 10 - 20, late.safety)
     }
 
+    private fun recordFront(scenario: Scenario): ParkingRecorder {
+        val keys = ParkingSpec.FRONT_PERPENDICULAR.keys
+        val recorder = ParkingRecorder(SignalRegistry(keys, simulated = true), keys)
+        for (step in scenario.steps) recorder.onDelta((step.atSeconds * 1000).toLong(), step.values)
+        return recorder
+    }
+
+    @Test
+    fun `front good parking - 2 segments 1 reversal 0 shifts, no rear distance, 100 100 on seven keys`() {
+        // 전면 직각 주차(10/2): 후면 good 의 거울. 뒤 거리 샘플이 없어 근접 요약은 null(미측정)이고 배지 분모는 7
+        val score = recordFront(com.moah.hackathon.data.FrontParkingScenarios.good).score()!!
+        val m = score.metrics
+        assertEquals(2, m.motion.movingSegments)
+        assertEquals(1, m.steering!!.reversals)
+        assertEquals(0, m.gear!!.reverseDriveShifts)
+        assertTrue(m.gear!!.endedInPark)
+        assertTrue(m.harshEvents.isEmpty())
+        assertEquals(0, m.proximity!!.warnings)
+        assertEquals(null, m.proximity!!.minDistanceCm)
+        assertEquals(true, m.preDrive.beltBeforeFirstMove)
+        assertEquals(100, score.skill)
+        assertEquals(100, score.safety)
+        // 배지 분모 7(뒤 거리 없음). 도어는 시나리오가 안 건드려 여기서는 미측정 — 앱에서는 회차 시작의 get() 이 채운다(상태기계 테스트가 7 시뮬을 고정)
+        assertEquals(7, score.badge.simulated + score.badge.missing)
+        assertEquals(0, score.badge.live)
+    }
+
+    @Test
+    fun `front bad parking - 4 segments 3 reversals 2 shifts 1 harsh brake 1 warning and no belt - 60 55`() {
+        val score = recordFront(com.moah.hackathon.data.FrontParkingScenarios.bad).score()!!
+        val m = score.metrics
+        assertEquals(4, m.motion.movingSegments)
+        assertEquals(3, m.steering!!.reversals)
+        assertEquals(2, m.gear!!.reverseDriveShifts)
+        assertTrue(m.gear!!.endedInPark)
+        assertEquals(listOf(HarshKind.BRAKING), m.harshEvents.map { it.kind })
+        assertEquals(1, m.proximity!!.warnings)
+        assertEquals(false, m.preDrive.beltBeforeFirstMove)
+        assertEquals(60, score.skill)
+        assertEquals(55, score.safety)
+    }
+
     @Test
     fun `good parking - 2 segments 1 reversal 0 shifts no safety events`() {
         val score = record(ParkingScenarios.good).score()!!
