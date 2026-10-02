@@ -9,6 +9,7 @@ import com.moah.hackathon.feature.lesson.Task
 import com.moah.hackathon.feature.lesson.TaskType
 import com.moah.hackathon.scoring.ParkingDelta
 import com.moah.hackathon.scoring.ParkingScore
+import com.moah.hackathon.scoring.ParkingVerdict
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.withTimeoutOrNull
 
@@ -32,8 +33,8 @@ class CloudCoachPort(
     private val timeoutMillis: Long = 5_000L,   // 4 → 5 s (9/30 사내 실측: Done 2~4 s)
 ) : CoachPort {
 
-    override suspend fun remark(task: Task, score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int): String {
-        val safe = fallback.remark(task, score, delta, profile, attempt)
+    override suspend fun remark(task: Task, score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int, verdict: ParkingVerdict?): String {
+        val safe = fallback.remark(task, score, delta, profile, attempt, verdict)
         val (system, user) = CoachPrompts.remark(task, score, delta, profile, attempt, seedLine = safe.replace('\n', ' '))
         // 숫자 머리말은 붙이지 않는다(운전자 문장 규칙). 두 문장을 줄바꿈으로 — 화면이 문장 단위로 줄을 끊는다
         return ask(system, user, maxChars = CoachPrompts.REMARK_MAX_CHARS)?.let { CoachPrompts.twoLines(it) } ?: safe

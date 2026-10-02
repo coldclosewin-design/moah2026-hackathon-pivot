@@ -12,6 +12,7 @@ import com.moah.hackathon.scoring.ChecklistScorer
 import com.moah.hackathon.scoring.ParkingDelta
 import com.moah.hackathon.scoring.ParkingRubric
 import com.moah.hackathon.scoring.ParkingScore
+import com.moah.hackathon.scoring.ParkingVerdict
 
 /**
  * 코치 — 정차했을 때만 말하는 AI 의 자리 (docs/topics/01_driving_coach.md §6).
@@ -25,7 +26,7 @@ import com.moah.hackathon.scoring.ParkingScore
  */
 interface CoachPort {
     /** 회차 멘트 — "장롱의 문 정도는 열었습니다. 좋은 출발이에요.\n핸들을 끝까지 꺾은 채 중립을 조금 늦게 잡아 보세요." */
-    suspend fun remark(task: Task, score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int): String
+    suspend fun remark(task: Task, score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int, verdict: ParkingVerdict? = null): String
 
     /** 세션 총평 — 리포트 상단 두 문장(흐름 / 안전 한 가지). 숫자 없음. */
     suspend fun summarize(task: Task, mode: LessonMode, attempts: List<AttemptRecord>, profile: Profile): String
@@ -101,7 +102,7 @@ class FakeCoachPort(
     private val rubric: ParkingRubric = ParkingRubric(),
 ) : CoachPort {
 
-    override suspend fun remark(task: Task, score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int): String {
+    override suspend fun remark(task: Task, score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int, verdict: ParkingVerdict?): String {
         val checklist = task.type == TaskType.CHECKLIST
         // 나아짐의 기준: 주차는 이동 구간 수, 점검은 걸린 시간
         val better = delta != null && if (checklist) delta.seconds < 0 else delta.segments < 0
@@ -113,7 +114,8 @@ class FakeCoachPort(
             if (worse) add("regressed")
         }
         val vars = mapOf("name" to profile.name, "years" to (profile.rustyYears ?: 0).toString())
-        val opener = pool.pick(ScoreBand.of(score.skill), tags, vars, task.type)
+        // 판정 태그(one_go·one_fix·many·aligned)는 조건 — 사실이 아닌 서두는 뽑히지 않는다(docs/design/09, 라운드 12 ① C 절)
+        val opener = pool.pick(ScoreBand.of(score.skill), tags + RemarkPool.verdictTags(verdict), vars, task.type)
         return "$opener\n${AdviceRules.advice(task, score, rubric)}"
     }
 

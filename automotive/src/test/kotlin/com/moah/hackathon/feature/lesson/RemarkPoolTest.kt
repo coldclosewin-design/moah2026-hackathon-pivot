@@ -70,4 +70,31 @@ class RemarkPoolTest {
             assertFalse(text, Regex("\\d|[한두세네] 번|회차|[{}]").containsMatchIn(text))
         }
     }
+
+    @Test
+    fun `verdict tags are conditions - a one_go line is never picked without the verdict, even in the fallback`() {
+        // 라운드 12 ① C 절(Codex): 단순 태그 가점이면 best=0·폴백에서 사실이 아닌 문장이 뽑힐 수 있다
+        val oneGo = RemarkTemplate(ScoreBand.EXCELLENT, setOf("one_go"), "한 번에 들어갔어요.")
+        val aligned = RemarkTemplate(ScoreBand.EXCELLENT, setOf("one_go", "aligned"), "한 번에, 방향도 맞게 들어갔어요.")
+        val plain = RemarkTemplate(ScoreBand.EXCELLENT, setOf("any"), "주차 과정이 전반적으로 좋았어요.")
+        val pool = RemarkPool(listOf(oneGo, aligned, plain), Random(1), recentSize = 0)
+        repeat(10) { assertEquals(plain.text, pool.pick(ScoreBand.EXCELLENT, setOf("rusty"), emptyMap())) }          // 판정 없음
+        repeat(10) { assertEquals(plain.text, pool.pick(ScoreBand.EXCELLENT, setOf("one_fix"), emptyMap())) }        // 다른 판정
+        repeat(10) { assertEquals(oneGo.text, pool.pick(ScoreBand.EXCELLENT, setOf("one_go"), emptyMap())) }         // 맞는 판정 → 태그 겹침이 많아 우선
+        repeat(10) { assertEquals(aligned.text, pool.pick(ScoreBand.EXCELLENT, setOf("one_go", "aligned"), emptyMap())) }
+        // 다른 밴드로 폴백해도 조건은 지킨다
+        val onlyVerdict = RemarkPool(listOf(oneGo, plain), Random(1), recentSize = 0)
+        repeat(10) { assertEquals(plain.text, onlyVerdict.pick(ScoreBand.ROUGH, setOf("many"), emptyMap())) }
+    }
+
+    @Test
+    fun `verdict tags come from the verdict - heading only when aligned, nothing without a verdict`() {
+        val v = com.moah.hackathon.scoring.ParkingVerdict(
+            com.moah.hackathon.scoring.ParkingVerdict.Entry.ONE_FIX, com.moah.hackathon.scoring.ParkingVerdict.Heading.SLIGHT, 18f,
+            com.moah.hackathon.scoring.ParkingVerdict.Finish.CLEAN, com.moah.hackathon.scoring.ParkingVerdict.Safety.SAFE)
+        assertEquals(setOf("one_fix"), RemarkPool.verdictTags(v))
+        assertEquals(setOf("one_go", "aligned"), RemarkPool.verdictTags(v.copy(
+            entry = com.moah.hackathon.scoring.ParkingVerdict.Entry.ONE_GO, heading = com.moah.hackathon.scoring.ParkingVerdict.Heading.ALIGNED)))
+        assertEquals(emptySet<String>(), RemarkPool.verdictTags(null))
+    }
 }

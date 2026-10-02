@@ -378,7 +378,7 @@ class LessonStateMachineTest {
     @Test
     fun `a failing coach falls back to a rule sentence and the session continues`() = runTest {
         val angry = object : CoachPort {
-            override suspend fun remark(task: Task, score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int): String = throw IllegalStateException("no network")
+            override suspend fun remark(task: Task, score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int, verdict: com.moah.hackathon.scoring.ParkingVerdict?): String = throw IllegalStateException("no network")
             override suspend fun summarize(task: Task, mode: LessonMode, attempts: List<AttemptRecord>, profile: Profile): String = throw IllegalStateException("no network")
         }
         val h = harness(angry)

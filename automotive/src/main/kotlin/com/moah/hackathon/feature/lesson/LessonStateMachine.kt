@@ -203,15 +203,16 @@ class LessonStateMachine(
         finishing = true
         val previous = store.previous(p.task.id)
         val delta = previous?.let { ParkingDelta.of(score.metrics, it.score.metrics) }
+        val verdict = if (checklist) null else recorder.verdict(until)   // 네 가지 판정(docs/design/09) — 서두 선택의 조건이자 화면의 네 줄
         scope.launch {
             val remark = try {
-                coach.remark(p.task, score, delta, profile, attempt)
+                coach.remark(p.task, score, delta, profile, attempt, verdict)
             } catch (e: RuntimeException) {
                 Log.w(TAG, "coach.remark failed → rule sentence", e)
                 "수고했어요.\n${com.moah.hackathon.ports.AdviceRules.advice(p.task, score, rubric)}"
             }
             val record = AttemptRecord(attempt, p.task.id, p.mode, score, delta, remark, clock(), path = recorder.path(),
-                verdict = if (checklist) null else recorder.verdict(until))
+                verdict = verdict)
             store.add(record)
             sessionRecords += record
             profile = profile.copy(observation = store.observation())
