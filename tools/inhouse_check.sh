@@ -8,6 +8,7 @@
 #   결과는 한 화면 요약으로만 — **캡처를 저장하지 않는다**(사내 캡처 반출 금지). FATAL 은 우리 프로세스(Process: com.moah.hackathon)만 센다.
 # 사용:  bash tools/inhouse_check.sh [APK 경로]     (기본 automotive/build/outputs/apk/debug/automotive-debug.apk)
 #        SKIP_INSTALL=1 이면 설치 생략, SKIP_WIFI=1 이면 Wi-Fi 단계 생략, SERIAL=<adb 시리얼> 로 기기 지정
+#        REPO_ONLY=1 이면 "저장소" 단계(.gitignore 검사)만 하고 끝낸다 — 기기 없이, jar 복사 직후에
 set -u
 APK="${1:-automotive/build/outputs/apk/debug/automotive-debug.apk}"
 PKG=com.moah.hackathon
@@ -21,6 +22,25 @@ export MSYS_NO_PATHCONV=1; TMPW=$(cygpath -w "$TMP" 2>/dev/null || echo "$TMP")
 FAIL=0
 note() { printf '  %s\n' "$*"; }
 bad()  { printf '  !! %s\n' "$*"; FAIL=1; }
+
+# ── 저장소(.gitignore) ── 사내 검증 #3(10/2): `automotive/libs/      # 주석` 처럼 뒤에 붙인 주석이 패턴이 돼 jar 가 `??` 로 보였다.
+#   check-ignore -v 의 출처가 **.gitignore 자체**인지 본다(사내 .git/info/exclude 가 대신 막아 주면 PASS 로 속기 때문). 추적된 파일도 잡는다.
+echo "== 저장소"
+REPO=skip
+if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  REPO=ok
+  for p in automotive/libs/x.jar local.properties; do
+    src=$(git check-ignore -v --no-index "$p" 2>/dev/null | cut -f1 | cut -d: -f1)
+    [ "$src" = ".gitignore" ] && note "gitignore: $p ← .gitignore" || { bad "gitignore: $p 가 .gitignore 에 안 걸림(출처: ${src:-없음}) — 커밋에 jar/local.properties 가 들어갈 수 있다"; REPO=fail; }
+  done
+  tracked=$(git ls-files -- automotive/libs local.properties 2>/dev/null | tr '\n' ' ')
+  [ -z "$tracked" ] && note "추적된 jar/local.properties 없음" || { bad "이미 추적 중: $tracked — git rm --cached 로 빼고 커밋하지 말 것"; REPO=fail; }
+  trailing=$(grep -nE '^[^#[:space:]].*[[:space:]]#' .gitignore 2>/dev/null | tr '\n' ' ')
+  [ -z "$trailing" ] && note ".gitignore 뒤 글자 주석 없음" || { bad ".gitignore 에 뒤 글자 주석(패턴이 된다): $trailing"; REPO=fail; }
+else
+  note "git 작업 트리가 아님(zip 반입?) — .gitignore 검사 생략. 커밋은 clone 에서만"
+fi
+[ "${REPO_ONLY:-0}" = "1" ] && { [ "$REPO" = "fail" ] && { echo "== result: FAIL (저장소)"; exit 1; } || { echo "== result: PASS (저장소만)"; exit 0; }; }
 
 # ── 준비 ──
 echo "== 준비"
@@ -81,7 +101,8 @@ wait_log "report: attempts=2" 15
 LOG=$(adb logcat -d -s $TAG 2>/dev/null)
 echo
 echo "================ 사내 검증 요약 ================"
-echo "$LOG" | grep -q "RealVehiclePort ready"            && echo "PASS RealVehiclePort ready"        || { echo "FAIL RealVehiclePort ready 없음(Fake 로 폴백? VehiclePortFactory 로그 확인 — 매니페스트 uses-library mobis.framework 가 있는지)"; FAIL=1; }
+case "$REPO" in ok) echo "PASS 저장소 .gitignore(automotive/libs/·local.properties)";; fail) echo "FAIL 저장소 .gitignore — 위 '== 저장소' 줄 참고";; *) echo "-- 저장소: git 아님(검사 생략)";; esac
+echo "$LOG" | grep -q "RealVehiclePort ready"           && echo "PASS RealVehiclePort ready"        || { echo "FAIL RealVehiclePort ready 없음(Fake 로 폴백? VehiclePortFactory 로그 확인 — 매니페스트 uses-library mobis.framework 가 있는지)"; FAIL=1; }
 echo "$LOG" | grep -q "attempt 1 start"                  && echo "PASS attempt 1 start"              || { echo "FAIL attempt 1 start"; FAIL=1; }
 echo "$LOG" | grep -q "attempt 2: skill="                && echo "PASS attempt 2 채점"                || { echo "FAIL attempt 2 채점"; FAIL=1; }
 echo "$LOG" | grep -q "report: attempts=2"               && echo "PASS report"                       || { echo "FAIL report"; FAIL=1; }

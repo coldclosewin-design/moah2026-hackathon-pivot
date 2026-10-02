@@ -36,7 +36,7 @@ bash tools/inhouse_check.sh
 
 로그인 함정: AI 코치는 device code 방식이라 패널의 `AI 연결` 뒤 GitHub 에서 코드를 넣고 **Authorize 까지** 눌러야 한다(15분 만료). OAuth 는 device-protected 저장소라 `install -r` 뒤에도 남는다.
 
-`inhouse_check.sh` 합격 기준: `RealVehiclePort ready` · `attempt 1 start` · `attempt 2:` · `report:` · `badge=…live=` 값 출력 · FATAL 0(우리 프로세스만) · `CloudCoachPort.*fallback` 개수(로그인 뒤 0 이 목표 — 로그인 전엔 회차 수만큼 나오는 게 정상) · "다 됐어요" → 채점 지연(ms). 결과는 한 화면 요약뿐, 캡처는 저장하지 않는다.
+`inhouse_check.sh` 합격 기준: **저장소**(`automotive/libs/`·`local.properties` 가 `.gitignore` **자체**에 걸리고 추적 안 됨, 뒤 글자 주석 없음 — jar 복사 직후 `REPO_ONLY=1 bash tools/inhouse_check.sh` 로 기기 없이 먼저) · `RealVehiclePort ready` · `attempt 1 start` · `attempt 2:` · `report:` · `badge=…live=` 값 출력 · FATAL 0(우리 프로세스만) · `CloudCoachPort.*fallback` 개수(로그인 뒤 0 이 목표 — 로그인 전엔 회차 수만큼 나오는 게 정상) · "다 됐어요" → 채점 지연(ms). 결과는 한 화면 요약뿐, 캡처는 저장하지 않는다.
 
 ## 4. 제출(`submission` 브랜치)
 
