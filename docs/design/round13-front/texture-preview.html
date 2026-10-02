@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>그림자·물방울 시안</title>
+<style>
+  :root { --ink:#070827; --paper:#FCFCFA; --peri:#5B60A1; --lav:#E5E6F0; --signal:#F52D48; --muted:#6B6E8A; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#E9E9EE; font-family:"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif; color:var(--ink); }
+  .wrap { padding:28px 32px 40px; }
+  h1 { font-size:20px; font-weight:500; margin:0 0 6px; }
+  .sub { font-size:13px; color:var(--muted); margin:0 0 22px; }
+  .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+  .col h2 { font-size:14px; font-weight:500; margin:0 0 10px; color:var(--peri); letter-spacing:.04em; }
+  .screen { background:var(--paper); border-radius:0; padding:26px 22px 22px; min-height:520px; display:flex; flex-direction:column; gap:18px; }
+  .brand { font-size:11px; letter-spacing:.3em; color:var(--ink); }
+  .eyebrow { font-size:12px; color:var(--muted); }
+  .remark { font-size:18px; line-height:1.4; margin:4px 0 6px; }
+  .btn { display:flex; align-items:center; justify-content:center; height:64px; border-radius:999px; background:var(--signal); color:#fff; font-size:19px; letter-spacing:.02em; position:relative; overflow:hidden; }
+  .link { font-size:15px; text-decoration:underline; text-underline-offset:5px; color:var(--ink); margin-top:10px; }
+  .cards { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:4px; }
+  .card { background:var(--lav); padding:16px 14px 14px; min-height:96px; position:relative; overflow:hidden; border-radius:6px; }
+  .card.sel { background:var(--ink); color:var(--paper); }
+  .card .t { font-size:15px; }
+  .card .d { font-size:11px; color:var(--muted); margin-top:6px; }
+  .card.sel .d { color:#C9CBE0; }
+  .verdict { background:var(--ink); color:var(--paper); padding:14px 16px; border-radius:6px; position:relative; overflow:hidden; }
+  .verdict .row { display:flex; justify-content:space-between; font-size:14px; padding:5px 0; }
+  .verdict .row span:last-child { color:#A9ADE0; }
+  .chip { display:inline-block; font-size:12px; padding:6px 12px; border-radius:999px; background:var(--lav); margin-right:6px; position:relative; overflow:hidden; }
+  .chip.on { background:var(--peri); color:#fff; }
+
+  /* A — 살짝 그림자 */
+  .A .btn   { box-shadow:0 6px 14px rgba(245,45,72,.28), 0 1px 2px rgba(7,8,39,.12); }
+  .A .card  { box-shadow:0 4px 10px rgba(7,8,39,.10), 0 1px 2px rgba(7,8,39,.06); }
+  .A .verdict { box-shadow:0 8px 18px rgba(7,8,39,.22); }
+  .A .chip  { box-shadow:0 2px 5px rgba(7,8,39,.10); }
+
+  /* B — 그림자 + 물방울(위쪽 맑은 하이라이트, 아래쪽 살짝 짙음) */
+  .B .btn   { box-shadow:0 6px 14px rgba(245,45,72,.28), 0 1px 2px rgba(7,8,39,.12), inset 0 1px 0 rgba(255,255,255,.45), inset 0 -3px 6px rgba(120,0,20,.18);
+              background:linear-gradient(180deg,#FF4E66 0%, #F52D48 55%, #E8213C 100%); }
+  .B .btn::after, .B .card::after, .B .chip::after { content:""; position:absolute; left:8%; right:8%; top:0; height:46%; border-radius:999px 999px 60% 60%/100% 100% 40% 40%;
+              background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,255,255,0)); pointer-events:none; }
+  .B .card  { box-shadow:0 4px 10px rgba(7,8,39,.10), 0 1px 2px rgba(7,8,39,.06), inset 0 1px 0 rgba(255,255,255,.9), inset 0 -2px 4px rgba(7,8,39,.06);
+              background:linear-gradient(180deg,#EEEFF6 0%, #E5E6F0 100%); }
+  .B .card.sel { background:linear-gradient(180deg,#1A1C45 0%, #070827 100%); box-shadow:0 6px 14px rgba(7,8,39,.28), inset 0 1px 0 rgba(255,255,255,.14); }
+  .B .card::after { height:38%; background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,0)); }
+  .B .card.sel::after { background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0)); }
+  .B .verdict { box-shadow:0 8px 18px rgba(7,8,39,.22), inset 0 1px 0 rgba(255,255,255,.12); background:linear-gradient(180deg,#12143A 0%, #070827 70%); }
+  .B .chip  { box-shadow:0 2px 5px rgba(7,8,39,.10), inset 0 1px 0 rgba(255,255,255,.8); }
+  .B .chip.on { background:linear-gradient(180deg,#6B70B5,#5B60A1); box-shadow:0 2px 6px rgba(91,96,161,.35), inset 0 1px 0 rgba(255,255,255,.35); }
+
+  .note { margin-top:18px; font-size:12px; color:var(--muted); line-height:1.6; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>버튼·카드 질감 시안 — 지금 / A 살짝 그림자 / B 그림자 + 물방울</h1>
+  <p class="sub">색·글자·레이아웃은 그대로(CoachStyle 토큰 5색). 달라지는 것은 면의 질감뿐. 실제 화면은 2560×1268 dp 라 그림자 반경은 이 미리보기의 약 1.7배로 보인다.</p>
+  <div class="grid">
+    <div class="col">
+      <h2>지금 — 평면</h2>
+      <div class="screen">
+        <div class="brand">DRIVE COACH</div>
+        <div class="eyebrow">후면 직각 주차 · 1회차</div>
+        <div class="remark">한 번 다시 넣고 들어갔어요.<br>다음엔 벨트를 먼저 매고 출발해요.</div>
+        <div class="btn">한 번 더 &nbsp;→</div>
+        <div class="link">오늘은 여기까지</div>
+        <div><span class="chip">가이드</span><span class="chip on">힌트</span><span class="chip">평가</span></div>
+        <div class="cards">
+          <div class="card sel"><div class="t">후면 직각 주차</div><div class="d">핸들을 돌리고 천천히 후진</div></div>
+          <div class="card"><div class="t">전면 직각 주차</div><div class="d">앞을 살피며 곧게</div></div>
+        </div>
+        <div class="verdict">
+          <div class="row"><span>한 번 다시 넣고 들어갔어요</span><span>△</span></div>
+          <div class="row"><span>방향이 조금 틀어졌어요</span><span>△</span></div>
+          <div class="row"><span>마무리가 깔끔했어요</span><span>✓</span></div>
+          <div class="row"><span>위험한 순간이 있었어요</span><span style="color:#F52D48">✗</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="col A">
+      <h2>A — 살짝 그림자</h2>
+      <div class="screen">
+        <div class="brand">DRIVE COACH</div>
+        <div class="eyebrow">후면 직각 주차 · 1회차</div>
+        <div class="remark">한 번 다시 넣고 들어갔어요.<br>다음엔 벨트를 먼저 매고 출발해요.</div>
+        <div class="btn">한 번 더 &nbsp;→</div>
+        <div class="link">오늘은 여기까지</div>
+        <div><span class="chip">가이드</span><span class="chip on">힌트</span><span class="chip">평가</span></div>
+        <div class="cards">
+          <div class="card sel"><div class="t">후면 직각 주차</div><div class="d">핸들을 돌리고 천천히 후진</div></div>
+          <div class="card"><div class="t">전면 직각 주차</div><div class="d">앞을 살피며 곧게</div></div>
+        </div>
+        <div class="verdict">
+          <div class="row"><span>한 번 다시 넣고 들어갔어요</span><span>△</span></div>
+          <div class="row"><span>방향이 조금 틀어졌어요</span><span>△</span></div>
+          <div class="row"><span>마무리가 깔끔했어요</span><span>✓</span></div>
+          <div class="row"><span>위험한 순간이 있었어요</span><span style="color:#F52D48">✗</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="col B">
+      <h2>B — 그림자 + 물방울</h2>
+      <div class="screen">
+        <div class="brand">DRIVE COACH</div>
+        <div class="eyebrow">후면 직각 주차 · 1회차</div>
+        <div class="remark">한 번 다시 넣고 들어갔어요.<br>다음엔 벨트를 먼저 매고 출발해요.</div>
+        <div class="btn">한 번 더 &nbsp;→</div>
+        <div class="link">오늘은 여기까지</div>
+        <div><span class="chip">가이드</span><span class="chip on">힌트</span><span class="chip">평가</span></div>
+        <div class="cards">
+          <div class="card sel"><div class="t">후면 직각 주차</div><div class="d">핸들을 돌리고 천천히 후진</div></div>
+          <div class="card"><div class="t">전면 직각 주차</div><div class="d">앞을 살피며 곧게</div></div>
+        </div>
+        <div class="verdict">
+          <div class="row"><span>한 번 다시 넣고 들어갔어요</span><span>△</span></div>
+          <div class="row"><span>방향이 조금 틀어졌어요</span><span>△</span></div>
+          <div class="row"><span>마무리가 깔끔했어요</span><span>✓</span></div>
+          <div class="row"><span>위험한 순간이 있었어요</span><span style="color:#F52D48">✗</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="note">A: 바깥 그림자만(버튼은 색 그림자, 카드·판정 패널은 잉크색 10~22%). B: A + 위쪽 맑은 하이라이트(흰색 40~55% → 0)와 아래쪽 살짝 짙은 안쪽 그림자, 바탕에 아주 옅은 세로 그라데이션. 둘 다 평면 기하 도식(Maneuver 왼쪽)과 글자에는 손대지 않는다.</p>
+</div>
+</body>
+</html>
