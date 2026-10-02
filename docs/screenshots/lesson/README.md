@@ -262,6 +262,30 @@ PNG **12장(교체 4·추가 8)** 및 원본 클립 1개. 첫 전체 계약 실�
 
 동일한 최종 APK로 원본 `tools/lesson_shots.sh build/round12-pass-{1,2,3}` **3회 연속 Lesson contract passed**([계약 로그](contract-round12-ui.txt)). 원본 `tools/emu_flow.sh build/round12-flow`도 **PASS·uiautomator clashes 0·리포트까지 110초**([흐름 로그](flow-round12-ui.txt)): 첫 회차 60/55·4구간, 두 번째 100/100·2구간, 필수 벨트/근접/급제동 힌트·좋은 주차 추가 힌트 없음·도어 열림→리포트·배지 0/8/0을 확인했다. 위 고정 캡처의 0/7/1은 시나리오만 직접 재생해 도어 신호를 주지 않은 계측 기록이고, 실제 전체 흐름에서는 도어 신호까지 받아 0/8/0이다.
 
+## 라운드 13 ② 전면 직각 주차 화면 (2026-10-03)
+
+`codex/ui-front-parking` · 기준 `origin/main=11be5f6`(#117 이후) · 외부 CSTDe_API_34 · Fake 기본 배율 1.0. ① 질감 B와 같은 main에서 독립 분기했으므로 아래 캡처는 기존 평면 질감이다. 리뷰·머지 순서는 ① → ② → ③이며, 후면 본편 캡처는 교체하지 않았다.
+
+| 항목 | 추가 캡처 | 확인 내용 |
+|---|---|---|
+| 시트 | `lesson-setup-sheet-front.png` | 현행 전면 카드·중 난이도·힌트 선택과 시작 콜백 유지 |
+| 도식 D/R | `lesson-maneuver-front.png`, `lesson-maneuver-front-fix.png` | 앞 유리가 위, 바퀴와 보조선 함께 회전, 전진 화살표 위·후진 보정 화살표 아래. 뒤 거리 칸·접근성의 뒤 거리 미측정 문구 제거, 기어 칸 폭 재배치 |
+| 잠금 | `lesson-maneuver-front-locked.png` | 5.1 km/h에서 도식·터치 없음, 기존 평면 잠금 유지 |
+| 완료 판정 | `lesson-done-front.png`, `lesson-done-front-good.png` | 실제 전면 시드를 recorder에 재생한 △△✓✗ / ✓✓✓✓, 원좌표 방향의 추정 궤적과 차 뒤쪽이 열린 도착 칸 |
+| 궤적 재생 | `lesson-done-front-replay-d.png`, `lesson-done-front-replay-r.png` | 방향별 외부 2점 레이아웃 fixture에서 D 앞쪽·R 뒤쪽 화살표. 실제 주행 측정 캡처가 아님 |
+| 리포트 | `lesson-report-front.png`, `lesson-details-front.png` | 마지막 회차 판정·배지 0/7/0, 상세의 앞 근접 1회/0회. 뒤 거리 항목 없음 |
+
+PNG 10장을 추가하고 전문·차 방향·U자 열린 쪽·버튼·배지의 잘림을 직접 확인했다. 전면용 `LessonScreenInstrumentation` 묶음은 시트 선택→D/R 도식 픽셀·뒤 거리 노드 없음→잠금→Done 판정 네 줄·도착 칸 픽셀→Report 상세까지 검사한다. 뒤 거리의 MISSING은 전면의 공통 출처 판정에서도 제외하며, 적용 대상 신호의 혼합/누락은 기존대로 따로 표시한다. 시드·타입·필드·판정 규칙·차량·포트·상태기계·build·tools·NEXT는 변경하지 않았다. 새 문자열 리소스·색상 토큰·Bold 추가 0.
+
+후면 도식 오른쪽/왼쪽/중립은 기존 캡처와 앱 영역을 비교해 기하·색상·문구가 동일하며, 차체 가장자리에서 채널값 1 이내의 안티앨리어싱 차이만 확인했다(오른쪽 16픽셀). `lesson-done-locked.png` 앱 영역은 완전히 동일하다. 기존 후면 도착 칸·조향·잠금·숫자·터치 계약도 통과했다.
+
+지정 PowerShell `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` 성공, 단위 테스트 **238개(실패·오류·건너뜀 0)**. [빌드 로그](build-round13-front.txt). 앱 SHA-256 `64232449FA28E60E6BA651228954C88095AD7217E0E4F185D7C847FFB89053F4`, 계측 SHA-256 `E734BB9F8927211B69DC6400DF36F1A710798A1170A4725E38C116E83383EA4B`.
+
+동일 APK로 원본 `tools/lesson_shots.sh build/front-final-{1,2,3}` **3회 연속 Lesson contract passed**([계약 로그](contract-round13-front.txt)). 캡처는 첫 실행 결과다.
+
+원본 `tools/emu_flow.sh build/front-rear-flow` **PASS·clashes 0·113초**([후면 로그](flow-round13-front-rear.txt)): 60/55·4구간 → 100/100·2구간, 필수 벨트/뒤 근접/급제동 힌트·좋은 주차 추가 힌트 0·도어→Report·배지 0/8/0 유지.
+
+전면 전체 흐름도 **PASS·clashes 0·112초**([전면 로그](flow-round13-front.txt)). 시트 `주차 → 전면 직각 주차 → 힌트 → 시작 → 못한 주차 → 다 됐어요 → 한 번 더 → 잘한 주차 → 다 됐어요 → 문 열기` 순서다. 원본 emu_flow를 수정하지 않고 무시되는 `build/front_flow.sh` 사본에 선택 단계·앞 근접 힌트·배지 7 검사만 적용했다. 첫 회차 `attempt 1: skill=60 safety=55 segments=4 badge=AvailabilityBadge(live=0, simulated=7, missing=0)`, 둘째 `attempt 2: skill=100 safety=100 segments=2 badge=AvailabilityBadge(live=0, simulated=7, missing=0)`를 확인했다. 벨트·앞 근접·급제동 힌트 3종과 좋은 주차 추가 힌트 0, 운전석 문 열기→Report가 유지된다. 실제 차량의 방향 없는 근접 경고 해석과 Real 7키 완주는 사내 확인 ⑦ 대상이다.
 
 ## 라운드 13 ① 질감 B (2026-10-03)
 

@@ -42,6 +42,7 @@ import com.moah.hackathon.App
 import com.moah.hackathon.data.SeedCatalog
 import com.moah.hackathon.data.ChecklistScenarios
 import com.moah.hackathon.data.ParkingScenarios
+import com.moah.hackathon.data.FrontParkingScenarios
 import com.moah.hackathon.feature.lesson.*
 import com.moah.hackathon.ports.copilot.CopilotAuth
 import com.moah.hackathon.ports.FakeCoachPort
@@ -65,10 +66,12 @@ import kotlin.math.roundToInt
 /** Platform accessibility checks and screenshots; no additional Gradle dependency is needed. */
 class LessonScreenInstrumentation : Instrumentation() {
     private var seedSpeech = false
+    private var frontOnly = false
     private var textureOnly = false
     override fun onCreate(arguments: Bundle?) {
         super.onCreate(arguments)
         seedSpeech = arguments?.getString("seedSpeech") == "true"
+        frontOnly = arguments?.getString("frontOnly") == "true"
         textureOnly = arguments?.getString("textureOnly") == "true"
         start()
     }
@@ -77,6 +80,11 @@ class LessonScreenInstrumentation : Instrumentation() {
         val activity = startActivitySync(Intent(targetContext, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as MainActivity
         try {
+            if (frontOnly) {
+                frontParking(activity)
+                finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Front contract passed\n") })
+                return
+            }
             if (textureOnly) {
                 textureContract(activity)
                 finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Texture contract passed\n") })
@@ -696,6 +704,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             pass("Checklist Report: seven recorded checks, only belt/ignition timing, good/bad/missing distinction; Done retains two sentences")
             round11Results(activity, record, pathRecord, checklistRecord, report, demo)
             round12Verdicts(activity, report)
+            frontParking(activity)
             seedVerdictOpeners(activity)
             reservationFlow(activity)
             recordMotionClips(activity, moving, pathRecord)
@@ -1432,6 +1441,126 @@ class LessonScreenInstrumentation : Instrumentation() {
         check(abs(dot.exactCenterX() - startX) <= 1 && abs(dot.exactCenterY() - startY) <= 1)
         check(cy < startY) { "Rear-up orientation changed" }
     }
+    private fun frontParking(activity: MainActivity) {
+        val task = SeedCatalog.frontParkingTask
+        var started: Pair<String, LessonMode>? = null
+        render(activity) {
+            SetupScreen(SeedCatalog.demoProfile, SeedCatalog.tasks, SeedCatalog.parkingTask, LessonMode.GUIDE,
+                "함께 연습해요.", null, { id, mode -> started = id to mode })
+        }
+        click("과제·모드 바꾸기")
+        click(task.title)
+        assertSelected(task.title)
+        click("힌트")
+        capture("setup-sheet-front")
+        click("시작")
+        runOnMainSync { check(started == task.id to LessonMode.HINT) }
+        val state = ManeuverDisplayState("3", -450f, "D", null, false,
+            SeedCatalog.frontParkingGuide[3].say, "4/6", null, 1, 2, 18, false,
+            SignalAvailability.SIMULATED, SignalAvailability.SIMULATED, SignalAvailability.MISSING,
+            entryGear = task.parkingSpec.entryGear, rearDistanceApplies = task.parkingSpec.usesRearDistance)
+        for ((gear, name) in listOf("D" to "maneuver-front", "R" to "maneuver-front-fix")) {
+            render(activity) { ManeuverScreen(state.copy(gear = gear), false, false, null, {}, taskTitle = task.title) }
+            check(allText().none { "뒤 거리" in it || "미측정" in it })
+            check(gear in texts())
+            check(allText().any { "앞쪽이 화면 위" in it })
+            assertNoScores()
+            capture(name) { bitmap ->
+                val bounds = Rect().also { rect -> nodes().first {
+                    it.contentDescription?.contains("차량 도식") == true
+                }.getBoundsInScreen(rect) }
+                val bodyTop = bounds.top + bounds.height() * .15f
+                val bodyHeight = bounds.height() * .66f
+                check(bitmap.getPixel(bounds.centerX(), (bodyTop + bodyHeight * .35f).roundToInt()) == CoachColors.Periwinkle.toArgb()) {
+                    "Front windshield must be above centre"
+                }
+                check(bitmap.getPixel(bounds.centerX(), (bodyTop + bodyHeight * .70f).roundToInt()) == CoachColors.Paper.toArgb())
+                val arrow = colorBounds(bitmap, bounds, CoachColors.Signal.toArgb())
+                check(!arrow.isEmpty)
+                check(if (gear == "D") arrow.bottom < bodyTop else arrow.top > bodyTop + bodyHeight) {
+                    "Chevron does not follow gear $gear: $arrow"
+                }
+            }
+        }
+        render(activity) { ManeuverScreen(state.copy(speed = "5.1"), true, false, null, {}, taskTitle = task.title) }
+        check(nodes().none(::hasTouchAction))
+        check(allText().none { "뒤 거리" in it || "차량 도식" in it })
+        capture("maneuver-front-locked")
+        val coach = FakeCoachPort(RemarkPool(SeedCatalog.remarks, kotlin.random.Random(7)))
+        fun attempt(good: Boolean, index: Int): AttemptRecord {
+            val registry = SignalRegistry(task.parkingSpec.keys, simulated = true)
+            val recorder = ParkingRecorder(registry, task.parkingSpec.keys)
+            recorder.onDelta(0L, mapOf(task.parkingSpec.keys.single { signalName(it) == "운전석 도어" } to "false"))
+            (if (good) FrontParkingScenarios.good else FrontParkingScenarios.bad).steps.forEach {
+                recorder.onDelta((it.atSeconds * 1000).toLong(), it.values)
+            }
+            val score = recorder.score()!!
+            val verdict = recorder.verdict(targetHeadingDeg = task.parkingSpec.targetHeadingDeg)
+            return AttemptRecord(index, task.id, LessonMode.HINT, score, null,
+                runBlocking { coach.remark(task, score, null, SeedCatalog.demoProfile, index, verdict) }, 0,
+                path = recorder.path(), verdict = verdict)
+        }
+        val bad = attempt(false, 1)
+        val good = attempt(true, 2)
+        for ((record, name) in listOf(bad to "done-front", good to "done-front-good")) {
+            render(activity) { DoneScreen(task, record.index, record, null, {}, {}) }
+            Thread.sleep(3_000)
+            check(texts().containsAll(verdictLines(record.verdict).map { it.text }))
+            val marks = if (record == good) listOf("✓", "✓", "✓", "✓") else listOf("△", "△", "✓", "✗")
+            check(texts().filter { it in listOf("✓", "△", "✗", "—") } == marks)
+            assertNoDoneMetrics()
+            capture(name) { bitmap -> assertFrontArrival(activity, bitmap, record.path) }
+        }
+        // Isolate each replay direction so screenshot timing cannot cross a D/R transition.
+        for (reversing in listOf(false, true)) {
+            val path = listOf(PathPoint(0, 0f, 0f, 0f, reversing),
+                PathPoint(10_000, 0f, if (reversing) -6f else 6f, 0f, reversing))
+            render(activity) { DoneScreen(task, 2, good.copy(path = path), null, {}, {}) }
+            capture(if (reversing) "done-front-replay-r" else "done-front-replay-d") { bitmap ->
+                val bounds = Rect().also { rect -> nodes().first { it.contentDescription == "추정 궤적" }.getBoundsInScreen(rect) }
+                val car = colorBounds(bitmap, bounds, CoachColors.Ink.toArgb())
+                val arrow = colorBounds(bitmap, bounds, CoachColors.Signal.toArgb())
+                check(!car.isEmpty && !arrow.isEmpty)
+                check(if (reversing) arrow.top > car.bottom else arrow.bottom < car.top)
+            }
+        }
+        val report = LessonReport(task, LessonMode.HINT, listOf(bad, good), good.score,
+            "차분히 연습을 마쳤어요.", task, LessonMode.HINT, "같은 감각을 이어 가요.",
+            emptyList(), emptyList(), emptyList())
+        render(activity) { ReportScreen(report, {}) }
+        check("실신호 0 · 시뮬레이션 7 · 미측정 0" in texts())
+        capture("report-front")
+        click("자세히 보기")
+        check(texts().any { "앞 근접 1회" in it } && texts().any { "앞 근접 0회" in it })
+        check(allText().none { "뒤 거리" in it || "뒤 최소" in it })
+        capture("details-front")
+        pass("Front parking: sheet dispatch, front-up windshield, D/R chevrons, no rear-distance text, locked touch zero, four verdicts, rear-open arrival, replay D/R, details and 7-signal badge")
+    }
+
+    private fun assertFrontArrival(activity: MainActivity, bitmap: Bitmap, path: List<PathPoint>) {
+        val bounds = Rect().also { rect -> nodes().first { it.contentDescription == "추정 궤적" }.getBoundsInScreen(rect) }
+        val density = designScale(activity)
+        val viewport = pathViewport(path, bounds.width() / density, bounds.height() / density)
+        val end = path.last()
+        val cx = bounds.left + viewport.x(end.x) * density
+        val cy = bounds.top + viewport.y(end.y) * density
+        val scale = viewport.scale * density
+        val angle = Math.toRadians(-end.headingDeg.toDouble())
+        fun sample(x: Float, y: Float, color: Int): Boolean {
+            val px = (cx + cos(angle) * x - sin(angle) * y).roundToInt()
+            val py = (cy + sin(angle) * x + cos(angle) * y).roundToInt()
+            return (-1..1).any { dx -> (-1..1).any { dy -> bitmap.getPixel(px + dx, py + dy) == color } }
+        }
+        val w = .9f * scale * 1.25f
+        val h = 2.25f * scale * 1.15f
+        for (side in listOf(-1f, 1f)) for (along in listOf(-.7f, 0f, .7f)) {
+            check(sample(side * w, along * h, CoachColors.Periwinkle.toArgb())) { "Front arrival side missing" }
+        }
+        check(sample(0f, -h, CoachColors.Periwinkle.toArgb())) { "Front edge should be closed" }
+        check(!sample(0f, h, CoachColors.Periwinkle.toArgb())) { "Rear edge should be open" }
+        check(sample(0f, -4.5f * scale * .22f, CoachColors.Paper.toArgb())) { "Front-up windshield missing at measured arrival pose" }
+    }
+
     private fun round12Verdicts(activity: MainActivity, baseReport: LessonReport) {
         val task = SeedCatalog.parkingTask
         val coach = FakeCoachPort(RemarkPool(SeedCatalog.remarks, kotlin.random.Random(7)))
