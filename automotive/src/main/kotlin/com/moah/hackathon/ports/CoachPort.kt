@@ -61,6 +61,9 @@ object AdviceRules {
         PROXIMITY("뒤 거리를 조금 더 남겨 보세요."),
         STEERING("핸들을 끝까지 꺾은 채 중립을 조금 늦게 잡아 보세요."),
         SHIFT("전진으로 보정할 때는 핸들을 반대로 돌려 두세요."),
+        // 전면 직각 주차(10/2): 앞으로 들어가므로 보정은 후진, 가까운 쪽은 앞
+        PROXIMITY_FRONT("앞 거리를 조금 더 남겨 보세요."),
+        SHIFT_FRONT("후진으로 보정할 때는 핸들을 반대로 돌려 두세요."),
         SEGMENTS("멈추지 말고 한 번에 조금 더 깊이 들어가 봐요."),
         PARK("다 들어왔으면 주차 기어까지가 마무리예요."),
         KEEP("이 감각 그대로 한 번만 더 해 봐요."),
@@ -81,12 +84,13 @@ object AdviceRules {
                 else -> Advice.KEEP_ORDER
             }
         }
+        val front = task.parkingSpec.entryGear == com.moah.hackathon.vehicle.Gear.DRIVE
         return when {
             m.preDrive.beltBeforeFirstMove == false -> Advice.BELT_FIRST
             m.harshEvents.isNotEmpty() -> Advice.BRAKE
-            (m.proximity?.warnings ?: 0) > 0 -> Advice.PROXIMITY
+            (m.proximity?.warnings ?: 0) > 0 -> if (front) Advice.PROXIMITY_FRONT else Advice.PROXIMITY
             (m.steering?.reversals ?: 0) > rubric.idealReversals -> Advice.STEERING
-            (m.gear?.reverseDriveShifts ?: 0) > rubric.idealShifts -> Advice.SHIFT
+            (m.gear?.reverseDriveShifts ?: 0) > rubric.idealShifts -> if (front) Advice.SHIFT_FRONT else Advice.SHIFT
             m.motion.movingSegments > rubric.idealSegments -> Advice.SEGMENTS
             m.gear?.endedInPark == false -> Advice.PARK
             else -> Advice.KEEP

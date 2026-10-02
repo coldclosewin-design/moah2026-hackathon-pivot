@@ -3,6 +3,7 @@ package com.moah.hackathon.feature.lesson
 import com.moah.hackathon.ports.SpeechPriority
 import com.moah.hackathon.scoring.HarshKind
 import com.moah.hackathon.scoring.ParkingMetrics
+import com.moah.hackathon.vehicle.Gear
 
 data class Hint(val text: String, val priority: SpeechPriority)
 
@@ -12,8 +13,12 @@ data class Hint(val text: String, val priority: SpeechPriority)
  * 같은 규칙은 [cooldownMillis] 안에서 한 번만.
  *
  * @param checklist 출발 전 점검 과제면 true — 주차 규칙 대신 점검 규칙(시동보다 벨트 먼저, 움직이지 않기)만 본다.
+ * @param entryGear 주차 과제의 진입 기어([com.moah.hackathon.scoring.ParkingSpec.entryGear], 10/2). 후면(R)이면 보정은 "전진으로", 근접은 "뒤가";
+ *   전면(D)이면 "후진으로"·"앞이". 규칙 자체는 같다.
  */
-class HintRules(private val cooldownMillis: Long = 5_000L, private val checklist: Boolean = false) {
+class HintRules(private val cooldownMillis: Long = 5_000L, private val checklist: Boolean = false, private val entryGear: Gear = Gear.REVERSE) {
+    private val proximityText = if (entryGear == Gear.DRIVE) "앞이 가까워요. 멈추세요." else "뒤가 가까워요. 멈추세요."
+    private val shiftText = if (entryGear == Gear.DRIVE) "후진으로 보정할 때는 핸들을 반대로 돌려 두세요." else "전진으로 보정할 때는 핸들을 반대로 돌려 두세요."
     private var previous: ParkingMetrics? = null
     private val lastFiredAt = HashMap<String, Long>()
 
@@ -50,7 +55,7 @@ class HintRules(private val cooldownMillis: Long = 5_000L, private val checklist
             }
 
             if (grew(metrics.proximity?.warnings, prev?.proximity?.warnings) || (snapshot.obstacleWarning == true && (snapshot.rearDistanceCm ?: Float.MAX_VALUE) < 40f)) {
-                fire(out, "proximity", nowMillis, "뒤가 가까워요. 멈추세요.", SpeechPriority.URGENT)
+                fire(out, "proximity", nowMillis, proximityText, SpeechPriority.URGENT)
             }
             if (grew(metrics.harshEvents.size, prev?.harshEvents?.size)) {
                 // 급가속과 급제동은 다른 조언 — 마지막 사건의 종류로 고른다(감사 08 A3-06: 전부 "제동" 으로 말하던 것)
@@ -66,7 +71,7 @@ class HintRules(private val cooldownMillis: Long = 5_000L, private val checklist
                 fire(out, "steering", nowMillis, "핸들을 조금 더 유지해 보세요. 되돌리는 횟수가 늘고 있어요.", SpeechPriority.NORMAL)
             }
             if (grew(metrics.gear?.reverseDriveShifts, prev?.gear?.reverseDriveShifts)) {
-                fire(out, "gear", nowMillis, "전진으로 보정할 때는 핸들을 반대로 돌려 두세요.", SpeechPriority.NORMAL)
+                fire(out, "gear", nowMillis, shiftText, SpeechPriority.NORMAL)
             }
             previous = metrics
         }

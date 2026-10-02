@@ -31,6 +31,12 @@ internal data class ManeuverDisplayState(
     val distanceSignal: SignalAvailability,
     /** 과제 유형 — 주차는 도식, 출발 전 점검은 칩 3개. */
     val taskType: TaskType = TaskType.PARKING,
+    /**
+     * 주차 사양(10/2): 진입 기어 — 후면(R)이면 도식은 "뒤가 위", 전면(D)이면 "앞이 위" 로 그린다(화면 몫).
+     * [rearDistanceApplies] 가 false 면 이 과제는 뒤 거리를 쓰지 않는다 — 칸을 "미측정" 으로 그리지 말고 **빼라**.
+     */
+    val entryGear: Gear = Gear.REVERSE,
+    val rearDistanceApplies: Boolean = true,
     /** 출발 전 점검용 현재 값. 신호가 없으면 null(미측정). */
     val belt: Boolean? = null,
     val ignitionOn: Boolean? = null,
@@ -61,7 +67,7 @@ internal fun LessonPhase.Maneuver.toDisplayState() = ManeuverDisplayState(
     speed = if (snapshot.speedKmh.isFinite()) snapshot.speedKmh.coerceAtLeast(0f).roundToInt().toString() else "—",
     steeringDeg = snapshot.steeringDeg?.takeIf { it.isFinite() },
     gear = snapshot.gear?.label(),
-    rearDistanceCm = snapshot.rearDistanceCm?.takeIf { it.isFinite() && it >= 0f },
+    rearDistanceCm = snapshot.rearDistanceCm?.takeIf { it.isFinite() && it >= 0f && task.parkingSpec.usesRearDistance },
     obstacleWarning = snapshot.obstacleWarning == true,
     guideText = guide?.say,
     guideStep = guide?.let { "${it.index + 1}/${it.count}" },
@@ -75,6 +81,8 @@ internal fun LessonPhase.Maneuver.toDisplayState() = ManeuverDisplayState(
     distanceSignal = availability[SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM]
         ?: availability[VssConstants.VEHICLE_ADAS_OBSTACLEDETECTION_ISWARNING] ?: SignalAvailability.MISSING,
     taskType = task.type,
+    entryGear = task.parkingSpec.entryGear,
+    rearDistanceApplies = task.parkingSpec.usesRearDistance,
     belt = snapshot.belt,
     ignitionOn = snapshot.ignitionOn,
     beltSignal = availability[VssConstants.VEHICLE_CABIN_SEAT_ROW1_DRIVERSIDE_ISBELTED] ?: SignalAvailability.MISSING,

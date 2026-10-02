@@ -18,6 +18,25 @@ class ManeuverDisplayStateTest {
     )
 
     @Test
+    fun `front parking spec - entry gear D and the rear distance cell is dropped, not shown as unmeasured`() {
+        // 전면 직각 주차(10/2): 뒤 거리(Fake 전용)를 쓰지 않는 과제. 값이 와도 화면에 주지 않고, 화면은 그 칸을 뺀다
+        val front = SeedCatalog.parkingTask.copy(id = "parking-front", parking = com.moah.hackathon.scoring.ParkingSpec.FRONT_PERPENDICULAR)
+        val snap = VehicleSnapshot().apply(mapOf(
+            VssConstants.VEHICLE_SPEED to "2.0", VssConstants.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR to "1", SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM to "120",
+        ))
+        val s = phase(snap, mapOf(VssConstants.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR to SignalAvailability.SIMULATED)).copy(task = front).toDisplayState()
+        assertEquals(com.moah.hackathon.vehicle.Gear.DRIVE, s.entryGear)
+        assertEquals(false, s.rearDistanceApplies)
+        assertNull(s.rearDistanceCm)
+        assertEquals("D", s.gear)
+        // 후면(기본)은 지금까지와 같다
+        val rear = phase(snap, emptyMap()).toDisplayState()
+        assertEquals(com.moah.hackathon.vehicle.Gear.REVERSE, rear.entryGear)
+        assertTrue(rear.rearDistanceApplies)
+        assertEquals(120f, rear.rearDistanceCm)
+    }
+
+    @Test
     fun `maps current values and progress - never a score`() {
         val snap = VehicleSnapshot().apply(mapOf(
             VssConstants.VEHICLE_SPEED to "2.6", VssConstants.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE to "-450",
