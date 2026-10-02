@@ -12,7 +12,8 @@
 | 개발 언어 | Kotlin 또는 Java (동일 프로젝트 내 혼용 가능) |
 | 최소 SDK | API 29 이상 권장 |
 | 팀 구성 | 1인 팀 |
-| 제출물 | ① Source code (Bitbucket) ② APK (MarketUploader) ③ 시연 영상 |
+| 제출물 | **4종**(9/30 사내 확인): ① Source code (Bitbucket `submission` 브랜치) ② APK (MarketUploader, VEHICLE) ③ 시연 영상 ④ PPT 1장(주최 양식) — ③④ 는 MOAH@mobis.com. 절차는 아래 "제출 절차" |
+| 마감 | **2026-10-09(금)**(10-07 아님 — 9/30 사내 확인). 사외 → 사내 전달은 태그 `inhouse-YYYYMMDD-N`(현재 `inhouse-20261002-3`), 일정은 `docs/NEXT.md` 헤더 |
 
 주의: 공식 "주제 목록 / 평가 기준 / 일정"은 근거 페이지에 단일 항목으로 명시되어 있지 않다. 주최측 공지 및 제출 가이드(pageId 1038298817), 최종자료 제출(1317526558)을 반드시 재확인할 것. 위 "도메인/주제"는 Getting Started 문서의 앱 성격에서 도출한 것이며 규정이 아니다.
 
