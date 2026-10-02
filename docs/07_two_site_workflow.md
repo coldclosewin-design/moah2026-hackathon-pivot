@@ -14,15 +14,17 @@
 ## 2. 사외에서 태그를 따기 전
 
 1. `.\gradlew.bat assembleDebug testDebugUnitTest` 통과(Fake), `bash tools/emu_flow.sh <폴더>` → `result: PASS`.
-2. `git tag inhouse-YYYYMMDD-N && git push origin inhouse-YYYYMMDD-N`. 같은 날 두 번째면 `-2`.
-3. `docs/NEXT.md` 에 "사내에서 확인할 것" 체크리스트(확인 방법·합격 기준)를 적는다.
+2. `git tag -a inhouse-YYYYMMDD-N <커밋> -m "…" && git push origin inhouse-YYYYMMDD-N`. 같은 날 두 번째면 `-2`. 사내에 뭘 보냈는지 짧은 `-N` 으로 부르면 날짜가 다른 `-3` 끼리 섞이니 문서에는 전체 이름으로 쓴다. **현재 전달 태그 `inhouse-20261002-3` = `194a6d4`**.
+3. 번들(public clone 이 막힐 때의 대안): 메인 체크아웃이 `main` 을 잡고 있어 `main` 을 못 올리므로 태그 커밋에 `inhouse/base-YYYYMMDD-N` 브랜치를 만들고 `HEAD` 를 그리로 옮겨 `git bundle create build/moah2026-YYYYMMDD-N.bundle HEAD inhouse-YYYYMMDD-N inhouse/base-YYYYMMDD-N` → 빈 폴더에 clone 테스트(태그·`REPO_ONLY=1 bash tools/inhouse_check.sh`·매니페스트). 절차 상세는 `docs/06` 0절.
+4. `docs/NEXT.md` 에 "사내에서 확인할 것" 체크리스트(확인 방법·합격 기준)를 적고, `docs/INTEGRATION.md` 헤더·A 절의 기준 태그를 맞춘다.
 
 ## 3. 사내 세션(순서대로)
 
 ```bash
 # 코드
-git fetch && git checkout inhouse-YYYYMMDD-N
+git fetch && git checkout inhouse-YYYYMMDD-N                     # 첫 세션은 public clone 또는 번들(docs/06 1절)
 cp <사내 jar> automotive/libs/mobis.framework.core.jar          # gitignore
+REPO_ONLY=1 bash tools/inhouse_check.sh                          # 기기 없이 .gitignore 검사만 → PASS (저장소만)
 echo "mobis.vss.jar=automotive/libs/mobis.framework.core.jar" >> local.properties   # 추적 안 됨 — 이 한 줄이 Real 빌드
 ./gradlew assembleDebug                                          # 로그 첫 줄 "mobis.vss: jar … → USE_FAKE_VSS=false"
 # 기기
@@ -34,7 +36,7 @@ adb logcat -G 16M
 bash tools/inhouse_check.sh
 ```
 
-로그인 함정: AI 코치는 device code 방식이라 패널의 `AI 연결` 뒤 GitHub 에서 코드를 넣고 **Authorize 까지** 눌러야 한다(15분 만료). OAuth 는 device-protected 저장소라 `install -r` 뒤에도 남는다.
+로그인 함정: AI 코치는 device code 방식이라 패널의 `AI 연결` 뒤 GitHub 에서 코드를 넣고 **Authorize 까지** 눌러야 한다(15분 만료). OAuth 는 device-protected 저장소라 `install -r` 뒤에도 남게 설계했다 — **사내 확인은 아직**(NEXT 확인 항목 ③. 검증 #3 에서는 토큰 저장 위치가 바뀐 뒤라 1회 재로그인 → `state=Ready`).
 
 `inhouse_check.sh` 합격 기준: **저장소**(`automotive/libs/`·`local.properties` 가 `.gitignore` **자체**에 걸리고 추적 안 됨, 뒤 글자 주석 없음 — jar 복사 직후 `REPO_ONLY=1 bash tools/inhouse_check.sh` 로 기기 없이 먼저) · `RealVehiclePort ready` · `attempt 1 start` · `attempt 2:` · `report:` · `badge=…live=` 값 출력 · FATAL 0(우리 프로세스만) · `CloudCoachPort.*fallback` 개수(로그인 뒤 0 이 목표 — 로그인 전엔 회차 수만큼 나오는 게 정상) · "다 됐어요" → 채점 지연(ms). 결과는 한 화면 요약뿐, 캡처는 저장하지 않는다.
 
