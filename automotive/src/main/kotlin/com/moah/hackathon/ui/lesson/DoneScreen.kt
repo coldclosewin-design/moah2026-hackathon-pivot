@@ -13,6 +13,7 @@ import com.moah.hackathon.feature.lesson.AttemptRecord
 import com.moah.hackathon.feature.lesson.Task
 import com.moah.hackathon.feature.lesson.TaskType
 import com.moah.hackathon.ui.CoachColors
+import com.moah.hackathon.ui.CoachTexture
 
 @Composable
 internal fun DoneScreen(task: Task, attempt: Int, record: AttemptRecord, subtitle: String?,
@@ -28,7 +29,7 @@ internal fun DoneScreen(task: Task, attempt: Int, record: AttemptRecord, subtitl
         Box(Modifier.fillMaxSize()) {
             Row(Modifier.fillMaxSize()) {
                 if (task.type == TaskType.CHECKLIST) {
-                    Column(Modifier.fillMaxHeight().fillMaxWidth(.38f).background(CoachColors.Ink)
+                    Column(Modifier.fillMaxHeight().fillMaxWidth(.38f).surfaceTexture(CoachColors.Ink, CoachTexture.Panel)
                         .padding(start = 120.dp, end = 72.dp, top = 96.dp, bottom = 52.dp)) {
                         Eyebrow("출발 전 점검", color = CoachColors.Paper)
                         Column(Modifier.weight(1f).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(40.dp, Alignment.CenterVertically)) {

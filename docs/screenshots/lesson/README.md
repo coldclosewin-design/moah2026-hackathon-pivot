@@ -286,3 +286,25 @@ PNG 10장을 추가하고 전문·차 방향·U자 열린 쪽·버튼·배지의
 원본 `tools/emu_flow.sh build/front-rear-flow` **PASS·clashes 0·113초**([후면 로그](flow-round13-front-rear.txt)): 60/55·4구간 → 100/100·2구간, 필수 벨트/뒤 근접/급제동 힌트·좋은 주차 추가 힌트 0·도어→Report·배지 0/8/0 유지.
 
 전면 전체 흐름도 **PASS·clashes 0·112초**([전면 로그](flow-round13-front.txt)). 시트 `주차 → 전면 직각 주차 → 힌트 → 시작 → 못한 주차 → 다 됐어요 → 한 번 더 → 잘한 주차 → 다 됐어요 → 문 열기` 순서다. 원본 emu_flow를 수정하지 않고 무시되는 `build/front_flow.sh` 사본에 선택 단계·앞 근접 힌트·배지 7 검사만 적용했다. 첫 회차 `attempt 1: skill=60 safety=55 segments=4 badge=AvailabilityBadge(live=0, simulated=7, missing=0)`, 둘째 `attempt 2: skill=100 safety=100 segments=2 badge=AvailabilityBadge(live=0, simulated=7, missing=0)`를 확인했다. 벨트·앞 근접·급제동 힌트 3종과 좋은 주차 추가 힌트 0, 운전석 문 열기→Report가 유지된다. 실제 차량의 방향 없는 근접 경고 해석과 Real 7키 완주는 사내 확인 ⑦ 대상이다.
+
+## 라운드 13 ① 질감 B (2026-10-03)
+
+`codex/texture-b` · 기준 `origin/main=11be5f6`(#117 이후) · 외부 CSTDe_API_34 2560×1440 · Fake 기본 배율 1.0. [발주서 ①](../../handoffs/2026-10-03_codex_ui_round13.md)의 면 질감만 적용했다.
+
+| 대상 | 교체·추가 캡처 | 확인 |
+|---|---|---|
+| 카드·선택 칩 | 교체 [과제 시트](lesson-setup-sheet.png) | READY 카드 10%·y 6·blur 16, 칩 10%·y 3·blur 8. 선택 칩은 Periwinkle 색 그림자, 선택 카드 하이라이트 14%. 준비 중 카드와 글자만 있는 카테고리 메뉴는 기존 표현 유지 |
+| 주 버튼·판정 | 교체 [Done](lesson-done.png), [Report](lesson-report.png) | 버튼 Signal 28%·y 10·blur 22, 판정 Ink 22%·y 12·blur 28와 위선 Paper 12%. 네 판정의 문구·기호·색 유지 |
+| 점검 패널 | 교체 [점검 Done](lesson-done-checklist.png) | 일곱 줄과 배치·색을 유지하며 패널 면에만 같은 효과 |
+| 눌림 | 추가 [누른 버튼](lesson-texture-button-pressed.png) | 실제 포인터 DOWN 중 외부 그림자 농도가 절반, CANCEL은 콜백 0회 |
+| 잠금 | 추가 [평면 잠금](lesson-texture-locked-flat.png) | 잠금 레이어는 원래 Ink 단색·터치 0. 기존 잠금 PNG는 교체하지 않음 |
+
+효과 값은 `CoachStyle.CoachTexture` 한 곳에 모았다. 블러 마스크는 크기가 바뀔 때만 캐시하고 눌림은 그리는 알파만 바꾼다. 하이라이트 영역은 버튼·칩 높이의 46%, 카드 38% 안이며 글자에 닿기 전에 투명해진다. 글자 뒤는 기존 Signal 그대로여서 Paper/Signal 대비 **3.820:1**을 유지한다. 면 아래쪽만 Ink 6%(카드·칩)·18%(버튼)의 얕은 안쪽 그림자다. 바탕색을 바꾸는 추가 그라데이션은 넣지 않았다. 선택 카드는 발주서의 Ink 표기와 달리 현행 Periwinkle이므로, 색 불변 조건을 우선해 그대로 유지했다. 새 글자·리소스·글자 크기·도식·시연 패널 변경 없음.
+
+지정 PowerShell 빌드 `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` 성공, 단위 테스트 **235개(실패·오류·건너뜀 0)**. [빌드 로그](build-texture-b.txt). 같은 최종 APK에서 수정 없는 `tools/lesson_shots.sh build/texture-final-{1,2,3}` **3회 연속 Lesson contract passed**([계약 로그](contract-texture-b.txt)). 초기 검증에서 기존 단색 윗면 검사와 새 검사 좌표가 각각 실패했으며, D7 상한 검사와 글자 옆 배경 좌표로 수정 후 위 세 실행을 다시 했다.
+
+앱 SHA-256 `2E33CB4C66302B5378253680FA6A82B2406501A166DFBA9B5F74D540D1F73971`, 계측 SHA-256 `8DF71A2805D5DF7E1577BF1827E1B29B451EFD37E94BC7DC05F77419FE437D78`. 최종 6장 모두 첫 PASS 실행에서 가져왔다. 조향 가이드·Done 잠금은 기존 PNG와 앱 영역 픽셀이 동일하다. Maneuver 잠금의 차이는 기존 PNG의 옛 시드 문장 `돌리세요`와 현재 main의 `돌려 주세요` 한 곳이며 잠금 배경·도식 비노출·조작 0은 그대로다. 중간 진단 실행의 Report PNG는 판정 글리프가 빠진 프레임이라 사용하지 않았고, 최종 첫 실행의 네 줄이 모두 보이는 캡처를 확인했다.
+
+차량·포트·채점·상태기계·데이터·빌드 파일·tools·NEXT 변경 없음. 사내 디스플레이에서 질감이 적절한지는 라운드 13 머지 후 다음 태그의 재검증 ⑦ 대상이다.
+
+원본 `bash tools/emu_flow.sh build/texture-flow` **PASS·uiautomator clashes 0·리포트까지 112초**([흐름 로그](flow-texture-b.txt)). 못한 주차 60/55·4구간 → 잘한 주차 100/100·2구간, 필수 벨트/뒤 근접/급제동 힌트 세 종류·좋은 주차 추가 힌트 0·도어→리포트·배지 0/8/0을 유지했다.

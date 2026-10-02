@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.moah.hackathon.R
 import com.moah.hackathon.feature.lesson.*
 import com.moah.hackathon.ui.CoachColors
+import com.moah.hackathon.ui.CoachTexture
 
 /** Category navigation and the footer stay fixed; the reservation action opens a separate sheet layer. */
 @Composable
@@ -121,7 +122,9 @@ private fun TaskBay(task: Task, chosen: Boolean, modifier: Modifier, onClick: ()
     // Planned bays have disabled semantics and no click action, including through their children.
     val action = if (task.isReady) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier.semantics { disabled() }
     Box(modifier.then(action).semantics(mergeDescendants = true) { selected = chosen }) {
-        Box(Modifier.matchParentSize().padding(bottom = 32.dp).background(background))
+        Box(Modifier.matchParentSize().padding(bottom = 32.dp).then(
+            if (task.isReady) Modifier.surfaceTexture(background, if (chosen) CoachTexture.SelectedCard else CoachTexture.Card)
+            else Modifier.background(background)))
         Canvas(Modifier.fillMaxSize()) {
             val bottom = size.height - 32.dp.toPx()
             if (chosen) {

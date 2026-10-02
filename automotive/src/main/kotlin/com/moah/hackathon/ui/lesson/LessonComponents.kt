@@ -4,6 +4,8 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -36,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.moah.hackathon.ui.CoachColors
 import com.moah.hackathon.ui.CoachType
+import com.moah.hackathon.ui.CoachTexture
 import com.moah.hackathon.vehicle.SignalAvailability
 
 @Composable
@@ -121,8 +124,11 @@ internal fun ResultLockedScreen() {
 @Composable
 internal fun PrimaryPill(label: String, onClick: () -> Unit, modifier: Modifier = Modifier, driver: Boolean = false) {
     val dimensions = if (driver) Modifier.widthIn(min = 720.dp).height(140.dp) else Modifier.heightIn(min = 120.dp)
-    Button(onClick, modifier.then(dimensions), shape = RoundedCornerShape(100),
-        colors = ButtonDefaults.buttonColors(containerColor = CoachColors.Signal, contentColor = CoachColors.Paper),
+    val interactions = remember { MutableInteractionSource() }
+    val pressed = interactions.collectIsPressedAsState()
+    Button(onClick, modifier.then(dimensions).surfaceTexture(CoachColors.Signal, CoachTexture.Button,
+        pill = true, pressed = { pressed.value }), shape = RoundedCornerShape(100), interactionSource = interactions,
+        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent, contentColor = CoachColors.Paper),
         contentPadding = PaddingValues(horizontal = 48.dp, vertical = 24.dp)) {
         LessonText(label, 40, CoachColors.Paper, bold = true)
         Spacer(Modifier.width(32.dp))
@@ -154,7 +160,8 @@ internal fun PosterRule(modifier: Modifier = Modifier, color: Color = CoachColor
 
 @Composable
 internal fun SelectionChip(label: String, chosen: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier.width(220.dp)) {
-    Box(modifier.height(96.dp).background(if (chosen) CoachColors.Periwinkle else CoachColors.Lavender)
+    Box(modifier.height(96.dp).surfaceTexture(if (chosen) CoachColors.Periwinkle else CoachColors.Lavender,
+        if (chosen) CoachTexture.SelectedChip else CoachTexture.Chip)
         .clickable(role = Role.RadioButton, onClick = onClick).semantics { selected = chosen }
         .padding(horizontal = 4.dp), contentAlignment = Alignment.Center) {
         LessonText(label, 40, if (chosen) CoachColors.Paper else CoachColors.Ink, maxLines = 1)
