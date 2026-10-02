@@ -89,7 +89,7 @@ private fun CategoryChoice(type: TaskType, expanded: Boolean, ready: Boolean, mo
     val color = when {
         expanded -> CoachColors.Signal
         ready -> CoachColors.Periwinkle
-        else -> CoachColors.Periwinkle.copy(alpha = .6f)
+        else -> CoachColors.Muted
     }
     Column(modifier.clickable(role = Role.Tab, onClick = onClick).semantics { selected = expanded },
         horizontalAlignment = Alignment.CenterHorizontally) {

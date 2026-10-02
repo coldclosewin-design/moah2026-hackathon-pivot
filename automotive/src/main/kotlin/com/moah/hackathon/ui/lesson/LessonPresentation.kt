@@ -47,9 +47,9 @@ internal fun supportedMode(task: Task, mode: LessonMode) =
     mode.takeIf(task::supports) ?: LessonMode.entries.first(task::supports)
 
 internal fun setupProposal(type: TaskType) = when (type) {
-    TaskType.CHECKLIST -> "시동 켜기 전,\n순서를 익혀볼까요?"
+    TaskType.CHECKLIST -> "시동 켜기 전,\n순서를 익혀 볼까요?"
     TaskType.KNOWLEDGE -> "정차 중이니\n머리로 풀어 볼까요?"
-    TaskType.PARKING -> "오늘은 가볍게,\n주차부터 해볼까요?"
+    TaskType.PARKING -> "오늘은 가볍게,\n주차부터 해 볼까요?"
     TaskType.DRIVING -> "오늘은 천천히,\n함께 달려 볼까요?"
 }
 

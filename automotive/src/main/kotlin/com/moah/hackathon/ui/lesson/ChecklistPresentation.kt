@@ -53,19 +53,29 @@ internal fun checklistResults(score: ParkingScore): List<ChecklistResult> {
         ignition == null || brake == null -> null
         else -> brake
     }
+    val doorCheck = measured(V.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN, pre.doorClosedBeforeIgnition)
+    val beltCheck = if (belt == true) pre.beltBeforeIgnition else belt
+    val gearCheck = measured(V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR, score.metrics.gear?.endedInPark)
+    fun detail(passed: Boolean?, yes: String, no: String, unknown: String = "확인할 수 없어요") = when (passed) {
+        true -> yes; false -> no; null -> unknown
+    }
+    fun light(label: String, key: String, checked: Boolean?): ChecklistResult {
+        val passed = measured(key, checked)
+        return ChecklistResult(label, passed, detail(passed, "켜짐 확인", "켜짐 확인 안 됨"))
+    }
     return listOf(
-        ChecklistResult("도어", measured(V.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN, pre.doorClosedBeforeIgnition), "시동 전 닫힘"),
-        ChecklistResult("안전벨트", if (belt == true) pre.beltBeforeIgnition else belt,
+        ChecklistResult("도어", doorCheck, detail(doorCheck, "시동 전 닫힘", "시동 때 문 열림", "순서를 확인할 수 없어요")),
+        ChecklistResult("안전벨트", beltCheck,
             listOfNotNull(pre.beltOnMillis?.takeIf { belt != null }?.let { "벨트 ${it / 1000}초" },
-                when (pre.beltBeforeIgnition.takeIf { belt != null }) {
-                    true -> "벨트 먼저"; false -> "시동 먼저"; null -> "시동 전 착용"
-                }).joinToString(" · ")),
-        ChecklistResult("기어", measured(V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR, score.metrics.gear?.endedInPark), "기어 P로 마침"),
+                detail(beltCheck, "벨트 먼저", if (belt == false) "벨트 착용 확인 안 됨" else "시동 먼저",
+                    "순서를 확인할 수 없어요")).joinToString(" · ")),
+        ChecklistResult("기어", gearCheck, detail(gearCheck, "기어 P로 마침", "기어 P로 마치지 않음")),
         ChecklistResult("브레이크 / 시동", ignitionCheck,
-            pre.ignitionOnMillis?.takeIf { ignition != null }?.let { "시동 ${it / 1000}초 · 브레이크 밟고 시동" }
-                ?: "브레이크 밟고 시동"),
-        ChecklistResult("좌 지시등", measured(V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING, pre.leftIndicatorChecked), "켜 보기"),
-        ChecklistResult("우 지시등", measured(V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING, pre.rightIndicatorChecked), "켜 보기"),
-        ChecklistResult("비상등", measured(V.VEHICLE_BODY_LIGHTS_HAZARD_ISSIGNALING, pre.hazardChecked), "켜 보기"),
+            listOfNotNull(pre.ignitionOnMillis?.takeIf { ignition != null }?.let { "시동 ${it / 1000}초" },
+                detail(ignitionCheck, "브레이크 밟고 시동", if (ignition == false) "시동 확인 안 됨" else "브레이크 확인 안 됨",
+                    "순서를 확인할 수 없어요")).joinToString(" · ")),
+        light("좌 지시등", V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING, pre.leftIndicatorChecked),
+        light("우 지시등", V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING, pre.rightIndicatorChecked),
+        light("비상등", V.VEHICLE_BODY_LIGHTS_HAZARD_ISSIGNALING, pre.hazardChecked),
     )
 }

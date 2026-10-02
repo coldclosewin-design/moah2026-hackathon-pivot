@@ -30,8 +30,12 @@ import com.moah.hackathon.ui.CoachColors
 private enum class ReportPage { SUMMARY, DETAILS, CERTIFICATE }
 
 @Composable
-internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit) {
+internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit, locked: Boolean = false) {
     var page by rememberSaveable(report) { mutableStateOf(ReportPage.SUMMARY) }
+    if (locked) {
+        ResultLockedScreen()
+        return
+    }
     PosterSurface {
         Row(Modifier.fillMaxSize()) {
             RecordGraphic(report.attempts.size, Modifier.weight(.38f).fillMaxHeight())
@@ -39,19 +43,21 @@ internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit) {
                 verticalArrangement = Arrangement.spacedBy(28.dp)) {
                 when (page) {
                     ReportPage.SUMMARY -> {
-                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
+                        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.Center) {
                             Eyebrow("오늘의 기록")
                             Spacer(Modifier.height(28.dp))
-                            Headline(driverReportSummary(report.summary), Modifier.weight(1f, fill = false), size = 72)
+                            ResultHeadline(driverReportSummary(report.summary), Modifier.fillMaxWidth().heightIn(max = 520.dp))
                             Spacer(Modifier.height(32.dp))
                             LessonText("${report.task.title} · ${report.mode.label}", 40)
-                            Spacer(Modifier.height(40.dp))
-                            PrimaryPill(stringResource(R.string.lesson_restart), onRestart, Modifier.widthIn(min = 600.dp))
-                            Spacer(Modifier.height(24.dp))
-                            Row(horizontalArrangement = Arrangement.spacedBy(64.dp)) {
-                                TextAction("자세히 보기", { page = ReportPage.DETAILS })
-                                TextAction("진단서", { page = ReportPage.CERTIFICATE })
+                            if (report.best.missingSignals.isNotEmpty() || report.unverifiedGuideSteps.isNotEmpty()) {
+                                Spacer(Modifier.height(32.dp))
+                                ReportLimitations(report)
                             }
+                        }
+                        PrimaryPill(stringResource(R.string.lesson_restart), onRestart, driver = true)
+                        Row(horizontalArrangement = Arrangement.spacedBy(64.dp)) {
+                            TextAction("자세히 보기", { page = ReportPage.DETAILS })
+                            TextAction("진단서", { page = ReportPage.CERTIFICATE })
                         }
                         ReportProvenance(report)
                     }
@@ -66,7 +72,7 @@ internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit) {
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically) {
                             TextAction("돌아가기", { page = ReportPage.SUMMARY })
-                            PrimaryPill(stringResource(R.string.lesson_restart), onRestart)
+                            PrimaryPill(stringResource(R.string.lesson_restart), onRestart, driver = true)
                         }
                     }
                 }
@@ -112,6 +118,13 @@ private fun ReportProvenance(report: LessonReport) {
             LessonText(badgeText(report.best.badge), 32, CoachColors.Periwinkle)
             LessonText(if (report.task.type == TaskType.CHECKLIST) "출발 전 점검을 돌아봤어요." else "주차 과정만 측정했어요.", 32, CoachColors.Muted)
         }
+    }
+}
+
+/** Long missing-signal/guide lists share the body scroll, leaving actions and provenance fixed. */
+@Composable
+private fun ReportLimitations(report: LessonReport) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         if (report.best.missingSignals.isNotEmpty()) {
             LessonText("이 신호는 이 차에서 받지 못했어요", 32, CoachColors.Muted)
             LessonText(report.best.missingSignals.map(::signalName).distinct().joinToString(" · "), 32, CoachColors.Muted)
@@ -164,6 +177,7 @@ private fun DetailsContent(report: LessonReport, modifier: Modifier) {
         }
         PosterRule()
         LessonText("다음엔 ${report.nextTask.title} · ${report.nextMode.label} — ${report.nextReason}", 40)
+        ReportLimitations(report)
     }
 }
 

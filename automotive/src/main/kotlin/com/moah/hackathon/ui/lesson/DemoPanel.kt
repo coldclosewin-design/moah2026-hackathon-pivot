@@ -40,10 +40,14 @@ internal fun DemoPanel(scenarios: List<Scenario>, playback: ScenarioPlayback?, o
     val play: (String) -> Unit = { id -> expansion.value = false; onPlay(id) }
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         val toggleLabel = stringResource(R.string.demo_toggle)
-        Box(Modifier.align(Alignment.End).size(64.dp, 32.dp).clip(RoundedCornerShape(100))
-            .background(if (expansion.value) CoachColors.Periwinkle else CoachColors.Lavender)
-            .clickable { expansion.value = !expansion.value }
-            .semantics { contentDescription = toggleLabel; role = Role.Button })
+        Box(Modifier.align(Alignment.End).size(64.dp, 32.dp)) {
+            // Keep the visual and rail layout fixed. The 88 dp target starts at the window top.
+            Box(Modifier.requiredSize(88.dp).offset(y = 4.dp)
+                .clickable { expansion.value = !expansion.value }
+                .semantics { contentDescription = toggleLabel; role = Role.Button })
+            Box(Modifier.size(64.dp, 32.dp).clip(RoundedCornerShape(100))
+                .background(if (expansion.value) CoachColors.Periwinkle else CoachColors.Lavender))
+        }
         if (expansion.value) {
             Eyebrow("시뮬레이션 신호", color = CoachColors.Periwinkle)
             scenarios.forEach { scenario -> DemoButton(scenario.title, { play(scenario.id) }) }
