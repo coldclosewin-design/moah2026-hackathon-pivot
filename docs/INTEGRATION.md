@@ -1,32 +1,22 @@
 # INTEGRATION.md — 사내 수렴 체크리스트 & 가정 로그
 
-사내 첫날의 전체 순서(clone → 스위치 → 빌드 → 신호 확인 → 제출)는 [06_inhouse_migration.md](06_inhouse_migration.md). 이 문서는 그 중 체크 항목·가정·요청의 원장이다.
+사내 세션의 전체 순서(clone → 설정 한 줄 → 빌드 → `inhouse_check.sh` → 제출)는 [06_inhouse_migration.md](06_inhouse_migration.md)·[07_two_site_workflow.md](07_two_site_workflow.md) §3. 이 문서는 그 중 **체크 항목(A)·가정 로그(B)·요청(C)의 원장**이다.
 
-외부에선 **컴파일 정확성**만 보장된다. 아래는 사내 에뮬에서만 확인 가능하니, 외부 개발 중 가정을 적어두고 사내 첫날 순서대로 검증한다.
+**기준 태그 `inhouse-20261002-3` = `194a6d4`(10/2 밤)**. 사내 검증은 세 번 했다 — 이관 1차(9/29~30, B 9/30 [inhouse]·[hybrid]·[ai]) · 검증 #2(10/1, 태그 `inhouse-20261001-2`, B 10/1 [inhouse]) · **검증 #3(10/2, 태그 `inhouse-20261001-3`, B 10/2 [inhouse] — Real 전부 PASS)**. 외부에선 컴파일 정확성과 Fake 전체 흐름만 보장되므로, 외부 개발 중 가정은 B 절에 적고 사내에서 A 절 순서대로 확인한다. 관찰은 **사람이 옮긴 요지만**(사내 소스·캡처·로그 원문 금지, 내부 호스트명 없이).
 
-## A. 사내 첫날 체크리스트 (순서대로)
+## A. 사내 세션 체크리스트 (순서대로 · ✅ = 검증 #1~#3 에서 확인됨, ⬜ = 다음 재검증 `inhouse-20261002-3` 에서)
 
-- [ ] 사내 템플릿 clone (`moah_template_app`) → 외부 코드 이식 (모듈명 `automotive` 동일)
-- [ ] `automotive/build.gradle.kts`의 `vssApi`를 시스템 jar로 교체, `USE_FAKE_VSS` → `"false"`
-  ```kotlin
-  // val vssApi: Any = project(":vss-stub")
-  val vssApi: Any = files("/system/framework/mobis.framework.core.jar")
-  buildConfigField("boolean", "USE_FAKE_VSS", "false")
-  ```
-  (`vssApi`는 `compileOnly`와 `testImplementation` 양쪽에 쓰인다. 사내에서 단위 테스트가 jar 경로를 못 읽으면 `testDebugUnitTest`는 건너뛴다.)
-  `settings.gradle.kts`의 `include(":vss-stub")`도 제거(또는 모듈 삭제) — 스텁과 실물 동시 활성 시 duplicate class
-- [ ] `./gradlew assembleDebug` 컴파일 통과 (스텁 시그니처 불일치가 있으면 여기서 드러남 → `docs/02_vss_api_contract.md` 갱신)
-- [ ] `VSSManager.getInstance()` 가 null 아님 (`adb shell service list | grep vss`)
-- [ ] 내가 사용한 `VssConstants` 경로가 실제 존재 (오타 시 조용히 무시됨) — pageId 1323873443 대조
-- [ ] 신호 흐름 확인: `[앱] --setVSS--> [Databroker] <--WS--> [Signal Simulator] --TCP--> [3D Emulator]` (`adb forward 8090`)
-- [ ] 도어 예제: `Vehicle.Cabin.Door.Row1.DriverSide.IsOpen` SET/GET 동작
-- [ ] **B층 키 — 주차 8 · 출발 전 점검 12**(`ParkingRecorder.KEYS`·`CHECKLIST_KEYS`, 9/28): 회차 시작 로그 `attempt 1 start … missing=[…]` 를 적어 온다. 든 키마다 pageId 1323873443 에서 비슷한 이름을 찾아 `VssConstants.java` 문자열만 교정(상수명 유지). 기어 인코딩·조향 부호가 다르면 `VssGear.kt`. 리포트 배지 `실신호 N` 숫자 메모
-- [ ] Signal Simulator 로 조향각·기어를 넣어 도식 칩이 "실신호" 로 바뀌는지, 없는 신호는 패널 시나리오가 채우는지(Hybrid)
-- [ ] 실제 값 포맷 (예: 속도 `"3.0"` vs `"3"`, 정차 시 `0`), 업데이트 주기/스레드 타이밍이 Fake와 다르지 않은지
-- [ ] getVSS/setVSS 호출부가 백그라운드 스레드인지 (ANR 점검)
-- [ ] 구독 해제(`unsubscribeVSS`)가 onPause/onDestroy에서 호출되는지 (메모리 누수)
-- [ ] Cloud Copilot 인증 방식·엔드포인트 확인 → `CoachTransport` 구현체 하나 → `App.kt` 의 `transport = null` 교체 (`copilot_config.json` push 가 필요하면 그때)
-- [ ] APK 빌드 → MarketUploader 제출, 소스 Bitbucket push, 시연 영상 녹화
+- [x] **코드**: public 저장소 clone → `git checkout inhouse-20261002-3`(막히면 번들 `build/moah2026-20261002-3.bundle` 반입 — clone 이 `inhouse/base-20261002-3` 을 바로 체크아웃). 사내 템플릿에 얹는 방식(docs/06 §1 B)은 대안일 뿐, 9/30~10/2 세 번 모두 필요 없었다
+- [ ] **jar 복사 직후** `REPO_ONLY=1 bash tools/inhouse_check.sh` → `PASS (저장소만)`(#100, 10/2 밤 추가 — 검증 #3 에서 `.gitignore` 뒤 글자 주석 때문에 jar 가 `??` 로 보였던 것을 잡는다. 사내에서 처음 돌리는 것)
+- [x] **스위치 = 설정 한 줄**: `local.properties` 에 `mobis.vss.jar=automotive/libs/mobis.framework.core.jar` → `./gradlew assembleDebug` 로그 첫 줄 `mobis.vss: jar … → USE_FAKE_VSS=false`, 단위 테스트 203(검증 #3 ✅). 코드 변경 0 — 같은 커밋이 사외(Fake)·사내(Real)
+- [x] **APK**: 라벨 "드라이브 코치" · `uses-library-not-required:'mobis.framework'` · versionCode 1 / 1.0.0(검증 #3 ✅ — #2 에서는 `uses-library` 가 빠져 Real 이 Fake 로 폴백했었다, #68)
+- [x] **Real 연결**: `RealVehiclePort ready`(`VSSManager.getInstance()` 비null, 검증 #2·#3 ✅)
+- [x] **B층 키**(`ParkingRecorder.KEYS` 8 · `CHECKLIST_KEYS` 12): 배지 **실신호 7 · 시뮬레이션 1 · 미측정 0**(검증 #2·#3 ✅). 이름 규칙 = 경로 그대로 대문자·밑줄(9/30). ⬜ 시뮬 1 이 어느 키인지는 요약의 `missing=[…]` 줄로(노트에 없었다 — 주차센서일 가능성)
+- [x] **Hybrid**: Fake 조작 write-through·forced 재쓰기 방지·`live +[…]`/`setVSS rejected`(검증 #2 ✅, #70). ⬜ `setVSS rejected` 줄 요지
+- [ ] **판정 네 줄·`자세히 보기` 방향 편차**가 실차 조향각·기어로 말이 되는지(10/2 라운드 12, NEXT 확인 항목 ⑥) — 안 되면 `docs/design/09` V2(방향 미측정)
+- [x] **스레드·안정성**: 우리 앱 FATAL 0 · "다 됐어요" → 채점 2.8 s / 1.4 s(Cloud 왕복 포함, 검증 #3 ✅). 구독 해제는 사외 테스트로만 — 사내 장시간 메모리 관찰은 안 했다
+- [x] **Cloud Copilot**: 전송 계층 #64 · 사내 폴백 0(로그인 후, 검증 #3 ✅) · 기기 인증은 재로그인 1회 뒤 `state=Ready`. ⬜ OAuth 가 `install -r` 뒤 유지되는지(③) · ⬜ 총평이 측정 안 하는 항목을 조언하는지(④) · ⬜ TTS 없는 에뮬에서 자막만으로 시연이 읽히는지(⑤)
+- [ ] **제출**(10/7~8): A안 녹화 → `submission` 브랜치(사외 태그 + `inhouse:` 커밋 1개) → MarketUploader(VEHICLE, versionCode +1) → PPT·영상 메일(docs/06 §8 · docs/07 §4)
 
 ## B. 외부 개발 중 가정 로그 (append-only)
 
