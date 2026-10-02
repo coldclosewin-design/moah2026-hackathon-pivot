@@ -3,12 +3,18 @@
 > 목적: 사내 토큰/자원 절약을 위해 개인 PC(외부)에서 최대한 개발한 뒤, 사내 WebIDE에서 최소 수정으로 머지·빌드·시연하기 위한 실전 가이드.
 > 핵심 제약: 데이터는 **외부 → 사내 단방향(inbound only)**. 사내 소스/스켈레톤을 외부로 반출 불가. 외부에서는 문서화된 공개 API 계약만 근거로 개발한다.
 > 작성 근거: 사내 Confluence HACKATHON 스페이스 — Getting Started(1328361635), VehicleAPI Reference(1037767644), Template App(1324683678), 제출 가이드(1038298817). 최종 기준은 항상 원문/주최 공지 우선.
+>
+> **현재 상태(2026-10-02 밤, 태그 `inhouse-20261002-3`)** — 이 문서는 9월 중순의 설계 가이드 전사본이고, 아래 네 가지는 그 뒤 실제로 달라졌다. 현행 절차는 `docs/06_inhouse_migration.md`·`docs/07_two_site_workflow.md`, 사내 검증 결과는 `docs/INTEGRATION.md` 헤더·A 절.
+> ① **스위치는 코드가 아니라 설정**: `local.properties` 의 `mobis.vss.jar=<jar 경로>` 한 줄 + jar 파일(9/30). "build.gradle compileOnly 한 줄 교체 + 플래그"(§0·§5·§6)는 그 전 방식 — 같은 커밋이 사외(Fake)·사내(Real)에서 빌드되며 추적 소스 수정 0(10/2 사내 검증 #3 에서 확인).
+> ② **템플릿 이식(§8.1)은 하지 않았다**: public 저장소를 사내에서 익명 clone 해 그대로 빌드(9/30·10/1·10/2 세 번 모두). 템플릿은 의존성 resolve 가 막힐 때의 대안으로만 남겼다(docs/06 §1 B).
+> ③ **제출물은 4종**(§8.4 의 3종 + PPT 1장, 9/30 사내 확인) — `docs/00` 제출 절차.
+> ④ **AI(§9)는 구현됨**: Cloud Copilot 전송 계층 + GitHub device code 인증(`ports/copilot/`), 사내 로그인 후 폴백 0(10/2). 저장소는 **public**(10/1 확정, 내부 호스트명·소스·jar·캡처 금지).
 
 ## 0. 한 장 요약 (TL;DR)
 
 - 리스크의 정체는 "정보 부족"이 아니라 **"외부에서 실행 불가"** 다. VSS 계약은 완전히 문서화되어 있으니 바이트 단위로 정확한 스텁을 만들 수 있다.
 - 앱 로직을 본인 인터페이스(`VehiclePort`) 뒤로 격리 → 외부에선 `FakeVehiclePort`로 실제 실행/시연, 사내에선 `RealVehiclePort`(VSSManager 어댑터)로 전환.
-- 사내 머지는 **build.gradle의 compileOnly 한 줄 교체 + 주입 플래그 하나**로 끝나도록 설계한다. 앱 본문은 손대지 않는다.
+- 사내 머지는 **build.gradle의 compileOnly 한 줄 교체 + 주입 플래그 하나**로 끝나도록 설계한다. 앱 본문은 손대지 않는다. → (9/30 이후) 그마저 없애 **`local.properties` 한 줄 + jar 파일**이 스위치다. 추적 소스 수정 0.
 - 컴파일 함정(RemoteException 미선언 / 값은 String / 동기 메서드 백그라운드 호출 / getInstance null)을 외부 코드에 미리 박아 둔다.
 - 정책 확인: 사내 소스의 개인 PC 반출/복제가 해커톤 규정상 허용되는지 주최측(FAQ/QNA)에 먼저 확인. 순수 자작 코드를 사내 repo로 push하는 방향이면 이 리스크는 대부분 회피된다.
 
@@ -101,7 +107,7 @@ VehiclePort port = BuildConfig.USE_FAKE_VSS
         : new RealVehiclePort(context);
 ```
 
-효과: 외부에선 `USE_FAKE_VSS=true`로 앱 전체를 실제 실행/시연, 사내 머지 시 (1) build.gradle compileOnly 한 줄 교체 + (2) `USE_FAKE_VSS=false`만 바꾸면 됨. 앱 로직·UI 본문은 손대지 않는다.
+효과: 외부에선 `USE_FAKE_VSS=true`로 앱 전체를 실제 실행/시연, 사내에서는 `local.properties` 의 `mobis.vss.jar=` 한 줄이 (1) `:vss-stub` 제외 + (2) jar `compileOnly` + (3) `USE_FAKE_VSS=false` 를 한꺼번에 켠다(9/30 — 그 전엔 build.gradle 한 줄 교체 + 플래그였다). 앱 로직·UI 본문은 물론 Gradle 파일도 손대지 않는다.
 
 이 저장소에서는 위 원안을 Kotlin으로, 주제에 독립적인 범용 계약(`get/set/observe/dispose`)으로 구현한다. → `automotive/src/main/kotlin/.../vehicle/`
 
@@ -130,7 +136,7 @@ android {
 
 ⚠ 스텁과 실물 시스템 jar를 동시에 compileOnly로 두면 duplicate class가 난다. 반드시 둘 중 **하나만** 활성화(한 줄 교체). `FakeVehiclePort`는 compileOnly가 **아니다** — 외부에서 실제 실행되어야 하므로 일반 `implementation` 소스에 둔다.
 
-이 저장소의 실제 구현(`automotive/build.gradle.kts`)은 Kotlin DSL이며, 스텁/jar 선택을 `val vssApi: Any = …` 변수 한 줄로 묶어 `compileOnly(vssApi)`와 `testImplementation(vssApi)`(JVM 단위 테스트용)에 함께 쓴다. 교체 지점은 여전히 한 줄이다.
+이 저장소의 실제 구현(`automotive/build.gradle.kts`·`settings.gradle.kts`)은 Kotlin DSL이며, 스텁/jar 선택을 `local.properties` 의 `mobis.vss.jar` 키로 읽어 `vssApi` 에 넣고 `compileOnly(vssApi)`와 `testImplementation(vssApi)`(JVM 단위 테스트용)에 함께 쓴다. 키가 있으면 `settings.gradle.kts` 가 `:vss-stub` 을 포함하지 않는다. 빌드 로그 첫 줄 `mobis.vss: jar … → USE_FAKE_VSS=false` 로 확인. 교체 지점은 코드 밖의 설정 한 줄이다(docs/06 §2).
 
 ## 7. 외부에서 검증 불가 → 사내 수렴 체크리스트
 
@@ -138,7 +144,7 @@ android {
 
 ## 8. 머지 · 빌드 · 제출 (사내에서 진행)
 
-### 8.1 템플릿 기반 구조 맞추기 (권장)
+### 8.1 템플릿 기반 구조 맞추기 (대안 — 9/30·10/1·10/2 사내 검증은 전부 public 저장소를 그대로 clone 해 빌드했다. 의존성 resolve 가 막힐 때만, docs/06 §1 B)
 
 ```bash
 git clone ssh://<사내 Bitbucket>/mobis_sw_hackathon/moah_template_app.git
@@ -166,11 +172,12 @@ adb push copilot_config.json /data/local/tmp/copilot_config.json   # Cloud AI �
 adb install automotive/build/outputs/apk/debug/automotive-debug.apk
 ```
 
-### 8.4 제출물 (3종)
+### 8.4 제출물 (4종 — 9/30 사내 확인, 절차는 `docs/00` 제출 절차·`docs/07` §4)
 
-1. **Source code** → 팀별 제공 Bitbucket 프로젝트에 업로드 (`<사내 Bitbucket>/projects/MOBIS_SW_HACKATHON`)
-2. **APK** → WebIDE의 `market_uploader` 실행 → APK 선택 후 제출
+1. **Source code** → 팀별 제공 Bitbucket 프로젝트의 `submission` 브랜치(사외 태그 + 사내 jar 커밋 1개) (`<사내 Bitbucket>/projects/MOBIS_SW_HACKATHON`)
+2. **APK** → WebIDE의 `market_uploader` 실행 → APK 선택 후 제출(카테고리 VEHICLE, 재업로드마다 versionCode +1)
 3. **시연 영상** → 3D 에뮬레이터 연동 동작 녹화 (세부 형식은 주최 공지 확인)
+4. **PPT 1장**(주최 양식, pageId 1317526558) — PPT·영상은 MOAH@mobis.com
 
 ## 9. (선택) 앱 내 AI 기능
 
@@ -192,7 +199,7 @@ adb install automotive/build/outputs/apk/debug/automotive-debug.apk
 3. `VehiclePort` 인터페이스 + `FakeVehiclePort`(실행) + `RealVehiclePort`(어댑터) 작성 (§5)
 4. `BuildConfig.USE_FAKE_VSS=true`로 앱 로직·UI 개발 및 에뮬 실행/시연
 5. 가정은 `INTEGRATION.md`에 계속 기록 (§7)
-6. (사내) 템플릿 clone → 코드 이식 → build.gradle 한 줄 교체 + 플래그 false → 에뮬 검증 → APK/소스/영상 제출
+6. (사내) public 저장소 clone → 태그 체크아웃 → jar 복사 + `local.properties` 한 줄 → `tools/inhouse_check.sh` 합격 → 녹화 → `submission`·APK·영상·PPT 제출(docs/07 §3·§4)
 
 ## 부록 B. 근거 페이지
 
