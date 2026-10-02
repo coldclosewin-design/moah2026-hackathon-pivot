@@ -47,7 +47,7 @@ git clone ssh://<사내 Bitbucket>/mobis_sw_hackathon/moah_template_app.git
 
 2026-09-30 사내 이관 1차 뒤 "두 줄 교체" 를 없앴다. 같은 커밋이 사외(Fake)와 사내(Real)에서 그대로 빌드된다.
 
-1. 사내 jar 를 `automotive/libs/mobis.framework.core.jar` 로 복사한다(`automotive/libs/` 는 gitignore — 절대 커밋하지 않는다). jar 경로는 가이드 문서 기준이고 WebIDE 에서 다르면 `find / -name "mobis.framework*.jar" 2>/dev/null` 로 찾는다.
+1. 사내 jar 를 `automotive/libs/mobis.framework.core.jar` 로 복사한다(`automotive/libs/` 는 gitignore — 절대 커밋하지 않는다. 복사 뒤 `git status` 에 `automotive/libs/` 가 **안 보여야** 정상 — 검증 #3 에서 뒤 글자 주석 때문에 보였던 것은 #96 으로 고침). jar 경로는 가이드 문서 기준이고 WebIDE 에서 다르면 `find / -name "mobis.framework*.jar" 2>/dev/null` 로 찾는다.
 2. `local.properties`(추적 안 됨)에 한 줄:
 
 ```properties
