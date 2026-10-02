@@ -530,13 +530,15 @@ class LessonScreenInstrumentation : Instrumentation() {
             capture("quiz-done")
             pass("Quiz: wrong/correct answer eyebrows and outline, explanations, next/result, stopped quit once before/after answering, locked touch zero, colored keyed comparisons and restart")
 
-            val metrics = ParkingRecorder(SignalRegistry(ParkingRecorder.KEYS, simulated = true)).apply {
+            val badRecorder = ParkingRecorder(SignalRegistry(ParkingRecorder.KEYS, simulated = true)).apply {
                 ParkingScenarios.bad.steps.forEach { onDelta((it.atSeconds * 1000).toLong(), it.values) }
-            }.metrics()!!
+            }
+            val metrics = badRecorder.metrics()!!
             val score = ParkingScore(60, 55, metrics, AvailabilityBadge(0, 7, 1), listOf(ParkingRecorder.KEYS.last()))
             val seedCoach = FakeCoachPort(RemarkPool(SeedCatalog.remarks, kotlin.random.Random(3)))
             val record = AttemptRecord(1, task.id, LessonMode.HINT, score, null,
-                runBlocking { seedCoach.remark(task, score, null, SeedCatalog.demoProfile, 1) }, 0)
+                runBlocking { seedCoach.remark(task, score, null, SeedCatalog.demoProfile, 1, badRecorder.verdict()) }, 0)
+            check(record.remark.startsWith("한 번 다시 넣고 들어갔어요.\n"))
             var again = 0
             var ended = 0
             render(activity) { DoneScreen(task, 1, record, record.remark, { again++ }, { ended++ }, demo) }
@@ -682,6 +684,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             capture("report-checklist-missing")
             pass("Checklist Report: seven recorded checks, only belt/ignition timing, good/bad/missing distinction; Done retains two sentences")
             round11Results(activity, record, pathRecord, checklistRecord, report, demo)
+            seedVerdictOpeners(activity)
             reservationFlow(activity)
             recordMotionClips(activity, moving, pathRecord)
             finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Lesson contract passed\n") })
@@ -690,7 +693,45 @@ class LessonScreenInstrumentation : Instrumentation() {
         }
     }
 
-    /** Separate opt-in run: synthesize every guide/confirmation with the installed Korean TTS. */
+    /** Actual good seed plus an explicit five-segment fixture: four guarded opener strings, existing Done layout. */
+    private fun seedVerdictOpeners(activity: MainActivity) {
+        fun replay(scenario: Scenario) = ParkingRecorder(SignalRegistry(ParkingRecorder.KEYS, simulated = true)).apply {
+            scenario.steps.forEach { onDelta((it.atSeconds * 1000).toLong(), it.values) }
+        }
+        val task = SeedCatalog.parkingTask
+        val good = replay(ParkingScenarios.good)
+        val score = good.score()!!
+        val verdict = good.verdict()!!
+        val coach = FakeCoachPort(RemarkPool(SeedCatalog.remarks, kotlin.random.Random(7)))
+        val seen = mutableSetOf<String>()
+        repeat(2) { index ->
+            val remark = runBlocking { coach.remark(task, score, null, SeedCatalog.demoProfile, index + 1, verdict) }
+            val opener = remark.substringBefore('\n')
+            seen += opener
+            val record = AttemptRecord(index + 1, task.id, LessonMode.HINT, score, null, remark, 0,
+                path = good.path(), verdict = verdict)
+            render(activity) { DoneScreen(task, index + 1, record, null, {}, {}) }
+            Thread.sleep(3_000)
+            assertFullText(activity, remark, "한 번 더")
+            capture(if (opener == "한 번에 들어갔어요.") "done-seed-one-go" else "done-seed-aligned")
+        }
+        check(seen == setOf("한 번에 들어갔어요.", "신호로 추정하면 방향도 맞게 섰어요."))
+
+        // This is a layout fixture, not a third driving scenario. Derive score/verdict from five measured segments.
+        val bad = replay(ParkingScenarios.bad)
+        val badScore = bad.score()!!
+        val manyMetrics = badScore.metrics.copy(motion = badScore.metrics.motion.copy(movingSegments = 5))
+        val manyScore = ParkingScorer.score(manyMetrics, badScore.badge, badScore.missingSignals)
+        val manyVerdict = ParkingVerdicts.of(manyMetrics, bad.path(), 0f, true)
+        val manyRemark = runBlocking { coach.remark(task, manyScore, null, SeedCatalog.demoProfile, 1, manyVerdict) }
+        check(manyRemark.startsWith("여러 번 오가며 들어갔어요.\n"))
+        val many = AttemptRecord(1, task.id, LessonMode.HINT, manyScore, null, manyRemark, 0, verdict = manyVerdict)
+        render(activity) { DoneScreen(task, 1, many, null, {}, {}) }
+        assertFullText(activity, manyRemark, "한 번 더")
+        capture("done-seed-many-fixture")
+        pass("Seed verdict openers: one_go/one_fix/many/aligned come from the seed and fit the existing Done layout")
+    }
+
     /** External layout fixtures only: these do not represent measurements in a real vehicle. */
     private fun round11Results(activity: MainActivity, record: AttemptRecord, pathRecord: AttemptRecord,
         checklistRecord: AttemptRecord, report: LessonReport, demo: @Composable () -> Unit) {

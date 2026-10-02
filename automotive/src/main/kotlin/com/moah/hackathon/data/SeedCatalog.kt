@@ -124,17 +124,22 @@ object SeedCatalog {
 
     /**
      * **서두**만 있다 — 조언 문장은 `AdviceRules` 가 지표에서 고른다(2026-09-27 결정: 운전자 문장에 숫자 없음).
-     * 운전자에게 보여 주는 서두에는 횟수·초·점수·연차 숫자를 넣지 않는다.
+     * 운전자에게 보여 주는 서두에는 숫자를 넣지 않는다. "한 번에/한 번 다시"는 측정된 진입 판정 태그가 있을 때만 쓴다.
      */
     val remarks: List<RemarkTemplate> = listOf(
-        // 점수 밴드가 뒷받침하는 숙련 평가만 말한다. 진입·방향 등 개별 판정 문구는 판정 연계 뒤(C 절).
+        // 판정 문구는 #92의 필수 태그 필터를 거친다. 판정 없음·최근 문구 회피에는 기존 정성 문구를 쓴다.
         // EXCELLENT — 숙련 과정에 대한 긍정
+        RemarkTemplate(ScoreBand.EXCELLENT, setOf("one_go"), "한 번에 들어갔어요."),
+        RemarkTemplate(ScoreBand.EXCELLENT, setOf("aligned"), "신호로 추정하면 방향도 맞게 섰어요."),
         RemarkTemplate(ScoreBand.EXCELLENT, setOf("rusty", "first"), "주차 과정을 능숙하게 이어 갔어요."),
         RemarkTemplate(ScoreBand.EXCELLENT, setOf("rusty"), "주차 동작이 전반적으로 매끄러웠어요."),
         RemarkTemplate(ScoreBand.EXCELLENT, setOf("improved"), "주차 흐름을 잘 이어 갔어요."),
         RemarkTemplate(ScoreBand.EXCELLENT, setOf("any"), "주차 과정이 전반적으로 좋았어요."),
         RemarkTemplate(ScoreBand.EXCELLENT, setOf("any"), "이번 주차의 좋은 감각을 기억해 봐요."),
         // GOOD
+        RemarkTemplate(ScoreBand.GOOD, setOf("one_go"), "한 번에 들어갔어요."),
+        RemarkTemplate(ScoreBand.GOOD, setOf("one_fix"), "한 번 다시 넣고 들어갔어요."),
+        RemarkTemplate(ScoreBand.GOOD, setOf("aligned"), "신호로 추정하면 방향도 맞게 섰어요."),
         RemarkTemplate(ScoreBand.GOOD, setOf("rusty", "first"), "주차 과정을 대체로 잘 이어 갔어요."),
         RemarkTemplate(ScoreBand.GOOD, setOf("first"), "주차 동작에서 좋은 감각이 보였어요."),
         RemarkTemplate(ScoreBand.GOOD, setOf("improved"), "주차 흐름에서 좋은 부분이 보였어요."),
@@ -142,6 +147,8 @@ object SeedCatalog {
         RemarkTemplate(ScoreBand.GOOD, setOf("any"), "주차 동작을 조금 더 다듬으면 좋겠어요."),
         RemarkTemplate(ScoreBand.GOOD, setOf("any"), "잘 이어 간 주차 감각을 기억해 봐요."),
         // OK
+        RemarkTemplate(ScoreBand.OK, setOf("one_fix"), "한 번 다시 넣고 들어갔어요."),
+        RemarkTemplate(ScoreBand.OK, setOf("many"), "여러 번 오가며 들어갔어요."),
         RemarkTemplate(ScoreBand.OK, setOf("rusty", "first"), "주차 동작을 조금 더 익혀 가면 돼요."),
         RemarkTemplate(ScoreBand.OK, setOf("first"), "이번 주차에는 다듬어 볼 부분이 있었어요."),
         RemarkTemplate(ScoreBand.OK, setOf("improved"), "주차 흐름을 차근차근 익혀 가요."),
@@ -149,6 +156,7 @@ object SeedCatalog {
         RemarkTemplate(ScoreBand.OK, setOf("any"), "주차 흐름을 조금 더 다듬어 봐요."),
         RemarkTemplate(ScoreBand.OK, setOf("any"), "주차 과정을 천천히 익혀 가면 돼요."),
         // ROUGH
+        RemarkTemplate(ScoreBand.ROUGH, setOf("many"), "여러 번 오가며 들어갔어요."),
         RemarkTemplate(ScoreBand.ROUGH, setOf("rusty", "first"), "주차 동작을 처음부터 천천히 되짚어 봐요."),
         RemarkTemplate(ScoreBand.ROUGH, setOf("first"), "주차 연습은 천천히 익혀도 괜찮아요."),
         RemarkTemplate(ScoreBand.ROUGH, setOf("any"), "어려웠던 주차 과정을 함께 돌아봐요."),

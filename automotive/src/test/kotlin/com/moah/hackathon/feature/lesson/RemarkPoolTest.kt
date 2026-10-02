@@ -1,6 +1,12 @@
 package com.moah.hackathon.feature.lesson
 
 import com.moah.hackathon.data.SeedCatalog
+import com.moah.hackathon.data.ParkingScenarios
+import com.moah.hackathon.ports.FakeCoachPort
+import com.moah.hackathon.scoring.ParkingRecorder
+import com.moah.hackathon.scoring.ParkingVerdict
+import com.moah.hackathon.vehicle.SignalRegistry
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -62,12 +68,61 @@ class RemarkPoolTest {
     }
 
     @Test
-    fun `every seed opener is one complete polite sentence without counts`() {
+    fun `every seed opener is one complete polite sentence without numbers or unguarded counts`() {
+        val measuredEntryPhrases = mapOf("한 번에 들어갔어요." to "one_go", "한 번 다시 넣고 들어갔어요." to "one_fix")
         SeedCatalog.remarks.forEach { template ->
             val text = template.text
             assertEquals(text, 1, Regex("[.!?]").findAll(text).count())
             assertTrue(text, text.endsWith("요."))
-            assertFalse(text, Regex("\\d|[한두세네] 번|회차|[{}]").containsMatchIn(text))
+            assertFalse(text, Regex("\\d|회차|[{}]").containsMatchIn(text))
+            if (Regex("[한두세네] 번").containsMatchIn(text)) {
+                assertEquals(text, TaskType.PARKING, template.taskType)
+                assertTrue(text, measuredEntryPhrases[text] in template.tags)
+            }
+        }
+    }
+
+    @Test
+    fun `good parking scenario picks the one_go seed line and estimated heading before generic openers`() = runBlocking {
+        val recorder = ParkingRecorder(SignalRegistry(ParkingRecorder.KEYS, simulated = true))
+        ParkingScenarios.good.steps.forEach { recorder.onDelta((it.atSeconds * 1000).toLong(), it.values) }
+        val score = recorder.score()!!
+        val verdict = recorder.verdict()!!
+        assertEquals(ParkingVerdict.Entry.ONE_GO, verdict.entry)
+        val coach = FakeCoachPort(RemarkPool(SeedCatalog.remarks, Random(7)))
+        val openers = (1..2).map { attempt ->
+            coach.remark(SeedCatalog.parkingTask, score, null, SeedCatalog.demoProfile, attempt, verdict).substringBefore('\n')
+        }
+        assertEquals(setOf("한 번에 들어갔어요.", "신호로 추정하면 방향도 맞게 섰어요."), openers.toSet())
+    }
+
+    @Test
+    fun `bad parking scenario picks one_fix rather than a many line from its OK band`() = runBlocking {
+        val recorder = ParkingRecorder(SignalRegistry(ParkingRecorder.KEYS, simulated = true))
+        ParkingScenarios.bad.steps.forEach { recorder.onDelta((it.atSeconds * 1000).toLong(), it.values) }
+        val score = recorder.score()!!
+        val verdict = recorder.verdict()!!
+        assertEquals(ScoreBand.OK, ScoreBand.of(score.skill))
+        val coach = FakeCoachPort(RemarkPool(SeedCatalog.remarks, Random(7)))
+        assertEquals("한 번 다시 넣고 들어갔어요.",
+            coach.remark(SeedCatalog.parkingTask, score, null, SeedCatalog.demoProfile, 1, verdict).substringBefore('\n'))
+    }
+
+    @Test
+    fun `seed verdict claims remain truthful across every band and recent fallback`() {
+        val required = mapOf("한 번에 들어갔어요." to "one_go", "한 번 다시 넣고 들어갔어요." to "one_fix",
+            "여러 번 오가며 들어갔어요." to "many", "신호로 추정하면 방향도 맞게 섰어요." to "aligned")
+        ScoreBand.entries.forEach { band ->
+            val pool = RemarkPool(SeedCatalog.remarks, Random(1))
+            listOf(emptySet(), setOf("one_go"), setOf("one_fix"), setOf("many"), setOf("one_go", "aligned")).forEach { tags ->
+                repeat(12) {
+                    val text = pool.pick(band, tags + setOf("rusty", "first"), emptyMap())
+                    required[text]?.let { assertTrue("$band $tags: $text", it in tags) }
+                }
+            }
+        }
+        listOf(ScoreBand.OK, ScoreBand.ROUGH).forEach { band ->
+            assertEquals("여러 번 오가며 들어갔어요.", RemarkPool(SeedCatalog.remarks).pick(band, setOf("many"), emptyMap()))
         }
     }
 
