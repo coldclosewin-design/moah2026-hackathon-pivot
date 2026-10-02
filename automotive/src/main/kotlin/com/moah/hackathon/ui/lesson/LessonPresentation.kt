@@ -1,6 +1,7 @@
 package com.moah.hackathon.ui.lesson
 
 import com.moah.hackathon.vehicle.SimOnlySignals
+import com.moah.hackathon.vehicle.Gear
 import com.moah.hackathon.feature.lesson.*
 import com.moah.hackathon.scoring.ParkingDelta
 import com.moah.hackathon.scoring.ParkingMetrics
@@ -60,10 +61,11 @@ internal fun briefingHeadline(watch: List<String>): String = when (watch.size) {
     else -> "${watch.first()}부터 ${watch.last()}까지\n순서대로 볼게요."
 }
 
-internal fun parkingDetailLine(metrics: ParkingMetrics): String = buildList {
+internal fun parkingDetailLine(metrics: ParkingMetrics, usesRearDistance: Boolean = true): String = buildList {
     add("조향 왕복 ${metrics.steering?.reversals ?: "미측정"}")
     add("기어 전환 ${metrics.gear?.reverseDriveShifts ?: "미측정"}")
-    add("근접 ${metrics.proximity?.warnings ?: "미측정"}")
+    add(if (usesRearDistance) "근접 ${metrics.proximity?.warnings ?: "미측정"}"
+        else metrics.proximity?.warnings?.let { "앞 근접 ${it}회" } ?: "앞 근접 미측정")
     add("급정지 ${metrics.harshEvents.count { it.kind == HarshKind.BRAKING }}")
     val acceleration = metrics.harshEvents.count { it.kind == HarshKind.ACCELERATION }
     if (acceleration > 0) add("급가속 $acceleration")
@@ -134,21 +136,24 @@ internal fun ManeuverDisplayState.proximityAlert() = obstacleWarning || (rearDis
 internal fun ManeuverDisplayState.commonSignal(): SignalAvailability? {
     val signals = if (taskType == TaskType.CHECKLIST) listOf(doorSignal, beltSignal, gearSignal, brakeSignal,
         ignitionSignal, indicatorLeftSignal, indicatorRightSignal, hazardSignal)
-        else listOf(steeringSignal, gearSignal, distanceSignal)
+        else listOfNotNull(steeringSignal, gearSignal, distanceSignal.takeIf { rearDistanceApplies })
     return signals.first().takeIf { it != SignalAvailability.MISSING && signals.all { value -> value == it } }
 }
 
 internal fun collapsedSignalLabel(signal: SignalAvailability) =
     if (signal == SignalAvailability.SIMULATED) "시뮬레이션 신호" else signalLabel(signal)
 internal fun ManeuverDisplayState.diagramDescription() = buildList {
-    add("차량 도식, 뒤쪽이 화면 위")
+    add(if (entryGear == Gear.DRIVE) "차량 도식, 앞쪽이 화면 위" else "차량 도식, 뒤쪽이 화면 위")
     add("조향각 ${steeringDeg?.let { "${it.roundToInt()}도" } ?: "미측정"}, ${signalLabel(steeringSignal)}")
     add("기어 ${gear ?: "미측정"}, ${signalLabel(gearSignal)}")
     if (gear == "R") add("후진 중")
+    if (entryGear == Gear.DRIVE && gear == "D") add("전진 중")
     if (steeringDeg != null) add("조향 방향 호, 보조선")
-    add(rearDistanceCm?.let { "뒤 ${it.roundToInt()} cm" } ?: "뒤 거리 미측정")
-    add(signalLabel(distanceSignal))
-    if (proximityAlert()) add("뒤가 가까워요")
+    if (rearDistanceApplies) {
+        add(rearDistanceCm?.let { "뒤 ${it.roundToInt()} cm" } ?: "뒤 거리 미측정")
+        add(signalLabel(distanceSignal))
+    }
+    if (proximityAlert()) add(if (rearDistanceApplies) "뒤가 가까워요" else "앞이 가까워요")
 }.joinToString(". ")
 
 // Wheelbase ratio is illustrative, not a measured road-wheel angle. Preserve COVESA's positive-left sign.

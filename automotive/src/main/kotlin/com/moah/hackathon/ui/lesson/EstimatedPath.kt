@@ -26,11 +26,12 @@ import androidx.compose.ui.unit.dp
 import com.moah.hackathon.feature.lesson.AttemptRecord
 import com.moah.hackathon.scoring.PathPoint
 import com.moah.hackathon.ui.CoachColors
+import com.moah.hackathon.vehicle.Gear
 import kotlinx.coroutines.delay
 import kotlin.math.roundToLong
 
 @Composable
-internal fun EstimatedPath(record: AttemptRecord, modifier: Modifier) {
+internal fun EstimatedPath(record: AttemptRecord, modifier: Modifier, entryGear: Gear = Gear.REVERSE) {
     val time = remember(record) { Animatable(0f) }
     LaunchedEffect(record) {
         delay(500)
@@ -42,10 +43,10 @@ internal fun EstimatedPath(record: AttemptRecord, modifier: Modifier) {
             val elapsed = time.value.roundToLong()
             val revealed = pathThroughTime(record.path, elapsed)
             fun position(point: PathPoint) = Offset(viewport.x(point.x).dp.toPx(), viewport.y(point.y).dp.toPx())
-            // Match Maneuver's rear-up convention without changing recorded coordinates or time.
-            rotate(180f, pivot = center) {
+            // Preserve measured coordinates and time; front entry already points screen-up.
+            rotate(if (entryGear == Gear.DRIVE) 0f else 180f, pivot = center) {
                 val arrival = record.path.last()
-                arrivalBay(position(arrival), arrival.headingDeg, viewport.scale.dp.toPx())
+                arrivalBay(position(arrival), arrival.headingDeg, viewport.scale.dp.toPx(), frontEntry = entryGear == Gear.DRIVE)
                 pathLegs(revealed).forEach { leg ->
                     drawPath(Path().apply {
                         leg.points.forEachIndexed { index, point ->
@@ -58,7 +59,8 @@ internal fun EstimatedPath(record: AttemptRecord, modifier: Modifier) {
                 drawCircle(CoachColors.Lavender, 6.dp.toPx(), position(record.path.first()))
                 val current = revealed.last()
                 pathCar(position(current), current.headingDeg, viewport.scale.dp.toPx(), CoachColors.Ink,
-                    reversing = time.isRunning && elapsed < record.path.last().tMillis && current.reversing)
+                    reversing = time.isRunning && elapsed < record.path.last().tMillis && current.reversing,
+                    forward = entryGear == Gear.DRIVE && time.isRunning && elapsed < record.path.last().tMillis && !current.reversing)
                 record.score.metrics.harshEvents.filter { it.tMillis <= elapsed }.forEach { event ->
                     nearestPathPoint(record.path, event.tMillis)?.let { drawCircle(CoachColors.Signal, 10.dp.toPx(), position(it)) }
                 }
@@ -71,11 +73,11 @@ internal fun EstimatedPath(record: AttemptRecord, modifier: Modifier) {
     }
 }
 
-/** The arrival pose defines this illustrative bay; its open edge faces the car's front. */
-private fun DrawScope.arrivalBay(center: Offset, heading: Float, scale: Float) {
+/** The bay opens toward the approach: car front for rear entry, car rear for front entry. */
+private fun DrawScope.arrivalBay(center: Offset, heading: Float, scale: Float, frontEntry: Boolean) {
     val halfWidth = 1.8f * scale * 1.25f / 2
     val halfDepth = 4.5f * scale * 1.15f / 2
-    rotate(-heading, center) {
+    rotate(-heading + if (frontEntry) 180f else 0f, center) {
         drawPath(Path().apply {
             moveTo(center.x - halfWidth, center.y - halfDepth)
             lineTo(center.x - halfWidth, center.y + halfDepth)
@@ -86,7 +88,7 @@ private fun DrawScope.arrivalBay(center: Offset, heading: Float, scale: Float) {
 }
 
 private fun DrawScope.pathCar(center: Offset, heading: Float, scale: Float, color: Color,
-    reversing: Boolean = false) {
+    reversing: Boolean = false, forward: Boolean = false) {
     val width = 1.8f * scale
     val height = 4.5f * scale
     // Compose rotates clockwise; PathPoint heading is counterclockwise from screen-up.
@@ -100,12 +102,13 @@ private fun DrawScope.pathCar(center: Offset, heading: Float, scale: Float, colo
             lineTo(left + width * .78f, top + height * .38f)
             quadraticTo(center.x, top + height * .34f, left + width * .22f, top + height * .38f); close()
         }, CoachColors.Paper)
-        if (reversing) {
-            val rear = center.y + height / 2 + .6f * scale
+        if (reversing || forward) {
+            val direction = if (forward) -1f else 1f
+            val tip = center.y + (height / 2 + .6f * scale) * direction
             drawPath(Path().apply {
-                moveTo(center.x - width * .36f, rear - width * .16f)
-                lineTo(center.x, rear)
-                lineTo(center.x + width * .36f, rear - width * .16f)
+                moveTo(center.x - width * .36f, tip - width * .16f * direction)
+                lineTo(center.x, tip)
+                lineTo(center.x + width * .36f, tip - width * .16f * direction)
             }, CoachColors.Signal, style = Stroke(6.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
         }
         drawPath(Path().apply {

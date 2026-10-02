@@ -9,6 +9,33 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class LessonPresentationTest {
+    @Test fun frontDescriptionOmitsInapplicableDistanceAndKeepsGearDirection() {
+        val front = display(null, true).copy(entryGear = Gear.DRIVE, rearDistanceApplies = false, gear = "D")
+        assertTrue(front.diagramDescription().contains("앞쪽이 화면 위"))
+        assertTrue(front.diagramDescription().contains("전진 중"))
+        assertTrue(front.diagramDescription().contains("앞이 가까워요"))
+        assertFalse(front.diagramDescription().contains("뒤"))
+        assertTrue(front.copy(gear = "R").diagramDescription().contains("후진 중"))
+        assertFalse(front.copy(gear = "P").diagramDescription().contains("전진 중"))
+        assertTrue(display(null).diagramDescription().contains("뒤 거리 미측정"))
+    }
+
+    @Test fun frontCommonSourceIgnoresInapplicableDistanceButKeepsMixedAndMissingSources() {
+        val front = display(null).copy(rearDistanceApplies = false, gearSignal = SignalAvailability.LIVE)
+        assertEquals(SignalAvailability.LIVE, front.commonSignal())
+        assertNull(front.copy(gearSignal = SignalAvailability.SIMULATED).commonSignal())
+        assertNull(front.copy(steeringSignal = SignalAvailability.MISSING).commonSignal())
+        assertNull(front.copy(rearDistanceApplies = true).commonSignal())
+    }
+
+    @Test fun frontDetailsShowWarningCountWithoutInventingADistance() {
+        assertTrue(parkingDetailLine(metrics, false).contains("앞 근접 1회"))
+        assertFalse(parkingDetailLine(metrics, false).contains("뒤"))
+        assertTrue(parkingDetailLine(metrics.copy(proximity = null), false).contains("앞 근접 미측정"))
+        assertTrue(parkingDetailLine(metrics).contains("근접 1"))
+        assertFalse(parkingDetailLine(metrics).contains("앞 근접"))
+    }
+
     @Test fun neutralWheelsAreStraight() {
         assertEquals(0f to 0f, wheelAngles(0f))
     }
