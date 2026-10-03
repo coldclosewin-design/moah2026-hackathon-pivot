@@ -373,3 +373,37 @@ PNG 10장을 추가하고 전문·차 방향·U자 열린 쪽·버튼·배지의
 원본 `tools/emu_flow.sh build/round14-rear-flow` **PASS·clashes 0·112초**([후면 로그](flow-round14-rear.txt)). 첫 회차 60/55·4구간 → 둘째 100/100·2구간, 필수 안전벨트/뒤 근접/급제동 힌트 3종·좋은 주차 추가 힌트 0·도어→Report·배지 0/8/0을 유지했다.
 
 전면 전체 흐름 **PASS·clashes 0·112초**([전면 로그](flow-round14-front.txt)). 시트 `주차 → 전면 직각 주차 → 힌트 → 시작 → 못한 주차 → 다 됐어요 → 한 번 더 → 잘한 주차 → 다 됐어요 → 문 열기` 순서다. 원본 tools는 그대로 두고 무시되는 `build/front_flow.sh` 사본에 과제 선택·앞 근접 힌트·배지 7 검사만 적용했다. `attempt 1: skill=60 safety=55 segments=4 badge=AvailabilityBadge(live=0, simulated=7, missing=0)`, `attempt 2: skill=100 safety=100 segments=2 badge=AvailabilityBadge(live=0, simulated=7, missing=0)` 및 벨트/앞 근접/급제동 필수 힌트·좋은 주차 추가 힌트 0·도어→Report를 확인했다. 기존 두 캡션과 새 전면 캡션이 실제 Done에도 표시된다.
+
+## 라운드 15 Done 상하 여백·작은 차 앞뒤 구분 (2026-10-03)
+
+`codex/ui-round15` · 기준 `origin/main=2b2599b`(#127 이후, 발주 문서 #128 포함) · 외부 CSTDe_API_34 2560×1440 · Fake 기본 배율 1.0. [발주서](../../handoffs/2026-10-03_codex_ui_round15.md)의 두 손질을 하나의 ui PR로 반영했다. D7 질감·D8 카드 배치·기존 색 토큰을 유지하며 새 리소스·테마 토큰은 없다.
+
+| 대상 | 교체 캡처 | 확인 |
+|---|---|---|
+| 후면 Done | [대표 Done](lesson-done.png), [보정 판정](lesson-done-verdict-fix.png), [경계 계측](lesson-done-path-contract.png), [도착 전 칸](lesson-done-arrival-empty.png) | 전체 궤적·도착 칸·회전한 시작 차 윤곽·급제동 점을 포함한 최종 그림의 상하 중앙. 캡션 위 간격 64 dp |
+| 전면 Done | [못한 주차](lesson-done-front.png), [잘한 주차](lesson-done-front-good.png) | 시작/끝 셰브론까지 포함한 중앙. 앞 유리 .78·뒤 유리 .58, 밝은 앞쪽 보닛과 서로 다른 앞뒤 모서리 |
+| 전면 재생 | [D 구간](lesson-done-front-replay-d.png), [R 보정](lesson-done-front-replay-r.png) | 재생 차도 같은 마크. 기존 D 앞/R 뒤 셰브론 위치·진입 방향 유지 |
+| 주차 시트 | [후면 선택](lesson-setup-sheet.png), [전면 선택](lesson-setup-sheet-front.png), [READY fixture](lesson-setup-sheet-ready-contract.png) | 네 카드의 공통 차 마크, 후면은 뒤가 칸 쪽·전면은 앞이 칸 쪽. 240×176 dp 도식의 중앙 유지, 사선 도식은 회전한 선 끝까지 박스에 맞춤 |
+| 시트 전환 | [열기](lesson-setup-morph-strip.png), [닫기](lesson-setup-morph-return-strip.png) | 기존 전환·체크·모드/시작 위치를 유지하며 새 주차 마크 반영 |
+| 다른 Done 조건 | [긴 문구](lesson-done-long.png), [한 번에](lesson-done-seed-one-go.png), [재보정](lesson-done-seed-repeat.png), [방향 미측정](lesson-done-verdict-unknown.png), [신호 없음](lesson-done-verdict-missing.png) | 기존 판정·문구·재생 조건 유지, 차와 캔버스 배치만 공통 반영 |
+| 실제 후면 시연 | [첫 회차](lesson-done-seed-bad.png), [둘째 회차](lesson-done-seed-good.png) | 원본 emu_flow의 60/55 → 100/100 두 회차에서 새 마크 확인 |
+
+PNG **20장 교체**. 앞 여섯 행의 18장은 최종 첫 `lesson_shots` PASS 실행, 마지막 두 장은 이번 원본 후면 흐름에서 가져왔다. 점검 Done·점검 Done 잠금·후면 Done 잠금·전면 Maneuver 잠금·주행/점검/지식 시트의 앱 영역 `(0,76)–(2560,1344)`은 기존 PNG와 픽셀이 같아 교체하지 않았다. 대표 후면·전면 두 Done의 오른쪽 문구/버튼 영역과 아래 판정 영역도 기존과 동일하다. 선택 체크의 Signal 경계는 전후 모두 **x=1000…1061, y=813…874**다(안티앨리어싱 경계 제외).
+
+`SmallCarMark` 하나를 종료 차·재생 차·시작 윤곽·주차 카드 네 곳이 사용한다. 앞 유리 최대 폭은 차폭의 .78, 뒤는 .58이며 앞 1/3 보닛은 Lavender(선택 카드·Ink 차는 Paper 70%)다. 앞/뒤 모서리 반경은 차폭의 .28/.14. 시작점은 현재 main의 12 dp 점에서 발주서가 요청한 Lavender 차 윤곽으로 바꿨다. 윤곽에도 서로 다른 창과 앞뒤 모서리가 있다.
+
+세로 중심은 최종 장면의 실제 그려지는 경계(선 두께·시작 윤곽의 둥근 모서리·급제동 점·도착 칸·전면 셰브론 포함)로 구하며 재생 내내 같은 뷰포트를 사용한다. 가로 맞춤 방식·원좌표·재생 시간은 유지했다. 캔버스 위 64 dp와 캡션 위 64 dp가 같다. 계측은 캔버스 안의 실제 비배경 픽셀을 스캔해 여백을 비교하고 캡션 간격도 검사한다.
+
+| 최종 장면 계측 | 위 / 아래 여백 | 앞 / 뒤 유리 실측 폭 |
+|---|---|---|
+| 후면 고정 궤적 (`lesson-done-path-contract.png`) | **108 / 108 px** | 기존 도착 칸·차 포함 검사 유지 |
+| 전면 못한 주차 | **82 / 82 px** | **51 / 38 px** |
+| 전면 잘한 주차 | **113 / 113 px** | **57 / 43 px** |
+
+지정 PowerShell `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` 성공, 단위 테스트 **242개(실패·오류·건너뜀 0)**. [빌드 로그](build-round15.txt). 새 단위 검사는 끝 셰브론/시작 윤곽·중간 극점의 급제동 점·회전한 비대칭 모서리의 세로 경계를 확인한다. 앱 SHA-256 `C12BCC62E8E2F7CE1681BF24033E0CBA11634ABE6057529D77FBD39A7793F400`, 계측 SHA-256 `18301AAA5FD3E67ADAABF92B659065CC8F5AB1A0365448E629A4FF7D0206F695`.
+
+동일 APK로 수정 없는 원본 `tools/lesson_shots.sh build/round15-{first,second,third}` **3회 연속 Lesson contract passed**([계약 로그](contract-round15.txt)). 기존 본편 라벨 13개·잠금의 숫자/터치 0·판정·퀴즈·예약·질감·카드 계약과 새 여백/유리 폭 계측을 모두 통과했다. `ui/` Bold 0, `Color(0x`는 CoachStyle만 사용한다. 차량·포트·채점·상태기계·데이터·build 파일·tools·NEXT 변경 없음.
+
+원본 `tools/emu_flow.sh build/round15-rear-flow` **PASS·clashes 0·113초**([후면 로그](flow-round15-rear.txt)). 첫 회차 60/55·4구간 → 둘째 100/100·2구간, 필수 안전벨트/뒤 근접/급제동 힌트 3종·좋은 주차 추가 힌트 0·도어→Report·배지 0/8/0이 유지됐다.
+
+전면 전체 흐름 **PASS·clashes 0·115초**([전면 로그](flow-round15-front.txt)). 라운드 13 §2.7의 `주차 → 전면 직각 주차 → 힌트 → 시작 → 못한 주차 → 다 됐어요 → 한 번 더 → 잘한 주차 → 다 됐어요 → 문 열기` 순서다. 원본 tools를 수정하지 않고 무시되는 `build/front_flow.sh` 사본에 과제 선택·앞 근접 힌트·배지 7 검사만 적용했다. 60/55·4구간 → 100/100·2구간, 필수 안전벨트/앞 근접/급제동 힌트·좋은 주차 추가 힌트 0·도어→Report·배지 0/7/0을 확인했다.

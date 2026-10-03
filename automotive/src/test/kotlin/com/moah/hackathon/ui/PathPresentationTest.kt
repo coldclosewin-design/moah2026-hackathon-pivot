@@ -55,11 +55,40 @@ class PathPresentationTest {
         assertTrue(view.y(1f) < view.y(0f))
         assertTrue(view.x(3f + 2.25f) <= 700.01f)
         assertTrue(view.x(-.9f) >= 119.99f)
-        assertTrue(view.y(2.25f) >= 119.99f)
-        assertTrue(view.y(-5f - .9f) <= 880.01f)
+        assertTrue(view.y(2.25f) > 0f)
+        assertTrue(view.y(-5f - .9f) < view.height)
         val short = pathViewport(listOf(point(0, 0f, 0f), point(1, 0f, -.5f)), 820f, 1000f)
         assertTrue(short.scale > view.scale)
         assertEquals(36f, pathViewport(listOf(point(0, 0f, 0f), point(1, 100f, 0f)), 820f, 1000f).scale, 0f)
+    }
+
+    @Test fun verticalFitBalancesTheStartOutlineAndSettledFrontChevron() {
+        val path = listOf(point(0, 0f, 0f, false), point(1, 0f, 6f, false))
+        val view = pathViewport(path, 820f, 700f, frontEntry = true)
+        val top = view.y(6f) - 2.85f * view.scale - 3f
+        val bottom = view.height - (view.y(0f) + 2.25f * view.scale + 1.5f)
+        assertEquals(top, bottom, .001f)
+        assertTrue(top > 0)
+        assertEquals(410f, view.x(0f), .001f)
+    }
+
+    @Test fun verticalFitIncludesHarshDotsAtAnIntermediateExtreme() {
+        val path = listOf(point(0, 0f, 0f), point(1, 2f, 6f), point(2, 4f, 0f))
+        val view = pathViewport(path, 820f, 1000f, harshPoints = listOf(path[1]))
+        val top = view.y(6f) - 10f
+        val bottom = view.height - (view.y(0f) + 2.5875f * view.scale + 2f)
+        assertEquals(top, bottom, .001f)
+        assertTrue(top > 0)
+    }
+
+    @Test fun rotatedStartOutlineUsesDifferentFrontAndRearCornerRadii() {
+        val start = point(0, 0f, 10f, heading = 45f)
+        val path = listOf(start, point(1, 0f, 0f))
+        val scale = 50f
+        val bounds = pathVerticalBounds(path, scale, frontEntry = false)
+        val rootHalf = kotlin.math.sqrt(.5f)
+        val support = ((.9f + 2.25f) * rootHalf - .28f * 1.8f * (2 * rootHalf - 1)) * scale
+        assertEquals(10 * scale + support + 1.5f, bounds.second, .001f)
     }
 
     @Test fun reverseForwardTransitionsShareTheirActualEndpointWithoutGaps() {

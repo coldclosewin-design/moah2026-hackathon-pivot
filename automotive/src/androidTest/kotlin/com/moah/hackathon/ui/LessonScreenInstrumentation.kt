@@ -606,9 +606,10 @@ class LessonScreenInstrumentation : Instrumentation() {
             check(allText().none { "셰브론" in it })
             capture("done-path-contract") { bitmap ->
                 assertArrivalBay(activity, bitmap, path, settled = true)
+                assertPathMargins(activity, bitmap)
             }
             capture("done")
-            pass("Done rear-up arrival bay: present before arrival, Periwinkle sides/rear and open front, settled car corners inside, 12 dp start dot without outline; no chevron or metrics")
+            pass("Done rear-up arrival bay: present before arrival, Periwinkle sides/rear and open front, settled car corners inside, asymmetric starting outline; balanced painted margins; no settled rear chevron or metrics")
             render(activity) { DoneScreen(task, 1, record.copy(path = listOf(path.first(), path.first().copy(y = .49f))), null, {}, {}) }
             check(allText().none { it == "추정 궤적" })
             val checklistRecord = record.copy(taskId = SeedCatalog.predriveTask.id,
@@ -1451,11 +1452,32 @@ class LessonScreenInstrumentation : Instrumentation() {
         val startY = bounds.bottom - viewport.y(start.y) * density
         val startRegion = Rect((startX - .95f * scale).toInt(), (startY - 2.3f * scale).toInt(),
             (startX + .95f * scale).toInt(), (startY + 2.3f * scale).toInt())
-        val dot = colorBounds(bitmap, startRegion, CoachColors.Lavender.toArgb())
-        check(!dot.isEmpty && dot.width() <= 12 * density + 1 && dot.height() <= 12 * density + 1) { "Start outline remains: $dot" }
-        check(abs(dot.exactCenterX() - startX) <= 1 && abs(dot.exactCenterY() - startY) <= 1)
+        val outline = colorBounds(bitmap, startRegion, CoachColors.Lavender.toArgb())
+        check(outline.width() >= 1.7f * scale && outline.height() >= 4.4f * scale) { "Starting car outline missing: $outline" }
         check(cy < startY) { "Rear-up orientation changed" }
     }
+    private fun assertPathMargins(activity: MainActivity, bitmap: Bitmap) {
+        val bounds = Rect().also { rect -> nodes().first { it.contentDescription == "추정 궤적" }.getBoundsInScreen(rect) }
+        val paper = CoachColors.Paper.toArgb()
+        var top = bounds.bottom
+        var bottom = bounds.top
+        for (y in bounds.top until bounds.bottom) for (x in bounds.left until bounds.right) {
+            val pixel = bitmap.getPixel(x, y)
+            if (listOf(0, 8, 16).any { abs(((pixel ushr it) and 255) - ((paper ushr it) and 255)) > 4 }) {
+                top = minOf(top, y)
+                bottom = maxOf(bottom, y)
+            }
+        }
+        val scale = designScale(activity)
+        val above = top - bounds.top
+        val below = bounds.bottom - 1 - bottom
+        check(above > 48 * scale && below > 48 * scale) { "Path mark touches viewport edge: $above / $below" }
+        check(abs(above - below) <= 3 * scale) { "Unbalanced painted margins: $above / $below" }
+        val caption = if ("앞으로 들어간 주차예요." in texts()) "앞으로 들어간 주차예요." else "신호로 추정한 궤적이에요."
+        check(abs(textBounds(caption).top - bounds.bottom - 64 * scale) <= 1) { "Caption gap must match the 64 dp top inset" }
+        pass("Path painted margins: top=$above px, bottom=$below px; caption gap=64 dp")
+    }
+
     private fun cardLayoutContract(activity: MainActivity) {
         val task = SeedCatalog.parkingTask
         render(activity) { SetupScreen(SeedCatalog.demoProfile, SeedCatalog.tasks, task, LessonMode.HINT,
@@ -1606,7 +1628,10 @@ class LessonScreenInstrumentation : Instrumentation() {
             check(texts().filter { it in listOf("✓", "△", "✗", "—") } == marks)
             assertNoDoneMetrics()
             assertFullText(activity, "앞으로 들어간 주차예요.")
-            capture(name) { bitmap -> assertFrontArrival(activity, bitmap, record.path) }
+            capture(name) { bitmap ->
+                assertFrontArrival(activity, bitmap, record.path)
+                assertPathMargins(activity, bitmap)
+            }
         }
         // Isolate each replay direction so screenshot timing cannot cross a D/R transition.
         for (reversing in listOf(false, true)) {
@@ -1637,7 +1662,7 @@ class LessonScreenInstrumentation : Instrumentation() {
     private fun assertFrontArrival(activity: MainActivity, bitmap: Bitmap, path: List<PathPoint>) {
         val bounds = Rect().also { rect -> nodes().first { it.contentDescription == "추정 궤적" }.getBoundsInScreen(rect) }
         val density = designScale(activity)
-        val viewport = pathViewport(path, bounds.width() / density, bounds.height() / density)
+        val viewport = pathViewport(path, bounds.width() / density, bounds.height() / density, frontEntry = true)
         val end = path.last()
         val cx = bounds.left + viewport.x(end.x) * density
         val cy = bounds.top + viewport.y(end.y) * density
@@ -1658,7 +1683,14 @@ class LessonScreenInstrumentation : Instrumentation() {
         }
         check(sample(0f, -h, CoachColors.Periwinkle.toArgb())) { "Front edge should be closed" }
         check(!sample(0f, h, CoachColors.Periwinkle.toArgb())) { "Rear edge should be open" }
-        check(sample(0f, -4.5f * scale * .22f, CoachColors.Paper.toArgb())) { "Front-up windshield missing at measured arrival pose" }
+        check(sample(0f, -4.5f * scale * .1f, CoachColors.Paper.toArgb())) { "Front-up windshield missing at measured arrival pose" }
+        fun windowPixels(localY: Float) = (-(.9f * scale).toInt()..(.9f * scale).toInt()).count {
+            sample(it.toFloat(), localY, CoachColors.Paper.toArgb())
+        }
+        val frontWidth = windowPixels(-4.5f * scale * .12f)
+        val rearWidth = windowPixels(4.5f * scale * .25f)
+        check(frontWidth > rearWidth * 1.2f) { "Front window must be wider: $frontWidth / $rearWidth px" }
+        pass("Small car windows: front=$frontWidth px, rear=$rearWidth px")
         check(sample(0f, -(2.25f + .6f) * scale, CoachColors.Signal.toArgb())) { "Settled front chevron missing" }
         val entrance = CoachColors.Periwinkle.copy(alpha = .4f).compositeOver(CoachColors.Paper).toArgb()
         for (side in listOf(-1f, 1f)) {

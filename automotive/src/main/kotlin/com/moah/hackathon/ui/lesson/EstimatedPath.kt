@@ -10,9 +10,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
@@ -40,7 +38,9 @@ internal fun EstimatedPath(record: AttemptRecord, modifier: Modifier, entryGear:
     }
     Column(modifier.padding(top = 64.dp, bottom = 52.dp)) {
         Canvas(Modifier.weight(1f).fillMaxWidth().clipToBounds().semantics { contentDescription = "추정 궤적" }) {
-            val viewport = pathViewport(record.path, size.width / density, size.height / density)
+            val harshPoints = record.score.metrics.harshEvents.mapNotNull { nearestPathPoint(record.path, it.tMillis) }
+            val viewport = pathViewport(record.path, size.width / density, size.height / density,
+                frontEntry = entryGear == Gear.DRIVE, harshPoints = harshPoints)
             val elapsed = time.value.roundToLong()
             val revealed = pathThroughTime(record.path, elapsed)
             fun position(point: PathPoint) = Offset(viewport.x(point.x).dp.toPx(), viewport.y(point.y).dp.toPx())
@@ -57,7 +57,11 @@ internal fun EstimatedPath(record: AttemptRecord, modifier: Modifier, entryGear:
                     }, if (leg.reversing) CoachColors.Periwinkle else CoachColors.Lavender,
                         style = Stroke(6.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
                 }
-                drawCircle(CoachColors.Lavender, 6.dp.toPx(), position(record.path.first()))
+                val first = record.path.first()
+                rotate(-first.headingDeg, position(first)) {
+                    smallCarMark(position(first), 1.8f * viewport.scale.dp.toPx(), 4.5f * viewport.scale.dp.toPx(),
+                        CoachColors.Lavender, CoachColors.Lavender, CoachColors.Lavender, outline = true)
+                }
                 val settled = elapsed >= record.path.last().tMillis
                 if (entryGear == Gear.DRIVE && settled) initialTravelHeading(record.path)?.let { heading ->
                     val start = position(record.path.first())
@@ -74,6 +78,7 @@ internal fun EstimatedPath(record: AttemptRecord, modifier: Modifier, entryGear:
                 }
             }
         }
+        Spacer(Modifier.height(64.dp))
         Column(Modifier.padding(start = 100.dp, end = 32.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             if (entryGear == Gear.DRIVE) LessonText("앞으로 들어간 주차예요.", 32, CoachColors.Muted)
             LessonText("신호로 추정한 궤적이에요.", 32, CoachColors.Muted)
@@ -108,26 +113,12 @@ private fun DrawScope.pathCar(center: Offset, heading: Float, scale: Float, colo
     val height = 4.5f * scale
     // Compose rotates clockwise; PathPoint heading is counterclockwise from screen-up.
     rotate(-heading, center) {
-        val left = center.x - width / 2
-        val top = center.y - height / 2
-        drawRoundRect(color, Offset(left, top), Size(width, height), CornerRadius(width * .28f))
-        drawPath(Path().apply {
-            moveTo(left + width * .12f, top + height * .24f)
-            quadraticTo(center.x, top + height * .14f, left + width * .88f, top + height * .24f)
-            lineTo(left + width * .78f, top + height * .38f)
-            quadraticTo(center.x, top + height * .34f, left + width * .22f, top + height * .38f); close()
-        }, CoachColors.Paper)
+        smallCarMark(center, width, height, color, CoachColors.Paper, CoachColors.Paper.copy(alpha = .7f))
         if (reversing || forward) {
             val direction = if (forward) -1f else 1f
             val tip = center.y + (height / 2 + .6f * scale) * direction
             pathChevron(Offset(center.x, tip), width, direction)
         }
-        drawPath(Path().apply {
-            moveTo(left + width * .22f, top + height * .72f)
-            quadraticTo(center.x, top + height * .76f, left + width * .78f, top + height * .72f)
-            lineTo(left + width * .87f, top + height * .86f)
-            quadraticTo(center.x, top + height * .91f, left + width * .13f, top + height * .86f); close()
-        }, CoachColors.Paper)
     }
 }
 
