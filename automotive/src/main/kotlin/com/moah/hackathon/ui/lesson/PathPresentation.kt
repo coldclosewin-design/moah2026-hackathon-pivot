@@ -2,6 +2,7 @@ package com.moah.hackathon.ui.lesson
 
 import com.moah.hackathon.scoring.PathPoint
 import com.moah.hackathon.scoring.PathReconstructor
+import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -13,7 +14,8 @@ internal data class PathViewport(val scale: Float, val centerX: Float, val cente
     fun y(meters: Float) = height / 2 - (meters - centerY) * scale
 }
 
-internal fun pathViewport(path: List<PathPoint>, width: Float, height: Float): PathViewport {
+internal fun pathViewport(path: List<PathPoint>, width: Float, height: Float,
+    frontEntry: Boolean = false, harshPoints: List<PathPoint> = emptyList()): PathViewport {
     require(path.isNotEmpty())
     val extent = path.map { it.x to it.y }.toMutableList()
     listOf(path.first(), path.last()).forEach { point ->
@@ -27,7 +29,57 @@ internal fun pathViewport(path: List<PathPoint>, width: Float, height: Float): P
     val bottom = extent.minOf { it.second }; val top = extent.maxOf { it.second }
     val scale = minOf((width - 240f) / (right - left).coerceAtLeast(.1f),
         (height - 240f) / (top - bottom).coerceAtLeast(.1f)).coerceAtLeast(36f)
-    return PathViewport(scale, (left + right) / 2, (top + bottom) / 2, width, height)
+    // Retain the horizontal fit. Centre the final painted scene, including fixed-dp strokes,
+    // so the bay stays anchored while the measured path is replayed.
+    val (paintBottom, paintTop) = pathVerticalBounds(path, scale, frontEntry, harshPoints)
+    return PathViewport(scale, (left + right) / 2, (paintBottom + paintTop) / (2 * scale), width, height)
+}
+
+/** Ratios of the common small mark, independent of Android drawing APIs. */
+internal object SmallCarGeometry {
+    const val FRONT_RADIUS = .28f
+    const val REAR_RADIUS = .14f
+    const val FRONT_WINDOW = .78f
+    const val REAR_WINDOW = .58f
+}
+
+/** Painted vertical bounds in scaled world coordinates (+y up), before the rear-view rotation. */
+internal fun pathVerticalBounds(path: List<PathPoint>, scale: Float, frontEntry: Boolean,
+    harshPoints: List<PathPoint> = emptyList()): Pair<Float, Float> {
+    var bottom = Float.POSITIVE_INFINITY
+    var top = Float.NEGATIVE_INFINITY
+    fun include(y: Float, radius: Float) {
+        bottom = minOf(bottom, y - radius)
+        top = maxOf(top, y + radius)
+    }
+    path.forEach { include(it.y * scale, 3f) } // Round 6 dp path strokes.
+    harshPoints.forEach { include(it.y * scale, 10f) }
+    val start = path.first()
+    val radians = Math.toRadians(start.headingDeg.toDouble())
+    val sine = abs(sin(radians)).toFloat()
+    val cosine = cos(radians).toFloat()
+    val rectangle = (.9f * sine + 2.25f * abs(cosine)) * scale
+    val rounding = (sine + abs(cosine) - 1f) * 1.8f * scale
+    // The support of a rounded rectangle differs at its front and rear corners.
+    val upperRadius = if (cosine >= 0) SmallCarGeometry.FRONT_RADIUS else SmallCarGeometry.REAR_RADIUS
+    val lowerRadius = if (cosine >= 0) SmallCarGeometry.REAR_RADIUS else SmallCarGeometry.FRONT_RADIUS
+    include(start.y * scale + rectangle - rounding * upperRadius, 1.5f)
+    include(start.y * scale - rectangle + rounding * lowerRadius, 1.5f)
+    val end = path.last()
+    val angle = Math.toRadians(end.headingDeg.toDouble())
+    // All four bay corners are painted, including the two on its open edge. The car fits inside.
+    include(end.y * scale, (abs(sin(angle)) * 1.125f + abs(cos(angle)) * 2.5875f).toFloat() * scale + 2f)
+    if (frontEntry) {
+        fun chevron(point: PathPoint, heading: Float, tip: Float) {
+            val a = Math.toRadians(heading.toDouble())
+            for ((x, y) in listOf(0f to tip, -.648f to tip - .288f, .648f to tip - .288f)) {
+                include(point.y * scale + (x * sin(a) + y * cos(a)).toFloat() * scale, 3f)
+            }
+        }
+        chevron(end, end.headingDeg, 2.85f)
+        initialTravelHeading(path)?.let { chevron(start, it, .8f) }
+    }
+    return bottom to top
 }
 
 internal data class PathLeg(val reversing: Boolean, val points: List<PathPoint>)

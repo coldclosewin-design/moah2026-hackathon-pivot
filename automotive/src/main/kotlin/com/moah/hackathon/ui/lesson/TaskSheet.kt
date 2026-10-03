@@ -25,7 +25,6 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
-import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.disabled
@@ -148,7 +147,8 @@ private fun TaskBay(task: Task, chosen: Boolean, modifier: Modifier, onClick: ()
                 val art = Modifier.size(240.dp, 176.dp).alpha(if (task.isReady) 1f else .55f)
                 val ink = if (chosen) CoachColors.Paper else CoachColors.Ink
                 when (task.type) {
-                    TaskType.PARKING -> ParkingTaskDiagram(task.id, ink, background.compositeOver(CoachColors.Paper), art)
+                    TaskType.PARKING -> ParkingTaskDiagram(task.id, ink, background.compositeOver(CoachColors.Paper),
+                        if (chosen) CoachColors.Paper.copy(alpha = .7f).compositeOver(background) else CoachColors.Lavender, art)
                     TaskType.CHECKLIST -> ChecklistTaskDiagram(ink, art)
                     else -> CategoryTaskDiagram(task.type, ink, art)
                 }
@@ -227,54 +227,32 @@ private fun ChecklistTaskDiagram(color: Color, modifier: Modifier) {
     }
 }
 
-/** Static catalogue illustration: body and windows only, with a 160 dp car; no live vehicle data. */
+/** A centred catalogue bay; the rear-entry mark faces its opening, the front-entry mark faces its end. */
 @Composable
-private fun ParkingTaskDiagram(id: String, color: Color, window: Color, modifier: Modifier) {
+private fun ParkingTaskDiagram(id: String, color: Color, window: Color, hood: Color, modifier: Modifier) {
     Canvas(modifier) {
-        val carHeight = 160.dp.toPx()
+        val nominalHeight = 160.dp.toPx()
+        // The diagonal bay also fits the 176 dp art box, including its rotated line ends.
+        val fit = if (id == "parking-angle") minOf(1f,
+            (size.height - 6.dp.toPx()) / (nominalHeight * .8660254f + (nominalHeight * .43f + 40.dp.toPx()) * .5f)) else 1f
+        val carHeight = nominalHeight * fit
         val carWidth = carHeight * .43f
-        val cx = size.width / 2
-        val top = (size.height - carHeight) / 2
+        val center = Offset(size.width / 2, size.height / 2)
+        val halfWidth = carWidth / 2 + 20.dp.toPx() * fit
+        val halfHeight = carHeight / 2
+        val stroke = 4.dp.toPx()
         rotate(if (id == "parking-angle") 30f else 0f) {
-            val left = cx - carWidth / 2 - 20.dp.toPx()
-            val right = cx + carWidth / 2 + 20.dp.toPx()
-            val stroke = 4.dp.toPx()
-            when (id) {
-                "parking-parallel" -> drawLine(color, Offset(right, top), Offset(right, top + carHeight), stroke,
+            if (id == "parking-parallel") {
+                drawLine(color, center + Offset(halfWidth, -halfHeight), center + Offset(halfWidth, halfHeight), stroke,
                     pathEffect = PathEffect.dashPathEffect(floatArrayOf(12.dp.toPx(), 12.dp.toPx())))
-                else -> {
-                    drawLine(color, Offset(left, top), Offset(left, top + carHeight), stroke)
-                    drawLine(color, Offset(right, top), Offset(right, top + carHeight), stroke)
-                    if (id == "parking-front") drawLine(color, Offset(left, top), Offset(right, top), stroke)
-                }
+            } else {
+                for (side in listOf(-1f, 1f)) drawLine(color,
+                    center + Offset(side * halfWidth, -halfHeight), center + Offset(side * halfWidth, halfHeight), stroke)
+                if (id == "parking-front") drawLine(color,
+                    center + Offset(-halfWidth, -halfHeight), center + Offset(halfWidth, -halfHeight), stroke)
             }
-            withTransform({
-                translate(cx - carWidth / 2, top)
-                scale(carWidth / 100f, carHeight / 250f, Offset.Zero)
-            }) {
-                drawPath(Path().apply {
-                    moveTo(25f, 1f); cubicTo(10f, 3f, 6f, 12f, 5f, 28f)
-                    lineTo(5f, 173f); cubicTo(-1f, 210f, 1f, 232f, 15f, 242f)
-                    cubicTo(30f, 253f, 70f, 253f, 85f, 242f)
-                    cubicTo(99f, 232f, 101f, 210f, 95f, 173f); lineTo(95f, 28f)
-                    cubicTo(94f, 12f, 90f, 3f, 75f, 1f); quadraticTo(50f, -2f, 25f, 1f); close()
-                }, color)
-                drawPath(Path().apply {
-                    moveTo(23f, 32f); quadraticTo(50f, 26f, 77f, 32f)
-                    lineTo(74f, 55f); quadraticTo(50f, 60f, 26f, 55f); close()
-                }, window)
-                drawPath(Path().apply {
-                    moveTo(22f, 137f); quadraticTo(50f, 143f, 78f, 137f)
-                    lineTo(86f, 170f); quadraticTo(50f, 190f, 14f, 170f); close()
-                }, window)
-                listOf(false, true).forEach { rightWindow ->
-                    withTransform({ if (rightWindow) { translate(100f, 0f); scale(-1f, 1f, Offset.Zero) } }) {
-                        drawPath(Path().apply {
-                            moveTo(17f, 62f); quadraticTo(24f, 90f, 19f, 126f)
-                            lineTo(11f, 154f); lineTo(11f, 93f); close()
-                        }, window)
-                    }
-                }
+            rotate(if (id == "parking-front") 0f else 180f, center) {
+                smallCarMark(center, carWidth, carHeight, color, window, hood)
             }
         }
     }
