@@ -7,6 +7,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.*
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.intl.LocaleList
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -24,7 +31,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.moah.hackathon.R
 import com.moah.hackathon.feature.lesson.*
@@ -46,10 +52,9 @@ internal fun TaskSheet(tasks: List<Task>, category: TaskType, task: Task?, mode:
                     Modifier.weight(1f).fillMaxHeight()) { onCategory(type) }
             }
         }
-        Spacer(Modifier.height(16.dp))
         LessonText("${taskTypeLabel(category)} 세부 과제", 40)
-        Spacer(Modifier.height(16.dp))
-        BoxWithConstraints(Modifier.fillMaxWidth().height(432.dp)) {
+        // The face is 288 dp art + 144 dp band; reserve the existing 32 dp check overhang.
+        BoxWithConstraints(Modifier.fillMaxWidth().height(464.dp)) {
             val items = groups[category].orEmpty()
             // Four bays fit. Longer categories leave a visible preview of the next bay.
             val width = (maxWidth - 72.dp - if (items.size > 4) 80.dp else 0.dp) / 4
@@ -138,26 +143,70 @@ private fun TaskBay(task: Task, chosen: Boolean, modifier: Modifier, onClick: ()
                 }, CoachColors.Paper, style = Stroke(6.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
             }
         }
-        val hasDiagram = task.type == TaskType.PARKING || task.type == TaskType.CHECKLIST
-        Column(Modifier.fillMaxSize().padding(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 40.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = if (hasDiagram) Arrangement.Top else Arrangement.Center) {
-            if (hasDiagram) {
-                Box(Modifier.fillMaxWidth().height(176.dp), contentAlignment = Alignment.Center) {
-                    if (task.type == TaskType.PARKING) {
-                        ParkingTaskDiagram(task.id, foreground, background.compositeOver(CoachColors.Paper),
-                            Modifier.size(240.dp, 176.dp))
-                    } else ChecklistTaskDiagram(foreground, Modifier.size(240.dp, 176.dp))
+        Column(Modifier.fillMaxSize().padding(bottom = 32.dp)) {
+            Box(Modifier.fillMaxWidth().height(288.dp), contentAlignment = Alignment.Center) {
+                val art = Modifier.size(240.dp, 176.dp).alpha(if (task.isReady) 1f else .55f)
+                val ink = if (chosen) CoachColors.Paper else CoachColors.Ink
+                when (task.type) {
+                    TaskType.PARKING -> ParkingTaskDiagram(task.id, ink, background.compositeOver(CoachColors.Paper), art)
+                    TaskType.CHECKLIST -> ChecklistTaskDiagram(ink, art)
+                    else -> CategoryTaskDiagram(task.type, ink, art)
                 }
-                Spacer(Modifier.height(8.dp))
             }
-            // Include Korean font metrics as well as both 52 sp line boxes; 104 dp ellipsizes a line.
-            Box(Modifier.fillMaxWidth().height(120.dp), contentAlignment = Alignment.Center) {
-                LessonText(task.title, 40, foreground, modifier = Modifier.widthIn(max = if (task.type == TaskType.PARKING) 220.dp else 252.dp),
-                    maxLines = 2, textAlign = TextAlign.Center)
+            Box(Modifier.fillMaxWidth().height(144.dp)) {
+                Box(Modifier.fillMaxWidth().height(1.dp).background(
+                    if (chosen) CoachColors.Paper.copy(alpha = .18f) else CoachColors.Ink.copy(alpha = .08f)))
+                TaskTitleBand(task, foreground, if (chosen) CoachColors.Paper.copy(alpha = .7f) else CoachColors.Muted,
+                    Modifier.fillMaxSize().padding(horizontal = 28.dp))
             }
-            Spacer(Modifier.height(4.dp))
-            LessonText(if (task.isReady) task.difficulty.label else task.status.label, 32, foreground, maxLines = 1)
+        }
+    }
+}
+
+/** Measure before drawing so each title stays on one line and never drops below 36 sp. */
+@Composable
+private fun TaskTitleBand(task: Task, titleColor: Color, detailColor: Color, modifier: Modifier) {
+    val measurer = rememberTextMeasurer()
+    val density = LocalDensity.current
+    val detail = if (task.isReady) task.difficulty.label else task.status.label
+    val style = TextStyle(localeList = LocaleList("ko-KR"))
+    BoxWithConstraints(modifier, contentAlignment = Alignment.Center) {
+        val detailWidth = measurer.measure(AnnotatedString(detail), style.copy(fontSize = 32.sp), softWrap = false).size.width
+        val titleWidth = with(density) { (maxWidth - 8.dp).toPx() } - detailWidth
+        val titleSize = (40 downTo 36).firstOrNull { size ->
+            measurer.measure(AnnotatedString(task.title), style.copy(fontSize = size.sp), softWrap = false).size.width <= titleWidth
+        } ?: 36
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            LessonText(task.title, titleSize, titleColor, modifier = Modifier.weight(1f).alignByBaseline(), maxLines = 1)
+            Spacer(Modifier.width(8.dp))
+            LessonText(detail, 32, detailColor, modifier = Modifier.alignByBaseline(), maxLines = 1)
+        }
+    }
+}
+
+/** Monochrome category marks fill previously empty catalogue art areas without resources or letters. */
+@Composable
+private fun CategoryTaskDiagram(type: TaskType, color: Color, modifier: Modifier) {
+    Canvas(modifier) {
+        val stroke = Stroke(6.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+        if (type == TaskType.DRIVING) {
+            for (side in listOf(-1f, 1f)) drawPath(Path().apply {
+                moveTo(size.width / 2 + side * 64.dp.toPx(), 20.dp.toPx())
+                lineTo(size.width / 2 + side * 84.dp.toPx(), size.height - 20.dp.toPx())
+            }, color, style = stroke)
+            drawLine(color, Offset(size.width / 2, 24.dp.toPx()), Offset(size.width / 2, size.height - 24.dp.toPx()),
+                6.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(20.dp.toPx(), 16.dp.toPx())))
+        } else {
+            val cx = size.width / 2
+            val top = 24.dp.toPx()
+            val bottom = size.height - 24.dp.toPx()
+            for (side in listOf(-1f, 1f)) drawPath(Path().apply {
+                moveTo(cx, top + 12.dp.toPx())
+                quadraticTo(cx + side * 40.dp.toPx(), top - 8.dp.toPx(), cx + side * 80.dp.toPx(), top)
+                lineTo(cx + side * 80.dp.toPx(), bottom - 12.dp.toPx())
+                quadraticTo(cx + side * 40.dp.toPx(), bottom - 20.dp.toPx(), cx, bottom)
+                close()
+            }, color, style = stroke)
         }
     }
 }

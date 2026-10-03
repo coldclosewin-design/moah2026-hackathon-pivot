@@ -342,3 +342,34 @@ PNG 10장을 추가하고 전문·차 방향·U자 열린 쪽·버튼·배지의
 차량·포트·채점·상태기계·데이터·빌드 파일·tools·NEXT 변경 없음. 사내 디스플레이에서 질감이 적절한지는 라운드 13 머지 후 다음 태그의 재검증 ⑦ 대상이다.
 
 원본 `bash tools/emu_flow.sh build/texture-flow` **PASS·uiautomator clashes 0·리포트까지 112초**([흐름 로그](flow-texture-b.txt)). 못한 주차 60/55·4구간 → 잘한 주차 100/100·2구간, 필수 벨트/뒤 근접/급제동 힌트 세 종류·좋은 주차 추가 힌트 0·도어→리포트·배지 0/8/0을 유지했다.
+
+
+## 라운드 14 과제 카드 C 배치·전면 Done 방향 (2026-10-03)
+
+`codex/ui-round14` · 기준 `origin/main=910d720`(#124 이후, 발주 문서 #125 포함) · 외부 CSTDe_API_34 2560×1440 · Fake 기본 배율 1.0. [발주서](../../handoffs/2026-10-03_codex_ui_round14.md)의 두 UI 피드백을 하나의 PR로 구현했다. D7 질감·색 토큰을 재사용하며 차량·포트·채점·상태기계·시드·빌드 파일·tools·NEXT 변경은 없다.
+
+| 대상 | 교체·추가 캡처 | 확인 |
+|---|---|---|
+| 주차 시트 | 교체 [후면 선택](lesson-setup-sheet.png), [전면 선택](lesson-setup-sheet-front.png) | 폭·네 장 배치 유지, 288 dp 그림 면의 중앙 도식, 144 dp 띠의 한 줄 제목·오른쪽 난이도, 1 dp 구분선, 아래 중앙 선택 체크 |
+| 주행 시트 | 교체 [앞 네 카드](lesson-setup-sheet-driving.png), [끝까지 스크롤](lesson-setup-sheet-driving-end.png) | 단색 도로 아이콘, 준비 중 면은 평면·그림 55%, 제목 36–40 sp. 아래 두 항목만 말줄임 |
+| 점검·지식 시트 | 교체 [점검](lesson-setup-sheet-checklist.png), 추가 [지식](lesson-setup-sheet-knowledge.png) | 중앙 점검/책 도식, 점검 제목 40 sp·지식 38 sp, 제목과 난이도 같은 기준선 |
+| 시트 전환 | 교체 [열기 프레임](lesson-setup-morph-strip.png), [닫기 프레임](lesson-setup-morph-return-strip.png) | 기존 400 ms 전환과 첫 프레임 모드/시작 노출, 바뀐 카드 면 |
+| READY fixture | 교체 [가상 READY 네 카드](lesson-setup-sheet-ready-contract.png) | 실제 시드의 준비 중 상태를 바꾸지 않는 계측 fixture. 네 도식과 선택 상태 확인 |
+| 전면 종료 | 교체 [못한 주차](lesson-done-front.png), [잘한 주차](lesson-done-front-good.png) | 끝 차 앞 Signal 셰브론 상시, 첫 이동 방향의 시작 셰브론, 뒤가 열린 칸 입구 양쪽 1/4 점선(Periwinkle 40%), `앞으로 들어간 주차예요.` 추가 |
+| 전면 재생 | 교체 [D 구간](lesson-done-front-replay-d.png), [R 보정](lesson-done-front-replay-r.png) | 기존 D 앞/R 뒤 화살표와 새 입구·캡션. 시작 셰브론은 재생 종료 뒤 표시 |
+
+카드 면 높이는 432 dp이고, 아래 체크의 기존 32 dp 돌출 공간을 포함한 행 높이는 464 dp다. 세부 과제 소제목 위·아래의 기존 16 dp 여백을 회수해 선택 체크·모드·시작/돌아가기의 세로 위치를 보존했다. 카테고리 행은 160 dp를 유지해 펼친 주행 메뉴의 `준비 중`도 온전히 보인다. 좌우 28 dp 안에서 제목은 40→36 sp 범위로 측정하고 난이도/상태는 32 sp로 오른쪽에 둔다.
+
+**제목 폭 예외(발주서 C 절에도 기록):** 주행 `단순 전진 후 정지`는 36 sp 자연 폭 258 dp, `좌회전 방향지시등`은 273 dp로, 각각 가용 폭 219 dp를 넘는다. 카드 폭 378 dp·제목 원문·36 sp 하한을 유지하므로 이 두 준비 중 항목만 한 줄 말줄임이다. 접근성에는 전체 제목이 남는다. 나머지 아홉 제목은 말줄임이 없으며, `일반 도로 코스`는 36 sp·216 dp, 지식은 38 sp·299 dp로 들어간다.
+
+새 계측은 실제 시드 11개 카드의 한 줄·글자 크기·말줄임 예외·기준선·그림 중앙·예약 링크 표시를 검사한다. 전면 계측은 기존 차 앞 유리/열린 뒤쪽/판정 네 줄 검사에 정지 셰브론·입구 점선·첫 이동 방향·캡션을 추가했다. 첫 이동 방향의 단위 테스트는 정지 표본과 차체 방향/기어에 관계없이 실제 좌표 이동을 사용함을 확인한다.
+
+
+후면 `lesson-done.png`와 `lesson-done-locked.png`, 전면 잠금 `lesson-maneuver-front-locked.png`는 기존 PNG와 **앱 영역(0,76)–(2560,1344)의 픽셀이 동일**하여 교체하지 않았다. 선택 체크의 Signal 경계도 변경 전·후 모두 **x=1000…1061, y=813…874**로 정확히 같다(안티앨리어싱 경계 제외). 앱 밖의 시스템 시계는 비교에서 제외했다. 교체·추가한 PNG 13장은 최종 첫 PASS 실행에서 가져왔다.
+지정 PowerShell `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` 성공, 단위 테스트 **239개(실패·오류·건너뜀 0)**. [빌드 로그](build-round14.txt). 앱 SHA-256 `FF3143C85693B291D9682EA0EBA7DAA58BB3254CAFB4D702B439FD67DBE66EA7`, 계측 SHA-256 `CF365F09AE0D0DF1569253CD11B950DAFA6620BDA1BFCA580DD000CB2EB107B7`.
+
+동일 APK로 수정 없는 원본 `tools/lesson_shots.sh build/round14-final5-{1,2,3}` **3회 연속 Lesson contract passed**([계약 로그](contract-round14.txt)). 기존 잠금·판정·10문항 퀴즈·예약·시연 조작 계약과 새 카드/전면 표시 계약을 모두 통과했다. 초기 새 검사에서 TextAction의 여유 단락 폭을 잘림으로 읽던 판정을 실제 글줄 경계로 교정했고, 카드 묶음은 기존 명시적 시계/화면 검사 뒤에서 실행하도록 정리한 뒤 위 세 번을 다시 수행했다.
+
+원본 `tools/emu_flow.sh build/round14-rear-flow` **PASS·clashes 0·112초**([후면 로그](flow-round14-rear.txt)). 첫 회차 60/55·4구간 → 둘째 100/100·2구간, 필수 안전벨트/뒤 근접/급제동 힌트 3종·좋은 주차 추가 힌트 0·도어→Report·배지 0/8/0을 유지했다.
+
+전면 전체 흐름 **PASS·clashes 0·112초**([전면 로그](flow-round14-front.txt)). 시트 `주차 → 전면 직각 주차 → 힌트 → 시작 → 못한 주차 → 다 됐어요 → 한 번 더 → 잘한 주차 → 다 됐어요 → 문 열기` 순서다. 원본 tools는 그대로 두고 무시되는 `build/front_flow.sh` 사본에 과제 선택·앞 근접 힌트·배지 7 검사만 적용했다. `attempt 1: skill=60 safety=55 segments=4 badge=AvailabilityBadge(live=0, simulated=7, missing=0)`, `attempt 2: skill=100 safety=100 segments=2 badge=AvailabilityBadge(live=0, simulated=7, missing=0)` 및 벨트/앞 근접/급제동 필수 힌트·좋은 주차 추가 힌트 0·도어→Report를 확인했다. 기존 두 캡션과 새 전면 캡션이 실제 Done에도 표시된다.
