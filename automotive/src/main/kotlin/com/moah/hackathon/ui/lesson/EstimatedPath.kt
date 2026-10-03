@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -59,8 +60,8 @@ internal fun EstimatedPath(record: AttemptRecord, modifier: Modifier, entryGear:
                 }
                 val first = record.path.first()
                 rotate(-first.headingDeg, position(first)) {
-                    smallCarMark(position(first), 1.8f * viewport.scale.dp.toPx(), 4.5f * viewport.scale.dp.toPx(),
-                        CoachColors.Lavender, CoachColors.Lavender, CoachColors.Lavender, outline = true)
+                    pathSilhouette(position(first), viewport.scale.dp.toPx(),
+                        CoachColors.Lavender, CoachColors.Paper, CoachColors.Paper)
                 }
                 val settled = elapsed >= record.path.last().tMillis
                 if (entryGear == Gear.DRIVE && settled) initialTravelHeading(record.path)?.let { heading ->
@@ -70,7 +71,7 @@ internal fun EstimatedPath(record: AttemptRecord, modifier: Modifier, entryGear:
                     }
                 }
                 val current = revealed.last()
-                pathCar(position(current), current.headingDeg, viewport.scale.dp.toPx(), CoachColors.Ink,
+                pathCar(position(current), current.headingDeg, viewport.scale.dp.toPx(),
                     reversing = time.isRunning && elapsed < record.path.last().tMillis && current.reversing,
                     forward = entryGear == Gear.DRIVE && (settled || (time.isRunning && !current.reversing)))
                 record.score.metrics.harshEvents.filter { it.tMillis <= elapsed }.forEach { event ->
@@ -107,17 +108,28 @@ private fun DrawScope.arrivalBay(center: Offset, heading: Float, scale: Float, f
     }
 }
 
-private fun DrawScope.pathCar(center: Offset, heading: Float, scale: Float, color: Color,
+private fun DrawScope.pathSilhouette(center: Offset, scale: Float, body: Color, panel: Color, glass: Color) {
+    val width = VehicleSilhouetteGeometry.WIDTH * scale
+    val height = VehicleSilhouetteGeometry.LENGTH * scale
+    // Shared source is rear-up; a heading-zero PathPoint faces screen-up.
+    rotate(180f, center) {
+        withTransform({
+            translate(center.x - width / 2, center.y - height / 2)
+            scale(width / 100f, height / 250f, Offset.Zero)
+        }) { vehicleSilhouette(body, panel, glass) }
+    }
+}
+
+private fun DrawScope.pathCar(center: Offset, heading: Float, scale: Float,
     reversing: Boolean = false, forward: Boolean = false) {
-    val width = 1.8f * scale
-    val height = 4.5f * scale
+    val height = VehicleSilhouetteGeometry.LENGTH * scale
     // Compose rotates clockwise; PathPoint heading is counterclockwise from screen-up.
     rotate(-heading, center) {
-        smallCarMark(center, width, height, color, CoachColors.Paper, CoachColors.Paper.copy(alpha = .7f))
+        pathSilhouette(center, scale, CoachColors.Ink, CoachColors.Periwinkle, CoachColors.Lavender)
         if (reversing || forward) {
             val direction = if (forward) -1f else 1f
             val tip = center.y + (height / 2 + .6f * scale) * direction
-            pathChevron(Offset(center.x, tip), width, direction)
+            pathChevron(Offset(center.x, tip), 1.8f * scale, direction)
         }
     }
 }

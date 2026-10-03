@@ -228,7 +228,7 @@ private fun ChecklistTaskDiagram(color: Color, modifier: Modifier) {
     }
 }
 
-/** A centred catalogue bay; the rear-entry mark faces its opening, the front-entry mark faces its end. */
+/** Open-ended catalogue bays; the silhouette distinguishes front and rear entry. */
 @Composable
 private fun ParkingTaskDiagram(id: String, color: Color, panel: Color, glass: Color, modifier: Modifier) {
     Canvas(modifier) {
@@ -249,8 +249,6 @@ private fun ParkingTaskDiagram(id: String, color: Color, panel: Color, glass: Co
             } else {
                 for (side in listOf(-1f, 1f)) drawLine(color,
                     center + Offset(side * halfWidth, -halfHeight), center + Offset(side * halfWidth, halfHeight), stroke)
-                if (id == "parking-front") drawLine(color,
-                    center + Offset(-halfWidth, -halfHeight), center + Offset(halfWidth, -halfHeight), stroke)
             }
             rotate(if (id == "parking-front") 180f else 0f, center) {
                 withTransform({

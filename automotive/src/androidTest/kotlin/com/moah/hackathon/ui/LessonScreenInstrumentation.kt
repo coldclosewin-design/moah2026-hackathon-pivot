@@ -1444,17 +1444,23 @@ class LessonScreenInstrumentation : Instrumentation() {
             }
         }
         check(right > left && bottom > top) { "Missing arrival car" }
-        check(abs((right - left) - 1.8f * scale) < 4 * density && abs((bottom - top) - 4.5f * scale) < 4 * density)
+        check(abs((right - left) - 4.5f * .43f * 1.13f * scale) < 4 * density &&
+            abs((bottom - top) - 4.5f * scale) < 4 * density) { "Silhouette must include both mirrors" }
         for (x in listOf(left, right)) for (y in listOf(top, bottom)) {
-            check(abs(x) < halfWidth - 2 * density && abs(y) < halfDepth - 2 * density) { "Arrival car corner outside bay: $x,$y" }
+            check(abs(x) <= halfWidth + density && abs(y) < halfDepth - 2 * density) { "Arrival silhouette outside bay: $x,$y" }
         }
+        assertPathCarWindows(bitmap, cx, cy, angle, scale)
         val start = path.first()
         val startX = bounds.right - viewport.x(start.x) * density
         val startY = bounds.bottom - viewport.y(start.y) * density
-        val startRegion = Rect((startX - .95f * scale).toInt(), (startY - 2.3f * scale).toInt(),
-            (startX + .95f * scale).toInt(), (startY + 2.3f * scale).toInt())
-        val outline = colorBounds(bitmap, startRegion, CoachColors.Lavender.toArgb())
-        check(outline.width() >= 1.7f * scale && outline.height() >= 4.4f * scale) { "Starting car outline missing: $outline" }
+        val startAngle = Math.toRadians((180f - start.headingDeg).toDouble())
+        fun startPixel(localY: Float) = bitmap.getPixel(
+            (startX - sin(startAngle) * localY * scale).roundToInt(),
+            (startY + cos(startAngle) * localY * scale).roundToInt())
+        check(startPixel(.27f) == CoachColors.Lavender.toArgb()) { "Starting pose must be filled Lavender" }
+        check(startPixel(-.63f) == CoachColors.Paper.toArgb() && startPixel(1.512f) == CoachColors.Paper.toArgb()) {
+            "Starting pose must have the same front/rear glass in Paper"
+        }
         check(cy < startY) { "Rear-up orientation changed" }
     }
     private fun assertPathMargins(activity: MainActivity, bitmap: Bitmap) {
@@ -1585,6 +1591,18 @@ class LessonScreenInstrumentation : Instrumentation() {
             check(windshield > rearWindow * 1.2f) { "Card windshield must be wider: ${task.id}: $windshield / $rearWindow" }
             check(bitmap.getPixel(card.centerX(), y(110f)) == body.toArgb())
             for (sourceY in listOf(15f, 210f)) check(bitmap.getPixel(card.centerX(), y(sourceY)) == panel.toArgb())
+            val halfBay = (160f * .43f / 2 + 20f) * scale
+            for (side in listOf(-1, 1)) {
+                val x = (card.exactCenterX() + side * halfBay).roundToInt()
+                for (height in listOf(80f, 144f, 208f)) check(bitmap.getPixel(x, (card.top + height * scale).roundToInt()) == body.toArgb()) {
+                    "Parking card side missing: ${task.id}"
+                }
+                // Between car and side line, the top must be open in both selection states.
+                val gapX = (card.exactCenterX() + side * 44f * scale).roundToInt()
+                for (dy in -1..1) check(bitmap.getPixel(gapX, (card.top + 64f * scale).roundToInt() + dy) != body.toArgb()) {
+                    "Parking card top must be open: ${task.id}"
+                }
+            }
             pass("Card silhouette ${task.id}: large front glass ${if (front) "above" else "below"}, widths=$windshield/$rearWindow px; selected=$selected")
         }
     }
@@ -1674,6 +1692,9 @@ class LessonScreenInstrumentation : Instrumentation() {
                 val arrow = colorBounds(bitmap, bounds, CoachColors.Signal.toArgb())
                 check(!car.isEmpty && !arrow.isEmpty)
                 check(if (reversing) arrow.top > car.bottom else arrow.bottom < car.top)
+                val density = designScale(activity)
+                val viewport = pathViewport(path, bounds.width() / density, bounds.height() / density, frontEntry = true)
+                assertPathCarWindows(bitmap, car.exactCenterX(), car.exactCenterY(), 0.0, viewport.scale * density)
             }
         }
         val report = LessonReport(task, LessonMode.HINT, listOf(bad, good), good.score,
@@ -1713,14 +1734,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         }
         check(sample(0f, -h, CoachColors.Periwinkle.toArgb())) { "Front edge should be closed" }
         check(!sample(0f, h, CoachColors.Periwinkle.toArgb())) { "Rear edge should be open" }
-        check(sample(0f, -4.5f * scale * .1f, CoachColors.Paper.toArgb())) { "Front-up windshield missing at measured arrival pose" }
-        fun windowPixels(localY: Float) = (-(.9f * scale).toInt()..(.9f * scale).toInt()).count {
-            sample(it.toFloat(), localY, CoachColors.Paper.toArgb())
-        }
-        val frontWidth = windowPixels(-4.5f * scale * .12f)
-        val rearWidth = windowPixels(4.5f * scale * .25f)
-        check(frontWidth > rearWidth * 1.2f) { "Front window must be wider: $frontWidth / $rearWidth px" }
-        pass("Small car windows: front=$frontWidth px, rear=$rearWidth px")
+        assertPathCarWindows(bitmap, cx, cy, angle, scale)
         check(sample(0f, -(2.25f + .6f) * scale, CoachColors.Signal.toArgb())) { "Settled front chevron missing" }
         val entrance = CoachColors.Periwinkle.copy(alpha = .4f).compositeOver(CoachColors.Paper).toArgb()
         for (side in listOf(-1f, 1f)) {
@@ -1735,6 +1749,31 @@ class LessonScreenInstrumentation : Instrumentation() {
         check((-2..2).any { x -> (-2..2).any { y ->
             bitmap.getPixel(sx.roundToInt() + x, sy.roundToInt() + y) == CoachColors.Signal.toArgb()
         } }) { "Initial travel chevron missing" }
+    }
+
+    private fun assertPathCarWindows(bitmap: Bitmap, cx: Float, cy: Float, angle: Double, scale: Float) {
+        fun pixel(x: Float, y: Float) = bitmap.getPixel(
+            (cx + cos(angle) * x - sin(angle) * y).roundToInt(),
+            (cy + sin(angle) * x + cos(angle) * y).roundToInt())
+        val glass = CoachColors.Lavender.toArgb()
+        // At heading zero the shared source's large windshield is at y=-.63 m, tail glass at +1.512 m.
+        check(pixel(0f, -.63f * scale) == glass && pixel(0f, 1.512f * scale) == glass) {
+            "Silhouette front glass must follow the measured body heading"
+        }
+        fun glassWidth(y: Float): Int {
+            var left = 0
+            var right = 0
+            val limit = (4.5f * .43f / 2 * scale).toInt()
+            while (left > -limit && pixel((left - 1).toFloat(), y * scale) == glass) left--
+            while (right < limit && pixel((right + 1).toFloat(), y * scale) == glass) right++
+            return right - left + 1
+        }
+        val front = glassWidth(-.63f)
+        val rear = glassWidth(1.512f)
+        check(front > rear * 1.2f) { "Silhouette windshield must be larger: $front/$rear" }
+        check(pixel(0f, .27f * scale) == CoachColors.Ink.toArgb())
+        for (y in listOf(-1.53f, 1.98f)) check(pixel(0f, y * scale) == CoachColors.Periwinkle.toArgb())
+        pass("Path silhouette: large front glass follows body heading; front=$front px, rear=$rear px; Ink/Periwinkle/Lavender")
     }
 
     private fun round12Verdicts(activity: MainActivity, baseReport: LessonReport) {
