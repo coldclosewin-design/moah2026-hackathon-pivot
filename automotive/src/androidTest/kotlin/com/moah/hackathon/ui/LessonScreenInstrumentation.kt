@@ -156,6 +156,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             val selectedBounds = buttonBounds(task.title)
             val categoryTitleBounds = textBounds("주차")
             capture("setup-sheet") { bitmap ->
+                assertParkingCardWindows(activity, bitmap, frontSelected = false)
                 val scale = designScale(activity)
                 val checkCircle = colorBounds(bitmap, selectedBounds, CoachColors.Signal.toArgb())
                 // Exact-color bounds exclude the antialiased boundary pixel on each side of a circle.
@@ -1559,6 +1560,35 @@ class LessonScreenInstrumentation : Instrumentation() {
         pass("Card C: 288/144 art and band, centred category marks, one-line 36-40 sp titles, shared baselines, ready/planned states")
     }
 
+    private fun assertParkingCardWindows(activity: MainActivity, bitmap: Bitmap, frontSelected: Boolean) {
+        val scale = designScale(activity)
+        for ((task, front) in listOf(SeedCatalog.parkingTask to false, SeedCatalog.frontParkingTask to true)) {
+            val card = taskBounds(task.title)
+            val selected = front == frontSelected
+            val body = if (selected) CoachColors.Paper else CoachColors.Ink
+            val panel = if (selected) CoachColors.Lavender else CoachColors.Periwinkle
+            val glass = if (selected) CoachColors.Periwinkle else CoachColors.Lavender
+            // The 160 dp silhouette is centred in the 288 dp art area; its source is rear-up.
+            fun y(sourceY: Float) = (card.top + (64f + (if (front) 250f - sourceY else sourceY) * 160f / 250f) * scale).roundToInt()
+            fun glassWidth(sourceY: Float): Int {
+                val row = y(sourceY)
+                val cx = card.centerX()
+                check(bitmap.getPixel(cx, row) == glass.toArgb()) { "Missing card glass: ${task.id}" }
+                var left = cx
+                var right = cx
+                while (left > card.left && bitmap.getPixel(left - 1, row) == glass.toArgb()) left--
+                while (right < card.right - 1 && bitmap.getPixel(right + 1, row) == glass.toArgb()) right++
+                return right - left + 1
+            }
+            val windshield = glassWidth(160f)
+            val rearWindow = glassWidth(41f)
+            check(windshield > rearWindow * 1.2f) { "Card windshield must be wider: ${task.id}: $windshield / $rearWindow" }
+            check(bitmap.getPixel(card.centerX(), y(110f)) == body.toArgb())
+            for (sourceY in listOf(15f, 210f)) check(bitmap.getPixel(card.centerX(), y(sourceY)) == panel.toArgb())
+            pass("Card silhouette ${task.id}: large front glass ${if (front) "above" else "below"}, widths=$windshield/$rearWindow px; selected=$selected")
+        }
+    }
+
     private fun frontParking(activity: MainActivity) {
         val task = SeedCatalog.frontParkingTask
         var started: Pair<String, LessonMode>? = null
@@ -1570,7 +1600,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         click(task.title)
         assertSelected(task.title)
         click("힌트")
-        capture("setup-sheet-front")
+        capture("setup-sheet-front") { bitmap -> assertParkingCardWindows(activity, bitmap, frontSelected = true) }
         click("시작")
         runOnMainSync { check(started == task.id to LessonMode.HINT) }
         val state = ManeuverDisplayState("3", -450f, "D", null, false,

@@ -22,9 +22,9 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.disabled
@@ -147,8 +147,9 @@ private fun TaskBay(task: Task, chosen: Boolean, modifier: Modifier, onClick: ()
                 val art = Modifier.size(240.dp, 176.dp).alpha(if (task.isReady) 1f else .55f)
                 val ink = if (chosen) CoachColors.Paper else CoachColors.Ink
                 when (task.type) {
-                    TaskType.PARKING -> ParkingTaskDiagram(task.id, ink, background.compositeOver(CoachColors.Paper),
-                        if (chosen) CoachColors.Paper.copy(alpha = .7f).compositeOver(background) else CoachColors.Lavender, art)
+                    TaskType.PARKING -> ParkingTaskDiagram(task.id, ink,
+                        if (chosen) CoachColors.Lavender else CoachColors.Periwinkle,
+                        if (chosen) CoachColors.Periwinkle else CoachColors.Lavender, art)
                     TaskType.CHECKLIST -> ChecklistTaskDiagram(ink, art)
                     else -> CategoryTaskDiagram(task.type, ink, art)
                 }
@@ -229,7 +230,7 @@ private fun ChecklistTaskDiagram(color: Color, modifier: Modifier) {
 
 /** A centred catalogue bay; the rear-entry mark faces its opening, the front-entry mark faces its end. */
 @Composable
-private fun ParkingTaskDiagram(id: String, color: Color, window: Color, hood: Color, modifier: Modifier) {
+private fun ParkingTaskDiagram(id: String, color: Color, panel: Color, glass: Color, modifier: Modifier) {
     Canvas(modifier) {
         val nominalHeight = 160.dp.toPx()
         // The diagonal bay also fits the 176 dp art box, including its rotated line ends.
@@ -251,8 +252,13 @@ private fun ParkingTaskDiagram(id: String, color: Color, window: Color, hood: Co
                 if (id == "parking-front") drawLine(color,
                     center + Offset(-halfWidth, -halfHeight), center + Offset(halfWidth, -halfHeight), stroke)
             }
-            rotate(if (id == "parking-front") 0f else 180f, center) {
-                smallCarMark(center, carWidth, carHeight, color, window, hood)
+            rotate(if (id == "parking-front") 180f else 0f, center) {
+                withTransform({
+                    translate(center.x - carWidth / 2, center.y - carHeight / 2)
+                    scale(carWidth / 100f, carHeight / 250f, Offset.Zero)
+                }) {
+                    vehicleSilhouette(color, panel, glass)
+                }
             }
         }
     }
