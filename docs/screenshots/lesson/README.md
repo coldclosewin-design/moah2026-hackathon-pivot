@@ -1,5 +1,50 @@
 # 화면 검증 캡처
 
+## 라운드 17 Done 실루엣 통일·전면 카드 양옆 선 (2026-10-04)
+
+`codex/ui-round17` · 기준 `origin/main=cfba077`(#135 포함) · 외부 CSTDe_API_34 2560×1440 · Fake 기본 배율 1.0. [발주서](../../handoffs/2026-10-04_codex_ui_round17.md)의 두 변경을 한 ui PR로 반영했다.
+
+| 대상 | 교체 캡처 | 확인 |
+|---|---|---|
+| 후면 Done | [대표 Done](lesson-done.png), [고정 궤적](lesson-done-path-contract.png), [도착 전](lesson-done-arrival-empty.png) | 끝 차·재생 차·시작 자세 모두 카드와 같은 실루엣. 차길이 4.5 m·몸체 폭 .43×길이, 후면 표시 방향 유지 |
+| 후면 실제 시연 | [못한 주차](lesson-done-seed-bad.png), [잘한 주차](lesson-done-seed-good.png), [궤적](lesson-done-path.png), [기존 시연 파일](16_done_2.png) | 원본 `emu_flow.sh`의 1·2회차 Done. 60/55 → 100/100, 판정·회차 멘트 유지 |
+| 전면 Done | [못한 주차](lesson-done-front.png), [잘한 주차](lesson-done-front-good.png) | 큰 앞 유리·미러가 측정된 차체 앞 방향. Ink 몸체·Periwinkle 패널·Lavender 유리, 기존 도착 칸·입구 점선·셰브론·캡션 유지 |
+| 전면 재생 | [D 구간](lesson-done-front-replay-d.png), [R 보정](lesson-done-front-replay-r.png) | 같은 차 모양을 유지하며 D는 앞쪽·R은 뒤쪽에 기존 셰브론. 외부 2점 레이아웃 fixture이며 실측 주행 캡처가 아님 |
+| 다른 Done 조건 | [긴 문구](lesson-done-long.png), [한 번에](lesson-done-seed-one-go.png), [재보정](lesson-done-seed-repeat.png), [보정 판정](lesson-done-verdict-fix.png), [방향 미측정](lesson-done-verdict-unknown.png), [신호 없음](lesson-done-verdict-missing.png) | 기존 판정·문구·동작을 유지하면서 같은 실루엣과 세로 중심 적용 |
+| 전면 카드 선 | [후면 선택 시트](lesson-setup-sheet.png), [전면 선택 시트](lesson-setup-sheet-front.png), [READY fixture](lesson-setup-sheet-ready-contract.png) | 전면의 위 가로선 제거. 후면처럼 양옆 두 줄이며 전면 차 앞이 위인 방향과 선택 색 유지 |
+| 시트 전환 | [열기](lesson-setup-morph-strip.png), [닫기](lesson-setup-morph-return-strip.png) | 기존 400 ms 전환·카드 C 배치·질감 B·하단 컨트롤 위치 유지 |
+
+PNG **22장**을 교체했다(최종 첫 계약 PASS의 계측 18장 + 후면 실제 시연 4장). 차가 없는 `seed-many-fixture`·`no-path`와 점검·잠금 캡처는 유지했다. 차·미러·유리·캡션·판정·버튼의 배치를 직접 확인했다. 시작 자세는 선으로 된 차 대신 **Lavender 몸체·Paper 패널/유리 채움**이다. `SmallCarMark.kt`와 `SmallCarGeometry`를 삭제했고, 모든 Done 차가 `vehicleSilhouette`를 호출한다. 공유 경로는 뒤가 위이므로 Done에서만 180° 회전한 뒤 `PathPoint.headingDeg`를 적용한다. 실제 이동 방향과 차체 방향을 구분해 R 보정에서도 앞뒤가 뒤집히지 않는다.
+
+몸체·미러의 기존 경로 명령과 좌표를 `VehicleSilhouetteGeometry`로 옮겨 그리기와 경계 계산이 공유한다. 숫자·순서 불변을 대조했다. `pathVerticalBounds`는 미러 제어점 x −8…108을 포함하며, 회전한 곡선의 실제 극점을 계산하므로 빈 사각 모서리가 여백에 더해지지 않는다. 기존 가로 맞춤·원좌표·3초 재생·도착 칸·셰브론 크기·급제동 점·캡션 간격 64 dp는 유지했다. 계측은 새 미러를 포함한 폭과 기존 도착 칸 안쪽 배치, 시작 채움, 큰 앞 유리 방향·팔레트를 검사한다.
+
+| 최종 장면 계측 | 위 / 아래 여백 | 앞 / 뒤 유리 폭 |
+|---|---|---|
+| 후면 고정 궤적 | **108 / 109 px** | **47 / 34 px** |
+| 전면 못한 주차 | **82 / 83 px** | **46 / 35 px** |
+| 전면 잘한 주차 | **114 / 114 px** | **52 / 38 px** |
+
+변경 전 비교는 라운드 16 최종 첫 실행 캡처를 사용했다. `088b8a7`에서 이번 기준 `cfba077`까지 앱·계측·tools 소스 차이는 없다. 앱 영역 `(0,76)–(2560,1344)`에서 후면 Maneuver·좌/우/중립 보조선·전면 D/R 도식·잠금이 **픽셀 동일**하다. 대표 후면/전면 Report는 글자 가장자리 35/43 px에서 채널값 최대 3/2 차이만 있다. 점검의 활성화 버튼 등 실행 시점에 따른 프레임 차이는 도식 비교와 구분했다. Maneuver·Report 캡처는 교체하지 않았다.
+
+지정 PowerShell `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` 성공, 단위 테스트 **242개(실패·오류·건너뜀 0)**. [빌드 로그](build-round17.txt). 기존 경계 단위 검사는 채워진 시작 차·90° 회전한 미러 극점·180° 앞뒤 극점으로 갱신했다. 앱 SHA-256 `7230D3598DA651C27517E96BF36598714123EDB753B3B8B9CE84229200BF13E6`, 계측 SHA-256 `3A4D0406E40B45BEDF4CCDFB5912ED3154D38B50460394BC3DCECF5294828E50`.
+
+동일 APK로 수정 없는 원본 `tools/lesson_shots.sh build/round17-final-{1,2,3}` **3회 연속 Lesson contract passed**([전체 계약 로그](contract-round17.txt)). 기존 라벨 13개·잠금 숫자/터치 0·판정·퀴즈·예약·질감·카드 배치 계약과 새 실루엣/열린 카드 칸 검사를 모두 통과했다.
+
+| 연속 실행 | 결과 |
+|---|---|
+| `round17-final-1` | Lesson contract passed |
+| `round17-final-2` | Lesson contract passed |
+| `round17-final-3` | Lesson contract passed |
+
+| 실제 흐름 | 결과 | 점수·힌트·배지 |
+|---|---|---|
+| 원본 후면 `bash tools/emu_flow.sh build/round17-rear-flow` | **PASS · clashes 0 · 118초** | 60/55·4구간 → 100/100·2구간, 벨트·뒤 근접·급제동 힌트, 잘한 주차 추가 힌트 0, 배지 **0/8/0** ([로그](flow-round17-rear.txt)) |
+| 전면 전체 흐름 1회 | **PASS · clashes 0 · 121초** | 60/55·4구간 → 100/100·2구간, 벨트·앞 근접·급제동 힌트, 잘한 주차 추가 힌트 0, 배지 **0/7/0** ([로그](flow-round17-front.txt)) |
+
+전면은 원본 흐름을 무시 경로 `build/front_flow.sh`에 복사해 과제 선택·앞 근접 힌트·배지 7 기대만 바꾼 어댑터로 실행했다. 원본 `tools/` 파일은 수정하지 않았다. 두 흐름 모두 도어 열림으로 리포트까지 완료했으며 동일 최종 APK를 사용했다.
+
+차량·포트·채점·상태기계·데이터·build 파일·tools·NEXT 변경 없음. `VehicleDiagram.kt`·색 토큰·문자열 리소스 변경 0, `ui/` Bold 0, `Color(0x`는 기존 `CoachStyle.kt`만 사용한다.
+
 ## 라운드 16 주차 카드 차량 실루엣 (2026-10-03)
 
 `codex/ui-round16` · 기준 `origin/main=519f4e0`(#130 이후, 발주 #131 포함) · 외부 CSTDe_API_34 2560×1440 · Fake 기본 배율 1.0. [발주서](../../handoffs/2026-10-03_codex_ui_round16.md)와 [시안 아래 줄](../../design/round13-front/card-silhouette-preview.html)의 카드 차를 반영했다.

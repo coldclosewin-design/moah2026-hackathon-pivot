@@ -1,0 +1,138 @@
+Starting a Gradle Daemon (subsequent builds will be faster)
+Calculating task graph as no cached configuration is available for tasks: assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest
+
+> Configure project :automotive
+mobis.vss: stub (:vss-stub) �� USE_FAKE_VSS=true
+Warning: SDK processing. This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+
+> Task :automotive:preBuild UP-TO-DATE
+> Task :automotive:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :vss-stub:preBuild UP-TO-DATE
+> Task :automotive:preDebugBuild UP-TO-DATE
+> Task :automotive:preDebugUnitTestBuild UP-TO-DATE
+> Task :vss-stub:preDebugBuild UP-TO-DATE
+> Task :automotive:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :automotive:generateDebugResValues FROM-CACHE
+> Task :vss-stub:generateDebugResValues FROM-CACHE
+> Task :automotive:writeDebugAppMetadata
+> Task :automotive:createDebugCompatibleScreenManifests
+> Task :automotive:generateDebugBuildConfig FROM-CACHE
+> Task :automotive:javaPreCompileDebug FROM-CACHE
+> Task :automotive:desugarDebugFileDependencies FROM-CACHE
+> Task :vss-stub:javaPreCompileDebug FROM-CACHE
+> Task :automotive:writeDebugSigningConfigVersions
+> Task :vss-stub:prepareDebugArtProfile
+> Task :vss-stub:extractDeepLinksForAarDebug FROM-CACHE
+> Task :vss-stub:generateDebugResources FROM-CACHE
+> Task :automotive:extractDeepLinksDebug FROM-CACHE
+> Task :automotive:generateDebugResources FROM-CACHE
+> Task :automotive:javaPreCompileDebugUnitTest FROM-CACHE
+> Task :vss-stub:prepareLintJarForPublish
+> Task :vss-stub:preDebugUnitTestBuild UP-TO-DATE
+> Task :automotive:mergeDebugShaders
+> Task :vss-stub:mergeDebugJniLibFolders
+> Task :vss-stub:processDebugJavaRes NO-SOURCE
+> Task :automotive:compileDebugShaders NO-SOURCE
+> Task :vss-stub:mergeDebugNativeLibs NO-SOURCE
+> Task :automotive:generateDebugAssets UP-TO-DATE
+> Task :vss-stub:javaPreCompileDebugUnitTest FROM-CACHE
+> Task :vss-stub:stripDebugDebugSymbols NO-SOURCE
+> Task :vss-stub:processDebugManifest FROM-CACHE
+> Task :automotive:preDebugAndroidTestBuild SKIPPED
+> Task :vss-stub:processDebugUnitTestJavaRes NO-SOURCE
+> Task :vss-stub:packageDebugResources FROM-CACHE
+> Task :automotive:packageDebugResources FROM-CACHE
+> Task :automotive:validateSigningDebug
+> Task :automotive:generateDebugAndroidTestResValues FROM-CACHE
+> Task :vss-stub:mergeDebugShaders
+> Task :vss-stub:copyDebugJniLibsProjectAndLocalJars
+> Task :vss-stub:compileDebugShaders NO-SOURCE
+> Task :vss-stub:generateDebugAssets UP-TO-DATE
+> Task :vss-stub:writeDebugAarMetadata
+> Task :automotive:generateDebugAndroidTestResources FROM-CACHE
+> Task :automotive:mapDebugAndroidTestSourceSetPaths
+> Task :vss-stub:packageDebugAssets
+> Task :automotive:desugarDebugAndroidTestFileDependencies FROM-CACHE
+> Task :automotive:mergeDebugAssets
+> Task :automotive:mergeDebugAndroidTestShaders
+> Task :automotive:compressDebugAssets FROM-CACHE
+> Task :automotive:compileDebugAndroidTestShaders NO-SOURCE
+> Task :automotive:generateDebugAndroidTestAssets UP-TO-DATE
+> Task :automotive:mapDebugSourceSetPaths
+> Task :automotive:mergeDebugAndroidTestResources FROM-CACHE
+> Task :automotive:mergeDebugJniLibFolders
+> Task :automotive:validateSigningDebugAndroidTest
+> Task :automotive:checkDebugAndroidTestAarMetadata
+> Task :automotive:writeDebugAndroidTestSigningConfigVersions
+> Task :automotive:javaPreCompileDebugAndroidTest FROM-CACHE
+> Task :automotive:parseDebugLocalResources FROM-CACHE
+> Task :vss-stub:parseDebugLocalResources FROM-CACHE
+> Task :automotive:checkDebugAndroidTestDuplicateClasses
+> Task :automotive:mergeDebugAndroidTestJniLibFolders
+> Task :automotive:mergeDebugAndroidTestAssets
+> Task :automotive:mergeExtDexDebugAndroidTest FROM-CACHE
+> Task :automotive:compressDebugAndroidTestAssets FROM-CACHE
+> Task :automotive:checkDebugAarMetadata
+> Task :automotive:processDebugMainManifest FROM-CACHE
+> Task :vss-stub:generateDebugRFile FROM-CACHE
+> Task :automotive:mergeLibDexDebugAndroidTest FROM-CACHE
+> Task :automotive:checkDebugDuplicateClasses
+> Task :vss-stub:generateDebugUnitTestStubRFile FROM-CACHE
+> Task :automotive:processDebugManifest FROM-CACHE
+> Task :automotive:processDebugManifestForPackage FROM-CACHE
+> Task :automotive:mergeLibDexDebug FROM-CACHE
+> Task :automotive:mergeDebugNativeLibs
+> Task :automotive:mergeDebugAndroidTestNativeLibs NO-SOURCE
+> Task :automotive:stripDebugAndroidTestDebugSymbols NO-SOURCE
+> Task :vss-stub:mergeDebugJavaResource
+
+> Task :automotive:stripDebugDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so.
+
+> Task :automotive:processDebugAndroidTestManifest
+> Task :automotive:generateDebugAndroidTestBuildConfig FROM-CACHE
+> Task :automotive:processDebugAndroidTestResources FROM-CACHE
+> Task :automotive:mergeDebugResources FROM-CACHE
+> Task :automotive:processDebugResources FROM-CACHE
+> Task :automotive:mergeExtDexDebug FROM-CACHE
+> Task :vss-stub:extractDebugAnnotations FROM-CACHE
+> Task :vss-stub:compileDebugJavaWithJavac FROM-CACHE
+> Task :vss-stub:mergeDebugGeneratedProguardFiles
+> Task :vss-stub:mergeDebugConsumerProguardFiles
+> Task :vss-stub:syncDebugLibJars FROM-CACHE
+> Task :vss-stub:bundleLibRuntimeToJarDebug
+> Task :vss-stub:bundleLibCompileToJarDebug
+> Task :vss-stub:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :vss-stub:testDebugUnitTest NO-SOURCE
+> Task :vss-stub:bundleDebugAar
+> Task :vss-stub:assembleDebug
+> Task :automotive:compileDebugKotlin
+> Task :automotive:processDebugJavaRes
+> Task :automotive:compileDebugJavaWithJavac
+> Task :automotive:bundleDebugClassesToCompileJar
+> Task :automotive:mergeDebugJavaResource
+> Task :automotive:bundleDebugClassesToRuntimeJar
+> Task :automotive:dexBuilderDebug
+> Task :automotive:mergeDebugGlobalSynthetics FROM-CACHE
+> Task :automotive:mergeProjectDexDebug
+> Task :automotive:packageDebug
+> Task :automotive:assembleDebug
+> Task :automotive:createDebugApkListingFileRedirect
+> Task :automotive:compileDebugAndroidTestKotlin
+> Task :automotive:processDebugAndroidTestJavaRes
+> Task :automotive:mergeDebugAndroidTestJavaResource
+> Task :automotive:compileDebugUnitTestKotlin
+> Task :automotive:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :automotive:processDebugUnitTestJavaRes
+> Task :automotive:compileDebugAndroidTestJavaWithJavac
+> Task :automotive:testDebugUnitTest
+> Task :automotive:dexBuilderDebugAndroidTest
+> Task :automotive:mergeDebugAndroidTestGlobalSynthetics FROM-CACHE
+> Task :automotive:mergeProjectDexDebugAndroidTest
+> Task :automotive:packageDebugAndroidTest
+> Task :automotive:assembleDebugAndroidTest
+> Task :automotive:createDebugAndroidTestApkListingFileRedirect
+
+BUILD SUCCESSFUL in 42s
+97 actionable tasks: 55 executed, 42 from cache
+Configuration cache entry stored.

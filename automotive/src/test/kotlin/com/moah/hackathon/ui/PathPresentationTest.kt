@@ -62,11 +62,12 @@ class PathPresentationTest {
         assertEquals(36f, pathViewport(listOf(point(0, 0f, 0f), point(1, 100f, 0f)), 820f, 1000f).scale, 0f)
     }
 
-    @Test fun verticalFitBalancesTheStartOutlineAndSettledFrontChevron() {
+    @Test fun verticalFitBalancesTheFilledStartAndSettledFrontChevron() {
         val path = listOf(point(0, 0f, 0f, false), point(1, 0f, 6f, false))
         val view = pathViewport(path, 820f, 700f, frontEntry = true)
         val top = view.y(6f) - 2.85f * view.scale - 3f
-        val bottom = view.height - (view.y(0f) + 2.25f * view.scale + 1.5f)
+        // Rear quadratic reaches source y=-.5, without an outline stroke.
+        val bottom = view.height - (view.y(0f) + 2.259f * view.scale)
         assertEquals(top, bottom, .001f)
         assertTrue(top > 0)
         assertEquals(410f, view.x(0f), .001f)
@@ -81,14 +82,18 @@ class PathPresentationTest {
         assertTrue(top > 0)
     }
 
-    @Test fun rotatedStartOutlineUsesDifferentFrontAndRearCornerRadii() {
-        val start = point(0, 0f, 10f, heading = 45f)
+    @Test fun sidewaysStartIncludesTheMirrorBeyondTheBody() {
+        val start = point(0, 0f, 10f, heading = 90f)
         val path = listOf(start, point(1, 0f, 0f))
         val scale = 50f
         val bounds = pathVerticalBounds(path, scale, frontEntry = false)
-        val rootHalf = kotlin.math.sqrt(.5f)
-        val support = ((.9f + 2.25f) * rootHalf - .28f * 1.8f * (2 * rootHalf - 1)) * scale
-        assertEquals(10 * scale + support + 1.5f, bounds.second, .001f)
+        // Q(-2,154; -8,152; -6,159) reaches x=-6.5 at t=.75, outside the 100-wide body.
+        val mirror = 56.5f / 100 * (4.5f * .43f)
+        assertEquals((10 + mirror) * scale, bounds.second, .001f)
+        assertEquals(-mirror, VehicleSilhouetteGeometry.verticalBounds(90f).first, .001f)
+        // Reversing the pose swaps the asymmetric nose/tail extrema; no axis-aligned box padding.
+        assertEquals(2.259f, VehicleSilhouetteGeometry.verticalBounds(180f).second, .001f)
+        assertEquals(-2.2545f, VehicleSilhouetteGeometry.verticalBounds(180f).first, .001f)
     }
 
     @Test fun reverseForwardTransitionsShareTheirActualEndpointWithoutGaps() {

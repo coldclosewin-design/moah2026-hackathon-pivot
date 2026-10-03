@@ -35,14 +35,6 @@ internal fun pathViewport(path: List<PathPoint>, width: Float, height: Float,
     return PathViewport(scale, (left + right) / 2, (paintBottom + paintTop) / (2 * scale), width, height)
 }
 
-/** Ratios of the common small mark, independent of Android drawing APIs. */
-internal object SmallCarGeometry {
-    const val FRONT_RADIUS = .28f
-    const val REAR_RADIUS = .14f
-    const val FRONT_WINDOW = .78f
-    const val REAR_WINDOW = .58f
-}
-
 /** Painted vertical bounds in scaled world coordinates (+y up), before the rear-view rotation. */
 internal fun pathVerticalBounds(path: List<PathPoint>, scale: Float, frontEntry: Boolean,
     harshPoints: List<PathPoint> = emptyList()): Pair<Float, Float> {
@@ -55,19 +47,15 @@ internal fun pathVerticalBounds(path: List<PathPoint>, scale: Float, frontEntry:
     path.forEach { include(it.y * scale, 3f) } // Round 6 dp path strokes.
     harshPoints.forEach { include(it.y * scale, 10f) }
     val start = path.first()
-    val radians = Math.toRadians(start.headingDeg.toDouble())
-    val sine = abs(sin(radians)).toFloat()
-    val cosine = cos(radians).toFloat()
-    val rectangle = (.9f * sine + 2.25f * abs(cosine)) * scale
-    val rounding = (sine + abs(cosine) - 1f) * 1.8f * scale
-    // The support of a rounded rectangle differs at its front and rear corners.
-    val upperRadius = if (cosine >= 0) SmallCarGeometry.FRONT_RADIUS else SmallCarGeometry.REAR_RADIUS
-    val lowerRadius = if (cosine >= 0) SmallCarGeometry.REAR_RADIUS else SmallCarGeometry.FRONT_RADIUS
-    include(start.y * scale + rectangle - rounding * upperRadius, 1.5f)
-    include(start.y * scale - rectangle + rounding * lowerRadius, 1.5f)
+    // Filled silhouettes share their exact body and mirror curves with the renderer.
+    for (point in listOf(start, path.last())) {
+        val (low, high) = VehicleSilhouetteGeometry.verticalBounds(point.headingDeg)
+        include((point.y + low) * scale, 0f)
+        include((point.y + high) * scale, 0f)
+    }
     val end = path.last()
     val angle = Math.toRadians(end.headingDeg.toDouble())
-    // All four bay corners are painted, including the two on its open edge. The car fits inside.
+    // All four bay corners are painted, including the two on its open edge.
     include(end.y * scale, (abs(sin(angle)) * 1.125f + abs(cos(angle)) * 2.5875f).toFloat() * scale + 2f)
     if (frontEntry) {
         fun chevron(point: PathPoint, heading: Float, tip: Float) {
