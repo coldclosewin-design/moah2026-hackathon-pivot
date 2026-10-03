@@ -15,6 +15,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -57,16 +58,24 @@ internal fun EstimatedPath(record: AttemptRecord, modifier: Modifier, entryGear:
                         style = Stroke(6.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
                 }
                 drawCircle(CoachColors.Lavender, 6.dp.toPx(), position(record.path.first()))
+                val settled = elapsed >= record.path.last().tMillis
+                if (entryGear == Gear.DRIVE && settled) initialTravelHeading(record.path)?.let { heading ->
+                    val start = position(record.path.first())
+                    rotate(-heading, start) {
+                        pathChevron(start - Offset(0f, .8f * viewport.scale.dp.toPx()), 1.8f * viewport.scale.dp.toPx(), -1f)
+                    }
+                }
                 val current = revealed.last()
                 pathCar(position(current), current.headingDeg, viewport.scale.dp.toPx(), CoachColors.Ink,
                     reversing = time.isRunning && elapsed < record.path.last().tMillis && current.reversing,
-                    forward = entryGear == Gear.DRIVE && time.isRunning && elapsed < record.path.last().tMillis && !current.reversing)
+                    forward = entryGear == Gear.DRIVE && (settled || (time.isRunning && !current.reversing)))
                 record.score.metrics.harshEvents.filter { it.tMillis <= elapsed }.forEach { event ->
                     nearestPathPoint(record.path, event.tMillis)?.let { drawCircle(CoachColors.Signal, 10.dp.toPx(), position(it)) }
                 }
             }
         }
         Column(Modifier.padding(start = 100.dp, end = 32.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            if (entryGear == Gear.DRIVE) LessonText("앞으로 들어간 주차예요.", 32, CoachColors.Muted)
             LessonText("신호로 추정한 궤적이에요.", 32, CoachColors.Muted)
             LessonText("실제 위치와 다를 수 있어요.", 32, CoachColors.Muted)
         }
@@ -84,6 +93,12 @@ private fun DrawScope.arrivalBay(center: Offset, heading: Float, scale: Float, f
             lineTo(center.x + halfWidth, center.y + halfDepth)
             lineTo(center.x + halfWidth, center.y - halfDepth)
         }, CoachColors.Periwinkle, style = Stroke(4.dp.toPx()))
+        if (frontEntry) {
+            val dashed = PathEffect.dashPathEffect(floatArrayOf(8.dp.toPx(), 8.dp.toPx()))
+            for (side in listOf(-1f, 1f)) drawLine(CoachColors.Periwinkle.copy(alpha = .4f),
+                Offset(center.x + side * halfWidth, center.y - halfDepth),
+                Offset(center.x + side * halfWidth / 2, center.y - halfDepth), 4.dp.toPx(), pathEffect = dashed)
+        }
     }
 }
 
@@ -105,11 +120,7 @@ private fun DrawScope.pathCar(center: Offset, heading: Float, scale: Float, colo
         if (reversing || forward) {
             val direction = if (forward) -1f else 1f
             val tip = center.y + (height / 2 + .6f * scale) * direction
-            drawPath(Path().apply {
-                moveTo(center.x - width * .36f, tip - width * .16f * direction)
-                lineTo(center.x, tip)
-                lineTo(center.x + width * .36f, tip - width * .16f * direction)
-            }, CoachColors.Signal, style = Stroke(6.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
+            pathChevron(Offset(center.x, tip), width, direction)
         }
         drawPath(Path().apply {
             moveTo(left + width * .22f, top + height * .72f)
@@ -118,4 +129,13 @@ private fun DrawScope.pathCar(center: Offset, heading: Float, scale: Float, colo
             quadraticTo(center.x, top + height * .91f, left + width * .13f, top + height * .86f); close()
         }, CoachColors.Paper)
     }
+}
+
+/** The same small Signal chevron marks the replay car, front arrival and initial travel direction. */
+private fun DrawScope.pathChevron(tip: Offset, width: Float, direction: Float) {
+    drawPath(Path().apply {
+        moveTo(tip.x - width * .36f, tip.y - width * .16f * direction)
+        lineTo(tip.x, tip.y)
+        lineTo(tip.x + width * .36f, tip.y - width * .16f * direction)
+    }, CoachColors.Signal, style = Stroke(6.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
 }

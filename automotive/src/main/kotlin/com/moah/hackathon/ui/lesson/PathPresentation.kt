@@ -68,3 +68,8 @@ internal fun pathThroughTime(path: List<PathPoint>, tMillis: Long): List<PathPoi
         before.y + (after.y - before.y) * fraction,
         before.headingDeg + headingDelta * fraction, after.reversing)
 }
+
+/** Initial travel direction, skipping stationary samples; independent of body heading and gear. */
+internal fun initialTravelHeading(path: List<PathPoint>): Float? = path.zipWithNext()
+    .firstOrNull { (a, b) -> kotlin.math.hypot(b.x - a.x, b.y - a.y) > .001f }
+    ?.let { (a, b) -> Math.toDegrees(kotlin.math.atan2(-(b.x - a.x).toDouble(), (b.y - a.y).toDouble())).toFloat() }

@@ -68,10 +68,12 @@ class LessonScreenInstrumentation : Instrumentation() {
     private var seedSpeech = false
     private var frontOnly = false
     private var textureOnly = false
+    private var round14Only = false
     override fun onCreate(arguments: Bundle?) {
         super.onCreate(arguments)
         seedSpeech = arguments?.getString("seedSpeech") == "true"
         frontOnly = arguments?.getString("frontOnly") == "true"
+        round14Only = arguments?.getString("round14Only") == "true"
         textureOnly = arguments?.getString("textureOnly") == "true"
         start()
     }
@@ -80,6 +82,12 @@ class LessonScreenInstrumentation : Instrumentation() {
         val activity = startActivitySync(Intent(targetContext, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as MainActivity
         try {
+            if (round14Only) {
+                cardLayoutContract(activity)
+                frontParking(activity)
+                finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Round14 contract passed\n") })
+                return
+            }
             if (frontOnly) {
                 frontParking(activity)
                 finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Front contract passed\n") })
@@ -714,6 +722,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             reservationFlow(activity)
             recordMotionClips(activity, moving, pathRecord)
             textureContract(activity)
+            cardLayoutContract(activity)
             finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Lesson contract passed\n") })
         } catch (failure: Throwable) {
             finish(Activity.RESULT_CANCELED, Bundle().apply { putString("stream", failure.stackTraceToString()) })
@@ -1123,7 +1132,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         check("AI 연결" !in texts())
         runOnMainSync {
             val node = composeNodes(activity).first { node ->
-                node.config.getOrNull(SemanticsProperties.Text)?.any { it.text == detail } == true
+                node.config.getOrNull(SemanticsProperties.Text)?.singleOrNull()?.text == detail
             }
             val layouts = mutableListOf<TextLayoutResult>()
             check(node.config.getOrNull(SemanticsActions.GetTextLayoutResult)?.action?.invoke(layouts) == true)
@@ -1174,14 +1183,14 @@ class LessonScreenInstrumentation : Instrumentation() {
         runOnMainSync {}
     }
     @OptIn(ExperimentalComposeUiApi::class)
-    private fun composeNodes(activity: MainActivity): List<SemanticsNode> {
+    private fun composeNodes(activity: MainActivity, unmerged: Boolean = false): List<SemanticsNode> {
         fun roots(view: View): List<RootForTest> = when (view) {
             is RootForTest -> listOf(view)
             is ViewGroup -> (0 until view.childCount).flatMap { roots(view.getChildAt(it)) }
             else -> emptyList()
         }
         fun descendants(node: SemanticsNode): List<SemanticsNode> = listOf(node) + node.children.flatMap(::descendants)
-        return roots(activity.window.decorView).flatMap { descendants(it.semanticsOwner.rootSemanticsNode) }
+        return roots(activity.window.decorView).flatMap { descendants(if (unmerged) it.semanticsOwner.unmergedRootSemanticsNode else it.semanticsOwner.rootSemanticsNode) }
     }
     private fun captureSetupMorph(activity: MainActivity) {
         // Drive Compose's real animation clock explicitly: cold layout/accessibility IPC must not
@@ -1447,6 +1456,87 @@ class LessonScreenInstrumentation : Instrumentation() {
         check(abs(dot.exactCenterX() - startX) <= 1 && abs(dot.exactCenterY() - startY) <= 1)
         check(cy < startY) { "Rear-up orientation changed" }
     }
+    private fun cardLayoutContract(activity: MainActivity) {
+        val task = SeedCatalog.parkingTask
+        render(activity) { SetupScreen(SeedCatalog.demoProfile, SeedCatalog.tasks, task, LessonMode.HINT,
+            "함께 연습해요.", null, { _, _ -> }) }
+        click("과제·모드 바꾸기")
+        Thread.sleep(500)
+        runOnMainSync {
+            val venue = composeNodes(activity, unmerged = true).first {
+                it.config.getOrNull(SemanticsProperties.Text)?.singleOrNull()?.text == "제휴 시험장"
+            }
+            val layouts = mutableListOf<TextLayoutResult>()
+            check(venue.config.getOrNull(SemanticsActions.GetTextLayoutResult)?.action?.invoke(layouts) == true)
+            val layout = layouts.single()
+            // TextAction's paragraph retains the available row width; inspect its actual glyph line.
+            check(!layout.didOverflowHeight && layout.lineCount == 1 && layout.getLineEnd(0) == "제휴 시험장".length)
+            check(layout.getLineRight(0) - layout.getLineLeft(0) <= layout.size.width + 1)
+        }
+        check(buttonBounds("제휴 시험장").bottom <= textBounds("모드").top)
+        capture("setup-sheet-c-contract")
+        fun inspect(type: TaskType) {
+            val scale = designScale(activity)
+            val screenshot = screenshot()
+            SeedCatalog.tasks.filter { it.type == type }.forEach { item ->
+                val visible = nodes().firstOrNull { it.text?.toString() == item.title } ?: return@forEach
+                val titleBounds = Rect().also(visible::getBoundsInScreen)
+                val card = taskBounds(item.title)
+                if (card.width() < 360 * scale) return@forEach // The next driving card is deliberately a preview.
+                check('\n' !in visible.text.toString())
+                check(abs(card.height() / scale - 464f) < 2f)
+                check(titleBounds.top >= card.top + 288 * scale && titleBounds.bottom < card.bottom - 32 * scale)
+                check(abs(titleBounds.left - card.left - 28 * scale) < 2f)
+                runOnMainSync {
+                    val textNodes = composeNodes(activity, unmerged = true)
+                    val titleNode = textNodes.first { it.config.getOrNull(SemanticsProperties.Text)?.singleOrNull()?.text == item.title }
+                    val layouts = mutableListOf<TextLayoutResult>()
+                    check(titleNode.config.getOrNull(SemanticsActions.GetTextLayoutResult)?.action?.invoke(layouts) == true)
+                    val title = layouts.single()
+                    check(title.lineCount == 1 && title.layoutInput.style.fontSize.value in 36f..40f)
+                    val documentedOverflow = item.id in setOf("straight-stop", "left-turn-signal")
+                    check(title.isLineEllipsized(0) == documentedOverflow) { "Unexpected title overflow: ${item.id}" }
+                    val detail = if (item.isReady) item.difficulty.label else item.status.label
+                    val detailNode = textNodes.first { node ->
+                        node.config.getOrNull(SemanticsProperties.Text)?.singleOrNull()?.text == detail &&
+                            node.boundsInWindow.left >= card.left && node.boundsInWindow.right <= card.right &&
+                            node.boundsInWindow.top >= titleNode.boundsInWindow.top - 16 * scale && node.boundsInWindow.bottom <= titleNode.boundsInWindow.bottom + 16 * scale
+                    }
+                    val detailLayouts = mutableListOf<TextLayoutResult>()
+                    check(detailNode.config.getOrNull(SemanticsActions.GetTextLayoutResult)?.action?.invoke(detailLayouts) == true)
+                    val baseline = titleNode.boundsInWindow.top + title.firstBaseline
+                    val detailBaseline = detailNode.boundsInWindow.top + detailLayouts.single().firstBaseline
+                    check(abs(baseline - detailBaseline) <= 1.5f) { "Card baselines differ: ${item.title}" }
+                    check(titleNode.boundsInWindow.right + 6 * scale <= detailNode.boundsInWindow.left) { "Title and status overlap: ${item.id}: ${titleNode.boundsInWindow} / ${detailNode.boundsInWindow}" }
+                    pass("Card C ${item.id}: ${title.layoutInput.style.fontSize.value} sp; ellipsis=${title.isLineEllipsized(0)}; available=${title.size.width / scale} dp; natural=${title.multiParagraph.maxIntrinsicWidth / scale} dp")
+                }
+                val art = Rect(card.left + (48 * scale).toInt(), card.top + (40 * scale).toInt(),
+                    card.right - (48 * scale).toInt(), card.top + (248 * scale).toInt())
+                val selected = item.id == (if (type == TaskType.PARKING) task.id else SeedCatalog.tasks.firstOrNull { it.type == type && it.isReady }?.id)
+                val face = if (selected) CoachColors.Periwinkle else if (item.isReady) CoachColors.Lavender
+                    else CoachColors.Lavender.copy(alpha = .4f).compositeOver(CoachColors.Paper)
+                val ink = if (selected) CoachColors.Paper else if (item.isReady) CoachColors.Ink
+                    else CoachColors.Ink.copy(alpha = .55f).compositeOver(face)
+                val pixels = colorBounds(screenshot, art, ink.toArgb(), tolerance = 1)
+                check(!pixels.isEmpty) { "Empty category illustration: ${item.id}" }
+                check(abs(pixels.exactCenterY() - card.top - 144 * scale) <= 12 * scale) { "Art is not vertically centred: ${item.id}, $pixels" }
+            }
+        }
+        inspect(TaskType.PARKING)
+        for ((type, name) in listOf(TaskType.DRIVING to "setup-sheet-driving", TaskType.CHECKLIST to "setup-sheet-checklist", TaskType.KNOWLEDGE to "setup-sheet-knowledge")) {
+            click(taskTypeLabel(type))
+            capture(name)
+            inspect(type)
+            if (type == TaskType.DRIVING) {
+                check(nodes().first { it.isScrollable }.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD))
+                Thread.sleep(350)
+                inspect(type)
+                capture("setup-sheet-driving-end")
+            }
+        }
+        pass("Card C: 288/144 art and band, centred category marks, one-line 36-40 sp titles, shared baselines, ready/planned states")
+    }
+
     private fun frontParking(activity: MainActivity) {
         val task = SeedCatalog.frontParkingTask
         var started: Pair<String, LessonMode>? = null
@@ -1515,6 +1605,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             val marks = if (record == good) listOf("✓", "✓", "✓", "✓") else listOf("△", "△", "✓", "✗")
             check(texts().filter { it in listOf("✓", "△", "✗", "—") } == marks)
             assertNoDoneMetrics()
+            assertFullText(activity, "앞으로 들어간 주차예요.")
             capture(name) { bitmap -> assertFrontArrival(activity, bitmap, record.path) }
         }
         // Isolate each replay direction so screenshot timing cannot cross a D/R transition.
@@ -1540,7 +1631,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         check(texts().any { "앞 근접 1회" in it } && texts().any { "앞 근접 0회" in it })
         check(allText().none { "뒤 거리" in it || "뒤 최소" in it })
         capture("details-front")
-        pass("Front parking: sheet dispatch, front-up windshield, D/R chevrons, no rear-distance text, locked touch zero, four verdicts, rear-open arrival, replay D/R, details and 7-signal badge")
+        pass("Front parking: sheet dispatch, front-up windshield, D/R chevrons, no rear-distance text, locked touch zero, four verdicts, rear-open dashed entrance, settled/start chevrons, front caption, replay D/R, details and 7-signal badge")
     }
 
     private fun assertFrontArrival(activity: MainActivity, bitmap: Bitmap, path: List<PathPoint>) {
@@ -1552,10 +1643,13 @@ class LessonScreenInstrumentation : Instrumentation() {
         val cy = bounds.top + viewport.y(end.y) * density
         val scale = viewport.scale * density
         val angle = Math.toRadians(-end.headingDeg.toDouble())
-        fun sample(x: Float, y: Float, color: Int): Boolean {
+        fun sample(x: Float, y: Float, color: Int, tolerance: Int = 0): Boolean {
             val px = (cx + cos(angle) * x - sin(angle) * y).roundToInt()
             val py = (cy + sin(angle) * x + cos(angle) * y).roundToInt()
-            return (-1..1).any { dx -> (-1..1).any { dy -> bitmap.getPixel(px + dx, py + dy) == color } }
+            return (-1..1).any { dx -> (-1..1).any { dy ->
+                val pixel = bitmap.getPixel(px + dx, py + dy)
+                listOf(0, 8, 16).all { shift -> abs(((pixel ushr shift) and 255) - ((color ushr shift) and 255)) <= tolerance }
+            } }
         }
         val w = .9f * scale * 1.25f
         val h = 2.25f * scale * 1.15f
@@ -1565,6 +1659,20 @@ class LessonScreenInstrumentation : Instrumentation() {
         check(sample(0f, -h, CoachColors.Periwinkle.toArgb())) { "Front edge should be closed" }
         check(!sample(0f, h, CoachColors.Periwinkle.toArgb())) { "Rear edge should be open" }
         check(sample(0f, -4.5f * scale * .22f, CoachColors.Paper.toArgb())) { "Front-up windshield missing at measured arrival pose" }
+        check(sample(0f, -(2.25f + .6f) * scale, CoachColors.Signal.toArgb())) { "Settled front chevron missing" }
+        val entrance = CoachColors.Periwinkle.copy(alpha = .4f).compositeOver(CoachColors.Paper).toArgb()
+        for (side in listOf(-1f, 1f)) {
+            check((55..95).any { sample(side * w * it / 100f, h, entrance, tolerance = 1) }) { "Dashed entrance side missing" }
+        }
+        val start = path.first()
+        val next = path.first { abs(it.x - start.x) + abs(it.y - start.y) > .001f }
+        val dx = next.x - start.x; val dy = next.y - start.y
+        val length = kotlin.math.hypot(dx, dy)
+        val sx = bounds.left + viewport.x(start.x) * density + dx / length * .8f * scale
+        val sy = bounds.top + viewport.y(start.y) * density - dy / length * .8f * scale
+        check((-2..2).any { x -> (-2..2).any { y ->
+            bitmap.getPixel(sx.roundToInt() + x, sy.roundToInt() + y) == CoachColors.Signal.toArgb()
+        } }) { "Initial travel chevron missing" }
     }
 
     private fun round12Verdicts(activity: MainActivity, baseReport: LessonReport) {

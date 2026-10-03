@@ -8,6 +8,15 @@ import org.junit.Test
 class PathPresentationTest {
     private fun point(t: Long, x: Float, y: Float, reverse: Boolean = true, heading: Float = 0f) = PathPoint(t, x, y, heading, reverse)
 
+    @Test fun initialDirectionSkipsStopsAndUsesTravelRatherThanTheCarHeading() {
+        val start = point(0, 0f, 0f, false, 90f)
+        assertEquals(0f, initialTravelHeading(listOf(start, start.copy(tMillis = 100), point(200, 0f, 1f, false)))!!, .001f)
+        assertEquals(-90f, initialTravelHeading(listOf(start, point(1, 1f, 0f)))!!, .001f)
+        assertEquals(180f, kotlin.math.abs(initialTravelHeading(listOf(start, point(1, 0f, -1f)))!!), .001f)
+        assertNull(initialTravelHeading(emptyList()))
+        assertNull(initialTravelHeading(listOf(start, start.copy(tMillis = 100))))
+    }
+
     @Test fun replayUsesIrregularTimestampsAndDestinationGear() {
         val path = listOf(point(0, 0f, 0f, false), point(100, 2f, -2f, true, -20f),
             point(1_000, 8f, -8f, false, -80f))
