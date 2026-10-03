@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>과제 카드 배치 시안</title>
+<style>
+  :root { --ink:#070827; --paper:#FCFCFA; --peri:#5B60A1; --lav:#E5E6F0; --signal:#F52D48; --muted:#6B6E8A; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#E9E9EE; font-family:"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif; color:var(--ink); }
+  .wrap { padding:24px 28px 32px; }
+  h1 { font-size:20px; font-weight:500; margin:0 0 4px; }
+  .sub { font-size:13px; color:var(--muted); margin:0 0 18px; }
+  .row { margin-bottom:22px; }
+  .row h2 { font-size:14px; font-weight:500; color:var(--peri); margin:0 0 8px; }
+  .row p { font-size:12px; color:var(--muted); margin:0 0 10px; }
+  .sheet { background:var(--paper); padding:18px 20px; display:grid; grid-template-columns:repeat(4,1fr); gap:14px; width:760px; }
+  .card { position:relative; background:var(--lav); border-radius:6px; box-shadow:0 4px 10px rgba(7,8,39,.10), 0 1px 2px rgba(7,8,39,.06), inset 0 1px 0 rgba(255,255,255,.9); overflow:visible; }
+  .card.sel { background:var(--peri); color:var(--paper); }
+  .card.planned { box-shadow:none; color:var(--muted); }
+  .card.planned svg { opacity:.55; }
+  .check { position:absolute; left:50%; bottom:-14px; transform:translateX(-50%); width:28px; height:28px; border-radius:50%; background:var(--signal); color:#fff; font-size:16px; line-height:28px; text-align:center; }
+  svg { display:block; }
+  .t { font-size:15px; line-height:1.3; }
+  .d { font-size:11px; color:var(--muted); }
+  .sel .d { color:#D5D7EE; }
+  .pill { display:inline-block; font-size:10px; padding:2px 8px; border-radius:999px; background:rgba(7,8,39,.08); color:var(--ink); }
+  .sel .pill { background:rgba(255,255,255,.18); color:var(--paper); }
+  .planned .pill { background:rgba(7,8,39,.06); color:var(--muted); }
+  /* 지금 */
+  .now .card { height:170px; padding:12px 10px 10px; display:flex; flex-direction:column; align-items:center; }
+  .now svg { margin-top:0; }
+  .now .t { text-align:center; margin-top:6px; }
+  .now .d { margin-top:4px; }
+  /* A: 세 묶음 균등 — 위 여백 · 그림 · 제목+난이도 한 덩어리 */
+  .A .card { height:190px; padding:20px 14px 18px; display:flex; flex-direction:column; align-items:center; justify-content:space-between; }
+  .A .t { text-align:center; }
+  .A .d { margin-top:4px; }
+  /* B: 왼쪽 정렬 — 그림 작게 위 왼쪽, 제목 아래 왼쪽, 난이도 알약 */
+  .B .card { height:190px; padding:16px 16px 14px; display:flex; flex-direction:column; justify-content:space-between; align-items:flex-start; }
+  .B .t { font-size:16px; }
+  .B .meta { display:flex; align-items:center; gap:6px; margin-top:6px; }
+  /* C: 그림이 주인공 — 상단 2/3 그림 면, 하단 1/3 제목 띠 */
+  .C .card { height:200px; padding:0; display:flex; flex-direction:column; }
+  .C .art { flex:1; display:flex; align-items:center; justify-content:center; }
+  .C .band { padding:10px 14px 12px; border-top:1px solid rgba(7,8,39,.08); display:flex; justify-content:space-between; align-items:baseline; }
+  .C .sel .band { border-top-color:rgba(255,255,255,.18); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>주차 세부 과제 카드 — 배치 시안</h1>
+  <p class="sub">같은 토큰·질감 B. 바뀌는 것은 그림 위치와 제목·난이도의 간격뿐. 실제 화면은 이 미리보기의 약 3.4배 크기(2560 dp 폭).</p>
+
+  <div class="row">
+    <h2>지금 — 그림이 위로 쏠리고 제목·난이도가 따로 논다</h2>
+    <div class="sheet now">
+      <div class="card sel"><svg width="56" height="64" viewBox="0 0 56 64"><rect x="2" y="2" width="4" height="60" fill="#FCFCFA"/><rect x="50" y="2" width="4" height="60" fill="#FCFCFA"/><rect x="18" y="14" width="20" height="38" rx="6" fill="#FCFCFA"/></svg><div class="t">후면 직각<br>주차</div><div class="d">상</div><div class="check">✓</div></div>
+      <div class="card planned"><svg width="56" height="64" viewBox="0 0 56 64"><rect x="18" y="14" width="20" height="38" rx="6" fill="#5B60A1"/><line x1="48" y1="4" x2="48" y2="60" stroke="#5B60A1" stroke-dasharray="4 4"/></svg><div class="t">평행 주차</div><div class="d">준비 중</div></div>
+      <div class="card"><svg width="56" height="64" viewBox="0 0 56 64"><rect x="8" y="2" width="40" height="4" fill="#5B60A1"/><rect x="8" y="2" width="4" height="40" fill="#5B60A1"/><rect x="44" y="2" width="4" height="40" fill="#5B60A1"/><rect x="18" y="14" width="20" height="38" rx="6" fill="#070827"/></svg><div class="t">전면 직각<br>주차</div><div class="d">중</div></div>
+      <div class="card planned"><svg width="56" height="64" viewBox="0 0 56 64"><g transform="rotate(30 28 32)"><rect x="18" y="12" width="20" height="40" rx="6" fill="#5B60A1"/></g></svg><div class="t">사선 주차</div><div class="d">준비 중</div></div>
+    </div>
+  </div>
+
+  <div class="row">
+    <h2>A — 세 묶음 균등 배치(그림 · 제목 · 난이도), 위아래 여백 같게</h2>
+    <p>그림을 카드 세로 중앙 윗쪽에 두고 제목과 난이도를 한 덩어리로 아래에. 가장 적은 변화.</p>
+    <div class="sheet A">
+      <div class="card sel"><svg width="56" height="64" viewBox="0 0 56 64"><rect x="2" y="2" width="4" height="60" fill="#FCFCFA"/><rect x="50" y="2" width="4" height="60" fill="#FCFCFA"/><rect x="18" y="14" width="20" height="38" rx="6" fill="#FCFCFA"/></svg><div><div class="t">후면 직각 주차</div><div class="d">난이도 상</div></div><div class="check">✓</div></div>
+      <div class="card planned"><svg width="56" height="64" viewBox="0 0 56 64"><rect x="18" y="14" width="20" height="38" rx="6" fill="#5B60A1"/><line x1="48" y1="4" x2="48" y2="60" stroke="#5B60A1" stroke-dasharray="4 4"/></svg><div><div class="t">평행 주차</div><div class="d">준비 중</div></div></div>
+      <div class="card"><svg width="56" height="64" viewBox="0 0 56 64"><rect x="8" y="2" width="40" height="4" fill="#5B60A1"/><rect x="8" y="2" width="4" height="40" fill="#5B60A1"/><rect x="44" y="2" width="4" height="40" fill="#5B60A1"/><rect x="18" y="14" width="20" height="38" rx="6" fill="#070827"/></svg><div><div class="t">전면 직각 주차</div><div class="d">난이도 중</div></div></div>
+      <div class="card planned"><svg width="56" height="64" viewBox="0 0 56 64"><g transform="rotate(30 28 32)"><rect x="18" y="12" width="20" height="40" rx="6" fill="#5B60A1"/></g></svg><div><div class="t">사선 주차</div><div class="d">준비 중</div></div></div>
+    </div>
+  </div>
+
+  <div class="row">
+    <h2>B — 왼쪽 정렬, 그림은 작게 위에, 제목은 크게 아래에, 난이도는 알약</h2>
+    <p>앱 아이콘 카드(스토어·대시보드) 관습. 글자가 왼쪽 기준선에 맞아 네 장이 나란히 읽힌다.</p>
+    <div class="sheet B">
+      <div class="card sel"><svg width="44" height="50" viewBox="0 0 56 64"><rect x="2" y="2" width="4" height="60" fill="#FCFCFA"/><rect x="50" y="2" width="4" height="60" fill="#FCFCFA"/><rect x="18" y="14" width="20" height="38" rx="6" fill="#FCFCFA"/></svg><div><div class="t">후면 직각 주차</div><div class="meta"><span class="pill">난이도 상</span></div></div><div class="check">✓</div></div>
+      <div class="card planned"><svg width="44" height="50" viewBox="0 0 56 64"><rect x="18" y="14" width="20" height="38" rx="6" fill="#5B60A1"/><line x1="48" y1="4" x2="48" y2="60" stroke="#5B60A1" stroke-dasharray="4 4"/></svg><div><div class="t">평행 주차</div><div class="meta"><span class="pill">준비 중</span></div></div></div>
+      <div class="card"><svg width="44" height="50" viewBox="0 0 56 64"><rect x="8" y="2" width="40" height="4" fill="#5B60A1"/><rect x="8" y="2" width="4" height="40" fill="#5B60A1"/><rect x="44" y="2" width="4" height="40" fill="#5B60A1"/><rect x="18" y="14" width="20" height="38" rx="6" fill="#070827"/></svg><div><div class="t">전면 직각 주차</div><div class="meta"><span class="pill">난이도 중</span></div></div></div>
+      <div class="card planned"><svg width="44" height="50" viewBox="0 0 56 64"><g transform="rotate(30 28 32)"><rect x="18" y="12" width="20" height="40" rx="6" fill="#5B60A1"/></g></svg><div><div class="t">사선 주차</div><div class="meta"><span class="pill">준비 중</span></div></div></div>
+    </div>
+  </div>
+
+  <div class="row">
+    <h2>C — 그림 면 + 제목 띠(위 2/3 그림을 정중앙에, 아래 1/3 띠에 제목과 난이도 한 줄)</h2>
+    <p>포스터·갤러리 카드 관습. 그림이 가장 크고 정중앙이라 "쏠림" 이 사라진다. 카드가 조금 더 커진다.</p>
+    <div class="sheet C">
+      <div class="card sel"><div class="art"><svg width="64" height="72" viewBox="0 0 56 64"><rect x="2" y="2" width="4" height="60" fill="#FCFCFA"/><rect x="50" y="2" width="4" height="60" fill="#FCFCFA"/><rect x="18" y="14" width="20" height="38" rx="6" fill="#FCFCFA"/></svg></div><div class="band"><span class="t">후면 직각 주차</span><span class="d">상</span></div><div class="check">✓</div></div>
+      <div class="card planned"><div class="art"><svg width="64" height="72" viewBox="0 0 56 64"><rect x="18" y="14" width="20" height="38" rx="6" fill="#5B60A1"/><line x1="48" y1="4" x2="48" y2="60" stroke="#5B60A1" stroke-dasharray="4 4"/></svg></div><div class="band"><span class="t">평행 주차</span><span class="d">준비 중</span></div></div>
+      <div class="card"><div class="art"><svg width="64" height="72" viewBox="0 0 56 64"><rect x="8" y="2" width="40" height="4" fill="#5B60A1"/><rect x="8" y="2" width="4" height="40" fill="#5B60A1"/><rect x="44" y="2" width="4" height="40" fill="#5B60A1"/><rect x="18" y="14" width="20" height="38" rx="6" fill="#070827"/></svg></div><div class="band"><span class="t">전면 직각 주차</span><span class="d">중</span></div></div>
+      <div class="card planned"><div class="art"><svg width="64" height="72" viewBox="0 0 56 64"><g transform="rotate(30 28 32)"><rect x="18" y="12" width="20" height="40" rx="6" fill="#5B60A1"/></g></svg></div><div class="band"><span class="t">사선 주차</span><span class="d">준비 중</span></div></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
