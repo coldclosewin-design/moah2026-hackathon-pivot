@@ -1,5 +1,38 @@
 # 화면 검증 캡처
 
+## 라운드 16 주차 카드 차량 실루엣 (2026-10-03)
+
+`codex/ui-round16` · 기준 `origin/main=519f4e0`(#130 이후, 발주 #131 포함) · 외부 CSTDe_API_34 2560×1440 · Fake 기본 배율 1.0. [발주서](../../handoffs/2026-10-03_codex_ui_round16.md)와 [시안 아래 줄](../../design/round13-front/card-silhouette-preview.html)의 카드 차를 반영했다.
+
+| 대상 | 교체 캡처 | 확인 |
+|---|---|---|
+| 후면 선택 | [주차 시트](lesson-setup-sheet.png) | 큰 앞 유리·앞쪽 미러·긴 보닛을 가진 Maneuver 실루엣. 후면·평행은 뒤가 위, 전면은 앞이 위, 사선은 뒤가 위에서 30° 회전 |
+| 전면 선택 | [전면 시트](lesson-setup-sheet-front.png) | 전면 차 앞이 칸의 닫힌 쪽. 선택은 Paper/Lavender/Periwinkle, 일반은 Ink/Periwinkle/Lavender(몸체/패널/유리 순) |
+| READY fixture | [비선택 READY](lesson-setup-sheet-ready-contract.png) | 평행 주차만 READY로 복사한 기존 계측 데이터. 실제 시드의 준비 중 상태·55% 불투명도 유지 |
+| 시트 전환 | [열기](lesson-setup-morph-strip.png), [닫기](lesson-setup-morph-return-strip.png) | 기존 400 ms 전환·카드 C 배치·질감 B·선택 체크·모드/시작 위치 유지 |
+
+PNG **5장**은 최종 첫 PASS 실행에서 교체했다. 네 도식·제목·난이도·모드·하단 버튼의 잘림/겹침이 없음을 직접 확인했다. 차길이 160 dp·차폭 비율 .43, 사선 맞춤 축소, 칸 선의 위치·종류는 그대로다.
+
+`VehicleSilhouette.kt`는 `VehicleDiagram`의 100×250 경로·그리기 순서를 그대로 추출한 공통 함수다. 원본의 몸체·패널·유리·미러 좌표 및 옆 유리 구분선이 문자 단위로 같음을 확인했다. 바퀴·보조선·셰브론은 Maneuver에 남겼고, Done의 `SmallCarMark`·추정 궤적 코드는 수정하지 않았다. 선택/비선택 두 상태 모두 후면 앞 유리가 **아래(46/34 px)**, 전면 앞 유리가 **위(45/34 px)**이며 앞 유리 폭이 뒤보다 크고 몸체/패널 색도 맞는지 캡처 픽셀로 검사한다.
+
+같은 기준 커밋에서 직접 실행한 변경 전 계약 캡처와 앱 영역 `(0,76)–(2560,1344)`을 비교했다. 후면 Maneuver·좌/우/중립 보조선·전면 D/R 도식, 대표 후면 Done·고정 궤적·전면 못한/잘한 Done, 전면 Report는 **픽셀이 완전히 동일**하다. 후면 Report는 글자 가장자리 46 px에서 채널값 최대 3 차이만 있다. 재생 중 캡처와 눌림/활성화 애니메이션은 실행 시점에 따른 프레임 차이가 있어 정지 장면 비교와 구분했다. 기존 Maneuver·Done·Report PNG는 교체하지 않았다. 주차 시트의 변화는 차 그림 영역에만 있으며 칸 선·선택 체크·텍스트·버튼은 기존 픽셀 그대로다.
+
+지정 PowerShell `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` 성공, 단위 테스트 **242개(실패·오류·건너뜀 0)**. [빌드 로그](build-round16.txt). 앱 SHA-256 `C596A10D500250B510328C4E2C63A1423565DAD5333049EE250CEA39E038389A`, 계측 SHA-256 `15901C1F35BB808C63CBDB67091A7CB773661BA47881419ECE51E2F4C38645C8`.
+
+동일 APK로 수정 없는 원본 `tools/lesson_shots.sh build/round16-final-{1,2,3}` **3회 연속 Lesson contract passed**([전체 계약 로그](contract-round16.txt)). 기존 본편 라벨 13개·잠금 숫자/터치 0·판정·퀴즈·예약·질감·카드 배치 계약과 새 카드 앞뒤/색 계측을 모두 통과했다.
+
+| 연속 실행 | 결과 |
+|---|---|
+| `round16-final-1` | Lesson contract passed |
+| `round16-final-2` | Lesson contract passed |
+| `round16-final-3` | Lesson contract passed |
+
+원본 `bash tools/emu_flow.sh build/round16-rear-flow` **PASS·clashes 0·118초**([후면 로그](flow-round16-rear.txt)). 60/55·4구간 → 100/100·2구간, 필수 안전벨트/뒤 근접/급제동 힌트 3종·좋은 주차 추가 힌트 0·운전석 문 열기→Report·배지 0/8/0을 유지했다.
+
+전면 전체 흐름 **PASS·clashes 0·119초**([전면 로그](flow-round16-front.txt)). `주차 → 전면 직각 주차 → 힌트 → 시작 → 못한 주차 → 다 됐어요 → 한 번 더 → 잘한 주차 → 다 됐어요 → 문 열기` 순서다. 원본 tools를 수정하지 않고 무시되는 `build/front_flow.sh` 사본에 과제 선택·앞 근접 힌트·배지 7 검사만 적용했다. 60/55·4구간 → 100/100·2구간, 필수 안전벨트/앞 근접/급제동 힌트·좋은 주차 추가 힌트 0·도어→Report·배지 0/7/0을 확인했다.
+
+차량·포트·채점·상태기계·데이터·build 파일·tools·NEXT 변경 없음. 새 색 토큰·문자열 리소스·`ui/` Bold 추가 0, `Color(0x`는 기존 `CoachStyle.kt`만 사용한다.
+
 ## UI 라운드 8 (2026-09-29)
 
 `codex/ui-round8` · 기준 `origin/main=c013d39`(PR #54) · CSTDe_API_34 2560×1440 · 기본 Fake, 배율 1.0. [발주서](../../handoffs/2026-09-28_codex_ui_round8.md)의 ①②③을 구현했으며, ③은 §3 (나) 도착 칸이다.
