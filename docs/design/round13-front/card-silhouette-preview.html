@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>과제 카드 차 실루엣 시안</title>
+<style>
+  :root { --ink:#070827; --paper:#FCFCFA; --peri:#5B60A1; --lav:#E5E6F0; --signal:#F52D48; --muted:#6B6E8A; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#E9E9EE; font-family:"Noto Sans KR","Malgun Gothic",system-ui,sans-serif; color:var(--ink); }
+  .wrap { padding:24px 28px 32px; }
+  h1 { font-size:20px; font-weight:500; margin:0 0 4px; }
+  .sub { font-size:13px; color:var(--muted); margin:0 0 18px; }
+  h2 { font-size:14px; font-weight:500; color:var(--peri); margin:0 0 8px; }
+  .row { margin-bottom:24px; }
+  .sheet { background:var(--paper); padding:18px 20px 30px; display:grid; grid-template-columns:repeat(4,1fr); gap:14px; width:780px; }
+  .card { position:relative; height:200px; background:var(--lav); border-radius:6px; box-shadow:0 4px 10px rgba(7,8,39,.10), inset 0 1px 0 rgba(255,255,255,.9); display:flex; flex-direction:column; }
+  .card.sel { background:var(--peri); color:var(--paper); }
+  .card.planned { box-shadow:none; color:var(--muted); }
+  .art { flex:1; display:flex; align-items:center; justify-content:center; }
+  .planned .art svg { opacity:.55; }
+  .band { padding:10px 14px 12px; border-top:1px solid rgba(7,8,39,.08); display:flex; justify-content:space-between; align-items:baseline; }
+  .sel .band { border-top-color:rgba(255,255,255,.18); }
+  .t { font-size:15px; } .d { font-size:11px; color:var(--muted); } .sel .d { color:#D5D7EE; }
+  .check { position:absolute; left:50%; bottom:-14px; transform:translateX(-50%); width:28px; height:28px; border-radius:50%; background:var(--signal); color:#fff; font-size:16px; line-height:28px; text-align:center; }
+  .note { font-size:12px; color:var(--muted); margin:8px 0 0; line-height:1.6; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>주차 세부 과제 카드 — 차 실루엣 시안</h1>
+  <p class="sub">위: 지금(라운드 15 작은 차 마크) · 아래: 제안(Maneuver 화면의 큰 차와 같은 실루엣 — 앞 유리·사이드미러·보닛·트렁크). 카드 C 배치·질감 B 그대로.</p>
+
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <!-- Maneuver VehicleDiagram 의 몸체 경로(100×250, 뒤가 위). x 는 1.075 배로 그린다 -->
+      <g id="car">
+        <path class="body" d="M25 1 C10 3 6 12 5 28 L2 46 L5 76 L5 173 C-1 210 1 232 15 242 C30 253 70 253 85 242 C99 232 101 210 95 173 L95 76 L98 46 L95 28 C94 12 90 3 75 1 Q50 -2 25 1 Z"/>
+        <path class="panel" d="M19 3 Q50 -1 81 3 Q82 18 76 34 L24 34 Q18 18 19 3 Z"/>
+        <path class="panel" d="M15 174 Q50 183 85 174 Q85 212 72 244 Q50 248 28 244 Q15 212 15 174 Z"/>
+        <path class="glass" d="M23 32 Q50 26 77 32 L74 49 Q50 52 26 49 Z"/>
+        <path class="glass" d="M22 137 Q50 143 78 137 L86 170 Q50 190 14 170 Z"/>
+        <path class="glass" d="M17 52 Q24 90 19 126 L11 162 L11 93 Z"/>
+        <path class="glass" d="M83 52 Q76 90 81 126 L89 162 L89 93 Z"/>
+        <path class="body" d="M7 159 L-2 154 Q-8 152 -6 159 Q-4 162 7 165 Z"/>
+        <path class="body" d="M93 159 L102 154 Q108 152 106 159 Q104 162 93 165 Z"/>
+      </g>
+    </defs>
+  </svg>
+
+  <div class="row">
+    <h2>지금 — 둥근 사각형에 유리 둘(앞뒤가 안 읽힘)</h2>
+    <div class="sheet">
+      <div class="card sel"><div class="art"><svg width="90" height="110" viewBox="0 0 90 110"><line x1="14" y1="4" x2="14" y2="106" stroke="#FCFCFA" stroke-width="3"/><line x1="76" y1="4" x2="76" y2="106" stroke="#FCFCFA" stroke-width="3"/><rect x="30" y="10" width="30" height="90" rx="5" fill="#FCFCFA"/><rect x="30" y="70" width="30" height="30" fill="#C9CBE6"/><rect x="34" y="24" width="22" height="8" fill="#5B60A1"/><rect x="36" y="50" width="18" height="7" fill="#5B60A1"/></svg></div><div class="band"><span class="t">후면 직각 주차</span><span class="d">상</span></div><div class="check">✓</div></div>
+      <div class="card planned"><div class="art"><svg width="90" height="110" viewBox="0 0 90 110"><line x1="76" y1="4" x2="76" y2="106" stroke="#6B6E8A" stroke-width="3" stroke-dasharray="6 6"/><rect x="30" y="10" width="30" height="90" rx="5" fill="#6B6E8A"/></svg></div><div class="band"><span class="t">평행 주차</span><span class="d">준비 중</span></div></div>
+      <div class="card"><div class="art"><svg width="90" height="110" viewBox="0 0 90 110"><line x1="14" y1="4" x2="76" y2="4" stroke="#070827" stroke-width="3"/><line x1="14" y1="4" x2="14" y2="106" stroke="#070827" stroke-width="3"/><line x1="76" y1="4" x2="76" y2="106" stroke="#070827" stroke-width="3"/><rect x="30" y="10" width="30" height="90" rx="5" fill="#070827"/><rect x="30" y="10" width="30" height="30" fill="#C9CBE6"/><rect x="34" y="50" width="22" height="8" fill="#E5E6F0"/><rect x="36" y="78" width="18" height="7" fill="#E5E6F0"/></svg></div><div class="band"><span class="t">전면 직각 주차</span><span class="d">중</span></div></div>
+      <div class="card planned"><div class="art"><svg width="90" height="110" viewBox="0 0 90 110"><g transform="rotate(30 45 55)"><rect x="30" y="10" width="30" height="90" rx="5" fill="#6B6E8A"/></g></svg></div><div class="band"><span class="t">사선 주차</span><span class="d">준비 중</span></div></div>
+    </div>
+  </div>
+
+  <div class="row">
+    <h2>제안 — Maneuver 의 큰 차 실루엣을 축소(앞 유리 크고 미러가 앞쪽, 뒤 유리 작음)</h2>
+    <div class="sheet">
+      <!-- 후면: 차 뒤가 칸 안쪽(위) — 경로 그대로 -->
+      <div class="card sel"><div class="art"><svg width="110" height="130" viewBox="-30 -8 160 266">
+        <line x1="-14" y1="-4" x2="-14" y2="254" stroke="#FCFCFA" stroke-width="6"/><line x1="122" y1="-4" x2="122" y2="254" stroke="#FCFCFA" stroke-width="6"/>
+        <g transform="scale(1.075 1)" style="--b:#FCFCFA"><use href="#car" class="sel-car"/></g>
+      </svg></div><div class="band"><span class="t">후면 직각 주차</span><span class="d">상</span></div><div class="check">✓</div></div>
+      <!-- 평행: 옆 점선, 차는 뒤가 위 -->
+      <div class="card planned"><div class="art"><svg width="110" height="130" viewBox="-30 -8 160 266">
+        <line x1="122" y1="-4" x2="122" y2="254" stroke="#6B6E8A" stroke-width="6" stroke-dasharray="14 14"/>
+        <g transform="scale(1.075 1)"><use href="#car" class="dim-car"/></g>
+      </svg></div><div class="band"><span class="t">평행 주차</span><span class="d">준비 중</span></div></div>
+      <!-- 전면: 차 앞이 칸 안쪽(위) — 180° -->
+      <div class="card"><div class="art"><svg width="110" height="130" viewBox="-30 -8 160 266">
+        <line x1="-14" y1="-4" x2="122" y2="-4" stroke="#070827" stroke-width="6"/><line x1="-14" y1="-4" x2="-14" y2="254" stroke="#070827" stroke-width="6"/><line x1="122" y1="-4" x2="122" y2="254" stroke="#070827" stroke-width="6"/>
+        <g transform="rotate(180 53.75 125) scale(1.075 1)"><use href="#car" class="ink-car"/></g>
+      </svg></div><div class="band"><span class="t">전면 직각 주차</span><span class="d">중</span></div></div>
+      <!-- 사선 -->
+      <div class="card planned"><div class="art"><svg width="110" height="130" viewBox="-60 -30 220 310">
+        <g transform="rotate(30 53.75 125)"><line x1="-14" y1="-4" x2="-14" y2="254" stroke="#6B6E8A" stroke-width="6"/><line x1="122" y1="-4" x2="122" y2="254" stroke="#6B6E8A" stroke-width="6"/><g transform="scale(1.075 1)"><use href="#car" class="dim-car"/></g></g>
+      </svg></div><div class="band"><span class="t">사선 주차</span><span class="d">준비 중</span></div></div>
+    </div>
+    <p class="note">색: 선택 카드 = 몸체 Paper · 패널 Lavender · 유리 Periwinkle(Maneuver 와 같은 조합) / 일반 카드 = 몸체 Ink · 패널 Periwinkle · 유리 Lavender / 준비 중 = Muted 단색 55 %. 앞뒤 구분은 실루엣 자체(큰 앞 유리·앞쪽 미러·긴 보닛)로.</p>
+  </div>
+</div>
+<style>
+  .sel-car .body, .sel-car { fill:#FCFCFA; }
+  use.sel-car { --x:0; }
+</style>
+<script>
+  // <use> 안의 class 별 색은 CSS 상속이 막혀서, 복제해 색을 입힌다
+  const tpl = document.getElementById('car');
+  const palettes = { 'sel-car':['#FCFCFA','#E5E6F0','#5B60A1'], 'ink-car':['#070827','#5B60A1','#E5E6F0'], 'dim-car':['#6B6E8A','#8E91AA','#E5E6F0'] };
+  document.querySelectorAll('use').forEach(u => {
+    const [body, panel, glass] = palettes[u.getAttribute('class')];
+    const g = tpl.cloneNode(true); g.removeAttribute('id');
+    g.querySelectorAll('.body').forEach(p => p.setAttribute('fill', body));
+    g.querySelectorAll('.panel').forEach(p => p.setAttribute('fill', panel));
+    g.querySelectorAll('.glass').forEach(p => p.setAttribute('fill', glass));
+    u.replaceWith(g);
+  });
+</script>
+</body>
+</html>
