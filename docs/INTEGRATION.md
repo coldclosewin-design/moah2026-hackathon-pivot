@@ -78,6 +78,7 @@
 
 - [2026-10-03] [scoring] **전면 직각 주차 사양 가정**: 근접 경고는 실물 `Vehicle.ADAS.ObstacleDetection.IsWarning` 하나로 보고 **앞 센서 경고라고 가정**한다(경로에 방향이 없다). 힌트·조언은 "앞이 가까워요"·"앞 거리를" 로 말한다. 뒤 거리(Fake 전용)는 쓰지 않아 배지 분모 7 → 사내 확인: 전면 과제에서 Signal Simulator 로 `IsWarning` 을 켜면 힌트가 나오는지, 배지가 `실신호 6 · 시뮬 1` 쯤인지(확인 항목 ⑦). 목표 각 90° 는 후면과 같다.
 - [2026-10-04] [vehicle] **전 범위 구현용 시뮬레이션 신호 8개**(`vehicle/SimOnlySignals.kt`, docs/design/10_full_scope.md): 차량 2 = `Vehicle.Body.Lights.Beam.Low.IsOn`(boolean)·`Vehicle.Body.Windshield.Front.Wiping.Mode`(string, OFF/SLOW/…) — COVESA 표준 경로라 사내 목록에 있을 수 있다 → 사내 확인: pageId 1323873443 에 같은 경로가 있으면 `VssConstants` 로 옮기고(이름 = 경로 대문자·밑줄) 배지가 실신호로 바뀌는지. 시험장 6 = `Track.Position.X/Y`(m)·`Track.Heading`(°, +y 기준 반시계)·`Track.Signal.State`(RED/YELLOW/GREEN/OFF)·`Track.Event.Emergency`·`Track.Line.Contact` — VSS 트리 밖, **실제로는 제휴 시험장 전자채점 시스템·RTK-GPS 가 내려 준다고 가정**(발표 대응표 10 §3). Real 단독에서는 전부 MISSING → 코스 과제는 위치 없이 "위치 미측정" 으로 진행, Hybrid 는 Fake 가 채워 "시뮬레이션".
+- [2026-10-04] [scoring] **코스 채점 엔진 가정**(`scoring/TrackCourse.kt`·`CourseRecorder.kt`): ① 감점 값은 도로교통공단 장내기능시험을 참고한 **모의 감점표**(`ExamPoints` — 장치 조작 항목당 5 · 차로 검지선 15 · 좌우회전 선 5 · 주차 선 10 · 경사로 미정지/밀림 1 m/30 초 지연 각 10 · 지시등 5 · 주차 칸 밖·제한 120 초 각 10 · 가속 20 km/h 미만 10 · 돌발 2 초 내 미정지·비상등 각 10 · 신호 위반 실격 · 합격 80) → 발표 전 공단 기준으로 교정. ② 구간은 축 정렬 사각형, 코스 순서대로 **앞으로만** 진행(지나간 구간 재진입 없음). ③ 위치가 한 번도 안 오면 구간 판정 전부 미측정·합격 판정 null, 규칙이 쓰는 신호가 안 오면 감점 없이 `unmeasured`. ④ 주차 완료는 차 **중심점**이 칸 사각형 안에서 멈춘 것으로 본다(차체 전체 아님).
 
 ## C. 요청 (Codex → Claude / Claude → Codex)
 
