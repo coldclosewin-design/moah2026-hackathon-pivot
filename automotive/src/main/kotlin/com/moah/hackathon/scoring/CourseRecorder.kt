@@ -292,7 +292,7 @@ class CourseRecorder(val course: TrackCourse) {
             if (rule.label in run.fired) continue
             when (rule) {
                 is ZoneRule.StopInside -> if (run.stoppedAt == null)
-                    out += make(run, rule, t, "${run.zone.kind.label} 미정지", "${run.zone.title}에서 멈추지 않고 지나갔어요.")
+                    out += make(run, rule, t, "${run.zone.title} 미정지", "${run.zone.title}에서 멈추지 않고 지나갔어요.")
                 is ZoneRule.Indicator -> {
                     val key = if (rule.side == Side.LEFT) LEFT_KEY else RIGHT_KEY
                     val ok = if (rule.side == Side.LEFT) run.indicatorLeftSeen else run.indicatorRightSeen
