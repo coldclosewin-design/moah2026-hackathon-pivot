@@ -31,7 +31,7 @@ import kotlinx.coroutines.delay
 import kotlin.math.roundToLong
 
 @Composable
-internal fun EstimatedPath(record: AttemptRecord, modifier: Modifier, entryGear: Gear = Gear.REVERSE) {
+internal fun EstimatedPath(record: AttemptRecord, modifier: Modifier, entryGear: Gear = Gear.REVERSE, targetHeading: Float? = null) {
     val time = remember(record) { Animatable(0f) }
     LaunchedEffect(record) {
         delay(500)
@@ -41,14 +41,14 @@ internal fun EstimatedPath(record: AttemptRecord, modifier: Modifier, entryGear:
         Canvas(Modifier.weight(1f).fillMaxWidth().clipToBounds().semantics { contentDescription = "추정 궤적" }) {
             val harshPoints = record.score.metrics.harshEvents.mapNotNull { nearestPathPoint(record.path, it.tMillis) }
             val viewport = pathViewport(record.path, size.width / density, size.height / density,
-                frontEntry = entryGear == Gear.DRIVE, harshPoints = harshPoints)
+                frontEntry = entryGear == Gear.DRIVE, harshPoints = harshPoints, targetHeading = targetHeading)
             val elapsed = time.value.roundToLong()
             val revealed = pathThroughTime(record.path, elapsed)
             fun position(point: PathPoint) = Offset(viewport.x(point.x).dp.toPx(), viewport.y(point.y).dp.toPx())
             // Preserve measured coordinates and time; front entry already points screen-up.
             rotate(if (entryGear == Gear.DRIVE) 0f else 180f, pivot = center) {
                 val arrival = record.path.last()
-                arrivalBay(position(arrival), arrival.headingDeg, viewport.scale.dp.toPx(), frontEntry = entryGear == Gear.DRIVE)
+                arrivalBay(position(arrival), targetHeading ?: arrival.headingDeg, viewport.scale.dp.toPx(), frontEntry = entryGear == Gear.DRIVE)
                 pathLegs(revealed).forEach { leg ->
                     drawPath(Path().apply {
                         leg.points.forEachIndexed { index, point ->

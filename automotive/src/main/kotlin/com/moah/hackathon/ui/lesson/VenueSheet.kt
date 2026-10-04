@@ -92,7 +92,7 @@ internal fun VenueSheet(venues: List<Venue>, booking: Reservation?, onReserve: (
 private fun VenueCard(venue: Venue, chosen: Boolean, booked: Boolean, modifier: Modifier, onClick: () -> Unit) {
     val foreground = if (booked) CoachColors.Paper else CoachColors.Ink
     val secondary = if (booked) CoachColors.Paper else CoachColors.Muted
-    Column(modifier.height(220.dp).background(if (booked) CoachColors.Periwinkle else CoachColors.Lavender)
+    Column(modifier.height(264.dp).background(if (booked) CoachColors.Periwinkle else CoachColors.Lavender)
         .then(if (chosen) Modifier.border(4.dp, CoachColors.Periwinkle) else Modifier)
         .clickable(role = Role.Button, onClick = onClick).semantics(mergeDescendants = true) { selected = chosen }
         .padding(horizontal = 24.dp, vertical = 4.dp)) {

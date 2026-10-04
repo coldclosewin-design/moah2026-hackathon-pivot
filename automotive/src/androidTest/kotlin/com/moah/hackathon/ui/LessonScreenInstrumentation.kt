@@ -69,11 +69,13 @@ class LessonScreenInstrumentation : Instrumentation() {
     private var frontOnly = false
     private var textureOnly = false
     private var round14Only = false
+    private var round18Only = false
     override fun onCreate(arguments: Bundle?) {
         super.onCreate(arguments)
         seedSpeech = arguments?.getString("seedSpeech") == "true"
         frontOnly = arguments?.getString("frontOnly") == "true"
         round14Only = arguments?.getString("round14Only") == "true"
+        round18Only = arguments?.getString("round18Only") == "true"
         textureOnly = arguments?.getString("textureOnly") == "true"
         start()
     }
@@ -82,6 +84,11 @@ class LessonScreenInstrumentation : Instrumentation() {
         val activity = startActivitySync(Intent(targetContext, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as MainActivity
         try {
+            if (round18Only) {
+                courseContract(activity)
+                finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Round18 contract passed\n") })
+                return
+            }
             if (round14Only) {
                 cardLayoutContract(activity)
                 frontParking(activity)
@@ -149,7 +156,8 @@ class LessonScreenInstrumentation : Instrumentation() {
             val categoryCenters = categoryOrder().map { textBounds(taskTypeLabel(it)).centerX() }
             check(categoryCenters == categoryCenters.sorted())
             check(allText().none { Regex("\\d").containsMatchIn(it) }) { "Sheet leaked task counts or numbers: ${allText()}" }
-            check(texts().contains("준비 중"))
+            check(SeedCatalog.tasks.size == 12 && SeedCatalog.tasks.all { it.isReady })
+            check("준비 중" !in texts())
             assertDriverButton(activity, "시작")
             val sheetStartBounds = buttonBounds("시작")
             click("힌트")
@@ -174,8 +182,8 @@ class LessonScreenInstrumentation : Instrumentation() {
                     assertBayFill(bitmap, taskBounds(planned.title), CoachColors.Lavender.copy(alpha = .4f).compositeOver(CoachColors.Paper).toArgb())
                 }
                 check(!colorBounds(bitmap, categoryTitleBounds, CoachColors.Signal.toArgb()).isEmpty) { "Expanded category text must be Signal" }
-                check(!colorBounds(bitmap, textBounds("주행"), CoachColors.Muted.compositeOver(CoachColors.Paper).toArgb(), tolerance = 1).isEmpty) {
-                    "Closed category must use Muted on Paper"
+                check(!colorBounds(bitmap, textBounds("주행"), CoachColors.Periwinkle.toArgb(), tolerance = 1).isEmpty) {
+                    "Ready driving category must use Periwinkle"
                 }
                 listOf(10, 26).forEach { belowTitle ->
                     check(bitmap.getPixel(categoryTitleBounds.centerX(), categoryTitleBounds.bottom + (belowTitle * scale).toInt()) == CoachColors.Signal.toArgb()) {
@@ -194,16 +202,20 @@ class LessonScreenInstrumentation : Instrumentation() {
             runOnMainSync { check(started == task.id to LessonMode.HINT) }
             click("주행")
             assertSelected("주행")
-            check(texts().none { it in listOf("시작", "가이드", "힌트", "평가", "지식 테스트") })
+            check(texts().containsAll(listOf("시작", "가이드", "힌트", "평가")))
             val driving = SeedCatalog.tasks.filter { it.type == TaskType.DRIVING }
-            check(driving.size == 5)
-            driving.take(4).forEach { assertPlannedTask(it.title) }
+            check(driving.size == 6 && driving.all { it.isReady })
+            driving.take(4).forEach { check(buttonBounds(it.title).width() > 0) }
             capture("setup-sheet-driving")
             val taskRow = nodes().first { it.isScrollable }
             check(taskRow.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD))
             Thread.sleep(350)
-            assertPlannedTask(driving.last().title)
+            check(buttonBounds(driving.last().title).width() > 0)
+            click(driving.last().title)
+            click("시작")
+            runOnMainSync { check(started == driving.last().id to LessonMode.HINT) }
             capture("setup-sheet-driving-end")
+            click("주차")
             click("돌아가기")
             check(texts().contains(setupProposal(TaskType.PARKING)))
             click("과제·모드 바꾸기")
@@ -232,16 +244,17 @@ class LessonScreenInstrumentation : Instrumentation() {
             check(buttonBounds("시작") == sheetStartBounds)
             capture("setup-knowledge")
             click("주행")
-            check(texts().none { it == "시작" })
+            check("시작" in texts())
+            click("지식")
             click("돌아가기")
-            check(texts().contains(setupProposal(TaskType.KNOWLEDGE))) { "Browsing planned tasks lost the last ready selection" }
+            check(texts().contains(setupProposal(TaskType.KNOWLEDGE))) { "Returning to knowledge lost its selection" }
             click("과제·모드 바꾸기")
             assertSelected("지식")
             assertSelected("지식 테스트")
             click("주차")
             assertSelected(task.title)
             assertSelected("가이드")
-            pass("Setup categories: planned driving scroll/no start, checklist dispatch, knowledge QUIZ, reopen selection and mode filtering; fixed footer")
+            pass("Setup categories: six ready driving cards, scroll and start dispatch, checklist dispatch, knowledge QUIZ, reopen selection and mode filtering; fixed footer")
             // The live catalog has one READY task per category. Exercise an unselected READY bay too.
             val twoReady = SeedCatalog.tasks.map { if (it.id == "parking-parallel") it.copy(status = TaskStatus.READY) else it }
             render(activity) { SetupScreen(SeedCatalog.demoProfile, twoReady, task, LessonMode.GUIDE, "", null, { _, _ -> }) }
@@ -725,6 +738,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             recordMotionClips(activity, moving, pathRecord)
             textureContract(activity)
             cardLayoutContract(activity)
+            courseContract(activity, full = false)
             finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Lesson contract passed\n") })
         } catch (failure: Throwable) {
             finish(Activity.RESULT_CANCELED, Bundle().apply { putString("stream", failure.stackTraceToString()) })
@@ -994,7 +1008,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         capture("venues") { bitmap ->
             SeedCatalog.venues.forEach { venue ->
                 val bounds = buttonBounds(venue.name)
-                check(kotlin.math.abs(bounds.height() / designScale(activity) - 220f) <= 1f)
+                check(kotlin.math.abs(bounds.height() / designScale(activity) - 264f) <= 1f)
                 check(bitmap.getPixel(bounds.left + 2, bounds.top + 2) == CoachColors.Lavender.toArgb())
             }
         }
@@ -1073,7 +1087,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         check(textBounds(profileLabel) == originalProfileBounds) {
             "Cancelled badge left empty space after morph settled: ${textBounds(profileLabel)} / $originalProfileBounds"
         }
-        pass("Reservation: three 220 dp cards, unavailable slot disabled, both choices required/reset per venue, reserve/cancel once, real ViewModel recommendation, confirmation/reopen, badge without leftover space")
+        pass("Reservation: three 264 dp cards, unavailable slot disabled, both choices required/reset per venue, reserve/cancel once, real ViewModel recommendation, confirmation/reopen, badge without leftover space")
     }
 
     /** Selection/navigation only: never retry reserve/cancel callbacks. Reacquire after a missed tap. */
@@ -1177,6 +1191,201 @@ class LessonScreenInstrumentation : Instrumentation() {
         check(allText().none { it.startsWith("AI ") || it == longError })
         originalBounds.forEach { (label, bounds) -> check(buttonBounds(label) == bounds) }
         pass("AI panel: null hides all AI nodes; five live states, connect/reconnect, exact 40 sp Ink code without overflow; toggle/scenario bounds unchanged")
+    }
+
+    // The full course suite is also runnable with -e round18Only true. Keep the existing
+    // lesson_shots 300-second budget and every legacy assertion; its default adds Drive safety.
+    private fun courseContract(activity: MainActivity, full: Boolean = true) {
+        val courses = com.moah.hackathon.data.TrackCourses
+        val scenarios = com.moah.hackathon.data.CourseScenarios
+        fun task(course: TrackCourse) = SeedCatalog.tasks.single { it.course?.id == course.id }
+        fun frame(course: TrackCourse, scenario: Scenario, predicate: (CourseProgress, VehicleSnapshot) -> Boolean): LessonPhase.Drive {
+            val recorder = CourseRecorder(course)
+            var snapshot = VehicleSnapshot()
+            for (step in scenario.steps) {
+                recorder.onDelta((step.atSeconds * 1000).toLong(), step.values)
+                snapshot = snapshot.apply(step.values)
+                val progress = recorder.progress()
+                if (predicate(progress, snapshot)) return LessonPhase.Drive(task(course), LessonMode.EVALUATE, 1,
+                    snapshot, course, progress, course.zone(progress.currentZoneId.orEmpty())?.announce, null,
+                    (step.atSeconds * 1000).toLong(), snapshot.stopped,
+                    CourseRecorder.KEYS.associateWith { SignalAvailability.SIMULATED })
+            }
+            error("No matching course frame: ${course.id}")
+        }
+        val exam = frame(courses.exam, scenarios.examGood) { p, s -> p.currentZoneId == "exam-accel" && s.locked }
+        val parked = frame(courses.exam, scenarios.examGood) { p, s -> p.currentZoneId == "exam-parking" && s.stopped }
+        val road = frame(courses.road, scenarios.roadGood) { _, s -> s.signal == TrackSignal.RED && s.stopped }
+        val round = frame(courses.roundabout, scenarios.roundGood) { p, s -> p.currentZoneId == "rb-ring" && (p.pose?.at?.x ?: 0f) > 43f && s.locked }
+        val demo: @Composable () -> Unit = { DemoPanel(listOf(scenarios.examGood, scenarios.examBad), null, {}, {}, {}, {}, {}) }
+        var finished = 0
+        fun driverText(live: Boolean = true) {
+            if (live) assertNoScores()
+            check(allText().filterNot { it.endsWith("회차") || it.endsWith("km/h") }
+                .none { Regex("\\d").containsMatchIn(it) }) { "Course driver text leaked numbers: ${allText()}" }
+        }
+        val frames = listOf(exam to "drive-exam", parked to "drive-exam-parking", road to "drive-road-red", round to "drive-round")
+        for ((state, name) in if (full) frames else frames.take(2)) {
+            render(activity) { DriveScreen(state, null, { finished++ }, demo) }
+            driverText()
+            if (state.locked) check(nodes().none(::hasTouchAction))
+            else {
+                // The shared FinishButton pulses twice when askedDone; measure its resting bounds.
+                Thread.sleep(1_250)
+                assertDriverButton(activity, "다 됐어요"); click("다 됐어요")
+            }
+            check(allText().any { it.contains("코스 도면") })
+            check(texts().any { "시험장 위치·신호 · 시뮬레이션" == it })
+            capture(name)
+        }
+        check(finished == if (full) 2 else 1)
+        if (!full) {
+            pass("Round18 Drive safety: actual exam acceleration has zero touch targets/scores, parking stop exposes FinishButton once; simulation provenance")
+            return
+        }
+        render(activity) { DriveScreen(exam.copy(snapshot = exam.snapshot.copy(speedKmh = 5.1f, emergency = true)), null, {}, demo) }
+        check(nodes().none(::hasTouchAction)); check("돌발 상황" in texts()); driverText(); capture("drive-emergency")
+        render(activity) { DriveScreen(parked.copy(progress = parked.progress.copy(pose = null, positionMeasured = false),
+            availability = emptyMap()), null, {}, demo) }
+        check("시험장 위치 미측정" in texts()); driverText(); capture("drive-missing")
+        val hybrid = parked.copy(availability = parked.availability + (SimOnlySignals.TRACK_POSITION_X_M to SignalAvailability.LIVE))
+        render(activity) { DriveScreen(hybrid, null, {}, demo) }
+        check(texts().any { "실신호" in it && "시뮬레이션" in it }); capture("drive-hybrid")
+        fun record(course: TrackCourse, scenario: Scenario, index: Int): AttemptRecord {
+            val registry = SignalRegistry(CourseRecorder.KEYS, simulated = true)
+            val parking = ParkingRecorder(registry, CourseRecorder.KEYS)
+            val recorder = CourseRecorder(course)
+            scenario.steps.forEach {
+                val t = (it.atSeconds * 1000).toLong()
+                parking.onDelta(t, it.values); recorder.onDelta(t, it.values)
+            }
+            val result = recorder.result()
+            return AttemptRecord(index, task(course).id, LessonMode.EVALUATE,
+                parking.score()!!.copy(skill = result.score), null,
+                com.moah.hackathon.ports.CourseRemarks.remark(result), 0, course = result)
+        }
+        val bad = record(courses.exam, scenarios.examBad, 1)
+        val good = record(courses.exam, scenarios.examGood, 2)
+        val left = record(courses.leftTurn, scenarios.leftBad, 1)
+        check(bad.course!!.score == 70 && bad.course!!.deductions.size == 3 && good.course!!.score == 100)
+        for ((course, attempt, name) in listOf(Triple(courses.exam, bad, "done-exam-bad"),
+            Triple(courses.exam, good, "done-exam-good"), Triple(courses.leftTurn, left, "done-left-bad"))) {
+            render(activity) { DoneScreen(task(course), attempt.index, attempt, null, {}, {}) }
+            driverText(live = false)
+            check(courseVerdict(attempt.course!!) in texts())
+            attempt.course!!.deductions.take(3).forEach { check(it.reason in texts()) }
+            Thread.sleep(3_100)
+            capture(name) { bitmap ->
+                val bounds = Rect().also { r -> nodes().first { it.contentDescription?.toString() == "${course.title} 코스 도면" }.getBoundsInScreen(r) }
+                val scale = designScale(activity)
+                val unit = minOf((bounds.width() - 56 * scale) / course.map.widthM, (bounds.height() - 56 * scale) / course.map.heightM)
+                val ox = bounds.exactCenterX() - course.map.widthM * unit / 2
+                val oy = bounds.exactCenterY() - course.map.heightM * unit / 2
+                attempt.course!!.deductions.mapNotNull { it.at }.forEach { at ->
+                    check(bitmap.getPixel((ox + at.x * unit).roundToInt(), (oy + (course.map.heightM - at.y) * unit).roundToInt()) == CoachColors.Signal.toArgb()) {
+                        "Missing deduction marker at $at"
+                    }
+                }
+            }
+        }
+        val report = LessonReport(task(courses.exam), LessonMode.EVALUATE, listOf(bad, good), good.score,
+            "코스를 차분히 마쳤어요.\n다음에도 흐름을 이어가요.", task(courses.exam), LessonMode.EVALUATE, "다시 연습해요.",
+            ShareLevel.entries, listOf("연습 기록을 돌아봐요."), emptyList())
+        render(activity) { ReportScreen(report, {}) }
+        check("합격" in texts() && "최고 회차의 코스" in texts())
+        check(texts().none { Regex("\\d+점").containsMatchIn(it) })
+        check("구간과 위치·신호등은 시험장 신호(시뮬레이션)로 측정했어요." in texts())
+        capture("report-exam")
+        click("자세히 보기")
+        check(texts().any { "코스 70점 · 합격선 80점" in it })
+        bad.course!!.deductions.forEach { check(it.reason in texts()) }
+        capture("report-exam-details")
+        click("돌아가기"); click("진단서")
+        check("장내기능 모의시험 · 합격" in texts()); capture("certificate-exam")
+        render(activity) { DoneScreen(task(courses.exam), 1, bad, null, {}, {}, demo, locked = true) }
+        check(nodes().none(::hasTouchAction)); check("불합격" !in texts()); driverText()
+        render(activity) { ReportScreen(report, {}, locked = true) }
+        check(nodes().none(::hasTouchAction)); check("합격" !in texts())
+        for ((id, scenario) in listOf("parking-parallel" to com.moah.hackathon.data.MoreParkingScenarios.parallelGood,
+            "parking-angle" to com.moah.hackathon.data.MoreParkingScenarios.angleGood)) {
+            val parkingTask = SeedCatalog.tasks.single { it.id == id }
+            val recorder = ParkingRecorder(SignalRegistry(parkingTask.parkingSpec.keys, simulated = true), parkingTask.parkingSpec.keys)
+            scenario.steps.forEach { recorder.onDelta((it.atSeconds * 1000).toLong(), it.values) }
+            val attempt = AttemptRecord(1, id, LessonMode.HINT, recorder.score()!!, null,
+                "차분하게 들어갔어요.\n마무리도 편안했어요.", 0, path = recorder.path(),
+                verdict = recorder.verdict(targetHeadingDeg = parkingTask.parkingSpec.targetHeadingDeg))
+            render(activity) { DoneScreen(parkingTask, 1, attempt, null, {}, {}) }
+            Thread.sleep(3_100)
+            driverText()
+            capture("done-${id.removePrefix("parking-")}-good") { bitmap ->
+                val bounds = Rect().also { r -> nodes().first { it.contentDescription == "추정 궤적" }.getBoundsInScreen(r) }
+                val density = designScale(activity)
+                val target = parkingTask.parkingSpec.targetHeadingDeg
+                val viewport = pathViewport(attempt.path, bounds.width() / density, bounds.height() / density, targetHeading = target)
+                val end = attempt.path.last()
+                val cx = bounds.right - viewport.x(end.x) * density
+                val cy = bounds.bottom - viewport.y(end.y) * density
+                val angle = Math.toRadians((180f - target).toDouble())
+                val unit = viewport.scale * density
+                for ((x, y) in listOf(-1.125f to -2f, 1.125f to -2f, -1.125f to 2f, 1.125f to 2f, 0f to 2.5875f)) {
+                    val px = (cx + (cos(angle) * x - sin(angle) * y) * unit).roundToInt()
+                    val py = (cy + (sin(angle) * x + cos(angle) * y) * unit).roundToInt()
+                    check((-2..2).any { dx -> (-2..2).any { dy -> bitmap.getPixel(px + dx, py + dy) == CoachColors.Periwinkle.toArgb() } }) {
+                        "Arrival bay must follow $target degrees: $id at $x,$y"
+                    }
+                }
+            }
+        }
+        // Each added exam chip fits, is selectable and dispatches the exact venue course.
+        for (venue in SeedCatalog.venues) {
+            var reserved: String? = null
+            render(activity) { androidx.compose.runtime.key(venue.id) {
+                SetupScreen(SeedCatalog.demoProfile, SeedCatalog.tasks, SeedCatalog.parkingTask, LessonMode.GUIDE,
+                    "함께 연습해요.", null, { _, _ -> }, venues = SeedCatalog.venues,
+                    onReserve = { _, _, c -> reserved = c })
+            } }
+            click("과제·모드 바꾸기"); click("제휴 시험장")
+            click(venue.name)
+            val examCourse = venue.courses.single { SeedCatalog.TASK_TRACK_EXAM in it.taskIds }
+            assertFullText(activity, examCourse.title)
+            venue.courses.forEach {
+                assertFullText(activity, it.title)
+                check(buttonBounds(it.title).right <= 2496 * designScale(activity))
+            }
+            runOnMainSync {
+                val labels = composeNodes(activity, unmerged = true).filter { node ->
+                    node.config.getOrNull(SemanticsProperties.Text)?.singleOrNull()?.text in listOf("오늘 자리 있음", "오늘 자리 없음")
+                }
+                check(labels.size == 3)
+                labels.forEach { node ->
+                    val layouts = mutableListOf<TextLayoutResult>()
+                    check(node.config.getOrNull(SemanticsActions.GetTextLayoutResult)?.action?.invoke(layouts) == true)
+                    check(!layouts.single().hasVisualOverflow) { "Venue availability was clipped" }
+                }
+            }
+            click(examCourse.title); click(venue.slots.first { it.available }.label); click("예약")
+            check(reserved == examCourse.id)
+            capture("venue-exam-${venue.id}")
+        }
+        val container = (activity.application as App).container
+        lateinit var vm: LessonViewModel
+        runOnMainSync {
+            vm = ViewModelProvider(activity, LessonViewModel.factory(container))[LessonViewModel::class.java]
+            vm.restart(); vm.cancelReservation()
+            val venue = SeedCatalog.venues.first()
+            vm.reserve(venue.id, venue.slots.first { it.available }.id,
+                venue.courses.single { SeedCatalog.TASK_TRACK_EXAM in it.taskIds }.id)
+        }
+        render(activity) {
+            val phase by vm.phase.collectAsStateWithLifecycle()
+            val setup = phase as LessonPhase.Setup
+            SetupScreen(setup.profile, setup.tasks, setup.suggestedTask, setup.suggestedMode, setup.reason,
+                null, vm::begin, venues = setup.venues, booking = setup.booking)
+        }
+        check(texts().any { it.startsWith("장내기능 모의시험 · ") && it.endsWith("모드") })
+        capture("setup-reserved-exam")
+        runOnMainSync { vm.cancelReservation(); vm.restart() }
+        pass("Round18: Drive lock/touch/numbers/provenance, real course replay markers, course Done/Report/certificate, parallel/angle arrival and exam venue chips")
     }
 
     private fun render(activity: MainActivity, content: @Composable () -> Unit) {
@@ -1523,7 +1732,7 @@ class LessonScreenInstrumentation : Instrumentation() {
                     check(titleNode.config.getOrNull(SemanticsActions.GetTextLayoutResult)?.action?.invoke(layouts) == true)
                     val title = layouts.single()
                     check(title.lineCount == 1 && title.layoutInput.style.fontSize.value in 36f..40f)
-                    val documentedOverflow = item.id in setOf("straight-stop", "left-turn-signal")
+                    val documentedOverflow = false
                     check(title.isLineEllipsized(0) == documentedOverflow) { "Unexpected title overflow: ${item.id}" }
                     val detail = if (item.isReady) item.difficulty.label else item.status.label
                     val detailNode = textNodes.first { node ->
@@ -1548,7 +1757,7 @@ class LessonScreenInstrumentation : Instrumentation() {
                     else CoachColors.Ink.copy(alpha = .55f).compositeOver(face)
                 val pixels = colorBounds(screenshot, art, ink.toArgb(), tolerance = 1)
                 check(!pixels.isEmpty) { "Empty category illustration: ${item.id}" }
-                check(abs(pixels.exactCenterY() - card.top - 144 * scale) <= 12 * scale) { "Art is not vertically centred: ${item.id}, $pixels" }
+                check(item.isCourse || abs(pixels.exactCenterY() - card.top - 144 * scale) <= 12 * scale) { "Art is not vertically centred: ${item.id}, $pixels" }
             }
         }
         inspect(TaskType.PARKING)

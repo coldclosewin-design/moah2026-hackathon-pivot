@@ -28,7 +28,9 @@ internal fun DoneScreen(task: Task, attempt: Int, record: AttemptRecord, subtitl
     PosterSurface {
         Box(Modifier.fillMaxSize()) {
             Row(Modifier.fillMaxSize()) {
-                if (task.type == TaskType.CHECKLIST) {
+                if (task.course != null && record.course != null) {
+                    CourseDonePanel(task.course, record.course, Modifier.fillMaxHeight().fillMaxWidth(.38f))
+                } else if (task.type == TaskType.CHECKLIST) {
                     Column(Modifier.fillMaxHeight().fillMaxWidth(.38f).surfaceTexture(CoachColors.Ink, CoachTexture.Panel)
                         .padding(start = 120.dp, end = 72.dp, top = 96.dp, bottom = 52.dp)) {
                         Eyebrow("출발 전 점검", color = CoachColors.Paper)
@@ -51,7 +53,8 @@ internal fun DoneScreen(task: Task, attempt: Int, record: AttemptRecord, subtitl
                     Column(Modifier.fillMaxHeight().fillMaxWidth(.38f)) {
                         Box(Modifier.weight(1f).fillMaxWidth()) {
                             Box(Modifier.fillMaxHeight().width((2560 * .06f).dp).background(CoachColors.Ink))
-                            if (showPath) EstimatedPath(record, Modifier.fillMaxSize().padding(start = (2560 * .06f).dp), task.parkingSpec.entryGear)
+                            if (showPath) EstimatedPath(record, Modifier.fillMaxSize().padding(start = (2560 * .06f).dp), task.parkingSpec.entryGear,
+                                targetHeading = task.parkingSpec.targetHeadingDeg.takeIf { task.id in setOf("parking-parallel", "parking-angle") })
                         }
                         VerdictPanel(record.verdict, Modifier.fillMaxWidth())
                     }

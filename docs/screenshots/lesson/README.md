@@ -485,3 +485,34 @@ PNG **20장 교체**. 앞 여섯 행의 18장은 최종 첫 `lesson_shots` PASS 
 원본 `tools/emu_flow.sh build/round15-rear-flow` **PASS·clashes 0·113초**([후면 로그](flow-round15-rear.txt)). 첫 회차 60/55·4구간 → 둘째 100/100·2구간, 필수 안전벨트/뒤 근접/급제동 힌트 3종·좋은 주차 추가 힌트 0·도어→Report·배지 0/8/0이 유지됐다.
 
 전면 전체 흐름 **PASS·clashes 0·115초**([전면 로그](flow-round15-front.txt)). 라운드 13 §2.7의 `주차 → 전면 직각 주차 → 힌트 → 시작 → 못한 주차 → 다 됐어요 → 한 번 더 → 잘한 주차 → 다 됐어요 → 문 열기` 순서다. 원본 tools를 수정하지 않고 무시되는 `build/front_flow.sh` 사본에 과제 선택·앞 근접 힌트·배지 7 검사만 적용했다. 60/55·4구간 → 100/100·2구간, 필수 안전벨트/앞 근접/급제동 힌트·좋은 주차 추가 힌트 0·도어→Report·배지 0/7/0을 확인했다.
+
+
+## UI 라운드 18 — 코스 지도·결과·READY 카드 (2026-10-04)
+
+`codex/ui-round18` · 기준 `origin/main=1f8e4c7`(PR #151) · CSTDe_API_34 2560×1440 · 기본 Fake, 배율 1.0. [발주서](../../handoffs/2026-10-04_codex_ui_round18.md) ①~⑤를 반영했다.
+
+| 대상 | 캡처 | 확인 |
+|---|---|---|
+| Drive | [시험 가속](lesson-drive-exam.png), [주차 구간 정차](lesson-drive-exam-parking.png), [도로 빨간불](lesson-drive-road-red.png), [회전교차로](lesson-drive-round.png) | 같은 도면 렌더러의 도로·차선·회전교차로·칸·정지선·횡단보도·경사로·이름표. 현재/지난 구간의 면 강조, 실시간 공용 차량 실루엣, 지금/다음 구간, 신호 상태. 잠금 중 점수·감점·터치 0 |
+| Drive 예외 | [돌발](lesson-drive-emergency.png), [위치 미측정](lesson-drive-missing.png), [Hybrid](lesson-drive-hybrid.png) | 돌발 Signal 띠, 위치 미측정 시 차 숨김, availability의 시험장 키만으로 실신호·시뮬레이션·미측정 표기. 완료 버튼은 정차+잠금 해제에서만 공용 맥동 적용 |
+| 코스 Done | [시험 불합격](lesson-done-exam-bad.png), [시험 합격](lesson-done-exam-good.png), [좌회전 연습](lesson-done-left-bad.png) | 기록 시각에 맞춘 3초 재생과 끝 차. 실제 시험 감점 위치 셋·좌회전 둘을 픽셀로 검사. 판정과 놓친 것 최대 세 항목, 점수 숫자 없음 |
+| 코스 Report | [요약](lesson-report-exam.png), [자세히 보기](lesson-report-exam-details.png), [진단서](lesson-certificate-exam.png) | 최고 회차의 지남/놓침/미측정, 시험장 신호 출처. 상세에만 회차 점수·합격선·구간/사유/감점 표와 확인 못 함. 진단서의 코스 판정 한 줄 |
+| 주행 시트 | [앞쪽 카드](lesson-setup-sheet-driving.png), [끝쪽 카드](lesson-setup-sheet-driving-end.png) | 주행 여섯 장 모두 READY·코스 도면 축소판. 모의시험 표식·난이도 상. 전체 열두 과제에 준비 중 없음, 준비 중 표시 구현은 유지 |
+| 새 주차 Done | [평행](lesson-done-parallel-good.png), [사선](lesson-done-angle-good.png) | 실제 시나리오 궤적과 targetHeadingDeg의 0°/45° 도착 칸. 칸 양옆·막힌 변의 픽셀을 목표 축으로 검사. 기존 후면/전면 렌더링 보존 |
+| 시험장·예약 | [서초](lesson-venue-exam-venue-seocho.png), [강남](lesson-venue-exam-venue-gangnam.png), [분당](lesson-venue-exam-venue-bundang.png), [예약 뒤 제안](lesson-setup-reserved-exam.png) | 코스 칩 4/3/3개 전문·경계 및 정확한 예약 인자. 실제 VM 예약 뒤 모의시험 제안. 긴 코스 목록과 상태 문구를 담도록 시험장 카드만 220→264 dp |
+
+새 코스·평행/사선·예약 PNG 19장은 최종 코스 전용 계측에서 가져왔다. 주차·점검·지식의 기존 캡처 파일은 교체하지 않았다. 첫 전체 검사에서 후면 Done·잠금 Done·전면 Done·점검 Done의 앱 영역 `(0,76)–(2560,1344)`은 기존 PNG와 픽셀이 동일했다.
+
+[빌드 로그](build-round18.txt): PowerShell `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` 성공. 단위 테스트 **286개, 실패·오류·건너뜀 0**. 새 단위 검사는 실제 시험 결과의 판정/미측정, Hybrid 및 누락 출처, 시간·방향 보간, 목표 각에 따른 도착 칸 경계를 확인한다. `CoursePreviewDump`가 생성한 여섯 JSON도 `automotive/build/course-preview/`에 있다.
+
+[코스 전용 계측](contract-round18-course.txt)은 `adb shell am instrument --user 10 -w -e round18Only true com.moah.hackathon.test/com.moah.hackathon.ui.LessonScreenInstrumentation`로 **Round18 contract passed**. 기존 `lesson_shots.sh`의 300초 제한과 모든 기존 검사를 유지하기 위해 상세 코스 결과·예약 검사는 이 인자로 따로 실행하며, 기본 검사에는 실제 가속/주차 구간의 Drive 잠금·숫자·출처·완료 버튼 계약을 추가했다. Done의 제공 멘트 `감점 없이 합격선을 넘었어요.`는 유지하고 숫자 비노출을 검사한다. Drive는 감점 문구 자체도 금지한다.
+
+같은 최종 APK로 원본 `lesson_shots.sh` **3회 연속 Lesson contract passed**: [첫 실행](contract-round18-1.txt) · [두 번째](contract-round18-2.txt) · [세 번째](contract-round18-3.txt). 주행 시트 두 캡처는 첫 실행에서 가져왔다.
+
+원본 `tools/emu_flow.sh build/round18-rear-flow` **PASS·clashes 0·리포트까지 127초**([후면 로그](flow-round18-rear.txt)). 첫 회차 60/55·이동 4구간 → 둘째 100/100·2구간, 안전벨트·뒤 근접·급제동 힌트 3종, 둘째 회차 추가 힌트 0, 도어→Report·배지 0/8/0을 확인했다.
+
+`adb install -r` 성공 뒤 원본 `tools/course_flow.sh build/round18-course-flow`를 백그라운드 실행해 **PASS**([코스 로그](flow-round18-course.txt)). 시트에서 모의시험·평가 선택 → Drive → 못한 시험 70점·불합격·감점 3건(뒤로 밀림/검지선 접촉/비상등 미점등) → 한 번 더 → 잘한 시험 100점·합격·감점 0건 → 도어→Report를 확인했다. 실행 중 생성한 시연 캡처는 `build/round18-course-flow/20_sheet_driving.png`부터 `28_report.png`까지 보관했다.
+
+APK SHA-256: 앱 `C15A0023722687E18D41621C4BAB77DAC734F2B43ECA97BE17277E201B3FC6CE`, 계측 `AEA5DC0771FB26FF985E2DFF57B0974579BA7E6C8530DD5420BF99E8F483B612`.
+
+정적 확인: `ui/`의 `FontWeight.Bold` 0, `Color(0x`는 기존 `CoachStyle.kt` 토큰만 사용하며 새 토큰·리소스 0. 차량·포트·채점·상태기계·데이터·빌드 파일·tools·NEXT 변경 없음.

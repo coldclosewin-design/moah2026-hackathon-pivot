@@ -39,8 +39,10 @@ internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit, locked: B
     PosterSurface {
         Row(Modifier.fillMaxSize()) {
             Box(Modifier.weight(.38f).fillMaxHeight()) {
+                val course = bestCourseAttempt(report.attempts)?.course
                 val showVerdict = page == ReportPage.SUMMARY && report.task.type == TaskType.PARKING
-                RecordGraphic(report.attempts.size, Modifier.fillMaxSize(), compact = showVerdict)
+                if (page == ReportPage.SUMMARY && course != null) CourseSummaryPanel(course, Modifier.fillMaxSize())
+                else RecordGraphic(report.attempts.size, Modifier.fillMaxSize(), compact = showVerdict)
                 if (showVerdict) VerdictPanel(report.attempts.lastOrNull()?.verdict,
                     Modifier.align(Alignment.BottomStart).fillMaxWidth(), title = "마지막 회차의 판정")
             }
@@ -120,7 +122,14 @@ private fun ReportProvenance(report: LessonReport) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         PosterRule()
         Eyebrow("신호 출처", color = CoachColors.Muted)
-        Row(Modifier.fillMaxWidth().padding(top = 16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+        if (report.task.isCourse) {
+            LessonText(badgeText(report.best.badge), 32, CoachColors.Periwinkle)
+            LessonText(when {
+                bestCourseAttempt(report.attempts)?.course?.positionMeasured != true -> "시험장 위치를 받지 못해 구간은 확인 못 했어요."
+                report.best.badge.live == 0 && report.best.badge.simulated > 0 -> "구간과 위치·신호등은 시험장 신호(시뮬레이션)로 측정했어요."
+                else -> "구간과 위치·신호등은 시험장 신호로 측정했어요."
+            }, 32, CoachColors.Muted)
+        } else Row(Modifier.fillMaxWidth().padding(top = 16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
             LessonText(badgeText(report.best.badge), 32, CoachColors.Periwinkle)
             LessonText(if (report.task.type == TaskType.CHECKLIST) "출발 전 점검을 돌아봤어요." else "주차 과정만 측정했어요.", 32, CoachColors.Muted)
         }
@@ -144,6 +153,10 @@ private fun ReportLimitations(report: LessonReport) {
 
 @Composable
 private fun DetailsContent(report: LessonReport, modifier: Modifier) {
+    if (report.task.isCourse) {
+        CourseDetails(report, modifier)
+        return
+    }
     Column(modifier.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(if (report.task.type == TaskType.CHECKLIST) 16.dp else 32.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(160.dp)) {
@@ -200,6 +213,9 @@ private fun CertificateContent(report: LessonReport, modifier: Modifier) {
     val context = LocalContext.current
     Column(modifier, verticalArrangement = Arrangement.spacedBy(28.dp)) {
         Eyebrow("진단서")
+        bestCourseAttempt(report.attempts)?.course?.let { result ->
+            LessonText("${report.task.title} · ${courseVerdict(result)}", 40)
+        }
         LessonText("예시입니다 — 실제 전송·계약은 없습니다", 40, CoachColors.Periwinkle)
         Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(64.dp)) {
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).selectableGroup(),

@@ -151,8 +151,11 @@ private fun TaskBay(task: Task, chosen: Boolean, modifier: Modifier, onClick: ()
                         if (chosen) CoachColors.Lavender else CoachColors.Periwinkle,
                         if (chosen) CoachColors.Periwinkle else CoachColors.Lavender, art)
                     TaskType.CHECKLIST -> ChecklistTaskDiagram(ink, art)
-                    else -> CategoryTaskDiagram(task.type, ink, art)
+                    else -> if (task.course != null) CourseMap(task.course, art, thumbnail = true, ink = ink)
+                        else CategoryTaskDiagram(task.type, ink, art)
                 }
+                if (task.course?.isExam == true) LessonText("모의시험", 28, foreground,
+                    modifier = Modifier.align(Alignment.TopStart).padding(start = 24.dp, top = 16.dp))
             }
             Box(Modifier.fillMaxWidth().height(144.dp)) {
                 Box(Modifier.fillMaxWidth().height(1.dp).background(
