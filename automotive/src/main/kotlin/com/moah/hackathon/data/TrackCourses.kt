@@ -53,8 +53,11 @@ object TrackCourses {
         val rightTurn3 = Turtle(accelRoad.end).arc(6f, -90f).path()
         /** 서쪽 직선 — 돌발 경보 지점(x=66)까지. */
         val toEmergency = Turtle(rightTurn3.end).straight(20f).path()
-        /** 돌발 시 정지 거리(12 km/h 에서 2.0 m/s² 로 약 1.7 초 — 급제동 임계 3.0 아래). */
-        val emergencyBrake = Turtle(toEmergency.end).straight(2.8f).path()
+        /**
+         * 돌발 시 정지 거리(10 km/h 에서 2.6 m/s² 로 약 1.3 초 — 기준 2 초에 여유 0.5 초 이상, 급제동 임계 3.0 아래).
+         * 10/5: 12 km/h·2.8 m 는 약 1.95 초라 에뮬 부하에서 "돌발 정지 지연" 이 났다(#152 리뷰).
+         */
+        val emergencyBrake = Turtle(toEmergency.end).straight(1.5f).path()
         val toLeftTurn = Turtle(emergencyBrake.end).straight(emergencyBrake.end.at.x - 36f).path()
         val leftTurn = Turtle(toLeftTurn.end).arc(6f, 90f).path()
         val toFinish = Turtle(leftTurn.end).straight(9f).path()

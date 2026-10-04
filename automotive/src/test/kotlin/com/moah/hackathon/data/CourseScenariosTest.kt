@@ -66,6 +66,13 @@ class CourseScenariosTest {
         assertEquals(false, bad.passed)
     }
 
+    @Test fun `exam good stops for the emergency with at least half a second to spare`() {
+        val steps = CourseScenarios.examGood.steps
+        val alarm = steps.first { it.values[SimOnlySignals.TRACK_EVENT_EMERGENCY] == "true" }.atSeconds
+        val stop = steps.first { it.atSeconds > alarm && (it.values[VssConstants.VEHICLE_SPEED]?.toVssFloat() ?: 1f) < 1f }.atSeconds
+        assertTrue("stop after ${stop - alarm} s", stop - alarm <= 1.5)
+    }
+
     @Test fun `straight stop`() {
         check(TrackCourses.straightStop, CourseScenarios.straightGood, emptySet())
         check(TrackCourses.straightStop, CourseScenarios.straightBad, setOf("속도 초과", "정지선 미정지"), setOf(HarshKind.BRAKING))
