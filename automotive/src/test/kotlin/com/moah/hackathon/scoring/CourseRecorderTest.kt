@@ -198,6 +198,28 @@ class CourseRecorderTest {
         assertEquals(listOf("dev", "slope", "left"), d.entered)
     }
 
+    @Test fun `standing at the finish when the attempt starts does not skip the whole course`() {
+        val r = CourseRecorder(course)
+        val d = Drive(r)
+        d.at(0.0, 205f, 0f)   // 지난 회차의 종료 지점
+        d.at(1.0, 2f, 0f)     // 시나리오가 출발점부터
+        d.at(2.0, 30f, 0f)
+        assertEquals(listOf("dev", "slope"), d.entered)
+    }
+
+    @Test fun `zones never reached are missed - exam disqualified, practice recorded without points`() {
+        val r = CourseRecorder(course)
+        val d = Drive(r)
+        d.at(0.0, 2f, 0f, *baseSignals)
+        d.at(1.0, 30f, 0f)
+        val res = r.result()
+        assertTrue(res.deductions.any { it.reason == "종료 미통과" && it.disqualify && it.points == 0 })
+        assertEquals(false, res.passed)
+        val practice = CourseRecorder(course.copy(passScore = null)).also { it.onDelta(0, mapOf(SimOnlySignals.TRACK_POSITION_X_M to "0", SimOnlySignals.TRACK_POSITION_Y_M to "2")) }.result()
+        assertTrue(practice.deductions.filter { it.reason.endsWith("미통과") }.all { !it.disqualify && it.points == 0 })
+        assertEquals(100, practice.score)
+    }
+
     @Test fun `heading helpers are inverse and follow the path convention`() {
         assertEquals(0f, Vec2.ofHeading(0f).x, 1e-5f)
         assertEquals(-1f, Vec2.ofHeading(90f).x, 1e-5f)   // 왼쪽(반시계) 90° = -x

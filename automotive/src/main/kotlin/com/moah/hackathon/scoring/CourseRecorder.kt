@@ -202,9 +202,13 @@ class CourseRecorder(val course: TrackCourse) {
     private fun leadMillis(run: ZoneRun): Long =
         ((run.zone.rules.filterIsInstance<ZoneRule.Indicator>().maxOfOrNull { it.leadSeconds } ?: 0f) * 1000).toLong()
 
+    /**
+     * 다음 차례 구간(또는 한 칸 건너뛴 구간)에만 들어간다 — 회차 시작 때 차가 지난 회차의 종료 지점에 서 있어도
+     * 곧장 마지막 구간으로 건너뛰지 않게(10/4 에뮬 2회차에서 재현: 구간을 다 건너뛰고 합격으로 나옴).
+     */
     private fun locate(p: Vec2): ZoneRun? {
         current?.let { if (p in it.zone.area) return it }
-        for (i in nextIdx until runs.size) if (p in runs[i].zone.area) return runs[i]
+        for (i in nextIdx until minOf(runs.size, nextIdx + MAX_SKIP + 1)) if (p in runs[i].zone.area) return runs[i]
         return null
     }
 
@@ -376,7 +380,12 @@ class CourseRecorder(val course: TrackCourse) {
             ZoneResult(run.zone.id, run.zone.title, run.zone.kind, visited = run.enteredAt != null,
                 deductions = run.deductions + pending, unmeasured = unmeasured(run))
         }
-        val all = (zones.flatMap { it.deductions } + outside).sortedBy { it.tMillis }
+        // 위치가 있는데 들르지 못한 구간 = 미통과. 시험 코스면 실격(코스 이탈), 연습 코스면 기록만(감점 0)
+        val missed = if (trail.isEmpty()) emptyList() else runs.filter { it.enteredAt == null }.map { run ->
+            Deduction(t, run.zone.id, run.zone.title, "visit", "${run.zone.title} 미통과", "${run.zone.title} 구간을 지나지 않았어요.",
+                0, course.isExam, null)
+        }
+        val all = (zones.flatMap { it.deductions } + outside + missed).sortedBy { it.tMillis }
         return CourseResult(
             courseId = course.id, title = course.title,
             score = (100 - all.sumOf { it.points }).coerceIn(0, 100),
@@ -390,6 +399,8 @@ class CourseRecorder(val course: TrackCourse) {
     companion object {
         const val STOP_KMH = 1f
         const val TRAIL_STEP_M = 0.5f
+        /** 한 번에 건너뛸 수 있는 구간 수(위치가 잠깐 끊겨 한 구간을 못 본 경우). */
+        const val MAX_SKIP = 1
         private const val LEFT_KEY = VssConstants.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING
         private const val RIGHT_KEY = VssConstants.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING
         private const val HAZARD_KEY = VssConstants.VEHICLE_BODY_LIGHTS_HAZARD_ISSIGNALING
