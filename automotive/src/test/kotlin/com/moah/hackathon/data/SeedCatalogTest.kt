@@ -24,16 +24,19 @@ class SeedCatalogTest {
     }
 
     @Test
-    fun `parking variants are ordered catalogue entries - rear and front ready, parallel and angle planned`() {
+    fun `parking variants are ordered catalogue entries - all four ready with their own spec`() {
         assertEquals(12, SeedCatalog.tasks.size)
         val parking = SeedCatalog.tasks.filter { it.type == TaskType.PARKING }
         assertEquals(listOf(SeedCatalog.TASK_PARKING_REAR, "parking-parallel", SeedCatalog.TASK_PARKING_FRONT, "parking-angle"), parking.map { it.id })
         assertEquals(listOf(Difficulty.MEDIUM, Difficulty.HARD), parking.takeLast(2).map { it.difficulty })
-        parking.filter { it.id in setOf("parking-parallel", "parking-angle") }.forEach {
-            assertEquals(TaskStatus.PLANNED, it.status)
-            assertTrue(SeedCatalog.guideFor(it).isEmpty())
+        // 10/4: 평행(목표 0°·되돌림 2)·사선(45°)도 READY — 가이드·시나리오 2벌씩
+        parking.forEach {
+            assertEquals(it.id, TaskStatus.READY, it.status)
+            assertTrue(it.id, SeedCatalog.guideFor(it).isNotEmpty() && SeedCatalog.scenariosFor(it).size == 2)
         }
-        assertEquals(10, SeedCatalog.tasks.count { it.isReady })   // 10/4: 코스 과제 6(도로 5 + 장내기능) READY
+        assertEquals(com.moah.hackathon.scoring.ParkingSpec.PARALLEL, SeedCatalog.tasks.first { it.id == SeedCatalog.TASK_PARKING_PARALLEL }.parking)
+        assertEquals(com.moah.hackathon.scoring.ParkingSpec.ANGLE, SeedCatalog.tasks.first { it.id == SeedCatalog.TASK_PARKING_ANGLE }.parking)
+        assertEquals(SeedCatalog.tasks.size, SeedCatalog.tasks.count { it.isReady })   // 10/4: 준비 중 0 — 전 범위 구현
         // 10/2: 전면 직각 주차 — 앞으로 들어가는 사양, 뒤 거리 없이 7키. 후면은 사양을 명시해도 기본과 같다
         val front = SeedCatalog.frontParkingTask
         assertTrue(front.isReady)
@@ -53,8 +56,7 @@ class SeedCatalogTest {
     @Test
     fun `predrive parking and knowledge tasks are READY - parking supports the three driving modes but not quiz`() {
         val ready = SeedCatalog.tasks.filter { it.isReady }
-        assertEquals(listOf(SeedCatalog.TASK_PREDRIVE, "straight-stop", "left-turn-signal", "lane-change", "road-course", SeedCatalog.TASK_TRACK_EXAM,
-            SeedCatalog.TASK_PARKING_REAR, SeedCatalog.TASK_PARKING_FRONT, "roundabout", SeedCatalog.TASK_KNOWLEDGE), ready.map { it.id })
+        assertEquals(SeedCatalog.tasks.map { it.id }, ready.map { it.id })
         // 코스 과제는 전부 도면·시나리오 2벌을 갖고, 주행 모드 셋만 받는다
         ready.filter { it.type == TaskType.DRIVING }.forEach { t ->
             assertTrue(t.id, t.isCourse && SeedCatalog.scenariosFor(t).size == 2 && !t.supports(com.moah.hackathon.feature.lesson.LessonMode.QUIZ))

@@ -71,7 +71,8 @@ object AdviceRules {
         KEEP("이 감각 그대로 한 번만 더 해 봐요."),
     }
 
-    fun pick(task: Task, score: ParkingScore, rubric: ParkingRubric = ParkingRubric()): Advice {
+    fun pick(task: Task, score: ParkingScore, base: ParkingRubric = ParkingRubric()): Advice {
+        val rubric = task.parkingSpec.rubric(base)   // 평행 주차는 되돌림 정석 2(10/4)
         val m = score.metrics
         if (task.type == TaskType.CHECKLIST) {
             val pd = m.preDrive

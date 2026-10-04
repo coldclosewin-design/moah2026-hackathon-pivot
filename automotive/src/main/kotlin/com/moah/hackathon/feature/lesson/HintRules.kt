@@ -16,7 +16,9 @@ data class Hint(val text: String, val priority: SpeechPriority)
  * @param entryGear 주차 과제의 진입 기어([com.moah.hackathon.scoring.ParkingSpec.entryGear], 10/2). 후면(R)이면 보정은 "전진으로", 근접은 "뒤가";
  *   전면(D)이면 "후진으로"·"앞이". 규칙 자체는 같다.
  */
-class HintRules(private val cooldownMillis: Long = 5_000L, private val checklist: Boolean = false, private val entryGear: Gear = Gear.REVERSE) {
+class HintRules(private val cooldownMillis: Long = 5_000L, private val checklist: Boolean = false, private val entryGear: Gear = Gear.REVERSE,
+    /** 핸들 되돌림 정석 횟수([com.moah.hackathon.scoring.ParkingSpec.idealReversals], 10/4) — 이것을 넘을 때만 조향 힌트. */
+    private val idealReversals: Int = 1) {
     private val proximityText = if (entryGear == Gear.DRIVE) "앞이 가까워요. 멈추세요." else "뒤가 가까워요. 멈추세요."
     private val shiftText = if (entryGear == Gear.DRIVE) "후진으로 보정할 때는 핸들을 반대로 돌려 두세요." else "전진으로 보정할 때는 핸들을 반대로 돌려 두세요."
     private var previous: ParkingMetrics? = null
@@ -67,7 +69,7 @@ class HintRules(private val cooldownMillis: Long = 5_000L, private val checklist
                 fire(out, "belt", nowMillis, "안전벨트가 아직이에요.", SpeechPriority.URGENT)
             }
             val reversals = metrics.steering?.reversals
-            if (grew(reversals, prev?.steering?.reversals) && (reversals ?: 0) > 1) {
+            if (grew(reversals, prev?.steering?.reversals) && (reversals ?: 0) > idealReversals) {
                 fire(out, "steering", nowMillis, "핸들을 조금 더 유지해 보세요. 되돌리는 횟수가 늘고 있어요.", SpeechPriority.NORMAL)
             }
             if (grew(metrics.gear?.reverseDriveShifts, prev?.gear?.reverseDriveShifts)) {

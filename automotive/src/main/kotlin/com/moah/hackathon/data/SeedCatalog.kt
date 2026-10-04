@@ -31,6 +31,8 @@ object SeedCatalog {
     const val TASK_PREDRIVE = "predrive-check"
     const val TASK_PARKING_REAR = "parking-rear-perpendicular"
     const val TASK_PARKING_FRONT = "parking-front"
+    const val TASK_PARKING_PARALLEL = "parking-parallel"
+    const val TASK_PARKING_ANGLE = "parking-angle"
     const val TASK_KNOWLEDGE = "knowledge-hazard-weather"
     const val TASK_TRACK_EXAM = "track-exam"
 
@@ -59,14 +61,15 @@ object SeedCatalog {
         Task(TASK_PARKING_REAR, "후면 직각 주차", TaskType.PARKING, Difficulty.HARD, "핸들을 돌리고 천천히 후진하며 방향을 맞춰요.",
             listOf("핸들 방향", "기어 전환", "뒤 거리"), setOf(V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE, V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR, SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM), requiresDriving = true,
             status = TaskStatus.READY, parking = ParkingSpec.REAR_PERPENDICULAR),   // 시연 본편. 채점기·가이드 6단계·시나리오 2벌
-        Task("parking-parallel", "평행 주차", TaskType.PARKING, Difficulty.HARD, "길가의 주차 칸에 뒤로 들어가요.",
-            listOf("핸들 방향", "기어 전환", "뒤 거리"), setOf(V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE, V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR, SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM), requiresDriving = true),
+        Task(TASK_PARKING_PARALLEL, "평행 주차", TaskType.PARKING, Difficulty.HARD, "길가의 주차 칸에 뒤로 들어가 나란히 서요.",
+            listOf("핸들 방향", "기어 전환", "뒤 거리"), setOf(V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE, V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR, SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM), requiresDriving = true,
+            status = TaskStatus.READY, parking = ParkingSpec.PARALLEL),   // 10/4: 우 끝 → 좌 끝 정석, 가이드 7단계·시나리오 2벌(MoreParkingScenarios)
         Task(TASK_PARKING_FRONT, "전면 직각 주차", TaskType.PARKING, Difficulty.MEDIUM, "앞을 살피며 주차 칸에 곧게 들어가요.",
             listOf("핸들 방향", "기어 전환"), setOf(V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE, V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR), requiresDriving = true,
             status = TaskStatus.READY, parking = ParkingSpec.FRONT_PERPENDICULAR),   // 10/2 추가: 앞으로 들어가므로 뒤 거리 없음. 가이드 6단계·시나리오 2벌(FrontParkingScenarios)
-        Task("parking-angle", "사선 주차", TaskType.PARKING, Difficulty.HARD, "기울어진 주차 칸의 방향에 맞춰 들어가요.",
+        Task(TASK_PARKING_ANGLE, "사선 주차", TaskType.PARKING, Difficulty.HARD, "기울어진 주차 칸의 방향에 맞춰 들어가요.",
             listOf("핸들 방향", "기어 전환", "뒤 거리"), setOf(V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE, V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR, SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM), requiresDriving = true,
-            status = TaskStatus.PLANNED),
+            status = TaskStatus.READY, parking = ParkingSpec.ANGLE),   // 10/4: 45° 칸, 가이드 6단계·시나리오 2벌
         Task("roundabout", "회전교차로", TaskType.DRIVING, Difficulty.HARD, "우선순위를 확인하고 들어간 뒤 방향지시등을 켜고 나와요.",
             listOf("속도", "방향지시등"), setOf(V.VEHICLE_SPEED, V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING) + SimOnlySignals.TRACK_KEYS, requiresDriving = true,
             status = TaskStatus.READY, course = TrackCourses.roundabout),
@@ -83,6 +86,8 @@ object SeedCatalog {
     fun scenariosFor(task: Task): List<Scenario> = when {
         task.course != null -> CourseScenarios.forCourse(task.course.id)
         task.id == TASK_PARKING_FRONT -> FrontParkingScenarios.all
+        task.id == TASK_PARKING_PARALLEL -> MoreParkingScenarios.parallel
+        task.id == TASK_PARKING_ANGLE -> MoreParkingScenarios.angle
         task.type == TaskType.PARKING -> ParkingScenarios.all
         task.type == TaskType.CHECKLIST -> ChecklistScenarios.all
         else -> emptyList()
@@ -93,6 +98,8 @@ object SeedCatalog {
     fun guideFor(task: Task): List<GuideStep> = when (task.id) {
         TASK_PARKING_REAR -> parkingGuide
         TASK_PARKING_FRONT -> frontParkingGuide
+        TASK_PARKING_PARALLEL -> parallelParkingGuide
+        TASK_PARKING_ANGLE -> angleParkingGuide
         TASK_PREDRIVE -> predriveGuide
         else -> emptyList()
     }
@@ -116,6 +123,27 @@ object SeedCatalog {
         GuideStep("drive", "기어를 주행에 놓아 주세요.", V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR, "좋아요.") { s, _ -> s.gear == Gear.DRIVE },
         GuideStep("steer-right", "핸들을 오른쪽 끝까지 돌려 주세요.", V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE, "다 돌렸어요. 이제 천천히 앞으로 가요.") { s, _ -> (s.steeringDeg ?: 0f) <= -400f },
         GuideStep("center", "차가 칸과 나란해지면 핸들을 중립으로 돌려 주세요.", V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE, "곧게 들어가요.") { s, moved -> moved && kotlin.math.abs(s.steeringDeg ?: 999f) < 30f },
+        parkingGuide.first { it.id == "park" },
+    )
+
+    /** 평행 주차 7단계(10/4) — 우 끝으로 뒤로 들어가다 비스듬해지면 좌 끝, 나란해지면 중립. **문장은 Codex 가 다듬는다.** */
+    val parallelParkingGuide: List<GuideStep> = listOf(
+        parkingGuide.first { it.id == "belt" },
+        parkingGuide.first { it.id == "ignition" },
+        parkingGuide.first { it.id == "reverse" },
+        GuideStep("steer-right", "앞차 뒤범퍼와 내 뒷바퀴가 나란해지면 핸들을 오른쪽 끝까지 돌려 주세요.", V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE, "천천히 후진해요.") { s, _ -> (s.steeringDeg ?: 0f) <= -400f },
+        GuideStep("steer-left", "차가 비스듬해지면 멈추고 핸들을 왼쪽 끝까지 돌려 주세요.", V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE, "다시 천천히 후진해요.") { s, moved -> moved && (s.steeringDeg ?: 0f) >= 400f },
+        GuideStep("center", "길과 나란해지면 멈추고 핸들을 중립으로 돌려 주세요.", V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE, "나란히 섰어요.") { s, moved -> moved && kotlin.math.abs(s.steeringDeg ?: 999f) < 30f },
+        parkingGuide.first { it.id == "park" },
+    )
+
+    /** 사선 주차 6단계(10/4) — 후면 직각과 같은 뼈대, 칸 방향(45°)에 맞으면 중립. **문장은 Codex 가 다듬는다.** */
+    val angleParkingGuide: List<GuideStep> = listOf(
+        parkingGuide.first { it.id == "belt" },
+        parkingGuide.first { it.id == "ignition" },
+        parkingGuide.first { it.id == "reverse" },
+        GuideStep("steer-right", "핸들을 오른쪽 끝까지 돌려 주세요.", V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE, "다 돌렸어요. 천천히 후진해요.") { s, _ -> (s.steeringDeg ?: 0f) <= -400f },
+        GuideStep("center", "차가 기울어진 칸과 나란해지면 핸들을 중립으로 돌려 주세요.", V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE, "곧게 후진해요.") { s, moved -> moved && kotlin.math.abs(s.steeringDeg ?: 999f) < 30f },
         parkingGuide.first { it.id == "park" },
     )
 
