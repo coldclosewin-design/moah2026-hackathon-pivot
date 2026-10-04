@@ -33,7 +33,7 @@ internal fun LessonRoute(vm: LessonViewModel) {
         is LessonPhase.Maneuver -> ManeuverScreen(state.toDisplayState(), state.snapshot.locked, state.snapshot.stopped,
             subtitle, vm::finishAttempt, demo, state.task.title)
         // 임시(Claude 10/4) — Codex 라운드 18 이 DriveScreen 으로 교체
-        is LessonPhase.Drive -> DriveInterimScreen(state, subtitle, vm::finishAttempt, demo)
+        is LessonPhase.Drive -> DriveScreen(state, subtitle, vm::finishAttempt, demo)
         is LessonPhase.Done -> DoneScreen(state.task, state.attempt, state.record, subtitle, vm::nextAttempt, vm::endSession, demo, state.locked)
         is LessonPhase.Report -> ReportScreen(state.report, vm::restart, state.locked)
         is LessonPhase.Quiz -> QuizScreen(state.task, state.index, state.total, state.item, state.locked,

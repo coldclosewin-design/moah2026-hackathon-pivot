@@ -15,7 +15,7 @@ internal data class PathViewport(val scale: Float, val centerX: Float, val cente
 }
 
 internal fun pathViewport(path: List<PathPoint>, width: Float, height: Float,
-    frontEntry: Boolean = false, harshPoints: List<PathPoint> = emptyList()): PathViewport {
+    frontEntry: Boolean = false, harshPoints: List<PathPoint> = emptyList(), targetHeading: Float? = null): PathViewport {
     require(path.isNotEmpty())
     val extent = path.map { it.x to it.y }.toMutableList()
     listOf(path.first(), path.last()).forEach { point ->
@@ -31,13 +31,13 @@ internal fun pathViewport(path: List<PathPoint>, width: Float, height: Float,
         (height - 240f) / (top - bottom).coerceAtLeast(.1f)).coerceAtLeast(36f)
     // Retain the horizontal fit. Centre the final painted scene, including fixed-dp strokes,
     // so the bay stays anchored while the measured path is replayed.
-    val (paintBottom, paintTop) = pathVerticalBounds(path, scale, frontEntry, harshPoints)
+    val (paintBottom, paintTop) = pathVerticalBounds(path, scale, frontEntry, harshPoints, targetHeading)
     return PathViewport(scale, (left + right) / 2, (paintBottom + paintTop) / (2 * scale), width, height)
 }
 
 /** Painted vertical bounds in scaled world coordinates (+y up), before the rear-view rotation. */
 internal fun pathVerticalBounds(path: List<PathPoint>, scale: Float, frontEntry: Boolean,
-    harshPoints: List<PathPoint> = emptyList()): Pair<Float, Float> {
+    harshPoints: List<PathPoint> = emptyList(), targetHeading: Float? = null): Pair<Float, Float> {
     var bottom = Float.POSITIVE_INFINITY
     var top = Float.NEGATIVE_INFINITY
     fun include(y: Float, radius: Float) {
@@ -54,7 +54,7 @@ internal fun pathVerticalBounds(path: List<PathPoint>, scale: Float, frontEntry:
         include((point.y + high) * scale, 0f)
     }
     val end = path.last()
-    val angle = Math.toRadians(end.headingDeg.toDouble())
+    val angle = Math.toRadians((targetHeading ?: end.headingDeg).toDouble())
     // All four bay corners are painted, including the two on its open edge.
     include(end.y * scale, (abs(sin(angle)) * 1.125f + abs(cos(angle)) * 2.5875f).toFloat() * scale + 2f)
     if (frontEntry) {

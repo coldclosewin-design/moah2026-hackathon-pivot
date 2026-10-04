@@ -185,7 +185,7 @@ private fun SignalValue(label: String, value: String, signal: SignalAvailability
 }
 
 @Composable
-private fun FinishButton(emphasized: Boolean, onFinish: () -> Unit) {
+internal fun FinishButton(emphasized: Boolean, onFinish: () -> Unit) {
     val pulse = remember { Animatable(1f) }
     LaunchedEffect(emphasized) {
         pulse.snapTo(1f)
