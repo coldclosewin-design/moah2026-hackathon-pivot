@@ -12,6 +12,11 @@ RESERVE=1 RECORD=/sdcard/demo.mp4 bash tools/emu_flow.sh build/rec   # 9/28: 예
 bash tools/lesson_shots.sh /tmp/shots  # 고정 데이터로 5화면 계약 검사 + 캡처
 ```
 
+`course_flow.sh`(10/4) 는 코스 과제 회귀: 시트 → 주행 → 장내기능 모의시험 → 평가 → 시작, 못한 시험(코스 70 불합격·감점 뒤로 밀림·검지선 접촉·비상등 미점등) → 한 번 더 → 잘한 시험(100 합격·감점 0) → 문 열기 → 리포트. 단계 스크린샷 20~28. 실시간으로 약 6분(시나리오 132 s + 128 s) — 셸 600 s 한도 근처라 백그라운드로 돌린다. 설치는 하지 않는다(`adb install -r` 먼저).
+```bash
+bash tools/course_flow.sh build/course
+```
+
 `emu_flow.sh` 가 확인하는 것: 세션 시작 로그, 못한 주차에서 **힌트 3종**(`hint: 안전벨트`·`뒤가 가까워요`·`제동이 급했어요`), 기어 P 뒤 `asked done`, 회차 1·2 채점 로그(`attempt N: skill=… safety=…`), 잘한 주차에서 **힌트 0건**, 도어 열림 → `report: attempts=2`, 리포트 화면의 "다시 시작"과 배지(실신호·시뮬레이션·미측정). `[t+NNs]` 는 세션 시작부터의 경과 시간 — 시연 길이는 `-PdemoSpeed=<배율>`(기본 1.0 = 실시간, 잘한 26 s·못한 44 s)로 조절한다.
 
 결과: `<출력폴더>/log.txt`, `1x_*.png`(10 setup · 11 briefing · 12 maneuver hint · 13 parked · 14 done 1 · 15 maneuver good · 16 done 2 · 17 report). 끝에 앱 로그, `uiautomator clashes` 건수, `result: PASS/FAIL`(종료 코드도 같다).
