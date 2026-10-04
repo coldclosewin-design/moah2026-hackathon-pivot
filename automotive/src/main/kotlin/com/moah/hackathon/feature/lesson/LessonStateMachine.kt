@@ -212,7 +212,7 @@ class LessonStateMachine(
         if (finishing) return
         val until = clock() - attemptStartMillis
         val checklist = task.type == TaskType.CHECKLIST
-        val raw = (if (checklist) recorder.scoreChecklist(checklistRubric, until) else recorder.score(rubric, until)) ?: run {
+        val raw = (if (checklist) recorder.scoreChecklist(checklistRubric, until) else recorder.score(task.parkingSpec.rubric(rubric), until)) ?: run {
             tts.speak(if (checklist) "아직 신호가 없어요. 잠시 뒤 다시 눌러 주세요." else "아직 움직임이 없어요. 천천히 시작해 보세요.")
             return
         }
@@ -331,7 +331,7 @@ class LessonStateMachine(
             course != null -> CourseRecorder.KEYS
             else -> spec.keys
         }
-        hints = HintRules(checklist = checklist, entryGear = spec.entryGear)
+        hints = HintRules(checklist = checklist, entryGear = spec.entryGear, idealReversals = spec.idealReversals)
         zoneLine = null
         lastSignal = null
         lastEmergency = false

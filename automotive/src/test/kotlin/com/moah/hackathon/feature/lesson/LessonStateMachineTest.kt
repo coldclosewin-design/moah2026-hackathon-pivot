@@ -36,7 +36,11 @@ class LessonStateMachineTest {
 
     private class Harness(val port: FakeVehiclePort, val tts: FakeTtsPort, val store: ProgressStore, val machine: LessonStateMachine, val scope: CoroutineScope)
 
-    private fun TestScope.harness(coach: CoachPort? = null): Harness {
+    /** 카탈로그가 전부 READY 가 된 뒤(10/4)에도 거절 경로를 시험하려고 넣는 "준비 중" 과제. */
+    private val plannedTask = Task("planned-night", "야간 주차", TaskType.PARKING, Difficulty.HARD, "예시", listOf("핸들"), emptySet(),
+        requiresDriving = true, status = TaskStatus.PLANNED)
+
+    private fun TestScope.harness(coach: CoachPort? = null, tasks: List<Task> = SeedCatalog.tasks): Harness {
         val dispatcher = StandardTestDispatcher(testScheduler)
         val scope = CoroutineScope(dispatcher + SupervisorJob())
         val port = FakeVehiclePort(simulate = false, dispatcher = dispatcher)
@@ -45,7 +49,7 @@ class LessonStateMachineTest {
         val machine = LessonStateMachine(
             vehicle = port, tts = tts, coach = coach ?: FakeCoachPort(RemarkPool(SeedCatalog.remarks, Random(3))),
             registry = SignalRegistry(ParkingRecorder.CHECKLIST_KEYS + com.moah.hackathon.scoring.CourseRecorder.KEYS, simulated = true), store = store,
-            tasks = SeedCatalog.tasks, guideFor = SeedCatalog::guideFor, quizFor = SeedCatalog::quizFor, venues = SeedCatalog.venues, benefits = SeedCatalog.benefits,
+            tasks = tasks, guideFor = SeedCatalog::guideFor, quizFor = SeedCatalog::quizFor, venues = SeedCatalog.venues, benefits = SeedCatalog.benefits,
             profile = SeedCatalog.demoProfile, scope = scope, clock = { testScheduler.currentTime }, briefingMillis = 0,
         )
         return Harness(port, tts, store, machine, scope)
@@ -171,8 +175,8 @@ class LessonStateMachineTest {
 
     @Test
     fun `planned tasks and unsupported modes are refused and the session stays in Setup`() = runTest {
-        val h = harness()
-        h.machine.begin("parking-parallel", LessonMode.HINT)     // 카탈로그에만 있는 과제
+        val h = harness(tasks = SeedCatalog.tasks + plannedTask)
+        h.machine.begin(plannedTask.id, LessonMode.HINT)         // 카탈로그에만 있는 과제
         advanceUntilIdle()
         assertTrue(h.machine.phase.value is LessonPhase.Setup)
         assertTrue(h.tts.spoken.last(), h.tts.spoken.last().contains("준비 중"))
@@ -347,9 +351,9 @@ class LessonStateMachineTest {
 
     @Test
     fun `spoken lines carry the right particles`() = runTest {
-        val h = harness()
-        h.machine.begin("parking-parallel", LessonMode.HINT)
-        assertTrue(h.tts.spoken.last(), h.tts.spoken.last().startsWith("평행 주차는 아직 준비 중이에요. 지금은 출발 전 점검·"))
+        val h = harness(tasks = SeedCatalog.tasks + plannedTask)
+        h.machine.begin(plannedTask.id, LessonMode.HINT)
+        assertTrue(h.tts.spoken.last(), h.tts.spoken.last().startsWith("야간 주차는 아직 준비 중이에요. 지금은 출발 전 점검·"))
         assertTrue(h.tts.spoken.last(), h.tts.spoken.last().endsWith("비상등·날씨별 행동을 할 수 있어요."))
         h.machine.begin(SeedCatalog.TASK_PARKING_REAR, LessonMode.QUIZ)
         assertTrue(h.tts.spoken.last().startsWith("후면 직각 주차는 지식 테스트 모드로는"))
