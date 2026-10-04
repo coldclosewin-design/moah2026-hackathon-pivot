@@ -516,3 +516,39 @@ PNG **20장 교체**. 앞 여섯 행의 18장은 최종 첫 `lesson_shots` PASS 
 APK SHA-256: 앱 `C15A0023722687E18D41621C4BAB77DAC734F2B43ECA97BE17277E201B3FC6CE`, 계측 `AEA5DC0771FB26FF985E2DFF57B0974579BA7E6C8530DD5420BF99E8F483B612`.
 
 정적 확인: `ui/`의 `FontWeight.Bold` 0, `Color(0x`는 기존 `CoachStyle.kt` 토큰만 사용하며 새 토큰·리소스 0. 차량·포트·채점·상태기계·데이터·빌드 파일·tools·NEXT 변경 없음.
+
+## UI 라운드 19 — 신호·빈 감점 회차·차선 변경 카드 (2026-10-05)
+
+`codex/ui-round19` · 기준 `origin/main=c39ad5a`(PR #156) · CSTDe_API_34 2560×1440 · 기본 Fake, 배율 1.0. [발주서](../../handoffs/2026-10-05_codex_ui_round19.md)의 세 항목을 반영했다.
+
+| 대상 | 교체 캡처 | 확인 |
+|---|---|---|
+| Drive OFF | [시험 가속](lesson-drive-exam.png), [주차 구간 정차](lesson-drive-exam-parking.png) | OFF일 때 신호등 줄과 그 간격 제거. null은 `신호등 미측정`, 빨강·노랑·초록은 기존 문구 유지. 잠금 중 터치·점수·감점 0 |
+| 감점 없는 회차 | [자세히 보기](lesson-report-exam-details.png) | 두 번째 회차의 표 머리를 `감점 없음` 한 줄(32sp, Muted)로 대체. 코스 상세 행 간격을 24→20dp로 줄여 마지막 문장이 잘리지 않고 고정 `돌아가기` 위에 들어간다. 감점 있는 회차의 표와 미측정 규칙 문구 유지 |
+| 차선 변경 카드 | [앞쪽 카드](lesson-setup-sheet-driving.png), [끝쪽 카드](lesson-setup-sheet-driving-end.png) | 두 차로의 도로 경계 두 줄·중앙 점선은 2dp, 실제 `course.route`는 Periwinkle 3dp. 카드에서 S자가 읽히도록 두 차로 축소판에만 가로 축척 확대. 선택 카드에는 Paper 외곽선을 더해 같은 바탕색에서도 경로가 보인다 |
+
+기대 경로 추가는 두 차로 카드에만 적용했다. 다른 카드의 도식·정지선과 Drive/Done의 실제 도면 축척은 유지했다. 위 다섯 PNG만 교체하며 주차·점검·지식·주차 리포트와 `lesson-drive-road-red.png` 파일은 변경하지 않는다.
+
+[빌드 로그](build-round19.txt): PowerShell `.\gradlew.bat assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` 성공. 단위 테스트 **287개, 실패·오류·건너뜀 0**.
+
+[코스 전용 계측](contract-round19-course.txt): 기존 `-e round18Only true` 실행에서 **Round18 contract passed**. OFF·null·빨강·노랑·초록, 빈 회차의 머리글 부재·32sp Muted·전문 노출·고정 버튼과 비중첩, 감점이 없어도 미측정 규칙 유지 검사를 추가했다. 차선 카드 계측은 도로 경계·점선의 선/공백·기대 경로 픽셀과 좌우 이동 폭을 검사한다.
+
+개발 중 1.5dp 선의 안티앨리어싱으로 단색 픽셀 검사가 실패해 도로 경계와 중앙 점선을 2dp로 통일했다. 연속 신호 변경에서는 화면이 초록불인데 접근성 캐시에 이전 노란불이 남는 것을 캡처로 확인했고, 새 검사에서 노드를 `refresh()`하여 읽는다. 빈 회차의 마지막 줄 잘림도 계측으로 발견해 위 행 간격 조정으로 해소했다. 원본 도구와 기존 검사 기준은 변경하지 않았다.
+
+같은 최종 APK로 수정 없는 `bash tools/lesson_shots.sh build/round19-contract-final-N`을 **3회 연속 통과**했다. 주행 시트 두 PNG는 첫 실행, Drive 두 PNG와 상세 리포트는 코스 전용 실행에서 가져왔다.
+
+| 연속 실행 | 전체 계약 로그 | 결과 |
+|---|---|---|
+| 1 | [contract-round19-1.txt](contract-round19-1.txt) | Lesson contract passed |
+| 2 | [contract-round19-2.txt](contract-round19-2.txt) | Lesson contract passed |
+| 3 | [contract-round19-3.txt](contract-round19-3.txt) | Lesson contract passed |
+
+원본 `bash tools/emu_flow.sh build/round19-rear-flow` **PASS·clashes 0·리포트까지 134초**([후면 로그](flow-round19-rear.txt)). 첫 회차 60/55·4구간 → 둘째 100/100·2구간, 안전벨트·뒤 근접·급제동 힌트 3종, 둘째 추가 힌트 0, 도어→Report·배지 `실신호 0 · 시뮬레이션 8 · 미측정 0`을 확인했다.
+
+`adb install -r` 성공 후 원본 `bash tools/course_flow.sh build/round19-course-flow`를 숨김 백그라운드 프로세스로 실행해 **PASS·종료 코드 0**([코스 로그](flow-round19-course.txt)). 못한 시험 70점·불합격·뒤로 밀림/검지선 접촉/비상등 미점등 3건 → 잘한 시험 100점·합격·감점 0건 → 도어→Report를 확인했다. 시연 원본 PNG는 `build/round19-course-flow/`에 보관한다.
+
+최종 전체 첫 실행의 후면 Done·잠금 Done·전면 Done·점검 Done과 코스 전용 실행의 빨간불 Drive는 기존 PNG의 앱 영역 `(0,76)–(2560,1344)`과 픽셀이 동일하다. 교체한 다섯 화면은 직접 확인했으며 글자 잘림·버튼 겹침이 없다.
+
+APK SHA-256: 앱 `3299375BDCA5EEAE00062168198007A47E361C2F59DBF46B88FB35584FB4D278`, 계측 `01D0EC626BEEDB9E4CBC463FC9F5DAC4762C532F7DB41E00745D294C83CFB006`.
+
+정적 확인: `ui/` Bold 0, `Color(0x`는 기존 `CoachStyle.kt`만 사용하며 새 토큰·리소스 0. 차량·포트·채점·상태기계·데이터·빌드 파일·tools·NEXT와 시연 라벨 13개 변경 없음.

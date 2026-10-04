@@ -44,9 +44,12 @@ internal fun CourseMap(course: TrackCourse, modifier: Modifier, progress: Course
         val map = course.map
         val margin = if (thumbnail) 4.dp.toPx() else 28.dp.toPx()
         val scale = min((size.width - margin * 2) / map.widthM, (size.height - margin * 2) / map.heightM)
-        val ox = (size.width - map.widthM * scale) / 2
+        val laneThumbnail = thumbnail && map.shapes.any { it is MapShape.Road && it.lanes >= 2 }
+        // A long two-lane road needs horizontal space for its lane change to read at card size.
+        val scaleX = if (laneThumbnail) (size.width - margin * 2) / map.widthM else scale
+        val ox = (size.width - map.widthM * scaleX) / 2
         val oy = (size.height - map.heightM * scale) / 2
-        fun p(v: Vec2) = Offset(ox + v.x * scale, oy + (map.heightM - v.y) * scale)
+        fun p(v: Vec2) = Offset(ox + v.x * scaleX, oy + (map.heightM - v.y) * scale)
         fun area(a: Area, color: Color) = drawRect(color, p(Vec2(a.minX, a.maxY)), Size(a.width * scale, a.height * scale))
         val road = if (thumbnail) ink else ink.copy(alpha = .28f)
         val line = (if (thumbnail) 1.5f else 3f).dp.toPx()
@@ -59,8 +62,16 @@ internal fun CourseMap(course: TrackCourse, modifier: Modifier, progress: Course
         }
         map.shapes.forEach { shape -> when (shape) {
             is MapShape.Road -> {
-                coursePolyline(shape.points.map(::p), road, shape.widthM * scale)
-                if (!thumbnail && shape.lanes > 1) coursePolyline(shape.points.map(::p), ink.copy(alpha = .6f), line, dashed)
+                if (thumbnail && shape.lanes >= 2) {
+                    for (side in listOf(-1f, 1f)) {
+                        coursePolyline(roadEdge(shape.points, side * shape.widthM / 2).map(::p), ink, 2.dp.toPx())
+                    }
+                    coursePolyline(shape.points.map(::p), ink.copy(alpha = .6f), 2.dp.toPx(),
+                        PathEffect.dashPathEffect(floatArrayOf(5.dp.toPx(), 5.dp.toPx())))
+                } else {
+                    coursePolyline(shape.points.map(::p), road, shape.widthM * scale)
+                    if (!thumbnail && shape.lanes > 1) coursePolyline(shape.points.map(::p), ink.copy(alpha = .6f), line, dashed)
+                }
             }
             is MapShape.Ring -> drawCircle(road, shape.radiusM * scale, p(shape.center), style = Stroke(shape.widthM * scale))
             is MapShape.Bay -> {
@@ -106,6 +117,11 @@ internal fun CourseMap(course: TrackCourse, modifier: Modifier, progress: Course
             }
             is MapShape.Label -> Unit
         } }
+        if (laneThumbnail) {
+            // Paper casing keeps Periwinkle readable on the selected Periwinkle card, too.
+            if (ink == CoachColors.Paper) coursePolyline(course.route.map(::p), ink, 6.dp.toPx())
+            coursePolyline(course.route.map(::p), CoachColors.Periwinkle, 3.dp.toPx())
+        }
         if (!thumbnail) {
             coursePolyline(course.route.map(::p), ink.copy(alpha = .22f), 2.dp.toPx(), dashed)
             coursePolyline(trail.map { p(Vec2(it.x, it.y)) }, CoachColors.Periwinkle, 5.dp.toPx())
@@ -126,6 +142,22 @@ internal fun CourseMap(course: TrackCourse, modifier: Modifier, progress: Course
             }
             markers.forEach { drawCircle(CoachColors.Signal, 7.dp.toPx(), p(it)) }
         }
+    }
+}
+
+private fun roadEdge(points: List<Vec2>, distance: Float): List<Vec2> {
+    val normals = points.zipWithNext { a, b ->
+        val delta = Offset(b.x - a.x, b.y - a.y)
+        if (delta.getDistance() == 0f) Offset.Zero else Offset(-delta.y, delta.x) / delta.getDistance()
+    }
+    if (normals.isEmpty()) return points
+    return points.mapIndexed { index, point ->
+        val before = normals[(index - 1).coerceAtLeast(0)]
+        val after = normals[index.coerceAtMost(normals.lastIndex)]
+        val sum = before + after
+        val divisor = 1f + before.x * after.x + before.y * after.y
+        val offset = if (divisor > .01f) sum * (distance / divisor) else after * distance
+        Vec2(point.x + offset.x, point.y + offset.y)
     }
 }
 
