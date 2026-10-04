@@ -53,7 +53,8 @@ class AppContainer(context: Context) {
 
     /** 이 세션이 관심 있는 신호와 그 출처(실신호/시뮬/미측정). Hybrid 면 키별로 갈린다 — 리포트 배지의 근거. */
     // 상위 집합으로 만들고 과제가 자기 키로 잘라 본다(주차 8 · 점검 12) — 주차 배지가 점검 신호 때문에 "미측정" 을 세지 않게
-    val registry = SignalRegistry.forPort(ParkingRecorder.CHECKLIST_KEYS, vehicle)
+    // 점검 12키 + 코스 17키(10/4) — 과제마다 자기 키로 잘라 배지를 낸다
+    val registry = SignalRegistry.forPort(ParkingRecorder.CHECKLIST_KEYS + com.moah.hackathon.scoring.CourseRecorder.KEYS, vehicle)
     val store = ProgressStore()
     /**
      * Cloud Copilot 인증(9/30 사내 실측: 폴백 0회, "다 됐어요" → Done 2~4 s). `CLOUD_COACH=false` 또는 설정 파일 없음 → null/시드.

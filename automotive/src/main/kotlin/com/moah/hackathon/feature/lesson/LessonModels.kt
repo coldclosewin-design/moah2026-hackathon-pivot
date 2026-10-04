@@ -1,7 +1,12 @@
 package com.moah.hackathon.feature.lesson
 
 import com.moah.hackathon.vehicle.SimOnlySignals
+import com.moah.hackathon.scoring.CourseResult
 import com.moah.hackathon.scoring.ParkingDelta
+import com.moah.hackathon.scoring.TrackCourse
+import com.moah.hackathon.vehicle.TrackSignal
+import com.moah.hackathon.vehicle.toTrackSignal
+import com.moah.hackathon.vehicle.toWiperOn
 import com.moah.hackathon.scoring.ParkingScore
 import com.moah.hackathon.scoring.ParkingSpec
 import com.moah.hackathon.scoring.ParkingVerdict
@@ -42,8 +47,14 @@ data class Task(
      * 상태기계·힌트·조언·화면(도식 방향)이 이것으로 "앞으로 들어가는 주차인가" 를 안다.
      */
     val parking: ParkingSpec? = null,
+    /**
+     * 코스 과제(도로 주행 5종 · 장내기능 모의시험, 10/4)의 도면·구간 규칙. 있으면 상태기계가 주차 흐름 대신 [LessonPhase.Drive] 로 진행하고
+     * [com.moah.hackathon.scoring.CourseRecorder] 로 채점한다. 위치는 시뮬레이션 신호(`Track.*`).
+     */
+    val course: TrackCourse? = null,
 ) {
     val isReady: Boolean get() = status == TaskStatus.READY
+    val isCourse: Boolean get() = course != null
 
     /** 주차 사양 — 과제에 없으면 후면 직각. 점검·주행 과제도 주차 채점기를 쓰므로 항상 값이 있다. */
     val parkingSpec: ParkingSpec get() = parking ?: ParkingSpec.REAR_PERPENDICULAR
@@ -106,6 +117,15 @@ data class VehicleSnapshot(
     val indicatorLeft: Boolean? = null,
     val indicatorRight: Boolean? = null,
     val hazard: Boolean? = null,
+    /** 코스 과제(10/4) — 장치 조작·시험장 신호. 전부 시뮬레이션(SimOnlySignals), 없으면 null. */
+    val headlight: Boolean? = null,
+    val wiper: Boolean? = null,
+    val trackX: Float? = null,
+    val trackY: Float? = null,
+    val trackHeadingDeg: Float? = null,
+    val signal: TrackSignal? = null,
+    val emergency: Boolean? = null,
+    val lineContact: Boolean? = null,
 ) {
     val stopped: Boolean get() = speedKmh < STOP_SPEED_KMH
     val moving: Boolean get() = speedKmh > MOVING_SPEED_KMH
@@ -124,6 +144,14 @@ data class VehicleSnapshot(
         indicatorLeft = delta[VssConstants.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING]?.toVssBoolean() ?: indicatorLeft,
         indicatorRight = delta[VssConstants.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING]?.toVssBoolean() ?: indicatorRight,
         hazard = delta[VssConstants.VEHICLE_BODY_LIGHTS_HAZARD_ISSIGNALING]?.toVssBoolean() ?: hazard,
+        headlight = delta[SimOnlySignals.LIGHTS_BEAM_LOW_ISON]?.toVssBoolean() ?: headlight,
+        wiper = delta[SimOnlySignals.WIPER_FRONT_MODE]?.toWiperOn() ?: wiper,
+        trackX = delta[SimOnlySignals.TRACK_POSITION_X_M]?.toVssFloat() ?: trackX,
+        trackY = delta[SimOnlySignals.TRACK_POSITION_Y_M]?.toVssFloat() ?: trackY,
+        trackHeadingDeg = delta[SimOnlySignals.TRACK_HEADING_DEG]?.toVssFloat() ?: trackHeadingDeg,
+        signal = delta[SimOnlySignals.TRACK_SIGNAL_STATE]?.toTrackSignal() ?: signal,
+        emergency = delta[SimOnlySignals.TRACK_EVENT_EMERGENCY]?.toVssBoolean() ?: emergency,
+        lineContact = delta[SimOnlySignals.TRACK_LINE_CONTACT]?.toVssBoolean() ?: lineContact,
     )
 
     companion object {
@@ -150,6 +178,11 @@ data class AttemptRecord(
     val path: List<PathPoint> = emptyList(),
     /** 네 가지 판정(한 번에·방향(추정)·마무리·안전, docs/design/09). 점검 과제는 null. 운전자 화면은 점수 대신 이것을 보여 준다. */
     val verdict: ParkingVerdict? = null,
+    /**
+     * 코스 과제의 구간별 결과(10/4) — 감점 사건·구간·지나간 자리·합격. 주차·점검은 null.
+     * 감점 점수는 리포트 "자세히 보기"·진단서에만(운전자 문장 숫자 금지). 이때 [score] 의 skill 은 코스 점수, safety 는 급조작·벨트 기준.
+     */
+    val course: CourseResult? = null,
 )
 
 /** 진단서 공유 범위 (§3.5, 구조 A). 단계가 올라갈수록 보상이 커진다. 실제 전송은 없다. */

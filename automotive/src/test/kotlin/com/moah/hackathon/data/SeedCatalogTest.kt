@@ -25,7 +25,7 @@ class SeedCatalogTest {
 
     @Test
     fun `parking variants are ordered catalogue entries - rear and front ready, parallel and angle planned`() {
-        assertEquals(11, SeedCatalog.tasks.size)
+        assertEquals(12, SeedCatalog.tasks.size)
         val parking = SeedCatalog.tasks.filter { it.type == TaskType.PARKING }
         assertEquals(listOf(SeedCatalog.TASK_PARKING_REAR, "parking-parallel", SeedCatalog.TASK_PARKING_FRONT, "parking-angle"), parking.map { it.id })
         assertEquals(listOf(Difficulty.MEDIUM, Difficulty.HARD), parking.takeLast(2).map { it.difficulty })
@@ -33,7 +33,7 @@ class SeedCatalogTest {
             assertEquals(TaskStatus.PLANNED, it.status)
             assertTrue(SeedCatalog.guideFor(it).isEmpty())
         }
-        assertEquals(4, SeedCatalog.tasks.count { it.isReady })
+        assertEquals(10, SeedCatalog.tasks.count { it.isReady })   // 10/4: 코스 과제 6(도로 5 + 장내기능) READY
         // 10/2: 전면 직각 주차 — 앞으로 들어가는 사양, 뒤 거리 없이 7키. 후면은 사양을 명시해도 기본과 같다
         val front = SeedCatalog.frontParkingTask
         assertTrue(front.isReady)
@@ -53,7 +53,13 @@ class SeedCatalogTest {
     @Test
     fun `predrive parking and knowledge tasks are READY - parking supports the three driving modes but not quiz`() {
         val ready = SeedCatalog.tasks.filter { it.isReady }
-        assertEquals(listOf(SeedCatalog.TASK_PREDRIVE, SeedCatalog.TASK_PARKING_REAR, SeedCatalog.TASK_PARKING_FRONT, SeedCatalog.TASK_KNOWLEDGE), ready.map { it.id })
+        assertEquals(listOf(SeedCatalog.TASK_PREDRIVE, "straight-stop", "left-turn-signal", "lane-change", "road-course", SeedCatalog.TASK_TRACK_EXAM,
+            SeedCatalog.TASK_PARKING_REAR, SeedCatalog.TASK_PARKING_FRONT, "roundabout", SeedCatalog.TASK_KNOWLEDGE), ready.map { it.id })
+        // 코스 과제는 전부 도면·시나리오 2벌을 갖고, 주행 모드 셋만 받는다
+        ready.filter { it.type == TaskType.DRIVING }.forEach { t ->
+            assertTrue(t.id, t.isCourse && SeedCatalog.scenariosFor(t).size == 2 && !t.supports(com.moah.hackathon.feature.lesson.LessonMode.QUIZ))
+        }
+        assertTrue(SeedCatalog.tasks.first { it.id == SeedCatalog.TASK_TRACK_EXAM }.course!!.isExam)
         assertTrue(!SeedCatalog.predriveTask.requiresDriving)
         assertTrue(SeedCatalog.predriveTask.supports(com.moah.hackathon.feature.lesson.LessonMode.GUIDE) && !SeedCatalog.predriveTask.supports(com.moah.hackathon.feature.lesson.LessonMode.QUIZ))
         assertEquals(10, SeedCatalog.quizFor(SeedCatalog.tasks.first { it.id == SeedCatalog.TASK_KNOWLEDGE }).size)

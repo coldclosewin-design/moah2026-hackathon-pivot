@@ -44,7 +44,7 @@ class LessonStateMachineTest {
         val store = ProgressStore()
         val machine = LessonStateMachine(
             vehicle = port, tts = tts, coach = coach ?: FakeCoachPort(RemarkPool(SeedCatalog.remarks, Random(3))),
-            registry = SignalRegistry(ParkingRecorder.CHECKLIST_KEYS, simulated = true), store = store,
+            registry = SignalRegistry(ParkingRecorder.CHECKLIST_KEYS + com.moah.hackathon.scoring.CourseRecorder.KEYS, simulated = true), store = store,
             tasks = SeedCatalog.tasks, guideFor = SeedCatalog::guideFor, quizFor = SeedCatalog::quizFor, venues = SeedCatalog.venues, benefits = SeedCatalog.benefits,
             profile = SeedCatalog.demoProfile, scope = scope, clock = { testScheduler.currentTime }, briefingMillis = 0,
         )
@@ -172,7 +172,7 @@ class LessonStateMachineTest {
     @Test
     fun `planned tasks and unsupported modes are refused and the session stays in Setup`() = runTest {
         val h = harness()
-        h.machine.begin("road-course", LessonMode.HINT)          // 카탈로그에만 있는 과제
+        h.machine.begin("parking-parallel", LessonMode.HINT)     // 카탈로그에만 있는 과제
         advanceUntilIdle()
         assertTrue(h.machine.phase.value is LessonPhase.Setup)
         assertTrue(h.tts.spoken.last(), h.tts.spoken.last().contains("준비 중"))
@@ -348,8 +348,9 @@ class LessonStateMachineTest {
     @Test
     fun `spoken lines carry the right particles`() = runTest {
         val h = harness()
-        h.machine.begin("road-course", LessonMode.HINT)
-        assertTrue(h.tts.spoken.last(), h.tts.spoken.last().startsWith("일반 도로 코스는 아직 준비 중이에요. 지금은 출발 전 점검·후면 직각 주차·전면 직각 주차·비상등·날씨별 행동을 할 수 있어요."))
+        h.machine.begin("parking-parallel", LessonMode.HINT)
+        assertTrue(h.tts.spoken.last(), h.tts.spoken.last().startsWith("평행 주차는 아직 준비 중이에요. 지금은 출발 전 점검·"))
+        assertTrue(h.tts.spoken.last(), h.tts.spoken.last().endsWith("비상등·날씨별 행동을 할 수 있어요."))
         h.machine.begin(SeedCatalog.TASK_PARKING_REAR, LessonMode.QUIZ)
         assertTrue(h.tts.spoken.last().startsWith("후면 직각 주차는 지식 테스트 모드로는"))
         h.machine.begin(SeedCatalog.TASK_PARKING_REAR, LessonMode.GUIDE)
@@ -416,7 +417,8 @@ class LessonStateMachineTest {
     @Test
     fun `a failing coach falls back to a rule sentence and the session continues`() = runTest {
         val angry = object : CoachPort {
-            override suspend fun remark(task: Task, score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int, verdict: com.moah.hackathon.scoring.ParkingVerdict?): String = throw IllegalStateException("no network")
+            override suspend fun remark(task: Task, score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int, verdict: com.moah.hackathon.scoring.ParkingVerdict?,
+                course: com.moah.hackathon.scoring.CourseResult?): String = throw IllegalStateException("no network")
             override suspend fun summarize(task: Task, mode: LessonMode, attempts: List<AttemptRecord>, profile: Profile): String = throw IllegalStateException("no network")
         }
         val h = harness(angry)

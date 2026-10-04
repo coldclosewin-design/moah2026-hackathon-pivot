@@ -1,12 +1,15 @@
 package com.moah.hackathon.feature.lesson
 
+import com.moah.hackathon.scoring.CourseProgress
 import com.moah.hackathon.scoring.PreDriveSummary
+import com.moah.hackathon.scoring.TrackCourse
 import com.moah.hackathon.vehicle.SignalAvailability
 
 /**
  * 연수 세션의 단계 (docs/topics/01_driving_coach.md §4.1). 화면은 이것과 `LessonViewModel.subtitle` 만 본다.
  *
  * Setup → Briefing → [Maneuver → Done] × 회차 → Report → (reset) Setup
+ * 코스 과제(도로 5종 · 장내기능 모의시험, 10/4)는 Maneuver 자리에 [Drive].
  *
  * 주차 과제는 [Maneuver] 에서 저속(< 5 km/h)이라 화면 도식을 그려도 된다. 도로 과제는 같은 자리에 잠금 화면이 들어간다.
  * **[Maneuver] 에는 점수·감점 누계가 없다** — 화면에 줄 수 없게 타입에서부터 빠져 있다(AGENTS 규칙 10).
@@ -52,6 +55,29 @@ sealed interface LessonPhase {
          */
         val preDrive: PreDriveSummary? = null,
     ) : LessonPhase
+
+    /**
+     * 코스 과제 주행 중(10/4) — 지도 위 차·지금 구간·다음 구간·신호등·돌발 경보. **점수·감점이 없다**(절대 규칙 10, [CourseProgress] 타입에서부터).
+     * 감점은 그 순간 음성으로만 말하고, 결과는 정차 뒤 [Done] 에서. 속도 > 5 km/h([locked])면 화면은 터치 타깃을 두지 않는다 — 지도는 도식이라 그려도 된다.
+     */
+    data class Drive(
+        val task: Task,
+        val mode: LessonMode,
+        val attempt: Int,
+        val snapshot: VehicleSnapshot,
+        val course: TrackCourse,
+        val progress: CourseProgress,
+        /** 마지막으로 읽은 구간 문장(가이드 = 구간 안내, 시험 = 구간 방송). 없으면 null. */
+        val zoneLine: String?,
+        /** 힌트 모드에서 마지막으로 말한 힌트(감점 순간 문장 포함). */
+        val lastHint: String?,
+        val elapsedMillis: Long,
+        val askedDone: Boolean,
+        /** 배지·칩 — 위치·신호등 등 시뮬레이션 신호의 출처. */
+        val availability: Map<String, SignalAvailability>,
+    ) : LessonPhase {
+        val locked: Boolean get() = snapshot.locked
+    }
 
     /** 운전자가 "다 됐어요" → 회차 결과와 멘트. 다음 회차 또는 세션 종료. */
     /** 회차 끝 화면. [locked](속도 > 5) 면 화면은 버튼·터치 타깃을 숨기고 "운전에 집중" 안내만 — 정차 전용 화면에서 다시 움직였을 때(절대 규칙 10, 감사 08 A1-01). */
