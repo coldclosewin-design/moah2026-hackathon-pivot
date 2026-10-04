@@ -85,6 +85,11 @@ class ProgressStoreTest {
         assertEquals("straight-stop", ModeAdvisor.suggestTask(noFear, SeedCatalog.tasks, roadA, SeedCatalog.venues).id)
         // 코스에 READY 가 하나도 없으면 예약을 무시하고 원래 규칙(첫 쉬운 과제)
         assertEquals(SeedCatalog.TASK_PREDRIVE, ModeAdvisor.suggestTask(noFear, SeedCatalog.tasks.filter { !it.isCourse }, roadA, SeedCatalog.venues).id)
+        // 10/4: 장내기능 모의시험 코스를 예약하면 그 과제를 제안 — 세 시험장 모두에 있다
+        SeedCatalog.venues.forEach { v ->
+            val exam = Reservation(v.id, v.slots.first { it.available }.id, SeedCatalog.COURSE_EXAM, 0L)
+            assertEquals(v.id, SeedCatalog.TASK_TRACK_EXAM, ModeAdvisor.suggestTask(noFear, SeedCatalog.tasks, exam, SeedCatalog.venues).id)
+        }
         // 모르는 시험장 → 무시
         assertEquals(SeedCatalog.TASK_PREDRIVE, ModeAdvisor.suggestTask(noFear, SeedCatalog.tasks, parking.copy(venueId = "nope"), SeedCatalog.venues).id)
     }

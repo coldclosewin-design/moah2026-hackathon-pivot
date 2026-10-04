@@ -239,12 +239,15 @@ object SeedCatalog {
     const val COURSE_PARKING = "course-parking-3"
     const val COURSE_ROAD_A = "course-road-a"
     const val COURSE_ROAD_B = "course-road-b"
+    /** 10/4: 제휴 시험장의 장내 코스에서 보는 모의시험 — 예약하면 Setup 이 장내기능 모의시험을 제안한다. 세 시험장 모두. */
+    const val COURSE_EXAM = "course-exam"
 
     /** 코스 3 — 과제 id 는 카탈로그와 일치해야 한다(`SeedCatalogTest`). 제안은 READY 만 고르므로 계획 과제가 섞여도 된다. */
     val courses: List<Course> = listOf(
         Course(COURSE_PARKING, "주차 3종", listOf(TASK_PARKING_REAR, "parking-parallel", "parking-front")),
         Course(COURSE_ROAD_A, "도로 A", listOf("straight-stop", "left-turn-signal")),
         Course(COURSE_ROAD_B, "도로 B", listOf("lane-change", "roundabout")),
+        Course(COURSE_EXAM, "장내기능 모의시험", listOf(TASK_TRACK_EXAM)),
     )
 
     private fun slotsToday(unavailable: Int): List<Slot> = listOf(
@@ -256,8 +259,8 @@ object SeedCatalog {
     /** 시험장 3. 시간대는 오늘 3(하나는 자리 없음). */
     val venues: List<Venue> = listOf(
         Venue("venue-seocho", "서초 시험장", "서초", 3f, courses, slotsToday(unavailable = 1)),
-        Venue("venue-gangnam", "강남 시험장", "강남", 6f, listOf(courses[0], courses[1]), slotsToday(unavailable = 0)),
-        Venue("venue-bundang", "분당 시험장", "분당", 14f, listOf(courses[0], courses[2]), slotsToday(unavailable = 2)),
+        Venue("venue-gangnam", "강남 시험장", "강남", 6f, listOf(courses[0], courses[1], courses[3]), slotsToday(unavailable = 0)),
+        Venue("venue-bundang", "분당 시험장", "분당", 14f, listOf(courses[0], courses[2], courses[3]), slotsToday(unavailable = 2)),
     )
 
     /** 진단서의 예상 혜택 예시. 실제 전송·계약은 없다(화면에 그렇게 밝힌다). */
