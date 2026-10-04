@@ -21,8 +21,10 @@ class ProgressStore {
     /** 관측 프로필 — 진술과 어긋나면 앱이 제안한다. */
     fun observation(): ProfileObservation {
         if (records.isEmpty()) return ProfileObservation()
-        val segments = records.map { it.score.metrics.motion.movingSegments }
-        val reversals = records.mapNotNull { it.score.metrics.steering?.reversals }
+        // 구간·조향 평균은 주차·점검 회차로만 — 코스 주행은 정차가 많아 구간 수가 뜻이 다르다(10/4)
+        val maneuvers = records.filter { it.course == null }.ifEmpty { records }
+        val segments = maneuvers.map { it.score.metrics.motion.movingSegments }
+        val reversals = maneuvers.mapNotNull { it.score.metrics.steering?.reversals }
         val weak = records.groupBy { it.taskId }.minByOrNull { (_, rs) -> rs.map { it.score.skill }.average() }?.key
         return ProfileObservation(
             attempts = records.size,

@@ -9,6 +9,7 @@ import com.moah.hackathon.feature.lesson.ScoreBand
 import com.moah.hackathon.feature.lesson.Task
 import com.moah.hackathon.feature.lesson.TaskType
 import com.moah.hackathon.scoring.ChecklistScorer
+import com.moah.hackathon.scoring.CourseResult
 import com.moah.hackathon.scoring.ParkingDelta
 import com.moah.hackathon.scoring.ParkingRubric
 import com.moah.hackathon.scoring.ParkingScore
@@ -26,7 +27,8 @@ import com.moah.hackathon.scoring.ParkingVerdict
  */
 interface CoachPort {
     /** 회차 멘트 — "장롱의 문 정도는 열었습니다. 좋은 출발이에요.\n핸들을 끝까지 꺾은 채 중립을 조금 늦게 잡아 보세요." */
-    suspend fun remark(task: Task, score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int, verdict: ParkingVerdict? = null): String
+    suspend fun remark(task: Task, score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int, verdict: ParkingVerdict? = null,
+        course: CourseResult? = null): String
 
     /** 세션 총평 — 리포트 상단 두 문장(흐름 / 안전 한 가지). 숫자 없음. */
     suspend fun summarize(task: Task, mode: LessonMode, attempts: List<AttemptRecord>, profile: Profile): String
@@ -100,13 +102,55 @@ object AdviceRules {
     fun advice(task: Task, score: ParkingScore, rubric: ParkingRubric = ParkingRubric()): String = pick(task, score, rubric).driver
 }
 
+/**
+ * 코스 과제(10/4)의 회차 멘트 — "서두.\n조언." 두 문장, 숫자 없음. 서두는 결과(합격·실격·깨끗함), 조언은 가장 큰 감점 하나를 "다음엔" 말투로.
+ */
+object CourseRemarks {
+    fun opener(r: CourseResult): String = when {
+        !r.positionMeasured -> "구간을 확인할 수 없었지만 끝까지 달렸어요."
+        r.disqualified -> "실격 사유가 하나 있었어요."
+        r.passed == true && r.deductions.isEmpty() -> "감점 없이 합격선을 넘었어요."
+        r.passed == true -> "합격선을 넘었어요."
+        r.passed == false -> "이번엔 합격선에 조금 못 미쳤어요."
+        r.deductions.isEmpty() -> "구간마다 할 일을 다 챙겼어요."
+        r.deductions.size == 1 -> "한 가지만 놓쳤어요."
+        else -> "놓친 구간이 몇 군데 있었어요."
+    }
+
+    /** 가장 큰 감점(실격 먼저) 하나의 다음 행동. */
+    fun advice(r: CourseResult): String {
+        val d = r.deductions.sortedWith(compareByDescending<com.moah.hackathon.scoring.Deduction> { it.disqualify }.thenByDescending { it.points }).firstOrNull()
+            ?: return "이 흐름 그대로 한 번 더 해 봐요."
+        return when {
+            d.reason == "신호 위반" -> "다음엔 신호가 바뀔 때까지 정지선 앞에서 기다려요."
+            d.reason == "검지선 접촉" -> "다음엔 ${d.zoneTitle}에서 조금 더 천천히, 핸들을 늦게 돌려 봐요."
+            d.reason == "뒤로 밀림" -> "다음엔 경사로에서 가속 페달을 살짝 밟은 뒤 브레이크를 떼요."
+            d.reason == "출발 지연" -> "다음엔 멈춘 뒤 바로 출발 준비를 해요."
+            d.reason == "방향지시등 미점등" -> "다음엔 ${d.zoneTitle} 전에 방향지시등부터 켜요."
+            d.reason == "가속 부족" -> "다음엔 가속 구간에서 속도를 충분히 올려요."
+            d.reason == "속도 초과" -> "다음엔 ${d.zoneTitle}에서 속도를 먼저 줄이고 들어가요."
+            d.reason == "돌발 정지 지연" -> "다음엔 경보가 울리는 순간 바로 브레이크를 밟아요."
+            d.reason == "비상등 미점등" -> "다음엔 돌발 정지 뒤 비상등까지 켜요."
+            d.reason == "주차 칸 밖 정지" -> "다음엔 칸 끝까지 천천히 들어간 뒤 멈춰요."
+            d.reason == "시간 초과" -> "다음엔 순서를 미리 떠올리고 들어가요."
+            d.reason.endsWith("미조작") -> "다음엔 출발 전에 장치를 하나씩 켰다 꺼요."
+            d.reason.endsWith("미정지") -> "다음엔 ${d.zoneTitle}에서 완전히 멈췄다 가요."
+            else -> "다음엔 ${d.zoneTitle.withObjectParticle()} 한 번 더 연습해 봐요."
+        }
+    }
+
+    fun remark(r: CourseResult): String = "${opener(r)}\n${advice(r)}"
+}
+
 /** 시드 멘트 풀에서 고르는 결정적 구현. 인터넷 불필요. */
 class FakeCoachPort(
     private val pool: RemarkPool,
     private val rubric: ParkingRubric = ParkingRubric(),
 ) : CoachPort {
 
-    override suspend fun remark(task: Task, score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int, verdict: ParkingVerdict?): String {
+    override suspend fun remark(task: Task, score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int, verdict: ParkingVerdict?,
+        course: CourseResult?): String {
+        if (course != null) return CourseRemarks.remark(course)
         val checklist = task.type == TaskType.CHECKLIST
         // 나아짐의 기준: 주차는 이동 구간 수, 점검은 걸린 시간
         val better = delta != null && if (checklist) delta.seconds < 0 else delta.segments < 0

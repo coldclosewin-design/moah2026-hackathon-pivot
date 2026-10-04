@@ -80,9 +80,11 @@ class ProgressStoreTest {
         val noFear = Profile("x", ProfileStatement())
         val parking = Reservation("venue-seocho", "slot-14", SeedCatalog.COURSE_PARKING, 0L)
         assertEquals(SeedCatalog.TASK_PARKING_REAR, ModeAdvisor.suggestTask(noFear, SeedCatalog.tasks, parking, SeedCatalog.venues).id)
-        // 도로 A 는 전부 계획 과제 → 예약을 무시하고 원래 규칙(첫 쉬운 과제)
+        // 도로 A 의 첫 과제(단순 전진 후 정지)는 10/4 부터 READY → 예약 코스에서 제안
         val roadA = Reservation("venue-seocho", "slot-14", SeedCatalog.COURSE_ROAD_A, 0L)
-        assertEquals(SeedCatalog.TASK_PREDRIVE, ModeAdvisor.suggestTask(noFear, SeedCatalog.tasks, roadA, SeedCatalog.venues).id)
+        assertEquals("straight-stop", ModeAdvisor.suggestTask(noFear, SeedCatalog.tasks, roadA, SeedCatalog.venues).id)
+        // 코스에 READY 가 하나도 없으면 예약을 무시하고 원래 규칙(첫 쉬운 과제)
+        assertEquals(SeedCatalog.TASK_PREDRIVE, ModeAdvisor.suggestTask(noFear, SeedCatalog.tasks.filter { !it.isCourse }, roadA, SeedCatalog.venues).id)
         // 모르는 시험장 → 무시
         assertEquals(SeedCatalog.TASK_PREDRIVE, ModeAdvisor.suggestTask(noFear, SeedCatalog.tasks, parking.copy(venueId = "nope"), SeedCatalog.venues).id)
     }

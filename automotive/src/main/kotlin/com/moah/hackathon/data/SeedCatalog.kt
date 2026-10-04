@@ -32,6 +32,7 @@ object SeedCatalog {
     const val TASK_PARKING_REAR = "parking-rear-perpendicular"
     const val TASK_PARKING_FRONT = "parking-front"
     const val TASK_KNOWLEDGE = "knowledge-hazard-weather"
+    const val TASK_TRACK_EXAM = "track-exam"
 
     val tasks: List<Task> = listOf(
         Task(TASK_PREDRIVE, "출발 전 점검", TaskType.CHECKLIST, Difficulty.EASY, "차를 세운 채로 문과 벨트, 주차 기어, 브레이크와 시동, 지시등과 비상등을 순서대로 확인해요.",
@@ -39,14 +40,22 @@ object SeedCatalog {
             setOf(V.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN, V.VEHICLE_CABIN_SEAT_ROW1_DRIVERSIDE_ISBELTED, V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR, V.VEHICLE_CHASSIS_BRAKE_PEDALPOSITION, V.VEHICLE_LOWVOLTAGESYSTEMSTATE,
                 V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING, V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING, V.VEHICLE_BODY_LIGHTS_HAZARD_ISSIGNALING), requiresDriving = false,
             status = TaskStatus.READY),   // 가이드 7단계(9/28, D1) + ChecklistScorer + 시나리오 2벌. 움직이지 않는 유일한 조작 과제
-        Task("straight-stop", "단순 전진 후 정지", TaskType.DRIVING, Difficulty.EASY, "천천히 출발해 부드럽게 멈춰요.",
-            listOf("출발", "정지"), setOf(V.VEHICLE_SPEED), requiresDriving = true),
+        // 코스 과제(10/4 전 범위 구현): 도면·구간 규칙은 TrackCourses, 위치·신호등·돌발·검지선은 시뮬레이션 신호(SimOnlySignals.TRACK_KEYS)
+        Task("straight-stop", "단순 전진 후 정지", TaskType.DRIVING, Difficulty.EASY, "천천히 출발해 정지선 앞에 부드럽게 멈춰요.",
+            listOf("출발", "속도", "정지선"), setOf(V.VEHICLE_SPEED) + SimOnlySignals.TRACK_KEYS, requiresDriving = true,
+            status = TaskStatus.READY, course = TrackCourses.straightStop),
         Task("left-turn-signal", "좌회전 방향지시등", TaskType.DRIVING, Difficulty.EASY, "좌회전하기 전에 방향지시등을 미리 켜고, 돌고 나서 꺼요.",
-            listOf("방향지시등", "핸들"), setOf(V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING, V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE), requiresDriving = true),
+            listOf("방향지시등", "회전 속도", "선"), setOf(V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING, V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE) + SimOnlySignals.TRACK_KEYS,
+            requiresDriving = true, status = TaskStatus.READY, course = TrackCourses.leftTurn),
         Task("lane-change", "차선 변경", TaskType.DRIVING, Difficulty.MEDIUM, "방향지시등을 켜고 주변을 확인한 뒤 부드럽게 이동해요.",
-            listOf("방향지시등", "핸들", "속도"), setOf(V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING, V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING, V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE), requiresDriving = true),
-        Task("road-course", "일반 도로 코스", TaskType.DRIVING, Difficulty.MEDIUM, "일상에서 만나는 도로를 따라 구간마다 필요한 행동을 익혀요.",
-            listOf("속도 유지", "급조작", "방향지시등"), setOf(V.VEHICLE_SPEED), requiresDriving = true),
+            listOf("방향지시등", "속도"), setOf(V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING, V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING, V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE) + SimOnlySignals.TRACK_KEYS,
+            requiresDriving = true, status = TaskStatus.READY, course = TrackCourses.laneChange),
+        Task("road-course", "일반 도로 코스", TaskType.DRIVING, Difficulty.MEDIUM, "어린이 보호구역, 신호, 우회전을 차례로 지나며 구간마다 할 일을 익혀요.",
+            listOf("보호구역 속도", "신호", "방향지시등"), setOf(V.VEHICLE_SPEED) + SimOnlySignals.TRACK_KEYS, requiresDriving = true,
+            status = TaskStatus.READY, course = TrackCourses.road),
+        Task(TASK_TRACK_EXAM, "장내기능 모의시험", TaskType.DRIVING, Difficulty.HARD, "제휴 시험장 장내 코스를 실제 시험처럼 달려요. 구간마다 감점을 매기고 합격선을 봐요.",
+            listOf("장치 조작", "경사로", "직각 주차", "신호", "돌발"), SimOnlySignals.TRACK_KEYS + SimOnlySignals.DEVICE_KEYS, requiresDriving = true,
+            status = TaskStatus.READY, course = TrackCourses.exam),
         Task(TASK_PARKING_REAR, "후면 직각 주차", TaskType.PARKING, Difficulty.HARD, "핸들을 돌리고 천천히 후진하며 방향을 맞춰요.",
             listOf("핸들 방향", "기어 전환", "뒤 거리"), setOf(V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE, V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR, SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM), requiresDriving = true,
             status = TaskStatus.READY, parking = ParkingSpec.REAR_PERPENDICULAR),   // 시연 본편. 채점기·가이드 6단계·시나리오 2벌
@@ -59,7 +68,8 @@ object SeedCatalog {
             listOf("핸들 방향", "기어 전환", "뒤 거리"), setOf(V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE, V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR, SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM), requiresDriving = true,
             status = TaskStatus.PLANNED),
         Task("roundabout", "회전교차로", TaskType.DRIVING, Difficulty.HARD, "우선순위를 확인하고 들어간 뒤 방향지시등을 켜고 나와요.",
-            listOf("속도", "방향지시등"), setOf(V.VEHICLE_SPEED, V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING), requiresDriving = true),
+            listOf("속도", "방향지시등"), setOf(V.VEHICLE_SPEED, V.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING) + SimOnlySignals.TRACK_KEYS, requiresDriving = true,
+            status = TaskStatus.READY, course = TrackCourses.roundabout),
         Task(TASK_KNOWLEDGE, "비상등·날씨별 행동", TaskType.KNOWLEDGE, Difficulty.EASY, "정차 중에 문제를 풀고 이유를 함께 살펴봐요.",
             listOf("비상등", "우천", "야간"), emptySet(), requiresDriving = false,
             status = TaskStatus.READY),   // 지식 테스트 모드로만 시작된다(Task.supports)
@@ -69,8 +79,9 @@ object SeedCatalog {
     val frontParkingTask: Task get() = tasks.first { it.id == TASK_PARKING_FRONT }
     val predriveTask: Task get() = tasks.first { it.id == TASK_PREDRIVE }
 
-    /** 시연 패널이 과제별로 보여 주는 Fake 시나리오. 주차는 과제마다 다르고(후면·전면), 주행 과제는 아직 없다. */
+    /** 시연 패널이 과제별로 보여 주는 Fake 시나리오. 주차는 과제마다(후면·전면), 코스 과제는 코스마다 잘한/못한 2벌(10/4). */
     fun scenariosFor(task: Task): List<Scenario> = when {
+        task.course != null -> CourseScenarios.forCourse(task.course.id)
         task.id == TASK_PARKING_FRONT -> FrontParkingScenarios.all
         task.type == TaskType.PARKING -> ParkingScenarios.all
         task.type == TaskType.CHECKLIST -> ChecklistScenarios.all

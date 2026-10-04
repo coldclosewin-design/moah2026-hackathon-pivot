@@ -7,6 +7,7 @@ import com.moah.hackathon.feature.lesson.Profile
 import com.moah.hackathon.feature.lesson.ScoreBand
 import com.moah.hackathon.feature.lesson.Task
 import com.moah.hackathon.feature.lesson.TaskType
+import com.moah.hackathon.scoring.CourseResult
 import com.moah.hackathon.scoring.ParkingDelta
 import com.moah.hackathon.scoring.ParkingScore
 import com.moah.hackathon.scoring.ParkingVerdict
@@ -33,9 +34,10 @@ class CloudCoachPort(
     private val timeoutMillis: Long = 5_000L,   // 4 → 5 s (9/30 사내 실측: Done 2~4 s)
 ) : CoachPort {
 
-    override suspend fun remark(task: Task, score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int, verdict: ParkingVerdict?): String {
-        val safe = fallback.remark(task, score, delta, profile, attempt, verdict)
-        val (system, user) = CoachPrompts.remark(task, score, delta, profile, attempt, seedLine = safe.replace('\n', ' '))
+    override suspend fun remark(task: Task, score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int, verdict: ParkingVerdict?,
+        course: CourseResult?): String {
+        val safe = fallback.remark(task, score, delta, profile, attempt, verdict, course)
+        val (system, user) = CoachPrompts.remark(task, score, delta, profile, attempt, seedLine = safe.replace('\n', ' '), course = course)
         // 숫자 머리말은 붙이지 않는다(운전자 문장 규칙). 두 문장을 줄바꿈으로 — 화면이 문장 단위로 줄을 끊는다
         return ask(system, user, maxChars = CoachPrompts.REMARK_MAX_CHARS)?.let { CoachPrompts.twoLines(it) } ?: safe
     }
@@ -87,12 +89,18 @@ object CoachPrompts {
         return if (idx < text.length - 2) text.substring(0, idx + 1) + "\n" + text.substring(idx + 2).trimStart() else text
     }
 
-    fun remark(task: Task, score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int, seedLine: String): Pair<String, String> {
+    fun remark(task: Task, score: ParkingScore, delta: ParkingDelta?, profile: Profile, attempt: Int, seedLine: String,
+        course: CourseResult? = null): Pair<String, String> {
         val m = score.metrics
         val user = buildString {
             appendLine("운전자: ${profile.name}, 장롱면허 ${profile.rustyYears ?: "?"}년, 목표 ${profile.statement.goal ?: "-"}, 무서운 것 ${profile.statement.fear ?: "-"}.")
             appendLine("과제: ${task.title}, ${attempt}회차. 숙련 구간 ${ScoreBand.of(score.skill)}.")
-            if (task.type == TaskType.CHECKLIST) {
+            if (course != null) {
+                // 코스 과제(10/4): 구간 결과만 근거로. 위치·신호등은 시뮬레이션이라는 것을 모델이 말하지 않게 사실만 준다
+                val missed = course.deductions.joinToString(", ") { "${it.zoneTitle} ${it.reason}" }.ifEmpty { "없음" }
+                val result = when (course.passed) { true -> "합격선 넘음"; false -> "합격선 못 미침"; null -> "연습 코스(합격 판정 없음)" }
+                appendLine("코스 결과: $result${if (course.disqualified) ", 실격 사유 있음" else ""}. 놓친 것: $missed. 급조작 ${m.harshEvents.size}회.")
+            } else if (task.type == TaskType.CHECKLIST) {
                 val pd = m.preDrive
                 fun at(ms: Long?) = ms?.let { "${it / 1000}초" } ?: "안 함/미측정"
                 val order = when (pd.beltBeforeIgnition) { true -> "벨트 먼저(맞음)"; false -> "시동 먼저(순서 바뀜)"; null -> "모름" }

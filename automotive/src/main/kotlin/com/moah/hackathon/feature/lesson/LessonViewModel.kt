@@ -70,6 +70,7 @@ class LessonViewModel(
     private fun currentTask(): Task? = when (val p = phase.value) {
         is LessonPhase.Briefing -> p.task
         is LessonPhase.Maneuver -> p.task
+        is LessonPhase.Drive -> p.task
         is LessonPhase.Done -> p.task
         is LessonPhase.Report -> p.report.task
         is LessonPhase.Quiz -> p.task
