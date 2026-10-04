@@ -74,11 +74,11 @@ object CourseScenarios {
         s.drive(e.rightTurn2, 10.0, endKmh = 10.0)
         // 가속 구간
         s.drive(e.accelRoad, 25.0, endKmh = 10.0)
-        s.drive(e.rightTurn3, 12.0, endKmh = 12.0)
+        s.drive(e.rightTurn3, 10.0, endKmh = 10.0)
         // 돌발 — 경보 → 바로 정지 → 비상등(못한: 안 켬) → 경보 끝 → 출발
-        s.drive(e.toEmergency, 12.0, endKmh = 12.0)
+        s.drive(e.toEmergency, 10.0, endKmh = 10.0)
         s.set(EMERGENCY to T)
-        s.drive(e.emergencyBrake, 12.0, decel = 2.0)
+        s.drive(e.emergencyBrake, 10.0, decel = 2.6)
         s.hold(0.5)
         if (good) s.set(HAZARD to T)
         s.hold(3.0).set(EMERGENCY to F, HAZARD to F).hold(1.0)
