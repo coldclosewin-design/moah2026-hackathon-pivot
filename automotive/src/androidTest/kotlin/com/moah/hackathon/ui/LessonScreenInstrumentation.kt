@@ -1236,12 +1236,23 @@ class LessonScreenInstrumentation : Instrumentation() {
             }
             check(allText().any { it.contains("코스 도면") })
             check(texts().any { "시험장 위치·신호 · 시뮬레이션" == it })
+            if (state.snapshot.signal == TrackSignal.OFF) check(texts().none { it.startsWith("신호등") || it.startsWith("신호 ·") })
+            if (state.snapshot.signal == TrackSignal.RED) check("신호 · 빨간불" in texts())
             capture(name)
         }
         check(finished == if (full) 2 else 1)
         if (!full) {
             pass("Round18 Drive safety: actual exam acceleration has zero touch targets/scores, parking stop exposes FinishButton once; simulation provenance")
             return
+        }
+        for ((signal, label) in listOf(null to "신호등 미측정", TrackSignal.YELLOW to "신호 · 노란불", TrackSignal.GREEN to "신호 · 초록불")) {
+            render(activity) { DriveScreen(exam.copy(snapshot = exam.snapshot.copy(signal = signal)), null, {}, demo) }
+            // Refresh unchanged node IDs: a signal-only render can retain the previous cached text.
+            val signalNodes = nodes().onEach { it.refresh() }
+            capture("drive-signal-${signal?.name ?: "missing"}")
+            check(signalNodes.any { it.text?.toString() == label }) { "Missing $label; actual ${signalNodes.map { it.text }}" }
+            check(signalNodes.none(::hasTouchAction)) { "Signal $signal leaked touch targets: ${texts()}" }
+            driverText()
         }
         render(activity) { DriveScreen(exam.copy(snapshot = exam.snapshot.copy(speedKmh = 5.1f, emergency = true)), null, {}, demo) }
         check(nodes().none(::hasTouchAction)); check("돌발 상황" in texts()); driverText(); capture("drive-emergency")
@@ -1300,8 +1311,21 @@ class LessonScreenInstrumentation : Instrumentation() {
         check(texts().any { "코스 70점 · 합격선 80점" in it })
         bad.course!!.deductions.forEach { check(it.reason in texts()) }
         capture("report-exam-details")
+        check(texts().count { it == "구간" } == 1 && texts().count { it == "사유" } == 1 && texts().count { it == "감점" } == 1)
+        assertFullText(activity, "감점 없음", action = "돌아가기")
+        runOnMainSync {
+            val node = composeNodes(activity).first { it.config.getOrNull(SemanticsProperties.Text)?.singleOrNull()?.text == "감점 없음" }
+            val layouts = mutableListOf<TextLayoutResult>()
+            check(node.config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts) == true)
+            check(layouts.single().layoutInput.style.fontSize == 32.sp && layouts.single().layoutInput.style.color == CoachColors.Muted)
+        }
         click("돌아가기"); click("진단서")
         check("장내기능 모의시험 · 합격" in texts()); capture("certificate-exam")
+        val missingResult = good.course!!.copy(zones = good.course!!.zones.take(1).map { it.copy(unmeasured = listOf("방향지시등")) })
+        render(activity) { CourseDetails(report.copy(attempts = listOf(good.copy(course = missingResult))), Modifier.fillMaxSize()) }
+        check("감점 없음" in texts() && texts().none { it in listOf("구간", "사유", "감점") })
+        check("${missingResult.zones.single().title} · 방향지시등 · 확인 못 함" in texts())
+        pass("Round19: OFF signal row absent, null/yellow/green/red retained; empty deductions replace headers with 32 sp Muted line above back, missing rules retained")
         render(activity) { DoneScreen(task(courses.exam), 1, bad, null, {}, {}, demo, locked = true) }
         check(nodes().none(::hasTouchAction)); check("불합격" !in texts()); driverText()
         render(activity) { ReportScreen(report, {}, locked = true) }
@@ -1763,7 +1787,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         inspect(TaskType.PARKING)
         for ((type, name) in listOf(TaskType.DRIVING to "setup-sheet-driving", TaskType.CHECKLIST to "setup-sheet-checklist", TaskType.KNOWLEDGE to "setup-sheet-knowledge")) {
             click(taskTypeLabel(type))
-            capture(name)
+            capture(name) { if (type == TaskType.DRIVING) assertLanePreview(activity, it) }
             inspect(type)
             if (type == TaskType.DRIVING) {
                 check(nodes().first { it.isScrollable }.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD))
@@ -1773,6 +1797,30 @@ class LessonScreenInstrumentation : Instrumentation() {
             }
         }
         pass("Card C: 288/144 art and band, centred category marks, one-line 36-40 sp titles, shared baselines, ready/planned states")
+    }
+
+    private fun assertLanePreview(activity: MainActivity, bitmap: Bitmap) {
+        val course = com.moah.hackathon.data.TrackCourses.laneChange
+        val card = taskBounds(course.title)
+        val density = designScale(activity)
+        val sx = 232 * density / course.map.widthM
+        val sy = 168 * density / course.map.heightM
+        fun x(value: Float) = (card.exactCenterX() + (value - course.map.widthM / 2) * sx).roundToInt()
+        fun y(value: Float) = (card.top + 60 * density + (course.map.heightM - value) * sy).roundToInt()
+        fun near(px: Int, py: Int, color: Int) = (-1..1).any { dx -> (-1..1).any { dy -> bitmap.getPixel(px + dx, py + dy) == color } }
+        val ink = CoachColors.Ink.toArgb()
+        for (edge in listOf(11.5f, 18.5f)) for (along in listOf(20f, 60f, 100f)) {
+            check(near(x(edge), y(along), ink)) { "Two-lane thumbnail road edge missing: $edge,$along" }
+        }
+        val route = course.route
+        check(abs(x(route.first().x) - x(route.last().x)) >= 20 * density) { "Lane change must be visible at card size" }
+        route.forEach { check(near(x(it.x), y(it.y), CoachColors.Periwinkle.toArgb())) { "Expected route missing at $it" } }
+        val centerPixels = (y(35f)..y(10f)).map { bitmap.getPixel(x(15f), it) }
+        check(centerPixels.distinct().size > 1 && centerPixels.any { pixel ->
+            val dashed = CoachColors.Ink.copy(alpha = .6f).compositeOver(CoachColors.Lavender).toArgb()
+            listOf(0, 8, 16).all { abs(((pixel ushr it) and 255) - ((dashed ushr it) and 255)) <= 4 }
+        }) { "Two-lane thumbnail must have a dashed center line" }
+        pass("Round19 card: road edges, dashed center and Periwinkle course.route with visible lane change")
     }
 
     private fun assertParkingCardWindows(activity: MainActivity, bitmap: Bitmap, frontSelected: Boolean) {

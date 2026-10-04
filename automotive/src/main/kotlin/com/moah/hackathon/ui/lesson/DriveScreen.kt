@@ -44,13 +44,15 @@ internal fun DriveScreen(state: LessonPhase.Drive, subtitle: String?, onFinish: 
                         LessonText("${state.snapshot.speedKmh.roundToInt()} km/h", 56)
                     }
                     Eyebrow("지금 ${current?.title ?: "구간 사이"} · 다음 ${next?.title ?: "마무리"}")
-                    LessonText(when (state.snapshot.signal) {
+                    val signalText = when (state.snapshot.signal) {
                         TrackSignal.RED -> "신호 · 빨간불"
                         TrackSignal.YELLOW -> "신호 · 노란불"
                         TrackSignal.GREEN -> "신호 · 초록불"
-                        TrackSignal.OFF -> "신호등 꺼짐"
+                        TrackSignal.OFF -> null
                         null -> "신호등 미측정"
-                    }, 40, if (state.snapshot.signal == TrackSignal.RED) CoachColors.Signal else CoachColors.Muted)
+                    }
+                    signalText?.let { LessonText(it, 40,
+                        if (state.snapshot.signal == TrackSignal.RED) CoachColors.Signal else CoachColors.Muted) }
                     Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
                         Headline(state.lastHint ?: state.zoneLine ?: subtitle ?: "안내를 들으며 코스를 따라가요.", size = 64)
                     }
