@@ -68,6 +68,7 @@ public class VssConstants {               // "Vehicle.Xxx.Yyy" dot 경로 문자
     public static final String VEHICLE_BODY_LIGHTS_HAZARD_ISSIGNALING = "Vehicle.Body.Lights.Hazard.IsSignaling";                        // boolean
     public static final String VEHICLE_CHASSIS_BRAKE_PEDALPOSITION = "Vehicle.Chassis.Brake.PedalPosition";                   // uint8, percent
     public static final String VEHICLE_ADAS_OBSTACLEDETECTION_ISWARNING = "Vehicle.ADAS.ObstacleDetection.IsWarning";                // boolean (표준)
+    // 10/4: 실물 목록에 없거나 미확인인 경로(뒤 거리·전조등·와이퍼·제휴 시험장 Track.*)는 스텁이 아니라 앱 vehicle/SimOnlySignals.kt 에 둔다(Fake 전용, Real 은 MISSING)
     // ... 앱에 필요한 신호만 추가 (전체 목록: pageId 1323873443, 1,251개)
 }
 ```
