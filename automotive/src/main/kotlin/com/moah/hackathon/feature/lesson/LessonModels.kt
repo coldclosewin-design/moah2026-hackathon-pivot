@@ -284,3 +284,26 @@ data class LessonReport(
     /** 가이드 모드에서 신호가 없어 확인 없이 읽고 넘긴 단계. 리포트에 "확인할 수 없었어요" 로. */
     val unverifiedGuideSteps: List<String>,
 )
+
+// ───────── 관리자 모드 (라운드 22 결정 5 = 준비실 D + 세션 중 띠 C, 10/5) — Fake/Hybrid 시연 빌드에만. Real 빌드엔 진입점이 없다 ─────────
+
+/** 프로필 프리셋 — 준비실의 "프로필 전환" 칩. [id] 는 도구·로그용. */
+data class ProfilePreset(val id: String, val label: String, val profile: Profile)
+
+/** 프리셋이 미리 해 두는 예약. 시드에 없거나 빈 시간대가 아니면 무시된다. */
+data class ReservationSeed(val venueId: String, val slotId: String, val courseId: String)
+
+/**
+ * 시연 프리셋 — 누르면 기록을 비우고 [profileId] 프로필로 바꾼 뒤 홈 제안을 [taskId]·[mode] 로 고정한다(운전자가 다른 걸 고르면 풀린다).
+ * [scenarioOrder] 는 띠가 "다음에 누를 시나리오" 를 앞에 두는 순서, [reservation] 은 홈 예약 카드를 보여 줄 때.
+ */
+data class AdminPreset(
+    val id: String,
+    val title: String,
+    val subtitle: String,
+    val taskId: String,
+    val mode: LessonMode,
+    val profileId: String,
+    val scenarioOrder: List<String> = emptyList(),
+    val reservation: ReservationSeed? = null,
+)

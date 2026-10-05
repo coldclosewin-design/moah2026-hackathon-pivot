@@ -12,7 +12,7 @@
           adb install -r 뒤 bash tools/course_flow.sh → PASS. 바뀐 캡처 교체 + README 표(시안 페이지와 나란히).
 ```
 
-선행 상태: 🟡 M1(PR 대기) · ⬜ M2 · ⬜ M3 · ⬜ M4 (Claude 가 머지할 때마다 ✅ 로 바꾼다)
+선행 상태: ✅ M1(#178) · 🟡 M2(PR 대기) · ⬜ M3 · ⬜ M4 · ⬜ tools(프리셋 extra — M4 와 함께, 별도 PR)
 
 ## 0. 사용자 선택 (10/5 밤)
 
@@ -35,7 +35,7 @@
 | M3 | feature | 홈 대화: `LessonPhase.Setup` 에 `coach: CoachDialog?`(열렸을 때만 — `line`(코치 말풍선, `CoachPort` 가 바꿀 수 있고 실패 시 시드), `choices`: 예약 있을 때만 `RESERVED_VENUE` + `PARKING_PRACTICE` + `CONTINUE_LAST`) 와 `bookingOptions`(예약 있을 때만: `COURSE_PRACTICE` → 예약 코스 첫 과제·가이드(처음)/힌트, `MOCK_EXAM` → 장내기능 모의시험·평가 — 예약 코스에 모의시험이 없으면 이 칩 없음), `sheetRequest: TaskType?`(대화가 "시트를 이 분류로 열어라" 를 요청). ViewModel 진입점 `openCoach()` · `chooseCoach(choice)` · `closeCoach()` · `chooseBooking(option)` · `consumeSheetRequest()` | 홈 A1 · 대화 시트 · 예약 카드 |
 | M4 | feature + data | 프로필: `ProfileStatement` 를 칩 값 열거형으로(§2 표), `ProfileStore`(앱 내부 `profile.json`, 저장 실패는 로그만), 첫 실행 판정(`Setup.onboarding: ProfileOnboarding?` — 저장된 프로필이 없고 프리셋도 안 썼을 때), `Setup.profileRows`(다섯 줄: 질문 · 지금 답(없으면 "아직") · 칩 목록), `Setup.observedLines`(앱이 본 것, 숫자 없는 문장 둘~셋), `LessonReport.askOne: ProfileRow?`(D 카드 — 세션당 하나, 빈 줄부터, "다음에요" 두 번이면 그 줄은 시트에서만). 진입점 `answerProfile(rowId, chip)` · `skipOnboarding()` · `skipAsk(rowId)`. 프로필이 바꾸는 것 = 눈썹 · 첫 제안 · 멘트 서두 톤 · Copilot 프롬프트. 채점 불변 | 첫 실행 화면 · 프로필 시트 · 리포트 D 카드 |
 
-M2 의 인텐트 extra 는 **도구(emu_flow·course_flow·lesson_shots)가 첫 실행 온보딩을 건너뛰고 같은 프로필로 시작**하기 위한 것이다 — Claude 가 tools 를 같은 PR 에서 고친다(`am start ... --es preset rear-two`). 화면(`MainActivity`)이 extra 를 읽어 `admin?.applyPreset(...)` 을 부르는 한 줄은 ④ 에서 Codex 가.
+M2 의 인텐트 extra(`AdminPresets.EXTRA_PRESET` = `preset`)는 **도구(emu_flow·course_flow)가 첫 실행 온보딩을 건너뛰고 같은 프로필로 시작**하기 위한 것이다 — Claude 가 tools 를 별도 PR(scope tools, 한 PR = 한 scope)로 고친다(emu_flow `--es preset rear-two`, course_flow `--es preset exam-fail-pass`). 프리셋 id 는 `data/AdminPresets.kt` 상수. 화면(`MainActivity`)이 extra 를 읽어 `admin?.applyPreset(...)` 을 부르는 한 줄은 ④ 에서 Codex 가.
 
 ## 2. 프로필 질문 — 기본값으로 확정 (사용자 답이 오면 바꾼다)
 
