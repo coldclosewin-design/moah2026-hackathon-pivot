@@ -115,6 +115,7 @@ class LessonStateMachine(
             return
         }
         if (pinned != null && pinned != (task.id to mode)) pinned = null   // 운전자가 다른 걸 고르면 프리셋 고정이 풀린다
+        clearHomeTransient()
         current = task to mode
         sessionRecords.clear()
         unverifiedSteps.clear()
@@ -273,6 +274,7 @@ class LessonStateMachine(
         if (!slot.available) { Log.w(TAG, "reservation: slot $slotId not available"); return }
         store.reservation = Reservation(venueId, slotId, courseId, madeAtMillis = clock())
         pinned = null
+        clearHomeTransient()
         Log.i(TAG, "reservation: made venue=$venueId slot=$slotId course=$courseId")
         _phase.value = setup()
     }
@@ -283,6 +285,7 @@ class LessonStateMachine(
         val had = store.reservation ?: return
         store.reservation = null
         pinned = null
+        clearHomeTransient()
         Log.i(TAG, "reservation: cancelled venue=${had.venueId} slot=${had.slotId}")
         _phase.value = setup()
     }
@@ -290,6 +293,7 @@ class LessonStateMachine(
     /** 리포트에서 "다시 시작" 또는 오류 복구. */
     fun reset() {
         stopEverything()
+        clearHomeTransient()
         _phase.value = setup()
     }
 
@@ -325,6 +329,7 @@ class LessonStateMachine(
             else Log.w(TAG, "admin: preset ${preset.id} reservation ignored ($seed)")
         }
         pinned = task.id to preset.mode
+        clearHomeTransient()
         _phase.value = setup()
         Log.i(TAG, "admin: preset ${preset.id} task=${task.id} mode=${preset.mode} profile=${presetProfile.statement}")
     }
@@ -341,8 +346,115 @@ class LessonStateMachine(
         store.clear()
         profile = profile.copy(observation = ProfileObservation())
         pinned = null
+        clearHomeTransient()
         if (_phase.value is LessonPhase.Setup) _phase.value = setup()
         Log.i(TAG, "admin: records cleared")
+    }
+
+    // ───────── 홈 코치 대화 (라운드 22 결정 4 = A 알약 → 시트 + D 예약 카드, 10/5) — Setup 에서만, 탭 대화(STT 없음) ─────────
+    // 결과는 새 화면이 아니라 기존 것: 홈 제안을 바꾸거나(고정), 과제 시트를 분류로 열라고 요청하거나, 예약 카드를 강조한다.
+    // 말풍선 문장은 규칙 문장이다 — AI 는 세션 종료 총평만 맡는다(AGENTS "AI 경계").
+
+    private var coachOpen = false
+    private var highlightBooking = false
+    private var sheetRequest: TaskType? = null
+    private var bookingChoice: BookingOption? = null
+
+    private fun clearHomeTransient() {
+        coachOpen = false
+        highlightBooking = false
+        sheetRequest = null
+        bookingChoice = null
+    }
+
+    /** `코치에게 말하기` — 대화 시트를 열고 말풍선을 읽어 준다. 로그 `home coach: open`. */
+    fun openCoach() {
+        if (_phase.value !is LessonPhase.Setup) return
+        coachOpen = true
+        highlightBooking = false
+        val next = setup()
+        _phase.value = next
+        next.coach?.let { tts.speak(it.line) }
+        Log.i(TAG, "home coach: open choices=${next.coach?.choices}")
+    }
+
+    /** 대화 시트 `돌아가기`. */
+    fun closeCoach() {
+        if (_phase.value !is LessonPhase.Setup || !coachOpen) return
+        coachOpen = false
+        _phase.value = setup()
+    }
+
+    /** 답 칩. 시트에 없는 칩은 무시한다. 로그 `home coach: chose …`. */
+    fun chooseCoach(choice: CoachChoice) {
+        if (_phase.value !is LessonPhase.Setup || !coachOpen) return
+        if (choice !in coachChoices()) { Log.w(TAG, "home coach: $choice not offered"); return }
+        coachOpen = false
+        when (choice) {
+            CoachChoice.RESERVED_VENUE -> highlightBooking = true
+            CoachChoice.PARKING_PRACTICE -> sheetRequest = TaskType.PARKING
+            CoachChoice.CONTINUE_LAST -> lastResumable()?.let { (task, mode) -> pinned = task.id to mode }
+        }
+        _phase.value = setup()
+        Log.i(TAG, "home coach: chose $choice")
+    }
+
+    /** 화면이 시트를 연 뒤 부른다 — 같은 요청이 다시 그려질 때 시트를 또 열지 않게. */
+    fun consumeSheetRequest() {
+        if (sheetRequest == null) return
+        sheetRequest = null
+        if (_phase.value is LessonPhase.Setup) _phase.value = setup()
+    }
+
+    /** 예약 카드의 `코스 연습`/`모의시험` — 예약 코스 과제로 홈 제안을 고정한다. 로그 `home booking: …`. */
+    fun chooseBooking(option: BookingOption) {
+        if (_phase.value !is LessonPhase.Setup) return
+        val task = reservedReadyTask() ?: return
+        if (option !in bookingOptionsFor(task)) return
+        val mode = when (option) {
+            BookingOption.COURSE_PRACTICE -> ModeAdvisor.suggest(task, store).mode.takeIf { it != LessonMode.EVALUATE && task.supports(it) }
+                ?: listOf(LessonMode.HINT, LessonMode.GUIDE).first { task.supports(it) }
+            BookingOption.MOCK_EXAM -> LessonMode.EVALUATE
+        }
+        pinned = task.id to mode
+        bookingChoice = option
+        highlightBooking = false
+        _phase.value = setup()
+        Log.i(TAG, "home booking: $option task=${task.id} mode=$mode")
+    }
+
+    private fun reservedReadyTask(): Task? = ModeAdvisor.reservedTask(tasks.filter { it.isReady }, store.reservation, venues)
+
+    private fun bookingOptionsFor(task: Task?): List<BookingOption> = when (task) {
+        null -> emptyList()
+        else -> BookingOption.entries.filter { option ->
+            when (option) {
+                BookingOption.COURSE_PRACTICE -> task.supports(LessonMode.HINT) || task.supports(LessonMode.GUIDE)
+                BookingOption.MOCK_EXAM -> task.supports(LessonMode.EVALUATE)
+            }
+        }
+    }
+
+    /** 마지막 회차의 과제·모드 — 아직 시작할 수 있을 때만. */
+    private fun lastResumable(): Pair<Task, LessonMode>? {
+        val last = store.all().lastOrNull() ?: return null
+        val task = tasks.firstOrNull { it.id == last.taskId && it.isReady && it.supports(last.mode) } ?: return null
+        return task to last.mode
+    }
+
+    private fun coachChoices(): List<CoachChoice> = buildList {
+        if (reservedReadyTask() != null) add(CoachChoice.RESERVED_VENUE)
+        add(CoachChoice.PARKING_PRACTICE)
+        if (lastResumable() != null) add(CoachChoice.CONTINUE_LAST)
+    }
+
+    private fun coachLine(): String {
+        val venue = store.reservation?.venue(venues)?.takeIf { reservedReadyTask() != null }
+        return when {
+            venue != null -> "오늘은 뭘 해 볼까요? 예약한 ${venue.name}에서 해도 돼요."
+            lastResumable() != null -> "오늘은 뭘 해 볼까요? 지난번 것을 이어서 해도 돼요."
+            else -> "오늘은 뭘 해 볼까요?"
+        }
     }
 
     // ───────── 내부 ─────────
@@ -352,9 +464,14 @@ class LessonStateMachine(
         val pin = pinned?.let { (id, mode) -> tasks.firstOrNull { it.id == id }?.let { it to mode } }
         val task = pin?.first ?: ModeAdvisor.suggestTask(profile, tasks, booking, venues)
         val s = pin?.let { ModeAdvisor.Suggestion(it.second, ModeAdvisor.pinnedReason(it.second)) } ?: ModeAdvisor.suggest(task, store)
-        val fromReservation = booking != null && ModeAdvisor.reservedTask(tasks.filter { it.isReady }, booking, venues)?.id == task.id
-        val reason = if (fromReservation) "${ModeAdvisor.RESERVED_REASON} ${s.reason}" else s.reason
-        return LessonPhase.Setup(profile, tasks, task, s.mode, reason, venues = venues, booking = booking)
+        val reserved = reservedReadyTask()
+        val fromReservation = booking != null && reserved?.id == task.id
+        val modeReason = if (bookingChoice == BookingOption.MOCK_EXAM && fromReservation && s.mode == LessonMode.EVALUATE) MOCK_EXAM_REASON else s.reason
+        val reason = if (fromReservation) "${ModeAdvisor.RESERVED_REASON} $modeReason" else modeReason
+        return LessonPhase.Setup(profile, tasks, task, s.mode, reason, venues = venues, booking = booking,
+            coach = if (coachOpen) CoachDialog(coachLine(), coachChoices()) else null,
+            bookingOptions = if (booking != null) bookingOptionsFor(reserved) else emptyList(),
+            bookingChoice = bookingChoice, highlightBooking = highlightBooking, sheetRequest = sheetRequest)
     }
 
     private fun briefingLine(task: Task, mode: LessonMode): String {
@@ -635,5 +752,7 @@ class LessonStateMachine(
 
     private companion object {
         const val TAG = "MOAH/LessonStateMachine"
+        /** 예약 카드 `모의시험` 의 이유 문장(숫자 없음, 4b 시안 문구). */
+        const val MOCK_EXAM_REASON = "시험장 코스 그대로, 제가 채점만 할게요."
     }
 }

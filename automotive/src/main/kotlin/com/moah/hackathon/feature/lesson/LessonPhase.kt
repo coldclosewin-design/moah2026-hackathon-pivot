@@ -27,6 +27,16 @@ sealed interface LessonPhase {
         val venues: List<Venue> = emptyList(),
         /** 지금 예약. 없으면 null — Setup 배지 자리도 없다. */
         val booking: Reservation? = null,
+        /** 홈 코치 대화(라운드 22 결정 4 = A 알약 → 시트). 열려 있을 때만 — 화면은 오른쪽 열을 대화 시트로 바꾼다. */
+        val coach: CoachDialog? = null,
+        /** 예약 카드의 선택지(결정 4 = D). 예약이 있을 때만. */
+        val bookingOptions: List<BookingOption> = emptyList(),
+        /** 예약 카드에서 고른 것 — 칩 강조. 아직 안 골랐으면 null. */
+        val bookingChoice: BookingOption? = null,
+        /** 대화에서 "예약한 시험장으로" 를 골랐다 — 예약 카드에 강조 테두리. */
+        val highlightBooking: Boolean = false,
+        /** 대화가 "과제 시트를 이 분류로 열어라" 를 요청했다. 화면은 시트를 연 뒤 `consumeSheetRequest` 를 부른다. */
+        val sheetRequest: TaskType? = null,
     ) : LessonPhase
 
     /** "후면 직각 주차, 가이드 모드. 오늘은 핸들 방향과 기어 전환을 봅니다." */
