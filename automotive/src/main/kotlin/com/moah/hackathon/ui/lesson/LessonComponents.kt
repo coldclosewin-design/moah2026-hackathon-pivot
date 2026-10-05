@@ -138,6 +138,21 @@ internal fun PrimaryPill(label: String, onClick: () -> Unit, modifier: Modifier 
 }
 
 @Composable
+internal fun BackPill(onClick: () -> Unit) {
+    val interactions = remember { MutableInteractionSource() }
+    val pressed by interactions.collectIsPressedAsState()
+    Button(onClick, Modifier.height(112.dp).surfaceTexture(CoachColors.Lavender, CoachTexture.Chip,
+        pill = true, pressed = { pressed }, insetWhenPressed = true),
+        shape = RoundedCornerShape(100), interactionSource = interactions,
+        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent, contentColor = CoachColors.Ink),
+        contentPadding = PaddingValues(horizontal = 48.dp)) {
+        LessonText("←", 40)
+        Spacer(Modifier.width(24.dp))
+        LessonText("돌아가기", 40)
+    }
+}
+
+@Composable
 internal fun TextAction(label: String, onClick: () -> Unit, modifier: Modifier = Modifier, size: Int = 40) {
     Text(label, modifier.clickable(role = Role.Button, onClick = onClick).padding(vertical = 16.dp),
         color = CoachColors.Ink, fontSize = size.sp, fontWeight = FontWeight.Normal,

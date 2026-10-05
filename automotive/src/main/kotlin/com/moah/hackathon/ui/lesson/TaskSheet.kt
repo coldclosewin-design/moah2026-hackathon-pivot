@@ -6,6 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.runtime.*
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalDensity
@@ -45,13 +47,14 @@ internal fun TaskSheet(tasks: List<Task>, category: TaskType, task: Task?, mode:
     Column(Modifier.fillMaxSize()) {
         Eyebrow("연습할 과제", color = CoachColors.Periwinkle)
         Spacer(Modifier.height(40.dp))
-        // Reclaim unused space below the menu so the venue link and fixed footer still fit.
-        Row(Modifier.fillMaxWidth().height(128.dp), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+        Row(Modifier.fillMaxWidth().height(104.dp).background(CoachColors.Lavender, RoundedCornerShape(100))
+            .padding(10.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             categoryOrder().forEach { type ->
                 CategoryChoice(type, type == category, groups[type].orEmpty().any { it.isReady },
                     Modifier.weight(1f).fillMaxHeight()) { onCategory(type) }
             }
         }
+        Spacer(Modifier.height(24.dp))
         Eyebrow("${taskTypeLabel(category)} 세부 과제", color = CoachColors.Periwinkle)
         Spacer(Modifier.height(24.dp))
         // The face is 288 dp art + 144 dp band; reserve the existing 32 dp check overhang.
@@ -85,7 +88,7 @@ internal fun TaskSheet(tasks: List<Task>, category: TaskType, task: Task?, mode:
         Spacer(Modifier.height(16.dp))
         Row(Modifier.fillMaxWidth().height(140.dp), verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween) {
-            TextAction(stringResource(R.string.lesson_back), onBack)
+            BackPill(onBack)
             if (task != null) PrimaryPill(stringResource(R.string.lesson_start), onStart)
         }
     }
@@ -94,30 +97,16 @@ internal fun TaskSheet(tasks: List<Task>, category: TaskType, task: Task?, mode:
 @Composable
 private fun CategoryChoice(type: TaskType, expanded: Boolean, ready: Boolean, modifier: Modifier, onClick: () -> Unit) {
     val color = when {
-        expanded -> CoachColors.Signal
+        expanded -> CoachColors.Paper
         ready -> CoachColors.Periwinkle
         else -> CoachColors.Muted
     }
-    Column(modifier.clickable(role = Role.Tab, onClick = onClick).semantics { selected = expanded },
-        horizontalAlignment = Alignment.CenterHorizontally) {
-        Column(Modifier.width(IntrinsicSize.Max), horizontalAlignment = Alignment.CenterHorizontally) {
-            LessonText(taskTypeLabel(type), 56, color)
-            if (expanded) {
-                Spacer(Modifier.height(8.dp))
-                Box(Modifier.fillMaxWidth().height(6.dp).background(CoachColors.Signal))
-            }
-        }
-        if (expanded) {
-            Spacer(Modifier.height(8.dp))
-            Canvas(Modifier.size(32.dp, 16.dp)) {
-                drawPath(Path().apply {
-                    moveTo(0f, 0f); lineTo(size.width, 0f); lineTo(size.width / 2, size.height); close()
-                }, CoachColors.Signal)
-            }
-        }
-        if (!ready) {
-            LessonText(TaskStatus.PLANNED.label, 32, color)
-        }
+    Row(modifier.then(if (expanded) Modifier.surfaceTexture(CoachColors.Periwinkle, CoachTexture.SelectedChip, pill = true)
+        else Modifier).clip(RoundedCornerShape(100)).clickable(role = Role.Tab, onClick = onClick)
+        .semantics { selected = expanded }, horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically) {
+        LessonText(taskTypeLabel(type), 56, color)
+        if (!ready) LessonText(TaskStatus.PLANNED.label, 32, color)
     }
 }
 

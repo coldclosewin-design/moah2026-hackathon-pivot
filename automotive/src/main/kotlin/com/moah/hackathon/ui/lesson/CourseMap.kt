@@ -25,6 +25,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.moah.hackathon.scoring.*
+import com.moah.hackathon.data.TrackCourses
 import com.moah.hackathon.ui.CoachColors
 import com.moah.hackathon.vehicle.TrackSignal
 import kotlin.math.min
@@ -33,7 +34,8 @@ import kotlin.math.min
 @Composable
 internal fun CourseMap(course: TrackCourse, modifier: Modifier, progress: CourseProgress? = null,
     pose: Pose? = null, signal: TrackSignal? = null, trail: List<TrackPoint> = emptyList(),
-    markers: List<Vec2> = emptyList(), thumbnail: Boolean = false, ink: Color = CoachColors.Paper) {
+    markers: List<Vec2> = emptyList(), thumbnail: Boolean = false, ink: Color = CoachColors.Paper,
+    previewRoute: Color? = null) {
     val measurer = rememberTextMeasurer()
     val labels = remember(course, thumbnail, ink, measurer) {
         if (thumbnail) emptyList() else course.map.shapes.filterIsInstance<MapShape.Label>().map {
@@ -51,7 +53,7 @@ internal fun CourseMap(course: TrackCourse, modifier: Modifier, progress: Course
         val oy = (size.height - map.heightM * scale) / 2
         fun p(v: Vec2) = Offset(ox + v.x * scaleX, oy + (map.heightM - v.y) * scale)
         fun area(a: Area, color: Color) = drawRect(color, p(Vec2(a.minX, a.maxY)), Size(a.width * scale, a.height * scale))
-        val road = if (thumbnail) ink else ink.copy(alpha = .28f)
+        val road = if (thumbnail && previewRoute == null) ink else ink.copy(alpha = .28f)
         val line = (if (thumbnail) 1.5f else 3f).dp.toPx()
         val dashed = PathEffect.dashPathEffect(floatArrayOf(2f * scale, 2f * scale))
         course.zones.forEach { zone ->
@@ -122,6 +124,7 @@ internal fun CourseMap(course: TrackCourse, modifier: Modifier, progress: Course
             if (ink == CoachColors.Paper) coursePolyline(course.route.map(::p), ink, 6.dp.toPx())
             coursePolyline(course.route.map(::p), CoachColors.Periwinkle, 3.dp.toPx())
         }
+        if (thumbnail && previewRoute != null) coursePolyline(course.route.map(::p), previewRoute, 4.dp.toPx())
         if (!thumbnail) {
             coursePolyline(course.route.map(::p), ink.copy(alpha = .22f), 2.dp.toPx(), dashed)
             coursePolyline(trail.map { p(Vec2(it.x, it.y)) }, CoachColors.Periwinkle, 5.dp.toPx())
@@ -132,8 +135,8 @@ internal fun CourseMap(course: TrackCourse, modifier: Modifier, progress: Course
             }
             pose?.let { car ->
                 val c = p(car.at)
-                val w = VehicleSilhouetteGeometry.WIDTH * scale
-                val h = VehicleSilhouetteGeometry.LENGTH * scale
+                val w = VehicleSilhouetteGeometry.WIDTH * scale * TrackCourses.MAP_CAR_SCALE
+                val h = VehicleSilhouetteGeometry.LENGTH * scale * TrackCourses.MAP_CAR_SCALE
                 rotate(180f - car.headingDeg, c) {
                     withTransform({ translate(c.x - w / 2, c.y - h / 2); scale(w / 100f, h / 250f, Offset.Zero) }) {
                         vehicleSilhouette(CoachColors.Paper, CoachColors.Periwinkle, CoachColors.Ink)

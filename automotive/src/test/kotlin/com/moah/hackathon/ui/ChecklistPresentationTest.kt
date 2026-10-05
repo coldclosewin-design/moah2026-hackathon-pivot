@@ -104,4 +104,18 @@ class ChecklistPresentationTest {
         assertEquals("미수행", checklistLightValue(false, false))
         assertNull(checklistLightValue(null, null))
     }
+
+    @Test fun timelineSkipsMissingAndFailedStepsWhenFindingTheNextAction() {
+        val mixed = state.copy(doorOpen = null, doorSignal = SignalAvailability.MISSING,
+            belt = true, beltSignal = SignalAvailability.LIVE, brakeAtIgnition = false,
+            indicatorLeft = false, indicatorLeftSignal = SignalAvailability.SIMULATED,
+            indicatorRight = false, indicatorRightSignal = SignalAvailability.SIMULATED)
+        val steps = checklistSteps(mixed)
+        assertEquals(listOf("도어", "안전벨트", "기어", "브레이크 / 시동", "좌 지시등", "우 지시등", "비상등"), steps.map { it.label })
+        assertFalse(steps.first().measured)
+        assertTrue(steps[3].failed)
+        assertEquals("브레이크 없이 켜짐", steps[3].value)
+        assertEquals("좌 지시등", steps.first { it.pending }.label)
+        assertEquals("우 지시등", checklistSteps(mixed.copy(leftIndicatorChecked = true)).first { it.pending }.label)
+    }
 }

@@ -50,13 +50,12 @@ internal fun DoneScreen(task: Task, attempt: Int, record: AttemptRecord, subtitl
                         }
                     }
                 } else if (task.type == TaskType.PARKING) {
-                    Column(Modifier.fillMaxHeight().fillMaxWidth(.38f)) {
+                    Column(Modifier.fillMaxHeight().fillMaxWidth(.5f).background(CoachColors.Ink)) {
                         Box(Modifier.weight(1f).fillMaxWidth()) {
-                            Box(Modifier.fillMaxHeight().width((2560 * .06f).dp).background(CoachColors.Ink))
-                            if (showPath) EstimatedPath(record, Modifier.fillMaxSize().padding(start = (2560 * .06f).dp), task.parkingSpec.entryGear,
-                                targetHeading = task.parkingSpec.targetHeadingDeg.takeIf { task.id in setOf("parking-parallel", "parking-angle") })
+                            if (showPath) EstimatedPath(record, Modifier.fillMaxSize(), task.parkingSpec.entryGear,
+                                targetHeading = task.parkingSpec.targetHeadingDeg, parallel = task.id == "parking-parallel")
                         }
-                        VerdictPanel(record.verdict, Modifier.fillMaxWidth())
+                        VerdictPanel(record.verdict, Modifier.fillMaxWidth(), grid = true)
                     }
                 } else if (showPath) {
                     Box(Modifier.fillMaxHeight().fillMaxWidth(.38f)) {

@@ -1,5 +1,41 @@
 # 화면 검증 캡처
 
+## UI 라운드 21 — 선택 시안 ①~⑨ (2026-10-05)
+
+`codex/ui-round21` · 기준 `origin/main=c91fc21`(#167 머지 뒤 #171 포함) · 외부 CSTDe_API_34 2560×1440 · 기본 Fake, 배율 1.0. [발주서](../../handoffs/2026-10-05_codex_ui_round21.md)와 [시안 목록](../../design/round21-proposals/index.html)의 사용자 선택을 구현했다. 아래 파일명 링크로 시안과 앱 캡처를 나란히 비교할 수 있다.
+
+| 항목·선택 시안 | 교체·추가 캡처 | 구현·검사 |
+|---|---|---|
+| ① [시험장 B 지도](../../design/round21-proposals/1-venue-cards.html) | [lesson-venue-slots.png](lesson-venue-slots.png), [lesson-venues-booked.png](lesson-venues-booked.png), [lesson-reservation.png](lesson-reservation.png) | 실제 `TrackCourses.exam` 축소 도면, 선택 카드 빨간 테두리·경로, 거리·코스·자리 안내 확대. 긴 코스 목록과 세 시험장 4/3/3 코스·시간 선택·예약 인자 유지 |
+| ② [분류 A 알약 트랙](../../design/round21-proposals/2-category-menu.html) | [lesson-setup-sheet.png](lesson-setup-sheet.png), [lesson-setup-sheet-driving.png](lesson-setup-sheet-driving.png), [lesson-setup-sheet-checklist.png](lesson-setup-sheet-checklist.png), [lesson-setup-knowledge.png](lesson-setup-knowledge.png) | 같은 폭 네 칸, Lavender 트랙·Periwinkle 선택·Paper 글자. 제목 간격과 고정 시작 위치·숫자 0 유지 |
+| ③ [돌아가기 B 면](../../design/round21-proposals/3-back-button.html) | [lesson-back-pill.png](lesson-back-pill.png), [lesson-back-pill-pressed.png](lesson-back-pill-pressed.png), [lesson-certificate.png](lesson-certificate.png) | 시트·예약·상세·진단서의 공통 112dp 보조 알약. 주 알약보다 작고 눌림 때 외부 그림자 대신 안쪽 그림자, 기존 `CoachTexture` 값 재사용 |
+| ④ [점검 B 막대 + E 순서 점](../../design/round21-proposals/4-checklist-cards.html) | [lesson-maneuver-checklist-pending.png](lesson-maneuver-checklist-pending.png), [lesson-maneuver-checklist-bad.png](lesson-maneuver-checklist-bad.png), [lesson-maneuver-checklist-missing.png](lesson-maneuver-checklist-missing.png), [lesson-maneuver-checklist-mixed.png](lesson-maneuver-checklist-mixed.png) | 숫자 없는 일곱 진행 칸과 세로 점. 가이드 순서·기록된 완료·미수행/미측정/잘못된 시동 구분, 첫 미수행만 떠오르는 카드 |
+| ⑤ [상세 A 나란히](../../design/round21-proposals/5-details.html) | [lesson-details-comparison.png](lesson-details-comparison.png), [lesson-details-history.png](lesson-details-history.png), [lesson-report-exam-details.png](lesson-report-exam-details.png), [lesson-details.png](lesson-details.png) | 주차·코스 두 회차와 화살표·변화량 칩. 한 회차는 한 카드, 셋 이상은 마지막 둘과 이전/다음 회차. 코스 점수·합격선·감점 표·감점 없음·미측정 전문 유지 |
+| ⑥ [크기 B](../../design/round21-proposals/6-parking-result.html) + [6b B-1·흐린 옆 줄](../../design/round21-proposals/6b-parking-result-minimal.html) | [lesson-done-seed-bad.png](lesson-done-seed-bad.png), [lesson-done-seed-good.png](lesson-done-seed-good.png), [lesson-done-front-good.png](lesson-done-front-good.png), [lesson-done-parallel-good.png](lesson-done-parallel-good.png), [lesson-done-angle-good.png](lesson-done-angle-good.png), [lesson-done-front-empty.png](lesson-done-front-empty.png) | Ink 왼쪽 50%·판정 2×2. 목표 칸 세 변과 Lavender 25% 옆 경계만 표시, 주차장 면 없음. 목표 각도 축 고정·입구는 차량 앞뒤에 맞춤. 차 모양·실측 궤적·재생·급정지·캡션 보존 |
+| ⑦ [지식 E 판정 + D 인용](../../design/round21-proposals/7-quiz-answer.html) | [lesson-quiz-answered.png](lesson-quiz-answered.png), [lesson-quiz-correct.png](lesson-quiz-correct.png), [lesson-quiz-done-results.png](lesson-quiz-done-results.png), [lesson-quiz-long.png](lesson-quiz-long.png) | 답한 뒤 큰 판정과 문구, 보기 안쪽 내 답/정답 배지, 큰따옴표 해설 카드·넓은 다음 문제. 열 문항·긴 문구·중도 종료·잠금 터치 0 유지 |
+| ⑧ [지도 차](../../design/round21-proposals/8-map-car-size.html) 사용자 지정 ×1.3 | [lesson-drive-exam.png](lesson-drive-exam.png), [lesson-drive-exam-parking.png](lesson-drive-exam-parking.png), [lesson-done-exam-good.png](lesson-done-exam-good.png) | Drive·Done 공통 도면에서 `MAP_CAR_SCALE=1.3` 적용. 기존 데이터의 칸 크기 유지, 잠금·신호등·감점 마커 계약 유지 |
+| ⑨ [플레이크 네 곳](../../handoffs/2026-10-05_codex_ui_round21.md) | 아래 연속 실행 로그 | 차선 축소 도면, 시험장 전환, 잠금 해제 Done 멘트, 시트 재열기 하단을 idle 뒤 검사. 원래 단언을 최대 여섯 번·100ms 간격으로 재시도하며 클릭·콜백은 반복하지 않음 |
+
+[최종 빌드](build-round21.txt): PowerShell `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` 성공, 단위 테스트 **292개(실패·오류·건너뜀 0)**. 기존 Gradle 데몬/캐시 오류를 피하기 위해 `--no-daemon --no-build-cache --no-configuration-cache --no-watch-fs`로 실행했으며 빌드 설정은 변경하지 않았다. 점검의 다음 미수행 선택과 주차 옆 경계의 화면 내 배치를 단위 테스트로 추가했다.
+
+동일한 최종 앱·계측 APK로 수정 없는 `tools/lesson_shots.sh`를 **3회 연속 통과**했다.
+
+| 실행 | 로그 | 결과 |
+|---|---|---|
+| 1 | [contract-round21-1.txt](contract-round21-1.txt) | Lesson contract passed |
+| 2 | [contract-round21-2.txt](contract-round21-2.txt) | Lesson contract passed |
+| 3 | [contract-round21-3.txt](contract-round21-3.txt) | Lesson contract passed |
+
+[코스 전용 계측](contract-round21-course.txt) **Round18 contract passed**: 신호등 OFF/null/색·잠금·실제 코스 궤적/마커·차 ×1.3·코스 상세 감점/미측정·평행/사선·세 시험장 예약을 확인했다. 전체 계측은 두 회차 변화량·이전/다음 회차·돌아가기 눌림·전면 D/R 재생도 검증한다. 고정 목표 칸을 기울어진 차와 급정지 점이 가릴 수 있어 전면 입구 점선은 도착 전에도 검사하고, 도착 후에는 보이는 칸 경계와 측정된 차 방향·유리·셰브론을 검사한다. 후면/전면 그리기 위아래 여백은 119/119, 119/119, 118/118px였다.
+
+원본 `tools/emu_flow.sh` **PASS·clashes 0**([flow-round21-rear.txt](flow-round21-rear.txt)): 첫 회차 **60/55·4구간 → 100/100·2구간**, 힌트 세 종류·둘째 추가 힌트 0·도어→Report·배지 `실신호 0 · 시뮬레이션 8 · 미측정 0` 유지. `adb install -r` 뒤 숨김 백그라운드 프로세스의 원본 `tools/course_flow.sh`도 **PASS·종료 코드 0**([flow-round21-course.txt](flow-round21-course.txt)): **70 불합격·감점 3 → 100 합격·감점 0 → 도어→Report**.
+
+PNG **87장(76 교체·11 추가)**을 최종 전체 첫 실행·코스 전용 계측·실제 후면 시연에서 반영했다. 앱 영역 (0,76)–(2560,1344)이 같은 기존 캡처는 유지했으며, 고립된 안티앨리어싱 차이만 있는 화면도 제외했다. 대표 화면과 긴 문구·미측정·점검 출처·시트·예약·눌림 상태를 확인했다. 긴 상세 기록/제약은 기존 세로 스크롤로 접근하고 돌아가기·출처 배지는 고정된다.
+
+APK SHA-256: 앱 `EB15BF88702BBB29E3AD62036AEC755AC48FD32373D8BAA41B76543CB70A5CA5`, 계측 `46BA831E453FAD75F774991EC3DA00A66A16A55E97EE9908370AA0E51CFB21BA`.
+
+정적 확인: `ui/` Bold 0, `Color(0x`는 기존 `CoachStyle.kt`만 사용. 새 색 토큰·문자열 리소스 0. 차량·포트·채점·상태기계·데이터·build 파일·tools·NEXT·시연 라벨 13개 변경 없음.
+
 ## UI 라운드 20 — 카드 그림자·간격·퀴즈 종료 (2026-10-05)
 
 `codex/ui-round20` · 기준 `origin/main=6be5be1`(PR #164 포함) · 외부 CSTDe_API_34 2560×1440 · 기본 Fake, 배율 1.0. [발주서](../../handoffs/2026-10-05_codex_ui_round20.md) ①~⑧의 UI 변경을 반영했다. 화면 구조·도식·카드 크기와 기존 `CoachTexture` 값을 유지했다.

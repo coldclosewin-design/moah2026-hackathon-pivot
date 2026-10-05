@@ -113,4 +113,20 @@ class PathPresentationTest {
         assertEquals(path[0], nearestPathPoint(path, -100))
         assertNull(nearestPathPoint(emptyList(), 10))
     }
+
+    @Test fun adjacentBoundariesStayInsideTheViewportAtEveryParkingHeading() {
+        for ((heading, parallel) in listOf(90f to false, 45f to false, 0f to true)) {
+            val path = listOf(point(0, 0f, 0f), point(1, 3f, -6f, heading = heading))
+            val view = pathViewport(path, 1280f, 730f, targetHeading = heading, neighborBays = true, parallel = parallel)
+            val a = Math.toRadians(heading.toDouble())
+            val ends = parkingNeighborLines(parallel).flatMap { listOf(it.first, it.second) }
+            assertEquals(if (parallel) 4 else 8, ends.size)
+            ends.forEach { (x, y) ->
+                val px = view.x((3 + x * kotlin.math.cos(a) - y * kotlin.math.sin(a)).toFloat())
+                val py = view.y((-6 + x * kotlin.math.sin(a) + y * kotlin.math.cos(a)).toFloat())
+                assertTrue("Boundary clipped at $heading: $px,$py", px > 2 && px < 1278 && py > 2 && py < 728)
+            }
+            assertEquals(3 * view.scale, view.x(3f) - view.x(0f), .001f)
+        }
+    }
 }

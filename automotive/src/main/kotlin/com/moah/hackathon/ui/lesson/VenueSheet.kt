@@ -1,6 +1,8 @@
 package com.moah.hackathon.ui.lesson
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
@@ -14,6 +16,7 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.moah.hackathon.R
+import com.moah.hackathon.data.TrackCourses
 import com.moah.hackathon.feature.lesson.Reservation
 import com.moah.hackathon.feature.lesson.Venue
 import com.moah.hackathon.ui.CoachColors
@@ -44,7 +47,7 @@ internal fun VenueSheet(venues: List<Venue>, booking: Reservation?, onReserve: (
             }
             Row(Modifier.fillMaxWidth().height(140.dp), horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically) {
-                TextAction(stringResource(R.string.lesson_back), onDone)
+                BackPill(onDone)
                 TextAction(stringResource(R.string.lesson_cancel), { onCancel(); venueId = null })
             }
         } else {
@@ -55,8 +58,8 @@ internal fun VenueSheet(venues: List<Venue>, booking: Reservation?, onReserve: (
             }
             Column(Modifier.weight(1f).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically)) {
                 if (venue != null) {
-                    Eyebrow("시간")
-                    Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(24.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Eyebrow("시간", Modifier.width(100.dp))
                         venue.slots.forEach { item ->
                             if (item.available) SelectionChip(item.label, item.id == slotId, { slotId = item.id }, Modifier.width(360.dp))
                             else Box(Modifier.width(360.dp).height(96.dp).surfaceTexture(CoachColors.Lavender, CoachTexture.Chip)
@@ -65,8 +68,8 @@ internal fun VenueSheet(venues: List<Venue>, booking: Reservation?, onReserve: (
                             }
                         }
                     }
-                    Eyebrow("코스")
-                    Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(24.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Eyebrow("코스", Modifier.width(100.dp))
                         venue.courses.forEach { item ->
                             SelectionChip(item.title, item.id == courseId, { courseId = item.id }, Modifier.width(360.dp))
                         }
@@ -79,7 +82,7 @@ internal fun VenueSheet(venues: List<Venue>, booking: Reservation?, onReserve: (
             }
             Row(Modifier.fillMaxWidth().height(140.dp), horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically) {
-                TextAction(stringResource(R.string.lesson_back), { if (venue != null) venueId = null else onBack() })
+                BackPill { if (venue != null) venueId = null else onBack() }
                 if (venue != null && slot != null && course != null) {
                     PrimaryPill(stringResource(R.string.lesson_reserve), { onReserve(venue.id, slot.id, course.id) })
                 }
@@ -90,16 +93,23 @@ internal fun VenueSheet(venues: List<Venue>, booking: Reservation?, onReserve: (
 
 @Composable
 private fun VenueCard(venue: Venue, chosen: Boolean, booked: Boolean, modifier: Modifier, onClick: () -> Unit) {
-    val foreground = if (booked) CoachColors.Paper else CoachColors.Ink
-    val secondary = if (booked) CoachColors.Paper else CoachColors.Muted
-    Column(modifier.height(264.dp).surfaceTexture(if (booked) CoachColors.Periwinkle else CoachColors.Lavender,
-        if (booked) CoachTexture.SelectedCard else CoachTexture.Card)
-        .then(if (chosen) Modifier.border(4.dp, CoachColors.Periwinkle) else Modifier)
+    Column(modifier.height(512.dp).surfaceTexture(CoachColors.Paper, CoachTexture.Card)
+        .then(if (chosen) Modifier.border(6.dp, CoachColors.Signal) else Modifier)
         .clickable(role = Role.Button, onClick = onClick).semantics(mergeDescendants = true) { selected = chosen }
-        .padding(horizontal = 24.dp, vertical = 4.dp)) {
-        LessonText(venue.name, 40, foreground)
-        LessonText(venueAreaLine(venue), 32, secondary)
-        LessonText(venue.courses.joinToString(" · ") { it.title }, 32, secondary)
-        LessonText(if (booked) "예약됨" else if (venue.slots.any { it.available }) "오늘 자리 있음" else "오늘 자리 없음", 32, foreground)
+        .padding(6.dp)) {
+        Box(Modifier.fillMaxWidth().height(180.dp).background(CoachColors.Ink)) {
+            CourseMap(TrackCourses.exam, Modifier.fillMaxSize().padding(16.dp), thumbnail = true,
+                ink = CoachColors.Lavender, previewRoute = if (chosen) CoachColors.Signal else CoachColors.Periwinkle)
+            LessonText(venueAreaLine(venue), 36, CoachColors.Ink,
+                modifier = Modifier.align(Alignment.TopEnd).padding(12.dp)
+                    .background(CoachColors.Paper.copy(alpha = .92f), RoundedCornerShape(100)).padding(horizontal = 20.dp, vertical = 4.dp))
+        }
+        Column(Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            LessonText(venue.name, 48)
+            LessonText(venue.courses.joinToString(" · ") { it.title }, 34, CoachColors.Muted)
+            LessonText(if (booked) "예약됨" else if (venue.slots.any { it.available }) "오늘 자리 있음" else "오늘 자리 없음", 36,
+                if (booked) CoachColors.Signal else CoachColors.Periwinkle)
+        }
     }
 }
