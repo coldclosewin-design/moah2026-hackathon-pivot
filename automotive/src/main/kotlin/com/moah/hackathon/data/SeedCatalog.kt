@@ -172,6 +172,9 @@ object SeedCatalog {
         ProfileQuestion("fear", "제일 무서운 상황은요?", "주차, 고속도로, 야간…"),
     )
 
+    /** 저장된 프로필이 없을 때(첫 실행·건너뛰기) — 빈 진술 = 초보 가정(7b 질문 10). 시연은 관리자 프리셋 "장롱 10년차" 로 시작한다. */
+    val firstRunProfile: Profile = Profile(name = "연수생", statement = ProfileStatement())
+
     /** 시연용. 장롱면허 10년차, 아이 등하원이 목표, 주차가 무섭다. */
     val demoProfile: Profile = Profile(
         name = "연수생",

@@ -283,6 +283,8 @@ data class LessonReport(
     val benefits: List<String>,
     /** 가이드 모드에서 신호가 없어 확인 없이 읽고 넘긴 단계. 리포트에 "확인할 수 없었어요" 로. */
     val unverifiedGuideSteps: List<String>,
+    /** 리포트 끝 "하나만 물어볼게요" 카드(결정 7 = D 점진) — 아직 답하지 않은 첫 줄, 세션당 하나. 없으면 카드 없음. */
+    val askOne: ProfileRow? = null,
 )
 
 // ───────── 관리자 모드 (라운드 22 결정 5 = 준비실 D + 세션 중 띠 C, 10/5) — Fake/Hybrid 시연 빌드에만. Real 빌드엔 진입점이 없다 ─────────
