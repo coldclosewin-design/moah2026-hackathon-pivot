@@ -134,6 +134,14 @@ class LessonViewModel(
     fun reserve(venueId: String, slotId: String, courseId: String) = machine.reserve(venueId, slotId, courseId)
     fun cancelReservation() = machine.cancelReservation()
 
+    /** 홈 코치 대화(라운드 22 결정 4) — `코치에게 말하기` · 답 칩 · `돌아가기`. 시트 요청은 시트를 연 뒤 소비한다. */
+    fun openCoach() = machine.openCoach()
+    fun chooseCoach(choice: CoachChoice) = machine.chooseCoach(choice)
+    fun closeCoach() = machine.closeCoach()
+    fun consumeSheetRequest() = machine.consumeSheetRequest()
+    /** 예약 카드 `코스 연습`·`모의시험`. */
+    fun chooseBooking(option: BookingOption) = machine.chooseBooking(option)
+
     companion object {
         private const val TAG = "MOAH/LessonViewModel"
         fun factory(container: AppContainer): ViewModelProvider.Factory = viewModelFactory {
