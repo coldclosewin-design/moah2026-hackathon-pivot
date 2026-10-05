@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>관리자 모드 시안</title>
+<style>
+:root{
+  --ink:#070827; --paper:#FCFCFA; --peri:#5B60A1; --lav:#E5E6F0; --signal:#F52D48;
+  --muted:rgba(7,8,39,.60);
+  --tex:0 4px 10px rgba(7,8,39,.10),0 1px 2px rgba(7,8,39,.06),inset 0 1px 0 rgba(255,255,255,.9);
+  --font:"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);font-weight:400;line-height:1.5}
+.page{max-width:1540px;margin:0 auto;padding:48px 40px 96px}
+h1{font-size:40px;font-weight:400;margin:0 0 6px;letter-spacing:-.5px}
+h2{font-size:26px;font-weight:400;margin:0 0 4px}
+h3{font-size:15px;font-weight:500;margin:18px 0 6px;color:var(--peri)}
+p{margin:0 0 8px}
+.lede{font-size:17px;color:var(--muted);margin-bottom:18px}
+blockquote{margin:0 0 14px;padding:14px 20px;background:var(--lav);border-left:4px solid var(--signal);font-size:16px}
+blockquote small{display:block;color:var(--muted);font-size:13px;margin-top:4px}
+.scale{display:inline-block;font-size:13px;color:var(--peri);border:1px solid var(--peri);border-radius:999px;padding:3px 12px}
+.cell{display:grid;grid-template-columns:853px 1fr;gap:44px;padding:40px 0;border-top:1px solid rgba(7,8,39,.14)}
+.cell.now{grid-template-columns:1fr}
+.letter{font-size:56px;line-height:1;color:var(--peri);margin-bottom:6px}
+.letter.cur{color:var(--muted);font-size:28px}
+.desc{font-size:17px;margin-bottom:10px}
+ul{margin:0;padding-left:20px;font-size:15px}
+li{margin:3px 0}
+.cap{font-size:12px;color:var(--muted);margin:14px 0 6px}
+.imgs{display:flex;gap:24px;flex-wrap:wrap}
+.imgs figure{margin:0}
+.imgs img{width:667px;display:block;box-shadow:0 0 0 1px rgba(7,8,39,.15)}
+.imgs figcaption{font-size:12px;color:var(--muted);margin-top:6px}
+code{font-family:Consolas,"Malgun Gothic",monospace;font-size:.92em;background:var(--lav);padding:0 4px}
+
+/* ---------- 1/3 frames ---------- */
+.frame{position:relative;overflow:hidden;width:853px;height:423px;background:var(--paper);box-shadow:0 0 0 1px rgba(7,8,39,.18);font-size:11px;line-height:1.35}
+.abs{position:absolute}
+.eyebrow{font-size:11px;color:var(--peri)}
+.home .wm{left:61px;top:22px;font-size:9px;letter-spacing:3px}
+.home .eb{left:474px;top:78px;font-size:11px;color:var(--muted)}
+.home .tt{left:474px;top:98px;font-size:24px;line-height:1.3}
+.home .sub{left:474px;top:170px;font-size:13px}
+.home .rs{left:474px;top:194px;font-size:12px;color:var(--muted)}
+.home .go{left:474px;top:234px;width:358px}
+.home .lk{left:474px;top:298px;font-size:12px;text-decoration:underline}
+.home .hr{left:474px;top:362px;width:358px;height:1px;background:rgba(7,8,39,.14)}
+.home .ft{left:474px;top:378px;font-size:11px;color:var(--muted)}
+.home .tg{left:822px;top:11px;width:20px;height:8px;border-radius:999px;background:var(--lav)}
+.pill{height:46px;border-radius:999px;background:var(--signal);color:var(--paper);font-size:13px;display:flex;align-items:center;justify-content:center;gap:14px;
+  box-shadow:0 4px 10px rgba(7,8,39,.10),0 1px 2px rgba(7,8,39,.06),inset 0 1px 0 rgba(255,255,255,.35)}
+.pill2{height:37px;padding:0 18px;border-radius:999px;background:var(--lav);color:var(--ink);font-size:12px;display:inline-flex;align-items:center;justify-content:center;gap:8px;box-shadow:var(--tex)}
+.chip{display:inline-flex;align-items:center;justify-content:center;height:18px;padding:0 7px;font-size:9px;background:var(--paper);box-shadow:var(--tex);white-space:nowrap}
+.chip.on{background:var(--peri);color:var(--paper);box-shadow:0 4px 10px rgba(7,8,39,.10),inset 0 1px 0 rgba(255,255,255,.3)}
+.chip.w{width:100%}
+.row{display:flex;gap:4px}
+.col{display:flex;flex-direction:column;gap:4px}
+.inkpanel{background:var(--ink);color:var(--paper)}
+.inkpanel .eyebrow{color:rgba(252,252,250,.6)}
+.dim{opacity:.35}
+/* A panel */
+.panel{left:690px;top:0;width:163px;height:423px;background:var(--lav);padding:8px 10px}
+.panel .sec{margin-top:6px;padding-top:6px;border-top:1px solid rgba(7,8,39,.12)}
+.panel .sec:first-of-type{border-top:0;margin-top:14px}
+.panel .hd{display:flex;justify-content:space-between;font-size:9.5px;color:var(--peri);margin-bottom:4px}
+.panel .hd span:last-child{color:var(--muted)}
+/* C band */
+.band{left:0;top:393px;width:853px;height:30px;background:var(--ink);color:var(--paper);display:flex;align-items:center;gap:6px;padding:0 10px;font-size:9px}
+.band .lb{color:rgba(252,252,250,.6);margin-right:2px}
+.band .bc{height:18px;padding:0 7px;display:inline-flex;align-items:center;background:rgba(252,252,250,.12);box-shadow:inset 0 1px 0 rgba(255,255,255,.18)}
+.band .bc.on{background:var(--peri)}
+.band .sep{width:1px;height:16px;background:rgba(252,252,250,.25);margin:0 4px}
+/* D cards */
+.pc{width:102px;height:62px;background:var(--lav);box-shadow:var(--tex);padding:6px 7px;font-size:9.5px;line-height:1.3;display:flex;flex-direction:column;justify-content:space-between}
+.pc small{font-size:8px;color:var(--muted)}
+.pc.on{background:var(--peri);color:var(--paper)}
+.pc.on small{color:rgba(252,252,250,.65)}
+/* B checklist */
+.ck{font-size:9.5px;line-height:1.3;display:flex;align-items:center;gap:6px;height:16px}
+.ck .dot{width:9px;height:9px;border-radius:50%;border:1px solid var(--peri);flex:none}
+.ck.done .dot{background:var(--peri)}
+.ck.cur .dot{background:var(--signal);border-color:var(--signal)}
+.ck.done{color:var(--muted)}
+.ck.cur{color:var(--ink)}
+/* flow strip */
+.flow{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:12px}
+.flow .st{padding:6px 10px;background:var(--lav);box-shadow:var(--tex);white-space:nowrap}
+.flow .st.hi{background:var(--ink);color:var(--paper)}
+.flow .ar{color:var(--muted)}
+/* table */
+table{border-collapse:collapse;width:100%;font-size:13.5px;margin-top:10px}
+th,td{border-top:1px solid rgba(7,8,39,.14);padding:9px 10px;text-align:left;vertical-align:top;font-weight:400}
+th{color:var(--peri);font-weight:500}
+thead th{border-top:0;border-bottom:1px solid var(--ink)}
+td.k{color:var(--ink);width:170px}
+td.no{color:var(--muted)}
+.badge{display:inline-block;font-size:12px;border:1px solid var(--muted);color:var(--muted);border-radius:999px;padding:1px 10px;margin-left:8px;vertical-align:middle}
+.reco{margin-top:48px;padding:28px 32px;background:var(--ink);color:var(--paper)}
+.reco .eyebrow{color:rgba(252,252,250,.6);font-size:13px}
+.reco h2{font-size:30px;margin:6px 0 8px}
+.reco p{color:rgba(252,252,250,.85);font-size:16px}
+.reco .sig{color:var(--signal)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="car" viewBox="0 0 401 423">
+    <rect width="401" height="423" fill="#FCFCFA"/>
+    <path d="M110 90 L330 90 L401 140 V423 H0 V300 Z" fill="#5B60A1"/>
+    <path d="M0 150 C70 118 190 112 270 132 L401 205 V423 H0Z" fill="#070827"/>
+    <path d="M250 150 C300 140 340 150 360 170 L401 215 V190 Z" fill="#FCFCFA" opacity=".85"/>
+    <path d="M0 230 L118 236 L128 258 L0 264Z" fill="#F52D48"/>
+    <path d="M0 300 C130 288 260 330 401 306 V423 H0Z" fill="#FCFCFA" opacity=".92"/>
+    <path d="M0 365 C150 352 300 384 401 372 V423 H0Z" fill="#070827"/>
+    <circle cx="300" cy="372" r="34" fill="#070827"/><circle cx="300" cy="372" r="18" fill="#FCFCFA"/>
+  </symbol>
+</svg>
+<div class="page">
+
+<h1>5 · 관리자 모드</h1>
+<p class="lede">오른쪽 위 작은 알약 하나에 매달린 시연 패널을, 발표자가 시연에 필요한 것을 한곳에서 다루는 "관리자 모드" 로 다시 짠다. 상태기계·채점은 그대로, 진입과 배치만 바꾼다.</p>
+<blockquote>「#시뮬레이션알약 — 잘한주차/못한 주차 등이 있는데 관리자 모드로 아예 바꿔서 앱으로 시연 필요한 내용들을 정리해 놓고 싶어 (제안 필요)」<small>— 사용자 피드백, 라운드 22 (동결 태그 inhouse-20261006-1 APK 를 눌러 보고)</small></blockquote>
+<span class="scale">모든 시안은 1/3 축척 · 실제 화면은 약 3배 (853×423 = 2560×1268 dp)</span>
+
+<!-- ========== 지금 ========== -->
+<section class="cell now">
+  <div>
+    <div class="letter cur">지금</div>
+    <p class="desc">우상단 Lavender 알약(캡처 왼쪽 끝)을 누르면 오른쪽에 패널이 펼쳐진다. 눈썹 <code>시뮬레이션 신호</code> → 지금 과제의 시나리오 칩(잘한 주차·못한 주차·잘한 점검·못한 점검) → 재생 상태 → <code>정차·출발·문 열기·문 닫기·시나리오 정지</code> → 맨 아래 <code>AI 코치 · 상태</code> + <code>AI 연결</code>. 한 기둥에 성격이 다른 것들이 한 줄로 쌓여 있고, 프로필·기록 초기화·배속은 아예 없다. Fake/Hybrid 빌드에서만 존재한다(<code>demo == null</code> 이면 Real).</p>
+    <div class="imgs">
+      <figure><img src="../../screenshots/lesson/lesson-demo-toggle-pill.png" alt="접힌 시연 알약"><figcaption>접힌 상태 — 우상단 작은 Lavender 알약(Maneuver 화면)</figcaption></figure>
+      <figure><img src="../../screenshots/lesson/lesson-panel-ai-ready.png" alt="펼친 시연 패널"><figcaption>펼친 상태 — 시나리오 · 재생 대기 · 정차/문 · AI 코치 · 연결됨</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ========== A ========== -->
+<section class="cell">
+  <div>
+    <p class="cap">홈 + 오른쪽 패널 (1/3) — 네 섹션, 눈썹마다 접힘</p>
+    <div class="frame home">
+      <svg class="abs" style="left:0;top:0" width="401" height="423"><use href="#car"/></svg>
+      <div class="abs wm">DRIVE COACH</div>
+      <div class="abs eb">연수생 · 장롱 10년차 · 목표 아이 등하원</div>
+      <div class="abs tt">오늘은 가볍게,<br>주차부터 해 볼까요?</div>
+      <div class="abs sub">후면 직각 주차 · 가이드 모드</div>
+      <div class="abs rs">처음은 제가 순서대로 함께할게요.</div>
+      <div class="abs pill go" style="width:220px">시작 <span>→</span></div>
+      <div class="abs lk">과제·모드 바꾸기</div>
+      <div class="abs panel">
+        <div class="abs" style="right:10px;top:9px;width:20px;height:8px;border-radius:999px;background:var(--peri)"></div>
+        <div class="eyebrow" style="font-size:9px">관리자 · 시뮬레이션</div>
+        <div class="sec">
+          <div class="hd"><span>▾ 시나리오</span><span>재생 대기</span></div>
+          <div class="col"><span class="chip w on">잘한 주차</span><span class="chip w">못한 주차</span><span class="chip w">시나리오 정지</span></div>
+        </div>
+        <div class="sec">
+          <div class="hd"><span>▾ 차량 조작</span><span>배속 1배</span></div>
+          <div class="row"><span class="chip" style="flex:1">정차</span><span class="chip" style="flex:1">출발</span></div>
+          <div class="row" style="margin-top:4px"><span class="chip" style="flex:1">문 열기</span><span class="chip" style="flex:1">문 닫기</span></div>
+        </div>
+        <div class="sec"><div class="hd"><span>▸ AI 코치</span><span>연결됨</span></div></div>
+        <div class="sec"><div class="hd"><span>▸ 기록·프로필</span><span>장롱 10년차</span></div></div>
+        <div class="sec"><div class="hd"><span>▸ 녹화</span><span>패널 숨김</span></div></div>
+      </div>
+    </div>
+    <div class="flow"><span class="st">알약 누름</span><span class="ar">→</span><span class="st hi">패널 · 섹션 넷</span><span class="ar">→</span><span class="st">눈썹 눌러 접고 펴기</span><span class="ar">→</span><span class="st">알약 다시 눌러 닫기</span></div>
+  </div>
+  <div>
+    <div class="letter">A</div>
+    <h2>정리</h2>
+    <p class="desc">지금 패널의 자리·크기·진입은 그대로 두고, 안을 네 섹션(시나리오 / 차량 조작 / AI / 기록·프로필)으로 나눠 눈썹마다 접는다. 눈썹 오른쪽에 상태 요약(재생 대기 · 배속 · 연결됨 · 장롱 10년차)이 붙어 접혀 있어도 읽힌다.</p>
+    <h3>들어 있는 것</h3>
+    <ul>
+      <li>시나리오: 지금 과제의 칩 + 시나리오 정지. 재생 상태는 눈썹 오른쪽으로.</li>
+      <li>차량 조작: 정차·출발 · 문 열기·닫기 · 배속(눈썹에 표시, 누르면 1·2·4배).</li>
+      <li>AI 코치: 상태 한 줄 + 필요할 때만 <code>AI 연결</code>.</li>
+      <li>기록·프로필: 프로필 전환 칩(장롱 10년차 / 초보 / 숙련) · 기록 초기화.</li>
+      <li>녹화: 패널 숨김(세션 끝까지 알약도 안 그림).</li>
+    </ul>
+    <h3>장점</h3>
+    <ul>
+      <li>구현이 가장 작다 — 지금 <code>DemoPanel</code> 컴포저블에 섹션 접힘만 더한다.</li>
+      <li>발표자 손 위치가 지금과 같아 시연 대본(<code>05_demo_script.md</code>) 실측 시각을 다시 재지 않아도 된다.</li>
+    </ul>
+    <h3>주의점</h3>
+    <ul>
+      <li>섹션이 늘어도 기둥 하나라 2560 화면에서 세로로 길다 — 네 섹션을 다 펴면 넘친다(스크롤 필요).</li>
+      <li>패널이 홈의 <code>시작</code> 알약을 가리는 문제는 그대로다(캡처 참고).</li>
+      <li>"시연에 필요한 내용 정리" 라는 요구를 분류로만 답한다 — 순서(대본)는 여전히 머릿속에 있어야 한다.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ========== B ========== -->
+<section class="cell">
+  <div>
+    <p class="cap">관리자 시트 (1/3) — 오른쪽 Paper 전체 · 왼쪽 대본 체크리스트 · 오른쪽 이 단계의 조작</p>
+    <div class="frame">
+      <svg class="abs dim" style="left:0;top:0" width="401" height="423"><use href="#car"/></svg>
+      <div class="abs" style="left:61px;top:22px;font-size:9px;letter-spacing:3px">DRIVE COACH</div>
+      <div class="abs" style="left:401px;top:0;width:452px;height:423px;background:var(--paper);box-shadow:-4px 0 12px rgba(7,8,39,.10)"></div>
+      <div class="abs eyebrow" style="left:424px;top:14px">관리자 · 시연 대본</div>
+      <div class="abs" style="left:806px;top:10px;font-size:9px;color:var(--muted)">닫기 ✕</div>
+      <div class="abs" style="left:424px;top:36px;width:200px">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:3px">1부 · 후면 주차 두 회차</div>
+        <div class="ck done"><span class="dot"></span>못한 주차 재생 · 가이드 모드</div>
+        <div class="ck done"><span class="dot"></span>정차 → "다 됐어요"</div>
+        <div class="ck cur"><span class="dot"></span>문 열기 → 리포트</div>
+        <div class="ck"><span class="dot"></span>다시 시작 · 잘한 주차 재생</div>
+        <div class="ck"><span class="dot"></span>자세히 보기 · 두 회차 비교</div>
+        <div style="font-size:10px;color:var(--muted);margin:8px 0 3px">2부 · 장내 모의시험</div>
+        <div class="ck"><span class="dot"></span>평가 모드 · 불합격 시나리오</div>
+        <div class="ck"><span class="dot"></span>다시 · 합격 시나리오</div>
+        <div class="ck"><span class="dot"></span>진단서 · 공유 범위</div>
+        <div style="font-size:10px;color:var(--muted);margin:8px 0 3px">3부 · 점검 · 지식 · 예약</div>
+        <div class="ck"><span class="dot"></span>점검 7단계 · 잘한 점검</div>
+        <div class="ck"><span class="dot"></span>지식 테스트</div>
+        <div class="ck"><span class="dot"></span>제휴 시험장 예약</div>
+      </div>
+      <div class="abs" style="left:640px;top:36px;width:195px">
+        <div class="eyebrow" style="font-size:10px">이 단계의 조작</div>
+        <div style="font-size:12px;margin:4px 0 8px">문 열기 → 리포트</div>
+        <div class="col" style="gap:6px">
+          <span class="pill2" style="width:100%;height:34px">문 열기</span>
+          <span class="pill2" style="width:100%;height:34px">문 닫기</span>
+          <span class="pill2" style="width:100%;height:34px;color:var(--muted)">정차 상태 유지 중</span>
+        </div>
+        <div class="pill" style="width:100%;height:40px;margin-top:10px;font-size:12px">다음 단계 <span>→</span></div>
+        <div style="font-size:9px;color:var(--muted);margin-top:8px;line-height:1.5">AI 코치 · 연결됨<br>프로필 · 장롱 10년차 · 배속 1배<br>신호 · Fake</div>
+      </div>
+      <div class="abs" style="left:424px;top:390px"><span class="pill2" style="height:26px;font-size:10px">← 체크 다시 세기</span></div>
+    </div>
+    <div class="flow"><span class="st">알약(또는 워드마크 길게)</span><span class="ar">→</span><span class="st hi">시트 · 대본 ↔ 조작</span><span class="ar">→</span><span class="st">다음 단계 → (시트 닫히고 실행)</span><span class="ar">→</span><span class="st">다시 열면 다음 줄이 빨강</span></div>
+  </div>
+  <div>
+    <div class="letter">B</div>
+    <h2>대본</h2>
+    <p class="desc">오른쪽 Paper 전체를 관리자 시트로 덮는다. 왼쪽은 시연 대본 순서(1부 후면 주차 → 2부 모의시험 → 3부)가 체크리스트로, 오른쪽에는 "지금 줄" 에 필요한 조작만 큰 알약으로 놓인다. <code>다음 단계 →</code> 하나를 누르면 그 줄의 조작이 실행되고 시트가 닫힌다.</p>
+    <h3>들어 있는 것</h3>
+    <ul>
+      <li>대본 체크리스트: 줄마다 "무엇을 재생·누르는지" 가 적혀 있다. 지난 줄은 Muted, 지금 줄은 빨간 점.</li>
+      <li>이 단계의 조작: 그 줄에 해당하는 시나리오·정차·문 알약만. 나머지는 숨긴다.</li>
+      <li>맨 아래 상태 요약: AI · 프로필 · 배속 · 신호 출처(읽기 전용, 바꾸려면 D 같은 설정 화면이 따로 필요).</li>
+      <li>체크 다시 세기(대본 처음으로).</li>
+    </ul>
+    <h3>장점</h3>
+    <ul>
+      <li>"시연 필요한 내용 정리" 를 글자 그대로 — 대본이 앱 안에 들어온다. 심사위원 앞에서 다음 줄만 보면 된다.</li>
+      <li>조작 실수(잘한 주차를 먼저 누르기)가 구조적으로 막힌다.</li>
+    </ul>
+    <h3>주의점</h3>
+    <ul>
+      <li>시트가 코칭 화면을 통째로 덮어 녹화 중에는 열 수 없다 — 영상은 컷을 잘라야 한다.</li>
+      <li>대본이 코드(시드)에 고정된다. 대본이 바뀔 때마다 앱도 바뀐다.</li>
+      <li>구현이 가장 크다 — 대본 모델 + 줄마다 조작 매핑 + 진행 상태. 마감(10/9) 앞에서 가장 위험.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ========== C ========== -->
+<section class="cell">
+  <div>
+    <p class="cap">홈 + 아래 관리자 띠 (1/3) — 워드마크를 길게 누르면 뜨고, 한 줄만 차지한다</p>
+    <div class="frame home">
+      <svg class="abs" style="left:0;top:0" width="401" height="423"><use href="#car"/></svg>
+      <div class="abs wm" style="color:var(--peri)">DRIVE COACH</div>
+      <div class="abs eb">연수생 · 장롱 10년차 · 목표 아이 등하원</div>
+      <div class="abs tt">오늘은 가볍게,<br>주차부터 해 볼까요?</div>
+      <div class="abs sub">후면 직각 주차 · 가이드 모드</div>
+      <div class="abs rs">처음은 제가 순서대로 함께할게요.</div>
+      <div class="abs pill go">시작 <span>→</span></div>
+      <div class="abs lk">과제·모드 바꾸기</div>
+      <div class="abs hr"></div>
+      <div class="abs ft">오늘은 편안한 곳에서 주차부터 연습해 봐요.</div>
+      <div class="abs band">
+        <span class="lb">관리자</span>
+        <span class="bc on">잘한 주차</span><span class="bc">못한 주차</span><span class="bc">정지</span>
+        <span class="sep"></span>
+        <span class="bc">정차</span><span class="bc">출발</span><span class="bc">문 열기</span><span class="bc">문 닫기</span>
+        <span class="sep"></span>
+        <span class="bc">장롱 10년차 ▾</span><span class="bc">배속 1</span>
+        <span class="sep"></span>
+        <span class="lb">AI 코치 · 연결됨</span>
+        <span class="sep"></span>
+        <span class="bc">더 보기 ▴</span>
+        <span style="margin-left:auto;color:rgba(252,252,250,.6)">✕</span>
+      </div>
+    </div>
+    <div class="flow"><span class="st">워드마크 길게 누름</span><span class="ar">→</span><span class="st hi">아래 띠 한 줄</span><span class="ar">→</span><span class="st">더 보기 ▴ → 두 줄(프로필·초기화·AI 연결)</span><span class="ar">→</span><span class="st">✕ 또는 다시 길게 눌러 닫기</span></div>
+  </div>
+  <div>
+    <div class="letter">C</div>
+    <h2>띠</h2>
+    <p class="desc">화면 맨 아래에 Ink 색 띠 한 줄(실제 약 90 dp). 시나리오 칩 · 정차/문 · 프로필 · 배속 · AI 상태가 가로로 한 줄. 코칭 화면을 거의 가리지 않아 녹화하면서도 쓸 수 있다. 자주 안 쓰는 것(기록 초기화·AI 연결·신호 출처)은 <code>더 보기 ▴</code> 로 두 번째 줄에.</p>
+    <h3>들어 있는 것</h3>
+    <ul>
+      <li>첫 줄: 시나리오 칩(지금 과제) · 정지 · 정차·출발·문 열기·닫기 · 프로필 ▾ · 배속 · AI 상태.</li>
+      <li>둘째 줄(더 보기): 기록 초기화 · AI 연결 · 신호 출처(Fake/Hybrid) · 패널 숨김.</li>
+      <li>Maneuver 화면에서는 띠가 아래 지표 줄(기어 · 뒤 거리)과 겹치지 않도록 그 위로 올라온다.</li>
+    </ul>
+    <h3>장점</h3>
+    <ul>
+      <li>화면을 안 가린다 — 영상 녹화와 라이브 시연을 한 빌드로 할 수 있다(<code>-PdemoPanel=false</code> 빌드가 필요 없어질 수도).</li>
+      <li>진입이 워드마크 길게 누르기라 알약이 사라져 모든 캡처가 깨끗해진다.</li>
+      <li>구현은 A 와 비슷(가로 Row 하나).</li>
+    </ul>
+    <h3>주의점</h3>
+    <ul>
+      <li>한 줄에 많이 넣으면 칩이 작아진다 — 2560 폭에서도 글자 약 27 dp, 발표자가 서서 누르기엔 작다.</li>
+      <li>Ink 띠가 영상에 그대로 찍힌다. 깨끗한 컷이 필요하면 결국 닫고 찍어야 한다.</li>
+      <li>길게 누르기는 눈에 안 보여 사내 검증자가 못 찾을 수 있다 — <code>INTEGRATION.md</code> 에 적어야 한다.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ========== D ========== -->
+<section class="cell">
+  <div>
+    <p class="cap">관리자 홈 (1/3) — 앱 시작 화면에서 워드마크를 길게 누르면 진입, 프리셋을 누르면 세팅된 채 일반 홈으로</p>
+    <div class="frame">
+      <div class="abs inkpanel" style="left:0;top:0;width:300px;height:423px;padding:22px 24px">
+        <div style="font-size:9px;letter-spacing:3px;color:rgba(252,252,250,.7)">DRIVE COACH</div>
+        <div class="eyebrow" style="margin-top:44px">관리자 모드</div>
+        <div style="font-size:24px;line-height:1.3;margin-top:6px">시연 준비</div>
+        <div style="font-size:11px;color:rgba(252,252,250,.7);margin-top:10px;line-height:1.5">프리셋을 고르면 그 상태로<br>일반 홈이 열려요.<br>이 화면은 Real 빌드에 없어요.</div>
+        <div class="abs" style="left:24px;top:300px;width:252px">
+          <div class="eyebrow" style="font-size:10px;margin-bottom:6px">지금</div>
+          <div style="font-size:10px;line-height:1.6;color:rgba(252,252,250,.85)">AI 코치 · 연결됨<br>신호 출처 · Fake 전부<br>기록 · 세션 2 · 프로필 장롱 10년차</div>
+        </div>
+      </div>
+      <div class="abs" style="left:300px;top:0;width:553px;height:423px;padding:14px 22px">
+        <div class="eyebrow" style="font-size:10px">시연 프리셋</div>
+        <div class="row" style="gap:6px;margin-top:6px">
+          <div class="pc on"><span>후면 주차<br>두 회차</span><small>못한 → 잘한</small></div>
+          <div class="pc"><span>장내 모의시험</span><small>불합격 → 합격</small></div>
+          <div class="pc"><span>점검 7단계</span><small>잘한 점검</small></div>
+          <div class="pc"><span>지식 테스트</span><small>5문항</small></div>
+          <div class="pc"><span>예약 →<br>시험장</span><small>제휴 시험장</small></div>
+        </div>
+        <div class="row" style="gap:28px;margin-top:14px">
+          <div>
+            <div class="eyebrow" style="font-size:10px">프로필</div>
+            <div class="row" style="margin-top:5px"><span class="chip on">장롱 10년차</span><span class="chip">초보</span><span class="chip">숙련</span><span class="chip">비움</span></div>
+          </div>
+          <div>
+            <div class="eyebrow" style="font-size:10px">신호 출처</div>
+            <div class="row" style="margin-top:5px"><span class="chip on">Fake 전부</span><span class="chip">Hybrid</span></div>
+          </div>
+          <div>
+            <div class="eyebrow" style="font-size:10px">배속</div>
+            <div class="row" style="margin-top:5px"><span class="chip on">1배</span><span class="chip">2배</span><span class="chip">4배</span></div>
+          </div>
+        </div>
+        <div class="row" style="gap:28px;margin-top:14px">
+          <div>
+            <div class="eyebrow" style="font-size:10px">세션 중 패널</div>
+            <div class="row" style="margin-top:5px"><span class="chip on">아래 띠</span><span class="chip">숨김 (녹화)</span></div>
+          </div>
+          <div>
+            <div class="eyebrow" style="font-size:10px">기록</div>
+            <div class="row" style="margin-top:5px"><span class="chip">기록 초기화</span><span class="chip">세션 2 로 채우기</span></div>
+          </div>
+          <div>
+            <div class="eyebrow" style="font-size:10px">AI 코치</div>
+            <div class="row" style="margin-top:5px"><span class="chip">AI 연결</span><span class="chip" style="color:var(--muted)">규칙 문장만</span></div>
+          </div>
+        </div>
+        <div class="abs" style="left:22px;top:356px"><span class="pill2">← 그냥 홈으로</span></div>
+        <div class="abs pill" style="left:300px;top:352px;width:230px">이 설정으로 홈 <span>→</span></div>
+      </div>
+    </div>
+    <div class="flow"><span class="st">앱 시작 · 워드마크 길게</span><span class="ar">→</span><span class="st hi">관리자 홈 · 프리셋</span><span class="ar">→</span><span class="st">이 설정으로 홈 →</span><span class="ar">→</span><span class="st">일반 홈 (세팅됨)</span><span class="ar">→</span><span class="st">세션 중엔 아래 띠(C)</span></div>
+  </div>
+  <div>
+    <div class="letter">D</div>
+    <h2>준비실</h2>
+    <p class="desc">관리자 모드를 별도 홈으로 둔다. 왼쪽 Ink 에 "지금 상태", 오른쪽에 시연 프리셋 카드 다섯 + 프로필 전환 + 신호 출처 + 배속 + 세션 중 패널(띠/숨김) + 기록 + AI. 프리셋을 누르고 <code>이 설정으로 홈 →</code> 하면 앱이 그 상태(과제·모드·프로필·기록)로 세팅된 채 일반 홈이 열린다. 세션 중에 필요한 정차·문 조작은 C 의 띠가 맡는다.</p>
+    <h3>들어 있는 것</h3>
+    <ul>
+      <li>프리셋 다섯: 후면 주차 두 회차 · 장내 모의시험 불합격→합격 · 점검 7단계 · 지식 테스트 · 예약→시험장. 프리셋 = 과제 + 모드 + 시나리오 순서 + 필요한 기록.</li>
+      <li>프로필 전환(장롱 10년차 / 초보 / 숙련 / 비움) — 7번 프로필 시안과 연결.</li>
+      <li>신호 출처 표시·전환(Fake 전부 / Hybrid) — 빌드 플래그 <code>FILL_MISSING_WITH_FAKE</code> 를 화면에서 읽어 보여 주기만.</li>
+      <li>배속 · 세션 중 패널(띠 / 숨김) · 기록 초기화 · 기록 채우기 · AI 연결.</li>
+    </ul>
+    <h3>장점</h3>
+    <ul>
+      <li>"시연 전에 다 세팅하고, 시연 중엔 거의 안 만진다" — 발표자가 가장 편하다. 영상도 깨끗하다.</li>
+      <li>프로필·기록처럼 세션 밖의 것이 자연스러운 자리를 얻는다. 7번(프로필) 과제의 시연 문제를 여기서 푼다.</li>
+      <li>일반 홈은 운전자 화면 그대로다 — 관리 기능이 운전자 UI 에 전혀 안 섞인다.</li>
+    </ul>
+    <h3>주의점</h3>
+    <ul>
+      <li>프리셋 하나 = 시나리오 순서 + 기록 시드. 다섯 개를 다 채우려면 B 만큼은 아니어도 손이 간다 — 첫 단계는 "후면 주차 두 회차" 하나만.</li>
+      <li>세션 중 조작(정차·문)은 결국 띠(C)가 필요하다. 관리자 홈 혼자서는 시연이 끝나지 않는다.</li>
+      <li>워드마크 길게 누르기가 Setup 에서만 동작하도록 묶어야 운전 중 진입이 원천 차단된다.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ========== 표 ========== -->
+<section class="cell now">
+  <div>
+    <h2>관리자 모드에 들어갈 것 — 시안별 자리</h2>
+    <p class="desc" style="color:var(--muted)">같은 기능이 어느 시안에서 어디에 놓이는지. "—" 는 그 시안에 자리가 없다는 뜻.</p>
+    <table>
+      <thead><tr><th>기능</th><th>A 정리</th><th>B 대본</th><th>C 띠</th><th>D 준비실</th></tr></thead>
+      <tbody>
+        <tr><td class="k">시나리오 재생 · 정지</td><td>섹션 "시나리오"</td><td>지금 줄의 조작으로만</td><td>첫 줄 칩</td><td>프리셋 안에 순서로 묶임 · 수동은 띠(C)</td></tr>
+        <tr><td class="k">정차 · 출발</td><td>섹션 "차량 조작"</td><td>해당 줄에서만</td><td>첫 줄 칩</td><td>띠(C)</td></tr>
+        <tr><td class="k">문 열기 · 닫기</td><td>섹션 "차량 조작"</td><td>해당 줄에서만</td><td>첫 줄 칩</td><td>띠(C)</td></tr>
+        <tr><td class="k">프로필 전환</td><td>섹션 "기록·프로필" 칩</td><td class="no">— (읽기만)</td><td>첫 줄 ▾ 메뉴</td><td>눈썹 "프로필" 칩</td></tr>
+        <tr><td class="k">기록 초기화 · 채우기</td><td>섹션 "기록·프로필"</td><td>체크 다시 세기만</td><td>둘째 줄(더 보기)</td><td>눈썹 "기록"</td></tr>
+        <tr><td class="k">AI 연결 · 상태</td><td>섹션 "AI 코치"</td><td>아래 상태 줄(읽기)</td><td>첫 줄 상태 · 연결은 둘째 줄</td><td>왼쪽 "지금" + 눈썹 "AI 코치"</td></tr>
+        <tr><td class="k">배속</td><td>눈썹 오른쪽 토글</td><td>아래 상태 줄(읽기)</td><td>첫 줄 칩</td><td>눈썹 "배속"</td></tr>
+        <tr><td class="k">신호 출처 (Fake / Hybrid) 표시</td><td class="no">—</td><td>아래 상태 줄</td><td>둘째 줄</td><td>눈썹 "신호 출처"</td></tr>
+        <tr><td class="k">녹화용 패널 숨김</td><td>섹션 "녹화"</td><td>시트 닫으면 끝</td><td>✕ 로 닫음(알약 없음)</td><td>눈썹 "세션 중 패널" 숨김</td></tr>
+        <tr><td class="k">시연 순서(대본)</td><td class="no">—</td><td>왼쪽 체크리스트</td><td class="no">—</td><td>프리셋 안에 묶여 있음(화면엔 안 보임)</td></tr>
+        <tr><td class="k">진입 방법</td><td>지금처럼 우상단 알약</td><td>알약 또는 워드마크 길게</td><td>워드마크 길게 누르기</td><td>Setup 에서 워드마크 길게 · 세션 중엔 띠(C)</td></tr>
+        <tr><td class="k">구현 크기</td><td>작음</td><td>큼</td><td>작음</td><td>중간(프리셋 하나부터)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ========== 진입 ========== -->
+<section class="cell now">
+  <div>
+    <h2>진입 방법 — 알약 유지 vs 워드마크 길게 누르기</h2>
+    <div class="two" style="margin-top:12px">
+      <div>
+        <h3>지금 · 우상단 알약 유지</h3>
+        <ul>
+          <li>눈에 보여 사내 검증자·심사위원이 바로 찾는다.</li>
+          <li>모든 캡처·영상에 작은 Lavender 알약이 찍힌다(지금 캡처마다 보임).</li>
+          <li>운전자가 실수로 누를 수 있다 — 지금은 Fake 빌드뿐이라 실해는 없지만, Hybrid 로 실차에 올리면 우상단 터치 한 번에 패널이 뜬다.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>제안 · 워드마크 길게 누르기(약 2초)</h3>
+        <ul>
+          <li>보이는 것이 없어 운전자 화면이 완전히 깨끗하다. 실수로는 열리지 않는다(길게 + 워드마크 위치).</li>
+          <li>Real 빌드에서는 <code>demo == null</code> 이므로 길게 누르기 핸들러 자체를 달지 않는다 — "절대 없음" 이 코드로 보장된다.</li>
+          <li>주행 중(속도 &gt; 5 km/h)에는 Setup 외 화면에서 진입 자체를 막는다(규칙 10). 띠(C)는 세션 들어가기 전에 켜 두는 것.</li>
+          <li>단점: 발견성 0 — <code>INTEGRATION.md</code> 사내 세션 절차와 <code>05_demo_script.md</code> 첫 줄에 적는다. 사내 검증 첫 회만 알약을 같이 두는 과도기 플래그(<code>-PdemoPill</code>)도 가능.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="reco">
+  <div class="eyebrow">추천</div>
+  <h2>D · 준비실 — 관리자 홈 + 세션 중엔 C 의 띠</h2>
+  <p>"시연에 필요한 내용을 정리해 둔다" 는 요구는 세션 밖(프리셋·프로필·기록·AI)과 세션 안(정차·문)이 다른 자리를 원한다. D 가 밖을, C 띠가 안을 맡으면 일반 홈과 코칭 화면이 운전자 것으로 남고 영상도 깨끗하다. 진입은 <span class="sig">워드마크 길게 누르기</span>, Real 빌드에는 핸들러 자체를 달지 않는다. 첫 단계는 프리셋 "후면 주차 두 회차" 하나 + 프로필 전환 + 띠, 나머지 프리셋은 대본이 굳은 뒤.</p>
+</div>
+
+</div>
+</body>
+</html>

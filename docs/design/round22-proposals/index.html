@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>라운드 22 시안 모음</title>
+<style>
+  :root { --ink:#070827; --paper:#FCFCFA; --peri:#5B60A1; --lav:#E5E6F0; --signal:#F52D48; --muted:rgba(7,8,39,.6); }
+  body { margin:0; background:#E9E9EE; font-family:"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif; color:var(--ink); }
+  .wrap { max-width:1100px; margin:0 auto; padding:32px 28px 48px; }
+  h1 { font-size:24px; font-weight:500; margin:0 0 6px; }
+  p.sub { color:var(--muted); margin:0 0 24px; font-size:14px; line-height:1.6; }
+  .grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+  a.card { display:block; text-decoration:none; color:inherit; background:var(--paper); padding:18px 20px; border-radius:6px;
+    box-shadow:0 4px 10px rgba(7,8,39,.10), 0 1px 2px rgba(7,8,39,.06), inset 0 1px 0 rgba(255,255,255,.9); }
+  a.card:hover { outline:2px solid var(--peri); }
+  .n { color:var(--peri); font-size:13px; }
+  .t { font-size:18px; margin:4px 0 6px; }
+  .d { color:var(--muted); font-size:13px; line-height:1.5; }
+  .how { margin-top:28px; background:var(--paper); padding:16px 20px; border-radius:6px; font-size:14px; line-height:1.7; }
+  .how b { font-weight:500; color:var(--peri); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>라운드 22 시안 모음 — 직접 조작 피드백(10/5 밤)</h1>
+  <p class="sub">동결 태그 <code>inhouse-20261006-1</code> 을 직접 눌러 보고 주신 12건 중 "시안을 보고 고르고 싶다" 는 7주제. 분류와 답변은 <code>docs/design/11_round22_feedback.md</code>. 바로 고칠 버그 4건(시험장 선택 카드 색 · 다 됐어요 알약 점프 · 자세히 보기 지표 잘림 · 돌아가기/다시 시작 간격)은 라운드 22 발주서로 이미 Codex 에 보냈습니다. 페이지마다 "지금" 과 시안 A~, 맨 아래 추천. 고르신 것을 알려 주시면 라운드 23 으로 구현합니다.</p>
+  <div class="grid">
+    <a class="card" href="1-certificate.html"><div class="n">1 · 시안 5 + 문구 + 공유 예시</div><div class="t">진단서</div><div class="d">배치 5안, "예상 혜택 → 실제 조건" 문구, 공유 예시 시트의 세부 항목, 돌아가기/다시 시작 간격 규칙</div></a>
+    <a class="card" href="2-sheet-title.html"><div class="n">2 · 시안 5</div><div class="t">"연습할 과제" 제목</div><div class="d">색을 조금 다르게, 글자 살짝 작게 — 토큰 다섯 + 투명도 안에서</div></a>
+    <a class="card" href="3-mode-spacing.html"><div class="n">3 · 시안 5</div><div class="t">모드 칩 ↔ 돌아가기/시작 간격</div><div class="d">버튼은 그대로 두고 모드 행 배치 5안, 제휴 시험장 시트에 같은 규칙</div></a>
+    <a class="card" href="4-home-ai.html"><div class="n">4 · 시안 8</div><div class="t">홈 화면 AI 대화 진입</div><div class="d">탭 대화 먼저·마이크는 자리만, 과제 카드·예약 시험장에 닿는 흐름 8안 + 비교표</div></a>
+    <a class="card" href="5-admin-mode.html"><div class="n">5 · 시안 4</div><div class="t">시연 알약 → 관리자 모드</div><div class="d">시연에 필요한 것(시나리오·조작·프로필·초기화·AI)을 모으는 4안 + 진입 방법</div></a>
+    <a class="card" href="6-details-badge.html"><div class="n">6 · 시안 3 + 의견</div><div class="t">자세히 보기 지표·신호 출처</div><div class="d">지표 잘림 해결 + 신호 출처 배지를 어디에 얼마나 — 필요성 검토 의견</div></a>
+    <a class="card" href="7-profile.html"><div class="n">7 · 시안 4 + 질문 10</div><div class="t">프로필 설정</div><div class="d">온보딩 / 홈 눈썹 시트 / 코치 대화형 / 점진형 — 계획은 11_round22_feedback.md §4</div></a>
+  </div>
+  <div class="how">
+    <b>보는 법</b> — 각 페이지는 스크립트 없는 정적 HTML 입니다(같은 이름의 <code>.png</code> 는 미리보기). 시안 속 화면은 실제의 약 1/3 크기, 실제 화면은 약 3배입니다. 색은 앱 토큰 다섯 개(Ink·Paper·Periwinkle·Lavender·Signal)만 썼습니다.<br>
+    <b>고르는 법</b> — 주제 번호와 시안 글자(예: "1-C, 2-A, 3-B, 4-H, 5-D, 6-B, 7-A")로 알려 주세요. 섞어도 됩니다("1 은 C 배치에 D 의 문서 모양"). 프로필(7)은 §4 의 질문 10개에 답을 주시면 모델부터 시작합니다.
+  </div>
+</div>
+</body>
+</html>
