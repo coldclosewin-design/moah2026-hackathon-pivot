@@ -111,6 +111,18 @@ class CourseLessonTest {
         h.scope.cancel()
     }
 
+    @Test fun `the screen line is always the latest spoken one - deductions show, then the next zone replaces them`() = runTest {
+        drives.clear()
+        val (h, _) = run(SeedCatalog.TASK_TRACK_EXAM, LessonMode.EVALUATE, CourseScenarios.examBad)
+        fun headline(d: LessonPhase.Drive) = d.lastHint ?: d.zoneLine
+        val lines = drives.map(::headline).fold(ArrayList<String?>()) { acc, l -> if (acc.lastOrNull() != l) acc += l; acc }
+        val rollback = lines.indexOf("뒤로 밀림, 감점입니다.")
+        assertTrue(lines.toString(), rollback > 0)
+        assertEquals("우회전 구간입니다.", lines.drop(rollback + 1).firstOrNull())   // 다음 구간이 감점 문장을 덮는다
+        assertTrue(lines.toString(), "검지선 접촉, 감점입니다." in lines && "비상등 미점등, 감점입니다." in lines)
+        h.scope.cancel()
+    }
+
     @Test fun `guide mode reads each zone and explains a deduction at the moment`() = runTest {
         val (h, done) = run("left-turn-signal", LessonMode.GUIDE, CourseScenarios.leftBad)
         val spoken = h.tts.spoken

@@ -392,8 +392,9 @@ class LessonStateMachine(
         u.entered?.let { z ->
             Log.i(TAG, "course zone: ${z.id}")
             when (mode) {
-                LessonMode.GUIDE -> { zoneLine = z.guide; tts.speak(z.guide) }
-                LessonMode.EVALUATE -> if (exam) { zoneLine = z.announce; tts.speak(z.announce) }
+                // 화면은 "가장 최근 문장" 을 보여야 한다(10/5, 시연 녹화에서 발견) — 새 구간 문장이 지난 감점 문장을 덮게 lastHint 를 비운다
+                LessonMode.GUIDE -> { zoneLine = z.guide; lastHint = null; tts.speak(z.guide) }
+                LessonMode.EVALUATE -> if (exam) { zoneLine = z.announce; lastHint = null; tts.speak(z.announce) }
                 LessonMode.HINT -> z.rules.filterIsInstance<ZoneRule.Indicator>().firstOrNull()?.let { r ->
                     val on = if (r.side == com.moah.hackathon.scoring.Side.LEFT) snapshot.indicatorLeft else snapshot.indicatorRight
                     if (on == false) hint("${r.side.label} 방향지시등을 켜요.")
@@ -405,7 +406,12 @@ class LessonStateMachine(
             Log.i(TAG, "course deduction: ${d.reason} zone=${d.zoneId} points=${d.points} disqualify=${d.disqualify}")
             when (mode) {
                 LessonMode.GUIDE, LessonMode.HINT -> hint(d.say)
-                LessonMode.EVALUATE -> if (exam) tts.speak(if (d.disqualify) "${d.reason}, 실격입니다. 연습은 끝까지 이어 가요." else "${d.reason}, 감점입니다.", SpeechPriority.URGENT)
+                // 시험 방송도 화면에 남긴다 — 소리가 없는 사내 에뮬·무음 녹화에서도 감점 순간이 보이게(10/5)
+                LessonMode.EVALUATE -> if (exam) {
+                    val line = if (d.disqualify) "${d.reason}, 실격입니다. 연습은 끝까지 이어 가요." else "${d.reason}, 감점입니다."
+                    lastHint = line
+                    tts.speak(line, SpeechPriority.URGENT)
+                }
                 else -> {}
             }
         }
