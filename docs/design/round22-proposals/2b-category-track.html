@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>분류 트랙 색 위계 시안</title>
+<style>
+:root{
+  --ink:#070827; --paper:#FCFCFA; --peri:#5B60A1; --lav:#E5E6F0; --signal:#F52D48;
+  --muted:rgba(7,8,39,.60);
+  --tex-full:0 4px 10px rgba(7,8,39,.10),0 1px 2px rgba(7,8,39,.06),inset 0 1px 0 rgba(255,255,255,.9);
+  --tex-dark:0 4px 10px rgba(7,8,39,.16),0 1px 2px rgba(7,8,39,.10),inset 0 1px 0 rgba(255,255,255,.16);
+  --font:"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-weight:400}
+h1,h2,h3,b,strong,th{font-weight:500}
+body{background:var(--paper);color:var(--ink);font-family:var(--font);line-height:1.5}
+.page{max-width:1560px;margin:0 auto;padding:40px 32px 64px}
+
+.head h1{font-size:30px;letter-spacing:-.01em}
+.head .lead{font-size:16px;color:var(--muted);margin-top:4px;max-width:1200px}
+.quote{margin-top:14px;background:rgba(229,230,240,.6);border-left:4px solid var(--peri);padding:12px 18px;font-size:15px;max-width:1200px}
+.quote.old{border-left-color:rgba(91,96,161,.35);color:var(--muted);font-size:14px}
+.quote .who{display:block;font-size:12px;color:var(--peri);margin-bottom:4px}
+.scale{display:inline-flex;margin-top:16px;font-size:13px;color:var(--peri);background:rgba(91,96,161,.08);padding:6px 12px;border-radius:14px}
+.rules{margin-top:10px;font-size:13px;color:var(--muted)}
+.rules em{font-style:normal;color:var(--signal)}
+
+/* 크기 견본 */
+.sizes{margin-top:22px;display:flex;gap:28px;align-items:flex-end;flex-wrap:wrap;border:1px solid rgba(7,8,39,.12);border-radius:6px;padding:14px 18px;max-width:1200px}
+.sizes .k{font-size:12px;color:var(--peri);letter-spacing:.06em;width:100%}
+.sizes .s{display:flex;flex-direction:column;align-items:flex-start}
+.sizes .s span:first-child{line-height:1.15;color:var(--peri)}
+.sizes .s span:last-child{font-size:12px;color:var(--muted);margin-top:4px}
+.sizes .s.ref span:first-child{color:var(--ink)}
+
+.block{display:grid;grid-template-columns:853px 1fr;gap:36px;margin-top:44px;padding-top:28px;border-top:1px solid rgba(7,8,39,.10)}
+.tag-id{font-size:13px;color:var(--peri);letter-spacing:.08em}
+.notes h2{font-size:26px;margin-top:2px}
+.notes .one{font-size:15px;margin-top:6px}
+.notes h3{font-size:13px;color:var(--peri);margin-top:14px;letter-spacing:.04em}
+.notes ul{margin-top:4px;padding-left:18px;font-size:14px}
+.notes li{margin-top:3px}
+.spec{margin-top:12px;border-collapse:collapse;font-size:13px;width:100%}
+.spec th,.spec td{text-align:left;padding:5px 8px;border-bottom:1px solid rgba(7,8,39,.08);vertical-align:top}
+.spec th{width:150px;color:var(--peri);font-size:12px;letter-spacing:.03em}
+.spec code{font-family:inherit;background:rgba(229,230,240,.7);padding:0 4px;border-radius:3px}
+.chip{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px;box-shadow:0 0 0 1px rgba(7,8,39,.18)}
+.cr{margin-top:10px;font-size:13px;background:rgba(229,230,240,.55);padding:8px 12px;border-radius:6px}
+.cr b{color:var(--peri)}
+
+/* ---------- 1/3 화면 윗부분 ---------- */
+.screen{position:relative;width:853px;height:282px;background:var(--paper);overflow:hidden;border-radius:6px;box-shadow:0 0 0 1px rgba(7,8,39,.14),0 8px 24px rgba(7,8,39,.08)}
+.screen .lp{position:absolute;left:0;top:0;width:256px;height:423px}
+.screen .brand{position:absolute;left:48px;top:29px;font-size:8px;letter-spacing:4px;color:var(--ink)}
+.rc{position:absolute;left:277px;top:0;width:555px;height:423px}
+.eb{position:absolute;left:0;line-height:1;white-space:nowrap;font-size:10.7px;color:var(--peri)}
+.eb.t{top:24px}
+.eb.s{top:96px}
+.tpos{position:absolute;left:0;right:0;top:50px}
+
+/* 트랙 공통 */
+.tk{position:relative;display:flex;padding:3px;gap:3px;border-radius:18px;height:32px}
+.tk .seg{flex:1;border-radius:14px;display:flex;align-items:center;justify-content:center;line-height:1;white-space:nowrap}
+/* 지금: Lavender / Periwinkle, 56dp */
+.t0{height:35px;background:var(--lav);box-shadow:inset 0 1px 3px rgba(7,8,39,.12),inset 0 -1px 0 rgba(255,255,255,.8)}
+.t0 .seg{color:var(--peri);font-size:18.7px}
+.t0 .seg.on{background:var(--peri);color:var(--paper);box-shadow:var(--tex-dark)}
+/* A 밤 */
+.ta{background:var(--ink);box-shadow:inset 0 1px 3px rgba(7,8,39,.6)}
+.ta .seg{color:rgba(229,230,240,.70);font-size:14.7px;letter-spacing:.04em}
+.ta .seg.on{background:var(--paper);color:var(--ink);box-shadow:0 2px 4px rgba(7,8,39,.6),inset 0 1px 0 rgba(255,255,255,.9),inset 0 -1px 0 rgba(229,230,240,.9)}
+/* B 먹 */
+.tb{background:rgba(229,230,240,.5);box-shadow:inset 0 1px 3px rgba(7,8,39,.10),inset 0 -1px 0 rgba(255,255,255,.8)}
+.tb .seg{color:var(--muted);font-size:16px}
+.tb .seg.on{background:var(--ink);color:var(--paper);box-shadow:var(--tex-dark)}
+/* C 종이 */
+.tc{background:rgba(7,8,39,.06);box-shadow:inset 0 1px 3px rgba(7,8,39,.14)}
+.tc .seg{color:var(--muted);font-size:14.7px}
+.tc .seg.on{background:var(--paper);color:var(--peri);box-shadow:var(--tex-full)}
+/* D 반전 */
+.td{background:var(--peri);box-shadow:inset 0 1px 3px rgba(7,8,39,.28)}
+.td .seg{color:rgba(252,252,250,.75);font-size:14.7px;letter-spacing:.02em}
+.td .seg.on{background:var(--paper);color:var(--peri);box-shadow:0 2px 5px rgba(7,8,39,.28),inset 0 1px 0 #fff}
+/* E 밑줄 */
+.te{height:29px;padding:0;gap:0;border-radius:0;background:transparent;box-shadow:inset 0 -1px 0 var(--lav)}
+.te .seg{color:var(--peri);font-size:13.3px;letter-spacing:.04em;border-radius:0;position:relative}
+.te .seg.on{color:var(--ink)}
+.te .seg.on::after{content:"";position:absolute;left:32%;right:32%;bottom:0;height:2px;border-radius:1px;background:var(--signal)}
+
+/* 카드 (지금 그대로) */
+.cards{position:absolute;left:0;right:0;top:116px;display:flex;gap:8px}
+.card{position:relative;flex:1;height:144px;background:var(--lav);box-shadow:var(--tex-full);color:var(--ink);--win:#5B60A1;--line:#070827}
+.card.on{background:var(--peri);color:var(--paper);box-shadow:var(--tex-dark);--win:#E5E6F0;--line:#FCFCFA}
+.card .art{height:96px;display:flex;justify-content:center;align-items:center;background:radial-gradient(ellipse 42% 62% at 50% 0%,rgba(252,252,250,.38),rgba(252,252,250,0) 72%)}
+.card svg{width:40px;height:50px}
+.card .band{height:48px;border-top:1px solid rgba(7,8,39,.06);display:flex;align-items:center;justify-content:space-between;padding:0 8px 0 8px}
+.card .band .n{font-size:12.6px;white-space:nowrap}
+.card .band .lv{font-size:8.7px;color:var(--muted)}
+.card.on .band .lv{color:rgba(252,252,250,.7)}
+.ck{position:absolute;left:50%;bottom:-13px;width:27px;height:27px;margin-left:-13.5px;border-radius:50%;background:var(--signal);box-shadow:0 0 0 2px var(--paper)}
+.ck::after{content:"";position:absolute;left:9px;top:6px;width:6px;height:11px;border-right:2px solid var(--paper);border-bottom:2px solid var(--paper);transform:rotate(45deg)}
+
+/* 주행 선택 작은 견본 */
+.mini{margin-top:12px;display:grid;grid-template-columns:262px 555px;gap:15px;align-items:center;background:var(--paper);padding:10px 0 10px 0;border-radius:6px;box-shadow:0 0 0 1px rgba(7,8,39,.10)}
+.mini .lbl{font-size:12px;color:var(--muted);text-align:right}
+
+/* 지금 */
+.crop{position:relative;width:853px;height:282px;overflow:hidden;border-radius:6px;box-shadow:0 0 0 1px rgba(7,8,39,.14)}
+.crop img{display:block;width:853px;height:auto;margin-top:-25px}
+.mcrop{width:555px;height:38px;overflow:hidden;border-radius:6px}
+.mcrop img{display:block;width:853px;height:auto;margin:-73px 0 0 -277px}
+
+/* 한눈에 비교 */
+.cmp{margin-top:56px;padding-top:28px;border-top:1px solid rgba(7,8,39,.10)}
+.cmp h2{font-size:26px}
+.cmp .one{font-size:15px;color:var(--muted);margin-top:4px}
+.board{margin-top:18px;width:853px;background:var(--paper);border-radius:6px;box-shadow:0 0 0 1px rgba(7,8,39,.14),0 8px 24px rgba(7,8,39,.08);padding:18px 21px 24px 0}
+.board .r{display:grid;grid-template-columns:262px 555px;gap:15px;align-items:center;min-height:46px}
+.board .r .lbl{text-align:right;font-size:12px;color:var(--muted)}
+.board .r .lbl b{color:var(--peri);font-size:14px}
+.board .shared{position:relative;margin-left:277px;width:555px;height:180px;margin-top:10px}
+.board .shared .eb{top:6px}
+.board .shared .cards{top:26px}
+
+.reco{margin-top:56px;padding:24px 28px;background:var(--ink);color:var(--paper);border-radius:8px;box-shadow:var(--tex-dark)}
+.reco .k{font-size:13px;color:rgba(229,230,240,.75);letter-spacing:.06em}
+.reco h2{font-size:26px;margin-top:4px}
+.reco p{font-size:15px;margin-top:8px;color:rgba(252,252,250,.9)}
+.reco p em{font-style:normal;color:var(--signal);white-space:nowrap}
+  b { font-weight:500; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="ill" viewBox="0 0 256 423">
+      <rect width="256" height="423" fill="#FCFCFA"/>
+      <path d="M0 96 L196 86 L196 423 H0 Z" fill="#5B60A1"/>
+      <path d="M0 330 C90 300 180 292 256 300 V423 H0 Z" fill="#070827"/>
+      <path d="M0 132 C50 112 110 104 150 118 C190 134 226 166 246 196 C256 212 256 240 250 262 L240 330 C200 346 120 346 60 332 L0 320 Z" fill="#FCFCFA"/>
+      <path d="M90 150 C110 132 140 128 160 140 L190 186 L104 188 Z" fill="#070827"/>
+      <path d="M0 196 L80 190 C84 204 78 220 70 226 L0 232 Z" fill="#F52D48"/>
+      <path d="M58 252 C120 240 190 246 240 262 L236 300 C170 290 110 290 60 302 Z" fill="#5B60A1" opacity=".55"/>
+    </symbol>
+    <symbol id="car" viewBox="0 0 40 50">
+      <path d="M5 4 V46 M35 4 V46" style="stroke:var(--line)" stroke-width="1.4" fill="none"/>
+      <rect x="12" y="5" width="16" height="40" rx="6" fill="currentColor"/>
+      <rect x="14" y="12" width="12" height="8" rx="2.5" style="fill:var(--win)"/>
+      <rect x="14" y="32" width="12" height="5" rx="2" style="fill:var(--win)" opacity=".75"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="page">
+
+  <header class="head">
+    <h1>분류 트랙(주차·주행·점검·지식) — 색·글자 크기 위계 시안 다섯 가지</h1>
+    <p class="lead">분류 트랙과 그 아래 세부 과제 카드가 지금은 <b>같은 짝</b>(바탕 Lavender · 선택 Periwinkle)을 써서 "큰 분류" 와 "고를 카드" 가 한 층으로 보인다. 라벨은 56 dp 로 오른쪽에서 가장 큰 글자다. 색 전문가 관점에서 <b>명도(밝기) 위계</b>로 트랙을 카드와 다른 층으로 떼고, 라벨은 40–48 dp 로 살짝 줄인다. 카드는 지금 그대로 둔다.</p>
+    <blockquote class="quote">
+      <span class="who">사용자 정정 (원문)</span>
+      과제 시트 제목 - 아예 잘못 짚었어. 제목 텍스트 자체가 아닌 그 아래 '주차/주행/점검/지식' 의 색과 글자 크기를 말한 거야 + 선택된 알약 및 배경까지 아래 세부 카드랑 살짝 차별된 느낌으로 색 전문가로서 제안을 다시 줘 (5개)
+    </blockquote>
+    <blockquote class="quote old">
+      <span class="who">처음 요청 (원문) — 2-sheet-title.html 은 이것을 눈썹 "연습할 과제" 로 잘못 읽었다</span>
+      #연습할 과제 — 제목 색깔을 조금 차별된 색과 글자 크기를 살짝 줄여서 부탁해 (제안 갯수 5개)
+    </blockquote>
+    <div class="scale">아래 화면은 모두 실제의 1/3, 과제 시트 윗부분(약 45%)만 잘라 보임 — 실제 화면은 약 3배</div>
+    <p class="rules">공통 조건 · 과제 시트에는 <em>숫자를 하나도 넣지 않는다</em>(계측 "시트 숫자 0") · 새 색 없음 — Ink·Paper·Periwinkle·Lavender·Signal 과 투명도만 · 눈썹 "연습할 과제"·"주차 세부 과제", 카드 넷(선택 = Periwinkle + 빨간 체크)은 지금 그대로 · 대비는 WCAG 상대 휘도로 계산한 근사값</p>
+
+    <div class="sizes">
+      <div class="k">글자 크기 견본 — 실물 dp 를 페이지 px 그대로 (카드 제목 40 dp 와 나란히)</div>
+      <div class="s"><span style="font-size:56px">주차</span><span>지금 56 dp</span></div>
+      <div class="s"><span style="font-size:48px">주차</span><span>48 dp (B)</span></div>
+      <div class="s"><span style="font-size:44px">주차</span><span>44 dp (A·C·D)</span></div>
+      <div class="s"><span style="font-size:40px">주차</span><span>40 dp (E)</span></div>
+      <div class="s ref"><span style="font-size:40px">후면 직각 주차</span><span>카드 제목 40 dp — 기준</span></div>
+    </div>
+  </header>
+
+  <!-- ===================== 지금 ===================== -->
+  <section class="block">
+    <div>
+      <div class="crop"><img src="../../screenshots/lesson/lesson-setup-sheet.png" alt="지금의 과제 시트 캡처 윗부분"></div>
+      <div class="mini" style="padding:6px 0">
+        <span class="lbl">주행 선택 시 (캡처)</span>
+        <div class="mcrop"><img src="../../screenshots/lesson/lesson-setup-sheet-driving.png" alt="주행 선택 캡처의 트랙"></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="tag-id">지금</div>
+      <h2>트랙과 카드가 같은 짝</h2>
+      <p class="one">트랙 Lavender + 선택 Periwinkle, 카드 Lavender + 선택 Periwinkle. 같은 두 색이 위아래로 반복돼 "분류를 고르는 줄" 과 "과제를 고르는 판" 이 구분되지 않는다.</p>
+      <table class="spec">
+        <tr><th>트랙 바탕</th><td><i class="chip" style="background:var(--lav)"></i>Lavender 100% — 카드 바탕과 동일</td></tr>
+        <tr><th>트랙 높이</th><td>104 dp</td></tr>
+        <tr><th>선택 알약</th><td><i class="chip" style="background:var(--peri)"></i>Periwinkle · 글자 Paper · SelectedChip 질감 — 선택 카드와 동일</td></tr>
+        <tr><th>비선택 글자</th><td>Periwinkle 100%</td></tr>
+        <tr><th>라벨 크기 · 자간</th><td>56 dp · 0</td></tr>
+      </table>
+      <p class="cr"><b>대비</b> · 선택 Paper / Periwinkle ≈ 5.6 : 1 · 비선택 Periwinkle / Lavender ≈ 4.7 : 1 · <b>층 구분</b> 트랙 바탕 / 카드 바탕 = 1 : 1 (같은 색)</p>
+      <h3>보이는 문제</h3>
+      <ul>
+        <li>56 dp 라벨이 카드 제목(40 dp)보다 훨씬 커서 오른쪽 면의 주인공이 분류처럼 보인다 — 실제로 고르는 것은 카드</li>
+        <li>선택 알약과 선택 카드가 같은 Periwinkle 덩어리 둘 — 눈이 "선택된 것이 둘" 로 읽는다(모드 칩 "힌트" 까지 셋)</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== A 밤 ===================== -->
+  <section class="block">
+    <div>
+      <div class="screen">
+        <svg class="lp" viewBox="0 0 256 423"><use href="#ill"/></svg>
+        <div class="brand">DRIVE COACH</div>
+        <div class="rc">
+          <div class="eb t">연습할 과제</div>
+          <div class="tpos"><div class="tk ta"><div class="seg on">주차</div><div class="seg">주행</div><div class="seg">점검</div><div class="seg">지식</div></div></div>
+          <div class="eb s">주차 세부 과제</div>
+          <div class="cards">
+            <div class="card on"><div class="art"><svg><use href="#car"/></svg></div><div class="band"><span class="n">후면 직각 주차</span><span class="lv">상</span></div><i class="ck"></i></div>
+            <div class="card"><div class="art"><svg><use href="#car"/></svg></div><div class="band"><span class="n">평행 주차</span><span class="lv">상</span></div></div>
+            <div class="card"><div class="art"><svg><use href="#car"/></svg></div><div class="band"><span class="n">전면 직각 주차</span><span class="lv">중</span></div></div>
+            <div class="card"><div class="art"><svg><use href="#car"/></svg></div><div class="band"><span class="n">사선 주차</span><span class="lv">상</span></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="mini"><span class="lbl">주행 선택 시</span><div class="tk ta"><div class="seg">주차</div><div class="seg on">주행</div><div class="seg">점검</div><div class="seg">지식</div></div></div>
+    </div>
+    <div class="notes">
+      <div class="tag-id">시안 A</div>
+      <h2>밤 (Night)</h2>
+      <p class="one">트랙을 Ink 로 칠해 화면에서 가장 어두운 층으로 올리고, 선택 알약은 Paper 로 뚫는다 — 아래 밝은 카드와 명도가 정반대.</p>
+      <table class="spec">
+        <tr><th>트랙 바탕</th><td><i class="chip" style="background:var(--ink)"></i>Ink 100% · 안쪽 그림자 Ink 60%</td></tr>
+        <tr><th>트랙 높이</th><td>96 dp</td></tr>
+        <tr><th>선택 알약</th><td><i class="chip" style="background:var(--paper)"></i>Paper · 글자 Ink · 질감 B 어두운 판(그림자 Ink 60% + 위 하이라이트)</td></tr>
+        <tr><th>비선택 글자</th><td>Lavender 70% (≈ <code>#A2A3B4</code> on Ink)</td></tr>
+        <tr><th>라벨 크기 · 자간</th><td>44 dp · 0.04 em (어두운 바탕의 밝은 글자는 살짝 벌려야 번짐이 준다)</td></tr>
+      </table>
+      <p class="cr"><b>대비</b> · 선택 Ink / Paper ≈ 19 : 1 · 비선택 Lavender 70% / Ink ≈ 7.9 : 1 · <b>층 구분</b> 트랙 Ink / 카드 Lavender ≈ 15.8 : 1 — 다섯 안 중 가장 큼</p>
+      <h3>장점</h3>
+      <ul>
+        <li>"분류 = 어두운 띠, 과제 = 밝은 판" 이 한눈에 갈린다. 선택 카드(Periwinkle)와 선택 알약(Paper)이 색으로 전혀 겹치지 않는다</li>
+        <li>왼쪽 일러스트 아래의 Ink 면과 같은 색이라 "기하학 포스터" 의 큰 면 분할 언어 그대로</li>
+        <li>비선택 글자도 7.9 : 1 로 넉넉 — 낮 햇빛 반사에서도 가장 잘 읽힌다</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li>오른쪽 Paper 면에 검은 띠가 생겨 시선을 가장 먼저 끈다 — 고르는 주인공(카드)보다 분류가 다시 앞에 설 위험. 그래서 높이 96 dp·라벨 44 dp 로 덩치를 줄였다</li>
+        <li>질감 B 의 아래 그림자는 Ink 위에서 안 보인다 — 알약 위 1 px 하이라이트와 아래 Lavender 테두리로 입체를 대신 낸다</li>
+        <li>카드 선택 상태와 혼동 없음. 다만 잠금 화면(Ink 평면)과 인상이 겹칠 수 있어 시연 대본에서 확인 필요</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== B 먹 ===================== -->
+  <section class="block">
+    <div>
+      <div class="screen">
+        <svg class="lp" viewBox="0 0 256 423"><use href="#ill"/></svg>
+        <div class="brand">DRIVE COACH</div>
+        <div class="rc">
+          <div class="eb t">연습할 과제</div>
+          <div class="tpos"><div class="tk tb"><div class="seg on">주차</div><div class="seg">주행</div><div class="seg">점검</div><div class="seg">지식</div></div></div>
+          <div class="eb s">주차 세부 과제</div>
+          <div class="cards">
+            <div class="card on"><div class="art"><svg><use href="#car"/></svg></div><div class="band"><span class="n">후면 직각 주차</span><span class="lv">상</span></div><i class="ck"></i></div>
+            <div class="card"><div class="art"><svg><use href="#car"/></svg></div><div class="band"><span class="n">평행 주차</span><span class="lv">상</span></div></div>
+            <div class="card"><div class="art"><svg><use href="#car"/></svg></div><div class="band"><span class="n">전면 직각 주차</span><span class="lv">중</span></div></div>
+            <div class="card"><div class="art"><svg><use href="#car"/></svg></div><div class="band"><span class="n">사선 주차</span><span class="lv">상</span></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="mini"><span class="lbl">주행 선택 시</span><div class="tk tb"><div class="seg">주차</div><div class="seg on">주행</div><div class="seg">점검</div><div class="seg">지식</div></div></div>
+    </div>
+    <div class="notes">
+      <div class="tag-id">시안 B</div>
+      <h2>먹 (Ink)</h2>
+      <p class="one">트랙 바탕은 Lavender 를 반으로 옅게 물리고, 선택 알약만 Ink 로 — 바탕은 카드보다 한 단계 밝게, 선택은 카드보다 한 단계 어둡게.</p>
+      <table class="spec">
+        <tr><th>트랙 바탕</th><td><i class="chip" style="background:rgba(229,230,240,.5)"></i>Lavender 50% (≈ <code>#F0F1F5</code> on Paper) · 안쪽 그림자 지금 그대로</td></tr>
+        <tr><th>트랙 높이</th><td>96 dp</td></tr>
+        <tr><th>선택 알약</th><td><i class="chip" style="background:var(--ink)"></i>Ink · 글자 Paper · 질감 B(SelectedChip 그대로, 색만 교체)</td></tr>
+        <tr><th>비선택 글자</th><td>Ink 60% (<code>--muted</code>)</td></tr>
+        <tr><th>라벨 크기 · 자간</th><td>48 dp · 0</td></tr>
+      </table>
+      <p class="cr"><b>대비</b> · 선택 Paper / Ink ≈ 19 : 1 · 비선택 Ink 60% / 트랙 ≈ 5.0 : 1 · <b>층 구분</b> 선택 알약 Ink / 선택 카드 Periwinkle ≈ 3.4 : 1, 트랙 / 카드 바탕 ≈ 1.1 : 1 (일부러 약하게)</p>
+      <h3>장점</h3>
+      <ul>
+        <li>명도 사다리가 정확히 세 칸 — 트랙(가장 밝음) → 카드(중간) → 선택 알약(가장 어두움). 선택 카드 Periwinkle 은 그 사이라 "선택이 둘" 로 안 읽힌다</li>
+        <li>구현이 가장 작다 — 트랙 바탕 투명도, 선택 색, 비선택 색, 글자 크기 네 값. 라운드 21 의 트랙 모양·질감은 그대로</li>
+        <li>Ink 알약은 홈 화면 왼쪽 Ink 면·워드마크와 같은 "먹색" 이라 화면 전체가 묶인다</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li>트랙 바탕 차이는 미세하다(의도) — 층 구분은 바탕이 아니라 선택 알약의 색이 맡는다. 바탕까지 확실히 갈라 보이길 원하면 A·D</li>
+        <li>질감 B 그림자가 Ink 알약 아래에선 약하게 보인다 — 위 하이라이트 16% 를 유지해 납작해 보이지 않게</li>
+        <li>운전석 가독성: 48 dp 는 카드 제목 40 dp 보다 한 단계 크게 남아 위계가 무너지지 않는다. 혼동 위험 없음</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== C 종이 ===================== -->
+  <section class="block">
+    <div>
+      <div class="screen">
+        <svg class="lp" viewBox="0 0 256 423"><use href="#ill"/></svg>
+        <div class="brand">DRIVE COACH</div>
+        <div class="rc">
+          <div class="eb t">연습할 과제</div>
+          <div class="tpos"><div class="tk tc"><div class="seg on">주차</div><div class="seg">주행</div><div class="seg">점검</div><div class="seg">지식</div></div></div>
+          <div class="eb s">주차 세부 과제</div>
+          <div class="cards">
+            <div class="card on"><div class="art"><svg><use href="#car"/></svg></div><div class="band"><span class="n">후면 직각 주차</span><span class="lv">상</span></div><i class="ck"></i></div>
+            <div class="card"><div class="art"><svg><use href="#car"/></svg></div><div class="band"><span class="n">평행 주차</span><span class="lv">상</span></div></div>
+            <div class="card"><div class="art"><svg><use href="#car"/></svg></div><div class="band"><span class="n">전면 직각 주차</span><span class="lv">중</span></div></div>
+            <div class="card"><div class="art"><svg><use href="#car"/></svg></div><div class="band"><span class="n">사선 주차</span><span class="lv">상</span></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="mini"><span class="lbl">주행 선택 시</span><div class="tk tc"><div class="seg">주차</div><div class="seg on">주행</div><div class="seg">점검</div><div class="seg">지식</div></div></div>
+    </div>
+    <div class="notes">
+      <div class="tag-id">시안 C</div>
+      <h2>종이 (Paper)</h2>
+      <p class="one">트랙을 보라기 없는 회색(Ink 6%)으로 바꿔 카드의 푸른 Lavender 와 <b>색온도</b>로 가르고, 선택은 그 홈 위로 떠오른 Paper 알약.</p>
+      <table class="spec">
+        <tr><th>트랙 바탕</th><td><i class="chip" style="background:rgba(7,8,39,.06)"></i>Ink 6% (≈ <code>#EDEDED</code> on Paper, 중성 회색) · 안쪽 그림자 Ink 14% — 파인 홈</td></tr>
+        <tr><th>트랙 높이</th><td>96 dp</td></tr>
+        <tr><th>선택 알약</th><td><i class="chip" style="background:var(--paper)"></i>Paper · 글자 Periwinkle · 질감 B 그대로(그림자 + 위 하이라이트)</td></tr>
+        <tr><th>비선택 글자</th><td>Ink 60% (<code>--muted</code>)</td></tr>
+        <tr><th>라벨 크기 · 자간</th><td>44 dp · 0</td></tr>
+      </table>
+      <p class="cr"><b>대비</b> · 선택 Periwinkle / Paper ≈ 5.6 : 1 · 비선택 Ink 60% / 트랙 ≈ 5.0 : 1 · <b>층 구분</b> 알약 Paper / 트랙 ≈ 1.15 : 1 — 대비가 아니라 그림자 높이로 구분</p>
+      <h3>장점</h3>
+      <ul>
+        <li>질감 B 와 가장 잘 맞는다 — "파인 홈 + 올라온 알약" 은 그림자·하이라이트가 제일 잘 보이는 조합</li>
+        <li>선택 = 밝게(트랙) / 선택 = 진하게(카드)로 방향이 반대라 두 단계가 섞이지 않는다</li>
+        <li>회색 트랙은 "설정 줄", 보라 카드는 "콘텐츠" 로 읽혀 색 수를 늘리지 않고 성격이 나뉜다</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li>선택 알약과 트랙의 명도 차가 작아 그림자에 기댄다 — 에뮬 캡처·영상 압축에서 그림자가 뭉개지면 선택이 약해 보일 수 있다</li>
+        <li>운전석에서 비스듬히 보면 그림자가 덜 보인다 — 알약 글자를 Periwinkle 로 둬 색으로도 한 번 더 표시</li>
+        <li>중성 회색은 이 앱에 처음 나오는 인상(토큰은 Ink 투명도라 새 색은 아님) — 다른 화면에 퍼지지 않게 트랙에만</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== D 반전 ===================== -->
+  <section class="block">
+    <div>
+      <div class="screen">
+        <svg class="lp" viewBox="0 0 256 423"><use href="#ill"/></svg>
+        <div class="brand">DRIVE COACH</div>
+        <div class="rc">
+          <div class="eb t">연습할 과제</div>
+          <div class="tpos"><div class="tk td"><div class="seg on">주차</div><div class="seg">주행</div><div class="seg">점검</div><div class="seg">지식</div></div></div>
+          <div class="eb s">주차 세부 과제</div>
+          <div class="cards">
+            <div class="card on"><div class="art"><svg><use href="#car"/></svg></div><div class="band"><span class="n">후면 직각 주차</span><span class="lv">상</span></div><i class="ck"></i></div>
+            <div class="card"><div class="art"><svg><use href="#car"/></svg></div><div class="band"><span class="n">평행 주차</span><span class="lv">상</span></div></div>
+            <div class="card"><div class="art"><svg><use href="#car"/></svg></div><div class="band"><span class="n">전면 직각 주차</span><span class="lv">중</span></div></div>
+            <div class="card"><div class="art"><svg><use href="#car"/></svg></div><div class="band"><span class="n">사선 주차</span><span class="lv">상</span></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="mini"><span class="lbl">주행 선택 시</span><div class="tk td"><div class="seg">주차</div><div class="seg on">주행</div><div class="seg">점검</div><div class="seg">지식</div></div></div>
+    </div>
+    <div class="notes">
+      <div class="tag-id">시안 D</div>
+      <h2>반전 (Invert)</h2>
+      <p class="one">지금 짝을 뒤집는다 — 트랙 전체가 Periwinkle, 선택 알약이 Paper. 카드는 "Lavender 위 Periwinkle 선택", 트랙은 "Periwinkle 위 Paper 선택".</p>
+      <table class="spec">
+        <tr><th>트랙 바탕</th><td><i class="chip" style="background:var(--peri)"></i>Periwinkle 100% · 안쪽 그림자 Ink 28%</td></tr>
+        <tr><th>트랙 높이</th><td>96 dp</td></tr>
+        <tr><th>선택 알약</th><td><i class="chip" style="background:var(--paper)"></i>Paper · 글자 Periwinkle · 질감 B(그림자 Ink 28% + 위 하이라이트)</td></tr>
+        <tr><th>비선택 글자</th><td>Paper 75% (≈ <code>#D4D5E4</code> on Periwinkle)</td></tr>
+        <tr><th>라벨 크기 · 자간</th><td>44 dp · 0.02 em</td></tr>
+      </table>
+      <p class="cr"><b>대비</b> · 선택 Periwinkle / Paper ≈ 5.6 : 1 · 비선택 Paper 75% / Periwinkle ≈ 4.0 : 1 (큰 글자 기준 3 : 1 통과, 일반 글자 4.5 : 1 미달) · <b>층 구분</b> 트랙 / 카드 바탕 ≈ 4.7 : 1</p>
+      <h3>장점</h3>
+      <ul>
+        <li>색을 하나도 바꾸지 않고 "역할만 맞바꿔" 차별 — 브랜드 인상(보라)은 가장 그대로 유지</li>
+        <li>트랙이 진한 띠가 되어 오른쪽 면의 "머리" 가 생긴다. A 보다 덜 무겁다</li>
+        <li>선택 알약(밝음)과 선택 카드(진함)의 방향이 반대라 선택 표시끼리 겹치지 않는다</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>혼동 위험</b>: 트랙 띠 전체가 선택 카드와 같은 Periwinkle 이라 "트랙이 통째로 선택됐다" 로 읽힐 수 있다 — 다섯 안 중 가장 큰 위험</li>
+        <li>비선택 글자 4.0 : 1 은 낮 햇빛 반사에서 가장 약하다. 44 dp 아래로 줄이면 안 된다</li>
+        <li>화면에 Periwinkle 덩어리가 셋(트랙·선택 카드·모드 "힌트")이 되어 오른쪽이 무거워진다</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== E 밑줄 ===================== -->
+  <section class="block">
+    <div>
+      <div class="screen">
+        <svg class="lp" viewBox="0 0 256 423"><use href="#ill"/></svg>
+        <div class="brand">DRIVE COACH</div>
+        <div class="rc">
+          <div class="eb t">연습할 과제</div>
+          <div class="tpos" style="top:52px"><div class="tk te"><div class="seg on">주차</div><div class="seg">주행</div><div class="seg">점검</div><div class="seg">지식</div></div></div>
+          <div class="eb s">주차 세부 과제</div>
+          <div class="cards">
+            <div class="card on"><div class="art"><svg><use href="#car"/></svg></div><div class="band"><span class="n">후면 직각 주차</span><span class="lv">상</span></div><i class="ck"></i></div>
+            <div class="card"><div class="art"><svg><use href="#car"/></svg></div><div class="band"><span class="n">평행 주차</span><span class="lv">상</span></div></div>
+            <div class="card"><div class="art"><svg><use href="#car"/></svg></div><div class="band"><span class="n">전면 직각 주차</span><span class="lv">중</span></div></div>
+            <div class="card"><div class="art"><svg><use href="#car"/></svg></div><div class="band"><span class="n">사선 주차</span><span class="lv">상</span></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="mini"><span class="lbl">주행 선택 시</span><div class="tk te"><div class="seg">주차</div><div class="seg on">주행</div><div class="seg">점검</div><div class="seg">지식</div></div></div>
+    </div>
+    <div class="notes">
+      <div class="tag-id">시안 E</div>
+      <h2>밑줄 (Underline)</h2>
+      <p class="one">트랙의 채움을 걷어내 Paper 위 글자 줄로 만들고, 선택은 Ink 글자 + 아래 Signal 막대 — 채운 면(카드)과 선(분류)으로 층을 가른다.</p>
+      <table class="spec">
+        <tr><th>트랙 바탕</th><td><i class="chip" style="background:var(--paper)"></i>Paper(채움 없음) · 아래 2 dp Lavender 기준선</td></tr>
+        <tr><th>트랙 높이</th><td>88 dp</td></tr>
+        <tr><th>선택 표시</th><td><i class="chip" style="background:var(--signal)"></i>알약 대신 6 dp 둥근 막대(Signal, 칸 폭의 36%) · 글자 Ink · 질감 없음(평면)</td></tr>
+        <tr><th>비선택 글자</th><td>Periwinkle 100%</td></tr>
+        <tr><th>라벨 크기 · 자간</th><td>40 dp · 0.04 em</td></tr>
+      </table>
+      <p class="cr"><b>대비</b> · 선택 Ink / Paper ≈ 19 : 1 · 비선택 Periwinkle / Paper ≈ 5.6 : 1 · Signal 막대 / Paper ≈ 3.8 : 1 (비텍스트 3 : 1 통과)</p>
+      <h3>장점</h3>
+      <ul>
+        <li>가장 가볍다 — 분류가 "탭" 이 되고 카드가 오른쪽 면의 주인공으로 확실히 선다</li>
+        <li>Signal 막대가 선택 카드의 빨간 체크와 같은 색이라 "빨강 = 지금 고른 것" 규칙이 한 화면에 통일된다</li>
+        <li>높이 88 dp 로 줄어 아래 모드 행·버튼 쪽 여유가 가장 많이 생긴다</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li>라운드 21 에서 확정한 <b>"분류 알약 트랙"</b> 모양을 바꾼다 — 사용자 확인 필요. 질감 B 를 쓰지 않는 유일한 안</li>
+        <li>40 dp 는 카드 제목과 같은 크기라 분류·과제 글자 크기 위계가 사라진다 — 색(Ink vs Periwinkle)만으로 구분</li>
+        <li>운전석에서 터치 타깃이 글자 줄처럼 보여 "누를 수 있는가" 가 약해진다. Signal 이 주 알약 "시작" 과 겹쳐 빨강 면적이 늘어난다</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== 한눈에 비교 ===================== -->
+  <section class="cmp">
+    <h2>한눈에 비교 — 트랙 다섯 + 같은 카드 줄</h2>
+    <p class="one">1/3 축척. 모두 주차 선택. 카드 줄은 지금 그대로 하나만 두어 트랙과의 층 차이만 보이게.</p>
+    <div class="board">
+      <div class="r"><span class="lbl">지금 · 56 dp</span><div class="tk t0"><div class="seg on">주차</div><div class="seg">주행</div><div class="seg">점검</div><div class="seg">지식</div></div></div>
+      <div class="r"><span class="lbl"><b>A 밤</b> · Ink 띠 / Paper 알약</span><div class="tk ta"><div class="seg on">주차</div><div class="seg">주행</div><div class="seg">점검</div><div class="seg">지식</div></div></div>
+      <div class="r"><span class="lbl"><b>B 먹</b> · 옅은 Lavender / Ink 알약</span><div class="tk tb"><div class="seg on">주차</div><div class="seg">주행</div><div class="seg">점검</div><div class="seg">지식</div></div></div>
+      <div class="r"><span class="lbl"><b>C 종이</b> · 회색 홈 / Paper 알약</span><div class="tk tc"><div class="seg on">주차</div><div class="seg">주행</div><div class="seg">점검</div><div class="seg">지식</div></div></div>
+      <div class="r"><span class="lbl"><b>D 반전</b> · Periwinkle 띠 / Paper 알약</span><div class="tk td"><div class="seg on">주차</div><div class="seg">주행</div><div class="seg">점검</div><div class="seg">지식</div></div></div>
+      <div class="r"><span class="lbl"><b>E 밑줄</b> · 채움 없음 / Signal 막대</span><div class="tk te"><div class="seg on">주차</div><div class="seg">주행</div><div class="seg">점검</div><div class="seg">지식</div></div></div>
+      <div class="shared">
+        <div class="eb">주차 세부 과제</div>
+        <div class="cards">
+          <div class="card on"><div class="art"><svg><use href="#car"/></svg></div><div class="band"><span class="n">후면 직각 주차</span><span class="lv">상</span></div><i class="ck"></i></div>
+          <div class="card"><div class="art"><svg><use href="#car"/></svg></div><div class="band"><span class="n">평행 주차</span><span class="lv">상</span></div></div>
+          <div class="card"><div class="art"><svg><use href="#car"/></svg></div><div class="band"><span class="n">전면 직각 주차</span><span class="lv">중</span></div></div>
+          <div class="card"><div class="art"><svg><use href="#car"/></svg></div><div class="band"><span class="n">사선 주차</span><span class="lv">상</span></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="reco">
+    <div class="k">추천</div>
+    <h2>시안 B · 먹 (Ink)</h2>
+    <p>트랙 바탕(가장 밝음) → 카드(중간) → 선택 알약(가장 어두움, 19 : 1)으로 명도 사다리가 정확히 세 칸이 되어 "선택이 둘" 문제가 풀리고, 라운드 21 의 알약 모양·질감은 그대로 둔 채 값 네 개만 바꾼다. 층을 더 세게 가르고 싶으면 <em>A 밤</em>이 다음 후보.</p>
+  </section>
+
+</div>
+</body>
+</html>

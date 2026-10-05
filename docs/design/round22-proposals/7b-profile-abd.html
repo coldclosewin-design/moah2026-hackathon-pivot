@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>프로필 조합 시안</title>
+<style>
+:root{
+  --ink:#070827; --paper:#FCFCFA; --peri:#5B60A1; --lav:#E5E6F0; --signal:#F52D48;
+  --muted:rgba(7,8,39,.60);
+  --tex:0 4px 10px rgba(7,8,39,.10),0 1px 2px rgba(7,8,39,.06),inset 0 1px 0 rgba(255,255,255,.9);
+  --font:"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);font-weight:400;line-height:1.5}
+b{font-weight:500}
+.page{max-width:1540px;margin:0 auto;padding:48px 40px 96px}
+h1{font-size:40px;font-weight:400;margin:0 0 6px;letter-spacing:-.5px}
+h2{font-size:26px;font-weight:400;margin:0 0 4px}
+h3{font-size:15px;font-weight:500;margin:16px 0 6px;color:var(--peri)}
+p{margin:0 0 8px}
+.lede{font-size:17px;color:var(--muted);margin-bottom:18px}
+blockquote{margin:0 0 12px;padding:14px 20px;background:var(--lav);border-left:4px solid var(--signal);font-size:16px}
+blockquote small{display:block;color:var(--muted);font-size:13px;margin-top:4px}
+.interp{font-size:15px;margin:0 0 14px;padding:8px 14px;border:1px solid var(--peri);color:var(--peri);display:inline-block}
+.scale{display:inline-block;font-size:13px;color:var(--peri);border:1px solid var(--peri);border-radius:999px;padding:3px 12px;margin-left:8px}
+.cell{display:grid;grid-template-columns:853px 1fr;gap:44px;padding:40px 0;border-top:1px solid rgba(7,8,39,.14)}
+.cell.now{grid-template-columns:1fr}
+.letter{font-size:56px;line-height:1;color:var(--peri);margin-bottom:6px}
+.letter.cur{color:var(--muted);font-size:28px}
+.desc{font-size:17px;margin-bottom:10px}
+ul{margin:0;padding-left:20px;font-size:15px}
+li{margin:3px 0}
+.cap{font-size:12px;color:var(--muted);margin:16px 0 6px}
+.cap:first-child{margin-top:0}
+.imgs{display:flex;gap:24px;flex-wrap:wrap}
+.imgs figure{margin:0}
+.imgs img{width:560px;display:block;box-shadow:0 0 0 1px rgba(7,8,39,.15)}
+.imgs figcaption{font-size:12px;color:var(--muted);margin-top:6px}
+code{font-family:Consolas,"Malgun Gothic",monospace;font-size:.92em;background:var(--lav);padding:0 4px}
+
+/* ---------- 1/3 frames ---------- */
+.frame{position:relative;overflow:hidden;width:853px;height:423px;background:var(--paper);box-shadow:0 0 0 1px rgba(7,8,39,.18);font-size:11px;line-height:1.35}
+.frame.mid{height:290px}
+.frame.dc{height:200px}
+.abs{position:absolute}
+.eyebrow{font-size:11px;color:var(--peri)}
+.wm{font-size:9px;letter-spacing:3px}
+.pill{height:46px;border-radius:999px;background:var(--signal);color:var(--paper);font-size:13px;display:flex;align-items:center;justify-content:center;gap:14px;
+  box-shadow:0 4px 10px rgba(7,8,39,.10),0 1px 2px rgba(7,8,39,.06),inset 0 1px 0 rgba(255,255,255,.35)}
+.pill.s{height:38px;font-size:12px}
+.pill2{height:37px;padding:0 18px;border-radius:999px;background:var(--lav);color:var(--ink);font-size:12px;display:inline-flex;align-items:center;justify-content:center;gap:8px;box-shadow:var(--tex)}
+.chip{display:inline-flex;align-items:center;justify-content:center;height:30px;padding:0 14px;font-size:12px;background:var(--lav);box-shadow:var(--tex);white-space:nowrap}
+.chip.on{background:var(--peri);color:var(--paper);box-shadow:0 4px 10px rgba(7,8,39,.10),inset 0 1px 0 rgba(255,255,255,.3)}
+.chip.sm{height:18px;padding:0 7px;font-size:9px;background:var(--paper)}
+.chip.sm.on{background:var(--peri);color:var(--paper)}
+.chip.ghost{background:transparent;box-shadow:inset 0 0 0 1px rgba(7,8,39,.25);color:var(--muted)}
+.row{display:flex;gap:6px;flex-wrap:wrap}
+.inkpanel{background:var(--ink);color:var(--paper)}
+.inkpanel .eyebrow{color:rgba(252,252,250,.6)}
+.dim{opacity:.35}
+.dots{display:flex;gap:6px}
+.dots i{width:8px;height:8px;border-radius:50%;background:rgba(252,252,250,.25)}
+.dots i.done{background:var(--peri)}
+.dots i.cur{background:var(--signal)}
+.dots.lt i{background:rgba(7,8,39,.15)}
+.dots.lt i.done{background:var(--peri)}
+.dots.lt i.cur{background:var(--signal)}
+.ip{left:0;top:0;width:300px;height:100%;padding:22px 24px}
+.rp{left:300px;top:0;width:553px;height:100%}
+.t24{font-size:24px;line-height:1.3;margin-top:6px}
+.t20{font-size:20px;line-height:1.3;margin:4px 0 10px}
+.t16{font-size:16px;line-height:1.3;margin:3px 0 8px}
+.sub{font-size:11px;color:rgba(252,252,250,.7);margin-top:10px;line-height:1.5}
+.note{font-size:10.5px;color:var(--muted)}
+.dpos{left:24px;top:372px}
+/* sheet panel */
+.sh{left:401px;top:0;width:452px;height:100%;background:var(--paper);box-shadow:-4px 0 12px rgba(7,8,39,.10);padding:14px 22px}
+.shs{font-size:9.5px;color:var(--muted);margin:2px 0 6px}
+.prow{display:grid;grid-template-columns:60px 104px 1fr;align-items:center;gap:6px;height:32px;border-top:1px solid rgba(7,8,39,.10)}
+.prow .lb,.arow .lb{font-size:9.5px;color:var(--peri)}
+.prow .cur{font-size:11px}
+.prow .no,.arow .no{font-size:11px;color:var(--muted)}
+.prow .row{gap:3px;flex-wrap:nowrap}
+.obs{font-size:10.5px;color:var(--muted);line-height:1.5;margin-top:3px}
+/* accordion rows (P2) */
+.arow{display:grid;grid-template-columns:72px 1fr 40px;align-items:center;height:30px;border-top:1px solid rgba(7,8,39,.10)}
+.arow .ch{font-size:9.5px;color:var(--muted);text-align:right}
+.aopen{background:var(--paper);box-shadow:var(--tex);padding:10px 14px;margin:4px 0}
+/* report D card frame */
+.rl{left:0;top:0;width:324px;height:100%;padding:18px 24px}
+.big{font-size:64px;line-height:1;margin-top:6px}
+.card{background:var(--paper);box-shadow:var(--tex);padding:12px 14px}
+.dk{left:364px;top:66px;width:462px}
+/* profile cards (P4) */
+.deck{display:flex;gap:8px}
+.pc{position:relative;width:96px;height:128px;background:var(--lav);box-shadow:var(--tex);display:flex;flex-direction:column}
+.pc .pic{height:72px;display:flex;align-items:center;justify-content:center}
+.pc .pic svg{width:36px;height:36px}
+.pc .band{flex:1;background:var(--paper);padding:5px 8px;display:flex;flex-direction:column;justify-content:center}
+.pc .band .lb{font-size:9px;color:var(--peri)}
+.pc .band .an{font-size:11px}
+.pc.on{background:var(--peri)}
+.pc.empty{background:transparent;box-shadow:inset 0 0 0 1px rgba(7,8,39,.28)}
+.pc.empty .band{background:transparent;border-top:1px dashed rgba(7,8,39,.2)}
+.pc.empty .pic svg{opacity:.25}
+.pc.empty .an{color:var(--muted)}
+.pc .new{position:absolute;right:6px;top:6px;width:9px;height:9px;border-radius:50%;background:var(--signal)}
+.deck.s .pc{width:90px;height:104px}
+.deck.s .pc .pic{height:54px}
+/* flow strip */
+.flow{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:12px;flex-wrap:wrap}
+.flow .st{padding:6px 10px;background:var(--lav);box-shadow:var(--tex);white-space:nowrap}
+.flow .st.hi{background:var(--ink);color:var(--paper)}
+.flow .st.d{background:var(--peri);color:var(--paper)}
+.flow .ar{color:var(--muted)}
+/* spec */
+.spec{display:grid;grid-template-columns:92px 1fr;gap:5px 12px;font-size:14px;margin-top:10px}
+.spec dt{color:var(--peri)}
+.spec dd{margin:0}
+/* table */
+table{border-collapse:collapse;width:100%;font-size:13.5px;margin-top:10px}
+th,td{border-top:1px solid rgba(7,8,39,.14);padding:9px 10px;text-align:left;vertical-align:top;font-weight:400}
+th{color:var(--peri);font-weight:500}
+thead th{border-top:0;border-bottom:1px solid var(--ink)}
+td.n{color:var(--peri);width:34px}
+td.q{width:340px}
+td.w{color:var(--muted)}
+td.k{width:84px}
+.tag{display:inline-block;font-size:11px;padding:1px 8px;border-radius:999px;background:var(--lav);color:var(--peri);white-space:nowrap}
+.tag.set{background:var(--ink);color:var(--paper)}
+.tag.r{background:var(--signal);color:var(--paper)}
+.go{margin-top:16px;padding:12px 16px;background:var(--lav);box-shadow:var(--tex);font-size:15px}
+.go .sig{color:var(--signal)}
+.reco{margin-top:48px;padding:28px 32px;background:var(--ink);color:var(--paper)}
+.reco .eyebrow{color:rgba(252,252,250,.6);font-size:13px}
+.reco h2{font-size:30px;margin:6px 0 8px}
+.reco p{color:rgba(252,252,250,.85);font-size:16px}
+.reco .sig{color:var(--signal)}
+.reco code{color:var(--ink)}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="car" viewBox="0 0 401 423">
+    <rect width="401" height="423" fill="#FCFCFA"/>
+    <path d="M110 90 L330 90 L401 140 V423 H0 V300 Z" fill="#5B60A1"/>
+    <path d="M0 150 C70 118 190 112 270 132 L401 205 V423 H0Z" fill="#070827"/>
+    <path d="M250 150 C300 140 340 150 360 170 L401 215 V190 Z" fill="#FCFCFA" opacity=".85"/>
+    <path d="M0 230 L118 236 L128 258 L0 264Z" fill="#F52D48"/>
+    <path d="M0 300 C130 288 260 330 401 306 V423 H0Z" fill="#FCFCFA" opacity=".92"/>
+    <path d="M0 365 C150 352 300 384 401 372 V423 H0Z" fill="#070827"/>
+    <circle cx="300" cy="372" r="34" fill="#070827"/><circle cx="300" cy="372" r="18" fill="#FCFCFA"/>
+  </symbol>
+  <symbol id="i1" viewBox="0 0 40 40"><rect x="4" y="10" width="32" height="22" rx="2" fill="#5B60A1"/><circle cx="13" cy="21" r="4" fill="#FCFCFA"/><rect x="21" y="17" width="11" height="2" fill="#FCFCFA"/><rect x="21" y="23" width="8" height="2" fill="#FCFCFA"/></symbol>
+  <symbol id="i2" viewBox="0 0 40 40"><circle cx="20" cy="20" r="15" fill="#5B60A1"/><path d="M20 10V20H28" stroke="#FCFCFA" stroke-width="3" fill="none"/></symbol>
+  <symbol id="i3" viewBox="0 0 40 40"><path d="M5 27 L10 16 Q12 13 16 13 H25 Q29 13 31 16 L35 27 Z" fill="#5B60A1"/><circle cx="12" cy="28" r="4" fill="#070827"/><circle cx="28" cy="28" r="4" fill="#070827"/></symbol>
+  <symbol id="i4" viewBox="0 0 40 40"><path d="M20 4 C12 4 8 10 8 15 C8 23 20 36 20 36 C20 36 32 23 32 15 C32 10 28 4 20 4Z" fill="#5B60A1"/><circle cx="20" cy="15" r="5" fill="#FCFCFA"/></symbol>
+  <symbol id="i5" viewBox="0 0 40 40"><path d="M20 5 L36 34 H4 Z" fill="#5B60A1"/><rect x="18.5" y="14" width="3" height="11" fill="#FCFCFA"/><rect x="18.5" y="28" width="3" height="3" fill="#FCFCFA"/></symbol>
+</svg>
+<div class="page">
+
+<h1>7b · 프로필 — 온보딩 + 시트 + 점진 조합</h1>
+<p class="lede">7번 시안에서 고른 세 결을 한 흐름으로 묶는 조합 다섯. 첫 실행은 A 의 모양과 흐름으로, 언제든 B 처럼 다섯 줄을 한눈에 보고 고치며, 빈 칸은 세션이 끝날 때마다 D 가 하나씩 채운다. 진술 다섯 · 칩 답 · 질문 데이터는 7번과 같다.</p>
+<blockquote>「프로필 시안 - A의 디자인 및 유저플로우 느낌이 좋고 B의 한 번에 보는 느낌도 좋고 C는 빼도 될 거 같아 초기 셋팅만 하는데 STT 대화 까지는 사치인 거 같아 D도 포함되면 좋을 거 같아 -&gt; 결국 A+B+C 인데 이 구성으로 좋은 제안 5가지 정도 생각해서 제안해줘」<small>— 사용자 결정, 라운드 22 (<a href="7-profile.html">7-profile.html</a> 을 보고)</small></blockquote>
+<p class="interp">해석: 원문은 "A+B+C" 지만 C(대화)는 빼고 D 를 넣으라고 했으므로, 이 페이지는 <b>A(온보딩) + B(한눈 시트) + D(점진)</b> 조합이다 — 대화·STT 없음.</p>
+<div><span class="scale">모든 목업은 1/3 축척 · 실제 화면은 약 3배 (853×423 = 2560×1268 dp)</span><span class="scale">답은 전부 칩 · 키보드·숫자 입력 없음</span></div>
+
+<!-- ========== 지금 ========== -->
+<section class="cell now" style="margin-top:28px">
+  <div>
+    <div class="letter cur">지금</div>
+    <p class="desc">프로필은 홈 눈썹 한 줄뿐이고 고정값(<code>SeedCatalog.demoProfile</code>)이다. 리포트 요약에는 질문을 받을 자리가 없다 — D 카드는 <code>다시 시작</code> 알약 위 빈 줄 자리에 들어간다.</p>
+    <div class="imgs">
+      <figure><img src="../../screenshots/lesson/lesson-setup.png" alt="홈 현재 캡처"><figcaption>홈 — 눈썹이 B 시트의 입구가 된다. 제목·시작 자리는 P5 에서 첫 실행 질문 자리.</figcaption></figure>
+      <figure><img src="../../screenshots/lesson/lesson-report-session.png" alt="리포트 현재 캡처"><figcaption>리포트 요약 — 과제 줄과 다시 시작 사이에 D 카드. 신호 출처 줄은 그대로.</figcaption></figure>
+      <figure><img src="../../screenshots/lesson/lesson-setup-sheet.png" alt="과제 시트 현재 캡처"><figcaption>과제 시트 — P4 의 카드 덱은 이 카드 C 문법을 빌린다.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ========== P1 ========== -->
+<section class="cell">
+  <div>
+    <p class="cap">① 첫 실행 — 질문 둘만 (A 모양)</p>
+    <div class="frame">
+      <div class="abs inkpanel ip">
+        <div class="wm" style="color:rgba(252,252,250,.7)">DRIVE COACH</div>
+        <div class="eyebrow" style="margin-top:44px">처음 뵙겠습니다</div>
+        <div class="t24">두 가지만<br>여쭤볼게요.</div>
+        <div class="sub">나머지는 연습하면서<br>하나씩 천천히 물어볼게요.</div>
+        <div class="abs dpos"><div class="dots"><i class="cur"></i><i></i></div></div>
+      </div>
+      <div class="abs rp">
+        <div class="abs eyebrow" style="left:40px;top:78px">제일 무서운 상황</div>
+        <div class="abs t24" style="left:40px;top:92px">운전하면서 제일<br>무서운 건 뭐예요?</div>
+        <div class="abs row" style="left:40px;top:186px;width:480px;gap:8px"><span class="chip on">주차</span><span class="chip">고속도로</span><span class="chip">야간</span><span class="chip">차선 바꾸기</span><span class="chip">잘 모르겠어요</span></div>
+        <div class="abs note" style="left:40px;top:244px">첫 과제를 고를 때 이것부터 봐요.</div>
+        <div class="abs" style="left:40px;top:352px"><span class="pill2">나중에 할게요</span></div>
+        <div class="abs pill" style="left:300px;top:348px;width:213px">다음 <span>→</span></div>
+      </div>
+    </div>
+    <p class="cap">② 프로필 시트 — 홈 눈썹을 누르면 (B) · 아직 안 물은 줄은 "아직"</p>
+    <div class="frame mid">
+      <svg class="abs dim" style="left:0;top:0" width="401" height="423"><use href="#car"/></svg>
+      <div class="abs wm" style="left:61px;top:22px">DRIVE COACH</div>
+      <div class="abs sh">
+        <div class="eyebrow">내 프로필</div>
+        <div class="shs">칩을 눌러 바꿔요 · 빈 칸은 연습하면서 물어볼게요</div>
+        <div class="prow"><span class="lb">무서운 상황</span><span class="cur">주차</span><span class="row"><span class="chip sm on">주차</span><span class="chip sm">고속도로</span><span class="chip sm">야간</span><span class="chip sm">차선</span></span></div>
+        <div class="prow"><span class="lb">마지막 운전</span><span class="cur">십 년 넘게</span><span class="row"><span class="chip sm">요즘도</span><span class="chip sm">작년쯤</span><span class="chip sm">몇 년 전</span><span class="chip sm on">십 년 넘게</span></span></div>
+        <div class="prow"><span class="lb">필요한 일</span><span class="no">아직</span><span class="row"><span class="chip sm">출퇴근</span><span class="chip sm">아이 등하원</span><span class="chip sm">장보기</span><span class="chip sm">여행</span></span></div>
+        <div class="prow"><span class="lb">면허</span><span class="no">아직</span><span class="row"><span class="chip sm">작년쯤</span><span class="chip sm">몇 년 전</span><span class="chip sm">십 년쯤</span><span class="chip sm">더 오래</span></span></div>
+        <div class="prow"><span class="lb">타는 차</span><span class="no">아직</span><span class="row"><span class="chip sm">경차</span><span class="chip sm">준중형</span><span class="chip sm">중형 SUV</span><span class="chip sm">큰 차</span></span></div>
+        <div class="eyebrow" style="margin-top:8px;font-size:10px">앱이 본 것</div>
+        <div class="obs">주차를 한 번 연습했어요. 급한 조작은 없었어요.</div>
+      </div>
+    </div>
+    <p class="cap">③ 리포트 끝 카드 — 세션마다 빈 줄 하나 (D)</p>
+    <div class="frame dc">
+      <div class="abs inkpanel rl"><div class="eyebrow">연습한 회차</div><div class="big">01</div></div>
+      <div class="abs eyebrow" style="left:364px;top:18px;color:var(--ink)">오늘의 기록</div>
+      <div class="abs" style="left:364px;top:34px;font-size:15px">처음치고 차분했어요.</div>
+      <div class="abs card dk">
+        <div class="eyebrow" style="font-size:10px">하나만 물어볼게요</div>
+        <div class="t16">운전이 꼭 필요한 일은요?</div>
+        <div class="row"><span class="chip">출퇴근</span><span class="chip on">아이 등하원</span><span class="chip">장보기</span><span class="chip">여행</span><span class="chip ghost">다음에요</span></div>
+        <div class="note" style="margin-top:6px">연습 코스를 고를 때 참고할게요.</div>
+      </div>
+    </div>
+    <div class="flow"><span class="st hi">첫 실행 · 질문 둘</span><span class="ar">→</span><span class="st">홈 (첫 제안 맞춤)</span><span class="ar">→</span><span class="st">세션</span><span class="ar">→</span><span class="st d">리포트 · 하나만 물어볼게요</span><span class="ar">→</span><span class="st">셋째 세션이면 다 참</span><span class="ar">·</span><span class="st hi">눈썹 → 시트 언제든</span></div>
+  </div>
+  <div>
+    <div class="letter">P1</div>
+    <h2>두 질문</h2>
+    <p class="desc">첫 실행은 A 모양 그대로지만 <b>첫 제안을 바꾸는 두 질문</b>(제일 무서운 상황 · 마지막 운전)만 묻는다. 나머지 셋은 세션이 끝날 때 D 카드가 하나씩. B 시트는 처음부터 다섯 줄을 다 보여 주고, 안 물은 줄은 "아직" 으로 둔다 — 운전자가 먼저 채워도 된다.</p>
+    <dl class="spec">
+      <dt>화면 수</dt><dd>질문 화면 1 레이아웃(두 번 돌림) + 프로필 시트 1 + 리포트 카드 1.</dd>
+      <dt>진입</dt><dd>프로필 파일이 없으면 앱 시작 → 질문 둘 → 홈. 시트는 홈 눈썹 줄 전체가 터치 타깃. 카드는 리포트 요약, 다시 시작 위.</dd>
+      <dt>건너뛰기 처리</dt><dd>어느 장에서나 "나중에 할게요" → 빈 줄은 "아직". D 순서는 무서운 상황 → 마지막 운전 → 필요한 일 → 면허 → 차, 답한 줄은 건너뜀. "다음에요" 두 번이면 그 질문은 시트에서만.</dd>
+      <dt>저장</dt><dd>앱 내부 <code>profile.json</code> — 칩을 누르는 즉시 한 항목씩. 관리자 모드에서 초기화 · 시연 프리셋 "장롱 10년차" 로 복원.</dd>
+      <dt>시연 영향</dt><dd>관리자 프리셋이 다 찬 프로필을 심어 온보딩을 건너뛰고, 빈 줄이 없으니 리포트 카드도 안 뜬다 — 대본 변화 없음.</dd>
+      <dt>난이도</dt><dd>중. 부품 셋이지만 셋 다 같은 질문 데이터(<code>profileQuestions</code>)를 읽는다.</dd>
+    </dl>
+    <h3>장점</h3>
+    <ul><li>첫 실행 탭 둘 — 차에 타자마자의 부담이 가장 작으면서 첫 제안은 이미 맞춤.</li><li>세 결이 역할을 깔끔히 나눈다: A 는 시작, B 는 확인·수정, D 는 채움.</li></ul>
+    <h3>주의점</h3>
+    <ul><li>부품이 셋이라 Codex 화면 일은 P2 보다 많다.</li><li>다섯 줄이 다 차기까지 세 세션 — 시트의 "아직" 이 오래 보일 수 있다.</li></ul>
+  </div>
+</section>
+
+<!-- ========== P2 ========== -->
+<section class="cell">
+  <div>
+    <p class="cap">① 첫 실행 — 시트 줄이 하나씩 펼쳐진다 (A 모양 = 펼친 줄)</p>
+    <div class="frame">
+      <div class="abs inkpanel ip">
+        <div class="wm" style="color:rgba(252,252,250,.7)">DRIVE COACH</div>
+        <div class="eyebrow" style="margin-top:44px">처음 뵙겠습니다</div>
+        <div class="t24">내 프로필을<br>같이 채워요.</div>
+        <div class="sub">다 채우지 않아도 돼요.<br>빈 줄은 연습하면서 물어볼게요.</div>
+        <div class="abs dpos"><div class="dots"><i class="done"></i><i class="cur"></i><i></i><i></i><i></i></div></div>
+      </div>
+      <div class="abs rp">
+        <div class="abs" style="left:40px;top:30px;width:473px">
+          <div class="eyebrow" style="margin-bottom:4px">내 프로필</div>
+          <div class="arow"><span class="lb">무서운 상황</span><span>주차</span><span class="ch">바꾸기</span></div>
+          <div class="aopen">
+            <div class="eyebrow" style="font-size:10px">마지막 운전</div>
+            <div class="t20">마지막으로 운전한 게 언제쯤이에요?</div>
+            <div class="row" style="gap:8px"><span class="chip">요즘도 해요</span><span class="chip">작년쯤</span><span class="chip">몇 년 전</span><span class="chip on">십 년 넘게</span><span class="chip">기억이 안 나요</span></div>
+            <div class="note" style="margin-top:6px">오래됐어도 괜찮아요. 천천히 다시 익히면 돼요.</div>
+          </div>
+          <div class="arow"><span class="lb">필요한 일</span><span class="no">아직</span><span class="ch"></span></div>
+          <div class="arow"><span class="lb">면허</span><span class="no">아직</span><span class="ch"></span></div>
+          <div class="arow"><span class="lb">타는 차</span><span class="no">아직</span><span class="ch"></span></div>
+        </div>
+        <div class="abs" style="left:40px;top:352px"><span class="pill2">나머지는 나중에</span></div>
+        <div class="abs pill" style="left:300px;top:348px;width:213px">저장 <span>→</span></div>
+      </div>
+    </div>
+    <p class="cap">② 같은 화면을 홈 눈썹에서 열면 — 모두 접힌 시트 (B) · 줄을 누르면 ①처럼 펼쳐짐</p>
+    <div class="frame mid">
+      <svg class="abs dim" style="left:0;top:0" width="401" height="423"><use href="#car"/></svg>
+      <div class="abs wm" style="left:61px;top:22px">DRIVE COACH</div>
+      <div class="abs sh">
+        <div class="eyebrow">내 프로필</div>
+        <div class="shs">줄을 누르면 펼쳐져요</div>
+        <div class="arow"><span class="lb">무서운 상황</span><span>주차</span><span class="ch">바꾸기</span></div>
+        <div class="arow"><span class="lb">마지막 운전</span><span>십 년 넘게 안 했어요</span><span class="ch">바꾸기</span></div>
+        <div class="arow"><span class="lb">필요한 일</span><span>아이 등하원</span><span class="ch">바꾸기</span></div>
+        <div class="arow"><span class="lb">면허</span><span>십 년쯤 전에</span><span class="ch">바꾸기</span></div>
+        <div class="arow"><span class="lb">타는 차</span><span class="no">아직 · 다음 연습 뒤에 물어볼게요</span><span class="ch">채우기</span></div>
+        <div class="eyebrow" style="margin-top:10px;font-size:10px">앱이 본 것</div>
+        <div class="obs">주차를 여러 번 연습했어요. 핸들을 되감는 횟수가 줄고 있어요.</div>
+        <div class="abs" style="left:22px;top:252px"><span class="pill2" style="height:30px;font-size:11px">← 돌아가기</span></div>
+      </div>
+    </div>
+    <p class="cap">③ 리포트 끝 카드 — 프로필의 펼친 줄을 그대로 띄운다 (D)</p>
+    <div class="frame dc">
+      <div class="abs inkpanel rl"><div class="eyebrow">연습한 회차</div><div class="big">02</div></div>
+      <div class="abs eyebrow" style="left:364px;top:18px;color:var(--ink)">오늘의 기록</div>
+      <div class="abs" style="left:364px;top:34px;font-size:15px">회차를 거듭할수록 좋아졌어요.</div>
+      <div class="abs card dk" style="padding:10px 14px">
+        <div class="eyebrow" style="font-size:10px">내 프로필 · 타는 차</div>
+        <div class="t16">어떤 차를 타세요?</div>
+        <div class="row"><span class="chip">경차</span><span class="chip">준중형</span><span class="chip on">중형 SUV</span><span class="chip">큰 차</span><span class="chip ghost">다음에요</span></div>
+        <div class="note" style="margin-top:6px">내 프로필의 빈 줄에 넣어 둘게요.</div>
+      </div>
+    </div>
+    <div class="flow"><span class="st hi">첫 실행 · 프로필 화면 (줄 펼침)</span><span class="ar">→</span><span class="st">홈</span><span class="ar">→</span><span class="st">세션</span><span class="ar">→</span><span class="st d">리포트 · 빈 줄 하나</span><span class="ar">→</span><span class="st hi">눈썹 → 같은 화면 (접힘)</span></div>
+  </div>
+  <div>
+    <div class="letter">P2</div>
+    <h2>한 장</h2>
+    <p class="desc">온보딩과 시트가 <b>같은 부품</b>이다. 프로필 다섯 줄이 늘 보이고, 지금 묻는 줄만 A 크기(질문 제목 + 큰 칩)로 펼쳐진다. 칩을 누르면 그 줄이 접히며 답이 한 줄로 남고 다음 빈 줄이 펼쳐진다. 첫 실행엔 왼쪽 Ink 를 붙인 전체 화면, 홈 눈썹에서는 오른쪽 시트로 같은 화면이 열린다. D 카드는 펼친 줄 하나를 리포트에 띄운 것.</p>
+    <dl class="spec">
+      <dt>화면 수</dt><dd>프로필 화면 1(전체 화면 / 시트 두 모양) + 리포트 카드 1.</dd>
+      <dt>진입</dt><dd>첫 실행 자동(전체 화면) · 홈 눈썹(시트) · 리포트 카드.</dd>
+      <dt>건너뛰기 처리</dt><dd>"나머지는 나중에" → 답한 줄까지 저장, 나머지는 "아직" 으로 접힌 채. 순서도 자유 — 아래 줄을 먼저 눌러 펼쳐도 된다. 빈 줄은 D 가 세션마다 하나씩.</dd>
+      <dt>저장</dt><dd>앱 내부 <code>profile.json</code> — 줄이 접힐 때마다 한 항목. 관리자 모드에서 초기화 · 시연 프리셋 "장롱 10년차" 로 복원.</dd>
+      <dt>시연 영향</dt><dd>프리셋으로 온보딩 건너뜀. 영상에서 눈썹을 눌러 이 화면을 한 번 펼쳐 보이면 "첫날 이렇게 물었다" 까지 같은 컷으로 설명된다.</dd>
+      <dt>난이도</dt><dd>중. 부품은 하나(접힘/펼침 줄)지만 펼침 전환과 "다음 빈 줄 자동 펼침" 이 필요.</dd>
+    </dl>
+    <h3>장점</h3>
+    <ul><li>만드는 화면 = 고치는 화면 — 운전자가 배울 것도, Codex 가 만들 것도 가장 적다.</li><li>첫 실행부터 다섯 줄 전체가 보여 "얼마나 남았는지" 가 B 처럼 한눈에.</li></ul>
+    <h3>주의점</h3>
+    <ul><li>펼친 줄이 A 만큼 크려면 화면 높이 절반을 쓴다 — 접힌 줄은 한 줄 높이로 줄인다.</li><li>다섯 줄을 다 채우면 첫 실행 탭이 여섯 — 기본은 둘째 줄 뒤 "나머지는 연습하면서" 로 멈추게(질문 5).</li></ul>
+  </div>
+</section>
+
+<!-- ========== P3 ========== -->
+<section class="cell">
+  <div>
+    <p class="cap">① 첫 실행 — A 다섯 장 그대로 (마지막 장)</p>
+    <div class="frame">
+      <div class="abs inkpanel ip">
+        <div class="wm" style="color:rgba(252,252,250,.7)">DRIVE COACH</div>
+        <div class="eyebrow" style="margin-top:44px">처음 뵙겠습니다</div>
+        <div class="t24">다섯 가지만<br>여쭤볼게요.</div>
+        <div class="sub">코칭 말투와 첫 과제를<br>맞추는 데만 써요.<br>언제든 건너뛸 수 있어요.</div>
+        <div class="abs dpos"><div class="dots"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="cur"></i></div></div>
+      </div>
+      <div class="abs rp">
+        <div class="abs eyebrow" style="left:40px;top:78px">제일 무서운 상황</div>
+        <div class="abs t24" style="left:40px;top:92px">운전하면서 제일<br>무서운 건 뭐예요?</div>
+        <div class="abs row" style="left:40px;top:186px;width:480px;gap:8px"><span class="chip on">주차</span><span class="chip">고속도로</span><span class="chip">야간</span><span class="chip">차선 바꾸기</span><span class="chip">잘 모르겠어요</span></div>
+        <div class="abs note" style="left:40px;top:244px">마지막 질문이에요.</div>
+        <div class="abs" style="left:40px;top:352px"><span class="pill2">건너뛰기</span></div>
+        <div class="abs pill" style="left:300px;top:348px;width:213px">다음 <span>→</span></div>
+      </div>
+    </div>
+    <p class="cap">② 요약 장이 곧 시트 — "이렇게 알고 있을게요" (B, 칩으로 바로 고침)</p>
+    <div class="frame mid">
+      <div class="abs inkpanel ip">
+        <div class="wm" style="color:rgba(252,252,250,.7)">DRIVE COACH</div>
+        <div class="t24" style="margin-top:40px">이렇게<br>알고 있을게요.</div>
+        <div class="sub">틀린 게 있으면 칩을 눌러 고쳐요.<br>나중에 홈 눈썹에서도 같은 화면이에요.</div>
+      </div>
+      <div class="abs rp" style="padding:24px 40px">
+        <div class="prow" style="grid-template-columns:64px 120px 1fr"><span class="lb">면허</span><span class="cur">십 년쯤 전에</span><span class="row"><span class="chip sm">작년쯤</span><span class="chip sm">몇 년 전</span><span class="chip sm on">십 년쯤</span><span class="chip sm">더 오래</span></span></div>
+        <div class="prow" style="grid-template-columns:64px 120px 1fr"><span class="lb">마지막 운전</span><span class="cur">십 년 넘게 안 했어요</span><span class="row"><span class="chip sm">요즘도</span><span class="chip sm">작년쯤</span><span class="chip sm">몇 년 전</span><span class="chip sm on">십 년 넘게</span></span></div>
+        <div class="prow" style="grid-template-columns:64px 120px 1fr"><span class="lb">타는 차</span><span class="cur">중형 SUV</span><span class="row"><span class="chip sm">경차</span><span class="chip sm">준중형</span><span class="chip sm on">중형 SUV</span><span class="chip sm">큰 차</span></span></div>
+        <div class="prow" style="grid-template-columns:64px 120px 1fr"><span class="lb">필요한 일</span><span class="cur">아이 등하원</span><span class="row"><span class="chip sm">출퇴근</span><span class="chip sm on">아이 등하원</span><span class="chip sm">장보기</span><span class="chip sm">여행</span></span></div>
+        <div class="prow" style="grid-template-columns:64px 120px 1fr"><span class="lb">무서운 상황</span><span class="cur">주차</span><span class="row"><span class="chip sm on">주차</span><span class="chip sm">고속도로</span><span class="chip sm">야간</span><span class="chip sm">차선</span></span></div>
+        <div class="abs pill s" style="left:283px;top:228px;width:230px">맞아요, 시작 <span>→</span></div>
+      </div>
+    </div>
+    <p class="cap">③ 리포트 끝 카드 — 빈 줄이 없으면 관측이 진술과 어긋날 때만 되묻는다 (D)</p>
+    <div class="frame dc">
+      <div class="abs inkpanel rl"><div class="eyebrow">연습한 회차</div><div class="big">03</div></div>
+      <div class="abs eyebrow" style="left:364px;top:18px;color:var(--ink)">오늘의 기록</div>
+      <div class="abs" style="left:364px;top:34px;font-size:15px">회차를 거듭할수록 좋아졌어요.</div>
+      <div class="abs card dk">
+        <div class="eyebrow" style="font-size:10px">확인 하나만</div>
+        <div class="t16">주차가 무섭다고 하셨는데,<br>이번엔 한 번에 들어갔어요.</div>
+        <div class="row"><span class="chip">그대로 둘게요</span><span class="chip on">이제 좀 괜찮아요</span><span class="chip ghost">다음에요</span></div>
+      </div>
+    </div>
+    <div class="flow"><span class="st hi">첫 실행 · 다섯 장</span><span class="ar">→</span><span class="st hi">요약 = 시트</span><span class="ar">→</span><span class="st">홈</span><span class="ar">→</span><span class="st">세션</span><span class="ar">→</span><span class="st d">리포트 · 빈 줄 또는 어긋남 확인</span><span class="ar">→</span><span class="st hi">눈썹 → 같은 시트 + 앱이 본 것</span></div>
+  </div>
+  <div>
+    <div class="letter">P3</div>
+    <h2>요약 시트</h2>
+    <p class="desc">A 다섯 장을 그대로 두고, 마지막 요약 장을 <b>B 시트 자체</b>로 만든다 — 첫날 요약에서 고친 그 화면을 나중에 홈 눈썹에서 다시 연다. D 는 빈 줄이 있으면 그것부터, 다 찼으면 <b>관측이 진술과 어긋날 때만</b> 되묻는다. 진술(말한 것)과 관측(본 것) 두 층이 서로 고치는 모습이 가장 잘 보인다.</p>
+    <dl class="spec">
+      <dt>화면 수</dt><dd>질문 화면 1 레이아웃(다섯 번) + 시트 1(요약 겸 편집) + 리포트 카드 1(채움 / 확인 두 문구).</dd>
+      <dt>진입</dt><dd>첫 실행 → 다섯 장 → 요약 시트 "맞아요, 시작". 이후 눈썹 → 같은 시트("내 프로필", 앱이 본 것 추가).</dd>
+      <dt>건너뛰기 처리</dt><dd>어느 장에서나 "건너뛰기" → 곧장 요약 시트, 빈 줄은 "아직". D 가 빈 줄부터 채운 뒤 확인 모드로.</dd>
+      <dt>저장</dt><dd>앱 내부 <code>profile.json</code> — 요약 "맞아요" 와 카드 칩에서. 관리자 모드에서 초기화 · 시연 프리셋 "장롱 10년차" 로 복원.</dd>
+      <dt>시연 영향</dt><dd>프리셋 "주차가 무섭다" + 잘한 주차 시나리오면 확인 카드가 뜬다 → 대본에 넣으면 오히려 좋은 장면, 싫으면 관리자에서 끔. 예측해야 할 분기가 하나 생긴다.</dd>
+      <dt>난이도</dt><dd>중~상. 화면은 A·B 그대로지만 "어긋남" 규칙(관측 ↔ 진술 비교, 순수 Kotlin·JVM 테스트)이 새로 생긴다 — Claude 몫.</dd>
+    </dl>
+    <h3>장점</h3>
+    <ul><li>A 흐름을 하나도 안 줄여 사용자가 좋다고 한 느낌이 그대로, 요약에서 B 를 첫날 배운다.</li><li>"과정을 측정해 프로필을 고친다" — 제품 논리가 가장 잘 드러나 심사 장면이 된다.</li></ul>
+    <h3>주의점</h3>
+    <ul><li>첫 실행이 다섯 장 + 요약으로 가장 길다.</li><li>어긋남 문장이 틀리면 "앱이 나를 오해한다" — 확실할 때(연속 회차 등)만 띄운다.</li></ul>
+  </div>
+</section>
+
+<!-- ========== P4 ========== -->
+<section class="cell">
+  <div>
+    <p class="cap">① 첫 실행 — 프로필 카드 다섯 장, 아는 것부터 골라 답함</p>
+    <div class="frame">
+      <div class="abs inkpanel ip">
+        <div class="wm" style="color:rgba(252,252,250,.7)">DRIVE COACH</div>
+        <div class="eyebrow" style="margin-top:44px">처음 뵙겠습니다</div>
+        <div class="t24">아는 것부터<br>골라 주세요.</div>
+        <div class="sub">카드를 누르면 한 가지만 물어요.<br>하나만 골라도 돼요.</div>
+      </div>
+      <div class="abs rp">
+        <div class="abs eyebrow" style="left:22px;top:70px">내 프로필</div>
+        <div class="abs deck" style="left:20px;top:92px">
+          <div class="pc"><div class="pic"><svg><use href="#i5"/></svg></div><div class="band"><span class="lb">무서운 상황</span><span class="an">주차</span></div></div>
+          <div class="pc"><div class="pic"><svg><use href="#i2"/></svg></div><div class="band"><span class="lb">마지막 운전</span><span class="an">십 년 넘게</span></div></div>
+          <div class="pc empty"><div class="pic"><svg><use href="#i4"/></svg></div><div class="band"><span class="lb">필요한 일</span><span class="an">아직</span></div></div>
+          <div class="pc empty"><div class="pic"><svg><use href="#i1"/></svg></div><div class="band"><span class="lb">면허</span><span class="an">아직</span></div></div>
+          <div class="pc empty"><div class="pic"><svg><use href="#i3"/></svg></div><div class="band"><span class="lb">타는 차</span><span class="an">아직</span></div></div>
+        </div>
+        <div class="abs note" style="left:22px;top:236px">빈 카드는 연습하면서 하나씩 물어볼게요.</div>
+        <div class="abs" style="left:22px;top:352px"><span class="pill2">나중에</span></div>
+        <div class="abs pill" style="left:300px;top:348px;width:213px">다 됐어요 <span>→</span></div>
+      </div>
+    </div>
+    <p class="cap">② 홈 눈썹 → 같은 덱이 시트로 (B) · 세션 뒤 새로 물을 카드에 빨간 점</p>
+    <div class="frame mid">
+      <svg class="abs dim" style="left:-124px;top:0" width="401" height="423"><use href="#car"/></svg>
+      <div class="abs" style="left:277px;top:0;width:576px;height:100%;background:var(--paper);box-shadow:-4px 0 12px rgba(7,8,39,.10);padding:16px 22px">
+        <div class="eyebrow">내 프로필</div>
+        <div class="shs">카드를 눌러 바꿔요</div>
+        <div class="deck" style="gap:8px">
+          <div class="pc"><div class="pic"><svg><use href="#i5"/></svg></div><div class="band"><span class="lb">무서운 상황</span><span class="an">주차</span></div></div>
+          <div class="pc"><div class="pic"><svg><use href="#i2"/></svg></div><div class="band"><span class="lb">마지막 운전</span><span class="an">십 년 넘게</span></div></div>
+          <div class="pc"><div class="pic"><svg><use href="#i4"/></svg></div><div class="band"><span class="lb">필요한 일</span><span class="an">아이 등하원</span></div></div>
+          <div class="pc"><div class="pic"><svg><use href="#i1"/></svg></div><div class="band"><span class="lb">면허</span><span class="an">십 년쯤 전</span></div></div>
+          <div class="pc empty"><i class="new"></i><div class="pic"><svg><use href="#i3"/></svg></div><div class="band"><span class="lb">타는 차</span><span class="an">아직</span></div></div>
+        </div>
+        <div class="eyebrow" style="margin-top:12px;font-size:10px">앱이 본 것</div>
+        <div class="obs">주차를 여러 번 연습했어요. 후면 직각 주차가 아직 가장 어려워요.</div>
+        <div class="abs" style="left:22px;top:248px"><span class="pill2" style="height:30px;font-size:11px">← 돌아가기</span></div>
+      </div>
+    </div>
+    <p class="cap">③ 리포트 끝 카드 — 새 카드 한 장이 덱에 들어온다 (D)</p>
+    <div class="frame dc">
+      <div class="abs inkpanel rl"><div class="eyebrow">연습한 회차</div><div class="big">02</div></div>
+      <div class="abs eyebrow" style="left:364px;top:18px;color:var(--ink)">오늘의 기록</div>
+      <div class="abs" style="left:364px;top:34px;font-size:15px">회차를 거듭할수록 좋아졌어요.</div>
+      <div class="abs card dk" style="display:flex;gap:14px;align-items:center;top:60px;padding:10px 14px">
+        <div class="deck s"><div class="pc empty"><i class="new"></i><div class="pic"><svg><use href="#i3"/></svg></div><div class="band"><span class="lb">타는 차</span><span class="an">아직</span></div></div></div>
+        <div>
+          <div class="eyebrow" style="font-size:10px">새 카드가 생겼어요</div>
+          <div class="t16">어떤 차를 타세요?</div>
+          <div class="row"><span class="chip">경차</span><span class="chip">준중형</span><span class="chip on">중형 SUV</span><span class="chip ghost">다음에요</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="flow"><span class="st hi">첫 실행 · 덱</span><span class="ar">→</span><span class="st hi">카드 → 질문 한 장 (A)</span><span class="ar">→</span><span class="st">덱으로 · 카드 채워짐</span><span class="ar">→</span><span class="st">홈 → 세션</span><span class="ar">→</span><span class="st d">리포트 · 새 카드</span><span class="ar">→</span><span class="st hi">눈썹 → 덱</span></div>
+  </div>
+  <div>
+    <div class="letter">P4</div>
+    <h2>카드 덱</h2>
+    <p class="desc">프로필 다섯 항목이 과제 카드 C 와 같은 문법(위 그림 면 + 아래 띠)의 카드다. 답한 카드는 채워지고, 빈 카드는 테두리만. 카드를 누르면 A 모양의 질문 한 장이 열리고, 답하면 덱으로 돌아온다. 덱 자체가 B 의 한눈 시트이고, 세션이 끝나면 D 가 빈 카드 하나에 빨간 점을 달아 리포트에서 묻는다.</p>
+    <dl class="spec">
+      <dt>화면 수</dt><dd>덱 1(첫 실행엔 전체 화면, 이후 시트) + 질문 화면 1 레이아웃 + 리포트 카드 1.</dd>
+      <dt>진입</dt><dd>첫 실행 덱 → 카드 → 질문 → 덱. 홈 눈썹 → 같은 덱. 리포트 카드에서 바로 답하거나 덱에서.</dd>
+      <dt>건너뛰기 처리</dt><dd>"나중에" 또는 몇 장만 채우고 "다 됐어요". 빈 카드는 테두리 + 세션 뒤 빨간 점, 답하면 점이 사라진다.</dd>
+      <dt>저장</dt><dd>앱 내부 <code>profile.json</code> — 질문 장에서 칩을 누를 때. 관리자 모드에서 초기화 · 시연 프리셋 "장롱 10년차" 로 복원.</dd>
+      <dt>시연 영향</dt><dd>프리셋으로 덱이 다 찬 채 시작. 과제 시트(카드 넷)와 모양이 닮아 영상에서 "과제 고르기" 로 오해할 수 있어 설명 한 줄 필요.</dd>
+      <dt>난이도</dt><dd>중~상. 부품 넷(프로필 카드 · 덱 · 질문 화면 · 새 카드 점) + 덱 ↔ 질문 왕복.</dd>
+    </dl>
+    <h3>장점</h3>
+    <ul><li>앱에서 이미 배운 카드 문법 — 새 모양을 배우지 않는다. 그림 면이 있어 가장 "포스터" 답다.</li><li>답할 순서를 운전자가 고른다. 빨간 점이 D 의 "새로 생긴 것" 을 조용히 알린다.</li></ul>
+    <h3>주의점</h3>
+    <ul><li>탭이 가장 많다(카드 → 칩 → 돌아옴) — 다섯 다 답하면 열하나.</li><li>과제 카드와 혼동 — 덱 화면엔 분류 알약 트랙을 두지 않아 구분.</li></ul>
+  </div>
+</section>
+
+<!-- ========== P5 ========== -->
+<section class="cell">
+  <div>
+    <p class="cap">① 첫 실행 — 홈 오른쪽 칼럼이 잠시 질문이 된다 (A 흐름, 홈 자리)</p>
+    <div class="frame">
+      <svg class="abs" style="left:0;top:0" width="401" height="423"><use href="#car"/></svg>
+      <div class="abs wm" style="left:61px;top:22px">DRIVE COACH</div>
+      <div class="abs" style="left:477px;top:74px;display:flex;gap:12px;align-items:center"><span class="eyebrow">처음 뵙겠습니다 · 첫 과제를 고르기 전에</span><span class="dots lt"><i class="cur"></i><i></i><i></i></span></div>
+      <div class="abs t24" style="left:477px;top:92px">운전하면서 제일<br>무서운 건 뭐예요?</div>
+      <div class="abs row" style="left:477px;top:176px;width:360px;gap:8px"><span class="chip on">주차</span><span class="chip">고속도로</span><span class="chip">야간</span><span class="chip">차선 바꾸기</span></div>
+      <div class="abs note" style="left:477px;top:214px;font-size:11px">답에 맞춰 첫 과제를 골라 드릴게요.</div>
+      <div class="abs pill" style="left:477px;top:238px;width:356px">다음 <span>→</span></div>
+      <div class="abs" style="left:477px;top:300px;font-size:12px;text-decoration:underline">바로 시작할게요</div>
+      <div class="abs" style="left:477px;top:367px;width:356px;border-top:1px solid rgba(7,8,39,.12)"></div>
+      <div class="abs note" style="left:477px;top:384px">질문은 셋이에요. 나머지는 연습하면서 물어볼게요.</div>
+    </div>
+    <p class="cap">② 홈 눈썹 → 프로필 시트 (B)</p>
+    <div class="frame mid">
+      <svg class="abs dim" style="left:0;top:0" width="401" height="423"><use href="#car"/></svg>
+      <div class="abs wm" style="left:61px;top:22px">DRIVE COACH</div>
+      <div class="abs sh">
+        <div class="eyebrow">내 프로필</div>
+        <div class="shs">칩을 눌러 바꿔요</div>
+        <div class="prow"><span class="lb">무서운 상황</span><span class="cur">주차</span><span class="row"><span class="chip sm on">주차</span><span class="chip sm">고속도로</span><span class="chip sm">야간</span><span class="chip sm">차선</span></span></div>
+        <div class="prow"><span class="lb">마지막 운전</span><span class="cur">십 년 넘게</span><span class="row"><span class="chip sm">요즘도</span><span class="chip sm">작년쯤</span><span class="chip sm">몇 년 전</span><span class="chip sm on">십 년 넘게</span></span></div>
+        <div class="prow"><span class="lb">필요한 일</span><span class="cur">아이 등하원</span><span class="row"><span class="chip sm">출퇴근</span><span class="chip sm on">아이 등하원</span><span class="chip sm">장보기</span><span class="chip sm">여행</span></span></div>
+        <div class="prow"><span class="lb">면허</span><span class="no">아직</span><span class="row"><span class="chip sm">작년쯤</span><span class="chip sm">몇 년 전</span><span class="chip sm">십 년쯤</span><span class="chip sm">더 오래</span></span></div>
+        <div class="prow"><span class="lb">타는 차</span><span class="no">아직</span><span class="row"><span class="chip sm">경차</span><span class="chip sm">준중형</span><span class="chip sm">중형 SUV</span><span class="chip sm">큰 차</span></span></div>
+        <div class="eyebrow" style="margin-top:8px;font-size:10px">앱이 본 것</div>
+        <div class="obs">아직 연습 기록이 없어요. 첫 연습 뒤에 채워져요.</div>
+      </div>
+    </div>
+    <p class="cap">③ 리포트 끝 카드 — 남은 둘을 하나씩 (D)</p>
+    <div class="frame dc">
+      <div class="abs inkpanel rl"><div class="eyebrow">연습한 회차</div><div class="big">01</div></div>
+      <div class="abs eyebrow" style="left:364px;top:18px;color:var(--ink)">오늘의 기록</div>
+      <div class="abs" style="left:364px;top:34px;font-size:15px">처음치고 차분했어요.</div>
+      <div class="abs card dk">
+        <div class="eyebrow" style="font-size:10px">하나만 물어볼게요</div>
+        <div class="t16">면허는 언제쯤 따셨어요?</div>
+        <div class="row"><span class="chip">작년쯤</span><span class="chip">몇 년 전</span><span class="chip on">십 년쯤 전</span><span class="chip">더 오래</span><span class="chip ghost">다음에요</span></div>
+        <div class="note" style="margin-top:6px">코칭 말투를 맞추는 데 써요.</div>
+      </div>
+    </div>
+    <div class="flow"><span class="st hi">첫 실행 · 홈 = 질문 셋</span><span class="ar">→</span><span class="st">제목이 제안으로 바뀜</span><span class="ar">→</span><span class="st">세션</span><span class="ar">→</span><span class="st d">리포트 · 남은 하나</span><span class="ar">→</span><span class="st hi">눈썹 → 시트</span></div>
+  </div>
+  <div>
+    <div class="letter">P5</div>
+    <h2>홈 통합</h2>
+    <p class="desc">따로 온보딩 화면이 없다. 첫 실행에 홈의 오른쪽 칼럼 — 눈썹 · 제목 · 시작 알약 자리 — 가 A 흐름의 질문 셋(무서운 상황 · 마지막 운전 · 필요한 일)을 차례로 보여 주고, 셋째 답 뒤 제목이 "오늘은 가볍게, 주차부터 해 볼까요?" 로 바뀌며 평소 홈이 된다. 시트는 B, 남은 둘은 D.</p>
+    <dl class="spec">
+      <dt>화면 수</dt><dd>새 화면 0 — 홈의 "질문 상태" 하나 + 프로필 시트 1 + 리포트 카드 1.</dd>
+      <dt>진입</dt><dd>프로필 파일이 없을 때 홈이 질문 상태로 열린다. 눈썹 → 시트. 카드는 리포트 요약.</dd>
+      <dt>건너뛰기 처리</dt><dd>"바로 시작할게요"(과제·모드 바꾸기 링크 자리) → 기본 제안 홈. 남은 질문은 D 가 세션마다 하나.</dd>
+      <dt>저장</dt><dd>앱 내부 <code>profile.json</code> — 칩을 누르는 즉시. 관리자 모드에서 초기화 · 시연 프리셋 "장롱 10년차" 로 복원.</dd>
+      <dt>시연 영향</dt><dd>홈은 모든 시연의 첫 컷 — 프리셋을 빠뜨리면 첫 장면이 질문으로 바뀐다. 9번 홈 AI 대화 시안과 같은 자리를 쓰므로 함께 고르면 하나로 합쳐야 한다.</dd>
+      <dt>난이도</dt><dd>중. Setup 화면 안의 하위 상태 하나. 상태기계(Setup→Briefing…)는 그대로.</dd>
+    </dl>
+    <h3>장점</h3>
+    <ul><li>화면 전환이 없다 — 앱을 켜면 코치가 그 자리에서 말을 건다.</li><li>답이 곧바로 같은 자리의 제안 문장이 되어 "왜 묻는지" 가 눈에 보인다.</li></ul>
+    <h3>주의점</h3>
+    <ul><li>오른쪽 칼럼 폭이라 칩이 A 보다 작고, Ink 패널의 "처음 뵙겠습니다" 무게가 없다 — A 디자인 느낌이 가장 옅다.</li><li>9번(홈 AI 대화)과 자리 경쟁.</li></ul>
+  </div>
+</section>
+
+<!-- ========== 비교 ========== -->
+<section class="cell now">
+  <div>
+    <h2>다섯 조합 비교</h2>
+    <table>
+      <thead><tr><th></th><th>화면 수</th><th>새 부품 수</th><th>첫 실행 탭 수</th><th>시연 위험</th><th>난이도</th><th>한눈(B) 이 보이는 때</th></tr></thead>
+      <tbody>
+        <tr><td class="n">P1</td><td>질문 화면 · 시트 · 리포트 카드 = 3</td><td>3</td><td>2 (최소 1)</td><td><span class="tag">낮음</span> 프리셋이면 대본 그대로</td><td>중</td><td>눈썹을 누를 때</td></tr>
+        <tr><td class="n">P2</td><td>프로필 화면 · 리포트 카드 = 2</td><td>2</td><td>6, 기본 멈춤이면 3 (최소 1)</td><td><span class="tag">낮음</span></td><td>중</td><td>첫 실행부터 늘</td></tr>
+        <tr><td class="n">P3</td><td>질문 화면 · 시트 · 리포트 카드 = 3</td><td>3 + 어긋남 규칙</td><td>6 (최소 1)</td><td><span class="tag r">중</span> 확인 카드가 시나리오 따라 뜸</td><td>중~상</td><td>첫 실행 요약부터</td></tr>
+        <tr><td class="n">P4</td><td>덱 · 질문 화면 · 리포트 카드 = 3</td><td>4</td><td>1~11</td><td><span class="tag r">중</span> 과제 카드와 혼동</td><td>중~상</td><td>첫 실행부터 늘(덱)</td></tr>
+        <tr><td class="n">P5</td><td>홈 질문 상태 · 시트 · 리포트 카드 = 2 + 상태</td><td>3</td><td>3 (최소 1)</td><td><span class="tag r">중</span> 홈이 첫 컷 · 9번과 겹침</td><td>중</td><td>눈썹을 누를 때</td></tr>
+      </tbody>
+    </table>
+    <p class="cap">탭 수 기준: 칩 하나 = 탭 하나(칩을 누르면 다음 질문으로 넘어감) + 마지막 확인 알약. "최소" 는 건너뛰기 한 번. 모든 조합에서 관리자 프리셋을 쓰면 시연 첫 실행 탭은 0.</p>
+  </div>
+</section>
+
+<!-- ========== 질의응답 ========== -->
+<section class="cell now">
+  <div>
+    <h2>질의응답으로 정할 것 — A+B+D 방향으로 고친 열 가지</h2>
+    <p class="desc" style="color:var(--muted)">7번의 열 질문을 이 조합에 맞게 다시 묶었다. 답이 없으면 기본값으로 간다.</p>
+    <table>
+      <thead><tr><th></th><th>질문</th><th>상태</th><th>기본값(추천)</th><th>왜</th></tr></thead>
+      <tbody>
+        <tr><td class="n">1</td><td class="q">호칭(이름)을 받을까?</td><td class="k"><span class="tag">정할 것</span></td><td>받지 않는다. 눈썹은 "연수생" 고정.</td><td class="w">글자 입력이 필요하고, TTS 호명은 발음 위험.</td></tr>
+        <tr><td class="n">2</td><td class="q">진술 다섯이면 되나?</td><td class="k"><span class="tag">정할 것</span></td><td>다섯 유지. "타는 차" 는 맨 마지막 — D 로만 묻고, 뺄 1순위.</td><td class="w">코칭에 실제로 쓰이는 건 무서운 상황 · 마지막 운전 · 필요한 일.</td></tr>
+        <tr><td class="n">3</td><td class="q">답 형식 — 칩만? 말로 답하기 자리는?</td><td class="k"><span class="tag set">정해짐</span></td><td>칩만. STT · 대화 · 키보드 없음, "말로 답하기" 자리도 두지 않는다.</td><td class="w">사용자 결정: 초기 셋팅에 STT 대화는 사치(C 제외).</td></tr>
+        <tr><td class="n">4</td><td class="q">숫자 답(면허 · 마지막 운전)은?</td><td class="k"><span class="tag set">정해짐</span></td><td>범위 칩(작년쯤 / 몇 년 전 / 십 년 넘게 / 기억이 안 나요) → 내부 대표값(12 / 36 / 120 / null 개월).</td><td class="w">운전자 화면 숫자 금지와 맞고, 코칭은 구간만 본다.</td></tr>
+        <tr><td class="n">5</td><td class="q">첫 실행(A)에 몇 개를 묻나?</td><td class="k"><span class="tag">정할 것</span></td><td>둘 — 무서운 상황 · 마지막 운전. 첫 제안을 바꾸는 두 개만, 나머지는 D.</td><td class="w">조합에 따라 둘(P1 · P2 기본) / 셋(P5) / 다섯(P3) / 고르기(P4).</td></tr>
+        <tr><td class="n">6</td><td class="q">D 카드는 언제 · 얼마나?</td><td class="k"><span class="tag">정할 것</span></td><td>리포트 요약의 다시 시작 위, 세션당 하나. 빈 줄부터. "다음에요" 두 번이면 그 질문은 시트에서만. 다 찬 뒤 어긋남 확인(P3 식)은 선택.</td><td class="w">리포트는 운전석 도어 열림 뒤라 정차 보장. 매번 묻지 않게 상한.</td></tr>
+        <tr><td class="n">7</td><td class="q">관측(앱이 본 것)을 시트에 보여 줄까?</td><td class="k"><span class="tag">정할 것</span></td><td>보여 준다. B 시트 아래 읽기 전용, 숫자 없이 말로. 숫자는 자세히 보기 · 진단서에만.</td><td class="w">"측정한 것을 정직하게" + 운전자 화면 숫자 금지.</td></tr>
+        <tr><td class="n">8</td><td class="q">저장 · 초기화 · 다중 운전자는?</td><td class="k"><span class="tag">정할 것</span></td><td>앱 내부 <code>profile.json</code> 하나. 초기화와 프리셋 복원은 관리자 모드에서만. 운전자 한 명(파일 구조만 목록).</td><td class="w">운전자가 실수로 지우는 길을 막고, 사내 에뮬 초기화는 프리셋으로 복구.</td></tr>
+        <tr><td class="n">9</td><td class="q">시연은 어떤 프로필로 시작하나?</td><td class="k"><span class="tag">정할 것</span></td><td>관리자 프리셋 "장롱 10년차"(다 찬 프로필)로 온보딩 · D 카드 모두 건너뜀. 영상 오프닝에만 첫 질문 한 장을 짧게.</td><td class="w">5분 영상에 온보딩 전체는 길다. 한 장이면 "프로필이 있다" 가 보인다.</td></tr>
+        <tr><td class="n">10</td><td class="q">건너뛰면 기본값은? 프로필이 바꾸는 범위는?</td><td class="k"><span class="tag">정할 것</span></td><td>빈 프로필(초보 가정) → 첫 제안 후면 직각 주차 · 가이드(§4 초안의 "출발 전 점검" 도 후보). 범위: 눈썹 · 첫 제안 · 멘트 서두 톤 · Copilot 프롬프트. 채점 수치는 안 바꾼다.</td><td class="w">채점이 프로필 따라 달라지면 "정직한 측정" 이 흔들린다.</td></tr>
+      </tbody>
+    </table>
+    <div class="go"><span class="sig">답을 주시면 모델(P1) 부터 시작</span> — 여기서 P1 은 §4 의 구현 단계 1(칩 값 열거형 <code>ProfileStatement</code> · <code>ProfileStore</code> · 초기화 · 관리자 프리셋 · 단위 테스트)이다. 위 조합안 P1 과 이름만 같다. 화면(구현 단계 2, Codex)은 조합 선택 뒤.</div>
+  </div>
+</section>
+
+<div class="reco">
+  <div class="eyebrow">추천</div>
+  <h2>P2 · 한 장 — 첫 실행은 둘째 줄 뒤에 멈춘다</h2>
+  <p>온보딩과 시트가 <span class="sig">한 부품</span>이라 A 의 큰 질문과 B 의 한눈이 첫 화면부터 함께 보이고, D 카드는 그 줄 하나를 리포트에 띄우는 것뿐이라 부품이 가장 적다(둘). 질문 5 기본값대로 무서운 상황 · 마지막 운전 두 줄을 펼친 뒤 "나머지는 연습하면서" 로 멈추면 P1 의 가벼운 첫 실행도 같이 얻는다.</p>
+</div>
+
+</div>
+</body>
+</html>
