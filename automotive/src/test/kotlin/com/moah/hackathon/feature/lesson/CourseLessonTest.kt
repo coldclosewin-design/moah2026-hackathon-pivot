@@ -187,6 +187,17 @@ class CourseLessonTest {
         h.scope.cancel()
     }
 
+    @Test fun `the course summary never mentions proximity`() = runTest {
+        val (h, _) = run("straight-stop", LessonMode.HINT, CourseScenarios.straightBad)
+        assertTrue("다 되셨나요? 다 됐으면 버튼을 눌러 주세요." in h.tts.spoken)
+        h.machine.endSession()
+        advanceUntilIdle()
+        val r = h.machine.phase.value as LessonPhase.Report
+        assertFalse(r.report.summary, r.report.summary.contains("근접"))
+        assertTrue(r.report.summary, r.report.summary.contains("급하게"))
+        h.scope.cancel()
+    }
+
     @Test fun `door opening at the end goes straight to the report`() = runTest {
         val h = harness()
         h.machine.begin("straight-stop", LessonMode.EVALUATE)

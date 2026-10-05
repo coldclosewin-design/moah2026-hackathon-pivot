@@ -179,7 +179,14 @@ class FakeCoachPort(
             last.skill < first.skill -> "뒤로 갈수록 힘이 빠졌지만 첫 회차가 좋았어요. 쉬었다 하면 돌아와요."
             else -> "회차마다 비슷했어요. 안정적이라는 뜻이에요."
         }
+        val lastCourse = attempts.last().course
         val safety = when {
+            // 코스 과제(10/5): 근접 센서를 쓰지 않으니 "근접" 이라고 하지 않는다 — 급조작과 놓친 구간으로
+            lastCourse != null -> when {
+                attempts.any { it.score.metrics.harshEvents.isNotEmpty() } -> "안전 쪽은 급하게 서거나 출발한 순간부터 줄여 봐요."
+                lastCourse.deductions.isNotEmpty() -> "놓친 구간은 다음에 그 구간만 천천히 다시 해 봐요."
+                else -> "구간마다 할 일을 다 챙겼어요."
+            }
             best.safety >= 90 -> "안전 쪽은 걱정할 게 없어요."
             best.safety >= 70 -> "안전 쪽은 한두 가지만 챙기면 돼요."
             task.type == TaskType.CHECKLIST -> "안전 쪽을 먼저 봐야 해요. 문이나 벨트, 기어, 아니면 점검 중에 차가 움직였어요."
