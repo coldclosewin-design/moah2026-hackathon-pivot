@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>프로필 시안</title>
+<style>
+:root{
+  --ink:#070827; --paper:#FCFCFA; --peri:#5B60A1; --lav:#E5E6F0; --signal:#F52D48;
+  --muted:rgba(7,8,39,.60);
+  --tex:0 4px 10px rgba(7,8,39,.10),0 1px 2px rgba(7,8,39,.06),inset 0 1px 0 rgba(255,255,255,.9);
+  --font:"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);font-weight:400;line-height:1.5}
+.page{max-width:1540px;margin:0 auto;padding:48px 40px 96px}
+h1{font-size:40px;font-weight:400;margin:0 0 6px;letter-spacing:-.5px}
+h2{font-size:26px;font-weight:400;margin:0 0 4px}
+h3{font-size:15px;font-weight:500;margin:18px 0 6px;color:var(--peri)}
+p{margin:0 0 8px}
+.lede{font-size:17px;color:var(--muted);margin-bottom:18px}
+blockquote{margin:0 0 14px;padding:14px 20px;background:var(--lav);border-left:4px solid var(--signal);font-size:16px}
+blockquote small{display:block;color:var(--muted);font-size:13px;margin-top:4px}
+.scale{display:inline-block;font-size:13px;color:var(--peri);border:1px solid var(--peri);border-radius:999px;padding:3px 12px}
+.cell{display:grid;grid-template-columns:853px 1fr;gap:44px;padding:40px 0;border-top:1px solid rgba(7,8,39,.14)}
+.cell.now{grid-template-columns:1fr}
+.letter{font-size:56px;line-height:1;color:var(--peri);margin-bottom:6px}
+.letter.cur{color:var(--muted);font-size:28px}
+.desc{font-size:17px;margin-bottom:10px}
+ul{margin:0;padding-left:20px;font-size:15px}
+li{margin:3px 0}
+.cap{font-size:12px;color:var(--muted);margin:14px 0 6px}
+.imgs{display:flex;gap:24px;flex-wrap:wrap}
+.imgs figure{margin:0}
+.imgs img{width:667px;display:block;box-shadow:0 0 0 1px rgba(7,8,39,.15)}
+.imgs figcaption{font-size:12px;color:var(--muted);margin-top:6px}
+code{font-family:Consolas,"Malgun Gothic",monospace;font-size:.92em;background:var(--lav);padding:0 4px}
+
+/* ---------- 1/3 frames ---------- */
+.frame{position:relative;overflow:hidden;width:853px;height:423px;background:var(--paper);box-shadow:0 0 0 1px rgba(7,8,39,.18);font-size:11px;line-height:1.35}
+.frame.short{height:150px}
+.abs{position:absolute}
+.eyebrow{font-size:11px;color:var(--peri)}
+.wm{font-size:9px;letter-spacing:3px}
+.pill{height:46px;border-radius:999px;background:var(--signal);color:var(--paper);font-size:13px;display:flex;align-items:center;justify-content:center;gap:14px;
+  box-shadow:0 4px 10px rgba(7,8,39,.10),0 1px 2px rgba(7,8,39,.06),inset 0 1px 0 rgba(255,255,255,.35)}
+.pill2{height:37px;padding:0 18px;border-radius:999px;background:var(--lav);color:var(--ink);font-size:12px;display:inline-flex;align-items:center;justify-content:center;gap:8px;box-shadow:var(--tex)}
+.chip{display:inline-flex;align-items:center;justify-content:center;height:30px;padding:0 14px;font-size:12px;background:var(--lav);box-shadow:var(--tex);white-space:nowrap}
+.chip.on{background:var(--peri);color:var(--paper);box-shadow:0 4px 10px rgba(7,8,39,.10),inset 0 1px 0 rgba(255,255,255,.3)}
+.chip.sm{height:18px;padding:0 7px;font-size:9px;background:var(--paper)}
+.chip.sm.on{background:var(--peri);color:var(--paper)}
+.reco code{color:var(--ink)}
+.chip.ghost{background:transparent;box-shadow:inset 0 0 0 1px rgba(7,8,39,.25);color:var(--muted)}
+.row{display:flex;gap:6px;flex-wrap:wrap}
+.col{display:flex;flex-direction:column;gap:4px}
+.inkpanel{background:var(--ink);color:var(--paper)}
+.inkpanel .eyebrow{color:rgba(252,252,250,.6)}
+.dim{opacity:.35}
+.dots{display:flex;gap:6px}
+.dots i{width:8px;height:8px;border-radius:50%;background:rgba(252,252,250,.25)}
+.dots i.done{background:var(--peri)}
+.dots i.cur{background:var(--signal)}
+/* B rows */
+.prow{display:grid;grid-template-columns:62px 118px 1fr;align-items:center;gap:8px;height:34px;border-top:1px solid rgba(7,8,39,.10)}
+.prow .lb{font-size:9.5px;color:var(--peri)}
+.prow .cur{font-size:11px}
+/* C bubbles */
+.bub{display:inline-block;max-width:300px;padding:8px 12px;border-radius:14px;font-size:11px;line-height:1.4}
+.bub.coach{background:var(--paper);color:var(--ink);border-bottom-left-radius:3px}
+.bub.me{background:var(--peri);color:var(--paper);border-bottom-right-radius:3px}
+.bub.old{opacity:.55;font-size:10px}
+/* card */
+.card{background:var(--paper);box-shadow:var(--tex);padding:12px 14px}
+/* flow strip */
+.flow{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:12px;flex-wrap:wrap}
+.flow .st{padding:6px 10px;background:var(--lav);box-shadow:var(--tex);white-space:nowrap}
+.flow .st.hi{background:var(--ink);color:var(--paper)}
+.flow .ar{color:var(--muted)}
+/* spec list */
+.spec{display:grid;grid-template-columns:84px 1fr;gap:4px 12px;font-size:14px;margin-top:10px}
+.spec dt{color:var(--peri)}
+.spec dd{margin:0}
+/* table */
+table{border-collapse:collapse;width:100%;font-size:13.5px;margin-top:10px}
+th,td{border-top:1px solid rgba(7,8,39,.14);padding:9px 10px;text-align:left;vertical-align:top;font-weight:400}
+th{color:var(--peri);font-weight:500}
+thead th{border-top:0;border-bottom:1px solid var(--ink)}
+td.n{color:var(--peri);width:34px}
+td.q{width:430px}
+td.d{color:var(--ink)}
+td.w{color:var(--muted)}
+.reco{margin-top:48px;padding:28px 32px;background:var(--ink);color:var(--paper)}
+.reco .eyebrow{color:rgba(252,252,250,.6);font-size:13px}
+.reco h2{font-size:30px;margin:6px 0 8px}
+.reco p{color:rgba(252,252,250,.85);font-size:16px}
+.reco .sig{color:var(--signal)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="car" viewBox="0 0 401 423">
+    <rect width="401" height="423" fill="#FCFCFA"/>
+    <path d="M110 90 L330 90 L401 140 V423 H0 V300 Z" fill="#5B60A1"/>
+    <path d="M0 150 C70 118 190 112 270 132 L401 205 V423 H0Z" fill="#070827"/>
+    <path d="M250 150 C300 140 340 150 360 170 L401 215 V190 Z" fill="#FCFCFA" opacity=".85"/>
+    <path d="M0 230 L118 236 L128 258 L0 264Z" fill="#F52D48"/>
+    <path d="M0 300 C130 288 260 330 401 306 V423 H0Z" fill="#FCFCFA" opacity=".92"/>
+    <path d="M0 365 C150 352 300 384 401 372 V423 H0Z" fill="#070827"/>
+    <circle cx="300" cy="372" r="34" fill="#070827"/><circle cx="300" cy="372" r="18" fill="#FCFCFA"/>
+  </symbol>
+</svg>
+<div class="page">
+
+<h1>7 · 프로필</h1>
+<p class="lede">시드에 박힌 "연수생 · 장롱 10년차 · 아이 등하원" 을, 운전자가 직접 만들고 고치며 앱 재시작 뒤에도 남는 프로필로 바꾼다. 모델은 이미 있다 — 진술 다섯(면허 연도 · 마지막 운전 · 차종 · 운전이 필요한 일 · 제일 무서운 상황) + 관측(연습 횟수 · 평균 구간 · 왕복 · 급조작 · 약한 과제). 없는 것은 입력 화면과 저장뿐이다.</p>
+<blockquote>「#프로필 — 현재는 프로필이 고정으로 연수생 장롱 10년차 아이 등하원 느낌인데 시간이 걸리더라도 프로필 부분을 구현하고 싶어 상세한 계획을 제안/피드백 받으면서 질의응답을 통해 정하고 진행했으면 해」<small>— 사용자 피드백, 라운드 22 (동결 태그 inhouse-20261006-1 APK 를 눌러 보고)</small></blockquote>
+<span class="scale">모든 시안은 1/3 축척 · 실제 화면은 약 3배 (853×423 = 2560×1268 dp)</span>
+
+<!-- ========== 지금 ========== -->
+<section class="cell now">
+  <div>
+    <div class="letter cur">지금</div>
+    <p class="desc">홈 눈썹 한 줄 <code>연수생 · 장롱 10년차 · 목표 아이 등하원</code> 이 프로필의 전부다. <code>SeedCatalog.demoProfile</code>(면허 2016 · 마지막 운전 120개월 전 · 중형 SUV · 아이 등하원 · 주차) 이 고정값이고, 눈썹은 누를 수 없다. 질문 다섯(<code>profileQuestions</code>)은 모델에만 있고 화면이 없다. 관측(<code>ProfileObservation</code>)은 세션마다 갱신되지만 앱을 다시 켜면 사라진다.</p>
+    <div class="imgs">
+      <figure><img src="../../screenshots/lesson/lesson-setup.png" alt="홈 현재 캡처"><figcaption>홈 — 눈썹 한 줄이 프로필. 누를 수 없고, 바꿀 수 없다.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ========== A ========== -->
+<section class="cell">
+  <div>
+    <p class="cap">첫 실행 온보딩 (1/3) — 한 화면에 한 질문, 답은 범위 칩</p>
+    <div class="frame">
+      <div class="abs inkpanel" style="left:0;top:0;width:300px;height:423px;padding:22px 24px">
+        <div class="wm" style="color:rgba(252,252,250,.7)">DRIVE COACH</div>
+        <div class="eyebrow" style="margin-top:44px">처음 뵙겠습니다</div>
+        <div style="font-size:24px;line-height:1.3;margin-top:6px">몇 가지만<br>여쭤볼게요.</div>
+        <div style="font-size:11px;color:rgba(252,252,250,.7);margin-top:10px;line-height:1.5">코칭 말투와 첫 과제를<br>맞추는 데만 써요.<br>언제든 건너뛸 수 있어요.</div>
+        <div class="abs" style="left:24px;top:372px"><div class="dots"><i class="done"></i><i class="cur"></i><i></i><i></i><i></i></div></div>
+      </div>
+      <div class="abs" style="left:300px;top:0;width:553px;height:423px;padding:0 0 0 40px">
+        <div class="abs eyebrow" style="left:40px;top:78px">마지막 운전</div>
+        <div class="abs" style="left:40px;top:98px;font-size:24px;line-height:1.3">마지막으로 운전한 게<br>언제쯤이에요?</div>
+        <div class="abs row" style="left:40px;top:186px;width:480px;gap:8px">
+          <span class="chip">요즘도 해요</span><span class="chip">작년쯤</span><span class="chip">몇 년 전</span><span class="chip on">십 년 넘게</span><span class="chip">기억이 안 나요</span>
+        </div>
+        <div class="abs" style="left:40px;top:244px;font-size:11px;color:var(--muted)">오래됐어도 괜찮아요. 천천히 다시 익히면 돼요.</div>
+        <div class="abs" style="left:40px;top:352px"><span class="pill2">건너뛰기</span></div>
+        <div class="abs pill" style="left:300px;top:348px;width:230px">다음 <span>→</span></div>
+      </div>
+    </div>
+    <div class="flow"><span class="st">첫 실행</span><span class="ar">→</span><span class="st hi">질문 1 · 면허</span><span class="ar">→</span><span class="st hi">2 · 마지막 운전</span><span class="ar">→</span><span class="st hi">3 · 차</span><span class="ar">→</span><span class="st hi">4 · 필요한 일</span><span class="ar">→</span><span class="st hi">5 · 무서운 상황</span><span class="ar">→</span><span class="st">요약 "이렇게 알고 있을게요"</span><span class="ar">→</span><span class="st">홈 (눈썹 채워짐)</span></div>
+  </div>
+  <div>
+    <div class="letter">A</div>
+    <h2>온보딩</h2>
+    <p class="desc">첫 실행에만 나오는 다섯 장. 왼쪽 Ink 에 "처음 뵙겠습니다" 와 진행 점, 오른쪽에 질문 하나(제목 크기)와 답 칩 네댓 개. 숫자 입력 없이 범위 칩("작년쯤 / 몇 년 전 / 십 년 넘게")으로 받고, 내부에서는 대표값(예: 십 년 넘게 → 120개월)으로 저장한다. 건너뛰기는 어느 장에서나.</p>
+    <dl class="spec">
+      <dt>화면 수</dt><dd>질문 5 + 요약 1 = 6장(같은 레이아웃 하나를 데이터로 돌림).</dd>
+      <dt>진입</dt><dd>프로필 파일이 없을 때 앱 시작 → 자동. 다시 보려면 B 같은 편집 자리가 따로 필요.</dd>
+      <dt>저장</dt><dd>마지막 장 또는 건너뛰기에서 한 번. 기기 로컬 앱 전용 폴더(<code>filesDir/profile.json</code>). 사내 에뮬은 앱 폴더가 재부팅·재설치에 지워질 수 있으니 관리자 프리셋으로 복원.</dd>
+      <dt>시연 영향</dt><dd>시연은 고정 프로필이 필요 → 관리자 모드(5번 D) 프리셋이 온보딩을 건너뛰고 "장롱 10년차" 를 심는다. 영상 첫 컷에 온보딩 한 장을 넣을지는 질문 8.</dd>
+      <dt>난이도</dt><dd>중. 화면 하나 + 저장 + 시작 분기. 상태기계는 안 건드린다.</dd>
+    </dl>
+    <h3>장점</h3>
+    <ul><li>가장 익숙한 흐름. 한 화면에 한 질문이라 글자를 크게 둘 수 있다.</li><li>요약 장이 있어 "앱이 나를 어떻게 알고 있는지" 를 첫날에 확인한다.</li></ul>
+    <h3>주의점</h3>
+    <ul><li>차에 타자마자 다섯 장을 넘겨야 한다 — 정차 중이라도 길다. 건너뛰기를 눈에 띄게.</li><li>온보딩만 있으면 나중에 고칠 곳이 없다 — B 가 사실상 따라온다.</li></ul>
+  </div>
+</section>
+
+<!-- ========== B ========== -->
+<section class="cell">
+  <div>
+    <p class="cap">프로필 시트 (1/3) — 홈 눈썹을 누르면 · 다섯 줄 + 앱이 본 것</p>
+    <div class="frame">
+      <svg class="abs dim" style="left:0;top:0" width="401" height="423"><use href="#car"/></svg>
+      <div class="abs wm" style="left:61px;top:22px">DRIVE COACH</div>
+      <div class="abs" style="left:401px;top:0;width:452px;height:423px;background:var(--paper);box-shadow:-4px 0 12px rgba(7,8,39,.10);padding:14px 22px">
+        <div class="eyebrow">내 프로필</div>
+        <div style="font-size:9.5px;color:var(--muted);margin:2px 0 6px">연수생 · 칩을 눌러 바꿔요</div>
+        <div class="prow"><span class="lb">면허</span><span class="cur">십 년쯤 전에</span><span class="row" style="gap:3px"><span class="chip sm">작년</span><span class="chip sm">몇 년 전</span><span class="chip sm on">십 년쯤</span><span class="chip sm">더 오래</span></span></div>
+        <div class="prow"><span class="lb">마지막 운전</span><span class="cur">십 년 넘게 안 했어요</span><span class="row" style="gap:3px"><span class="chip sm">요즘도</span><span class="chip sm">작년쯤</span><span class="chip sm">몇 년 전</span><span class="chip sm on">십 년 넘게</span></span></div>
+        <div class="prow"><span class="lb">타는 차</span><span class="cur">중형 SUV</span><span class="row" style="gap:3px"><span class="chip sm">소형</span><span class="chip sm">중형 세단</span><span class="chip sm on">중형 SUV</span><span class="chip sm">큰 차</span></span></div>
+        <div class="prow"><span class="lb">필요한 일</span><span class="cur">아이 등하원</span><span class="row" style="gap:3px"><span class="chip sm">출퇴근</span><span class="chip sm on">아이 등하원</span><span class="chip sm">장보기</span><span class="chip sm">여행</span></span></div>
+        <div class="prow"><span class="lb">무서운 상황</span><span class="cur">주차</span><span class="row" style="gap:3px"><span class="chip sm on">주차</span><span class="chip sm">고속도로</span><span class="chip sm">야간</span><span class="chip sm">차선 바꾸기</span></span></div>
+        <div class="eyebrow" style="margin-top:12px;font-size:10px">앱이 본 것</div>
+        <div style="font-size:10.5px;color:var(--muted);line-height:1.5;margin-top:3px">주차를 여러 번 연습했어요. 후면 직각 주차가 아직 가장 어렵고, 급한 조작은 거의 없었어요. 핸들을 되감는 횟수가 줄고 있어요.</div>
+        <div class="abs" style="left:22px;top:376px"><span class="pill2" style="height:32px;font-size:11px">← 돌아가기</span></div>
+        <div class="abs pill" style="left:250px;top:370px;width:180px;height:40px;font-size:12px">저장 <span>→</span></div>
+      </div>
+    </div>
+    <div class="flow"><span class="st">홈 눈썹 누름</span><span class="ar">→</span><span class="st hi">프로필 시트 · 칩으로 바꿈</span><span class="ar">→</span><span class="st">저장 →</span><span class="ar">→</span><span class="st">홈 (눈썹·첫 제안 바뀜)</span><span class="ar">·</span><span class="st">첫 실행엔 다섯 줄이 비어 있음 ("아직 몰라요")</span></div>
+  </div>
+  <div>
+    <div class="letter">B</div>
+    <h2>시트</h2>
+    <p class="desc">홈 눈썹이 버튼이 된다. 누르면 오른쪽 Paper 에 프로필 시트 — 다섯 줄 각각 "지금 답" 과 바꾸는 칩. 아래 눈썹 "앱이 본 것" 은 관측을 말로만 보여 주는 읽기 전용(숫자 없음). 첫 실행에는 다섯 줄이 비어 "아직 몰라요" 로 보이고, 채우는 건 운전자 마음.</p>
+    <dl class="spec">
+      <dt>화면 수</dt><dd>1장(과제 시트와 같은 시트 자리).</dd>
+      <dt>진입</dt><dd>홈 눈썹(터치 타깃을 눈썹 줄 전체로). 관리자 모드에서도 같은 시트로 "프로필 전환".</dd>
+      <dt>저장</dt><dd><code>저장 →</code> 에서 한 번. 같은 로컬 파일. 관측은 세션 끝마다 자동 저장(진술과 같은 파일, 다른 키).</dd>
+      <dt>시연 영향</dt><dd>적다 — 프리셋이 파일을 심어 두면 눈썹이 그대로 "장롱 10년차" 다. 영상에서 눈썹을 눌러 시트를 한 번 보여 주면 "앱이 본 것" 이 자연스러운 컷이 된다.</dd>
+      <dt>난이도</dt><dd>하~중. 시트 하나 + 저장. 다른 시안의 "편집 자리" 로도 재사용된다.</dd>
+    </dl>
+    <h3>장점</h3>
+    <ul><li>만드는 것(온보딩)과 고치는 것(편집)을 한 화면이 다 한다 — 가장 적게 만들고 완결된다.</li><li>진술과 관측이 한 화면에 나란히 — "두 층 프로필" 설계(§3.4)가 눈에 보인다.</li></ul>
+    <h3>주의점</h3>
+    <ul><li>다섯 줄 × 칩 넷이 한 화면이라 2560 에서도 칩이 모드 칩만큼은 못 된다(약 54 dp 높이) — 정차 중 전용.</li><li>첫 실행에 아무것도 안 물으면 많은 운전자가 영영 안 채운다 — D 의 "하나만 물어볼게요" 와 짝지으면 해결.</li></ul>
+  </div>
+</section>
+
+<!-- ========== C ========== -->
+<section class="cell">
+  <div>
+    <p class="cap">코치와 대화형 (1/3) — 왼쪽 Ink 에 말풍선, 오른쪽에 답 칩</p>
+    <div class="frame">
+      <div class="abs inkpanel" style="left:0;top:0;width:401px;height:423px;padding:22px 24px">
+        <div class="wm" style="color:rgba(252,252,250,.7)">DRIVE COACH</div>
+        <div class="eyebrow" style="margin-top:28px">코치</div>
+        <div class="col" style="gap:8px;margin-top:8px;align-items:flex-start">
+          <span class="bub coach old">면허는 언제 따셨어요?</span>
+          <span class="bub me old" style="align-self:flex-end">십 년쯤 전에요</span>
+          <span class="bub coach" style="font-size:13px">마지막으로 운전한 게 언제쯤이에요?<br><span style="font-size:10px;color:var(--muted)">오래됐어도 괜찮아요.</span></span>
+        </div>
+        <div class="abs" style="left:24px;top:372px"><div class="dots"><i class="done"></i><i class="cur"></i><i></i><i></i><i></i></div></div>
+      </div>
+      <div class="abs" style="left:401px;top:0;width:452px;height:423px">
+        <div class="abs eyebrow" style="left:40px;top:78px">이렇게 답해요</div>
+        <div class="abs col" style="left:40px;top:100px;width:370px;gap:8px">
+          <span class="chip" style="height:34px;justify-content:flex-start">요즘도 해요</span>
+          <span class="chip" style="height:34px;justify-content:flex-start">작년쯤</span>
+          <span class="chip" style="height:34px;justify-content:flex-start">몇 년 전</span>
+          <span class="chip on" style="height:34px;justify-content:flex-start">십 년 넘게</span>
+          <span class="chip ghost" style="height:34px;justify-content:flex-start">말로 답하기 — 나중에</span>
+        </div>
+        <div class="abs" style="left:40px;top:352px"><span class="pill2">건너뛰기</span></div>
+        <div class="abs pill" style="left:230px;top:348px;width:190px">다음 <span>→</span></div>
+      </div>
+    </div>
+    <p class="cap">마지막 장 — 요약 카드 "이렇게 알고 있을게요" (1/3, 오른쪽 부분만)</p>
+    <div class="frame short">
+      <div class="abs inkpanel" style="left:0;top:0;width:401px;height:150px;padding:18px 24px">
+        <span class="bub coach" style="font-size:12px">고마워요. 이렇게 알고 있을게요.<br><span style="font-size:10px;color:var(--muted)">틀린 게 있으면 눌러서 고쳐요.</span></span>
+      </div>
+      <div class="abs card" style="left:441px;top:16px;width:370px">
+        <div class="eyebrow" style="font-size:10px">이렇게 알고 있을게요</div>
+        <div style="font-size:11px;line-height:1.6;margin-top:3px">면허는 십 년쯤 전 · 운전은 십 년 넘게 쉬었고<br>중형 SUV 로 아이 등하원이 목표 · 주차가 제일 무서워요</div>
+      </div>
+      <div class="abs" style="left:441px;top:104px"><span class="pill2" style="height:30px;font-size:11px">고칠게요</span></div>
+      <div class="abs pill" style="left:620px;top:100px;width:190px;height:38px;font-size:12px">맞아요, 시작 <span>→</span></div>
+    </div>
+    <div class="flow"><span class="st">첫 실행</span><span class="ar">→</span><span class="st hi">코치 말풍선 ×5 · 답 칩</span><span class="ar">→</span><span class="st hi">요약 카드</span><span class="ar">→</span><span class="st">홈</span><span class="ar">·</span><span class="st">고치기는 B 시트 또는 요약 카드에서</span></div>
+  </div>
+  <div>
+    <div class="letter">C</div>
+    <h2>대화</h2>
+    <p class="desc">코치가 왼쪽 Ink 에서 한 질문씩 말풍선으로 묻고(TTS 로도 읽는다), 운전자는 오른쪽 칩을 누른다. 지난 문답은 위로 흐려지며 쌓인다. 마지막에 "이렇게 알고 있을게요" 요약 카드. 칩 맨 아래 "말로 답하기" 는 지금은 비활성 자리 — STT 가 들어오면 그 자리에 끼운다(<code>NEXT.md</code> 미루는 항목).</p>
+    <dl class="spec">
+      <dt>화면 수</dt><dd>1 레이아웃(말풍선 누적) + 요약 1 = 실질 2장.</dd>
+      <dt>진입</dt><dd>첫 실행 자동. 다시 하려면 홈 눈썹 → "코치와 다시 이야기하기" 또는 B 시트.</dd>
+      <dt>저장</dt><dd>요약 카드 <code>맞아요</code> 에서 한 번. 같은 로컬 파일. 중간에 나가면 답한 것까지만 저장.</dd>
+      <dt>시연 영향</dt><dd>영상 오프닝으로 가장 좋다("화내지 않는 조수석" 이 첫 장면부터 말한다). 라이브 시연에선 프리셋으로 건너뛴다.</dd>
+      <dt>난이도</dt><dd>중~상. 말풍선 누적 레이아웃 + TTS 연동 + 요약 문장 생성(규칙 문장, AI 아님). 채점·상태기계는 무관.</dd>
+    </dl>
+    <h3>장점</h3>
+    <ul><li>앱의 성격과 같은 말투로 프로필을 받는다 — Setup 의 "대화·제안" 단계와 한 결.</li><li>칩 답이 그대로 코치 멘트에 되돌아와("오래됐어도 괜찮아요") 첫인상이 좋다.</li></ul>
+    <h3>주의점</h3>
+    <ul><li>A 보다 긴 느낌을 준다(말풍선 애니메이션·TTS 대기). 다섯 질문이 한계.</li><li>STT 없이 "말로 답하기" 를 보여 주면 심사위원이 눌러 본다 — 비활성 표시를 분명히, 또는 아예 뺀다.</li></ul>
+  </div>
+</section>
+
+<!-- ========== D ========== -->
+<section class="cell">
+  <div>
+    <p class="cap">점진형 (1/3) — 묻지 않고 시작, 리포트 끝에 "하나만 물어볼게요"</p>
+    <div class="frame">
+      <div class="abs inkpanel" style="left:0;top:0;width:300px;height:423px;padding:22px 24px">
+        <div class="wm" style="color:rgba(252,252,250,.7)">DRIVE COACH</div>
+        <div class="eyebrow" style="margin-top:44px">리포트 · 후면 직각 주차</div>
+        <div style="font-size:24px;line-height:1.3;margin-top:6px">오늘은<br>여기까지.</div>
+        <div style="font-size:11px;color:rgba(252,252,250,.7);margin-top:10px;line-height:1.5">처음치고 차분했어요.<br>다음엔 핸들을 한 번에 돌려 봐요.</div>
+      </div>
+      <div class="abs" style="left:300px;top:0;width:553px;height:423px">
+        <div class="abs card" style="left:40px;top:60px;width:470px">
+          <div class="eyebrow" style="font-size:10px">하나만 물어볼게요</div>
+          <div style="font-size:20px;line-height:1.3;margin:4px 0 10px">제일 무서운 상황은요?</div>
+          <div class="row" style="gap:6px"><span class="chip on">주차</span><span class="chip">고속도로</span><span class="chip">야간</span><span class="chip">차선 바꾸기</span><span class="chip ghost">다음에요</span></div>
+          <div style="font-size:10px;color:var(--muted);margin-top:8px">다음 과제를 고를 때 참고할게요.</div>
+        </div>
+        <div class="abs" style="left:40px;top:352px"><span class="pill2">← 돌아가기</span></div>
+        <div class="abs pill" style="left:300px;top:348px;width:210px">다시 시작 <span>→</span></div>
+      </div>
+    </div>
+    <p class="cap">눈썹이 자라는 모습 (1/3 · 홈 눈썹 줄만)</p>
+    <div class="flow" style="margin-top:0">
+      <span class="st">연수생 · 처음 뵙겠습니다</span><span class="ar">→ 첫 세션 뒤</span>
+      <span class="st">연수생 · 주차 연습 중</span><span class="ar">→ 질문 하나 답한 뒤</span>
+      <span class="st hi">연수생 · 주차 연습 중 · 주차가 무섭다고 했어요</span><span class="ar">→ 몇 세션 뒤</span>
+      <span class="st">연수생 · 장롱면허 · 후면 주차가 약해요</span>
+    </div>
+    <div class="flow"><span class="st">첫 실행 · 안 묻고 홈</span><span class="ar">→</span><span class="st">세션</span><span class="ar">→</span><span class="st hi">리포트 끝 · 질문 하나</span><span class="ar">→</span><span class="st">다음 세션 · 다음 질문</span><span class="ar">→</span><span class="st">다섯 번째 세션엔 다 채워짐 · 고치기는 B</span></div>
+  </div>
+  <div>
+    <div class="letter">D</div>
+    <h2>점진</h2>
+    <p class="desc">첫 실행에 아무것도 묻지 않는다. 눈썹은 "연수생 · 처음 뵙겠습니다". 첫 세션이 끝나면 관측(연습한 과제·급조작·되감기)이 먼저 채워지고, 리포트 끝 카드에서 질문 하나(가장 쓸모 있는 "무서운 상황" 부터)를 묻는다. 세션마다 하나씩, 다섯 세션이면 다 찬다. "다음에요" 는 언제나.</p>
+    <dl class="spec">
+      <dt>화면 수</dt><dd>0장 추가(리포트 안 카드 하나). 편집은 B 시트가 필요.</dd>
+      <dt>진입</dt><dd>리포트(Report 단계) 끝. 운전석 도어 열림 뒤라 정차가 보장된다.</dd>
+      <dt>저장</dt><dd>칩 누르는 즉시 한 항목씩. 관측은 세션 끝마다. 같은 로컬 파일.</dd>
+      <dt>시연 영향</dt><dd>시연 리포트 끝에 질문 카드가 한 장 더 생긴다 — 대본 시간 약 10초 추가, 또는 프리셋이 "다 답한 프로필" 을 심어 카드를 안 띄운다.</dd>
+      <dt>난이도</dt><dd>하. 카드 하나 + 질문 순서 + 저장. 가장 작다.</dd>
+    </dl>
+    <h3>장점</h3>
+    <ul><li>운전자에게 가장 가볍다 — 차에 타자마자 설문이 없다. "화내지 않는 조수석" 다운 태도.</li><li>관측이 먼저 쌓여 "앱이 본 것" 이 진술보다 앞선다 — 제품 논리(과정 측정)와 맞는다.</li></ul>
+    <h3>주의점</h3>
+    <ul><li>첫 세션의 제안·말투는 프로필 없이 정해야 한다 — 기본값이 보수적(가이드 모드 · 후면 주차)이면 된다.</li><li>다 채워지기까지 다섯 세션 — 시연 한 번으론 "프로필 기능" 이 안 보인다. 영상엔 B 시트를 같이 보여 줘야 한다.</li></ul>
+  </div>
+</section>
+
+<!-- ========== 공통 ========== -->
+<section class="cell now">
+  <div>
+    <h2>네 시안이 공유하는 바닥</h2>
+    <div class="two" style="margin-top:12px">
+      <div>
+        <h3>저장</h3>
+        <ul>
+          <li>앱 전용 폴더에 파일 하나(<code>profile.json</code>): <code>statement</code>(진술 5) + <code>observation</code>(관측) + <code>version</code>. 기존 <code>ProgressStore</code> 옆에 <code>ProfileStore</code>.</li>
+          <li>앱 시작에 읽고, 저장은 "저장 →"·칩 즉시·세션 끝 세 시점 중 시안이 정한 곳에서.</li>
+          <li>사내 에뮬: 앱 폴더는 재설치(<code>adb install -r</code> 은 유지, uninstall 은 삭제)·에뮬 초기화에 사라진다 → 관리자 프리셋이 파일을 다시 심는다. <code>INTEGRATION.md</code> B절에 가정 한 줄.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>프로필이 실제로 바꾸는 것</h3>
+        <ul>
+          <li>홈 눈썹 한 줄 · 첫 제안 과제(무서운 상황 → 과제 분류) · 첫 모드(장롱 기간이 길면 가이드).</li>
+          <li>회차 멘트 서두 톤(<code>AdviceRules</code> 입력) — 채점 숫자는 절대 안 바꾼다.</li>
+          <li>관측은 진단서 "자세히 보기" 에만 숫자로, 프로필 시트에는 말로.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 질의응답 ========== -->
+<section class="cell now">
+  <div>
+    <h2>질의응답으로 정할 것</h2>
+    <p class="desc" style="color:var(--muted)">하나씩 답을 받으면 바로 핸드오프로 옮길 수 있게, 질문마다 기본값(답이 없으면 이렇게)을 적었다.</p>
+    <table>
+      <thead><tr><th></th><th>질문</th><th>기본값(추천)</th><th>왜</th></tr></thead>
+      <tbody>
+        <tr><td class="n">1</td><td class="q">프로필에 이름(호칭)을 받을까? 받으면 코치가 부를까?</td><td class="d">받지 않는다. 눈썹은 "연수생" 고정, 호칭은 쓰지 않는다.</td><td class="w">운전석에서 글자 입력은 피한다. 호칭 호명은 TTS 발음 위험. 나중에 음성으로.</td></tr>
+        <tr><td class="n">2</td><td class="q">질문 다섯(면허 연도 · 마지막 운전 · 차종 · 필요한 일 · 무서운 상황)이면 충분한가? 더하거나 뺄 것은?</td><td class="d">다섯 유지. "차종" 은 뺄 1순위 후보(신호에 못 쓴다), 대신 "동승자가 있나요" 는 보류.</td><td class="w">코칭에 실제로 쓰이는 건 마지막 운전·무서운 상황·필요한 일 셋. 나머지는 눈썹 문구용.</td></tr>
+        <tr><td class="n">3</td><td class="q">답은 칩만인가, 자유 입력(키보드)도 둘까?</td><td class="d">칩만. 자유 입력은 "말로 답하기" 자리로만 남긴다(비활성).</td><td class="w">차량 키보드는 느리고 주의를 뺏는다. 칩이면 TTS 되읽기도 쉽다.</td></tr>
+        <tr><td class="n">4</td><td class="q">숫자 답(면허 연도 · 몇 달 전)을 어떻게 받나?</td><td class="d">범위 칩(작년쯤 / 몇 년 전 / 십 년 넘게 / 기억 안 나요) → 내부 대표값(12 / 36 / 120 / null 개월).</td><td class="w">운전자 화면 숫자 금지 규칙과 맞고, 코칭은 어차피 구간만 본다.</td></tr>
+        <tr><td class="n">5</td><td class="q">저장 위치와 초기화 방법은?</td><td class="d">앱 전용 폴더 <code>profile.json</code> 하나. 초기화는 관리자 모드에서만(운전자 화면엔 "다시 처음부터" 없음).</td><td class="w">운전자가 실수로 지우는 길을 막는다. 사내 에뮬 초기화는 프리셋으로 복원.</td></tr>
+        <tr><td class="n">6</td><td class="q">다중 운전자(가족 차)를 지원할까?</td><td class="d">이번엔 1인. 파일 구조만 <code>profiles: [ ]</code> 로 두고 화면은 하나만.</td><td class="w">전환 UI·누가 운전 중인지 판별이 큰 일. 마감 전엔 구조만 남긴다.</td></tr>
+        <tr><td class="n">7</td><td class="q">관측 프로필(연습 횟수 · 약한 과제 · 급조작)을 운전자에게 보여줄까? 어디에, 어떻게?</td><td class="d">보여 준다. 프로필 시트 아래 "앱이 본 것" 읽기 전용, 숫자 없이 말로. 숫자는 자세히 보기·진단서에만.</td><td class="w">"무엇을 측정했는지 정직하게" 원칙. 다만 운전자 화면 숫자 금지는 지킨다.</td></tr>
+        <tr><td class="n">8</td><td class="q">시연(영상 · 라이브)은 어떤 프로필로 시작하나? 온보딩을 영상에 넣을까?</td><td class="d">관리자 프리셋 "장롱 10년차" 로 시작(온보딩 건너뜀). 영상 오프닝에만 질문 한 장(무서운 상황)을 5초 넣는다.</td><td class="w">5분 영상에서 온보딩 다섯 장은 길다. 한 장이면 "프로필이 있다" 는 걸 보여 주기 충분.</td></tr>
+        <tr><td class="n">9</td><td class="q">온보딩을 건너뛰거나 아직 안 답했으면 기본값은?</td><td class="d">진술 전부 null. 눈썹 "연수생 · 처음 뵙겠습니다", 첫 제안은 후면 직각 주차 · 가이드 모드, 멘트는 보수적 톤.</td><td class="w">가장 어려운 운전자를 가정하는 게 "화내지 않는" 쪽으로 안전하다.</td></tr>
+        <tr><td class="n">10</td><td class="q">프로필이 바꾸는 범위는 어디까지? (눈썹 · 첫 제안 · 멘트 톤 · 채점)</td><td class="d">눈썹 · 첫 제안 과제·모드 · 멘트 서두 톤까지. 채점 수치는 안 바꾼다.</td><td class="w">채점이 프로필에 따라 달라지면 "정직한 측정" 이 흔들리고 테스트가 두 배가 된다.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="reco">
+  <div class="eyebrow">추천</div>
+  <h2>B · 시트를 먼저, 그 위에 D · 점진을 얹는다</h2>
+  <p>B 는 저장·편집·"앱이 본 것" 을 한 화면으로 끝내는 가장 작은 완결 단위이고, 관리자 프리셋과도 바로 맞물린다. 첫 실행에 설문을 들이밀지 않는 D 가 앱의 태도와 맞으며 구현도 카드 하나라, 둘을 합치면 <span class="sig">온보딩 화면 없이</span> 프로필이 "만들어지고, 고쳐지고, 남는다". A·C 는 영상 오프닝이 필요해질 때 C 의 한 장만 빌려 온다. 순서: ① <code>ProfileStore</code> 저장 ② B 시트(눈썹 버튼) ③ D 리포트 끝 카드 ④ 관리자 프리셋 연결.</p>
+</div>
+
+</div>
+</body>
+</html>
