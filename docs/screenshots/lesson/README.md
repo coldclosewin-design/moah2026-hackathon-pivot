@@ -1,5 +1,14 @@
 # 화면 검증 캡처
 
+## 덱용 실제 세션 리포트 (2026-10-05 밤, 태그 `inhouse-20261006-1` APK)
+
+라운드 21 까지의 리포트 캡처는 전부 계측 fixture 라(`lesson-report.png`·`lesson-report-verdict-last.png` 는 `미측정 1`, 후자는 △△✓✗) 덱 6장이 요구하는 **실제 세션의 0/8/0 · ✓✓✓✓ 리포트**가 없었다. 수정 없는 `tools/emu_flow.sh build/flow-deck-r21` 을 동결 태그 APK 에 돌려(PASS · 60/55·4구간 → 100/100·2구간) Report 에서 두 장을 더했다. 외부 Fake 시나리오이지 실차 관찰이 아니다.
+
+| 캡처 | 화면 |
+|---|---|
+| [lesson-report-session.png](lesson-report-session.png) | Report — 연습한 회차 02 · 마지막 회차 판정 ✓✓✓✓ · 두 문장 총평 · 배지 `실신호 0 · 시뮬레이션 8 · 미측정 0` |
+| [lesson-details-session.png](lesson-details-session.png) | 같은 세션의 `자세히 보기` — 두 회차 카드 나란히(60/55 · 4회 · 44초 · 편차 17° → 100/100 · 2회 · 29초 · 편차 2°, 변화량 칩) |
+
 ## UI 라운드 21 — 선택 시안 ①~⑨ (2026-10-05)
 
 `codex/ui-round21` · 기준 `origin/main=c91fc21`(#167 머지 뒤 #171 포함) · 외부 CSTDe_API_34 2560×1440 · 기본 Fake, 배율 1.0. [발주서](../../handoffs/2026-10-05_codex_ui_round21.md)와 [시안 목록](../../design/round21-proposals/index.html)의 사용자 선택을 구현했다. 아래 파일명 링크로 시안과 앱 캡처를 나란히 비교할 수 있다.
