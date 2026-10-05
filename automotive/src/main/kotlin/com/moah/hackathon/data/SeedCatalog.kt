@@ -6,6 +6,7 @@ import com.moah.hackathon.feature.lesson.GuideStep
 import com.moah.hackathon.scoring.ParkingSpec
 import com.moah.hackathon.feature.lesson.Profile
 import com.moah.hackathon.feature.lesson.ProfileQuestion
+import com.moah.hackathon.feature.lesson.ShareLevel
 import com.moah.hackathon.feature.lesson.ProfileStatement
 import com.moah.hackathon.feature.lesson.QuizItem
 import com.moah.hackathon.feature.lesson.RemarkTemplate
@@ -263,12 +264,12 @@ object SeedCatalog {
         Venue("venue-bundang", "분당 시험장", "분당", 14f, listOf(courses[0], courses[2], courses[3]), slotsToday(unavailable = 2)),
     )
 
-    /** 진단서의 예상 혜택 예시. 실제 전송·계약은 없다(화면에 그렇게 밝힌다). */
-    val benefits: List<String> = listOf(
-        "보험료 할인 — 운전습관연계보험(UBI) 안전운전점수 연계 예시",
-        "적성검사 일부 면제 — 운전 숙련 인증 연계 예시",
-        "제휴 시험장 대여료 할인",
-    )
+    /**
+     * 진단서 혜택 예시 — [ShareLevel.benefit] 을 범위 순서(총점만 → 항목별 → 원시 신호)로. 실제 전송·계약은 없다(화면에 그렇게 밝힌다).
+     * 라운드 22 결정(진단서 B): 범위와 혜택이 짝이라 원천은 [ShareLevel] 이다. 이 목록은 화면이 범위별 카드로 바뀔 때까지(라운드 23 ①)
+     * 지금 두 열 화면이 범위와 같은 줄 순서로 그리도록 남겨 둔 것 — 그 뒤 `LessonReport.benefits` 와 함께 지운다.
+     */
+    val benefits: List<String> = ShareLevel.entries.map { it.benefit }
 
     /** 정차 중 3지선다 (§3.2 지식 테스트). 채점보다 `why` 를 듣는 것이 목적. 문항 내용은 Codex 가 다듬는다. */
     fun quizFor(task: Task): List<QuizItem> = when (task.id) {
