@@ -2,7 +2,7 @@
 
 ```
 프로젝트: C:\Project\17_hackathon-pivot (AAOS 앱, Kotlin/Compose). 먼저 AGENTS.md, 이 발주서, docs/design/round21-proposals/(index.html 과 각 페이지의 고른 시안), docs/screenshots/lesson/README.md 를 읽어라.
-시작 조건: 라운드 20 PR 이 머지된 뒤 origin/main 최신에서 새 워크트리 codex/ui-round21. PR 하나(scope ui). 양이 많으면 PR 둘(①~④ 설정·시트 / ⑤~⑧ 결과·주행)로 나눠도 된다 — 각각 완료 기준을 지킨다.
+시작 조건: 라운드 20(#167) 머지됨 — origin/main 최신에서 새 워크트리 codex/ui-round21. PR 하나(scope ui). 양이 많으면 PR 둘(①~④ 설정·시트 / ⑤~⑧ 결과·주행)로 나눠도 된다 — 각각 완료 기준을 지킨다.
 제약: vehicle/, ports/, scoring/, feature/lesson/, data/ 의 구조, build 파일, tools/ 수정 금지. docs/NEXT.md 는 고치지 말고 docs/INTEGRATION.md C 절에 적어라.
      시연 본편의 흐름·고정값 불변. 새 색 토큰 0(시안이 쓴 다섯 토큰 + 투명도만), Bold 0, 그림자는 질감 B 값 재사용.
 완료 기준: .\gradlew.bat assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest 통과(PowerShell),
@@ -22,6 +22,7 @@
 | ⑥ | 주차 결과 시뮬레이션 | **크기 B(왼쪽 50%, 판정 2×2) + 6b 의 B-1 칸 하나에 B-2 의 흐린 옆 줄만** — 목표 칸 = 양옆 줄 + 안쪽 끝 줄(입구 열림), 옆 칸 경계 = 아주 흐린 줄(20~30%), **주차장 면(옅은 사각형)은 넣지 않는다** | `6b-parking-result-minimal.html`(B-1·B-2) |
 | ⑦ | 지식 테스트 정답 확인 | **E 판정 패널 + D 인용 카드** — 왼쪽 Ink 패널에 큰 ✓/✕ 와 "맞았어요/아쉬워요", 오른쪽 보기(배지)와 **해설은 큰따옴표 인용 카드**, 넓은 "다음 문제 →" 알약 | `7-quiz-answer.html` |
 | ⑧ | 코스 지도 차 크기 | **×1.3** — 칸은 Claude 가 데이터에서 이미 ×1.3(#166) | `8-map-car-size.html` |
+| ⑨ | 계측 플레이크 굳히기 | 라운드 19·20 리뷰에서 매번 다른 타이밍 검사가 떨어졌다(Claude 쪽 5회 중 2회 PASS): 차선 카드 픽셀(`assertLanePreview` "Two-lane thumbnail road edge"), 시험장 시트 196행 부근, 잠금 해제 직후 Done 멘트(라운드 20 브랜치 818행), 시트 다시 열기 직후 시작 알약 위치(246행). **애니메이션·재구성이 끝날 때까지 기다린 뒤 검사**(waitForIdle + 짧은 재시도)로 바꾼다. 검사 내용은 그대로 | 계측 |
 
 ## 1. 항목별 구현 메모
 
