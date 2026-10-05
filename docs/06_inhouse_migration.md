@@ -10,7 +10,7 @@
 
 - [x] `main` 이 `.\gradlew.bat assembleDebug testDebugUnitTest` 통과, `bash tools/emu_flow.sh <폴더>` 가 `result: PASS` — 태그마다 반복
 - [x] 이관할 커밋에 태그: `git tag inhouse-YYYYMMDD-N && git push origin inhouse-YYYYMMDD-N` (사내에서 뭘 가져갔는지 나중에 알 수 있게). 번들도 같이 — 메인 체크아웃이 `main` 을 잡고 있어 `main` 을 못 올리므로 태그 커밋에 `inhouse/base-YYYYMMDD-N` 브랜치를 만들고 `HEAD` 를 그 브랜치로 잠깐 옮겨 넣는다(`git symbolic-ref HEAD refs/heads/inhouse/base-…` → `git bundle create build/moah2026-YYYYMMDD-N.bundle HEAD inhouse-YYYYMMDD-N inhouse/base-YYYYMMDD-N` → 되돌림). `HEAD` 가 없으면 clone 이 `remote HEAD refers to nonexistent ref` 로 체크아웃을 못 한다(10/2 실측). 빈 폴더에 clone 테스트: 태그·`REPO_ONLY=1 bash tools/inhouse_check.sh`·매니페스트 `uses-library`
-- [x] 사내에서 저장소에 닿는 방법: **public 저장소 익명 HTTPS clone**(개인 계정 로그인 불가 → private 는 안 됨, 10/1 확정). 막히면 `git bundle`(`build/moah2026-*.bundle`, 태그·`inhouse/base-*` 브랜치 포함, clone 이 그 브랜치를 바로 체크아웃) 을 반입 절차에 따라 옮긴다. **현재 전달 태그 `inhouse-20261005-2` = `c05c473`**(번들 `build/moah2026-20261005-2.bundle`, 10/5 동결)
+- [x] 사내에서 저장소에 닿는 방법: **public 저장소 익명 HTTPS clone**(개인 계정 로그인 불가 → private 는 안 됨, 10/1 확정). 막히면 `git bundle`(`build/moah2026-*.bundle`, 태그·`inhouse/base-*` 브랜치 포함, clone 이 그 브랜치를 바로 체크아웃) 을 반입 절차에 따라 옮긴다. **현재 전달 태그 `inhouse-20261006-1` = `ab63dab`**(번들 `build/moah2026-20261006-1.bundle`, 10/5 동결)
 - [x] 사내 Gradle 이 외부 저장소에 닿는다(9/30 1차 이관에서 **A 경로로 빌드 성공**). 1절 B(템플릿에 얹기)는 그것이 막힐 때의 대안이다
 
 ## 1. 코드 가져오기
@@ -18,7 +18,7 @@
 ### A. 저장소를 그대로 빌드 (**현재 방식** — 9/30·10/1·10/2 사내 검증 세 번 모두 이 경로)
 
 ```bash
-git clone https://github.com/coldclosewin-design/moah2026-hackathon-pivot.git moah2026 && cd moah2026 && git checkout inhouse-YYYYMMDD-N   # 지금은 inhouse-20261005-2
+git clone https://github.com/coldclosewin-design/moah2026-hackathon-pivot.git moah2026 && cd moah2026 && git checkout inhouse-YYYYMMDD-N   # 지금은 inhouse-20261006-1
 ```
 
 그다음 2절(설정 한 줄 + jar) → 3절 빌드 → 4절 설치. **코드는 고치지 않는다.**
