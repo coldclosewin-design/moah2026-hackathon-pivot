@@ -181,6 +181,12 @@ class CourseLessonTest {
         h.scope.cancel()
     }
 
+    @Test fun `overrunning the last zone still asks done`() = runTest {
+        val (h, _) = run("straight-stop", LessonMode.HINT, CourseScenarios.straightBad)
+        assertTrue("다 되셨나요? 다 됐으면 버튼을 눌러 주세요." in h.tts.spoken)
+        h.scope.cancel()
+    }
+
     @Test fun `door opening at the end goes straight to the report`() = runTest {
         val h = harness()
         h.machine.begin("straight-stop", LessonMode.EVALUATE)

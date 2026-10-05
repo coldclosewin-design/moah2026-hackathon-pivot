@@ -435,9 +435,10 @@ class LessonStateMachine(
         val signal = snapshot.signal
         if (signal == TrackSignal.RED && lastSignal != TrackSignal.RED && snapshot.moving && p.mode != LessonMode.EVALUATE) hint("빨간불이에요. 정지선 앞에서 멈춰요.")
         lastSignal = signal
-        // 다 된 것 같으면 한 번 — 움직인 뒤 정차 + P 이고, 마지막 구간에 있거나 위치를 모를 때
+        // 다 된 것 같으면 한 번 — 움직인 뒤 정차 + P 이고, 마지막 구간에 있거나 · 남은 구간이 없거나(마지막 구간을 지나쳐 섬, 10/5) · 위치를 모를 때
         val progress = c.progress()
-        val atEnd = !progress.positionMeasured || progress.currentZoneId == c.course.zones.last().id
+        val atEnd = !progress.positionMeasured || progress.currentZoneId == c.course.zones.last().id ||
+            (progress.currentZoneId == null && progress.nextZoneId == null && progress.passedZoneIds.isNotEmpty())
         val moved = recorder.metrics()?.motion?.firstMoveMillis != null
         if (!askedDone && atEnd && moved && snapshot.stopped && snapshot.gear == com.moah.hackathon.vehicle.Gear.PARK) {
             askedDone = true
