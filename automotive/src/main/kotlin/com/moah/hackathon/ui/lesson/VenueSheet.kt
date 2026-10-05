@@ -1,6 +1,5 @@
 package com.moah.hackathon.ui.lesson
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -18,6 +17,7 @@ import com.moah.hackathon.R
 import com.moah.hackathon.feature.lesson.Reservation
 import com.moah.hackathon.feature.lesson.Venue
 import com.moah.hackathon.ui.CoachColors
+import com.moah.hackathon.ui.CoachTexture
 
 @Composable
 internal fun VenueSheet(venues: List<Venue>, booking: Reservation?, onReserve: (String, String, String) -> Unit,
@@ -35,7 +35,7 @@ internal fun VenueSheet(venues: List<Venue>, booking: Reservation?, onReserve: (
         LessonText(Reservation.EXAMPLE_NOTE, 40, CoachColors.Periwinkle)
         if (confirmation != null) {
             Column(Modifier.weight(1f).fillMaxWidth(), verticalArrangement = Arrangement.Center) {
-                Column(Modifier.fillMaxWidth().background(CoachColors.Lavender).padding(48.dp),
+                Column(Modifier.fillMaxWidth().surfaceTexture(CoachColors.Lavender, CoachTexture.Card).padding(48.dp),
                     verticalArrangement = Arrangement.spacedBy(24.dp)) {
                     Eyebrow("예약됨", color = CoachColors.Periwinkle)
                     Headline(confirmation.summary, size = 64)
@@ -59,7 +59,7 @@ internal fun VenueSheet(venues: List<Venue>, booking: Reservation?, onReserve: (
                     Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                         venue.slots.forEach { item ->
                             if (item.available) SelectionChip(item.label, item.id == slotId, { slotId = item.id }, Modifier.width(360.dp))
-                            else Box(Modifier.width(360.dp).height(96.dp).background(CoachColors.Lavender)
+                            else Box(Modifier.width(360.dp).height(96.dp).surfaceTexture(CoachColors.Lavender, CoachTexture.Chip)
                                 .semantics(mergeDescendants = true) { disabled() }, contentAlignment = Alignment.Center) {
                                 LessonText(item.label, 40, CoachColors.Muted)
                             }
@@ -81,7 +81,7 @@ internal fun VenueSheet(venues: List<Venue>, booking: Reservation?, onReserve: (
                 verticalAlignment = Alignment.CenterVertically) {
                 TextAction(stringResource(R.string.lesson_back), { if (venue != null) venueId = null else onBack() })
                 if (venue != null && slot != null && course != null) {
-                    PrimaryPill(stringResource(R.string.lesson_reserve), { onReserve(venue.id, slot.id, course.id) }, driver = true)
+                    PrimaryPill(stringResource(R.string.lesson_reserve), { onReserve(venue.id, slot.id, course.id) })
                 }
             }
         }
@@ -92,7 +92,8 @@ internal fun VenueSheet(venues: List<Venue>, booking: Reservation?, onReserve: (
 private fun VenueCard(venue: Venue, chosen: Boolean, booked: Boolean, modifier: Modifier, onClick: () -> Unit) {
     val foreground = if (booked) CoachColors.Paper else CoachColors.Ink
     val secondary = if (booked) CoachColors.Paper else CoachColors.Muted
-    Column(modifier.height(264.dp).background(if (booked) CoachColors.Periwinkle else CoachColors.Lavender)
+    Column(modifier.height(264.dp).surfaceTexture(if (booked) CoachColors.Periwinkle else CoachColors.Lavender,
+        if (booked) CoachTexture.SelectedCard else CoachTexture.Card)
         .then(if (chosen) Modifier.border(4.dp, CoachColors.Periwinkle) else Modifier)
         .clickable(role = Role.Button, onClick = onClick).semantics(mergeDescendants = true) { selected = chosen }
         .padding(horizontal = 24.dp, vertical = 4.dp)) {

@@ -20,10 +20,11 @@ import com.moah.hackathon.R
 import com.moah.hackathon.feature.lesson.QuizItem
 import com.moah.hackathon.feature.lesson.Task
 import com.moah.hackathon.ui.CoachColors
+import com.moah.hackathon.ui.CoachTexture
 
 @Composable
 internal fun QuizScreen(task: Task, index: Int, total: Int, item: QuizItem, locked: Boolean,
-    chosen: Int?, correctSoFar: Int, onAnswer: (Int) -> Unit, onNext: () -> Unit, onRestart: () -> Unit) {
+    chosen: Int?, correctSoFar: Int, onAnswer: (Int) -> Unit, onNext: () -> Unit, onQuit: () -> Unit) {
     PosterSurface {
         Row(Modifier.fillMaxSize()) {
             QuizNumber((index + 1).toString().padStart(2, '0'), "${index + 1} / $total", Modifier.weight(.38f))
@@ -58,7 +59,8 @@ internal fun QuizScreen(task: Task, index: Int, total: Int, item: QuizItem, lock
                                     color = if (correct) CoachColors.Periwinkle else CoachColors.Signal)
                             }
                             Row(Modifier.weight(1f).heightIn(min = 120.dp)
-                                .background(if (correct) CoachColors.Periwinkle else CoachColors.Lavender)
+                                .surfaceTexture(if (correct) CoachColors.Periwinkle else CoachColors.Lavender,
+                                    if (correct) CoachTexture.SelectedCard else CoachTexture.Card)
                                 .then(if (mine && !correct) Modifier.border(4.dp, CoachColors.Signal) else Modifier)
                                 .then(action).semantics { selected = mine }
                                 .padding(horizontal = 32.dp, vertical = 20.dp),
@@ -80,7 +82,7 @@ internal fun QuizScreen(task: Task, index: Int, total: Int, item: QuizItem, lock
                     PosterRule()
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically) {
-                        TextAction(stringResource(R.string.lesson_quit), onRestart)
+                        TextAction(stringResource(R.string.lesson_quit), onQuit)
                         LessonText("맞은 문제 $correctSoFar", 32, CoachColors.Muted)
                     }
                 }

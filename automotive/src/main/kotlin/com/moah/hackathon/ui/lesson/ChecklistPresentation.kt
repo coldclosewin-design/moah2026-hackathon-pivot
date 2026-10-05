@@ -12,7 +12,7 @@ internal data class ChecklistIgnition(
 internal fun checklistLightValue(on: Boolean?, checked: Boolean?): String? = when {
     on == true -> "켜짐"
     checked == true -> "확인"
-    on != null || checked != null -> "아직"
+    on != null || checked != null -> "미수행"
     else -> null
 }
 

@@ -26,6 +26,7 @@ import com.moah.hackathon.R
 import com.moah.hackathon.feature.lesson.LessonReport
 import com.moah.hackathon.feature.lesson.TaskType
 import com.moah.hackathon.ui.CoachColors
+import com.moah.hackathon.ui.CoachTexture
 
 private enum class ReportPage { SUMMARY, DETAILS, CERTIFICATE }
 
@@ -61,7 +62,7 @@ internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit, locked: B
                                 ReportLimitations(report)
                             }
                         }
-                        PrimaryPill(stringResource(R.string.lesson_restart), onRestart, driver = true)
+                        PrimaryPill(stringResource(R.string.lesson_restart), onRestart)
                         Row(horizontalArrangement = Arrangement.spacedBy(64.dp)) {
                             TextAction("자세히 보기", { page = ReportPage.DETAILS })
                             TextAction("진단서", { page = ReportPage.CERTIFICATE })
@@ -79,7 +80,7 @@ internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit, locked: B
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically) {
                             TextAction("돌아가기", { page = ReportPage.SUMMARY })
-                            PrimaryPill(stringResource(R.string.lesson_restart), onRestart, driver = true)
+                            PrimaryPill(stringResource(R.string.lesson_restart), onRestart)
                         }
                     }
                 }
@@ -164,32 +165,35 @@ private fun DetailsContent(report: LessonReport, modifier: Modifier) {
             Column { Eyebrow("안전"); LessonText(report.best.safety.toString(), 96, bold = true) }
         }
         report.attempts.forEachIndexed { index, attempt ->
-            PosterRule()
-            val previous = report.attempts.getOrNull(index - 1)?.score
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                LessonText("${attempt.index}회차 ·", 40)
-                LessonText("숙련 ${attempt.score.skill}", 40, trendColor(attempt.score.skill, previous?.skill))
-                LessonText("· 안전 ${attempt.score.safety}", 40, trendColor(attempt.score.safety, previous?.safety))
-                if (report.task.type != TaskType.CHECKLIST) {
-                    LessonText("· 이동 ${attempt.score.metrics.motion.movingSegments}회", 40,
-                        trendColor(attempt.score.metrics.motion.movingSegments, previous?.metrics?.motion?.movingSegments, lowerBetter = true))
-                    LessonText("· ${attempt.score.metrics.motion.totalMillis / 1000}초", 40,
-                        trendColor(attempt.score.metrics.motion.totalMillis, previous?.metrics?.motion?.totalMillis, lowerBetter = true))
+            Column(Modifier.fillMaxWidth().surfaceTexture(CoachColors.Paper, CoachTexture.Card)
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(if (report.task.type == TaskType.CHECKLIST) 16.dp else 32.dp)) {
+                val previous = report.attempts.getOrNull(index - 1)?.score
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    LessonText("${attempt.index}회차 ·", 40)
+                    LessonText("숙련 ${attempt.score.skill}", 40, trendColor(attempt.score.skill, previous?.skill))
+                    LessonText("· 안전 ${attempt.score.safety}", 40, trendColor(attempt.score.safety, previous?.safety))
+                    if (report.task.type != TaskType.CHECKLIST) {
+                        LessonText("· 이동 ${attempt.score.metrics.motion.movingSegments}회", 40,
+                            trendColor(attempt.score.metrics.motion.movingSegments, previous?.metrics?.motion?.movingSegments, lowerBetter = true))
+                        LessonText("· ${attempt.score.metrics.motion.totalMillis / 1000}초", 40,
+                            trendColor(attempt.score.metrics.motion.totalMillis, previous?.metrics?.motion?.totalMillis, lowerBetter = true))
+                    }
                 }
-            }
-            if (report.task.type == TaskType.PARKING) {
-                LessonText(parkingDetailLine(attempt.score.metrics, report.task.parkingSpec.usesRearDistance), 32, CoachColors.Muted)
-                LessonText(headingDetailLine(attempt.verdict), 32, CoachColors.Muted)
-            } else if (report.task.type == TaskType.CHECKLIST) {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    checklistResults(attempt.score).forEach { result ->
-                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                            LessonText(result.label, 32, modifier = Modifier.width(280.dp))
-                            LessonText(result.mark, 32, when (result.passed) {
-                                true -> CoachColors.Periwinkle; false -> CoachColors.Signal; null -> CoachColors.Muted
-                            }, modifier = Modifier.width(120.dp))
-                            LessonText(result.detail, 32, CoachColors.Muted, modifier = Modifier.weight(1f))
+                if (report.task.type == TaskType.PARKING) {
+                    LessonText(parkingDetailLine(attempt.score.metrics, report.task.parkingSpec.usesRearDistance), 32, CoachColors.Muted)
+                    LessonText(headingDetailLine(attempt.verdict), 32, CoachColors.Muted)
+                } else if (report.task.type == TaskType.CHECKLIST) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        checklistResults(attempt.score).forEach { result ->
+                            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                                LessonText(result.label, 32, modifier = Modifier.width(280.dp))
+                                LessonText(result.mark, 32, when (result.passed) {
+                                    true -> CoachColors.Periwinkle; false -> CoachColors.Signal; null -> CoachColors.Muted
+                                }, modifier = Modifier.width(120.dp))
+                                LessonText(result.detail, 32, CoachColors.Muted, modifier = Modifier.weight(1f))
+                            }
                         }
                     }
                 }

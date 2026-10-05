@@ -54,7 +54,7 @@ internal fun QuizDoneScreen(task: Task, results: List<QuizResult>, items: List<Q
                         }
                     }
                 }
-                PrimaryPill(stringResource(R.string.lesson_restart), onRestart, driver = true)
+                PrimaryPill(stringResource(R.string.lesson_restart), onRestart)
             }
         }
     }

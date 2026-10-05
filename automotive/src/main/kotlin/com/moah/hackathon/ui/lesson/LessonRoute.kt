@@ -37,7 +37,7 @@ internal fun LessonRoute(vm: LessonViewModel) {
         is LessonPhase.Done -> DoneScreen(state.task, state.attempt, state.record, subtitle, vm::nextAttempt, vm::endSession, demo, state.locked)
         is LessonPhase.Report -> ReportScreen(state.report, vm::restart, state.locked)
         is LessonPhase.Quiz -> QuizScreen(state.task, state.index, state.total, state.item, state.locked,
-            state.chosen, state.correctSoFar, vm::answer, vm::nextQuestion, vm::restart)
+            state.chosen, state.correctSoFar, vm::answer, vm::nextQuestion, vm::endSession)
         is LessonPhase.QuizDone -> QuizDoneScreen(state.task, state.results, state.items, state.remark, vm::restart, state.locked)
     }
 }

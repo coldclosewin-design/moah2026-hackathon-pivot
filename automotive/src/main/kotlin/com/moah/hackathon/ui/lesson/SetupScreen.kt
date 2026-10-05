@@ -97,7 +97,7 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
                                 Spacer(Modifier.height(20.dp))
                                 LessonText(selectionReason(task, mode, suggestedTask, suggestedMode, reason), 40, CoachColors.Muted)
                                 Spacer(Modifier.height(48.dp))
-                                PrimaryPill(stringResource(R.string.lesson_start), start, Modifier.fillMaxWidth(), driver = true)
+                                PrimaryPill(stringResource(R.string.lesson_start), start, Modifier.fillMaxWidth())
                                 Spacer(Modifier.height(16.dp))
                                 TextAction(stringResource(R.string.lesson_change_task_mode), {
                                     categoryName = task.type.name
