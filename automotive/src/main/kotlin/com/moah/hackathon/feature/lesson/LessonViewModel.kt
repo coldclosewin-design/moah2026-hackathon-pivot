@@ -14,6 +14,8 @@ import com.moah.hackathon.vehicle.Scenario
 import com.moah.hackathon.vehicle.ScenarioPlayback
 import com.moah.hackathon.vehicle.VehiclePort
 import com.moah.hackathon.vehicle.VssValues
+import com.moah.hackathon.data.AdminPresets
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import mobis.vss.VssConstants
@@ -67,6 +69,46 @@ class LessonViewModel(
         fun connectAi() { ai?.connect() }
     }
 
+    /**
+     * 관리자 모드(라운드 22 결정 5, 10/5 — 준비실 D + 세션 중 띠 C). [demo] 가 있을 때만 존재한다 = Fake/Hybrid 시연 빌드.
+     * **Real 빌드에서는 null** — 화면은 준비실·띠·워드마크 길게 누르기 핸들러를 아예 달지 않는다.
+     */
+    val admin: AdminControls? = demo?.let { AdminControls(it, vehicle is HybridVehiclePort) }
+
+    inner class AdminControls(
+        /** 세션 중 조작(시나리오·정차·문·AI) — 띠가 그대로 쓴다. */
+        val demo: DemoControls,
+        hybrid: Boolean,
+    ) {
+        val presets: List<AdminPreset> = AdminPresets.presets
+        val profilePresets: List<ProfilePreset> = AdminPresets.profiles
+        private val _profileId = MutableStateFlow<String?>(AdminPresets.PROFILE_RUSTY)
+        /** 지금 고른 프로필 프리셋(준비실 칩 강조). 기록에서 나온 관측은 바꾸지 않는다. */
+        val profileId: StateFlow<String?> = _profileId
+        private val _bandVisible = MutableStateFlow(true)
+        /** 세션 중 띠를 보일지 — 준비실의 "세션 중 패널(띠/숨김)". 시연 빌드 기본은 보임(도구가 띠의 라벨로 조작한다). */
+        val bandVisible: StateFlow<Boolean> = _bandVisible
+        /** 신호 출처 — 빌드에서 정해진다. 화면은 읽기만(전환은 빌드 플래그 `-PfillMissing`). */
+        val signalSource: String = if (hybrid) "Hybrid · 실신호 + 시뮬레이션" else "Fake 전부 · 시뮬레이션"
+
+        /** 프리셋 적용 — 기록·예약을 비우고 프로필을 바꾼 뒤 홈 제안을 프리셋 과제·모드로. 모르는 id 는 무시(로그). */
+        fun applyPreset(id: String) {
+            val preset = AdminPresets.preset(id) ?: run { android.util.Log.w(TAG, "admin: unknown preset $id"); return }
+            val profile = AdminPresets.profile(preset.profileId) ?: return
+            demo.stopScenario()
+            demo.stopCar()
+            machine.applyPreset(preset, profile.profile)
+            _profileId.value = profile.id
+        }
+        fun setProfile(id: String) {
+            val preset = AdminPresets.profile(id) ?: return
+            machine.setProfile(preset.profile)
+            _profileId.value = id
+        }
+        fun resetRecords() = machine.resetRecords()
+        fun setBand(visible: Boolean) { _bandVisible.value = visible }
+    }
+
     private fun currentTask(): Task? = when (val p = phase.value) {
         is LessonPhase.Briefing -> p.task
         is LessonPhase.Maneuver -> p.task
@@ -93,6 +135,7 @@ class LessonViewModel(
     fun cancelReservation() = machine.cancelReservation()
 
     companion object {
+        private const val TAG = "MOAH/LessonViewModel"
         fun factory(container: AppContainer): ViewModelProvider.Factory = viewModelFactory {
             initializer { LessonViewModel(container.lesson, container.tts, container.vehicle, container.scenarios, container.scenariosFor, container.copilot) }
         }

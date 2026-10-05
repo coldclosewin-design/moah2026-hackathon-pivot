@@ -11,6 +11,13 @@ class ProgressStore {
     var reservation: Reservation? = null
 
     fun add(record: AttemptRecord) { records += record }
+
+    /** 관리자 모드(라운드 22 결정 5, 10/5)의 "기록 초기화"·프리셋 적용 — 회차·퀴즈·예약을 다 지운다. 운전자 화면에는 이 진입점이 없다. */
+    fun clear() {
+        records.clear()
+        quizzes.clear()
+        reservation = null
+    }
     fun addQuiz(record: QuizRecord) { quizzes += record }
     fun quizzes(): List<QuizRecord> = quizzes.toList()
     fun all(): List<AttemptRecord> = records.toList()
@@ -79,6 +86,14 @@ object ModeAdvisor {
     fun reservedTask(tasks: List<Task>, reservation: Reservation?, venues: List<Venue>): Task? {
         val course = reservation?.course(venues) ?: return null
         return course.taskIds.firstNotNullOfOrNull { id -> tasks.firstOrNull { it.id == id && it.isReady } }
+    }
+
+    /** 관리자 프리셋이 고정한 모드의 이유 한 문장(숫자 없음) — 기록이 비어 있어도 모드와 어긋나지 않게. */
+    fun pinnedReason(mode: LessonMode): String = when (mode) {
+        LessonMode.GUIDE -> "처음은 제가 순서대로 함께할게요."
+        LessonMode.HINT -> "틀린 순간에만 말할게요."
+        LessonMode.EVALUATE -> "이번엔 조용히 지켜볼게요."
+        LessonMode.QUIZ -> "정차 중에 짧게 풀어 봐요."
     }
 
     /** 제안 이유 앞에 붙이는 한 문장(숫자 없음) — 과제가 예약 코스에서 왔을 때만. */

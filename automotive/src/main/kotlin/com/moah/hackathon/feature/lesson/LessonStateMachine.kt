@@ -114,6 +114,7 @@ class LessonStateMachine(
             tts.speak("${task.title.withTopicParticle()} ${mode.label} 모드로는 할 수 없어요. 가이드·힌트·평가 중에서 골라 주세요.")
             return
         }
+        if (pinned != null && pinned != (task.id to mode)) pinned = null   // 운전자가 다른 걸 고르면 프리셋 고정이 풀린다
         current = task to mode
         sessionRecords.clear()
         unverifiedSteps.clear()
@@ -271,6 +272,7 @@ class LessonStateMachine(
         if (venue.courses.none { it.id == courseId }) { Log.w(TAG, "reservation: unknown course $courseId"); return }
         if (!slot.available) { Log.w(TAG, "reservation: slot $slotId not available"); return }
         store.reservation = Reservation(venueId, slotId, courseId, madeAtMillis = clock())
+        pinned = null
         Log.i(TAG, "reservation: made venue=$venueId slot=$slotId course=$courseId")
         _phase.value = setup()
     }
@@ -280,27 +282,76 @@ class LessonStateMachine(
         if (_phase.value !is LessonPhase.Setup) return
         val had = store.reservation ?: return
         store.reservation = null
+        pinned = null
         Log.i(TAG, "reservation: cancelled venue=${had.venueId} slot=${had.slotId}")
         _phase.value = setup()
     }
 
     /** 리포트에서 "다시 시작" 또는 오류 복구. */
     fun reset() {
+        stopEverything()
+        _phase.value = setup()
+    }
+
+    private fun stopEverything() {
         briefingJob?.cancel(); briefingJob = null
         vehicleJob?.cancel(); vehicleJob = null
         guide = null
         course = null
         current = null
         tts.stop()
+    }
+
+    // ───────── 관리자 모드 (라운드 22 결정 5, 10/5) — 시연 빌드의 준비실·띠만 부른다. 운전자 화면에는 진입점이 없다 ─────────
+
+    /** 프리셋이 고정한 홈 제안(과제 id, 모드). 운전자가 다른 걸 시작하거나 예약을 바꾸거나 기록을 지우면 풀린다. */
+    private var pinned: Pair<String, LessonMode>? = null
+
+    /**
+     * 시연 프리셋 적용 — 진행 중인 것을 멈추고, 기록·예약을 비우고, [presetProfile] 로 바꾸고, 홈 제안을 프리셋 과제·모드로 고정한다.
+     * 과제가 없거나 준비 중이거나 모드를 지원하지 않으면 아무것도 바꾸지 않는다. 로그 `admin: preset …`.
+     */
+    fun applyPreset(preset: AdminPreset, presetProfile: Profile) {
+        val task = tasks.firstOrNull { it.id == preset.taskId && it.isReady && it.supports(preset.mode) }
+            ?: run { Log.w(TAG, "admin: preset ${preset.id} refused (task ${preset.taskId} ${preset.mode})"); return }
+        stopEverything()
+        store.clear()
+        profile = presetProfile.copy(observation = ProfileObservation())
+        preset.reservation?.let { seed ->
+            val venue = venues.firstOrNull { it.id == seed.venueId }
+            val slotOk = venue?.slots?.any { it.id == seed.slotId && it.available } == true
+            val courseOk = venue?.courses?.any { it.id == seed.courseId } == true
+            if (slotOk && courseOk) store.reservation = Reservation(seed.venueId, seed.slotId, seed.courseId, madeAtMillis = clock())
+            else Log.w(TAG, "admin: preset ${preset.id} reservation ignored ($seed)")
+        }
+        pinned = task.id to preset.mode
         _phase.value = setup()
+        Log.i(TAG, "admin: preset ${preset.id} task=${task.id} mode=${preset.mode} profile=${presetProfile.statement}")
+    }
+
+    /** 프로필 전환 — 관측(기록에서 나온 것)은 그대로 두고 진술만 바꾼다. Setup 이면 제안을 다시 계산한다. */
+    fun setProfile(next: Profile) {
+        profile = next.copy(observation = store.observation())
+        if (_phase.value is LessonPhase.Setup) _phase.value = setup()
+        Log.i(TAG, "admin: profile ${next.statement}")
+    }
+
+    /** 기록 초기화 — 회차·퀴즈·예약·관측·프리셋 고정을 지운다. Setup 이면 제안을 다시 계산한다. */
+    fun resetRecords() {
+        store.clear()
+        profile = profile.copy(observation = ProfileObservation())
+        pinned = null
+        if (_phase.value is LessonPhase.Setup) _phase.value = setup()
+        Log.i(TAG, "admin: records cleared")
     }
 
     // ───────── 내부 ─────────
 
     private fun setup(): LessonPhase.Setup {
         val booking = store.reservation
-        val task = ModeAdvisor.suggestTask(profile, tasks, booking, venues)
-        val s = ModeAdvisor.suggest(task, store)
+        val pin = pinned?.let { (id, mode) -> tasks.firstOrNull { it.id == id }?.let { it to mode } }
+        val task = pin?.first ?: ModeAdvisor.suggestTask(profile, tasks, booking, venues)
+        val s = pin?.let { ModeAdvisor.Suggestion(it.second, ModeAdvisor.pinnedReason(it.second)) } ?: ModeAdvisor.suggest(task, store)
         val fromReservation = booking != null && ModeAdvisor.reservedTask(tasks.filter { it.isReady }, booking, venues)?.id == task.id
         val reason = if (fromReservation) "${ModeAdvisor.RESERVED_REASON} ${s.reason}" else s.reason
         return LessonPhase.Setup(profile, tasks, task, s.mode, reason, venues = venues, booking = booking)
