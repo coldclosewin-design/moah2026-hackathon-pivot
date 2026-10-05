@@ -137,6 +137,19 @@ internal fun PrimaryPill(label: String, onClick: () -> Unit, modifier: Modifier 
     }
 }
 
+/** Measure the secondary first; a constrained primary yields its preferred minimum to the gap. */
+@Composable
+internal fun BottomActions(secondary: (@Composable () -> Unit)? = null, primary: (@Composable () -> Unit)? = null,
+    modifier: Modifier = Modifier, alignment: Alignment.Vertical = Alignment.CenterVertically) {
+    Row(modifier.fillMaxWidth().heightIn(min = 140.dp), verticalAlignment = alignment) {
+        if (secondary != null) {
+            Box { secondary() }
+            if (primary != null) Spacer(Modifier.width(64.dp))
+        }
+        Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) { primary?.invoke() }
+    }
+}
+
 @Composable
 internal fun BackPill(onClick: () -> Unit) {
     val interactions = remember { MutableInteractionSource() }

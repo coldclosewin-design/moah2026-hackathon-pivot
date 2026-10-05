@@ -54,7 +54,7 @@ internal fun QuizDoneScreen(task: Task, results: List<QuizResult>, items: List<Q
                         }
                     }
                 }
-                PrimaryPill(stringResource(R.string.lesson_restart), onRestart)
+                BottomActions(primary = { PrimaryPill(stringResource(R.string.lesson_restart), onRestart) })
             }
         }
     }

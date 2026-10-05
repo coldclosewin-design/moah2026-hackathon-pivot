@@ -1,13 +1,46 @@
 # 화면 검증 캡처
 
-## 덱용 실제 세션 리포트 (2026-10-05 밤, 태그 `inhouse-20261006-1` APK)
+## UI 라운드 22 — 선택 트랙·완료 위치·상세 지표 (2026-10-05)
 
-라운드 21 까지의 리포트 캡처는 전부 계측 fixture 라(`lesson-report.png`·`lesson-report-verdict-last.png` 는 `미측정 1`, 후자는 △△✓✗) 덱 6장이 요구하는 **실제 세션의 0/8/0 · ✓✓✓✓ 리포트**가 없었다. 수정 없는 `tools/emu_flow.sh build/flow-deck-r21` 을 동결 태그 APK 에 돌려(PASS · 60/55·4구간 → 100/100·2구간) Report 에서 두 장을 더했다. 외부 Fake 시나리오이지 실차 관찰이 아니다.
+`codex/ui-round22` · 기준 `origin/main=75dbdf8`(#178) · [발주서](../../handoffs/2026-10-05_codex_ui_round22.md) ①~⑥. 외부 Fake, 배율 1.0, 2560×1440. 공용 에뮬의 다른 자동화 접속과 앱 종료가 반복돼 동일한 `CSTDe_API_34` 시스템 이미지·화면·메모리 설정으로 만든 임시 AVD(`emulator-5556`, user 10)에서 최종 검증했다. `ANDROID_SERIAL`만 지정하며 원본 tools는 수정하지 않았다.
+
+| 항목·시안 | 캡처 | 확인한 것 |
+|---|---|---|
+| ① 시험장 선택 | [선택·시간·코스](lesson-venue-slots.png), [예약됨](lesson-venues-booked.png) | 선택 바탕 Periwinkle/SelectedCard, 이름·코스 Paper, 상태 Paper 80%/예약됨 Signal. 빨간 테두리 제거, Ink 지도·Signal 경로와 selected 시맨틱·바탕 픽셀 검사 |
+| ② Done 알약 | [주차 3프레임](lesson-done-settle-strip.png), [점검 3프레임](lesson-done-checklist-settle-strip.png), [코스 3프레임](lesson-done-course-settle-strip.png) | 원인: 이전 단계 자막 푸터가 사라지며 가중치 영역이 늘어남. 조치: 발주서 (나)대로 Done에서는 이전 자막을 그리지 않고 회차 멘트를 표시. 실제 Compose 시계 0/500/1000ms의 y 좌표 동일 검사. 기존 완료 버튼 두 번 펄스와 궤적 재생 유지 |
+| ③ 지표 목록 · [6-B](../../design/round22-proposals/6-details-badge.html) | [실제 두 회차](lesson-details-session.png), [두 회차](lesson-details.png), [변화량](lesson-details-comparison.png), [한 회차](lesson-report-parking-perfect.png), [셋 이상](lesson-details-history.png), [미측정](lesson-details-multiple-missing.png), [코스](lesson-report-exam-details.png) | 시안 B의 숙련/안전 머리와 라벨 32sp Muted·값 36sp Ink 목록. 이동·시간·조향·기어·근접·급정지·편차를 행별로 정렬하고 변화량은 값 왼쪽. 미측정은 값 자리에 표시. 코스 감점 표·이전/다음 회차 보존 |
+| ④ 하단 공통 규칙 | [진단서](lesson-certificate.png), [시험 진단서](lesson-certificate-exam.png), [과제 시트](lesson-setup-sheet.png), [예약](lesson-venue-slots.png), [퀴즈 결과](lesson-quiz-done-results.png) | BottomActions에서 보조 왼쪽·주 오른쪽·최소 64dp. 주 알약의 선호 최소 폭 1075.2dp는 남은 폭에 맞춰 양보. 진단서는 돌아가기 옆 출처 줄과 그 오른쪽 아래 다시 시작으로 배치. 글자 링크 유지 |
+| ⑤ [3-C 알약 트랙](../../design/round22-proposals/3-mode-spacing.html) | [주차](lesson-setup-sheet.png), [전면](lesson-setup-sheet-front.png), [주행](lesson-setup-sheet-driving.png), [점검](lesson-setup-sheet-checklist.png), [지식](lesson-setup-knowledge.png), [시험장](lesson-venue-slots.png) | 분류·모드·시간·코스를 SelectionTrack으로 공유하되 색 인자를 분리. 모드 눈썹 제거, 카드 행 아래 24dp·높이 88dp·절반 폭, 같은 줄 오른쪽 제휴 시험장. 시간/코스는 전체 폭·88dp·사이 16dp. 시트 버튼 위치·크기, 숫자 0, selected·자리 없는 시간 클릭 불가 유지 |
+| ⑥ [6-B 한 줄 출처](../../design/round22-proposals/6-details-badge.html) | [상세](lesson-details-session.png), [진단서](lesson-certificate.png), [시험 상세](lesson-report-exam-details.png), [시험 진단서](lesson-certificate-exam.png) | 돌아가기 오른쪽 32sp Periwinkle 출처와 아래 28sp Muted 설명. 정확한 배지 접근성 텍스트 유지. 요약 페이지의 기존 출처 블록·실신호/시뮬/미측정 구분 유지 |
+
+[빌드 로그](build-round22.txt): PowerShell `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` 성공. 단위 테스트 **297개(실패·오류·건너뜀 0)**. 같은 최종 APK로 수정 없는 `tools/lesson_shots.sh` **3회 연속 Lesson contract passed**:
+
+| 실행 | 로그 | 결과 |
+|---|---|---|
+| 1 | [contract-round22-1.txt](contract-round22-1.txt) | Lesson contract passed |
+| 2 | [contract-round22-2.txt](contract-round22-2.txt) | Lesson contract passed |
+| 3 | [contract-round22-3.txt](contract-round22-3.txt) | Lesson contract passed |
+
+주차·점검·코스 Done 알약의 첫 세 프레임 y는 **1152 / 1152 / 1152 px**다. 시트 `시작`의 Signal 단색 경계는 변경 전후 모두 **(1421,1152)–(2495,1283)**로 같았다. 한 회차·두 회차·셋 이상·미측정·긴 문구·잠금 숫자/터치 0·선택/비활성·알약 간격을 검사했다. 새 수동 시계 캡처는 기존 상호작용 검사 뒤에서 실행하며 별도 Compose 루트를 정리한다. 반복 검증에서 발견한 기존 `quizQuitFlow`의 단계/접근성 트리 갱신 경합과 코스 계측의 시트 전환(400ms) 중 링크 조회는 기존 `afterUiSettles`로 원래 문항·선택지·링크가 보일 때까지 기다린 뒤 한 번만 클릭하도록 보완했다.
+
+[코스 전용 계측](contract-round22-course.txt) **Round18 contract passed**: 코스 감점 표·미측정·잠금·출처, 코스 Done의 3프레임, 세 시험장의 장내기능 예약을 확인했다. [서초](lesson-venue-exam-venue-seocho.png)·[강남](lesson-venue-exam-venue-gangnam.png)·[분당](lesson-venue-exam-venue-bundang.png)의 4/3/3 코스 트랙과 예약 콜백을 유지한다.
+
+원본 `tools/emu_flow.sh` **PASS·clashes 0·110초**([로그](flow-round22-rear.txt)): **60/55·4구간 → 100/100·2구간**, 필수 힌트 3종·둘째 추가 힌트 0·도어→Report·배지 `실신호 0 · 시뮬레이션 8 · 미측정 0`을 확인했다. 같은 실제 세션의 요약과 상세도 다시 캡처했다.
+
+`adb install -r` 뒤 원본 `tools/course_flow.sh`도 **PASS·종료 코드 0**([로그](flow-round22-course.txt)): **70 불합격·감점 3 → 100 합격·감점 0 → 도어→Report**. 스크립트는 기존 라벨로 Done의 `한 번 더`를 찾아 실행했다.
+
+PNG **42장(39 교체·3프레임 스트립 3 추가)**을 반영했다. 최종 전체 계측의 첫 실행·코스 전용 계측·실제 후면 세션에서 가져왔으며, 변경된 대표 화면과 긴 문구·미측정·한 회차/여러 회차·코스·예약을 확인했다. 내용이 같은 기존 캡처와 왼쪽 도식의 안티앨리어싱 차이만 있는 Done 캡처는 유지했다. 긴 상세 기록·진단서 공유 범위는 기존 스크롤로 접근하고 하단 액션·출처는 고정된다.
+
+APK SHA-256: 앱 `F5616AD4D3E70CCC4DC97DDE1432782CF86273AB5620D4959BFD9F48016BD84B`, 계측 `A5E174EDDD042A3B3B4F89782C1110E9ECB555C79E02888141B3A8B8989DBCED`. 에뮬에 설치된 앱의 해시도 일치했다. 정적 확인: `ui/` Bold 0, `Color(0x`는 기존 CoachStyle의 다섯 토큰만 사용. 분류의 준비 중 글자색·문자열 리소스·라벨 13개·tools·NEXT·차량/포트/채점/상태기계/데이터/빌드 파일 변경 없음.
+
+## 덱용 실제 세션 리포트 (2026-10-05 밤, 라운드 22 최종 APK)
+
+수정 없는 `tools/emu_flow.sh build/round22-rear`를 라운드 22 최종 APK로 실행한 **실제 세션의 0/8/0 · ✓✓✓✓ 리포트**다. 덱용 두 장도 새 지표 목록·한 줄 출처로 갱신했다. 외부 Fake 시나리오이며 실차 관찰이 아니다. 시간·방향 편차는 이번 실행의 실측값이다.
 
 | 캡처 | 화면 |
 |---|---|
 | [lesson-report-session.png](lesson-report-session.png) | Report — 연습한 회차 02 · 마지막 회차 판정 ✓✓✓✓ · 두 문장 총평 · 배지 `실신호 0 · 시뮬레이션 8 · 미측정 0` |
-| [lesson-details-session.png](lesson-details-session.png) | 같은 세션의 `자세히 보기` — 두 회차 카드 나란히(60/55 · 4회 · 44초 · 편차 17° → 100/100 · 2회 · 29초 · 편차 2°, 변화량 칩) |
+| [lesson-details-session.png](lesson-details-session.png) | 같은 세션의 `자세히 보기` — 두 회차 카드 나란히(60/55 · 4회 · 51초 · 편차 16° → 100/100 · 2회 · 35초 · 편차 1°, 변화량 칩) |
 
 ## UI 라운드 21 — 선택 시안 ①~⑨ (2026-10-05)
 

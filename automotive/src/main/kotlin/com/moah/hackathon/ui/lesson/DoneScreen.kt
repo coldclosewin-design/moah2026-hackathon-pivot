@@ -74,9 +74,8 @@ internal fun DoneScreen(task: Task, attempt: Int, record: AttemptRecord, subtitl
                         PrimaryPill(stringResource(R.string.lesson_again), onAgain, Modifier.weight(1f, fill = false))
                         TextAction(stringResource(R.string.lesson_end), onEnd)
                     }
-                    SpeechFooter(subtitle?.takeUnless { spoken ->
-                        spoken.trim() == record.remark.trim() || record.remark.lines().any { it.trim() == spoken.trim() }
-                    })
+                    // The remark is already the Done speech. Never show the previous phase's subtitle:
+                    // removing that footer after TTS starts used to move the action row vertically.
                 }
             }
             if (demo != null) DemoRail(expansion, demo)

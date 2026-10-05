@@ -6,8 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.draw.clip
 import androidx.compose.runtime.*
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalDensity
@@ -47,12 +45,12 @@ internal fun TaskSheet(tasks: List<Task>, category: TaskType, task: Task?, mode:
     Column(Modifier.fillMaxSize()) {
         Eyebrow("연습할 과제", color = CoachColors.Periwinkle)
         Spacer(Modifier.height(40.dp))
-        Row(Modifier.fillMaxWidth().height(104.dp).background(CoachColors.Lavender, RoundedCornerShape(100))
-            .padding(10.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            categoryOrder().forEach { type ->
-                CategoryChoice(type, type == category, groups[type].orEmpty().any { it.isReady },
-                    Modifier.weight(1f).fillMaxHeight()) { onCategory(type) }
-            }
+        SelectionTrack(categoryOrder(), category, ::taskTypeLabel, onCategory,
+            Modifier.fillMaxWidth(), height = 104.dp, textSize = 56, role = Role.Tab) { type, color ->
+            val ready = groups[type].orEmpty().any { it.isReady }
+            val categoryColor = if (type == category || ready) color else CoachColors.Muted
+            LessonText(taskTypeLabel(type), 56, categoryColor)
+            if (!ready) LessonText(TaskStatus.PLANNED.label, 32, categoryColor)
         }
         Spacer(Modifier.height(24.dp))
         Eyebrow("${taskTypeLabel(category)} 세부 과제", color = CoachColors.Periwinkle)
@@ -70,43 +68,19 @@ internal fun TaskSheet(tasks: List<Task>, category: TaskType, task: Task?, mode:
                 }
             }
         }
-        Column(Modifier.weight(1f).fillMaxWidth().padding(vertical = 4.dp)) {
-            PosterRule()
+        // The card row includes the check overhang; leave 24 dp before the mode track.
+        Spacer(Modifier.height(24.dp))
+        Row(Modifier.fillMaxWidth().height(88.dp), verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween) {
+            if (task != null) SelectionTrack(LessonMode.entries.filter(task::supports), mode, { it.label }, onMode,
+                Modifier.fillMaxWidth(.5f))
+            else Spacer(Modifier.width(1.dp))
             TextAction("제휴 시험장", onVenues, size = 32)
         }
-        // Keep the footer at the same position even when a category has no ready task.
-        Column(Modifier.height(146.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            if (task != null) {
-                Eyebrow("모드", color = CoachColors.Periwinkle)
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    LessonMode.entries.filter(task::supports).forEach { item ->
-                        SelectionChip(item.label, item == mode, { onMode(item) })
-                    }
-                }
-            }
-        }
-        Spacer(Modifier.height(16.dp))
-        Row(Modifier.fillMaxWidth().height(140.dp), verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween) {
-            BackPill(onBack)
-            if (task != null) PrimaryPill(stringResource(R.string.lesson_start), onStart)
-        }
-    }
-}
-
-@Composable
-private fun CategoryChoice(type: TaskType, expanded: Boolean, ready: Boolean, modifier: Modifier, onClick: () -> Unit) {
-    val color = when {
-        expanded -> CoachColors.Paper
-        ready -> CoachColors.Periwinkle
-        else -> CoachColors.Muted
-    }
-    Row(modifier.then(if (expanded) Modifier.surfaceTexture(CoachColors.Periwinkle, CoachTexture.SelectedChip, pill = true)
-        else Modifier).clip(RoundedCornerShape(100)).clickable(role = Role.Tab, onClick = onClick)
-        .semantics { selected = expanded }, horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically) {
-        LessonText(taskTypeLabel(type), 56, color)
-        if (!ready) LessonText(TaskStatus.PLANNED.label, 32, color)
+        Spacer(Modifier.weight(1f))
+        BottomActions(secondary = { BackPill(onBack) }, primary = if (task != null) {
+            { PrimaryPill(stringResource(R.string.lesson_start), onStart) }
+        } else null)
     }
 }
 
