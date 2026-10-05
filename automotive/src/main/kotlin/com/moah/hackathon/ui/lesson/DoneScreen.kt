@@ -72,7 +72,7 @@ internal fun DoneScreen(task: Task, attempt: Int, record: AttemptRecord, subtitl
                         ResultHeadline(record.remark)
                     }
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(48.dp)) {
-                        PrimaryPill(stringResource(R.string.lesson_again), onAgain, driver = true)
+                        PrimaryPill(stringResource(R.string.lesson_again), onAgain, Modifier.weight(1f, fill = false))
                         TextAction(stringResource(R.string.lesson_end), onEnd)
                     }
                     SpeechFooter(subtitle?.takeUnless { spoken ->

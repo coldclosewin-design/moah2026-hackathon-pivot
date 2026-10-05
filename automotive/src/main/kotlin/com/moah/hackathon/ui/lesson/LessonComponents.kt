@@ -122,8 +122,9 @@ internal fun ResultLockedScreen() {
 }
 
 @Composable
-internal fun PrimaryPill(label: String, onClick: () -> Unit, modifier: Modifier = Modifier, driver: Boolean = false) {
-    val dimensions = if (driver) Modifier.widthIn(min = 720.dp).height(140.dp) else Modifier.heightIn(min = 120.dp)
+internal fun PrimaryPill(label: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    // Setup summary: 47% of the 2560 dp canvas, minus its two 64 dp margins.
+    val dimensions = Modifier.widthIn(min = (2560 * .47f - 128).dp).height(140.dp)
     val interactions = remember { MutableInteractionSource() }
     val pressed = interactions.collectIsPressedAsState()
     Button(onClick, modifier.then(dimensions).surfaceTexture(CoachColors.Signal, CoachTexture.Button,

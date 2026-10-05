@@ -44,14 +44,16 @@ internal fun TaskSheet(tasks: List<Task>, category: TaskType, task: Task?, mode:
     val groups = tasks.groupBy { it.type }
     Column(Modifier.fillMaxSize()) {
         Eyebrow("연습할 과제", color = CoachColors.Periwinkle)
-        Spacer(Modifier.height(8.dp))
-        Row(Modifier.fillMaxWidth().height(160.dp), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+        Spacer(Modifier.height(40.dp))
+        // Reclaim unused space below the menu so the venue link and fixed footer still fit.
+        Row(Modifier.fillMaxWidth().height(128.dp), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
             categoryOrder().forEach { type ->
                 CategoryChoice(type, type == category, groups[type].orEmpty().any { it.isReady },
                     Modifier.weight(1f).fillMaxHeight()) { onCategory(type) }
             }
         }
-        LessonText("${taskTypeLabel(category)} 세부 과제", 40)
+        Eyebrow("${taskTypeLabel(category)} 세부 과제", color = CoachColors.Periwinkle)
+        Spacer(Modifier.height(24.dp))
         // The face is 288 dp art + 144 dp band; reserve the existing 32 dp check overhang.
         BoxWithConstraints(Modifier.fillMaxWidth().height(464.dp)) {
             val items = groups[category].orEmpty()
@@ -65,14 +67,14 @@ internal fun TaskSheet(tasks: List<Task>, category: TaskType, task: Task?, mode:
                 }
             }
         }
-        Column(Modifier.weight(1f).fillMaxWidth().padding(vertical = 12.dp)) {
+        Column(Modifier.weight(1f).fillMaxWidth().padding(vertical = 4.dp)) {
             PosterRule()
             TextAction("제휴 시험장", onVenues, size = 32)
         }
         // Keep the footer at the same position even when a category has no ready task.
         Column(Modifier.height(146.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             if (task != null) {
-                Eyebrow("모드")
+                Eyebrow("모드", color = CoachColors.Periwinkle)
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     LessonMode.entries.filter(task::supports).forEach { item ->
                         SelectionChip(item.label, item == mode, { onMode(item) })
@@ -84,7 +86,7 @@ internal fun TaskSheet(tasks: List<Task>, category: TaskType, task: Task?, mode:
         Row(Modifier.fillMaxWidth().height(140.dp), verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween) {
             TextAction(stringResource(R.string.lesson_back), onBack)
-            if (task != null) PrimaryPill(stringResource(R.string.lesson_start), onStart, driver = true)
+            if (task != null) PrimaryPill(stringResource(R.string.lesson_start), onStart)
         }
     }
 }

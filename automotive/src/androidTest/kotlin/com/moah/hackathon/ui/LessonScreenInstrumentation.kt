@@ -134,6 +134,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             assertDriverButton(activity, "시작")
             assertPanelCollapsed()
             capture("setup")
+            val setupPillWidth = buttonBounds("시작").width()
             val proposalBounds = textBounds(setupProposal(TaskType.PARKING))
             click("시연")
             check(texts().containsAll(listOf("잘한 주차", "못한 주차")))
@@ -153,6 +154,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             parkingTasks.filterNot { it.isReady }.forEach { assertPlannedTask(it.title) }
             assertSelected(task.title)
             assertSelected("주차")
+            sheetHeadingContract(activity)
             val categoryCenters = categoryOrder().map { textBounds(taskTypeLabel(it)).centerX() }
             check(categoryCenters == categoryCenters.sorted())
             check(allText().none { Regex("\\d").containsMatchIn(it) }) { "Sheet leaked task counts or numbers: ${allText()}" }
@@ -404,7 +406,8 @@ class LessonScreenInstrumentation : Instrumentation() {
             }
             render(activity) { ManeuverScreen(checklist, false, true, null, {}, checklistDemo, SeedCatalog.predriveTask.title) }
             val checklistLabels = listOf("도어", "안전벨트", "기어", "브레이크 / 시동", "좌 지시등", "우 지시등", "비상등")
-            check(texts().containsAll(checklistLabels + listOf("채움", "P", "닫힘", "밟음 → 켜짐", "켜짐", "아직", "다 됐어요")))
+            guideBaselineContract(activity, "4/7")
+            check(texts().containsAll(checklistLabels + listOf("채움", "P", "닫힘", "밟음 → 켜짐", "켜짐", "미수행", "다 됐어요")))
             check(allText().none { Regex("조향각|뒤 거리|cm|이동 \\d+회").containsMatchIn(it) })
             assertNoScores()
             assertDriverButton(activity, "다 됐어요")
@@ -483,6 +486,9 @@ class LessonScreenInstrumentation : Instrumentation() {
                 click(item.choices[selected])
                 runOnMainSync { check(chosen.value == selected) }
                 check(texts().contains(item.why))
+                val nextLabel = if (index == SeedCatalog.quiz.lastIndex) "결과 보기" else "다음 문제"
+                assertDriverButton(activity, nextLabel)
+                check(abs(buttonBounds(nextLabel).width() - setupPillWidth) <= 1) { "Quiz primary width differs from Setup" }
                 awaitClickableCount(2)
                 val correctChoice = item.choices[item.answer]
                 if (selected != item.answer) {
@@ -541,13 +547,13 @@ class LessonScreenInstrumentation : Instrumentation() {
                 render(activity) {
                     if (inQuiz.value) QuizScreen(knowledge, 0, SeedCatalog.quiz.size, SeedCatalog.quiz.first(), false,
                         chosen, 0, {}, {}, { quitCount++; inQuiz.value = false })
-                    else SetupScreen(SeedCatalog.demoProfile, SeedCatalog.tasks, task, LessonMode.GUIDE,
-                        "처음은 제가 순서대로 함께할게요.", null, { _, _ -> })
+                    else QuizDoneScreen(knowledge, emptyList(), SeedCatalog.quiz, "이유까지 기억하면 충분해요.", {})
                 }
                 click("그만하기")
                 runOnMainSync { check(quitCount == index + 1) }
-                check(texts().containsAll(listOf("시작", "과제·모드 바꾸기")))
+                check(texts().contains("다시 시작") && texts().none { it == "시작" })
             }
+            quizQuitFlow(activity)
             val items = SeedCatalog.quiz.take(3)
             val wrongChoice = (items[0].answer + 1) % items[0].choices.size
             val results = listOf(QuizResult(items[1].id, items[1].answer, true), QuizResult(items[0].id, wrongChoice, false))
@@ -972,6 +978,68 @@ class LessonScreenInstrumentation : Instrumentation() {
             score.metrics.motion.movingSegments, score.metrics.motion.totalMillis, true,
             registry.snapshot(), score.metrics.preDrive)
         return score to phase.toDisplayState()
+    }
+
+    private fun quizQuitFlow(activity: MainActivity) {
+        val container = (activity.application as App).container
+        lateinit var vm: LessonViewModel
+        runOnMainSync {
+            vm = ViewModelProvider(activity, LessonViewModel.factory(container))[LessonViewModel::class.java]
+            vm.restart()
+            vm.demo?.stopCar()
+        }
+        render(activity) { LessonRoute(vm) }
+        click("과제·모드 바꾸기")
+        click("지식")
+        click("시작")
+        val deadline = SystemClock.uptimeMillis() + 15_000
+        while (vm.phase.value !is LessonPhase.Quiz && SystemClock.uptimeMillis() < deadline) Thread.sleep(50)
+        check(vm.phase.value is LessonPhase.Quiz) { "Knowledge briefing did not reach Quiz" }
+        repeat(3) { index ->
+            val quiz = vm.phase.value as LessonPhase.Quiz
+            click(quiz.item.choices[quiz.item.answer])
+            if (index < 2) click("다음 문제")
+        }
+        click("그만하기")
+        val done = vm.phase.value as LessonPhase.QuizDone
+        check(done.results.size == 3 && done.results.all { it.correct })
+        check(texts().contains("다시 시작") && texts().none { it == "시작" })
+        capture("quiz-done-quit-three")
+        click("다시 시작")
+        check(vm.phase.value is LessonPhase.Setup)
+        check(texts().containsAll(listOf("시작", "과제·모드 바꾸기")))
+        pass("Quiz quit: real LessonRoute retains all three correct answers in QuizDone; restart returns to Setup")
+    }
+
+    private fun sheetHeadingContract(activity: MainActivity) {
+        val scale = designScale(activity)
+        runOnMainSync {
+            fun text(label: String) = composeNodes(activity).first {
+                it.config.getOrNull(SemanticsProperties.Text)?.singleOrNull()?.text == label
+            }
+            listOf("연습할 과제", "주차 세부 과제", "모드").forEach { label ->
+                val layouts = mutableListOf<TextLayoutResult>()
+                check(text(label).config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts) == true)
+                check(layouts.single().layoutInput.style.fontSize == 32.sp)
+                check(layouts.single().layoutInput.style.color == CoachColors.Periwinkle)
+            }
+            check(abs((text("주차").boundsInWindow.top - text("연습할 과제").boundsInWindow.bottom) / scale - 40f) <= 1f)
+            val card = composeNodes(activity).first { node ->
+                node.config.getOrNull(SemanticsProperties.Selected) == true &&
+                    node.boundsInWindow.height > 400 * scale && node.boundsInWindow.width < 500 * scale
+            }
+            check(abs((card.boundsInWindow.top - text("주차 세부 과제").boundsInWindow.bottom) / scale - 24f) <= 1f)
+        }
+    }
+
+    private fun guideBaselineContract(activity: MainActivity, step: String) = runOnMainSync {
+        fun baseline(label: String): Float {
+            val node = composeNodes(activity).first { it.config.getOrNull(SemanticsProperties.Text)?.singleOrNull()?.text == label }
+            val layouts = mutableListOf<TextLayoutResult>()
+            check(node.config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts) == true)
+            return node.boundsInWindow.top + layouts.single().firstBaseline
+        }
+        check(abs(baseline("코치") - baseline(step)) <= 1f) { "Coach and step baselines differ" }
     }
 
     private fun reservationFlow(activity: MainActivity) {
@@ -1586,7 +1654,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         render(activity) {
             PosterSurface {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    PrimaryPill("한 번 더", { clicks++ }, driver = true)
+                    PrimaryPill("한 번 더", { clicks++ })
                 }
             }
         }

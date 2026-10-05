@@ -1,5 +1,42 @@
 # 화면 검증 캡처
 
+## UI 라운드 20 — 카드 그림자·간격·퀴즈 종료 (2026-10-05)
+
+`codex/ui-round20` · 기준 `origin/main=6be5be1`(PR #164 포함) · 외부 CSTDe_API_34 2560×1440 · 기본 Fake, 배율 1.0. [발주서](../../handoffs/2026-10-05_codex_ui_round20.md) ①~⑧의 UI 변경을 반영했다. 화면 구조·도식·카드 크기와 기존 `CoachTexture` 값을 유지했다.
+
+| 항목 | 대표 교체·추가 캡처 | 확인 |
+|---|---|---|
+| ① 카드형 면 | [예약 확인](lesson-reservation.png), [예약된 시험장](lesson-venues-booked.png), [시험장·시간·코스](lesson-venue-slots.png), [점검](lesson-maneuver-checklist-pending.png), [선택지](lesson-quiz-answered.png) | 기존 Card/SelectedCard/Chip 질감. 비활성 시간 칩도 같은 그림자, 클릭 불가·Muted 유지 |
+| ① 판정·회차 묶음 | [Done](lesson-done.png), [코스 Done](lesson-done-exam-bad.png), [주차 상세](lesson-details.png), [코스 상세](lesson-report-exam-details.png) | 주차·점검 판정의 기존 Panel 유지, 코스 Done/요약에도 Panel 적용. 회차별 Paper 카드에 기존 그림자, 기존 행/숫자/정렬 유지 |
+| ②~④ 과제 시트 | [주차](lesson-setup-sheet.png), [주행](lesson-setup-sheet-driving.png), [점검](lesson-setup-sheet-checklist.png), [지식](lesson-setup-knowledge.png) | 제목→메뉴 8→40dp, 세부 제목→카드 24dp. 세부 제목·모드 32sp Periwinkle. 메뉴 아래 빈 공간과 예약 링크 여백을 조정해 카드 464dp·고정 하단·제휴 시험장 전문 유지 |
+| ⑤~⑥ 점검·코치 | [점검 대기](lesson-maneuver-checklist-pending.png), [신호 누락](lesson-maneuver-checklist-missing.png), [코치](lesson-maneuver-guides.png) | `아직`→`미수행`, 기존 상태 판정 유지. 코치/단계 두 라벨의 실제 텍스트 기준선 차이 1px 이내 |
+| ⑦ 중도 종료 | [세 문제 뒤 그만하기](lesson-quiz-done-quit-three.png) | 실제 `LessonRoute`·VM으로 세 답 전부 정답→그만하기→QuizDone에 결과 세 개 보존→다시 시작→Setup. 답변 전/후 종료 콜백 각각 한 번도 유지 |
+| ⑧ 주 알약 | [다음 문제](lesson-quiz-answered.png), [결과](lesson-quiz-done.png), [Done](lesson-done.png), [진단서](lesson-certificate.png) | Setup 시작의 1075.2dp를 공통 최소 폭으로, 높이 140dp·글자 40sp 통일. 옆 액션이 있는 Done은 남는 폭으로 제한 |
+
+⑦의 발주서 표현 `QuizDone 3/3`과 현재 상태기계에 차이가 있다. `endSession()`은 **정답 세 개와 전체 열 문항**을 전달하므로 실제 화면 분모와 총평은 **3/10**이다. 지시된 연결(`vm::restart`→`vm::endSession`)과 `feature/lesson/` 수정 금지를 따르고, 분모·미응답·총평은 변경하지 않았다. 이 차이를 INTEGRATION C절에 명시했다. 완료한 세 답은 모두 보존되며 미응답은 기존대로 남는다.
+
+[지정 빌드](build-round20.txt): PowerShell `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` 성공, 단위 테스트 **290개(실패·오류·건너뜀 0)**. 중간 증분 실행에서 Gradle 캐시 포장 오류(`size in header of 0`)가 발생해 [캐시 없는 클린 빌드](build-round20-clean.txt)로 복구한 뒤 최종 지정 명령을 통과했다. 첫 새 계측에서 브리핑 중 Quiz로 캐스팅하던 실패는 단계 전환 폴링으로 고쳤다. 첫 간격 시안에서 예약 링크 잘림을 확인해 메뉴 행의 빈 공간 32dp와 링크 위아래 여백 16dp를 회수했다. 최종 카드 크기·화살표 모양·모드·시작 위치는 유지된다.
+
+[코스 전용 계측](contract-round20-course.txt) **Round18 contract passed**. 기존 OFF/null/신호 색·빈 감점 회차 전문·고정 돌아가기·미측정 규칙, 실제 코스 재생/마커·평행/사선 칸·예약 인자 계약도 통과했다.
+
+같은 최종 APK로 수정 없는 `bash tools/lesson_shots.sh build/round20-final-N`을 **3회 연속 통과**했다.
+
+| 연속 실행 | 전체 계약 로그 | 결과 |
+|---|---|---|
+| 1 | [첫 실행](contract-round20-1.txt) | Lesson contract passed |
+| 2 | [두 번째](contract-round20-2.txt) | Lesson contract passed |
+| 3 | [세 번째](contract-round20-3.txt) | Lesson contract passed |
+
+원본 `bash tools/emu_flow.sh build/round20-rear-flow` **PASS·clashes 0·리포트까지 129초**([후면 로그](flow-round20-rear.txt)). 첫 회차 60/55·이동 4구간 → 둘째 100/100·2구간, 안전벨트·뒤 근접·급제동 힌트 3종, 둘째 추가 힌트 0, 도어→Report·배지 `실신호 0 · 시뮬레이션 8 · 미측정 0`을 확인했다.
+
+`adb install -r` 성공 뒤 원본 `bash tools/course_flow.sh build/round20-course-flow`를 숨김 백그라운드 프로세스로 실행해 **PASS·종료 코드 0**([코스 로그](flow-round20-course.txt)). 못한 시험 70점·불합격·뒤로 밀림/검지선 접촉/비상등 미점등 3건 → 잘한 시험 100점·합격·감점 0건 → 도어→Report를 확인했다. 원본 흐름 캡처는 `build/round20-course-flow/`에 보관한다.
+
+PNG **108장(교체 107·추가 1)**: 최종 전체 첫 실행 93장, 코스 전용 11장, 실제 후면 시연 4장. 새 파일은 세 문제 중도 종료 캡처다. 공통 알약·그림자·기준선이 영향을 주는 각 상태와 과거 라운드의 오래된 대표 캡처를 현재 화면으로 교체했다. 본문의 대표 화면과 긴 문구·미측정·예약·모핑을 확인했으며 글자 잘림·버튼 겹침이 없다. Done/점검 Done/QuizDone/Report 세 화면/질감 잠금의 **일곱 PNG는 앱 영역 (0,76)–(2560,1344)이 픽셀 동일**하다. Quiz 잠금은 한 픽셀에서 채널값 3 이하 차이만 있어 교체하지 않았다. Maneuver 잠금도 기존 평면 배경·터치 0 계약을 유지한다.
+
+APK SHA-256: 앱 `855B17733B8A3086633D2CB28AA977123FD4865F816A3648D5282EB769A328B3`, 계측 `9612A85756FF86C64CF40CF60F3C024EBC01EDA0D583DFF78338C82A2D94F006`.
+
+정적 확인: `ui/` Bold 0, `Color(0x`는 기존 `CoachStyle.kt`만 사용한다. 새 색 토큰·문자열 리소스 0. 차량·포트·채점·상태기계·데이터·build 파일·tools·NEXT·시연 라벨 13개 변경 없음.
+
 ## 라운드 17 Done 실루엣 통일·전면 카드 양옆 선 (2026-10-04)
 
 `codex/ui-round17` · 기준 `origin/main=cfba077`(#135 포함) · 외부 CSTDe_API_34 2560×1440 · Fake 기본 배율 1.0. [발주서](../../handoffs/2026-10-04_codex_ui_round17.md)의 두 변경을 한 ui PR로 반영했다.

@@ -3,7 +3,6 @@ package com.moah.hackathon.ui.lesson
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -14,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.moah.hackathon.feature.lesson.LessonReport
 import com.moah.hackathon.scoring.*
 import com.moah.hackathon.ui.CoachColors
+import com.moah.hackathon.ui.CoachTexture
 import kotlinx.coroutines.delay
 
 @Composable
@@ -24,7 +24,7 @@ internal fun CourseDonePanel(course: TrackCourse, result: CourseResult, modifier
         time.animateTo((result.trail.lastOrNull()?.tMillis ?: 0L).toFloat(), tween(3_000, easing = LinearEasing))
     }
     val trail = courseTrailThroughTime(result.trail, time.value.toLong())
-    Column(modifier.background(CoachColors.Ink).padding(start = 56.dp, end = 56.dp, top = 64.dp, bottom = 52.dp),
+    Column(modifier.surfaceTexture(CoachColors.Ink, CoachTexture.Panel).padding(start = 56.dp, end = 56.dp, top = 64.dp, bottom = 52.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)) {
         Eyebrow("지나간 자리", color = CoachColors.Paper.copy(alpha = .6f))
         CourseMap(course, Modifier.weight(1f).fillMaxWidth(),
@@ -48,7 +48,7 @@ internal fun CourseDonePanel(course: TrackCourse, result: CourseResult, modifier
 
 @Composable
 internal fun CourseSummaryPanel(result: CourseResult, modifier: Modifier) {
-    Column(modifier.background(CoachColors.Ink).padding(start = 80.dp, end = 64.dp, top = 64.dp, bottom = 52.dp),
+    Column(modifier.surfaceTexture(CoachColors.Ink, CoachTexture.Panel).padding(start = 80.dp, end = 64.dp, top = 64.dp, bottom = 52.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)) {
         BrandMark(color = CoachColors.Paper)
         Eyebrow("최고 회차의 코스", color = CoachColors.Paper.copy(alpha = .6f))
@@ -73,31 +73,34 @@ internal fun CourseSummaryPanel(result: CourseResult, modifier: Modifier) {
 internal fun CourseDetails(report: LessonReport, modifier: Modifier) {
     Column(modifier.fillMaxWidth().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(20.dp)) {
         report.attempts.forEach { attempt -> attempt.course?.let { result ->
-            LessonText("${attempt.index}회차 · 코스 ${result.score}점" +
-                (result.passScore?.let { " · 합격선 ${it}점" } ?: ""), 44)
-            LessonText(courseVerdict(result), 36, CoachColors.Periwinkle)
-            PosterRule()
-            if (result.deductions.isEmpty()) {
-                LessonText("감점 없음", 32, CoachColors.Muted)
-            } else {
-                Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                    LessonText("구간", 32, CoachColors.Muted, modifier = Modifier.width(230.dp))
-                    LessonText("사유", 32, CoachColors.Muted, modifier = Modifier.weight(1f))
-                    LessonText("감점", 32, CoachColors.Muted, modifier = Modifier.width(120.dp))
-                }
-                result.deductions.forEach { deduction ->
+            Column(Modifier.fillMaxWidth().surfaceTexture(CoachColors.Paper, CoachTexture.Card)
+                .padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                LessonText("${attempt.index}회차 · 코스 ${result.score}점" +
+                    (result.passScore?.let { " · 합격선 ${it}점" } ?: ""), 44)
+                LessonText(courseVerdict(result), 36, CoachColors.Periwinkle)
+                PosterRule()
+                if (result.deductions.isEmpty()) {
+                    LessonText("감점 없음", 32, CoachColors.Muted)
+                } else {
                     Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                        LessonText(deduction.zoneTitle, 32, modifier = Modifier.width(230.dp))
-                        LessonText(deduction.reason + if (deduction.disqualify) " · 실격" else "", 32, modifier = Modifier.weight(1f))
-                        LessonText("−${deduction.points}점", 32, CoachColors.Signal, modifier = Modifier.width(120.dp))
+                        LessonText("구간", 32, CoachColors.Muted, modifier = Modifier.width(230.dp))
+                        LessonText("사유", 32, CoachColors.Muted, modifier = Modifier.weight(1f))
+                        LessonText("감점", 32, CoachColors.Muted, modifier = Modifier.width(120.dp))
+                    }
+                    result.deductions.forEach { deduction ->
+                        Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                            LessonText(deduction.zoneTitle, 32, modifier = Modifier.width(230.dp))
+                            LessonText(deduction.reason + if (deduction.disqualify) " · 실격" else "", 32, modifier = Modifier.weight(1f))
+                            LessonText("−${deduction.points}점", 32, CoachColors.Signal, modifier = Modifier.width(120.dp))
+                        }
                     }
                 }
+                result.zones.forEach { zone ->
+                    if (!result.positionMeasured || !zone.visited) LessonText("${zone.title} · 확인 못 함", 32, CoachColors.Muted)
+                    else zone.unmeasured.forEach { LessonText("${zone.title} · $it · 확인 못 함", 32, CoachColors.Muted) }
+                }
+                PosterRule()
             }
-            result.zones.forEach { zone ->
-                if (!result.positionMeasured || !zone.visited) LessonText("${zone.title} · 확인 못 함", 32, CoachColors.Muted)
-                else zone.unmeasured.forEach { LessonText("${zone.title} · $it · 확인 못 함", 32, CoachColors.Muted) }
-            }
-            PosterRule()
         } }
     }
 }

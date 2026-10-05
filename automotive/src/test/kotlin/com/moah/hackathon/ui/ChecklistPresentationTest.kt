@@ -101,7 +101,7 @@ class ChecklistPresentationTest {
         assertEquals("켜짐", checklistLightValue(true, true))
         assertEquals("켜짐", checklistLightValue(true, false))
         assertEquals("확인", checklistLightValue(false, true))
-        assertEquals("아직", checklistLightValue(false, false))
+        assertEquals("미수행", checklistLightValue(false, false))
         assertNull(checklistLightValue(null, null))
     }
 }

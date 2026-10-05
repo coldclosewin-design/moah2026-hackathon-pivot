@@ -8,12 +8,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.moah.hackathon.R
 import com.moah.hackathon.feature.lesson.ManeuverDisplayState
 import com.moah.hackathon.feature.lesson.TaskType
 import com.moah.hackathon.ui.CoachColors
+import com.moah.hackathon.ui.CoachTexture
 import com.moah.hackathon.vehicle.SignalAvailability
 import kotlinx.coroutines.delay
 import kotlin.math.abs
@@ -55,7 +57,7 @@ internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stoppe
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                                 ChecklistValue("도어", state.doorOpen?.let { if (it) "열림" else "닫힘" }, state.doorOpen == false,
                                     state.doorSignal, commonSignal == null)
-                                ChecklistValue("안전벨트", state.belt?.let { if (it) "채움" else "아직" }, state.belt == true,
+                                ChecklistValue("안전벨트", state.belt?.let { if (it) "채움" else "미수행" }, state.belt == true,
                                     state.beltSignal, commonSignal == null)
                                 ChecklistValue("기어", state.gear, state.gear == "P", state.gearSignal, commonSignal == null)
                                 val ignition = state.checklistIgnition()
@@ -114,8 +116,8 @@ internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stoppe
                             val main = guide ?: visibleHint ?: spoken?.takeIf { it.count { c -> c == '\n' } < 3 }
                             if (main != null) {
                                 Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                                    Eyebrow("코치")
-                                    if (guide != null) state.guideStep?.let { Eyebrow(it, color = CoachColors.Periwinkle) }
+                                    Eyebrow("코치", Modifier.alignByBaseline())
+                                    if (guide != null) state.guideStep?.let { Eyebrow(it, Modifier.alignByBaseline(), color = CoachColors.Periwinkle) }
                                 }
                                 Spacer(Modifier.height(24.dp))
                                 Headline(main, Modifier.graphicsLayer {
@@ -164,7 +166,8 @@ private fun ChecklistValue(label: String, value: String?, satisfied: Boolean, si
         else -> CoachColors.Ink.copy(alpha = .6f)
     }
     val foreground = if (measured) CoachColors.Paper else CoachColors.Muted
-    Column(Modifier.fillMaxWidth().height(240.dp).background(CoachColors.Lavender).background(background)
+    Column(Modifier.fillMaxWidth().height(240.dp).surfaceTexture(background.compositeOver(CoachColors.Lavender),
+            if (measured) CoachTexture.SelectedCard else CoachTexture.Card)
         .padding(horizontal = 24.dp, vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Eyebrow(label, color = foreground)
         LessonText(if (measured) value!! else "미측정", 48, foreground, bold = true)
@@ -195,5 +198,5 @@ internal fun FinishButton(emphasized: Boolean, onFinish: () -> Unit) {
         }
     }
     PrimaryPill(stringResource(R.string.lesson_finish), onFinish,
-        Modifier.fillMaxWidth().graphicsLayer { scaleX = pulse.value; scaleY = pulse.value }, driver = true)
+        Modifier.fillMaxWidth().graphicsLayer { scaleX = pulse.value; scaleY = pulse.value })
 }
