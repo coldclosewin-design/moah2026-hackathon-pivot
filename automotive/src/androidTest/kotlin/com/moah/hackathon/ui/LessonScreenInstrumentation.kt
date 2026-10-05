@@ -1215,6 +1215,8 @@ class LessonScreenInstrumentation : Instrumentation() {
         lateinit var vm: LessonViewModel
         runOnMainSync {
             vm = ViewModelProvider(activity, LessonViewModel.factory(container))[LessonViewModel::class.java]
+            // #182 뒤 앱은 저장된 프로필이 없으면 빈 프로필로 시작한다 — 이 흐름은 시연 프로필의 눈썹 문구를 기준으로 본다
+            checkNotNull(vm.admin) { "demo build has admin controls" }.setProfile(com.moah.hackathon.data.AdminPresets.PROFILE_RUSTY)
             vm.restart()
             vm.cancelReservation()
         }
