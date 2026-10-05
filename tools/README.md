@@ -35,8 +35,10 @@ bash tools/course_flow.sh build/course
 |---|---|
 | **한 번에 하나만 실행** (`emu_flow.lock` 디렉터리 잠금, 두 스크립트 공유) | 두 인스턴스가 겹치면 서로의 앱을 강제 종료하고 탭이 끼어들어 결과가 오염된다. 오염된 실행은 uiautomator "already registered" 충돌이 수십 건 찍힌다 → **끝의 충돌 건수가 0 이어야 유효한 실행** |
 | **멈출 때는 `kill "$(cat <출력폴더의 상위>/emu_flow.pid)"`** | 이 환경(Git Bash + Claude 셸)의 `pkill` 은 없는 바이너리를 부르는 래퍼라 exit 127 로 아무것도 죽이지 않는다 |
+| **에뮬이 두 대면 `ANDROID_SERIAL` 로 고정** (예: `ANDROID_SERIAL=emulator-5554 bash tools/emu_flow.sh …`) | 10/5 밤 Codex 가 자기 AVD(`Codex_Round22`, emulator-5556)를 띄운 뒤 `adb` 가 "more than one device/emulator" 로 실패해 흐름이 중간에 끊겼다. Claude 는 `CSTDe_API_34`(emulator-5554)를 쓴다 |
 | **기기가 없으면 즉시 종료** | 기기 대기 상태로 남았다가 에뮬이 뜨면 뒤늦게 되살아나 다른 실행을 방해한다 |
 | **덤프 전에 양쪽 파일 삭제, 실패는 `<DUMP_FAILED/>`** | 도식처럼 계속 갱신되는 화면에서는 `uiautomator dump` 가 "could not get idle state" 로 실패하고 파일을 만들지 않는다. 예전 파일을 읽으면 낡은 화면을 현재로 착각한다 |
+| **과제는 시트에서 명시해 고른다**(분류 → 과제 → 모드 → 시작) | 홈 제안은 프로필·예약·프리셋으로 바뀐다. 10/6 첫 실행 프로필이 비게 되자 제안이 출발 전 점검이 되어 `emu_flow` 가 세션을 시작하지 못했다 — `inhouse_check` 와 같은 방식으로 |
 | **진행 판정은 앱 로그(`MOAH/LessonStateMachine`)로** (`wait_log`), 버튼은 좌표를 기억해 둔다 | 위와 같은 이유. 화면 텍스트는 정지 화면(Setup·Done·Report)에서만 믿는다. 시연 패널·회차 버튼은 화면마다 같은 자리라 덤프가 될 때 좌표를 기억했다가 안 될 때 그 좌표로 누른다 |
 | **화면을 검사할 때는 `now_texts`** (덤프 후 읽기) | `texts` 는 마지막 덤프를 읽는다. 탭·대기 뒤에 `texts` 만 부르면 한 단계 전 화면이 나온다 |
 | **`lesson_shots` 의 adb 타임아웃 300 s** (2026-09-28, 120 → 300) | 계약이 12묶음(≈2 분)이 되자 120 s 에 `am instrument -w` 가 끊겨 화면 검사는 전부 PASS 인데 결과 보고("Lesson contract passed")만 못 받아 FAIL 로 찍혔다(기기 로그 `Failure reporting to instrumentation watcher`). 묶음이 더 늘면 다시 올린다 |

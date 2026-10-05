@@ -49,7 +49,8 @@ open_demo() { dump; texts | grep -q "$1" && return 0; tap_text "시연"; sleep 1
 FAIL=0
 
 echo "== start"; adb shell am force-stop com.moah.hackathon; adb logcat -c
-adb shell am start -n com.moah.hackathon/.ui.MainActivity >/dev/null; sleep 4
+# 관리자 프리셋(라운드 22 결정 5): 시연 프로필로 시작하고 첫 실행 프로필 질문을 건너뛴다. 화면이 extra 를 읽기 전(라운드 23b)에는 무시된다
+adb shell am start -n com.moah.hackathon/.ui.MainActivity --es preset exam-fail-pass >/dev/null; sleep 4
 for i in 1 2 3; do tap_text "과제·모드 바꾸기"; sleep 2; now_texts | grep -q "제휴 시험장" && break; done
 tap_text "주행"; sleep 1; tap_text "장내기능 모의시험"; sleep 1; shot 20_sheet_driving
 tap_text "평가"; sleep 1; tap_text "시작"
