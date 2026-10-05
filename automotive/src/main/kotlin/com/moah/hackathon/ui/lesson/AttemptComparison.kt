@@ -13,6 +13,8 @@ import com.moah.hackathon.feature.lesson.AttemptRecord
 import com.moah.hackathon.feature.lesson.LessonReport
 import com.moah.hackathon.ui.CoachColors
 import com.moah.hackathon.ui.CoachTexture
+import com.moah.hackathon.scoring.HarshKind
+import kotlin.math.roundToInt
 
 /** Keep the latest pair together, with explicit access to every earlier attempt. */
 @Composable
@@ -71,17 +73,35 @@ internal fun ParkingDetails(report: LessonReport, modifier: Modifier) {
             }
         }
         PosterRule()
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween) {
-            LessonText("이동 ${attempt.score.metrics.motion.movingSegments}회", 36)
-            previous?.let { DeltaChip(attempt.score.metrics.motion.movingSegments - it.score.metrics.motion.movingSegments, "회", true) }
+        val metrics = attempt.score.metrics
+        val before = previous?.score?.metrics
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            DetailMetric("이동", metrics.motion.movingSegments, before?.motion?.movingSegments, "회")
+            DetailMetric("시간", metrics.motion.totalMillis / 1000, before?.motion?.totalMillis?.div(1000), "초")
+            DetailMetric("조향 왕복", metrics.steering?.reversals, before?.steering?.reversals)
+            DetailMetric("기어 전환", metrics.gear?.reverseDriveShifts, before?.gear?.reverseDriveShifts)
+            DetailMetric(if (report.task.parkingSpec.usesRearDistance) "근접" else "앞 근접",
+                metrics.proximity?.warnings, before?.proximity?.warnings)
+            DetailMetric("급정지", metrics.harshEvents.count { it.kind == HarshKind.BRAKING },
+                before?.harshEvents?.count { it.kind == HarshKind.BRAKING })
+            if (metrics.harshEvents.any { it.kind == HarshKind.ACCELERATION } ||
+                before?.harshEvents?.any { it.kind == HarshKind.ACCELERATION } == true) {
+                DetailMetric("급가속", metrics.harshEvents.count { it.kind == HarshKind.ACCELERATION },
+                    before?.harshEvents?.count { it.kind == HarshKind.ACCELERATION })
+            }
+            DetailMetric("방향 편차", attempt.verdict?.headingErrorDeg?.roundToInt(),
+                previous?.verdict?.headingErrorDeg?.roundToInt(), "°")
         }
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween) {
-            LessonText("${attempt.score.metrics.motion.totalMillis / 1000}초", 36)
-            previous?.let { DeltaChip((attempt.score.metrics.motion.totalMillis / 1000 - it.score.metrics.motion.totalMillis / 1000).toInt(), "초", true) }
-        }
-        LessonText(parkingDetailLine(attempt.score.metrics, report.task.parkingSpec.usesRearDistance), 32, CoachColors.Muted)
-        LessonText(headingDetailLine(attempt.verdict), 32, CoachColors.Muted)
+    }
+}
+
+/** A value owns its width; labels and deltas cannot push a final digit onto another line. */
+@Composable
+private fun DetailMetric(label: String, value: Number?, previous: Number?, unit: String = "") {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically) {
+        LessonText(label, 32, CoachColors.Muted, modifier = Modifier.weight(1f), maxLines = 1)
+        if (value != null && previous != null) DeltaChip((value.toLong() - previous.toLong()).toInt(), unit, true)
+        LessonText(value?.let { "$it$unit" } ?: "미측정", 36, CoachColors.Ink, maxLines = 1)
     }
 }

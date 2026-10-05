@@ -72,16 +72,18 @@ internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit, locked: B
                     ReportPage.DETAILS -> {
                         Eyebrow("자세히 보기")
                         DetailsContent(report, Modifier.weight(1f))
-                        BackPill { page = ReportPage.SUMMARY }
-                        ReportProvenance(report)
+                        BottomActions(secondary = { BackPill { page = ReportPage.SUMMARY } },
+                            primary = { CompactProvenance(report) })
                     }
                     ReportPage.CERTIFICATE -> {
                         CertificateContent(report, Modifier.weight(1f))
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically) {
-                            BackPill { page = ReportPage.SUMMARY }
-                            PrimaryPill(stringResource(R.string.lesson_restart), onRestart)
-                        }
+                        BottomActions(secondary = { BackPill { page = ReportPage.SUMMARY } },
+                            alignment = Alignment.Top, primary = {
+                                Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                                    Box(Modifier.height(112.dp), contentAlignment = Alignment.CenterEnd) { CompactProvenance(report) }
+                                    PrimaryPill(stringResource(R.string.lesson_restart), onRestart)
+                                }
+                            })
                     }
                 }
             }
@@ -134,6 +136,25 @@ private fun ReportProvenance(report: LessonReport) {
             LessonText(badgeText(report.best.badge), 32, CoachColors.Periwinkle)
             LessonText(if (report.task.type == TaskType.CHECKLIST) "출발 전 점검을 돌아봤어요." else "주차 과정만 측정했어요.", 32, CoachColors.Muted)
         }
+    }
+}
+
+/** Summary keeps its full disclosure; secondary pages share this compact footer. */
+@Composable
+private fun CompactProvenance(report: LessonReport) {
+    Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row {
+            LessonText("신호 출처 · ", 32, CoachColors.Periwinkle, maxLines = 1)
+            // Keep the exact badge text as a separate accessibility node used by the flow contract.
+            LessonText(badgeText(report.best.badge), 32, CoachColors.Periwinkle, maxLines = 1)
+        }
+        LessonText(when {
+            report.task.isCourse && bestCourseAttempt(report.attempts)?.course?.positionMeasured != true -> "시험장 위치를 받지 못해 구간은 미측정이에요."
+            report.task.isCourse && report.best.badge.live == 0 && report.best.badge.simulated > 0 -> "구간·위치·신호등은 시험장 시뮬레이션이에요."
+            report.task.isCourse -> "구간·위치·신호등은 시험장 신호로 측정했어요."
+            report.task.type == TaskType.CHECKLIST -> "출발 전 점검을 돌아봤어요."
+            else -> "주차 과정만 측정했어요."
+        }, 28, CoachColors.Muted, maxLines = 1)
     }
 }
 
