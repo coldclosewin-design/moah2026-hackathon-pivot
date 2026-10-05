@@ -58,15 +58,25 @@ class LessonStateMachine(
     /** 제휴 시험장(D3). 비어 있으면 예약 진입점은 무시된다. */
     private val venues: List<Venue> = emptyList(),
     private val benefits: List<String>,
+    /** 저장된 프로필이 없을 때 쓰는 프로필(앱은 빈 진술 = 초보 가정, 테스트는 시연 프로필). */
     profile: Profile,
     private val scope: CoroutineScope,
     private val clock: () -> Long = { System.currentTimeMillis() },
     private val briefingMillis: Long = 2_500L,
     private val rubric: ParkingRubric = ParkingRubric(),
     private val checklistRubric: ChecklistRubric = ChecklistRubric(),
+    /** 프로필 저장소(라운드 22 결정 7, 10/5). 기본은 메모리 — 앱은 `FileProfileStore`. */
+    private val profileStore: ProfileStore = MemoryProfileStore(),
 ) {
-    var profile: Profile = profile
+    private val savedProfile: StoredProfile? = profileStore.load()
+    var profile: Profile = savedProfile?.let { profile.copy(statement = it.statement) } ?: profile
         private set
+    /** 답한 줄 — 저장이 없으면 시작 프로필에 값이 있는 줄(시연 프로필은 다섯 줄 다). */
+    private val answered: MutableSet<ProfileField> = (savedProfile?.answered ?: ProfileChips.filledFields(profile.statement)).toMutableSet()
+    /** 리포트 끝 카드의 "다음에요" 횟수 — 두 번이면 그 줄은 시트에서만 묻는다. */
+    private val askSkips: MutableMap<ProfileField, Int> = savedProfile?.skips.orEmpty().toMutableMap()
+    /** 첫 실행 온보딩을 아직 안 마쳤다 — 저장된 프로필이 없거나 마치지 않았을 때. */
+    private var onboardingPending: Boolean = savedProfile?.onboarded != true
 
     private val _phase = MutableStateFlow<LessonPhase>(setup())
     val phase: StateFlow<LessonPhase> = _phase
@@ -321,6 +331,7 @@ class LessonStateMachine(
         stopEverything()
         store.clear()
         profile = presetProfile.copy(observation = ProfileObservation())
+        adoptProfileStatement()
         preset.reservation?.let { seed ->
             val venue = venues.firstOrNull { it.id == seed.venueId }
             val slotOk = venue?.slots?.any { it.id == seed.slotId && it.available } == true
@@ -337,6 +348,7 @@ class LessonStateMachine(
     /** 프로필 전환 — 관측(기록에서 나온 것)은 그대로 두고 진술만 바꾼다. Setup 이면 제안을 다시 계산한다. */
     fun setProfile(next: Profile) {
         profile = next.copy(observation = store.observation())
+        adoptProfileStatement()
         if (_phase.value is LessonPhase.Setup) _phase.value = setup()
         Log.i(TAG, "admin: profile ${next.statement}")
     }
@@ -349,6 +361,82 @@ class LessonStateMachine(
         clearHomeTransient()
         if (_phase.value is LessonPhase.Setup) _phase.value = setup()
         Log.i(TAG, "admin: records cleared")
+    }
+
+    /** 관리자 "프로필 초기화" — 저장을 지우고 빈 진술로, 다음 홈에서 첫 실행 질문이 다시 나온다. */
+    fun resetProfile() {
+        profileStore.clear()
+        profile = profile.copy(statement = ProfileStatement())
+        answered.clear()
+        askSkips.clear()
+        onboardingPending = true
+        pinned = null
+        clearHomeTransient()
+        if (_phase.value is LessonPhase.Setup) _phase.value = setup()
+        Log.i(TAG, "admin: profile cleared")
+    }
+
+    /** 프리셋·관리자 프로필 전환: 값이 있는 줄을 답한 것으로, 첫 실행은 마친 것으로 보고 저장한다. */
+    private fun adoptProfileStatement() {
+        answered.clear(); answered += ProfileChips.filledFields(profile.statement)
+        askSkips.clear()
+        onboardingPending = false
+        saveProfile()
+    }
+
+    // ───────── 프로필 (라운드 22 결정 7 = P2 "한 장", 10/5) — 칩만. 첫 실행 · 홈 눈썹 시트 · 리포트 끝 카드가 같은 진입점 ─────────
+
+    /** 칩 하나 — 그 줄을 답한 것으로 저장한다. Setup 이면 제안을 다시 계산하고, 리포트 끝 카드의 줄이면 카드를 닫는다. 로그 `profile: …`. */
+    fun answerProfile(field: ProfileField, chipId: String) {
+        val next = ProfileChips.apply(profile.statement, field, chipId, thisYear())
+            ?: run { Log.w(TAG, "profile: unknown chip $field/$chipId"); return }
+        profile = profile.copy(statement = next)
+        answered += field
+        askSkips.remove(field)
+        saveProfile()
+        when (val p = _phase.value) {
+            is LessonPhase.Setup -> _phase.value = setup()
+            is LessonPhase.Report -> if (p.report.askOne?.field == field) _phase.value = p.copy(report = p.report.copy(askOne = null))
+            else -> {}
+        }
+        Log.i(TAG, "profile: $field=$chipId")
+    }
+
+    /** 첫 실행 끝 — "나머지는 연습하면서 · 시작하기" 와 `건너뛰기` 둘 다. 답한 줄까지 저장. */
+    fun finishOnboarding() {
+        if (!onboardingPending) return
+        onboardingPending = false
+        saveProfile()
+        if (_phase.value is LessonPhase.Setup) _phase.value = setup()
+        Log.i(TAG, "profile: onboarding done answered=$answered")
+    }
+
+    /** 리포트 끝 카드 `다음에요`. 같은 줄을 두 번 미루면 그 줄은 시트에서만 묻는다. */
+    fun skipAsk(field: ProfileField) {
+        val p = _phase.value as? LessonPhase.Report ?: return
+        if (p.report.askOne?.field != field) return
+        askSkips[field] = (askSkips[field] ?: 0) + 1
+        saveProfile()
+        _phase.value = p.copy(report = p.report.copy(askOne = null))
+        Log.i(TAG, "profile: skip $field (${askSkips[field]})")
+    }
+
+    private fun saveProfile() = profileStore.save(StoredProfile(profile.statement, answered.toSet(), askSkips.toMap(), onboarded = !onboardingPending))
+
+    private fun thisYear(): Int = java.time.Instant.ofEpochMilli(clock()).atZone(java.time.ZoneId.systemDefault()).year
+
+    private fun profileRow(field: ProfileField) =
+        ProfileRow(field, ProfileChips.answerOf(profile.statement, field, field in answered, thisYear()), ProfileChips.chips(field))
+
+    /** 시트 아래 "앱이 본 것" — 기록에서 나온 관측을 숫자 없이 말로(7b 질문 7). */
+    private fun observedLines(): List<String> {
+        val o = profile.observation
+        if (o.attempts == 0) return listOf("아직 함께한 연습이 없어요.")
+        return buildList {
+            add("연습이 쌓이고 있어요.")
+            o.weakTaskId?.let { id -> tasks.firstOrNull { it.id == id }?.let { add("${it.title} 쪽을 조금 더 연습하면 좋아요.") } }
+            if (o.harshEvents > 0) add("급하게 밟거나 멈춘 순간이 있었어요.")
+        }
     }
 
     // ───────── 홈 코치 대화 (라운드 22 결정 4 = A 알약 → 시트 + D 예약 카드, 10/5) — Setup 에서만, 탭 대화(STT 없음) ─────────
@@ -471,7 +559,9 @@ class LessonStateMachine(
         return LessonPhase.Setup(profile, tasks, task, s.mode, reason, venues = venues, booking = booking,
             coach = if (coachOpen) CoachDialog(coachLine(), coachChoices()) else null,
             bookingOptions = if (booking != null) bookingOptionsFor(reserved) else emptyList(),
-            bookingChoice = bookingChoice, highlightBooking = highlightBooking, sheetRequest = sheetRequest)
+            bookingChoice = bookingChoice, highlightBooking = highlightBooking, sheetRequest = sheetRequest,
+            onboarding = if (onboardingPending) ProfileOnboarding(ProfileField.ONBOARDING) else null,
+            profileRows = ProfileField.entries.map { profileRow(it) }, observedLines = observedLines())
     }
 
     private fun briefingLine(task: Task, mode: LessonMode): String {
@@ -743,6 +833,7 @@ class LessonStateMachine(
                 nextTask = nextTask, nextMode = next.mode, nextReason = next.reason,
                 shareLevels = ShareLevel.entries.toList(), benefits = benefits,
                 unverifiedGuideSteps = unverifiedSteps.toList(),
+                askOne = ProfileChips.nextAsk(answered, askSkips)?.let { profileRow(it) },
             ),
             locked = snapshot.locked,
         )

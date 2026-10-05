@@ -106,6 +106,8 @@ class LessonViewModel(
             _profileId.value = id
         }
         fun resetRecords() = machine.resetRecords()
+        /** 프로필 초기화 — 저장을 지우고 다음 홈에서 첫 실행 질문이 다시 나온다. */
+        fun resetProfile() { machine.resetProfile(); _profileId.value = AdminPresets.PROFILE_EMPTY }
         fun setBand(visible: Boolean) { _bandVisible.value = visible }
     }
 
@@ -141,6 +143,11 @@ class LessonViewModel(
     fun consumeSheetRequest() = machine.consumeSheetRequest()
     /** 예약 카드 `코스 연습`·`모의시험`. */
     fun chooseBooking(option: BookingOption) = machine.chooseBooking(option)
+
+    /** 프로필(라운드 22 결정 7 = P2) — 칩 · 첫 실행 끝(시작하기·건너뛰기) · 리포트 끝 카드 `다음에요`. */
+    fun answerProfile(field: ProfileField, chipId: String) = machine.answerProfile(field, chipId)
+    fun finishOnboarding() = machine.finishOnboarding()
+    fun skipAsk(field: ProfileField) = machine.skipAsk(field)
 
     companion object {
         private const val TAG = "MOAH/LessonViewModel"

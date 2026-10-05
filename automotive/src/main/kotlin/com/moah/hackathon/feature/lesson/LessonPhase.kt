@@ -37,6 +37,12 @@ sealed interface LessonPhase {
         val highlightBooking: Boolean = false,
         /** 대화가 "과제 시트를 이 분류로 열어라" 를 요청했다. 화면은 시트를 연 뒤 `consumeSheetRequest` 를 부른다. */
         val sheetRequest: TaskType? = null,
+        /** 첫 실행 프로필 질문(결정 7 = P2). 아직 안 마쳤을 때만 — 화면은 전체 화면으로 이 줄들을 차례로 펼친다. */
+        val onboarding: ProfileOnboarding? = null,
+        /** 프로필 다섯 줄(질문 · 지금 답 · 칩) — 첫 실행 화면과 홈 눈썹 시트가 같이 쓴다. */
+        val profileRows: List<ProfileRow> = emptyList(),
+        /** 시트 아래 "앱이 본 것" — 숫자 없는 문장. */
+        val observedLines: List<String> = emptyList(),
     ) : LessonPhase
 
     /** "후면 직각 주차, 가이드 모드. 오늘은 핸들 방향과 기어 전환을 봅니다." */
