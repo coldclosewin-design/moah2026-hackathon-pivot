@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>정답 확인 시안</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#070827;--paper:#FCFCFA;--peri:#5B60A1;--lav:#E5E6F0;--signal:#F52D48;--muted:rgba(7,8,39,.60);
+  --line:rgba(7,8,39,.12);
+  --tex:0 4px 10px rgba(7,8,39,.10),0 1px 2px rgba(7,8,39,.06),inset 0 1px 0 rgba(255,255,255,.9);
+  --tex-dark:0 4px 10px rgba(7,8,39,.14),0 1px 2px rgba(7,8,39,.08),inset 0 1px 0 rgba(255,255,255,.25);
+}
+body{background:var(--paper);color:var(--ink);font-family:"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;font-weight:400}
+.page{max-width:1600px;margin:0 auto;padding:44px 36px 90px}
+h1{font-size:34px;font-weight:400;letter-spacing:-.01em}
+.lede{font-size:16px;color:var(--muted);margin-top:8px}
+.fb{margin-top:18px;padding:14px 18px;border-left:3px solid var(--signal);background:rgba(229,230,240,.55);font-size:14px;line-height:1.65;max-width:1100px}
+.fb cite{display:block;font-style:normal;font-size:12px;color:var(--peri);margin-bottom:4px}
+.scale{display:inline-block;margin-top:14px;font-size:13px;color:var(--peri);background:var(--lav);padding:4px 12px;border-radius:14px}
+.rules{margin-top:14px;font-size:13px;color:var(--muted);line-height:1.7}
+.prop{display:grid;grid-template-columns:853px 1fr;gap:40px;padding:40px 0;border-top:1px solid var(--line);margin-top:36px}
+.prop+.prop{margin-top:0}
+.shots{display:flex;flex-direction:column;gap:18px}
+.cap{font-size:12px;color:var(--muted);margin-bottom:6px}
+.key{font-size:12px;color:var(--peri);letter-spacing:.14em}
+.meta h2{font-size:30px;font-weight:400;margin-top:4px}
+.meta .one{font-size:15px;line-height:1.6;margin:8px 0 14px}
+.meta h3{font-size:12px;color:var(--peri);font-weight:500;margin-top:16px;letter-spacing:.06em}
+.meta ul{padding-left:18px;font-size:14px;line-height:1.7;margin-top:4px}
+.now-img{width:667px;display:block;box-shadow:0 4px 10px rgba(7,8,39,.10),0 1px 2px rgba(7,8,39,.06)}
+.rec{margin-top:8px;padding:28px 32px;background:var(--ink);color:var(--paper);display:grid;grid-template-columns:200px 1fr;gap:28px;align-items:center}
+.rec .k{font-size:12px;letter-spacing:.14em;color:rgba(252,252,250,.7)}
+.rec .big{font-size:44px;line-height:1.1}
+.rec p{font-size:16px;line-height:1.7}
+.rec p+p{margin-top:8px;color:rgba(252,252,250,.75);font-size:14px}
+
+/* ---------- 화면 틀 (1/3 축소) ---------- */
+.screen{width:853px;height:423px;display:flex;background:var(--paper);position:relative;overflow:hidden;
+  box-shadow:0 4px 10px rgba(7,8,39,.10),0 1px 2px rgba(7,8,39,.06);outline:1px solid rgba(7,8,39,.08)}
+.screen>svg.left{flex:0 0 324px;display:block}
+.R{position:relative;flex:1;padding:24px 36px 0 40px}
+.eb{font-size:11px;line-height:16px;color:var(--peri)}
+.q{font-size:24px;line-height:32px;margin-top:6px;letter-spacing:-.01em}
+.choices{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+.ch{display:flex;align-items:center;gap:10px;height:38px;padding:0 10px 0 10px;background:var(--lav);box-shadow:var(--tex);font-size:14px;border-radius:2px}
+.ch .no{flex:0 0 20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);background:rgba(252,252,250,.75)}
+.ch .t{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ch.dim .t{color:var(--muted)}
+.ch.dim{background:rgba(229,230,240,.6)}
+.ch.ok{background:var(--peri);color:var(--paper);box-shadow:var(--tex-dark)}
+.ch.ok .no{background:rgba(252,252,250,.2);color:var(--paper)}
+.ch.mine{box-shadow:inset 0 0 0 2px var(--signal),0 4px 10px rgba(7,8,39,.10),0 1px 2px rgba(7,8,39,.06)}
+.ch.mine .no{background:var(--signal);color:#fff}
+.badge{flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 10px 0 8px;border-radius:11px;font-size:11px}
+.badge svg{width:10px;height:10px}
+.badge.ok{background:var(--paper);color:var(--peri)}
+.badge.x{background:var(--signal);color:#fff}
+.expl{font-size:13px;line-height:20px;color:var(--muted);margin-top:14px}
+.expl.rule{border-left:2px solid var(--peri);padding-left:12px;color:var(--ink)}
+.qfoot{position:absolute;left:40px;right:36px;bottom:22px;display:flex;align-items:center;gap:16px}
+.qfoot .sp{flex:1}
+.link{font-size:13px;text-decoration:underline;text-underline-offset:3px}
+.score{font-size:11px;color:var(--muted)}
+.pill{position:relative;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:14px;width:240px;height:46px;border-radius:23px;
+  background:var(--signal);color:#fff;font-size:14px;letter-spacing:.06em;overflow:hidden;
+  box-shadow:0 8px 16px rgba(245,45,72,.24),0 1px 2px rgba(7,8,39,.10),inset 0 1px 0 rgba(255,255,255,.35)}
+.pill::before{content:"";position:absolute;left:8%;right:8%;top:2px;height:42%;border-radius:20px;background:linear-gradient(rgba(255,255,255,.20),rgba(255,255,255,0))}
+.pill svg{width:16px;height:10px}
+
+/* B — 배너 */
+.banner{display:flex;align-items:center;gap:10px;height:34px;margin-top:12px;padding:0 12px;background:var(--paper);box-shadow:var(--tex),inset 3px 0 0 var(--signal);font-size:13px}
+.banner .ic{width:20px;height:20px;border-radius:50%;background:var(--signal);color:#fff;display:flex;align-items:center;justify-content:center}
+.banner .ic svg{width:10px;height:10px}
+.choices.sm{gap:6px;margin-top:10px}
+.choices.sm .ch{height:30px;font-size:13px}
+.choices.sm .ch .no{flex-basis:18px;height:18px}
+.gl{flex:0 0 18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.gl svg{width:9px;height:9px}
+.gl.ok{background:var(--paper);color:var(--peri)}
+.gl.x{background:var(--signal);color:#fff}
+
+/* C — 비교 */
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.cc{height:96px;padding:10px 14px;background:var(--paper);box-shadow:var(--tex);border-radius:2px}
+.cc.mine{box-shadow:var(--tex),inset 0 3px 0 var(--signal)}
+.cc.ok{background:var(--peri);color:var(--paper);box-shadow:var(--tex-dark)}
+.cc .h{display:flex;align-items:center;gap:6px;font-size:11px;line-height:16px}
+.cc.mine .h{color:var(--signal)}
+.cc .h svg{width:10px;height:10px}
+.cc .v{display:flex;gap:8px;font-size:15px;line-height:21px;margin-top:8px}
+.cc .v .n{font-size:11px;opacity:.7;line-height:21px}
+.other{font-size:11px;color:var(--muted);margin-top:8px}
+.ec{margin-top:10px;padding:9px 14px 10px;background:var(--lav);box-shadow:var(--tex);font-size:13px;line-height:20px}
+.ec .l{font-size:11px;color:var(--peri);line-height:16px}
+
+/* D — 인용 */
+.choices.xs{gap:5px;margin-top:12px}
+.choices.xs .ch{height:28px;font-size:13px;background:var(--paper)}
+.choices.xs .ch.ok{background:var(--peri)}
+.choices.xs .ch .no{flex-basis:18px;height:18px;background:var(--lav)}
+.choices.xs .ch.ok .no{background:rgba(252,252,250,.2)}
+.choices.xs .ch.mine .no{background:var(--signal)}
+.tl{font-size:11px;flex:0 0 auto}
+.tl.ok{color:var(--paper)} .tl.x{color:var(--signal)}
+.quote{position:relative;margin-top:14px;padding:14px 18px 14px 50px;background:var(--lav);box-shadow:var(--tex);font-size:15px;line-height:23px}
+.quote .mk{position:absolute;left:14px;top:4px;font-size:46px;line-height:46px;color:var(--peri);font-family:Georgia,serif}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="qbase" viewBox="0 0 324 423">
+      <rect width="324" height="423" fill="#070827"/>
+      <path d="M-134 375A215 215 0 0 1 296 363" fill="none" stroke="#5B60A1" stroke-width="36"/>
+      <text x="61" y="32" font-size="11" letter-spacing="3.2" fill="#FCFCFA">DRIVE COACH</text>
+    </symbol>
+    <symbol id="ck" viewBox="0 0 12 12"><path d="M1.8 6.4 4.8 9.3 10.4 2.9" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="xx" viewBox="0 0 12 12"><path d="M2.5 2.5 9.5 9.5M9.5 2.5 2.5 9.5" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="arr" viewBox="0 0 16 10"><path d="M0 5h14M10 1l4 4-4 4" fill="none" stroke="#fff" stroke-width="1.5"/></symbol>
+  </defs>
+</svg>
+
+<div class="page">
+  <h1>지식 테스트 정답 확인 — 다섯 가지 구성</h1>
+  <p class="lede">문제 → 정답 확인 화면. 카드에 질감 그림자, "내 답 / 정답" 표시 위치·크기, 해설·다음 문제 알약의 간격을 다시 짠다.</p>
+  <div class="fb"><cite>사용자 피드백 (라운드 21)</cite>카드에 그림자를 추가하여 입체감을 주고 싶고, 정답 체크 화면에 구성이 UI/UX 밑 카드, 멘트, 다음문제 알약 등의 간격이 매우 어색하여 5가지 정도 구성을 제안 받아서 적용하고 싶어(특히 내답, 정답 위치랑 크기 정렬 등이 다 맘에 안 들어) (기본적으로 빨간색 주 알약 버튼은 메인과 비슷한 느낌으로 너무 짧지 않게 공통성이 있게 해줘)</div>
+  <span class="scale">시안은 1/3 축소(853×423 px) — 실제 화면은 약 3배(2560×1268 dp)</span>
+  <p class="rules">다섯 시안 공통: 보기 카드 전부 질감 그림자 · <b style="font-weight:500">다음 문제 알약 = 설정 화면 "시작" 알약과 같은 폭 240px(실제 720 dp) · 높이 46px(140 dp) · 윗면 하이라이트</b> · 알약은 오른쪽 아래, 그만하기는 왼쪽 아래(설정 화면의 "돌아가기 ↔ 시작" 배치와 같게) — 문제 화면과 정답 화면에서 알약 자리가 움직이지 않는다.</p>
+
+  <!-- 지금 -->
+  <section class="prop">
+    <div class="shots">
+      <div><div class="cap">지금 — 오답(lesson-quiz-answered.png)</div><img class="now-img" src="../../screenshots/lesson/lesson-quiz-answered.png" alt="현재 정답 확인 화면, 오답"></div>
+      <div><div class="cap">지금 — 정답(lesson-quiz-correct.png)</div><img class="now-img" src="../../screenshots/lesson/lesson-quiz-correct.png" alt="현재 정답 확인 화면, 정답"></div>
+    </div>
+    <div class="meta">
+      <div class="key">지금</div>
+      <h2>바깥 라벨</h2>
+      <p class="one">"정답 / 내 답" 라벨이 보기 카드 왼쪽 빈 칸에 떠 있고, 보기 카드는 오른쪽으로 밀려 있다.</p>
+      <h3>문제</h3>
+      <ul>
+        <li>라벨이 카드 밖 빈 칸에 떠서 어느 카드를 가리키는지 한 박자 늦게 읽힌다. 라벨 칸 때문에 보기 카드 시작선이 질문·해설과 어긋난다.</li>
+        <li>해설이 마지막 카드에 바짝 붙고, 알약은 해설 아래 짧게(약 85px) 붙어 화면 중간에 떠 있다 — "시작" 알약과 크기·자리가 다르다.</li>
+        <li>보기 카드가 평면이라 다른 화면(설정 카드)과 질감이 다르다.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- A -->
+  <section class="prop">
+    <div class="shots">
+      <div><div class="cap">A · 오답</div>
+      <div class="screen">
+        <svg class="left" viewBox="0 0 324 423" width="324" height="423"><use href="#qbase"/>
+          <text x="162" y="153" font-size="11" fill="#FCFCFA" text-anchor="middle">2 / 10</text>
+          <text x="162" y="279" font-size="110" fill="#FCFCFA" text-anchor="middle" letter-spacing="-3">02</text></svg>
+        <div class="R">
+          <div class="eb">지식 테스트 · 비상등·날씨별 행동</div>
+          <div class="q">비상등은 언제 켜나요?</div>
+          <div class="choices">
+            <div class="ch dim"><span class="no">1</span><span class="t">차선을 바꿀 때</span></div>
+            <div class="ch ok"><span class="no">2</span><span class="t">갑자기 서거나 고장·사고로 서 있을 때</span><span class="badge ok"><svg><use href="#ck"/></svg>정답</span></div>
+            <div class="ch mine"><span class="no">3</span><span class="t">터널에 들어갈 때</span><span class="badge x"><svg><use href="#xx"/></svg>내 답</span></div>
+          </div>
+          <p class="expl rule">뒤차에 위험을 알리는 신호예요. 차선을 바꿀 때는 방향지시등을, 터널에 들어갈 때는 전조등을 켜요.</p>
+          <div class="qfoot"><span class="link">그만하기</span><span class="sp"></span><span class="score">맞은 문제 1</span><span class="pill">다음 문제<svg><use href="#arr"/></svg></span></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="meta">
+      <div class="key">시안 A</div>
+      <h2>배지</h2>
+      <p class="one">"정답 / 내 답"을 카드 <b style="font-weight:500">안 오른쪽 끝</b>의 작은 알약 배지(✓ / ✕)로 옮기고, 보기 카드를 질문과 같은 시작선에서 꽉 차게 편다.</p>
+      <h3>장점</h3>
+      <ul>
+        <li>표시가 카드 안에 붙어 "어느 보기가 정답인가"가 즉시 읽힌다. 배지 모양이 같아 정렬이 맞는다.</li>
+        <li>왼쪽 라벨 칸이 사라져 질문·보기·해설 왼쪽 선이 하나로 맞는다.</li>
+        <li>내 답 = Signal 테두리 + 번호 원, 정답 = Periwinkle 면 — 색 두 개로 끝난다. 구현 난이도 낮음.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li>보기 문장이 길면 배지와 겹친다 — 한 줄 말줄임(…) 또는 두 줄 허용 규칙 필요.</li>
+        <li>맞은 경우 "✓ 내 답 · 정답" 배지가 길어진다(E 정답 화면 참고).</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- B -->
+  <section class="prop">
+    <div class="shots">
+      <div><div class="cap">B · 오답</div>
+      <div class="screen">
+        <svg class="left" viewBox="0 0 324 423" width="324" height="423"><use href="#qbase"/>
+          <text x="162" y="153" font-size="11" fill="#FCFCFA" text-anchor="middle">2 / 10</text>
+          <text x="162" y="279" font-size="110" fill="#FCFCFA" text-anchor="middle" letter-spacing="-3">02</text></svg>
+        <div class="R">
+          <div class="eb">지식 테스트 · 비상등·날씨별 행동</div>
+          <div class="q">비상등은 언제 켜나요?</div>
+          <div class="banner"><span class="ic"><svg><use href="#xx"/></svg></span>아쉬워요. 정답은 2번이에요.</div>
+          <div class="choices sm">
+            <div class="ch dim"><span class="no">1</span><span class="t">차선을 바꿀 때</span></div>
+            <div class="ch ok"><span class="no">2</span><span class="t">갑자기 서거나 고장·사고로 서 있을 때</span><span class="gl ok"><svg><use href="#ck"/></svg></span></div>
+            <div class="ch mine"><span class="no">3</span><span class="t">터널에 들어갈 때</span><span class="gl x"><svg><use href="#xx"/></svg></span></div>
+          </div>
+          <p class="expl">뒤차에 위험을 알리는 신호예요. 차선을 바꿀 때는 방향지시등을, 터널에 들어갈 때는 전조등을 켜요.</p>
+          <div class="qfoot"><span class="link">그만하기</span><span class="sp"></span><span class="score">맞은 문제 1</span><span class="pill">다음 문제<svg><use href="#arr"/></svg></span></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="meta">
+      <div class="key">시안 B</div>
+      <h2>배너</h2>
+      <p class="one">질문 바로 아래 결과 띠 한 줄("아쉬워요. 정답은 2번이에요.")을 두고, 보기 카드는 낮게 줄여 ✓ / ✕ 원만 붙인다.</p>
+      <h3>장점</h3>
+      <ul>
+        <li>결과를 글로 먼저 말해 준다 — TTS 문장과 화면 문장이 같아지기 쉽다.</li>
+        <li>보기 카드가 낮아져 해설까지 한 덩어리로 위쪽에 모이고, 알약과의 간격이 넉넉해진다.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li>배너·카드·해설 세 겹이라 위아래 리듬이 빽빽해 보일 수 있다.</li>
+        <li>"2번"은 보기 번호라 허용 범위지만, 운전자 문장 숫자 규칙 검사(D1 경계)에 예외로 등록해야 한다. 맞은 경우 배너는 Periwinkle 띠 + "맞았어요."</li>
+        <li>보기 높이 30px(실제 90 dp)은 터치 타깃 하한에 가깝다(이 화면은 결과 표시라 터치 없음 — 문제 화면은 기존 높이 유지).</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- C -->
+  <section class="prop">
+    <div class="shots">
+      <div><div class="cap">C · 오답</div>
+      <div class="screen">
+        <svg class="left" viewBox="0 0 324 423" width="324" height="423"><use href="#qbase"/>
+          <text x="162" y="153" font-size="11" fill="#FCFCFA" text-anchor="middle">2 / 10</text>
+          <text x="162" y="279" font-size="110" fill="#FCFCFA" text-anchor="middle" letter-spacing="-3">02</text></svg>
+        <div class="R">
+          <div class="eb">지식 테스트 · 비상등·날씨별 행동</div>
+          <div class="q">비상등은 언제 켜나요?</div>
+          <div class="cmp">
+            <div class="cc mine"><div class="h"><svg><use href="#xx"/></svg>내 답</div><div class="v"><span class="n">3</span><span>터널에 들어갈 때</span></div></div>
+            <div class="cc ok"><div class="h"><svg><use href="#ck"/></svg>정답</div><div class="v"><span class="n">2</span><span>갑자기 서거나 고장·사고로 서 있을 때</span></div></div>
+          </div>
+          <div class="other">다른 보기 · 1 차선을 바꿀 때</div>
+          <div class="ec"><div class="l">해설</div>뒤차에 위험을 알리는 신호예요. 차선을 바꿀 때는 방향지시등을, 터널에 들어갈 때는 전조등을 켜요.</div>
+          <div class="qfoot"><span class="link">그만하기</span><span class="sp"></span><span class="score">맞은 문제 1</span><span class="pill">다음 문제<svg><use href="#arr"/></svg></span></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="meta">
+      <div class="key">시안 C</div>
+      <h2>비교</h2>
+      <p class="one">세 보기를 다시 늘어놓지 않고, "내 답"과 "정답" 두 카드만 같은 크기로 나란히 세운 뒤 해설 카드를 아래에 깐다.</p>
+      <h3>장점</h3>
+      <ul>
+        <li>내 답 / 정답 카드가 같은 크기·같은 높이라 정렬 불만이 구조적으로 사라진다.</li>
+        <li>"무엇을 골랐고, 무엇이 맞았나"만 남아 화면이 가장 차분하다. 해설도 카드라 질감이 통일된다.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li>문제 화면(세 보기 세로 목록)에서 정답 화면으로 넘어갈 때 배치가 통째로 바뀐다 — 전환이 끊겨 보일 수 있다.</li>
+        <li>맞은 경우엔 카드가 하나뿐이라 별도 배치(정답 카드 한 장 + 해설)가 필요하다. 구현 난이도 중간.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- D -->
+  <section class="prop">
+    <div class="shots">
+      <div><div class="cap">D · 오답</div>
+      <div class="screen">
+        <svg class="left" viewBox="0 0 324 423" width="324" height="423"><use href="#qbase"/>
+          <text x="162" y="153" font-size="11" fill="#FCFCFA" text-anchor="middle">2 / 10</text>
+          <text x="162" y="279" font-size="110" fill="#FCFCFA" text-anchor="middle" letter-spacing="-3">02</text></svg>
+        <div class="R">
+          <div class="eb">지식 테스트 · 비상등·날씨별 행동</div>
+          <div class="q">비상등은 언제 켜나요?</div>
+          <div class="choices xs">
+            <div class="ch dim"><span class="no">1</span><span class="t">차선을 바꿀 때</span></div>
+            <div class="ch ok"><span class="no">2</span><span class="t">갑자기 서거나 고장·사고로 서 있을 때</span><span class="tl ok">정답</span></div>
+            <div class="ch mine"><span class="no">3</span><span class="t">터널에 들어갈 때</span><span class="tl x">내 답</span></div>
+          </div>
+          <div class="quote"><span class="mk">“</span>뒤차에 위험을 알리는 신호예요. 차선을 바꿀 때는 방향지시등을, 터널에 들어갈 때는 전조등을 켜요.</div>
+          <div class="qfoot"><span class="link">그만하기</span><span class="sp"></span><span class="score">맞은 문제 1</span><span class="pill">다음 문제<svg><use href="#arr"/></svg></span></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="meta">
+      <div class="key">시안 D</div>
+      <h2>인용</h2>
+      <p class="one">정답 확인의 주인공을 "해설"로 본다. 보기는 낮은 흰 카드로 접고, 해설을 큰 따옴표가 붙은 Lavender 인용 카드로 키운다.</p>
+      <h3>장점</h3>
+      <ul>
+        <li>"왜 그런가"가 가장 크게 읽혀 학습 효과가 좋다 — 지식 테스트의 목적과 맞다.</li>
+        <li>보기·인용 두 덩어리뿐이라 간격 규칙이 단순하다(카드 묶음 → 14px → 인용 카드 → 바닥 알약).</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li>내 답 / 정답 표시가 작은 글자라 결과(맞았나·틀렸나)가 약하게 보인다 — 피드백의 "크기 정렬" 불만을 다 풀지는 못한다.</li>
+        <li>해설이 짧은 문항은 인용 카드가 비어 보인다(최소 높이 규칙 필요).</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- E -->
+  <section class="prop">
+    <div class="shots">
+      <div><div class="cap">E · 오답</div>
+      <div class="screen">
+        <svg class="left" viewBox="0 0 324 423" width="324" height="423"><use href="#qbase"/>
+          <text x="162" y="153" font-size="11" fill="#FCFCFA" text-anchor="middle">2 / 10</text>
+          <path d="M130 220 194 284M194 220 130 284" stroke="#F52D48" stroke-width="11" fill="none"/>
+          <text x="162" y="334" font-size="16" fill="#FCFCFA" text-anchor="middle">아쉬워요</text></svg>
+        <div class="R">
+          <div class="eb">지식 테스트 · 비상등·날씨별 행동</div>
+          <div class="q">비상등은 언제 켜나요?</div>
+          <div class="choices">
+            <div class="ch dim"><span class="no">1</span><span class="t">차선을 바꿀 때</span></div>
+            <div class="ch ok"><span class="no">2</span><span class="t">갑자기 서거나 고장·사고로 서 있을 때</span><span class="badge ok"><svg><use href="#ck"/></svg>정답</span></div>
+            <div class="ch mine"><span class="no">3</span><span class="t">터널에 들어갈 때</span><span class="badge x"><svg><use href="#xx"/></svg>내 답</span></div>
+          </div>
+          <div class="ec" style="margin-top:14px">뒤차에 위험을 알리는 신호예요. 차선을 바꿀 때는 방향지시등을, 터널에 들어갈 때는 전조등을 켜요.</div>
+          <div class="qfoot"><span class="link">그만하기</span><span class="sp"></span><span class="score">맞은 문제 1</span><span class="pill">다음 문제<svg><use href="#arr"/></svg></span></div>
+        </div>
+      </div></div>
+
+      <div><div class="cap">E · 정답 (추천안의 맞은 경우)</div>
+      <div class="screen">
+        <svg class="left" viewBox="0 0 324 423" width="324" height="423"><use href="#qbase"/>
+          <text x="162" y="153" font-size="11" fill="#FCFCFA" text-anchor="middle">3 / 10</text>
+          <path d="M126 258 152 284 202 228" stroke="#FCFCFA" stroke-width="11" fill="none"/>
+          <text x="162" y="334" font-size="16" fill="#FCFCFA" text-anchor="middle">맞았어요</text></svg>
+        <div class="R">
+          <div class="eb">지식 테스트 · 비상등·날씨별 행동</div>
+          <div class="q">비가 올 때 제동 거리는?</div>
+          <div class="choices">
+            <div class="ch dim"><span class="no">1</span><span class="t">같다</span></div>
+            <div class="ch dim"><span class="no">2</span><span class="t">짧아진다</span></div>
+            <div class="ch ok"><span class="no">3</span><span class="t">길어진다</span><span class="badge ok"><svg><use href="#ck"/></svg>내 답 · 정답</span></div>
+          </div>
+          <div class="ec" style="margin-top:14px">노면 마찰이 줄어 제동 거리가 늘어요. 속도를 20% 줄이고 앞차와 거리를 더 둬요.</div>
+          <div class="qfoot"><span class="link">그만하기</span><span class="sp"></span><span class="score">맞은 문제 2</span><span class="pill">다음 문제<svg><use href="#arr"/></svg></span></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="meta">
+      <div class="key">시안 E</div>
+      <h2>판정 패널</h2>
+      <p class="one">맞았나·틀렸나는 왼쪽 Ink 포스터가 크게(✕ Signal / ✓ Paper 굵은 선) 말하고, 오른쪽은 A의 카드 안 배지 + 해설 카드 + 넓은 알약으로 차분하게 둔다.</p>
+      <h3>장점</h3>
+      <ul>
+        <li>결과가 화면에서 가장 큰 그림이 된다 — 리포트·Done 화면의 "왼쪽 포스터가 말한다" 컨셉과 같은 문법.</li>
+        <li>오른쪽은 A와 같아 "내 답 / 정답" 위치·크기 정렬 문제가 함께 풀린다(배지가 카드 안 오른쪽 끝, 같은 크기).</li>
+        <li>문제 화면 → 정답 화면 전환에서 오른쪽 배치가 그대로라 끊김이 없다. 왼쪽 "02"만 ✕/✓ 로 바뀐다.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li>큰 문항 번호 "02"가 정답 화면에서는 사라진다(진행은 "2 / 10"으로 남음).</li>
+        <li>왼쪽 패널에 상태 하나(문제 / 맞음 / 틀림)가 생겨 구현 난이도 중간. ✕ 는 Signal, ✓ 는 Paper — 색 토큰 추가 없음.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="rec">
+    <div><div class="k">추천</div><div class="big">E · 판정 패널</div></div>
+    <div>
+      <p>결과는 왼쪽 포스터가 크게, 근거(보기·해설)는 오른쪽이 차분하게 — 역할이 갈려 간격이 자연스럽고, 카드 안 배지로 "내 답 / 정답" 위치·크기가 한 줄로 맞는다.</p>
+      <p>알약은 "시작"과 같은 240×46px(실제 720×140 dp)로 오른쪽 아래 고정. 왼쪽 판정 그림이 부담스러우면 A(배지)만 단독으로 적용해도 정렬 문제는 해결된다.</p>
+    </div>
+  </section>
+</div>
+</body>
+</html>
