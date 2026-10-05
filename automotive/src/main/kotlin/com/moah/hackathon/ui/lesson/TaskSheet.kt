@@ -46,11 +46,12 @@ internal fun TaskSheet(tasks: List<Task>, category: TaskType, task: Task?, mode:
         Eyebrow("연습할 과제", color = CoachColors.Periwinkle)
         Spacer(Modifier.height(40.dp))
         SelectionTrack(categoryOrder(), category, ::taskTypeLabel, onCategory,
-            Modifier.fillMaxWidth(), height = 104.dp, textSize = 56, role = Role.Tab) { type, color ->
+            Modifier.fillMaxWidth(), height = 96.dp, textSize = 48, role = Role.Tab,
+            background = CoachColors.Lavender.copy(alpha = .5f), selectedBackground = CoachColors.Ink,
+            foreground = CoachColors.Ink.copy(alpha = .6f)) { type, color ->
             val ready = groups[type].orEmpty().any { it.isReady }
-            val categoryColor = if (type == category || ready) color else CoachColors.Muted
-            LessonText(taskTypeLabel(type), 56, categoryColor)
-            if (!ready) LessonText(TaskStatus.PLANNED.label, 32, categoryColor)
+            LessonText(taskTypeLabel(type), 48, color)
+            if (!ready) LessonText(TaskStatus.PLANNED.label, 32, color)
         }
         Spacer(Modifier.height(24.dp))
         Eyebrow("${taskTypeLabel(category)} 세부 과제", color = CoachColors.Periwinkle)

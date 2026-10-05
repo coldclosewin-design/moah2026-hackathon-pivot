@@ -14,6 +14,9 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.toArgb
@@ -29,20 +32,32 @@ internal fun Modifier.surfaceTexture(
     pill: Boolean = false,
     pressed: () -> Boolean = { false },
     insetWhenPressed: Boolean = false,
+    shape: Shape? = null,
 ): Modifier = drawWithCache {
     val blur = texture.blur.dp.toPx()
     val y = texture.y.dp.toPx()
     val margin = ceil(blur * 2 + y).toInt()
     val radius = if (pill) size.height / 2 else 0f
+    val outline = Path().apply {
+        when (val custom = shape?.createOutline(size, layoutDirection, this@drawWithCache)) {
+            is Outline.Rounded -> addRoundRect(custom.roundRect)
+            is Outline.Rectangle -> addRect(custom.rect)
+            is Outline.Generic -> addPath(custom.path)
+            null -> addRoundRect(RoundRect(Rect(Offset.Zero, size), CornerRadius(radius)))
+        }
+    }
     val mask = Bitmap.createBitmap(ceil(size.width).toInt() + margin * 2,
         ceil(size.height).toInt() + margin * 2, Bitmap.Config.ARGB_8888)
-    Canvas(mask).drawRoundRect(margin.toFloat(), margin + y, margin + size.width,
-        margin + y + size.height, radius, radius, Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            this.color = texture.shadow.toArgb()
-            maskFilter = BlurMaskFilter(blur, BlurMaskFilter.Blur.NORMAL)
-        })
+    val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        this.color = texture.shadow.toArgb()
+        maskFilter = BlurMaskFilter(blur, BlurMaskFilter.Blur.NORMAL)
+    }
+    Canvas(mask).apply {
+        if (shape == null) drawRoundRect(margin.toFloat(), margin + y, margin + size.width,
+            margin + y + size.height, radius, radius, paint)
+        else { translate(margin.toFloat(), margin + y); drawPath(outline.asAndroidPath(), paint) }
+    }
     val shadow = mask.asImageBitmap()
-    val outline = Path().apply { addRoundRect(RoundRect(Rect(Offset.Zero, size), CornerRadius(radius))) }
     val top = CoachColors.Paper.copy(alpha = texture.highlight)
     val highlight = Brush.verticalGradient(
         0f to top, CoachTexture.HighlightFade to Color.Transparent, 1f to Color.Transparent,

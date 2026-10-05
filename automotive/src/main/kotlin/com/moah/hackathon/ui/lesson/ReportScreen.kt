@@ -1,14 +1,9 @@
 package com.moah.hackathon.ui.lesson
 
-import android.widget.Toast
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -18,9 +13,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.moah.hackathon.R
 import com.moah.hackathon.feature.lesson.LessonReport
@@ -28,11 +21,13 @@ import com.moah.hackathon.feature.lesson.TaskType
 import com.moah.hackathon.ui.CoachColors
 import com.moah.hackathon.ui.CoachTexture
 
-private enum class ReportPage { SUMMARY, DETAILS, CERTIFICATE }
+private enum class ReportPage { SUMMARY, DETAILS, CERTIFICATE, SHARE_EXAMPLE }
 
 @Composable
 internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit, locked: Boolean = false) {
     var page by rememberSaveable(report) { mutableStateOf(ReportPage.SUMMARY) }
+    var shareName by rememberSaveable(report) { mutableStateOf(report.shareLevels.firstOrNull()?.name) }
+    val shareLevel = report.shareLevels.firstOrNull { it.name == shareName } ?: report.shareLevels.firstOrNull()
     if (locked) {
         ResultLockedScreen()
         return
@@ -76,14 +71,15 @@ internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit, locked: B
                             primary = { CompactProvenance(report) })
                     }
                     ReportPage.CERTIFICATE -> {
-                        CertificateContent(report, Modifier.weight(1f))
+                        CertificateContent(report, shareLevel, { shareName = it.name },
+                            { page = ReportPage.SHARE_EXAMPLE }, Modifier.weight(1f))
+                        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) { CompactProvenance(report) }
                         BottomActions(secondary = { BackPill { page = ReportPage.SUMMARY } },
-                            alignment = Alignment.Top, primary = {
-                                Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(24.dp)) {
-                                    Box(Modifier.height(112.dp), contentAlignment = Alignment.CenterEnd) { CompactProvenance(report) }
-                                    PrimaryPill(stringResource(R.string.lesson_restart), onRestart)
-                                }
-                            })
+                            primary = { PrimaryPill(stringResource(R.string.lesson_restart), onRestart) })
+                    }
+                    ReportPage.SHARE_EXAMPLE -> {
+                        ShareExampleContent(report, shareLevel, Modifier.weight(1f))
+                        BottomActions(secondary = { BackPill { page = ReportPage.CERTIFICATE } })
                     }
                 }
             }
@@ -234,41 +230,4 @@ private fun trendColor(value: Number, previous: Number?, lowerBetter: Boolean = 
     previous == null || value.toDouble() == previous.toDouble() -> CoachColors.Ink
     (value.toDouble() > previous.toDouble()) != lowerBetter -> CoachColors.Periwinkle
     else -> CoachColors.Muted
-}
-
-@Composable
-private fun CertificateContent(report: LessonReport, modifier: Modifier) {
-    var selectedName by rememberSaveable(report) { mutableStateOf(report.shareLevels.firstOrNull()?.name) }
-    val context = LocalContext.current
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(28.dp)) {
-        Eyebrow("진단서")
-        bestCourseAttempt(report.attempts)?.course?.let { result ->
-            LessonText("${report.task.title} · ${courseVerdict(result)}", 40)
-        }
-        LessonText("예시입니다 — 실제 전송·계약은 없습니다", 40, CoachColors.Periwinkle)
-        Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(64.dp)) {
-            Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).selectableGroup(),
-                verticalArrangement = Arrangement.spacedBy(24.dp)) {
-                Eyebrow("공유 범위")
-                report.shareLevels.forEach { level ->
-                    PosterRule()
-                    Row(Modifier.fillMaxWidth().selectable(selectedName == level.name, role = Role.RadioButton,
-                        onClick = { selectedName = level.name }).padding(vertical = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.Top) {
-                        RadioButton(selectedName == level.name, onClick = null,
-                            colors = RadioButtonDefaults.colors(selectedColor = CoachColors.Periwinkle, unselectedColor = CoachColors.Muted))
-                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            LessonText(level.label, 40)
-                            LessonText(level.description, 32, CoachColors.Muted)
-                        }
-                    }
-                }
-            }
-            Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(24.dp)) {
-                Eyebrow("예상 혜택")
-                report.benefits.forEach { benefit -> PosterRule(); LessonText(benefit, 40) }
-            }
-        }
-        TextAction("공유 예시 보기", { Toast.makeText(context, "예시 화면입니다", Toast.LENGTH_SHORT).show() })
-    }
 }
