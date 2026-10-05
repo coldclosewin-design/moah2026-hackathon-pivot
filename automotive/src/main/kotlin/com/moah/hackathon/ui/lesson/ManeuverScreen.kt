@@ -8,14 +8,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.moah.hackathon.R
 import com.moah.hackathon.feature.lesson.ManeuverDisplayState
 import com.moah.hackathon.feature.lesson.TaskType
 import com.moah.hackathon.ui.CoachColors
-import com.moah.hackathon.ui.CoachTexture
 import com.moah.hackathon.vehicle.SignalAvailability
 import kotlinx.coroutines.delay
 import kotlin.math.abs
@@ -53,29 +51,8 @@ internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stoppe
                                 40, CoachColors.Paper.copy(alpha = .7f))
                         }
                     } else if (checklist) {
-                        Row(Modifier.weight(1f).fillMaxWidth().padding(top = 24.dp), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                                ChecklistValue("도어", state.doorOpen?.let { if (it) "열림" else "닫힘" }, state.doorOpen == false,
-                                    state.doorSignal, commonSignal == null)
-                                ChecklistValue("안전벨트", state.belt?.let { if (it) "채움" else "미수행" }, state.belt == true,
-                                    state.beltSignal, commonSignal == null)
-                                ChecklistValue("기어", state.gear, state.gear == "P", state.gearSignal, commonSignal == null)
-                                val ignition = state.checklistIgnition()
-                                ChecklistValue("브레이크 / 시동", ignition.value, ignition.satisfied,
-                                    ignition.signal, commonSignal == null, ignition.source)
-                            }
-                            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                                ChecklistValue("좌 지시등", checklistLightValue(state.indicatorLeft, state.leftIndicatorChecked),
-                                    state.indicatorLeft == true || state.leftIndicatorChecked == true,
-                                    state.indicatorLeftSignal, commonSignal == null)
-                                ChecklistValue("우 지시등", checklistLightValue(state.indicatorRight, state.rightIndicatorChecked),
-                                    state.indicatorRight == true || state.rightIndicatorChecked == true,
-                                    state.indicatorRightSignal, commonSignal == null)
-                                ChecklistValue("비상등", checklistLightValue(state.hazard, state.hazardChecked),
-                                    state.hazard == true || state.hazardChecked == true,
-                                    state.hazardSignal, commonSignal == null)
-                            }
-                        }
+                        ChecklistTimeline(state, commonSignal == null,
+                            Modifier.weight(1f).fillMaxWidth().padding(top = 32.dp))
                     } else {
                         Box(Modifier.weight(1f).fillMaxWidth()) {
                             VehicleDiagram(state, Modifier.fillMaxSize())
@@ -152,27 +129,6 @@ internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stoppe
             }
             // Locked frames have no panel, toggle, scrolling, or click actions.
             if (!locked && demo != null) DemoRail(expansion, demo)
-        }
-    }
-}
-
-@Composable
-private fun ChecklistValue(label: String, value: String?, satisfied: Boolean, signal: SignalAvailability,
-    showSource: Boolean, source: String = signalLabel(signal)) {
-    val measured = value != null && signal != SignalAvailability.MISSING
-    val background = when {
-        !measured -> CoachColors.Lavender
-        satisfied -> CoachColors.Periwinkle
-        else -> CoachColors.Ink.copy(alpha = .6f)
-    }
-    val foreground = if (measured) CoachColors.Paper else CoachColors.Muted
-    Column(Modifier.fillMaxWidth().height(240.dp).surfaceTexture(background.compositeOver(CoachColors.Lavender),
-            if (measured) CoachTexture.SelectedCard else CoachTexture.Card)
-        .padding(horizontal = 24.dp, vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Eyebrow(label, color = foreground)
-        LessonText(if (measured) value!! else "미측정", 48, foreground, bold = true)
-        if (showSource && (measured || source != "미측정")) {
-            LessonText(source, 32, foreground)
         }
     }
 }

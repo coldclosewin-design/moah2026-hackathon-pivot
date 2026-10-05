@@ -28,6 +28,7 @@ internal fun Modifier.surfaceTexture(
     texture: CoachTexture.Surface,
     pill: Boolean = false,
     pressed: () -> Boolean = { false },
+    insetWhenPressed: Boolean = false,
 ): Modifier = drawWithCache {
     val blur = texture.blur.dp.toPx()
     val y = texture.y.dp.toPx()
@@ -49,11 +50,15 @@ internal fun Modifier.surfaceTexture(
     val inset = Brush.verticalGradient(listOf(Color.Transparent, CoachColors.Ink.copy(alpha = texture.inset)),
         startY = size.height - CoachTexture.InnerDepth.toPx(), endY = size.height)
     onDrawBehind {
-        drawImage(shadow, Offset(-margin.toFloat(), -margin.toFloat()),
+        if (!insetWhenPressed || !pressed()) drawImage(shadow, Offset(-margin.toFloat(), -margin.toFloat()),
             alpha = if (pressed()) CoachTexture.PressedShadow else 1f)
         clipPath(outline) {
             drawRect(color)
-            if (texture.highlightHeight > 0f) {
+            if (insetWhenPressed && pressed()) {
+                drawRect(CoachColors.Periwinkle.copy(alpha = texture.inset))
+                drawRect(Brush.verticalGradient(listOf(texture.shadow, Color.Transparent),
+                    endY = CoachTexture.InnerDepth.toPx()))
+            } else if (texture.highlightHeight > 0f) {
                 val insetX = size.width * CoachTexture.HighlightInset
                 drawRoundRect(highlight, Offset(insetX, 0f),
                     Size(size.width - insetX * 2, size.height * texture.highlightHeight),

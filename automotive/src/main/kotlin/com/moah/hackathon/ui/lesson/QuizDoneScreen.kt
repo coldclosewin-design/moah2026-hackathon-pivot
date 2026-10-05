@@ -49,7 +49,7 @@ internal fun QuizDoneScreen(task: Task, results: List<QuizResult>, items: List<Q
                                     withStyle(SpanStyle(color = CoachColors.Muted)) { append(" → ") }
                                     withStyle(SpanStyle(color = CoachColors.Periwinkle)) { append(item.choices[item.answer]) }
                                 }, fontSize = 40.sp, lineHeight = 52.sp)
-                                LessonText(item.why, 32, CoachColors.Muted)
+                                QuizExplanation(item.why, 32)
                             }
                         }
                     }

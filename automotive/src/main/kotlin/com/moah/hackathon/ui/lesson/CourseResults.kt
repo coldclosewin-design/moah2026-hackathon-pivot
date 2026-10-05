@@ -71,36 +71,36 @@ internal fun CourseSummaryPanel(result: CourseResult, modifier: Modifier) {
 
 @Composable
 internal fun CourseDetails(report: LessonReport, modifier: Modifier) {
-    Column(modifier.fillMaxWidth().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-        report.attempts.forEach { attempt -> attempt.course?.let { result ->
-            Column(Modifier.fillMaxWidth().surfaceTexture(CoachColors.Paper, CoachTexture.Card)
-                .padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                LessonText("${attempt.index}회차 · 코스 ${result.score}점" +
-                    (result.passScore?.let { " · 합격선 ${it}점" } ?: ""), 44)
-                LessonText(courseVerdict(result), 36, CoachColors.Periwinkle)
-                PosterRule()
-                if (result.deductions.isEmpty()) {
-                    LessonText("감점 없음", 32, CoachColors.Muted)
-                } else {
-                    Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                        LessonText("구간", 32, CoachColors.Muted, modifier = Modifier.width(230.dp))
-                        LessonText("사유", 32, CoachColors.Muted, modifier = Modifier.weight(1f))
-                        LessonText("감점", 32, CoachColors.Muted, modifier = Modifier.width(120.dp))
-                    }
-                    result.deductions.forEach { deduction ->
-                        Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                            LessonText(deduction.zoneTitle, 32, modifier = Modifier.width(230.dp))
-                            LessonText(deduction.reason + if (deduction.disqualify) " · 실격" else "", 32, modifier = Modifier.weight(1f))
-                            LessonText("−${deduction.points}점", 32, CoachColors.Signal, modifier = Modifier.width(120.dp))
-                        }
-                    }
-                }
-                result.zones.forEach { zone ->
-                    if (!result.positionMeasured || !zone.visited) LessonText("${zone.title} · 확인 못 함", 32, CoachColors.Muted)
-                    else zone.unmeasured.forEach { LessonText("${zone.title} · $it · 확인 못 함", 32, CoachColors.Muted) }
-                }
-                PosterRule()
+    AttemptComparison(report.attempts, modifier) { attempt, previous ->
+        attempt.course?.let { result ->
+            LessonText("${attempt.index}회차 · 코스 ${result.score}점" +
+                (result.passScore?.let { " · 합격선 ${it}점" } ?: ""), 36)
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically) {
+                LessonText(courseVerdict(result), 40, CoachColors.Periwinkle)
+                previous?.course?.let { DeltaChip(result.score - it.score, "점") }
             }
-        } }
+            PosterRule()
+            if (result.deductions.isEmpty()) {
+                LessonText("감점 없음", 32, CoachColors.Muted)
+            } else {
+                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    LessonText("구간", 32, CoachColors.Muted, modifier = Modifier.width(150.dp))
+                    LessonText("사유", 32, CoachColors.Muted, modifier = Modifier.weight(1f))
+                    LessonText("감점", 32, CoachColors.Muted, modifier = Modifier.width(90.dp))
+                }
+                result.deductions.forEach { deduction ->
+                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        LessonText(deduction.zoneTitle, 32, modifier = Modifier.width(150.dp))
+                        LessonText(deduction.reason + if (deduction.disqualify) " · 실격" else "", 32, modifier = Modifier.weight(1f))
+                        LessonText("−${deduction.points}점", 32, CoachColors.Signal, modifier = Modifier.width(90.dp))
+                    }
+                }
+            }
+            result.zones.forEach { zone ->
+                if (!result.positionMeasured || !zone.visited) LessonText("${zone.title} · 확인 못 함", 32, CoachColors.Muted)
+                else zone.unmeasured.forEach { LessonText("${zone.title} · $it · 확인 못 함", 32, CoachColors.Muted) }
+            }
+        }
     }
 }

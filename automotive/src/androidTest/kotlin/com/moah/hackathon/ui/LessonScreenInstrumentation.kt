@@ -70,12 +70,14 @@ class LessonScreenInstrumentation : Instrumentation() {
     private var textureOnly = false
     private var round14Only = false
     private var round18Only = false
+    private var reservationOnly = false
     override fun onCreate(arguments: Bundle?) {
         super.onCreate(arguments)
         seedSpeech = arguments?.getString("seedSpeech") == "true"
         frontOnly = arguments?.getString("frontOnly") == "true"
         round14Only = arguments?.getString("round14Only") == "true"
         round18Only = arguments?.getString("round18Only") == "true"
+        reservationOnly = arguments?.getString("reservationOnly") == "true"
         textureOnly = arguments?.getString("textureOnly") == "true"
         start()
     }
@@ -84,6 +86,11 @@ class LessonScreenInstrumentation : Instrumentation() {
         val activity = startActivitySync(Intent(targetContext, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as MainActivity
         try {
+            if (reservationOnly) {
+                reservationFlow(activity)
+                finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Reservation contract passed\n") })
+                return
+            }
             if (round18Only) {
                 courseContract(activity)
                 finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Round18 contract passed\n") })
@@ -183,22 +190,27 @@ class LessonScreenInstrumentation : Instrumentation() {
                 parkingTasks.filterNot { it.isReady }.forEach { planned ->
                     assertBayFill(bitmap, taskBounds(planned.title), CoachColors.Lavender.copy(alpha = .4f).compositeOver(CoachColors.Paper).toArgb())
                 }
-                check(!colorBounds(bitmap, categoryTitleBounds, CoachColors.Signal.toArgb()).isEmpty) { "Expanded category text must be Signal" }
+                check(!colorBounds(bitmap, categoryTitleBounds, CoachColors.Paper.toArgb()).isEmpty) { "Selected category text must be Paper" }
                 check(!colorBounds(bitmap, textBounds("주행"), CoachColors.Periwinkle.toArgb(), tolerance = 1).isEmpty) {
                     "Ready driving category must use Periwinkle"
                 }
-                listOf(10, 26).forEach { belowTitle ->
-                    check(bitmap.getPixel(categoryTitleBounds.centerX(), categoryTitleBounds.bottom + (belowTitle * scale).toInt()) == CoachColors.Signal.toArgb()) {
-                        "Missing Signal underline or downward triangle"
-                    }
+                check(!colorBounds(bitmap, Rect(categoryTitleBounds).apply { inset(-40, -6) }, CoachColors.Periwinkle.toArgb()).isEmpty)
+                runOnMainSync {
+                    val tabs = composeNodes(activity).filter { it.config.getOrNull(SemanticsProperties.Role) == androidx.compose.ui.semantics.Role.Tab }
+                    check(tabs.size == 4)
+                    check(tabs.count { it.config.getOrNull(SemanticsProperties.Selected) == true } == 1)
+                    val widths = tabs.map { it.boundsInWindow.width }
+                    check(widths.max() - widths.min() <= 1) { "Category pills must have equal widths" }
                 }
             }
-            pass("Setup first render: filled Periwinkle/40% Lavender bays without outlines, Paper selection, modes/start, Signal category and 64 dp checked circle")
+            pass("Setup first render: filled Periwinkle/40% Lavender bays without outlines, Paper selection, modes/start, equal pill tabs and 64 dp checked circle")
             click("제휴 시험장")
-            check(texts().contains(Reservation.EXAMPLE_NOTE))
-            check(texts().none { it in listOf("시작", "가이드", "힌트", "평가") })
+            afterUiSettles("venue sheet transition") {
+                check(texts().contains(Reservation.EXAMPLE_NOTE))
+                check(texts().none { it in listOf("시작", "가이드", "힌트", "평가") })
+            }
             click("돌아가기")
-            check(buttonBounds("시작") == sheetStartBounds) { "Returning from venues moved the footer" }
+            afterUiSettles("venue return footer") { check(buttonBounds("시작") == sheetStartBounds) { "Returning from venues moved the footer" } }
             assertSelected("힌트")
             click("시작")
             runOnMainSync { check(started == task.id to LessonMode.HINT) }
@@ -243,7 +255,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             click("과제·모드 바꾸기")
             assertSelected("지식")
             assertSelected(knowledge.title)
-            check(buttonBounds("시작") == sheetStartBounds)
+            afterUiSettles("reopened sheet footer") { check(buttonBounds("시작") == sheetStartBounds) }
             capture("setup-knowledge")
             click("주행")
             check("시작" in texts())
@@ -413,17 +425,16 @@ class LessonScreenInstrumentation : Instrumentation() {
             assertDriverButton(activity, "다 됐어요")
             assertPanelCollapsed()
             val chipLabels = checklistLabels.map(::textBounds)
-            check(chipLabels.take(4).map { it.left }.distinct().size == 1)
-            check(chipLabels.drop(4).map { it.left }.distinct().size == 1)
-            check(chipLabels[0].left < chipLabels[4].left && chipLabels[0].top == chipLabels[4].top)
-            check(chipLabels.take(4).zipWithNext().all { (a, b) -> a.bottom < b.top })
-            check(chipLabels.drop(4).zipWithNext().all { (a, b) -> a.bottom < b.top })
+            check(chipLabels.map { it.left }.distinct().size == 1)
+            check(chipLabels.zipWithNext().all { (a, b) -> a.bottom < b.top })
             fun chipColor(bitmap: Bitmap, label: String) = textBounds(label).let {
                 bitmap.getPixel(it.left - (12 * designScale(activity)).toInt(), it.centerY())
             }
             capture("maneuver-checklist-pending") { bitmap ->
-                check(chipColor(bitmap, "도어") == CoachColors.Periwinkle.toArgb())
-                check(chipColor(bitmap, "비상등") == CoachColors.Ink.copy(alpha = .6f).compositeOver(CoachColors.Lavender).toArgb())
+                check(chipColor(bitmap, "도어") == CoachColors.Ink.toArgb())
+                check(chipColor(bitmap, "비상등") == CoachColors.Ink.toArgb())
+                val active = CoachColors.Paper.copy(alpha = .08f).compositeOver(CoachColors.Ink).toArgb()
+                check(chipColor(bitmap, "우 지시등") == active)
             }
             val (goodChecklistScore, completedChecklist) = replayChecklist(ChecklistScenarios.good)
             val (badChecklistScore, badChecklist) = replayChecklist(ChecklistScenarios.bad)
@@ -433,12 +444,12 @@ class LessonScreenInstrumentation : Instrumentation() {
             check(texts().count { it == "확인" } == 3)
             check(texts().contains("밟음 → 켜짐"))
             capture("maneuver-checklist") { bitmap ->
-                checklistLabels.forEach { check(chipColor(bitmap, it) == CoachColors.Periwinkle.toArgb()) { "$it lost recorded completion" } }
+                checklistLabels.forEach { check(chipColor(bitmap, it) == CoachColors.Ink.toArgb()) { "$it must be flat once complete" } }
             }
             render(activity) { ManeuverScreen(badChecklist, false, true, null, {}, taskTitle = SeedCatalog.predriveTask.title) }
             check(texts().contains("브레이크 없이 켜짐"))
             capture("maneuver-checklist-bad") { bitmap ->
-                check(chipColor(bitmap, "브레이크 / 시동") == CoachColors.Ink.copy(alpha = .6f).compositeOver(CoachColors.Lavender).toArgb())
+                check(chipColor(bitmap, "브레이크 / 시동") == CoachColors.Ink.toArgb())
             }
             render(activity) { ManeuverScreen(checklist.copy(doorOpen = null, brakePressed = null, brakeAtIgnition = null,
                 indicatorLeft = null, indicatorRight = null, hazard = null,
@@ -447,16 +458,16 @@ class LessonScreenInstrumentation : Instrumentation() {
                 hazardSignal = SignalAvailability.MISSING), false, true, null, {},
                 taskTitle = SeedCatalog.predriveTask.title) }
             check(texts().count { it == "미측정" } == 5)
-            check(texts().containsAll(checklistLabels + listOf("P", "채움", "브레이크 미측정\n시동 시뮬레이션")))
+            check(texts().containsAll(checklistLabels + listOf("P", "채움", "브레이크 미측정 시동 시뮬레이션")))
             check(texts().none { it == "시뮬레이션 신호" })
             capture("maneuver-checklist-missing") { bitmap ->
                 listOf("도어", "브레이크 / 시동", "좌 지시등", "우 지시등", "비상등").forEach {
-                    check(chipColor(bitmap, it) == CoachColors.Lavender.toArgb())
+                    check(chipColor(bitmap, it) == CoachColors.Ink.toArgb())
                 }
             }
             render(activity) { ManeuverScreen(checklist.copy(brakeSignal = SignalAvailability.LIVE), false, true, null, {},
                 taskTitle = SeedCatalog.predriveTask.title) }
-            check(texts().contains("브레이크 실신호\n시동 시뮬레이션"))
+            check(texts().contains("브레이크 실신호 시동 시뮬레이션"))
             capture("maneuver-checklist-mixed")
             check(texts().none { it == "시뮬레이션 신호" })
             render(activity) { ManeuverScreen(checklist.copy(belt = null, ignitionOn = null,
@@ -469,7 +480,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             check(nodes().none(::hasTouchAction))
             assertNoScores()
             capture("maneuver-checklist-locked")
-            pass("Checklist: seven chips in 4+3 columns, complete/pending/missing colors, mixed brake/ignition sources, no parking telemetry, locked touch gate")
+            pass("Checklist: seven ordered dots, segmented progress, only first pending row lifted, complete/pending/missing states, mixed brake/ignition sources, no parking telemetry, locked touch gate")
 
             var nextCount = 0
             var quitCount = 0
@@ -494,8 +505,9 @@ class LessonScreenInstrumentation : Instrumentation() {
                 if (selected != item.answer) {
                     check(texts().containsAll(listOf("내 답", "정답")))
                     check(texts().none { it == "내 답 · 정답" })
-                    check(textBounds("내 답").right < textBounds(item.choices[selected]).left)
-                    check(textBounds("정답").right < textBounds(correctChoice).left)
+                    check("아쉬워요" in texts())
+                    check(textBounds("내 답").left > textBounds(item.choices[selected]).right)
+                    check(textBounds("정답").left > textBounds(correctChoice).right)
                     capture("quiz-answered") { bitmap ->
                         val selectedCell = Rect().also { bounds ->
                             nodes().first { (it.isSelected || it.isChecked || it.stateDescription?.toString() in listOf("Selected", "선택됨")) && descendants(it).any { child ->
@@ -509,12 +521,13 @@ class LessonScreenInstrumentation : Instrumentation() {
                         check(bitmap.getPixel(selectedCell.left + (2 * scale).toInt(), y) == CoachColors.Signal.toArgb())
                         check(bitmap.getPixel(selectedCell.left + (6 * scale).toInt(), y) == CoachColors.Lavender.toArgb())
                         check(!colorBounds(bitmap, textBounds(item.choices[selected]), CoachColors.Ink.toArgb()).isEmpty)
-                        check(!colorBounds(bitmap, textBounds("내 답"), CoachColors.Signal.toArgb()).isEmpty)
+                        check(!colorBounds(bitmap, textBounds("내 답"), CoachColors.Paper.toArgb()).isEmpty)
                         check(!colorBounds(bitmap, textBounds("정답"), CoachColors.Periwinkle.toArgb()).isEmpty)
                         check(!colorBounds(bitmap, textBounds(correctChoice), CoachColors.Paper.toArgb()).isEmpty)
                     }
                 } else {
                     check(texts().contains("내 답 · 정답"))
+                    check("맞았어요" in texts())
                     if (index == 2) capture("quiz-correct")
                     check(texts().none { it == "내 답" || it == "정답" })
                 }
@@ -629,7 +642,7 @@ class LessonScreenInstrumentation : Instrumentation() {
                 assertPathMargins(activity, bitmap)
             }
             capture("done")
-            pass("Done rear-up arrival bay: present before arrival, Periwinkle sides/rear and open front, settled car corners inside, asymmetric starting outline; balanced painted margins; no settled rear chevron or metrics")
+            pass("Done rear-up arrival bay: fixed target heading, Lavender sides/rear and open front, faint neighbor strokes without plane, measured car heading and dim starting silhouette; balanced painted margins; no settled rear chevron or metrics")
             render(activity) { DoneScreen(task, 1, record.copy(path = listOf(path.first(), path.first().copy(y = .49f))), null, {}, {}) }
             check(allText().none { it == "추정 궤적" })
             val checklistRecord = record.copy(taskId = SeedCatalog.predriveTask.id,
@@ -815,7 +828,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             setLock(true)
             assertLocked(if (resultTask == task) "done-locked" else "done-checklist-locked")
             setLock(false)
-            check(attempt.remark in texts())
+            afterUiSettles("Done remark after unlocking") { check(attempt.remark in texts()) }
             assertPanelCollapsed()
             click("한 번 더")
         }
@@ -888,6 +901,19 @@ class LessonScreenInstrumentation : Instrumentation() {
         capture("report-parking-perfect")
         render(activity) { ReportScreen(report.copy(attempts = listOf(record, record.copy(index = 2, score = perfect))), {}) }
         capture("report-multiple")
+        click("자세히 보기")
+        check(textBounds("1회차").right < textBounds("2회차").left)
+        check(textBounds("1회차").top == textBounds("2회차").top)
+        check(texts().containsAll(listOf("+40", "+45", "→")))
+        capture("details-comparison")
+        render(activity) { ReportScreen(report.copy(attempts = List(3) { record.copy(index = it + 1) }), {}) }
+        click("자세히 보기")
+        check("2회차" in texts() && "3회차" in texts() && "1회차" !in texts())
+        click("이전 회차")
+        check("1회차" in texts() && "2회차" in texts() && "3회차" !in texts())
+        click("다음 회차")
+        check("2회차" in texts() && "3회차" in texts())
+        capture("details-history")
         listOf("live7-sim1-fixture" to AvailabilityBadge(7, 1, 0), "live-missing-fixture" to AvailabilityBadge(7, 0, 1)).forEach { (name, availability) ->
             val sourceScore = report.best.copy(badge = availability,
                 missingSignals = if (availability.missing == 0) emptyList() else listOf(ParkingRecorder.KEYS.last()))
@@ -1023,7 +1049,7 @@ class LessonScreenInstrumentation : Instrumentation() {
                 check(layouts.single().layoutInput.style.fontSize == 32.sp)
                 check(layouts.single().layoutInput.style.color == CoachColors.Periwinkle)
             }
-            check(abs((text("주차").boundsInWindow.top - text("연습할 과제").boundsInWindow.bottom) / scale - 40f) <= 1f)
+            check((text("주차").boundsInWindow.top - text("연습할 과제").boundsInWindow.bottom) / scale >= 40f)
             val card = composeNodes(activity).first { node ->
                 node.config.getOrNull(SemanticsProperties.Selected) == true &&
                     node.boundsInWindow.height > 400 * scale && node.boundsInWindow.width < 500 * scale
@@ -1076,8 +1102,12 @@ class LessonScreenInstrumentation : Instrumentation() {
         capture("venues") { bitmap ->
             SeedCatalog.venues.forEach { venue ->
                 val bounds = buttonBounds(venue.name)
-                check(kotlin.math.abs(bounds.height() / designScale(activity) - 264f) <= 1f)
-                check(bitmap.getPixel(bounds.left + 2, bounds.top + 2) == CoachColors.Lavender.toArgb())
+                check(kotlin.math.abs(bounds.height() / designScale(activity) - 512f) <= 1f)
+                check(bitmap.getPixel(bounds.left + 2, bounds.top + 2) == CoachColors.Paper.toArgb())
+                val map = Rect(bounds.left + 12, bounds.top + 12, bounds.right - 12,
+                    bounds.top + (180 * designScale(activity)).roundToInt())
+                check(bitmap.getPixel(map.left, map.top) == CoachColors.Ink.toArgb())
+                check(!colorBounds(bitmap, map, CoachColors.Periwinkle.toArgb()).isEmpty)
             }
         }
         clickAndAwait(seocho.name) { texts().containsAll(seocho.slots.map { it.label }) }
@@ -1104,6 +1134,11 @@ class LessonScreenInstrumentation : Instrumentation() {
         assertDriverButton(activity, "예약")
         assertReservationNumbers()
         capture("venue-slots") { bitmap ->
+            val card = buttonBounds(seocho.name)
+            check(bitmap.getPixel(card.left + 2, card.top + 2) == CoachColors.Signal.toArgb())
+            val map = Rect(card.left + 12, card.top + 12, card.right - 12,
+                card.top + (180 * designScale(activity)).roundToInt())
+            check(!colorBounds(bitmap, map, CoachColors.Signal.toArgb()).isEmpty) { "Selected venue route must be red" }
             val unavailable = textBounds(seocho.slots.single { !it.available }.label)
             check(!colorBounds(bitmap, unavailable, CoachColors.Muted.compositeOver(CoachColors.Lavender).toArgb(), tolerance = 1).isEmpty)
         }
@@ -1135,7 +1170,8 @@ class LessonScreenInstrumentation : Instrumentation() {
         check(texts().contains("예약한 시험장을 누르면 확인할 수 있어요."))
         capture("venues-booked") { bitmap ->
             val bounds = buttonBounds(seocho.name)
-            check(bitmap.getPixel(bounds.left + 2, bounds.top + 2) == CoachColors.Periwinkle.toArgb())
+            check(bitmap.getPixel(bounds.left + 2, bounds.top + 2) == CoachColors.Paper.toArgb())
+            check(!colorBounds(bitmap, textBounds("예약됨"), CoachColors.Signal.toArgb()).isEmpty)
         }
         clickAndAwait(seocho.name) { "예약 확인" in texts() }
         check(texts().contains("예약 확인"))
@@ -1155,7 +1191,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         check(textBounds(profileLabel) == originalProfileBounds) {
             "Cancelled badge left empty space after morph settled: ${textBounds(profileLabel)} / $originalProfileBounds"
         }
-        pass("Reservation: three 264 dp cards, unavailable slot disabled, both choices required/reset per venue, reserve/cancel once, real ViewModel recommendation, confirmation/reopen, badge without leftover space")
+        pass("Reservation: three 512 dp map cards, red selected border/route, unavailable slot disabled, both choices required/reset per venue, reserve/cancel once, real ViewModel recommendation, confirmation/reopen, badge without leftover space")
     }
 
     /** Selection/navigation only: never retry reserve/cancel callbacks. Reacquire after a missed tap. */
@@ -1306,7 +1342,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             check(texts().any { "시험장 위치·신호 · 시뮬레이션" == it })
             if (state.snapshot.signal == TrackSignal.OFF) check(texts().none { it.startsWith("신호등") || it.startsWith("신호 ·") })
             if (state.snapshot.signal == TrackSignal.RED) check("신호 · 빨간불" in texts())
-            capture(name)
+            capture(name) { bitmap -> state.progress.pose?.let { assertCourseCar(activity, bitmap, state.course, it) } }
         }
         check(finished == if (full) 2 else 1)
         if (!full) {
@@ -1413,7 +1449,7 @@ class LessonScreenInstrumentation : Instrumentation() {
                 val bounds = Rect().also { r -> nodes().first { it.contentDescription == "추정 궤적" }.getBoundsInScreen(r) }
                 val density = designScale(activity)
                 val target = parkingTask.parkingSpec.targetHeadingDeg
-                val viewport = pathViewport(attempt.path, bounds.width() / density, bounds.height() / density, targetHeading = target)
+                val viewport = pathViewport(attempt.path, bounds.width() / density, bounds.height() / density, targetHeading = target, neighborBays = true, parallel = id == "parking-parallel")
                 val end = attempt.path.last()
                 val cx = bounds.right - viewport.x(end.x) * density
                 val cy = bounds.bottom - viewport.y(end.y) * density
@@ -1422,7 +1458,7 @@ class LessonScreenInstrumentation : Instrumentation() {
                 for ((x, y) in listOf(-1.125f to -2f, 1.125f to -2f, -1.125f to 2f, 1.125f to 2f, 0f to 2.5875f)) {
                     val px = (cx + (cos(angle) * x - sin(angle) * y) * unit).roundToInt()
                     val py = (cy + (sin(angle) * x + cos(angle) * y) * unit).roundToInt()
-                    check((-2..2).any { dx -> (-2..2).any { dy -> bitmap.getPixel(px + dx, py + dy) == CoachColors.Periwinkle.toArgb() } }) {
+                    check((-2..2).any { dx -> (-2..2).any { dy -> bitmap.getPixel(px + dx, py + dy) == CoachColors.Lavender.toArgb() } }) {
                         "Arrival bay must follow $target degrees: $id at $x,$y"
                     }
                 }
@@ -1701,72 +1737,68 @@ class LessonScreenInstrumentation : Instrumentation() {
             }
         }
         check(nodes().none(::hasTouchAction))
-        pass("Texture B: bounded card highlight, original button text colour, half pressed shadow, flat touch-free lock")
+        render(activity) { PosterSurface { Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { BackPill { clicks++ } } } }
+        val back = buttonBounds("돌아가기")
+        check(back.height() < bounds.height() && back.width() < bounds.width())
+        capture("back-pill")
+        val pressTime = SystemClock.uptimeMillis()
+        val press = android.view.MotionEvent.obtain(pressTime, pressTime, android.view.MotionEvent.ACTION_DOWN,
+            back.centerX().toFloat(), back.centerY().toFloat(), 0)
+        check(uiAutomation.injectInputEvent(press, true)); press.recycle()
+        try {
+            Thread.sleep(150)
+            capture("back-pill-pressed") { bitmap ->
+                check(bitmap.getPixel(back.centerX(), back.bottom + (10 * scale).toInt()) == CoachColors.Paper.toArgb()) {
+                    "Pressed back must replace the outer shadow with an inset"
+                }
+                check(bitmap.getPixel(back.centerX(), back.top + (2 * scale).toInt()) != CoachColors.Lavender.toArgb())
+            }
+        } finally {
+            val cancel = android.view.MotionEvent.obtain(pressTime, SystemClock.uptimeMillis(), android.view.MotionEvent.ACTION_CANCEL,
+                back.centerX().toFloat(), back.centerY().toFloat(), 0)
+            uiAutomation.injectInputEvent(cancel, true); cancel.recycle()
+        }
+        check(clicks == 0)
+        pass("Texture B: primary shadow retained, smaller Lavender back with pressed inset, flat touch-free lock")
     }
     private fun assertArrivalBay(activity: MainActivity, bitmap: Bitmap, path: List<PathPoint>, settled: Boolean) {
-        val bounds = Rect().also { rect ->
-            nodes().first { it.contentDescription?.toString() == "추정 궤적" }.getBoundsInScreen(rect)
-        }
+        val bounds = Rect().also { rect -> nodes().first { it.contentDescription == "추정 궤적" }.getBoundsInScreen(rect) }
         val density = designScale(activity)
-        val viewport = pathViewport(path, bounds.width() / density, bounds.height() / density)
+        val viewport = pathViewport(path, bounds.width() / density, bounds.height() / density, targetHeading = 90f, neighborBays = true)
         val scale = viewport.scale * density
         val arrival = path.last()
         val cx = bounds.right - viewport.x(arrival.x) * density
         val cy = bounds.bottom - viewport.y(arrival.y) * density
-        val angle = Math.toRadians((180f - arrival.headingDeg).toDouble())
-        val c = cos(angle).toFloat(); val s = sin(angle).toFloat()
-        fun screen(x: Float, y: Float) = (cx + c * x - s * y).roundToInt() to (cy + s * x + c * y).roundToInt()
-        fun pixelNear(x: Float, y: Float, color: Int): Boolean {
-            val (px, py) = screen(x, y)
-            return (-1..1).any { dx -> (-1..1).any { dy -> bitmap.getPixel(px + dx, py + dy) == color } }
+        val bayAngle = Math.toRadians(-90.0)
+        fun near(x: Float, y: Float, color: Int, tolerance: Int = 0): Boolean {
+            val px = (cx + (cos(bayAngle) * x - sin(bayAngle) * y) * scale).roundToInt()
+            val py = (cy + (sin(bayAngle) * x + cos(bayAngle) * y) * scale).roundToInt()
+            return (-1..1).any { dx -> (-1..1).any { dy -> listOf(0, 8, 16).all { shift -> abs(((bitmap.getPixel(px + dx, py + dy) ushr shift) and 255) - ((color ushr shift) and 255)) <= tolerance } } }
         }
-        val halfWidth = .9f * scale * 1.25f
-        val halfDepth = 2.25f * scale * 1.15f
-        for (side in listOf(-1, 1)) for (along in listOf(-.8f, 0f, .8f)) {
-            check(pixelNear(side * halfWidth, along * halfDepth, CoachColors.Periwinkle.toArgb())) { "Arrival side missing" }
-        }
-        for (across in listOf(-.8f, 0f, .8f)) {
-            check(pixelNear(across * halfWidth, halfDepth, CoachColors.Periwinkle.toArgb())) { "Arrival rear line missing" }
-        }
-        check(pixelNear(0f, -halfDepth, CoachColors.Paper.toArgb())) { "Arrival bay front must remain open" }
+        for (x in listOf(-1.125f, 1.125f)) for (y in listOf(-2f, 0f, 2f))
+            check(near(x, y, CoachColors.Lavender.toArgb())) { "Target-heading bay side missing" }
+        check(near(0f, 2.5875f, CoachColors.Lavender.toArgb())) { "Target bay end missing" }
+        check(near(0f, -2.5875f, CoachColors.Ink.toArgb())) { "Target bay entrance must remain open" }
+        val faint = CoachColors.Lavender.copy(alpha = .25f).compositeOver(CoachColors.Ink).toArgb()
+        for (x in listOf(-7.125f, -4.125f, 4.125f, 7.125f))
+            check(near(x, 1f, faint, tolerance = 1)) { "Faint adjacent boundary missing" }
+        check(near(5.5f, 1f, CoachColors.Ink.toArgb())) { "Parking lot must have no filled plane" }
         if (!settled) {
-            check(pixelNear(0f, 0f, CoachColors.Paper.toArgb())) { "Arrival bay must be empty during initial replay" }
+            check(near(0f, 0f, CoachColors.Ink.toArgb())) { "Arrival bay must be empty before replay arrives" }
             return
         }
-        // Measure the drawn car in arrival-local axes, then check all four bounding corners.
-        var left = Float.POSITIVE_INFINITY; var right = Float.NEGATIVE_INFINITY
-        var top = Float.POSITIVE_INFINITY; var bottom = Float.NEGATIVE_INFINITY
-        for (y in bounds.top until bounds.bottom) for (x in bounds.left until bounds.right) {
-            if (bitmap.getPixel(x, y) == CoachColors.Ink.toArgb()) {
-                val dx = x - cx; val dy = y - cy
-                val localX = c * dx + s * dy; val localY = -s * dx + c * dy
-                left = minOf(left, localX); right = maxOf(right, localX)
-                top = minOf(top, localY); bottom = maxOf(bottom, localY)
-            }
-        }
-        check(right > left && bottom > top) { "Missing arrival car" }
-        check(abs((right - left) - 4.5f * .43f * 1.13f * scale) < 4 * density &&
-            abs((bottom - top) - 4.5f * scale) < 4 * density) { "Silhouette must include both mirrors" }
-        for (x in listOf(left, right)) for (y in listOf(top, bottom)) {
-            check(abs(x) <= halfWidth + density && abs(y) < halfDepth - 2 * density) { "Arrival silhouette outside bay: $x,$y" }
-        }
-        assertPathCarWindows(bitmap, cx, cy, angle, scale)
+        assertPathCarWindows(bitmap, cx, cy, Math.toRadians((180f - arrival.headingDeg).toDouble()), scale)
         val start = path.first()
-        val startX = bounds.right - viewport.x(start.x) * density
-        val startY = bounds.bottom - viewport.y(start.y) * density
-        val startAngle = Math.toRadians((180f - start.headingDeg).toDouble())
-        fun startPixel(localY: Float) = bitmap.getPixel(
-            (startX - sin(startAngle) * localY * scale).roundToInt(),
-            (startY + cos(startAngle) * localY * scale).roundToInt())
-        check(startPixel(.27f) == CoachColors.Lavender.toArgb()) { "Starting pose must be filled Lavender" }
-        check(startPixel(-.63f) == CoachColors.Paper.toArgb() && startPixel(1.512f) == CoachColors.Paper.toArgb()) {
-            "Starting pose must have the same front/rear glass in Paper"
-        }
-        check(cy < startY) { "Rear-up orientation changed" }
+        val sx = bounds.right - viewport.x(start.x) * density
+        val sy = bounds.bottom - viewport.y(start.y) * density
+        val a = Math.toRadians((180f - start.headingDeg).toDouble())
+        val pixel = bitmap.getPixel((sx - sin(a) * .27f * scale).roundToInt(), (sy + cos(a) * .27f * scale).roundToInt())
+        val dim = CoachColors.Lavender.copy(alpha = .28f).compositeOver(CoachColors.Ink).toArgb()
+        check(listOf(0, 8, 16).all { abs(((pixel ushr it) and 255) - ((dim ushr it) and 255)) <= 1 })
     }
     private fun assertPathMargins(activity: MainActivity, bitmap: Bitmap) {
         val bounds = Rect().also { rect -> nodes().first { it.contentDescription == "추정 궤적" }.getBoundsInScreen(rect) }
-        val paper = CoachColors.Paper.toArgb()
+        val paper = CoachColors.Ink.toArgb()
         var top = bounds.bottom
         var bottom = bounds.top
         for (y in bounds.top until bounds.bottom) for (x in bounds.left until bounds.right) {
@@ -1855,7 +1887,9 @@ class LessonScreenInstrumentation : Instrumentation() {
         inspect(TaskType.PARKING)
         for ((type, name) in listOf(TaskType.DRIVING to "setup-sheet-driving", TaskType.CHECKLIST to "setup-sheet-checklist", TaskType.KNOWLEDGE to "setup-sheet-knowledge")) {
             click(taskTypeLabel(type))
-            capture(name) { if (type == TaskType.DRIVING) assertLanePreview(activity, it) }
+            if (type == TaskType.DRIVING) afterUiSettles("lane thumbnail pixels") {
+                capture(name) { assertLanePreview(activity, it) }
+            } else capture(name)
             inspect(type)
             if (type == TaskType.DRIVING) {
                 check(nodes().first { it.isScrollable }.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD))
@@ -1995,6 +2029,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         val good = attempt(true, 2)
         for ((record, name) in listOf(bad to "done-front", good to "done-front-good")) {
             render(activity) { DoneScreen(task, record.index, record, null, {}, {}) }
+            capture("$name-empty") { bitmap -> assertFrontArrival(activity, bitmap, record.path, settled = false) }
             Thread.sleep(3_000)
             check(texts().containsAll(verdictLines(record.verdict).map { it.text }))
             val marks = if (record == good) listOf("✓", "✓", "✓", "✓") else listOf("△", "△", "✓", "✗")
@@ -2013,13 +2048,18 @@ class LessonScreenInstrumentation : Instrumentation() {
             render(activity) { DoneScreen(task, 2, good.copy(path = path), null, {}, {}) }
             capture(if (reversing) "done-front-replay-r" else "done-front-replay-d") { bitmap ->
                 val bounds = Rect().also { rect -> nodes().first { it.contentDescription == "추정 궤적" }.getBoundsInScreen(rect) }
-                val car = colorBounds(bitmap, bounds, CoachColors.Ink.toArgb())
                 val arrow = colorBounds(bitmap, bounds, CoachColors.Signal.toArgb())
-                check(!car.isEmpty && !arrow.isEmpty)
-                check(if (reversing) arrow.top > car.bottom else arrow.bottom < car.top)
+                check(!arrow.isEmpty)
                 val density = designScale(activity)
-                val viewport = pathViewport(path, bounds.width() / density, bounds.height() / density, frontEntry = true)
-                assertPathCarWindows(bitmap, car.exactCenterX(), car.exactCenterY(), 0.0, viewport.scale * density)
+                val viewport = pathViewport(path, bounds.width() / density, bounds.height() / density,
+                    frontEntry = true, targetHeading = 90f, neighborBays = true)
+                val unit = viewport.scale * density
+                // The Signal tip locates the moving pose; body/trail/bay now share the light palette.
+                val cy = if (reversing) arrow.bottom - 1 - 3 * density - 2.85f * unit
+                    else arrow.top + 3 * density + 2.85f * unit
+                assertPathCarWindows(bitmap, arrow.exactCenterX(), cy, 0.0, unit)
+                check(if (reversing) arrow.top > cy + 2.25f * unit else arrow.bottom < cy - 2.25f * unit)
+
             }
         }
         val report = LessonReport(task, LessonMode.HINT, listOf(bad, good), good.score,
@@ -2035,15 +2075,15 @@ class LessonScreenInstrumentation : Instrumentation() {
         pass("Front parking: sheet dispatch, front-up windshield, D/R chevrons, no rear-distance text, locked touch zero, four verdicts, rear-open dashed entrance, settled/start chevrons, front caption, replay D/R, details and 7-signal badge")
     }
 
-    private fun assertFrontArrival(activity: MainActivity, bitmap: Bitmap, path: List<PathPoint>) {
+    private fun assertFrontArrival(activity: MainActivity, bitmap: Bitmap, path: List<PathPoint>, settled: Boolean = true) {
         val bounds = Rect().also { rect -> nodes().first { it.contentDescription == "추정 궤적" }.getBoundsInScreen(rect) }
         val density = designScale(activity)
-        val viewport = pathViewport(path, bounds.width() / density, bounds.height() / density, frontEntry = true)
+        val viewport = pathViewport(path, bounds.width() / density, bounds.height() / density, frontEntry = true, targetHeading = 90f, neighborBays = true)
         val end = path.last()
         val cx = bounds.left + viewport.x(end.x) * density
         val cy = bounds.top + viewport.y(end.y) * density
         val scale = viewport.scale * density
-        val angle = Math.toRadians(-end.headingDeg.toDouble())
+        val angle = Math.toRadians(90.0)
         fun sample(x: Float, y: Float, color: Int, tolerance: Int = 0): Boolean {
             val px = (cx + cos(angle) * x - sin(angle) * y).roundToInt()
             val py = (cy + sin(angle) * x + cos(angle) * y).roundToInt()
@@ -2054,17 +2094,27 @@ class LessonScreenInstrumentation : Instrumentation() {
         }
         val w = .9f * scale * 1.25f
         val h = 2.25f * scale * 1.15f
-        for (side in listOf(-1f, 1f)) for (along in listOf(-.7f, 0f, .7f)) {
-            check(sample(side * w, along * h, CoachColors.Periwinkle.toArgb())) { "Front arrival side missing" }
+        // The fixed target bay can be covered by a misaligned car; inspect its exposed corners.
+        for (side in listOf(-1f, 1f)) for (endSign in listOf(-1f, 1f)) {
+            check(listOf(.85f, .9f, .95f).any { sample(side * w, endSign * it * h, CoachColors.Lavender.toArgb()) }) {
+                "Front arrival side missing: side=$side end=$endSign"
+            }
         }
-        check(sample(0f, -h, CoachColors.Periwinkle.toArgb())) { "Front edge should be closed" }
-        check(!sample(0f, h, CoachColors.Periwinkle.toArgb())) { "Rear edge should be open" }
-        assertPathCarWindows(bitmap, cx, cy, angle, scale)
-        check(sample(0f, -(2.25f + .6f) * scale, CoachColors.Signal.toArgb())) { "Settled front chevron missing" }
-        val entrance = CoachColors.Periwinkle.copy(alpha = .4f).compositeOver(CoachColors.Paper).toArgb()
-        for (side in listOf(-1f, 1f)) {
-            check((55..95).any { sample(side * w * it / 100f, h, entrance, tolerance = 1) }) { "Dashed entrance side missing" }
+        check(sample(0f, -h, CoachColors.Lavender.toArgb())) { "Front edge should be closed" }
+        check(!sample(0f, h, CoachColors.Lavender.toArgb())) { "Rear edge should be open" }
+        if (!settled) {
+            // Validate the entrance before the misaligned car and later harsh-stop marker can cover it.
+            val entrance = CoachColors.Lavender.copy(alpha = .4f).compositeOver(CoachColors.Ink).toArgb()
+            for (side in listOf(-1f, 1f)) {
+                check((55..95).any { sample(side * w * it / 100f, h, entrance, tolerance = 1) }) { "Dashed entrance side missing" }
+            }
+            return
         }
+        assertPathCarWindows(bitmap, cx, cy, Math.toRadians(-end.headingDeg.toDouble()), scale)
+        val carAngle = Math.toRadians(-end.headingDeg.toDouble())
+        val ax = (cx + sin(carAngle) * 2.85f * scale).roundToInt()
+        val ay = (cy - cos(carAngle) * 2.85f * scale).roundToInt()
+        check((-2..2).any { x -> (-2..2).any { y -> bitmap.getPixel(ax + x, ay + y) == CoachColors.Signal.toArgb() } }) { "Settled front chevron missing" }
         val start = path.first()
         val next = path.first { abs(it.x - start.x) + abs(it.y - start.y) > .001f }
         val dx = next.x - start.x; val dy = next.y - start.y
@@ -2076,11 +2126,29 @@ class LessonScreenInstrumentation : Instrumentation() {
         } }) { "Initial travel chevron missing" }
     }
 
+    private fun assertCourseCar(activity: MainActivity, bitmap: Bitmap, course: TrackCourse, pose: Pose) {
+        val bounds = Rect().also { r -> nodes().first { it.contentDescription == "${course.title} 코스 도면" }.getBoundsInScreen(r) }
+        val density = designScale(activity)
+        val unit = minOf((bounds.width() - 56 * density) / course.map.widthM, (bounds.height() - 56 * density) / course.map.heightM)
+        val cx = bounds.exactCenterX() + (pose.at.x - course.map.widthM / 2) * unit
+        val cy = bounds.exactCenterY() - (pose.at.y - course.map.heightM / 2) * unit
+        val a = Math.toRadians(-pose.headingDeg.toDouble())
+        val carScale = unit * com.moah.hackathon.data.TrackCourses.MAP_CAR_SCALE
+        // Nose/tail panels reach beyond the old unscaled body, on both ends of the measured pose.
+        for (y in listOf(-1.98f, 1.98f)) {
+            val px = (cx - sin(a) * y * carScale).roundToInt()
+            val py = (cy + cos(a) * y * carScale).roundToInt()
+            check((-1..1).any { dx -> (-1..1).any { dy -> bitmap.getPixel(px + dx, py + dy) == CoachColors.Periwinkle.toArgb() } }) {
+                "Map car must use MAP_CAR_SCALE at $y"
+            }
+        }
+    }
+
     private fun assertPathCarWindows(bitmap: Bitmap, cx: Float, cy: Float, angle: Double, scale: Float) {
         fun pixel(x: Float, y: Float) = bitmap.getPixel(
             (cx + cos(angle) * x - sin(angle) * y).roundToInt(),
             (cy + sin(angle) * x + cos(angle) * y).roundToInt())
-        val glass = CoachColors.Lavender.toArgb()
+        val glass = CoachColors.Ink.toArgb()
         // At heading zero the shared source's large windshield is at y=-.63 m, tail glass at +1.512 m.
         check(pixel(0f, -.63f * scale) == glass && pixel(0f, 1.512f * scale) == glass) {
             "Silhouette front glass must follow the measured body heading"
@@ -2096,7 +2164,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         val front = glassWidth(-.63f)
         val rear = glassWidth(1.512f)
         check(front > rear * 1.2f) { "Silhouette windshield must be larger: $front/$rear" }
-        check(pixel(0f, .27f * scale) == CoachColors.Ink.toArgb())
+        check(pixel(0f, .27f * scale) == CoachColors.Lavender.toArgb())
         for (y in listOf(-1.53f, 1.98f)) check(pixel(0f, y * scale) == CoachColors.Periwinkle.toArgb())
         pass("Path silhouette: large front glass follows body heading; front=$front px, rear=$rear px; Ink/Periwinkle/Lavender")
     }
@@ -2247,6 +2315,18 @@ class LessonScreenInstrumentation : Instrumentation() {
         add(node)
         repeat(node.childCount) { node.getChild(it)?.let { child -> addAll(descendants(child)) } }
     }
+    private fun afterUiSettles(label: String, verify: () -> Unit) {
+        var last: RuntimeException? = null
+        repeat(6) {
+            waitForIdleSync()
+            uiAutomation.waitForIdle(100, 2_000)
+            try { verify(); return } catch (failure: IllegalStateException) { last = failure }
+            catch (failure: NoSuchElementException) { last = failure }
+            Thread.sleep(100)
+        }
+        throw IllegalStateException("$label did not settle; assertion unchanged", last)
+    }
+
     private fun click(label: String) {
         val button = buttonNode(label)
         check(button.performAction(AccessibilityNodeInfo.ACTION_CLICK))

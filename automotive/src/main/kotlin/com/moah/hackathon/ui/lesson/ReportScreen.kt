@@ -72,14 +72,14 @@ internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit, locked: B
                     ReportPage.DETAILS -> {
                         Eyebrow("자세히 보기")
                         DetailsContent(report, Modifier.weight(1f))
-                        TextAction("돌아가기", { page = ReportPage.SUMMARY })
+                        BackPill { page = ReportPage.SUMMARY }
                         ReportProvenance(report)
                     }
                     ReportPage.CERTIFICATE -> {
                         CertificateContent(report, Modifier.weight(1f))
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically) {
-                            TextAction("돌아가기", { page = ReportPage.SUMMARY })
+                            BackPill { page = ReportPage.SUMMARY }
                             PrimaryPill(stringResource(R.string.lesson_restart), onRestart)
                         }
                     }
@@ -139,7 +139,7 @@ private fun ReportProvenance(report: LessonReport) {
 
 /** Long missing-signal/guide lists share the body scroll, leaving actions and provenance fixed. */
 @Composable
-private fun ReportLimitations(report: LessonReport) {
+internal fun ReportLimitations(report: LessonReport) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         if (report.best.missingSignals.isNotEmpty()) {
             LessonText("이 신호는 이 차에서 받지 못했어요", 32, CoachColors.Muted)
@@ -156,6 +156,10 @@ private fun ReportLimitations(report: LessonReport) {
 private fun DetailsContent(report: LessonReport, modifier: Modifier) {
     if (report.task.isCourse) {
         CourseDetails(report, modifier)
+        return
+    }
+    if (report.task.type == TaskType.PARKING) {
+        ParkingDetails(report, modifier)
         return
     }
     Column(modifier.verticalScroll(rememberScrollState()),

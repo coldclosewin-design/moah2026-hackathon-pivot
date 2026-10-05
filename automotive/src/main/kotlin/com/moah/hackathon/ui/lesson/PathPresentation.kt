@@ -15,9 +15,11 @@ internal data class PathViewport(val scale: Float, val centerX: Float, val cente
 }
 
 internal fun pathViewport(path: List<PathPoint>, width: Float, height: Float,
-    frontEntry: Boolean = false, harshPoints: List<PathPoint> = emptyList(), targetHeading: Float? = null): PathViewport {
+    frontEntry: Boolean = false, harshPoints: List<PathPoint> = emptyList(), targetHeading: Float? = null,
+    neighborBays: Boolean = false, parallel: Boolean = false): PathViewport {
     require(path.isNotEmpty())
     val extent = path.map { it.x to it.y }.toMutableList()
+    if (neighborBays) extent += parkingNeighborWorldPoints(path.last(), targetHeading ?: path.last().headingDeg, parallel)
     listOf(path.first(), path.last()).forEach { point ->
         val radians = Math.toRadians(point.headingDeg.toDouble())
         for (x in listOf(-.9f, .9f)) for (y in listOf(-2.25f, 2.25f)) {
@@ -28,11 +30,30 @@ internal fun pathViewport(path: List<PathPoint>, width: Float, height: Float,
     val left = extent.minOf { it.first }; val right = extent.maxOf { it.first }
     val bottom = extent.minOf { it.second }; val top = extent.maxOf { it.second }
     val scale = minOf((width - 240f) / (right - left).coerceAtLeast(.1f),
-        (height - 240f) / (top - bottom).coerceAtLeast(.1f)).coerceAtLeast(36f)
+        (height - 240f) / (top - bottom).coerceAtLeast(.1f)).coerceAtLeast(if (neighborBays) .1f else 36f)
     // Retain the horizontal fit. Centre the final painted scene, including fixed-dp strokes,
     // so the bay stays anchored while the measured path is replayed.
-    val (paintBottom, paintTop) = pathVerticalBounds(path, scale, frontEntry, harshPoints, targetHeading)
+    var (paintBottom, paintTop) = pathVerticalBounds(path, scale, frontEntry, harshPoints, targetHeading)
+    if (neighborBays) parkingNeighborWorldPoints(path.last(), targetHeading ?: path.last().headingDeg, parallel).forEach {
+        paintBottom = minOf(paintBottom, it.second * scale - 1.5f)
+        paintTop = maxOf(paintTop, it.second * scale + 1.5f)
+    }
     return PathViewport(scale, (left + right) / 2, (paintBottom + paintTop) / (2 * scale), width, height)
+}
+
+/** Only boundary strokes: no parking-lot plane. Parallel context extends along the bay axis. */
+internal fun parkingNeighborLines(parallel: Boolean): List<Pair<Pair<Float, Float>, Pair<Float, Float>>> =
+    if (parallel) listOf(-1f, 1f).map { side ->
+        (-1.125f to side * 7.7625f) to (1.125f to side * 7.7625f)
+    } else listOf(-7.125f, -4.125f, 4.125f, 7.125f).map { x ->
+        (x to -2.5875f) to (x to 2.5875f)
+    }
+
+private fun parkingNeighborWorldPoints(end: PathPoint, heading: Float, parallel: Boolean): List<Pair<Float, Float>> {
+    val a = Math.toRadians(heading.toDouble())
+    return parkingNeighborLines(parallel).flatMap { listOf(it.first, it.second) }.map { (x, y) ->
+        (end.x + x * cos(a) - y * sin(a)).toFloat() to (end.y + x * sin(a) + y * cos(a)).toFloat()
+    }
 }
 
 /** Painted vertical bounds in scaled world coordinates (+y up), before the rear-view rotation. */

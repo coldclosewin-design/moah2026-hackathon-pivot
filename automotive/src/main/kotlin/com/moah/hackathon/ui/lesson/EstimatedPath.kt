@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
@@ -31,7 +32,8 @@ import kotlinx.coroutines.delay
 import kotlin.math.roundToLong
 
 @Composable
-internal fun EstimatedPath(record: AttemptRecord, modifier: Modifier, entryGear: Gear = Gear.REVERSE, targetHeading: Float? = null) {
+internal fun EstimatedPath(record: AttemptRecord, modifier: Modifier, entryGear: Gear = Gear.REVERSE,
+    targetHeading: Float? = null, parallel: Boolean = false) {
     val time = remember(record) { Animatable(0f) }
     LaunchedEffect(record) {
         delay(500)
@@ -41,27 +43,34 @@ internal fun EstimatedPath(record: AttemptRecord, modifier: Modifier, entryGear:
         Canvas(Modifier.weight(1f).fillMaxWidth().clipToBounds().semantics { contentDescription = "추정 궤적" }) {
             val harshPoints = record.score.metrics.harshEvents.mapNotNull { nearestPathPoint(record.path, it.tMillis) }
             val viewport = pathViewport(record.path, size.width / density, size.height / density,
-                frontEntry = entryGear == Gear.DRIVE, harshPoints = harshPoints, targetHeading = targetHeading)
+                frontEntry = entryGear == Gear.DRIVE, harshPoints = harshPoints, targetHeading = targetHeading,
+                neighborBays = true, parallel = parallel)
             val elapsed = time.value.roundToLong()
             val revealed = pathThroughTime(record.path, elapsed)
             fun position(point: PathPoint) = Offset(viewport.x(point.x).dp.toPx(), viewport.y(point.y).dp.toPx())
             // Preserve measured coordinates and time; front entry already points screen-up.
             rotate(if (entryGear == Gear.DRIVE) 0f else 180f, pivot = center) {
                 val arrival = record.path.last()
-                arrivalBay(position(arrival), targetHeading ?: arrival.headingDeg, viewport.scale.dp.toPx(), frontEntry = entryGear == Gear.DRIVE)
+                // The target defines the bay axis; choose its facing half-turn from the measured car.
+                val axis = targetHeading ?: arrival.headingDeg
+                val facing = axis + if (kotlin.math.cos(Math.toRadians((arrival.headingDeg - axis).toDouble())) < 0) 180f else 0f
+                arrivalBay(position(arrival), facing, viewport.scale.dp.toPx(),
+                    frontEntry = entryGear == Gear.DRIVE, parallel = parallel)
                 pathLegs(revealed).forEach { leg ->
                     drawPath(Path().apply {
                         leg.points.forEachIndexed { index, point ->
                             val p = position(point)
                             if (index == 0) moveTo(p.x, p.y) else lineTo(p.x, p.y)
                         }
-                    }, if (leg.reversing) CoachColors.Periwinkle else CoachColors.Lavender,
-                        style = Stroke(6.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
+                    }, if (leg.reversing) CoachColors.Lavender else CoachColors.Periwinkle,
+                        style = Stroke(6.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round,
+                            pathEffect = if (leg.reversing) null else PathEffect.dashPathEffect(floatArrayOf(14.dp.toPx(), 10.dp.toPx()))))
                 }
                 val first = record.path.first()
                 rotate(-first.headingDeg, position(first)) {
                     pathSilhouette(position(first), viewport.scale.dp.toPx(),
-                        CoachColors.Lavender, CoachColors.Paper, CoachColors.Paper)
+                        CoachColors.Lavender.copy(alpha = .28f).compositeOver(CoachColors.Ink),
+                        CoachColors.Periwinkle.copy(alpha = .28f).compositeOver(CoachColors.Ink), CoachColors.Ink)
                 }
                 val settled = elapsed >= record.path.last().tMillis
                 if (entryGear == Gear.DRIVE && settled) initialTravelHeading(record.path)?.let { heading ->
@@ -80,28 +89,32 @@ internal fun EstimatedPath(record: AttemptRecord, modifier: Modifier, entryGear:
             }
         }
         Spacer(Modifier.height(64.dp))
-        Column(Modifier.padding(start = 100.dp, end = 32.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            if (entryGear == Gear.DRIVE) LessonText("앞으로 들어간 주차예요.", 32, CoachColors.Muted)
-            LessonText("신호로 추정한 궤적이에요.", 32, CoachColors.Muted)
-            LessonText("실제 위치와 다를 수 있어요.", 32, CoachColors.Muted)
+        Column(Modifier.padding(horizontal = 64.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            if (entryGear == Gear.DRIVE) LessonText("앞으로 들어간 주차예요.", 32, CoachColors.Paper.copy(alpha = .6f))
+            LessonText("신호로 추정한 궤적이에요.", 32, CoachColors.Paper.copy(alpha = .6f))
+            LessonText("실제 위치와 다를 수 있어요.", 32, CoachColors.Paper.copy(alpha = .6f))
         }
     }
 }
 
 /** The bay opens toward the approach: car front for rear entry, car rear for front entry. */
-private fun DrawScope.arrivalBay(center: Offset, heading: Float, scale: Float, frontEntry: Boolean) {
+private fun DrawScope.arrivalBay(center: Offset, heading: Float, scale: Float, frontEntry: Boolean, parallel: Boolean) {
     val halfWidth = 1.8f * scale * 1.25f / 2
     val halfDepth = 4.5f * scale * 1.15f / 2
     rotate(-heading + if (frontEntry) 180f else 0f, center) {
+        parkingNeighborLines(parallel).forEach { (a, b) ->
+            drawLine(CoachColors.Lavender.copy(alpha = .25f), center + Offset(a.first, a.second) * scale,
+                center + Offset(b.first, b.second) * scale, 3.dp.toPx())
+        }
         drawPath(Path().apply {
             moveTo(center.x - halfWidth, center.y - halfDepth)
             lineTo(center.x - halfWidth, center.y + halfDepth)
             lineTo(center.x + halfWidth, center.y + halfDepth)
             lineTo(center.x + halfWidth, center.y - halfDepth)
-        }, CoachColors.Periwinkle, style = Stroke(4.dp.toPx()))
+        }, CoachColors.Lavender, style = Stroke(4.dp.toPx()))
         if (frontEntry) {
             val dashed = PathEffect.dashPathEffect(floatArrayOf(8.dp.toPx(), 8.dp.toPx()))
-            for (side in listOf(-1f, 1f)) drawLine(CoachColors.Periwinkle.copy(alpha = .4f),
+            for (side in listOf(-1f, 1f)) drawLine(CoachColors.Lavender.copy(alpha = .4f),
                 Offset(center.x + side * halfWidth, center.y - halfDepth),
                 Offset(center.x + side * halfWidth / 2, center.y - halfDepth), 4.dp.toPx(), pathEffect = dashed)
         }
@@ -125,7 +138,7 @@ private fun DrawScope.pathCar(center: Offset, heading: Float, scale: Float,
     val height = VehicleSilhouetteGeometry.LENGTH * scale
     // Compose rotates clockwise; PathPoint heading is counterclockwise from screen-up.
     rotate(-heading, center) {
-        pathSilhouette(center, scale, CoachColors.Ink, CoachColors.Periwinkle, CoachColors.Lavender)
+        pathSilhouette(center, scale, CoachColors.Lavender, CoachColors.Periwinkle, CoachColors.Ink)
         if (reversing || forward) {
             val direction = if (forward) -1f else 1f
             val tip = center.y + (height / 2 + .6f * scale) * direction
