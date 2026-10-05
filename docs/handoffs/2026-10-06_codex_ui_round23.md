@@ -12,7 +12,7 @@
           adb install -r 뒤 bash tools/course_flow.sh → PASS. 바뀐 캡처 교체 + README 표(시안 페이지와 나란히).
 ```
 
-선행 상태: ⬜ M1 · ⬜ M2 · ⬜ M3 · ⬜ M4 (Claude 가 머지할 때마다 ✅ 로 바꾼다)
+선행 상태: 🟡 M1(PR 대기) · ⬜ M2 · ⬜ M3 · ⬜ M4 (Claude 가 머지할 때마다 ✅ 로 바꾼다)
 
 ## 0. 사용자 선택 (10/5 밤)
 
@@ -30,7 +30,7 @@
 
 | # | PR(scope) | 무엇 | 화면이 쓰는 것 |
 |---|---|---|---|
-| M1 | data | `ShareLevel` 에 `benefit`·`condition` 추가. 원시 신호 → "적성검사 연계·연구 참여 대상" / "원시 신호까지 공유하면", 항목별 → "보험사 안전운전 특약 할인 심사 대상" / "항목별 기록을 꾸준히 공유하면", 총점만 → "제휴 시험장 대여료 할인" / "총점만 공유해도". `description` 은 시안 문구로("숙련·안전 두 점수만" · "구간 수·조향·기어·근접 등 수치까지" · "속도·조향각 시계열까지"). `LessonReport.benefits` 는 삭제. 공유 예시 시트용 `ShareLevel.includes`(포함 항목 목록)·`excludes`("위치 · 대화 · 음성") | `report.shareLevels` 각 원소의 `label`·`description`·`benefit`·`condition`·`includes` |
+| M1 | data | `ShareLevel` 에 `benefit`·`condition` 추가. 원시 신호 → "적성검사 연계·연구 참여 대상" / "원시 신호까지 공유하면", 항목별 → "보험사 안전운전 특약 할인 심사 대상" / "항목별 기록을 꾸준히 공유하면", 총점만 → "제휴 시험장 대여료 할인" / "총점만 공유해도". `description` 은 시안 문구로("숙련·안전 두 점수만" · "구간 수·조향·기어·근접 등 수치까지" · "속도·조향각 시계열까지"). `LessonReport.benefits`·`SeedCatalog.benefits` 는 지금 화면이 깨지지 않게 `ShareLevel.benefit` 을 범위 순서로 모은 목록으로 남겨 두고(① 를 하면 화면은 `shareLevels` 만 쓴다 — Claude 가 뒤에 지운다), 공유 예시 시트용 `ShareLevel.includes`(포함 항목, 넓은 범위가 좁은 범위를 다 포함)·`ShareLevel.EXCLUDED`("위치" · "대화" · "음성") | `report.shareLevels` 각 원소의 `label`·`description`·`benefit`·`condition`·`includes` |
 | M2 | feature | 관리자: `LessonViewModel.admin`(Fake/Hybrid + `SHOW_DEMO_PANEL` 일 때만, Real 은 null) — `presets`(다섯: 후면 주차 두 회차 · 장내 모의시험 불합격→합격 · 점검 일곱 단계 · 지식 테스트 · 예약→시험장; 첫째만 기록 시드까지, 나머지는 과제·모드·시나리오 순서), `applyPreset(id)`, `profilePresets`(장롱 10년차 · 초보 · 숙련 · 비움) + `setProfile(id)`, `resetRecords()`, `bandVisible: StateFlow<Boolean>`(기본 true) + `setBand(Boolean)`, `signalSource`(빌드 플래그를 읽어 "Fake 전부" / "Hybrid" 글자만), 기존 `DemoControls`(시나리오·정차·문·AI)는 그대로 `admin.demo` 로. 도구용 인텐트 extra 상수 `EXTRA_PRESET`(`--es preset rear-two`) | 준비실 화면 · 띠 |
 | M3 | feature | 홈 대화: `LessonPhase.Setup` 에 `coach: CoachDialog?`(열렸을 때만 — `line`(코치 말풍선, `CoachPort` 가 바꿀 수 있고 실패 시 시드), `choices`: 예약 있을 때만 `RESERVED_VENUE` + `PARKING_PRACTICE` + `CONTINUE_LAST`) 와 `bookingOptions`(예약 있을 때만: `COURSE_PRACTICE` → 예약 코스 첫 과제·가이드(처음)/힌트, `MOCK_EXAM` → 장내기능 모의시험·평가 — 예약 코스에 모의시험이 없으면 이 칩 없음), `sheetRequest: TaskType?`(대화가 "시트를 이 분류로 열어라" 를 요청). ViewModel 진입점 `openCoach()` · `chooseCoach(choice)` · `closeCoach()` · `chooseBooking(option)` · `consumeSheetRequest()` | 홈 A1 · 대화 시트 · 예약 카드 |
 | M4 | feature + data | 프로필: `ProfileStatement` 를 칩 값 열거형으로(§2 표), `ProfileStore`(앱 내부 `profile.json`, 저장 실패는 로그만), 첫 실행 판정(`Setup.onboarding: ProfileOnboarding?` — 저장된 프로필이 없고 프리셋도 안 썼을 때), `Setup.profileRows`(다섯 줄: 질문 · 지금 답(없으면 "아직") · 칩 목록), `Setup.observedLines`(앱이 본 것, 숫자 없는 문장 둘~셋), `LessonReport.askOne: ProfileRow?`(D 카드 — 세션당 하나, 빈 줄부터, "다음에요" 두 번이면 그 줄은 시트에서만). 진입점 `answerProfile(rowId, chip)` · `skipOnboarding()` · `skipAsk(rowId)`. 프로필이 바꾸는 것 = 눈썹 · 첫 제안 · 멘트 서두 톤 · Copilot 프롬프트. 채점 불변 | 첫 실행 화면 · 프로필 시트 · 리포트 D 카드 |
