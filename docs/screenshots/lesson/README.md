@@ -1,5 +1,35 @@
 # 화면 검증 캡처
 
+## UI 라운드 23a — 진단서 B·분류 트랙 먹·홈 A1 (2026-10-06)
+
+`codex/ui-round23a` · 시작 기준 `origin/main=689e38c`(#185). [발주서](../../handoffs/2026-10-06_codex_ui_round23.md) ①②③을 M1·M3 모델에 연결했다. 전용 AVD `Codex_Round23a`(CSTDe 이미지, 2560×1440, user 10)에 `ANDROID_SERIAL=emulator-5556`을 고정했다. 관리자 준비실·프로필 화면은 23b 범위다.
+
+| 선택 시안 | 실제 앱 캡처 | 구현·확인 |
+|---|---|---|
+| ① [진단서 B](../../design/round22-proposals/1-certificate.html) | [주차](lesson-certificate.png), [모의시험](lesson-certificate-exam.png), [공유 예시](lesson-certificate-share-example.png) | 원시 신호→항목별→총점만 카드에 범위·혜택·조건을 함께 표시. 선택 카드 Periwinkle/Paper·RadioButton 의미 유지. 세 카드와 공유 예시 링크가 스크롤 없이 완전히 보이고, 출처 아래 돌아가기/다시 시작은 한 줄·간격 64dp 이상. 공유 예시는 발급 대상·회차 범위·과제·범위별 포함/제외·워터마크와 돌아가기 제공 |
+| ② [분류 트랙 B 먹](../../design/round22-proposals/2b-category-track.html) | [주차](lesson-setup-sheet.png), [전면](lesson-setup-sheet-front.png), [주행](lesson-setup-sheet-driving.png), [점검](lesson-setup-sheet-checklist.png), [지식](lesson-setup-knowledge.png) | Lavender 50% 트랙·96dp, 선택 Ink/Paper·SelectedChip, 비선택 Ink 60%, 라벨 48sp·준비 중 32sp. 모드 트랙의 Periwinkle과 구분 |
+| ③ [홈 A1·코치 대화](../../design/round22-proposals/4b-home-ai-ad.html) | [홈](lesson-setup-coach.png), [대화 시트](lesson-setup-coach-sheet.png), [예약 카드](lesson-setup-booking-card.png), [예약 강조](lesson-setup-booking-highlight.png), [모의시험 선택](lesson-setup-booking-mock.png), [예약 주차](lesson-setup-reserved.png), [예약 시험](lesson-setup-reserved-exam.png) | 시작 아래 57dp의 링크·마이크 알약 한 줄, 이유/예약 카드/시작 사이 33dp. 예약 배지는 카드 눈썹으로 통합. 조건부 답 칩→예약 강조(6dp Signal)/주차 시트/지난 과제 복원. 예약 옵션은 실제 과제·모드에 연결. 흐린 마이크는 클릭 동작 없는 비활성 의미 |
+
+공유 예시의 기간은 저장된 회차 범위로 표시한다. 점수·항목값은 리포트에서 읽으며, 리포트에 없는 원시 시계열 샘플은 만들어 표시하지 않는다. 위치·대화·음성 제외와 실제 전송 없음 고지를 유지한다.
+
+[PowerShell 빌드 로그](build-round23a.txt): `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` 성공, 단위 테스트 **321개** 통과. 동일 최종 APK로 수정 없는 `tools/lesson_shots.sh` **3회 연속 Lesson contract passed**:
+
+| 실행 | 로그 | 결과 |
+|---|---|---|
+| 1 | [contract-round23a-1.txt](contract-round23a-1.txt) | Lesson contract passed |
+| 2 | [contract-round23a-2.txt](contract-round23a-2.txt) | Lesson contract passed |
+| 3 | [contract-round23a-3.txt](contract-round23a-3.txt) | Lesson contract passed |
+
+[코스 전용 계측](contract-round23a-course.txt)도 **Round18 contract passed**. #184의 두 조건은 주차·코스 진단서 모두 카드의 전체 텍스트/경계·스크롤 액션 없음·카드 아래 끝과 버튼 위 끝·버튼 중심선·64dp 간격으로 검사했다. 카드 높이는 148dp로 맞춰 공유 예시 링크도 완전히 표시한다. 세 범위의 포함/제외 상태와 대상 칩, 코치 닫기 시 수동 선택 유지, 주차 시트 요청 소비, 예약 강조/옵션과 실제 시작 과제·모드, 지난 과제 복원을 확인했다. 기존 잠금 숫자/터치 0·라벨·회귀 계약도 유지한다.
+
+PNG **28장(22 교체·6 추가)**을 반영했다. 홈·분류·진단서가 바뀐 캡처만 교체했으며 내용이 같은 Done/주행 캡처의 작은 렌더링 차이는 반영하지 않았다. 시안과 앱의 색·크기·간격·줄바꿈을 확인했다. 코치 말풍선은 기존 CoachTexture의 그림자 값을 둥근 외곽에도 적용한다.
+
+원본 `tools/emu_flow.sh`는 **PASS·clashes 0·111초**([로그](flow-round23a-rear.txt)): **60/55·4구간→100/100·2구간**, 필수 힌트 3종·두 번째 회차 추가 힌트 없음·도어→Report·`실신호 0 · 시뮬레이션 8 · 미측정 0`을 확인했다.
+
+`adb install -r` 뒤 원본 `tools/course_flow.sh`도 **PASS·종료 코드 0**([로그](flow-round23a-course.txt)): **70 불합격·감점 3→100 합격·감점 0→도어→Report**. 두 원본 스크립트는 수정 없이 같은 전용 AVD/설치 APK에서 실행했다.
+
+APK SHA-256: 앱 `ECA703C707ECC11926C7A65CC9E773B7F2BB9C05860525243C57CCD8A4DB6BFA`, 계측 `F86656701289FC0A2545635E0BA2E4E99661D87F16F5CB539F73333ABE1660D8`. 설치 앱의 해시도 일치한다. `ui/` Bold 0·새 색 토큰 0, `tools/`·`NEXT.md`·모델/채점/차량/포트/데이터/빌드 파일 변경 없음.
+
 ## UI 라운드 22 — 선택 트랙·완료 위치·상세 지표 (2026-10-05)
 
 `codex/ui-round22` · 기준 `origin/main=75dbdf8`(#178) · [발주서](../../handoffs/2026-10-05_codex_ui_round22.md) ①~⑥. 외부 Fake, 배율 1.0, 2560×1440. 공용 에뮬의 다른 자동화 접속과 앱 종료가 반복돼 동일한 `CSTDe_API_34` 시스템 이미지·화면·메모리 설정으로 만든 임시 AVD(`emulator-5556`, user 10)에서 최종 검증했다. `ANDROID_SERIAL`만 지정하며 원본 tools는 수정하지 않았다.

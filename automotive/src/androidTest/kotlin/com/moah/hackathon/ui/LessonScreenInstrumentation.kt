@@ -72,6 +72,7 @@ class LessonScreenInstrumentation : Instrumentation() {
     private var round18Only = false
     private var reservationOnly = false
     private var round22Only = false
+    private var round23aOnly = false
     override fun onCreate(arguments: Bundle?) {
         super.onCreate(arguments)
         seedSpeech = arguments?.getString("seedSpeech") == "true"
@@ -79,6 +80,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         round14Only = arguments?.getString("round14Only") == "true"
         round18Only = arguments?.getString("round18Only") == "true"
         round22Only = arguments?.getString("round22Only") == "true"
+        round23aOnly = arguments?.getString("round23aOnly") == "true"
         reservationOnly = arguments?.getString("reservationOnly") == "true"
         textureOnly = arguments?.getString("textureOnly") == "true"
         start()
@@ -88,6 +90,11 @@ class LessonScreenInstrumentation : Instrumentation() {
         val activity = startActivitySync(Intent(targetContext, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as MainActivity
         try {
+            if (round23aOnly) {
+                round23aContract(activity)
+                finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Round23a contract passed\n") })
+                return
+            }
             if (round22Only) {
                 round22Contract(activity)
                 finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Round22 contract passed\n") })
@@ -200,10 +207,11 @@ class LessonScreenInstrumentation : Instrumentation() {
                     assertBayFill(bitmap, taskBounds(planned.title), CoachColors.Lavender.copy(alpha = .4f).compositeOver(CoachColors.Paper).toArgb())
                 }
                 check(!colorBounds(bitmap, categoryTitleBounds, CoachColors.Paper.toArgb()).isEmpty) { "Selected category text must be Paper" }
-                check(!colorBounds(bitmap, textBounds("주행"), CoachColors.Periwinkle.toArgb(), tolerance = 1).isEmpty) {
-                    "Ready driving category must use Periwinkle"
+                val categoryBackground = CoachColors.Lavender.copy(alpha = .5f).compositeOver(CoachColors.Paper)
+                check(!colorBounds(bitmap, textBounds("주행"), CoachColors.Ink.copy(alpha = .6f).compositeOver(categoryBackground).toArgb(), tolerance = 1).isEmpty) {
+                    "Unselected category must use Ink 60%"
                 }
-                check(!colorBounds(bitmap, Rect(categoryTitleBounds).apply { inset(-40, -6) }, CoachColors.Periwinkle.toArgb()).isEmpty)
+                check(!colorBounds(bitmap, Rect(categoryTitleBounds).apply { inset(-40, -6) }, CoachColors.Ink.toArgb()).isEmpty)
                 runOnMainSync {
                     val tabs = composeNodes(activity).filter { it.config.getOrNull(SemanticsProperties.Role) == androidx.compose.ui.semantics.Role.Tab }
                     check(tabs.size == 4)
@@ -691,10 +699,13 @@ class LessonScreenInstrumentation : Instrumentation() {
             click("항목별")
             assertDriverButton(activity, "다시 시작")
             assertActionGap(activity, "다시 시작")
-            assertCompactProvenance(activity, report)
+            assertCertificateLayout(activity, report)
             capture("certificate")
             check(nodes().any { it.isChecked && descendants(it).any { child -> child.text?.toString() == "항목별" } })
             click("공유 예시 보기")
+            assertShareExample(activity, ShareLevel.PER_ITEM)
+            capture("certificate-share-example")
+            click("돌아가기")
             click("돌아가기")
             click("자세히 보기")
             check(texts().containsAll(listOf("숙련", "안전", "60", "55")))
@@ -771,6 +782,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             textureContract(activity)
             cardLayoutContract(activity)
             courseContract(activity, full = false)
+            round23aContract(activity)
             captureDoneSettle(activity, task, pathRecord)
             captureDoneSettle(activity, SeedCatalog.predriveTask, checklistRecord, "done-checklist-settle-strip")
             finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Lesson contract passed\n") })
@@ -956,7 +968,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             val layout = layouts.single()
             height = layout.size.height
             check(!layout.hasVisualOverflow && layout.lineCount >= minLines && layout.getLineEnd(layout.lineCount - 1) == text.length) {
-                "Text clipped: ${layout.lineCount} lines, ${layout.layoutInput.style.fontSize}, $text"
+                "Text clipped: ${layout.lineCount} lines, ${layout.layoutInput.style.fontSize}, size=${layout.size}, paragraph=${layout.multiParagraph.height}, end=${layout.getLineEnd(layout.lineCount - 1)}/${text.length}, $text"
             }
             if (action != null) check(layout.layoutInput.style.fontSize.value >= 32)
         }
@@ -1083,10 +1095,169 @@ class LessonScreenInstrumentation : Instrumentation() {
         assertCompactProvenance(activity, report)
         capture("details-round22")
         click("돌아가기"); click("진단서")
-        assertActionGap(activity, "다시 시작"); assertCompactProvenance(activity, report)
+        assertCertificateLayout(activity, report)
         capture("certificate")
         reservationFlow(activity)
         captureDoneSettle(activity, task, good)
+    }
+
+    private fun assertCertificateLayout(activity: MainActivity, report: LessonReport) {
+        assertActionGap(activity, "다시 시작")
+        assertCompactProvenance(activity, report, aboveActions = true)
+        val back = buttonBounds("돌아가기")
+        val scale = designScale(activity)
+        check(abs(back.centerY() - buttonBounds("다시 시작").centerY()) <= 1)
+        runOnMainSync {
+            val nodes = composeNodes(activity, unmerged = true)
+            val link = nodes.single { it.config.getOrNull(SemanticsProperties.Text)?.singleOrNull()?.text == "공유 예시 보기" }
+            val linkLayouts = mutableListOf<TextLayoutResult>()
+            check(link.config[SemanticsActions.GetTextLayoutResult].action?.invoke(linkLayouts) == true)
+            val linkLayout = linkLayouts.single()
+            // TextAction includes 16 dp vertical padding on each side; its intrinsic width rounds to a pixel.
+            check(linkLayout.lineCount == 1 && linkLayout.getLineEnd(0) == "공유 예시 보기".length &&
+                linkLayout.getLineRight(0) <= link.boundsInWindow.width + 1 &&
+                link.boundsInWindow.height >= linkLayout.multiParagraph.height + 32 * scale - 1 &&
+                link.boundsInWindow.bottom < back.top) { "Clipped preview link: ${link.boundsInWindow}, ${linkLayout.size}" }
+            val cards = report.shareLevels.reversed().map { level ->
+                nodes.single { it.config.getOrNull(SemanticsProperties.TestTag) == "share-${level.name}" }
+            }
+            check(cards.zipWithNext().all { (a, b) -> a.boundsInWindow.bottom < b.boundsInWindow.top })
+            check(cards.first().boundsInWindow.top > 0 && cards.last().boundsInWindow.bottom < back.top)
+            check(nodes.none { it.config.getOrNull(SemanticsActions.ScrollBy) != null }) { "Certificate must not need scrolling" }
+            report.shareLevels.forEach { level ->
+                val card = cards.single { it.config[SemanticsProperties.TestTag] == "share-${level.name}" }
+                listOf(level.label, level.description, level.benefit, "${level.condition} · 예시").forEach { text ->
+                    val node = nodes.single { it.config.getOrNull(SemanticsProperties.Text)?.singleOrNull()?.text == text }
+                    val layouts = mutableListOf<TextLayoutResult>()
+                    check(node.config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts) == true)
+                    check(!layouts.single().hasVisualOverflow && card.boundsInWindow.contains(node.boundsInWindow.topLeft) &&
+                        card.boundsInWindow.contains(node.boundsInWindow.bottomRight - androidx.compose.ui.geometry.Offset(1f, 1f))) { "Clipped scope card: $text" }
+                }
+            }
+        }
+    }
+
+    private fun assertShareExample(activity: MainActivity, scope: ShareLevel) {
+        check("공유 예시 · ${scope.label}" in texts())
+        check("위치 · 대화 · 음성 없음" in texts())
+        check("다시 시작" !in texts())
+        val backTop = buttonBounds("돌아가기").top
+        runOnMainSync {
+            val nodes = composeNodes(activity)
+            ShareLevel.RAW.includes.forEach { item ->
+                val node = nodes.single { it.config.getOrNull(SemanticsProperties.TestTag) == "share-item-$item" }
+                check(node.config[SemanticsProperties.StateDescription] == if (item in scope.includes) "포함" else "범위 밖")
+                check(node.boundsInWindow.bottom < backTop)
+            }
+        }
+        click("기관"); assertSelected("기관")
+    }
+
+    private fun round23aContract(activity: MainActivity) {
+        val container = (activity.application as App).container
+        lateinit var vm: LessonViewModel
+        runOnMainSync {
+            vm = ViewModelProvider(activity, LessonViewModel.factory(container))[LessonViewModel::class.java]
+            checkNotNull(vm.admin).resetRecords()
+            checkNotNull(vm.admin).setProfile(com.moah.hackathon.data.AdminPresets.PROFILE_RUSTY)
+            vm.restart(); vm.cancelReservation()
+        }
+        render(activity) { LessonRoute(vm) }
+        fun awaitHome() = afterUiSettles("coach home") { check("코치에게 말하기" in texts()) }
+        fun assertLinkGap() {
+            val start = buttonBounds("시작")
+            val coach = buttonBounds("코치에게 말하기")
+            check(abs((coach.top - start.bottom) / designScale(activity) - 57) <= 1)
+            check(abs(coach.centerY() - buttonBounds("과제·모드 바꾸기").centerY()) <= 1)
+        }
+        assertLinkGap(); capture("setup-coach")
+        click("코치에게 말하기")
+        check("주차 연습" in texts() && "예약한 시험장으로" !in texts() && "지난번 이어서" !in texts())
+        runOnMainSync {
+            val microphone = composeNodes(activity).single { it.config.getOrNull(SemanticsProperties.Text)?.any { text -> text.text == "말로 답하기 — 준비 중" } == true }
+            check(microphone.config.contains(SemanticsProperties.Disabled) && microphone.config.getOrNull(SemanticsActions.OnClick) == null)
+        }
+        click("주차 연습")
+        afterUiSettles("coach parking sheet") { assertSelected("주차") }
+        runOnMainSync { check((vm.phase.value as LessonPhase.Setup).sheetRequest == null) }
+        click("돌아가기"); awaitHome()
+        click("과제·모드 바꾸기"); assertSelected("주차")
+        click("지식"); click("돌아가기"); awaitHome()
+        val manualTaskLine = texts().single { it.endsWith("모드") }
+        click("코치에게 말하기"); click("돌아가기"); awaitHome()
+        check(manualTaskLine in texts()) { "Closing coach replaced a manual task choice" }
+
+        val recorder = ParkingRecorder(SignalRegistry(ParkingRecorder.KEYS, simulated = true))
+        ParkingScenarios.good.steps.forEach { recorder.onDelta((it.atSeconds * 1000).toLong(), it.values) }
+        val task = SeedCatalog.parkingTask
+        val last = AttemptRecord(1, task.id, LessonMode.HINT, checkNotNull(recorder.score()), null,
+            "차분히 연습을 마쳤어요.", 0, verdict = recorder.verdict())
+        val venue = SeedCatalog.venues.first()
+        runOnMainSync {
+            container.store.add(last)
+            vm.restart()
+            vm.reserve(venue.id, venue.slots.first { it.available }.id,
+                venue.courses.single { SeedCatalog.TASK_TRACK_EXAM in it.taskIds }.id)
+        }
+        awaitHome()
+        afterUiSettles("booking card") { check("예약 · 서초 14:00" in texts()) }
+        assertLinkGap()
+        fun assertBookingGaps() {
+            val scale = designScale(activity)
+            val startTop = buttonBounds("시작").top
+            runOnMainSync {
+                val nodes = composeNodes(activity)
+                val card = nodes.single { it.config.getOrNull(SemanticsProperties.TestTag) == "home-booking-card" }.boundsInWindow
+                val reason = nodes.single { it.config.getOrNull(SemanticsProperties.TestTag) == "home-reason" }.boundsInWindow
+                check(abs((card.top - reason.bottom) / scale - 33) <= 1)
+                check(abs((startTop - card.bottom) / scale - 33) <= 1)
+            }
+        }
+        assertBookingGaps(); capture("setup-booking-card")
+        click("코치에게 말하기")
+        CoachChoice.entries.forEach { assertFullText(activity, it.label) }
+        check(texts().containsAll(CoachChoice.entries.map { it.label }))
+        capture("setup-coach-sheet")
+        click("예약한 시험장으로"); awaitHome()
+        runOnMainSync { check((vm.phase.value as LessonPhase.Setup).highlightBooking) }
+        capture("setup-booking-highlight")
+        click("모의시험")
+        afterUiSettles("booking evaluate") { assertSelected("모의시험"); check("장내기능 모의시험 · 평가 모드" in texts()) }
+        runOnMainSync { check((vm.phase.value as LessonPhase.Setup).let { !it.highlightBooking && it.suggestedMode == LessonMode.EVALUATE }) }
+        assertBookingGaps(); assertLinkGap(); capture("setup-booking-mock")
+        click("시작")
+        runOnMainSync {
+            val state = vm.phase.value
+            check(when (state) {
+                is LessonPhase.Briefing -> state.task.id == SeedCatalog.TASK_TRACK_EXAM && state.mode == LessonMode.EVALUATE
+                is LessonPhase.Drive -> state.task.id == SeedCatalog.TASK_TRACK_EXAM && state.mode == LessonMode.EVALUATE
+                else -> false
+            }) { "Booking did not begin its exact task/mode: $state" }
+            vm.restart()
+        }
+        awaitHome(); click("코스 연습")
+        afterUiSettles("booking practice") { assertSelected("코스 연습") }
+        runOnMainSync { check((vm.phase.value as LessonPhase.Setup).suggestedMode in listOf(LessonMode.GUIDE, LessonMode.HINT)) }
+        click("코치에게 말하기"); click("주차 연습")
+        afterUiSettles("parking request with booking choice") { assertSelected("주차"); assertSelected(task.title) }
+        click("돌아가기"); awaitHome()
+        click("코치에게 말하기"); click("지난번 이어서"); awaitHome()
+        afterUiSettles("continue exact last task") { check("${task.title} · 힌트 모드" in texts()) }
+        runOnMainSync { vm.cancelReservation() }
+
+        val report = LessonReport(task, LessonMode.HINT, listOf(last), last.score, last.remark,
+            task, LessonMode.GUIDE, "함께 연습해요.", ShareLevel.entries, SeedCatalog.benefits, emptyList())
+        render(activity) { ReportScreen(report, {}) }
+        click("진단서"); assertCertificateLayout(activity, report)
+        capture("certificate-round23a")
+        ShareLevel.entries.forEach { level ->
+            // Android exposes an already selected radio as checked, without a redundant click action.
+            if (!isSelected(level.label)) click(level.label)
+            click("공유 예시 보기")
+            assertShareExample(activity, level)
+            click("돌아가기"); assertSelected(level.label)
+        }
+        pass("Round23a: three complete scope cards without scrolling, horizontal actions, preview inclusions/recipient; A1 gaps, conditional coach chips, disabled mic, consumed parking request, reservation highlight/options and exact begin/continue")
     }
 
     private fun assertActionGap(activity: MainActivity, primary: String) {
@@ -1110,10 +1281,13 @@ class LessonScreenInstrumentation : Instrumentation() {
         }
     }
 
-    private fun assertCompactProvenance(activity: MainActivity, report: LessonReport) {
+    private fun assertCompactProvenance(activity: MainActivity, report: LessonReport, aboveActions: Boolean = false) {
         val badge = badgeText(report.best.badge)
-        check(textBounds(badge).left > buttonBounds("돌아가기").right)
-        check(abs(textBounds(badge).centerY() - buttonBounds("돌아가기").centerY()) < 40 * designScale(activity))
+        if (aboveActions) check(textBounds(badge).bottom < buttonBounds("돌아가기").top)
+        else {
+            check(textBounds(badge).left > buttonBounds("돌아가기").right)
+            check(abs(textBounds(badge).centerY() - buttonBounds("돌아가기").centerY()) < 40 * designScale(activity))
+        }
         assertFullText(activity, badge)
         assertFullText(activity, "신호 출처 · ")
     }
@@ -1229,7 +1403,9 @@ class LessonScreenInstrumentation : Instrumentation() {
             SetupScreen(setup.profile, setup.tasks, setup.suggestedTask, setup.suggestedMode, setup.reason, null, vm::begin,
                 venues = setup.venues, booking = setup.booking,
                 onReserve = { venue, slot, course -> reserveCalls++; reserved = Triple(venue, slot, course); vm.reserve(venue, slot, course) },
-                onCancelReservation = { cancelCalls++; vm.cancelReservation() })
+                onCancelReservation = { cancelCalls++; vm.cancelReservation() },
+                bookingOptions = setup.bookingOptions, bookingChoice = setup.bookingChoice,
+                highlightBooking = setup.highlightBooking, onChooseBooking = vm::chooseBooking)
         }
         check(texts().none { it.startsWith("예약 · ") })
         val originalProfileBounds = textBounds(profileLine(SeedCatalog.demoProfile))
@@ -1300,9 +1476,10 @@ class LessonScreenInstrumentation : Instrumentation() {
         assertReservationNumbers()
         capture("reservation")
         click("돌아가기")
-        val badge = "예약 · 서초 14:00 · 주차 3종"
+        val badge = "예약 · 서초 14:00"
         check(texts().contains(badge))
-        check(textBounds(badge).bottom < textBounds(profileLine(SeedCatalog.demoProfile)).top)
+        check(textBounds(badge).top > textBounds(profileLine(SeedCatalog.demoProfile)).bottom)
+        check(textBounds(badge).bottom < buttonBounds("시작").top)
         check(texts().contains("${SeedCatalog.parkingTask.title} · 가이드 모드"))
         check(texts().any { it.startsWith(ModeAdvisor.RESERVED_REASON) })
         capture("setup-reserved") { bitmap ->
@@ -1571,7 +1748,8 @@ class LessonScreenInstrumentation : Instrumentation() {
             check(layouts.single().layoutInput.style.fontSize == 32.sp && layouts.single().layoutInput.style.color == CoachColors.Muted)
         }
         click("돌아가기"); click("진단서")
-        check("장내기능 모의시험 · 합격" in texts()); capture("certificate-exam")
+        check("장내기능 모의시험 · 합격" in texts())
+        capture("certificate-exam"); assertCertificateLayout(activity, report)
         val missingResult = good.course!!.copy(zones = good.course!!.zones.take(1).map { it.copy(unmeasured = listOf("방향지시등")) })
         render(activity) { CourseDetails(report.copy(attempts = listOf(good.copy(course = missingResult))), Modifier.fillMaxSize()) }
         check("감점 없음" in texts() && texts().none { it in listOf("구간", "사유", "감점") })
@@ -1659,7 +1837,9 @@ class LessonScreenInstrumentation : Instrumentation() {
             val phase by vm.phase.collectAsStateWithLifecycle()
             val setup = phase as LessonPhase.Setup
             SetupScreen(setup.profile, setup.tasks, setup.suggestedTask, setup.suggestedMode, setup.reason,
-                null, vm::begin, venues = setup.venues, booking = setup.booking)
+                null, vm::begin, venues = setup.venues, booking = setup.booking,
+                bookingOptions = setup.bookingOptions, bookingChoice = setup.bookingChoice,
+                highlightBooking = setup.highlightBooking, onChooseBooking = vm::chooseBooking)
         }
         check(texts().any { it.startsWith("장내기능 모의시험 · ") && it.endsWith("모드") })
         capture("setup-reserved-exam")

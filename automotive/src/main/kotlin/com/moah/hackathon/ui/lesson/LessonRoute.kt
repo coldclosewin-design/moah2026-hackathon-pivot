@@ -28,7 +28,9 @@ internal fun LessonRoute(vm: LessonViewModel) {
     }
     when (val state = phase) {
         is LessonPhase.Setup -> SetupScreen(state.profile, state.tasks, state.suggestedTask, state.suggestedMode,
-            state.reason, subtitle, vm::begin, demo, state.venues, state.booking, vm::reserve, vm::cancelReservation)
+            state.reason, subtitle, vm::begin, demo, state.venues, state.booking, vm::reserve, vm::cancelReservation,
+            state.coach, state.bookingOptions, state.bookingChoice, state.highlightBooking, state.sheetRequest,
+            vm::openCoach, vm::chooseCoach, vm::closeCoach, vm::chooseBooking, vm::consumeSheetRequest)
         is LessonPhase.Briefing -> BriefingScreen(state.task, state.mode, state.line, subtitle)
         is LessonPhase.Maneuver -> ManeuverScreen(state.toDisplayState(), state.snapshot.locked, state.snapshot.stopped,
             subtitle, vm::finishAttempt, demo, state.task.title)
