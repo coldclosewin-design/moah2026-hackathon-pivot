@@ -88,7 +88,8 @@ T0=$(date +%s); mark() { echo "  [t+$(( $(date +%s) - T0 ))s] $1"; }
 FAIL=0
 
 echo "== start"; adb shell am force-stop com.moah.hackathon; adb logcat -c
-adb shell am start -n com.moah.hackathon/.ui.MainActivity >/dev/null; sleep 4
+# 관리자 프리셋(라운드 22 결정 5): 시연 프로필로 시작하고 첫 실행 프로필 질문을 건너뛴다. 화면이 extra 를 읽기 전(라운드 23b)에는 무시된다
+adb shell am start -n com.moah.hackathon/.ui.MainActivity --es preset rear-two >/dev/null; sleep 4
 shot 10_setup; echo "  texts: $(now_texts)"
 # 선택 단계(RESERVE=1, 기본 꺼짐 — 판정 불변): 시연 녹화용으로 예약 배지 상태에서 시작한다(대본 준비 절 9/28).
 # 시트 → 제휴 시험장 → 서초 → 14:00–15:00 → 주차 3종 → 예약 → 돌아가기. 예약은 인메모리라 force-stop 뒤 매번 다시 한다.
@@ -109,9 +110,9 @@ if [ -n "${RECORD:-}" ]; then
   ( command "$ADB" shell screenrecord --size 1920x1080 --bit-rate 6000000 --time-limit 0 "$RECORD" </dev/null >/dev/null 2>&1 & )
   sleep 2; echo "== record: $RECORD (time-limit 0 — API 34 는 무제한, SIGINT 로 멈춘다)"
 fi
-# UI 라운드 2 부터 모드 선택은 "과제·모드 바꾸기" 시트 안에 있을 수 있다 — 첫 화면에 "힌트" 가 없으면 시트를 먼저 연다
-dump; texts | grep -q "힌트" || { tap_text "과제·모드 바꾸기"; sleep 1; }
-tap_text "힌트"; sleep 1; tap_text "시작"; sleep 1
+# 과제는 홈 제안에 기대지 않고 시트에서 명시한다(inhouse_check 와 같은 방식) — 프로필·예약·프리셋으로 제안이 바뀌어도 같은 세션(10/6, 첫 실행 프로필이 비면 제안이 출발 전 점검이 된다)
+open_sheet || { echo "  !! sheet did not open"; exit 1; }
+tap_text "주차"; sleep 1; tap_text "후면 직각 주차"; sleep 1; tap_text "힌트"; sleep 1; tap_text "시작"; sleep 1
 wait_log "begin parking-rear-perpendicular HINT" 10 || { echo "  !! session did not begin"; exit 1; }
 T0=$(date +%s); mark "session began"
 shot 11_briefing

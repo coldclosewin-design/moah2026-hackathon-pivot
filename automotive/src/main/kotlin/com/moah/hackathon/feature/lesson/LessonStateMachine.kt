@@ -58,15 +58,25 @@ class LessonStateMachine(
     /** 제휴 시험장(D3). 비어 있으면 예약 진입점은 무시된다. */
     private val venues: List<Venue> = emptyList(),
     private val benefits: List<String>,
+    /** 저장된 프로필이 없을 때 쓰는 프로필(앱은 빈 진술 = 초보 가정, 테스트는 시연 프로필). */
     profile: Profile,
     private val scope: CoroutineScope,
     private val clock: () -> Long = { System.currentTimeMillis() },
     private val briefingMillis: Long = 2_500L,
     private val rubric: ParkingRubric = ParkingRubric(),
     private val checklistRubric: ChecklistRubric = ChecklistRubric(),
+    /** 프로필 저장소(라운드 22 결정 7, 10/5). 기본은 메모리 — 앱은 `FileProfileStore`. */
+    private val profileStore: ProfileStore = MemoryProfileStore(),
 ) {
-    var profile: Profile = profile
+    private val savedProfile: StoredProfile? = profileStore.load()
+    var profile: Profile = savedProfile?.let { profile.copy(statement = it.statement) } ?: profile
         private set
+    /** 답한 줄 — 저장이 없으면 시작 프로필에 값이 있는 줄(시연 프로필은 다섯 줄 다). */
+    private val answered: MutableSet<ProfileField> = (savedProfile?.answered ?: ProfileChips.filledFields(profile.statement)).toMutableSet()
+    /** 리포트 끝 카드의 "다음에요" 횟수 — 두 번이면 그 줄은 시트에서만 묻는다. */
+    private val askSkips: MutableMap<ProfileField, Int> = savedProfile?.skips.orEmpty().toMutableMap()
+    /** 첫 실행 온보딩을 아직 안 마쳤다 — 저장된 프로필이 없거나 마치지 않았을 때. */
+    private var onboardingPending: Boolean = savedProfile?.onboarded != true
 
     private val _phase = MutableStateFlow<LessonPhase>(setup())
     val phase: StateFlow<LessonPhase> = _phase
@@ -114,6 +124,8 @@ class LessonStateMachine(
             tts.speak("${task.title.withTopicParticle()} ${mode.label} 모드로는 할 수 없어요. 가이드·힌트·평가 중에서 골라 주세요.")
             return
         }
+        if (pinned != null && pinned != (task.id to mode)) pinned = null   // 운전자가 다른 걸 고르면 프리셋 고정이 풀린다
+        clearHomeTransient()
         current = task to mode
         sessionRecords.clear()
         unverifiedSteps.clear()
@@ -271,6 +283,8 @@ class LessonStateMachine(
         if (venue.courses.none { it.id == courseId }) { Log.w(TAG, "reservation: unknown course $courseId"); return }
         if (!slot.available) { Log.w(TAG, "reservation: slot $slotId not available"); return }
         store.reservation = Reservation(venueId, slotId, courseId, madeAtMillis = clock())
+        pinned = null
+        clearHomeTransient()
         Log.i(TAG, "reservation: made venue=$venueId slot=$slotId course=$courseId")
         _phase.value = setup()
     }
@@ -280,30 +294,274 @@ class LessonStateMachine(
         if (_phase.value !is LessonPhase.Setup) return
         val had = store.reservation ?: return
         store.reservation = null
+        pinned = null
+        clearHomeTransient()
         Log.i(TAG, "reservation: cancelled venue=${had.venueId} slot=${had.slotId}")
         _phase.value = setup()
     }
 
     /** 리포트에서 "다시 시작" 또는 오류 복구. */
     fun reset() {
+        stopEverything()
+        clearHomeTransient()
+        _phase.value = setup()
+    }
+
+    private fun stopEverything() {
         briefingJob?.cancel(); briefingJob = null
         vehicleJob?.cancel(); vehicleJob = null
         guide = null
         course = null
         current = null
         tts.stop()
+    }
+
+    // ───────── 관리자 모드 (라운드 22 결정 5, 10/5) — 시연 빌드의 준비실·띠만 부른다. 운전자 화면에는 진입점이 없다 ─────────
+
+    /** 프리셋이 고정한 홈 제안(과제 id, 모드). 운전자가 다른 걸 시작하거나 예약을 바꾸거나 기록을 지우면 풀린다. */
+    private var pinned: Pair<String, LessonMode>? = null
+
+    /**
+     * 시연 프리셋 적용 — 진행 중인 것을 멈추고, 기록·예약을 비우고, [presetProfile] 로 바꾸고, 홈 제안을 프리셋 과제·모드로 고정한다.
+     * 과제가 없거나 준비 중이거나 모드를 지원하지 않으면 아무것도 바꾸지 않는다. 로그 `admin: preset …`.
+     */
+    fun applyPreset(preset: AdminPreset, presetProfile: Profile) {
+        val task = tasks.firstOrNull { it.id == preset.taskId && it.isReady && it.supports(preset.mode) }
+            ?: run { Log.w(TAG, "admin: preset ${preset.id} refused (task ${preset.taskId} ${preset.mode})"); return }
+        stopEverything()
+        store.clear()
+        profile = presetProfile.copy(observation = ProfileObservation())
+        adoptProfileStatement()
+        preset.reservation?.let { seed ->
+            val venue = venues.firstOrNull { it.id == seed.venueId }
+            val slotOk = venue?.slots?.any { it.id == seed.slotId && it.available } == true
+            val courseOk = venue?.courses?.any { it.id == seed.courseId } == true
+            if (slotOk && courseOk) store.reservation = Reservation(seed.venueId, seed.slotId, seed.courseId, madeAtMillis = clock())
+            else Log.w(TAG, "admin: preset ${preset.id} reservation ignored ($seed)")
+        }
+        pinned = task.id to preset.mode
+        clearHomeTransient()
         _phase.value = setup()
+        Log.i(TAG, "admin: preset ${preset.id} task=${task.id} mode=${preset.mode} profile=${presetProfile.statement}")
+    }
+
+    /** 프로필 전환 — 관측(기록에서 나온 것)은 그대로 두고 진술만 바꾼다. Setup 이면 제안을 다시 계산한다. */
+    fun setProfile(next: Profile) {
+        profile = next.copy(observation = store.observation())
+        adoptProfileStatement()
+        if (_phase.value is LessonPhase.Setup) _phase.value = setup()
+        Log.i(TAG, "admin: profile ${next.statement}")
+    }
+
+    /** 기록 초기화 — 회차·퀴즈·예약·관측·프리셋 고정을 지운다. Setup 이면 제안을 다시 계산한다. */
+    fun resetRecords() {
+        store.clear()
+        profile = profile.copy(observation = ProfileObservation())
+        pinned = null
+        clearHomeTransient()
+        if (_phase.value is LessonPhase.Setup) _phase.value = setup()
+        Log.i(TAG, "admin: records cleared")
+    }
+
+    /** 관리자 "프로필 초기화" — 저장을 지우고 빈 진술로, 다음 홈에서 첫 실행 질문이 다시 나온다. */
+    fun resetProfile() {
+        profileStore.clear()
+        profile = profile.copy(statement = ProfileStatement())
+        answered.clear()
+        askSkips.clear()
+        onboardingPending = true
+        pinned = null
+        clearHomeTransient()
+        if (_phase.value is LessonPhase.Setup) _phase.value = setup()
+        Log.i(TAG, "admin: profile cleared")
+    }
+
+    /** 프리셋·관리자 프로필 전환: 값이 있는 줄을 답한 것으로, 첫 실행은 마친 것으로 보고 저장한다. */
+    private fun adoptProfileStatement() {
+        answered.clear(); answered += ProfileChips.filledFields(profile.statement)
+        askSkips.clear()
+        onboardingPending = false
+        saveProfile()
+    }
+
+    // ───────── 프로필 (라운드 22 결정 7 = P2 "한 장", 10/5) — 칩만. 첫 실행 · 홈 눈썹 시트 · 리포트 끝 카드가 같은 진입점 ─────────
+
+    /** 칩 하나 — 그 줄을 답한 것으로 저장한다. Setup 이면 제안을 다시 계산하고, 리포트 끝 카드의 줄이면 카드를 닫는다. 로그 `profile: …`. */
+    fun answerProfile(field: ProfileField, chipId: String) {
+        val next = ProfileChips.apply(profile.statement, field, chipId, thisYear())
+            ?: run { Log.w(TAG, "profile: unknown chip $field/$chipId"); return }
+        profile = profile.copy(statement = next)
+        answered += field
+        askSkips.remove(field)
+        saveProfile()
+        when (val p = _phase.value) {
+            is LessonPhase.Setup -> _phase.value = setup()
+            is LessonPhase.Report -> if (p.report.askOne?.field == field) _phase.value = p.copy(report = p.report.copy(askOne = null))
+            else -> {}
+        }
+        Log.i(TAG, "profile: $field=$chipId")
+    }
+
+    /** 첫 실행 끝 — "나머지는 연습하면서 · 시작하기" 와 `건너뛰기` 둘 다. 답한 줄까지 저장. */
+    fun finishOnboarding() {
+        if (!onboardingPending) return
+        onboardingPending = false
+        saveProfile()
+        if (_phase.value is LessonPhase.Setup) _phase.value = setup()
+        Log.i(TAG, "profile: onboarding done answered=$answered")
+    }
+
+    /** 리포트 끝 카드 `다음에요`. 같은 줄을 두 번 미루면 그 줄은 시트에서만 묻는다. */
+    fun skipAsk(field: ProfileField) {
+        val p = _phase.value as? LessonPhase.Report ?: return
+        if (p.report.askOne?.field != field) return
+        askSkips[field] = (askSkips[field] ?: 0) + 1
+        saveProfile()
+        _phase.value = p.copy(report = p.report.copy(askOne = null))
+        Log.i(TAG, "profile: skip $field (${askSkips[field]})")
+    }
+
+    private fun saveProfile() = profileStore.save(StoredProfile(profile.statement, answered.toSet(), askSkips.toMap(), onboarded = !onboardingPending))
+
+    private fun thisYear(): Int = java.time.Instant.ofEpochMilli(clock()).atZone(java.time.ZoneId.systemDefault()).year
+
+    private fun profileRow(field: ProfileField) =
+        ProfileRow(field, ProfileChips.answerOf(profile.statement, field, field in answered, thisYear()), ProfileChips.chips(field))
+
+    /** 시트 아래 "앱이 본 것" — 기록에서 나온 관측을 숫자 없이 말로(7b 질문 7). */
+    private fun observedLines(): List<String> {
+        val o = profile.observation
+        if (o.attempts == 0) return listOf("아직 함께한 연습이 없어요.")
+        return buildList {
+            add("연습이 쌓이고 있어요.")
+            o.weakTaskId?.let { id -> tasks.firstOrNull { it.id == id }?.let { add("${it.title} 쪽을 조금 더 연습하면 좋아요.") } }
+            if (o.harshEvents > 0) add("급하게 밟거나 멈춘 순간이 있었어요.")
+        }
+    }
+
+    // ───────── 홈 코치 대화 (라운드 22 결정 4 = A 알약 → 시트 + D 예약 카드, 10/5) — Setup 에서만, 탭 대화(STT 없음) ─────────
+    // 결과는 새 화면이 아니라 기존 것: 홈 제안을 바꾸거나(고정), 과제 시트를 분류로 열라고 요청하거나, 예약 카드를 강조한다.
+    // 말풍선 문장은 규칙 문장이다 — AI 는 세션 종료 총평만 맡는다(AGENTS "AI 경계").
+
+    private var coachOpen = false
+    private var highlightBooking = false
+    private var sheetRequest: TaskType? = null
+    private var bookingChoice: BookingOption? = null
+
+    private fun clearHomeTransient() {
+        coachOpen = false
+        highlightBooking = false
+        sheetRequest = null
+        bookingChoice = null
+    }
+
+    /** `코치에게 말하기` — 대화 시트를 열고 말풍선을 읽어 준다. 로그 `home coach: open`. */
+    fun openCoach() {
+        if (_phase.value !is LessonPhase.Setup) return
+        coachOpen = true
+        highlightBooking = false
+        val next = setup()
+        _phase.value = next
+        next.coach?.let { tts.speak(it.line) }
+        Log.i(TAG, "home coach: open choices=${next.coach?.choices}")
+    }
+
+    /** 대화 시트 `돌아가기`. */
+    fun closeCoach() {
+        if (_phase.value !is LessonPhase.Setup || !coachOpen) return
+        coachOpen = false
+        _phase.value = setup()
+    }
+
+    /** 답 칩. 시트에 없는 칩은 무시한다. 로그 `home coach: chose …`. */
+    fun chooseCoach(choice: CoachChoice) {
+        if (_phase.value !is LessonPhase.Setup || !coachOpen) return
+        if (choice !in coachChoices()) { Log.w(TAG, "home coach: $choice not offered"); return }
+        coachOpen = false
+        when (choice) {
+            CoachChoice.RESERVED_VENUE -> highlightBooking = true
+            CoachChoice.PARKING_PRACTICE -> sheetRequest = TaskType.PARKING
+            CoachChoice.CONTINUE_LAST -> lastResumable()?.let { (task, mode) -> pinned = task.id to mode }
+        }
+        _phase.value = setup()
+        Log.i(TAG, "home coach: chose $choice")
+    }
+
+    /** 화면이 시트를 연 뒤 부른다 — 같은 요청이 다시 그려질 때 시트를 또 열지 않게. */
+    fun consumeSheetRequest() {
+        if (sheetRequest == null) return
+        sheetRequest = null
+        if (_phase.value is LessonPhase.Setup) _phase.value = setup()
+    }
+
+    /** 예약 카드의 `코스 연습`/`모의시험` — 예약 코스 과제로 홈 제안을 고정한다. 로그 `home booking: …`. */
+    fun chooseBooking(option: BookingOption) {
+        if (_phase.value !is LessonPhase.Setup) return
+        val task = reservedReadyTask() ?: return
+        if (option !in bookingOptionsFor(task)) return
+        val mode = when (option) {
+            BookingOption.COURSE_PRACTICE -> ModeAdvisor.suggest(task, store).mode.takeIf { it != LessonMode.EVALUATE && task.supports(it) }
+                ?: listOf(LessonMode.HINT, LessonMode.GUIDE).first { task.supports(it) }
+            BookingOption.MOCK_EXAM -> LessonMode.EVALUATE
+        }
+        pinned = task.id to mode
+        bookingChoice = option
+        highlightBooking = false
+        _phase.value = setup()
+        Log.i(TAG, "home booking: $option task=${task.id} mode=$mode")
+    }
+
+    private fun reservedReadyTask(): Task? = ModeAdvisor.reservedTask(tasks.filter { it.isReady }, store.reservation, venues)
+
+    private fun bookingOptionsFor(task: Task?): List<BookingOption> = when (task) {
+        null -> emptyList()
+        else -> BookingOption.entries.filter { option ->
+            when (option) {
+                BookingOption.COURSE_PRACTICE -> task.supports(LessonMode.HINT) || task.supports(LessonMode.GUIDE)
+                BookingOption.MOCK_EXAM -> task.supports(LessonMode.EVALUATE)
+            }
+        }
+    }
+
+    /** 마지막 회차의 과제·모드 — 아직 시작할 수 있을 때만. */
+    private fun lastResumable(): Pair<Task, LessonMode>? {
+        val last = store.all().lastOrNull() ?: return null
+        val task = tasks.firstOrNull { it.id == last.taskId && it.isReady && it.supports(last.mode) } ?: return null
+        return task to last.mode
+    }
+
+    private fun coachChoices(): List<CoachChoice> = buildList {
+        if (reservedReadyTask() != null) add(CoachChoice.RESERVED_VENUE)
+        add(CoachChoice.PARKING_PRACTICE)
+        if (lastResumable() != null) add(CoachChoice.CONTINUE_LAST)
+    }
+
+    private fun coachLine(): String {
+        val venue = store.reservation?.venue(venues)?.takeIf { reservedReadyTask() != null }
+        return when {
+            venue != null -> "오늘은 뭘 해 볼까요? 예약한 ${venue.name}에서 해도 돼요."
+            lastResumable() != null -> "오늘은 뭘 해 볼까요? 지난번 것을 이어서 해도 돼요."
+            else -> "오늘은 뭘 해 볼까요?"
+        }
     }
 
     // ───────── 내부 ─────────
 
     private fun setup(): LessonPhase.Setup {
         val booking = store.reservation
-        val task = ModeAdvisor.suggestTask(profile, tasks, booking, venues)
-        val s = ModeAdvisor.suggest(task, store)
-        val fromReservation = booking != null && ModeAdvisor.reservedTask(tasks.filter { it.isReady }, booking, venues)?.id == task.id
-        val reason = if (fromReservation) "${ModeAdvisor.RESERVED_REASON} ${s.reason}" else s.reason
-        return LessonPhase.Setup(profile, tasks, task, s.mode, reason, venues = venues, booking = booking)
+        val pin = pinned?.let { (id, mode) -> tasks.firstOrNull { it.id == id }?.let { it to mode } }
+        val task = pin?.first ?: ModeAdvisor.suggestTask(profile, tasks, booking, venues)
+        val s = pin?.let { ModeAdvisor.Suggestion(it.second, ModeAdvisor.pinnedReason(it.second)) } ?: ModeAdvisor.suggest(task, store)
+        val reserved = reservedReadyTask()
+        val fromReservation = booking != null && reserved?.id == task.id
+        val modeReason = if (bookingChoice == BookingOption.MOCK_EXAM && fromReservation && s.mode == LessonMode.EVALUATE) MOCK_EXAM_REASON else s.reason
+        val reason = if (fromReservation) "${ModeAdvisor.RESERVED_REASON} $modeReason" else modeReason
+        return LessonPhase.Setup(profile, tasks, task, s.mode, reason, venues = venues, booking = booking,
+            coach = if (coachOpen) CoachDialog(coachLine(), coachChoices()) else null,
+            bookingOptions = if (booking != null) bookingOptionsFor(reserved) else emptyList(),
+            bookingChoice = bookingChoice, highlightBooking = highlightBooking, sheetRequest = sheetRequest,
+            onboarding = if (onboardingPending) ProfileOnboarding(ProfileField.ONBOARDING) else null,
+            profileRows = ProfileField.entries.map { profileRow(it) }, observedLines = observedLines())
     }
 
     private fun briefingLine(task: Task, mode: LessonMode): String {
@@ -575,6 +833,7 @@ class LessonStateMachine(
                 nextTask = nextTask, nextMode = next.mode, nextReason = next.reason,
                 shareLevels = ShareLevel.entries.toList(), benefits = benefits,
                 unverifiedGuideSteps = unverifiedSteps.toList(),
+                askOne = ProfileChips.nextAsk(answered, askSkips)?.let { profileRow(it) },
             ),
             locked = snapshot.locked,
         )
@@ -584,5 +843,7 @@ class LessonStateMachine(
 
     private companion object {
         const val TAG = "MOAH/LessonStateMachine"
+        /** 예약 카드 `모의시험` 의 이유 문장(숫자 없음, 4b 시안 문구). */
+        const val MOCK_EXAM_REASON = "시험장 코스 그대로, 제가 채점만 할게요."
     }
 }

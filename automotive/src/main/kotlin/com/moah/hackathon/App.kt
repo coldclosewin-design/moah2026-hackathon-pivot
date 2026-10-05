@@ -5,6 +5,7 @@ import android.content.Context
 import com.moah.hackathon.data.ChecklistScenarios
 import com.moah.hackathon.data.ParkingScenarios
 import com.moah.hackathon.data.SeedCatalog
+import com.moah.hackathon.feature.lesson.FileProfileStore
 import com.moah.hackathon.feature.lesson.LessonStateMachine
 import com.moah.hackathon.feature.lesson.ProgressStore
 import com.moah.hackathon.feature.lesson.RemarkPool
@@ -74,7 +75,8 @@ class AppContainer(context: Context) {
         vehicle = vehicle, tts = tts, coach = coach, registry = registry, store = store,
         tasks = SeedCatalog.tasks, guideFor = SeedCatalog::guideFor, quizFor = SeedCatalog::quizFor,
         venues = SeedCatalog.venues, benefits = SeedCatalog.benefits,
-        profile = SeedCatalog.demoProfile, scope = appScope,
+        profile = SeedCatalog.firstRunProfile, scope = appScope,
+        profileStore = FileProfileStore(java.io.File(context.filesDir, "profile.properties")),
     )
 
     fun dispose() {

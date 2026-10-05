@@ -283,4 +283,47 @@ data class LessonReport(
     val benefits: List<String>,
     /** 가이드 모드에서 신호가 없어 확인 없이 읽고 넘긴 단계. 리포트에 "확인할 수 없었어요" 로. */
     val unverifiedGuideSteps: List<String>,
+    /** 리포트 끝 "하나만 물어볼게요" 카드(결정 7 = D 점진) — 아직 답하지 않은 첫 줄, 세션당 하나. 없으면 카드 없음. */
+    val askOne: ProfileRow? = null,
 )
+
+// ───────── 관리자 모드 (라운드 22 결정 5 = 준비실 D + 세션 중 띠 C, 10/5) — Fake/Hybrid 시연 빌드에만. Real 빌드엔 진입점이 없다 ─────────
+
+/** 프로필 프리셋 — 준비실의 "프로필 전환" 칩. [id] 는 도구·로그용. */
+data class ProfilePreset(val id: String, val label: String, val profile: Profile)
+
+/** 프리셋이 미리 해 두는 예약. 시드에 없거나 빈 시간대가 아니면 무시된다. */
+data class ReservationSeed(val venueId: String, val slotId: String, val courseId: String)
+
+/**
+ * 시연 프리셋 — 누르면 기록을 비우고 [profileId] 프로필로 바꾼 뒤 홈 제안을 [taskId]·[mode] 로 고정한다(운전자가 다른 걸 고르면 풀린다).
+ * [scenarioOrder] 는 띠가 "다음에 누를 시나리오" 를 앞에 두는 순서, [reservation] 은 홈 예약 카드를 보여 줄 때.
+ */
+data class AdminPreset(
+    val id: String,
+    val title: String,
+    val subtitle: String,
+    val taskId: String,
+    val mode: LessonMode,
+    val profileId: String,
+    val scenarioOrder: List<String> = emptyList(),
+    val reservation: ReservationSeed? = null,
+)
+
+// ───────── 홈 코치 대화 (라운드 22 결정 4 = A 알약 → 시트 + D 예약 카드, 4b 간격 A1, 10/5) — 탭 대화, STT 없음 ─────────
+
+/** 대화 시트의 답 칩. [label] 은 화면 글자(숫자 없음). */
+enum class CoachChoice(val label: String) {
+    RESERVED_VENUE("예약한 시험장으로"),
+    PARKING_PRACTICE("주차 연습"),
+    CONTINUE_LAST("지난번 이어서"),
+}
+
+/** 대화 시트 — 코치 말풍선 한 줄 + 답 칩. 칩은 상황에 맞는 것만(예약이 없으면 예약 칩 없음, 기록이 없으면 "지난번" 없음). */
+data class CoachDialog(val line: String, val choices: List<CoachChoice>)
+
+/** 예약 카드의 선택지 — 둘 다 예약한 코스의 과제. 코스 연습 = 지금 실력에 맞는 모드, 모의시험 = 평가 모드(채점만). */
+enum class BookingOption(val label: String) {
+    COURSE_PRACTICE("코스 연습"),
+    MOCK_EXAM("모의시험"),
+}
