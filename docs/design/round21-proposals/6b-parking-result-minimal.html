@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>주차 결과 — 미니멀 추가 시안</title>
+<style>
+  :root { --ink:#070827; --paper:#FCFCFA; --peri:#5B60A1; --lav:#E5E6F0; --signal:#F52D48; --muted:rgba(7,8,39,.6); }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#E9E9EE; font-family:"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif; color:var(--ink); }
+  .wrap { max-width:1560px; margin:0 auto; padding:28px 28px 48px; }
+  h1 { font-size:26px; font-weight:500; margin:0 0 6px; }
+  .sub { color:var(--muted); font-size:14px; margin:0 0 14px; line-height:1.6; }
+  blockquote { margin:0 0 18px; background:var(--lav); border-left:4px solid var(--signal); padding:12px 16px; font-size:14px; line-height:1.6; }
+  .opt { background:var(--paper); border-radius:8px; padding:18px 20px 20px; margin:0 0 22px;
+         box-shadow:0 4px 10px rgba(7,8,39,.10), 0 1px 2px rgba(7,8,39,.06), inset 0 1px 0 rgba(255,255,255,.9); }
+  .opt h2 { font-size:20px; font-weight:500; margin:0 0 2px; } .opt h2 b { color:var(--peri); font-weight:500; margin-right:8px; }
+  .opt .one { color:var(--muted); font-size:14px; margin:0 0 12px; }
+  .pair { display:flex; gap:20px; flex-wrap:wrap; }
+  .pair figure { margin:0; } .pair figcaption { font-size:12px; color:var(--muted); margin-top:6px; }
+  .notes { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:12px; font-size:13px; line-height:1.6; }
+  .notes h3 { font-size:13px; font-weight:500; color:var(--peri); margin:0 0 4px; }
+  .notes ul { margin:0; padding-left:18px; }
+  .rec { background:var(--ink); color:var(--paper); border-radius:8px; padding:16px 20px; font-size:15px; line-height:1.6; }
+  .rec .k { color:var(--lav); font-size:12px; }
+  svg text { font-family:"Noto Sans KR","Malgun Gothic",system-ui,sans-serif; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>6 · 주차 결과 — 크기 B(왼쪽 50%) · 미니멀 추가 시안 셋</h1>
+  <p class="sub">짙은 바탕은 그대로 두고, 주차장 줄과 도로를 거의 지운 세 가지입니다. 차는 지금 앱의 실루엣 모양을 그대로 쓰고(지도 위라 밝게 반전), 궤적은 실제 시나리오에서 추정한 값입니다. 화면은 1/3 축소(853×423)이고 실제는 약 3배입니다. 각 시안은 후면 직각 못한 주차와 평행 잘한 주차를 나란히 보여 줍니다.</p>
+  <blockquote>"B인데 차량 모양은 기존과 유지하고 미니멀한 모습을 보여줘야 하는데 너무 디테일한 주차 라인 및 도로가 그려져 있어 추가 제안을 3개 정도 받고 싶어" — 사용자 선택(10/5)</blockquote>
+  <div id="opts"></div>
+  <div class="rec"><div class="k">추천</div><b style="font-weight:500">B-1 칸 하나</b> — 화면에서 읽을 것이 차·궤적·목표 칸 셋뿐이라 판정 네 줄과 가장 잘 이어집니다. 칸이 어디인지 감이 약하면 B-2 의 흐린 옆 줄을 더하면 됩니다.</div>
+</div>
+<script>
+const P = {"rearBad":{"pts":[[0.0,0.0,0.0,0,0],[0.0,0.0,0.0,1,6000],[0.002,-0.104,1.28,1,6500],[0.03,-0.415,5.1,1,7000],[0.401,-4.566,5.1,1,12000],[0.429,-4.877,5.1,1,12500],[0.438,-4.981,5.1,1,13000],[0.438,-4.981,5.1,0,16000],[0.427,-4.877,5.91,0,16500],[0.382,-4.568,8.32,0,17000],[-0.221,-3.014,21.2,0,19000],[-0.346,-2.727,23.61,0,19500],[-0.389,-2.633,24.41,0,20000],[-0.389,-2.633,24.41,1,23000],[-0.315,-2.782,26.46,1,23500],[-0.045,-3.203,32.58,1,24000],[0.39,-3.708,40.75,1,24500],[0.892,-4.146,48.92,1,25000],[1.452,-4.509,57.09,1,25500],[2.057,-4.788,65.25,1,26000],[2.696,-4.978,73.42,1,26500],[3.335,-5.168,73.42,1,27000],[3.974,-5.358,73.42,1,27500],[4.613,-5.549,73.42,1,28000],[5.252,-5.739,73.42,1,28500],[5.396,-5.782,73.42,1,28650],[5.444,-5.796,73.42,1,28800],[5.444,-5.796,73.42,1,34000],[5.51,-5.816,73.42,1,34500],[5.71,-5.875,73.42,1,35000],[7.84,-6.509,73.42,1,39000],[8.04,-6.569,73.42,1,39500],[8.106,-6.588,73.42,1,40000]],"harsh":[28800]},"rearGood":{"pts":[[0.0,0.0,0.0,0,0],[0.0,0.0,0.0,1,10000],[0.004,-0.139,1.7,1,10500],[0.054,-0.553,6.81,1,11000],[0.184,-1.093,13.61,1,11500],[0.378,-1.613,20.42,1,12000],[0.632,-2.107,27.23,1,12500],[0.943,-2.568,34.03,1,13000],[1.306,-2.988,40.84,1,13500],[1.717,-3.362,47.65,1,14000],[2.169,-3.685,54.45,1,14500],[2.656,-3.952,61.26,1,15000],[3.172,-4.16,68.07,1,15500],[3.708,-4.305,74.87,1,16000],[4.258,-4.385,81.68,1,16500],[4.674,-4.409,86.78,1,17000],[4.812,-4.412,88.48,1,17500],[4.812,-4.412,88.48,1,19500],[4.916,-4.415,88.48,1,20000],[5.229,-4.423,88.48,1,20500],[8.561,-4.511,88.48,1,24500],[8.873,-4.52,88.48,1,25000],[8.978,-4.522,88.48,1,25500]],"harsh":[]},"parallelGood":{"pts":[[0.0,0.0,0.0,0,0],[0.0,0.0,0.0,1,10000],[0.004,-0.139,1.7,1,10500],[0.054,-0.553,6.81,1,11000],[0.184,-1.093,13.61,1,11500],[0.378,-1.613,20.42,1,12000],[0.632,-2.107,27.23,1,12500],[0.943,-2.568,34.03,1,13000],[1.306,-2.988,40.84,1,13500],[1.606,-3.278,45.94,1,14000],[1.709,-3.371,47.65,1,14500],[1.709,-3.371,47.65,1,17000],[1.808,-3.468,45.94,1,17500],[2.081,-3.783,40.84,1,18000],[2.392,-4.243,34.03,1,18500],[2.646,-4.737,27.23,1,19000],[2.84,-5.258,20.42,1,19500],[2.971,-5.798,13.61,1,20000],[3.036,-6.35,6.81,1,20500],[3.049,-6.766,1.7,1,21000],[3.049,-6.905,0.0,1,21500]],"harsh":[]}};
+const INK="#070827", PAPER="#FCFCFA", PERI="#5B60A1", LAV="#E5E6F0", SIG="#F52D48";
+// 앱 실루엣(VehicleSilhouetteGeometry · VehicleSilhouette.kt) — 100×250, y=0 뒤 · y=250 앞
+const BODY="M25,1 C10,3 6,12 5,28 L2,46 L5,76 L5,173 C-1,210 1,232 15,242 C30,253 70,253 85,242 C99,232 101,210 95,173 L95,76 L98,46 L95,28 C94,12 90,3 75,1 C50,-2 25,1 25,1 Z";
+const REAR_PANEL="M19,3 Q50,-1 81,3 Q82,18 76,34 L24,34 Q18,18 19,3 Z";
+const HOOD="M15,174 Q50,183 85,174 Q85,212 72,244 Q50,248 28,244 Q15,212 15,174 Z";
+const REAR_GLASS="M23,32 Q50,26 77,32 L74,49 Q50,52 26,49 Z";
+const WINDSHIELD="M22,137 Q50,143 78,137 L86,170 Q50,190 14,170 Z";
+const SIDE="M17,52 Q24,90 19,126 L11,162 L11,93 Z";
+const MIRROR="M7,159 L-2,154 Q-8,152 -6,159 Q-4,162 7,165 Z";
+function car(x,y,headingDeg,lenPx,alpha){
+  const w=lenPx*.43, sx=w/100, sy=lenPx/250;
+  return `<g transform="translate(${x},${y}) rotate(${headingDeg}) scale(${sx},${sy}) translate(-50,-125)" opacity="${alpha}">
+    <path d="${BODY}" fill="${LAV}"/><path d="${MIRROR}" fill="${LAV}"/><path d="${MIRROR}" fill="${LAV}" transform="translate(100,0) scale(-1,1)"/>
+    <path d="${REAR_PANEL}" fill="${PERI}"/><path d="${HOOD}" fill="${PERI}"/>
+    <path d="${REAR_GLASS}" fill="${INK}"/><path d="${WINDSHIELD}" fill="${INK}"/>
+    <path d="${SIDE}" fill="${INK}"/><path d="${SIDE}" fill="${INK}" transform="translate(100,0) scale(-1,1)"/></g>`;
+}
+const VERD = {
+  rearBad:[["△","한 번 다시 넣고 들어갔어요",""],["△","방향이 조금 틀어졌어요","신호로 추정"],["✓","마무리가 깔끔했어요",""],["✗","위험한 순간이 있었어요",""]],
+  parallelGood:[["✓","한 번에 들어갔어요",""],["✓","방향은 맞게 섰어요","신호로 추정"],["✓","마무리가 깔끔했어요",""],["✓","안전했어요",""]]
+};
+const REMARK = { rearBad:["한 번 다시 넣고 들어갔어요.","다음엔 벨트를 먼저 매고 출발해요."], parallelGood:["차분하게 들어갔어요.","마무리도 편안했어요."] };
+const TITLE = { rearBad:"후면 직각 주차 · 1회차", parallelGood:"평행 주차 · 1회차" };
+// 목표 칸: 잘한 회차의 끝 자세(후면 = rearGood 끝, 평행 = parallelGood 끝)
+function target(kind){ const p = kind==="parallelGood" ? P.parallelGood.pts : P.rearGood.pts; const e=p[p.length-1]; return {x:e[0],y:e[1],h:e[2]}; }
+const BAY_W=2.6, BAY_L=5.5;
+function screen(kind, style){
+  const W=853,H=423,LW=426, MAPH=296;
+  const pts=P[kind].pts, t=target(kind);
+  const xs=pts.map(p=>p[0]).concat([t.x]), ys=pts.map(p=>p[1]).concat([t.y]);
+  const pad=3.4, x0=Math.min(...xs)-pad, x1=Math.max(...xs)+pad, y0=Math.min(...ys)-pad, y1=Math.max(...ys)+pad;
+  const s=Math.min((LW-40)/(x1-x0),(MAPH-48)/(y1-y0));
+  const ox=(LW-(x1-x0)*s)/2, oy=26+((MAPH-48)-(y1-y0)*s)/2;
+  const X=x=>ox+(x-x0)*s, Y=y=>oy+(y-y0)*s;   // 후진(−y)이 화면 위
+  let g=`<rect width="${W}" height="${H}" fill="${PAPER}"/><rect width="${LW}" height="${H}" fill="${INK}"/>`;
+  // 배경 스타일
+  if(style==="dots"){ for(let gx=Math.ceil(x0);gx<=x1;gx++) for(let gy=Math.ceil(y0);gy<=y1;gy++) g+=`<circle cx="${X(gx)}" cy="${Y(gy)}" r="1" fill="${PAPER}" opacity=".10"/>`; }
+  // 목표 칸(칸 축 = 끝 자세 방향)
+  const bay=(cx,cy,h,opa,mode)=>{
+    const L=BAY_L*s, Wd=BAY_W*s; let inner="";
+    if(mode==="u"){ // 양옆 두 줄 + 안쪽 끝(차 앞이 아니라 뒤가 들어가는 쪽) — 입구는 연다
+      inner=`<line x1="${-Wd/2}" y1="${-L/2}" x2="${-Wd/2}" y2="${L/2}"/><line x1="${Wd/2}" y1="${-L/2}" x2="${Wd/2}" y2="${L/2}"/><line x1="${-Wd/2}" y1="${-L/2}" x2="${Wd/2}" y2="${-L/2}"/>`;
+    } else if(mode==="side"){ inner=`<line x1="${-Wd/2}" y1="${-L/2}" x2="${-Wd/2}" y2="${L/2}"/>`; }
+    else if(mode==="corner"){ const c=Math.min(L,Wd)*.28;
+      for(const [sx,sy] of [[-1,-1],[1,-1],[-1,1],[1,1]]){ const ax=sx*Wd/2, ay=sy*L/2; inner+=`<polyline fill="none" points="${ax-sx*c},${ay} ${ax},${ay} ${ax},${ay-sy*c}"/>`; } }
+    return `<g transform="translate(${cx},${cy}) rotate(${h})" stroke="${mode==='corner'?LAV:PAPER}" stroke-width="${mode==='corner'?2.4:1.6}" opacity="${opa}" stroke-linecap="round">${inner}</g>`;
+  };
+  // 칸 방향: 차가 뒤로 들어가 끝에 서면, 차 뒤(실루엣 y=0)쪽이 칸 안쪽 → 칸 로컬 y−(위)가 차 뒤
+  const tcx=X(t.x), tcy=Y(t.y);
+  if(style==="faint"){ // 옆 칸 경계 흐리게(칸 축과 수직 방향으로 간격 3 m)
+    const r=t.h*Math.PI/180;
+    if(kind==="parallelGood"){ // 평행: 옆 칸은 칸 축을 따라 앞뒤로
+      const ax=-Math.sin(r), ay=Math.cos(r), step=(BAY_L+0.8)*s;
+      for(const k of [-1,1]){ g+=bay(tcx+ax*k*step, tcy+ay*k*step, t.h, .22, "u"); }
+    } else { const nx=Math.cos(r), ny=Math.sin(r);
+      for(const k of [-2,-1,1,2]){ g+=bay(tcx+nx*k*3*s, tcy+ny*k*3*s, t.h, .22, "side"); } }
+    g+=`<rect x="20" y="20" width="${LW-40}" height="${MAPH-30}" fill="${PAPER}" opacity=".03"/>`;
+  }
+  g+=bay(tcx,tcy,t.h, style==="dots"?.9:.6, style==="dots"?"corner":"u");
+  if(style==="faint"){ /* 목표 칸 경계 위에 옆 칸 하나씩 공유 */ }
+  // 궤적: 후진 = Lavender, 전진(보정) = Periwinkle 점선
+  for(let i=1;i<pts.length;i++){ const a=pts[i-1], b=pts[i]; if(a[0]===b[0]&&a[1]===b[1]) continue;
+    const rev=b[3]===1; g+=`<line x1="${X(a[0])}" y1="${Y(a[1])}" x2="${X(b[0])}" y2="${Y(b[1])}" stroke="${rev?LAV:PERI}" stroke-width="${rev?3:2.4}" stroke-linecap="round" ${rev?"":'stroke-dasharray="5 5"'} opacity="${rev?.9:1}"/>`; }
+  for(const tm of P[kind].harsh){ let best=pts[0]; for(const p of pts) if(Math.abs(p[4]-tm)<Math.abs(best[4]-tm)) best=p; g+=`<circle cx="${X(best[0])}" cy="${Y(best[1])}" r="5" fill="${SIG}"/>`; }
+  const L=4.5*s, st=pts[0], en=pts[pts.length-1];
+  g+=car(X(st[0]),Y(st[1]),st[2],L,.28)+car(X(en[0]),Y(en[1]),en[2],L,1);
+  g+=`<text x="22" y="${MAPH-2}" font-size="9.5" fill="${PAPER}" opacity=".5">신호로 추정한 궤적이에요. 실제 위치와 다를 수 있어요.</text>`;
+  // 판정 2×2
+  g+=`<line x1="22" y1="${MAPH+8}" x2="${LW-22}" y2="${MAPH+8}" stroke="${PAPER}" opacity=".12"/>`;
+  VERD[kind].forEach((v,i)=>{ const cx=22+(i%2)*((LW-44)/2), cy=MAPH+36+Math.floor(i/2)*44;
+    const col=v[0]==="✓"?LAV:(v[0]==="✗"?SIG:PERI);
+    g+=`<text x="${cx}" y="${cy}" font-size="15" fill="${col}">${v[0]}</text><text x="${cx+22}" y="${cy}" font-size="12" fill="${PAPER}">${v[1]}</text>`;
+    if(v[2]) g+=`<text x="${cx+22}" y="${cy+15}" font-size="9" fill="${PAPER}" opacity=".55">${v[2]}</text>`; });
+  // 오른쪽
+  g+=`<text x="${LW+44}" y="58" font-size="9" letter-spacing="2.4" fill="${INK}">DRIVE COACH</text><text x="${LW+44}" y="86" font-size="10.5" fill="${INK}">${TITLE[kind]}</text>`;
+  REMARK[kind].forEach((l,i)=>g+=`<text x="${LW+44}" y="${196+i*30}" font-size="21" fill="${INK}">${l}</text>`);
+  g+=`<rect x="${LW+44}" y="330" width="200" height="46" rx="23" fill="${SIG}"/><text x="${LW+144}" y="359" font-size="13" fill="${PAPER}" text-anchor="middle">한 번 더  →</text>`;
+  g+=`<text x="${LW+268}" y="359" font-size="12" fill="${INK}" text-decoration="underline">오늘은 여기까지</text>`;
+  return `<svg width="740" height="${Math.round(740*H/W)}" viewBox="0 0 ${W} ${H}">${g}</svg>`;
+}
+const OPTS=[
+  ["B-1","칸 하나","주차장은 목표 칸 하나만 — 양옆 줄과 안쪽 끝 줄(입구는 열림). 나머지는 짙은 바탕 그대로.","plain",
+    ["읽을 것이 차 · 궤적 · 칸 셋뿐 — 가장 미니멀","판정 패널과 같은 Ink 면이라 위아래가 한 덩어리","구현이 가장 가볍다(지금 Done 도착 칸 그리기 재사용)"],
+    ["주차장 맥락(옆 칸)이 없어 '어디에 섰나' 감이 약할 수 있다","평행·사선은 칸 방향만 바꾸면 된다(사양 목표 각)"]],
+  ["B-2","흐린 옆 줄","목표 칸 + 양옆 칸 경계를 아주 흐린 짧은 줄로. 아주 옅은 면 하나로 주차장 영역만 암시.","faint",
+    ["주차장 맥락이 살면서도 선이 거의 안 보인다","목표 칸이 자연스럽게 가장 밝은 줄"],
+    ["흐린 줄 대비(20%)가 사내 에뮬 화면에서 너무 안 보일 수 있다 — 25~30% 로 조정 여지","평행은 옆 칸이 칸 축을 따라 앞뒤로 놓인다"]],
+  ["B-3","모서리 표시","줄 대신 칸 네 모서리의 ㄱ자 표시 + 1 m 점 격자를 아주 옅게 — 설계도·측정 느낌.","dots",
+    ["기하학 포스터 콘셉트와 가장 잘 맞는다(측정 도구 같은 인상)","점 격자가 크기 감(미터)을 조용히 준다"],
+    ["점 격자는 구현이 조금 더 든다(축척에 맞춘 점 찍기)","'칸 안에 들어갔다' 는 느낌은 B-1 보다 약하다"]],
+];
+document.getElementById("opts").innerHTML = OPTS.map(o=>`<div class="opt"><h2><b>${o[0]}</b>${o[1]}</h2><p class="one">${o[2]}</p>
+  <div class="pair"><figure>${screen("rearBad",o[3])}<figcaption>후면 직각 · 못한 주차(보정 점선 · 급정지 빨간 점)</figcaption></figure>
+  <figure>${screen("parallelGood",o[3])}<figcaption>평행 · 잘한 주차</figcaption></figure></div>
+  <div class="notes"><div><h3>장점</h3><ul>${o[4].map(x=>`<li>${x}</li>`).join("")}</ul></div><div><h3>주의점</h3><ul>${o[5].map(x=>`<li>${x}</li>`).join("")}</ul></div></div></div>`).join("");
+</script>
+</body>
+</html>
