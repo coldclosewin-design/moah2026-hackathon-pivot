@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>라운드 21 시안 모음</title>
+<style>
+  :root { --ink:#070827; --paper:#FCFCFA; --peri:#5B60A1; --lav:#E5E6F0; --signal:#F52D48; --muted:rgba(7,8,39,.6); }
+  body { margin:0; background:#E9E9EE; font-family:"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif; color:var(--ink); }
+  .wrap { max-width:1100px; margin:0 auto; padding:32px 28px 48px; }
+  h1 { font-size:24px; font-weight:500; margin:0 0 6px; }
+  p.sub { color:var(--muted); margin:0 0 24px; font-size:14px; }
+  .grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+  a.card { display:block; text-decoration:none; color:inherit; background:var(--paper); padding:18px 20px; border-radius:6px;
+    box-shadow:0 4px 10px rgba(7,8,39,.10), 0 1px 2px rgba(7,8,39,.06), inset 0 1px 0 rgba(255,255,255,.9); }
+  a.card:hover { outline:2px solid var(--peri); }
+  .n { color:var(--peri); font-size:13px; }
+  .t { font-size:18px; margin:4px 0 6px; }
+  .d { color:var(--muted); font-size:13px; line-height:1.5; }
+  .how { margin-top:28px; background:var(--paper); padding:16px 20px; border-radius:6px; font-size:14px; line-height:1.7; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>라운드 21 시안 모음 — 전체 기능 검토 피드백(10/5)</h1>
+  <p class="sub">주제마다 "지금" 과 시안 A~E. 고르신 것을 알려 주시면 Codex 라운드 21 로 구현합니다. 바로 고칠 것 8건은 라운드 20 으로 이미 발주했습니다.</p>
+  <div class="grid">
+    <a class="card" href="1-venue-cards.html"><div class="n">1 · 시안 5</div><div class="t">제휴 시험장 카드</div><div class="d">그림자·입체감, 큰 글자, 시간/코스 배치</div></a>
+    <a class="card" href="2-category-menu.html"><div class="n">2 · 시안 5</div><div class="t">상위 메뉴 — 주차·주행·점검·지식</div><div class="d">제목과 간격, 메뉴임이 분명한 모양</div></a>
+    <a class="card" href="3-back-button.html"><div class="n">3 · 시안 3</div><div class="t">돌아가기 버튼</div><div class="d">밑줄 글자 대신 컨셉에 맞는 보조 버튼</div></a>
+    <a class="card" href="4-checklist-cards.html"><div class="n">4 · 시안 5</div><div class="t">출발 전 점검 왼쪽 카드</div><div class="d">"미수행" 문구, 미니멀한 카드 구성</div></a>
+    <a class="card" href="5-details.html"><div class="n">5 · 시안 5</div><div class="t">리포트 자세히 보기</div><div class="d">한 곳에 몰린 정보를 나눠 보기 좋게</div></a>
+    <a class="card" href="6-parking-result.html"><div class="n">6 · 시안 3</div><div class="t">주차 결과 시뮬레이션</div><div class="d">시험장처럼 짙은 바탕 + 도로·칸·차, 크기 셋</div></a>
+    <a class="card" href="6b-parking-result-minimal.html"><div class="n">6b · 추가 시안 3</div><div class="t">주차 결과 — 미니멀(크기 B)</div><div class="d">칸 하나 / 흐린 옆 줄 / 모서리 표시 — 차는 지금 실루엣</div></a>
+    <a class="card" href="7-quiz-answer.html"><div class="n">7 · 시안 5</div><div class="t">지식 테스트 정답 확인 화면</div><div class="d">내 답·정답 위치와 크기, 간격, 넓은 주 알약</div></a>
+    <a class="card" href="8-map-car-size.html"><div class="n">8 · 시안 2</div><div class="t">코스 지도의 차 크기</div><div class="d">지금 / 1.6배 / 2.2배 — 작업량은 상수 하나</div></a>
+  </div>
+  <div class="how">고르는 법: 주제 번호와 시안 글자로 답해 주세요(예: "1-B, 2-A, 3-C, 4-D, 5-B, 6-B, 7-C, 8-A"). 섞고 싶으면 "1-B 에 C 의 시간 배치" 처럼 적어 주시면 됩니다.</div>
+</div>
+</body>
+</html>

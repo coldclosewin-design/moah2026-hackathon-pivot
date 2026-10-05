@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>제휴 시험장 카드 시안</title>
+<style>
+:root{
+  --ink:#070827; --paper:#FCFCFA; --peri:#5B60A1; --lav:#E5E6F0; --signal:#F52D48;
+  --muted:rgba(7,8,39,.60);
+  /* 질감 B — 브리프 원값(실제 크기). 1/3 시안에서는 '들린' 면에 그대로 쓴다 */
+  --tex-full:0 4px 10px rgba(7,8,39,.10),0 1px 2px rgba(7,8,39,.06),inset 0 1px 0 rgba(255,255,255,.9);
+  /* 같은 질감을 1/3 축척으로 줄인 값 — 칩·작은 면 */
+  --tex:0 2px 4px rgba(7,8,39,.10),0 1px 1px rgba(7,8,39,.06),inset 0 1px 0 rgba(255,255,255,.9);
+  /* 어두운 면(Ink·Periwinkle)용 — 위쪽 하이라이트만 약하게 */
+  --tex-dark:0 4px 10px rgba(7,8,39,.16),0 1px 2px rgba(7,8,39,.10),inset 0 1px 0 rgba(255,255,255,.16);
+  --font:"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-weight:400}
+h1,h2,h3,h4,b,strong,th{font-weight:500}
+body{background:var(--paper);color:var(--ink);font-family:var(--font);line-height:1.5}
+.page{max-width:1560px;margin:0 auto;padding:40px 32px 64px}
+
+/* ---------- 페이지 머리 ---------- */
+.head h1{font-size:30px;letter-spacing:-.01em}
+.head .lead{font-size:16px;color:var(--muted);margin-top:4px}
+.quote{margin-top:18px;background:rgba(229,230,240,.6);border-left:4px solid var(--peri);padding:14px 18px;font-size:15px;max-width:1100px}
+.quote .who{display:block;font-size:12px;color:var(--peri);margin-bottom:4px}
+.scale{display:inline-flex;align-items:center;gap:8px;margin-top:16px;font-size:13px;color:var(--peri);background:rgba(91,96,161,.08);padding:6px 12px;border-radius:14px}
+.tokens{display:flex;gap:14px;margin-top:12px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.tokens span{display:inline-flex;align-items:center;gap:6px}
+.tokens i{width:14px;height:14px;border-radius:3px;display:inline-block;box-shadow:0 0 0 1px rgba(7,8,39,.12)}
+
+/* ---------- 시안 칸 ---------- */
+.block{display:grid;grid-template-columns:853px 1fr;gap:36px;margin-top:44px;padding-top:28px;border-top:1px solid rgba(7,8,39,.10)}
+.tag-id{font-size:13px;color:var(--peri);letter-spacing:.08em}
+.notes h2{font-size:26px;margin-top:2px}
+.notes .one{font-size:15px;margin-top:6px}
+.notes h3{font-size:13px;color:var(--peri);margin-top:18px;letter-spacing:.04em}
+.notes ul{margin-top:6px;padding-left:18px;font-size:14px}
+.notes li{margin-top:4px}
+.notes .sel{margin-top:16px;font-size:13px;background:rgba(229,230,240,.55);padding:10px 12px;border-radius:6px}
+.notes .sel b{color:var(--peri)}
+
+/* ---------- 1/3 화면 틀 ---------- */
+.screen{position:relative;width:853px;height:423px;background:var(--paper);overflow:hidden;border-radius:6px;box-shadow:0 0 0 1px rgba(7,8,39,.14),0 8px 24px rgba(7,8,39,.08)}
+.screen .lp{position:absolute;left:0;top:0;width:256px;height:423px}
+.screen .brand{position:absolute;left:48px;top:29px;font-size:8px;letter-spacing:4px;color:var(--ink)}
+.rc{position:absolute;left:277px;top:0;width:555px;height:423px}
+.rc .eb{position:absolute;top:24px;left:0;font-size:11px;color:var(--ink)}
+.rc .nt{position:absolute;top:44px;left:0;font-size:13px;color:var(--peri)}
+.rc .back{position:absolute;left:0;top:372px;font-size:13px;text-decoration:underline;text-underline-offset:3px}
+.rc .go{position:absolute;right:0;top:359px;width:240px;height:46px;border-radius:23px;background:var(--signal);color:var(--paper);font-size:13px;display:flex;align-items:center;justify-content:center;gap:12px;box-shadow:0 4px 10px rgba(245,45,72,.22),0 1px 2px rgba(7,8,39,.08),inset 0 1px 0 rgba(255,255,255,.35)}
+
+/* 시간·코스 줄(공통) */
+.crow{position:absolute;left:0;display:flex;align-items:center;gap:8px}
+.crow .lbl{width:36px;font-size:11px;color:var(--muted)}
+.chip{height:30px;min-width:100px;padding:0 12px;background:var(--lav);color:var(--ink);font-size:13px;display:flex;align-items:center;justify-content:center;box-shadow:var(--tex);white-space:nowrap}
+.chip.on{background:var(--peri);color:var(--paper);box-shadow:var(--tex-dark)}
+.chip.off{opacity:.45;box-shadow:none}
+
+/* 카드 공통 조각 */
+.name{white-space:nowrap}
+.name .big{font-size:24px;line-height:28px}
+.name .sm{font-size:12px;color:var(--muted);margin-left:3px}
+.pill{font-size:11px;height:18px;line-height:18px;padding:0 8px;border-radius:9px;background:var(--lav);color:var(--peri);white-space:nowrap}
+.tags{display:flex;flex-wrap:wrap;gap:4px}
+.tag{font-size:11px;height:18px;line-height:18px;padding:0 5px;background:var(--lav);color:var(--ink);white-space:nowrap}
+.avail{font-size:11px;color:var(--peri);display:flex;align-items:center;gap:5px;white-space:nowrap}
+.avail i{width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block}
+.check{position:absolute;width:22px;height:22px}
+
+/* ===== A 들림 ===== */
+.pa .cards{position:absolute;top:70px;left:0;right:0;display:flex;gap:12px}
+.pa .card{flex:1;height:146px;background:var(--paper);box-shadow:var(--tex-full);border:1px solid rgba(7,8,39,.05);padding:13px 12px 12px;position:relative;display:flex;flex-direction:column}
+.pa .top{display:flex;justify-content:space-between;align-items:flex-start}
+.pa .tags{margin-top:10px}
+.pa .avail{margin-top:auto}
+.pa .card.on{background:var(--peri);color:var(--paper);border-color:transparent;box-shadow:var(--tex-dark)}
+.pa .card.on .sm{color:rgba(252,252,250,.75)}
+.pa .card.on .avail{color:rgba(252,252,250,.9)}
+.pa .card.on .tag{background:rgba(252,252,250,.16);color:var(--paper)}
+.pa .card.on .pill{background:var(--paper);color:var(--peri)}
+.pa .check{left:50%;bottom:-11px;margin-left:-11px}
+
+/* ===== B 지도 ===== */
+.pb .cards{position:absolute;top:70px;left:0;right:0;display:flex;gap:12px}
+.pb .card{flex:1;height:152px;background:var(--paper);box-shadow:var(--tex-full);border:1px solid rgba(7,8,39,.05);position:relative;display:flex;flex-direction:column;overflow:hidden}
+.pb .thumb{position:relative;height:60px;background:var(--ink)}
+.pb .thumb svg{display:block;width:100%;height:60px}
+.pb .thumb .pill{position:absolute;right:8px;top:7px;background:rgba(252,252,250,.92);color:var(--ink)}
+.pb .body{padding:9px 12px 10px;display:flex;flex-direction:column;flex:1}
+.pb .vn{font-size:16px;line-height:20px}
+.pb .cl{font-size:11px;line-height:15px;color:var(--muted);margin-top:4px}
+.pb .avail{margin-top:auto}
+.pb .card.on{box-shadow:0 0 0 2px var(--signal),var(--tex-full);border-color:transparent}
+
+/* ===== C 목록 ===== */
+.pc .list{position:absolute;top:70px;left:0;right:0;display:flex;flex-direction:column;gap:8px}
+.pc .vrow{height:46px;background:var(--paper);box-shadow:var(--tex-full);border:1px solid rgba(7,8,39,.05);display:flex;align-items:center;padding:0 14px 0 18px;position:relative}
+.pc .vrow .name{width:104px}
+.pc .vrow .tags{flex:1;flex-wrap:nowrap}
+.pc .meta{width:92px;text-align:right}
+.pc .meta .km{font-size:13px;line-height:16px}
+.pc .meta .avail{justify-content:flex-end;margin-top:2px}
+.pc .vrow.on{background:var(--peri);color:var(--paper);border-color:transparent;box-shadow:var(--tex-dark)}
+.pc .vrow.on::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--signal)}
+.pc .vrow.on .sm{color:rgba(252,252,250,.75)}
+.pc .vrow.on .tag{background:rgba(252,252,250,.16);color:var(--paper)}
+.pc .vrow.on .avail{color:rgba(252,252,250,.9)}
+
+/* ===== D 펼침 ===== */
+.pd .main{position:absolute;top:70px;left:0;width:356px;background:var(--paper);box-shadow:var(--tex-full);border:1px solid rgba(7,8,39,.05);border-top:4px solid var(--signal);padding:11px 14px 14px}
+.pd .hd{display:flex;align-items:center;gap:8px}
+.pd .hd .avail{margin-left:auto}
+.pd .rule{height:1px;background:rgba(7,8,39,.10);margin:10px 0 9px}
+.pd .sl{font-size:11px;color:var(--muted);margin-bottom:5px}
+.pd .chips{display:flex;gap:8px}
+.pd .grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 8px}
+.pd .grid .chip{min-width:0}
+.pd .gap{height:11px}
+.pd .side{position:absolute;top:70px;left:372px;right:0;display:flex;flex-direction:column;gap:12px}
+.pd .mini{background:var(--paper);box-shadow:var(--tex-full);border:1px solid rgba(7,8,39,.05);padding:10px 12px}
+.pd .mini .top{display:flex;justify-content:space-between;align-items:center}
+.pd .mini .big{font-size:20px;line-height:24px}
+.pd .mini .cl{font-size:11px;line-height:15px;color:var(--muted);margin:5px 0 6px}
+
+/* ===== E 포스터 ===== */
+.pe .cards{position:absolute;top:70px;left:0;right:0;display:flex;gap:12px}
+.pe .card{flex:1;height:168px;background:var(--ink);color:var(--paper);box-shadow:var(--tex-dark);position:relative;overflow:hidden;padding:11px 12px 11px;display:flex;flex-direction:column}
+.pe .deco{position:absolute;right:0;top:0;width:70px;height:70px}
+.pe .km{font-size:11px;color:rgba(229,230,240,.75);position:relative}
+.pe .area{position:relative;display:flex;align-items:baseline;gap:4px;margin-top:2px}
+.pe .area .big{font-size:40px;line-height:46px;letter-spacing:-.02em}
+.pe .area .sm{font-size:11px;color:rgba(229,230,240,.7)}
+.pe .tags{margin-top:8px}
+.pe .tag{background:transparent;box-shadow:inset 0 0 0 1px rgba(229,230,240,.35);color:var(--lav)}
+.pe .avail{margin-top:auto;color:rgba(229,230,240,.85)}
+.pe .card.on::after{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;background:var(--signal)}
+.pe .check{right:8px;top:8px}
+
+.reco{margin-top:56px;padding:24px 28px;background:var(--ink);color:var(--paper);border-radius:8px;box-shadow:var(--tex-dark)}
+.reco .k{font-size:13px;color:rgba(229,230,240,.75);letter-spacing:.06em}
+.reco h2{font-size:26px;margin-top:4px}
+.reco p{font-size:15px;margin-top:8px;color:rgba(252,252,250,.9)}
+.reco p em{font-style:normal;color:var(--signal)}
+.cur img{display:block;width:853px;height:auto;border-radius:6px;box-shadow:0 0 0 1px rgba(7,8,39,.14)}
+</style>
+</head>
+<body>
+
+<!-- 공유 그림: 왼쪽 일러스트(단순화한 자리 그림)와 선택 체크 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="ill" viewBox="0 0 256 423">
+      <rect width="256" height="423" fill="#FCFCFA"/>
+      <path d="M34 98 L180 90 L212 104 L256 150 V423 H0 V110 Z" fill="#5B60A1"/>
+      <path d="M152 100 L212 104 L256 150 V205 L190 192 Z" fill="#070827"/>
+      <path d="M0 330 C90 300 180 292 256 300 V423 H0 Z" fill="#070827"/>
+      <path d="M0 142 C50 120 110 112 152 128 C192 145 226 176 246 206 C256 222 256 250 250 270 L240 330 C200 346 120 346 60 332 L0 320 Z" fill="#FCFCFA"/>
+      <path d="M12 162 C50 142 100 138 130 152 L160 192 L40 198 L10 192 Z" fill="#070827"/>
+      <path d="M58 252 C120 240 190 246 240 262 L236 300 C170 290 110 290 60 302 Z" fill="#5B60A1" opacity=".55"/>
+      <path d="M0 202 L48 198 C52 208 46 222 38 228 L0 232 Z" fill="#F52D48"/>
+      <circle cx="176" cy="332" r="40" fill="#070827"/>
+      <circle cx="176" cy="332" r="27" fill="#FCFCFA"/>
+      <circle cx="176" cy="332" r="20" fill="#5B60A1"/>
+    </symbol>
+    <symbol id="chk" viewBox="0 0 22 22">
+      <circle cx="11" cy="11" r="11" fill="#F52D48"/>
+      <circle cx="11" cy="11" r="10" fill="none" stroke="#FCFCFA" stroke-width="1.5"/>
+      <path d="M6.4 11.2l3.1 3.1 6.1-6.5" fill="none" stroke="#FCFCFA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="page">
+
+  <header class="head">
+    <h1>제휴 시험장 카드 — 시안 다섯 가지</h1>
+    <p class="lead">서초 · 강남 · 분당 카드를 크고 읽기 쉽게, 그림자로 입체감 있게. 시간·코스는 카드 아래로 밀려나도 괜찮다는 전제로 다시 배치했다.</p>
+    <blockquote class="quote">
+      <span class="who">사용자 피드백 (원문)</span>
+      카드(서초/강남/분당) 색깔도 너무 단조로워서 카드에 그림자 효과로 약간의 입체감과 안에 카드 내용이 너무 가독성 가시성이 떨어지고 크기가 작아 눌려담긴 느낌이 강하여 시간/코스를 아래로 배치하는 한이 있어도 카드를 좀 이쁘고 내용이 잘 담긴 것으로 5가지 정도 샘플로 제안 받아서 리뉴얼 하고 싶어
+    </blockquote>
+    <div class="scale">아래 화면은 모두 실제의 1/3 (853 × 423) — 실제 화면은 약 3배</div>
+    <div class="tokens">
+      <span><i style="background:#070827"></i>Ink</span>
+      <span><i style="background:#FCFCFA"></i>Paper</span>
+      <span><i style="background:#5B60A1"></i>Periwinkle</span>
+      <span><i style="background:#E5E6F0"></i>Lavender</span>
+      <span><i style="background:#F52D48"></i>Signal</span>
+      <span>· 모든 시안이 같은 데이터, 서초 선택 · 14:00–15:00 · 주차 3종 선택 상태</span>
+    </div>
+  </header>
+
+  <!-- ===================== 지금 ===================== -->
+  <section class="block cur">
+    <div>
+      <img src="../../screenshots/lesson/lesson-venue-slots.png" alt="지금의 제휴 시험장 화면 캡처">
+    </div>
+    <div class="notes">
+      <div class="tag-id">지금</div>
+      <h2>평면 Lavender 상자 셋</h2>
+      <p class="one">세 카드가 같은 Lavender 면에 글자 네 줄을 눌러 담았다. 선택은 얇은 Periwinkle 테두리 하나.</p>
+      <h3>보이는 문제</h3>
+      <ul>
+        <li>카드 높이 약 220 dp 안에 이름·거리·코스·자리 네 줄 — 줄 간격이 없어 눌린 느낌</li>
+        <li>지역 이름과 "서초 · 3 km" 가 같은 지역명을 두 번 말한다</li>
+        <li>코스가 한 줄 문장이라 넘치면 잘린다(장내기능 모의시험이 추가되면 더 길어짐)</li>
+        <li>선택 표시가 1~2 px 테두리뿐 — 운전석 거리에서 어느 카드가 골라졌는지 약하다</li>
+        <li>카드 아래 빈 띠(약 400 dp)가 남는데도 카드는 작다</li>
+      </ul>
+      <p class="sel">캡처는 장내기능 모의시험 추가 전. 시안은 서초 코스 넷(주차 3종 · 도로 A · 도로 B · 장내기능 모의시험) 기준.</p>
+    </div>
+  </section>
+
+  <!-- ===================== A ===================== -->
+  <section class="block">
+    <div class="screen pa">
+      <svg class="lp" viewBox="0 0 256 423"><use href="#ill"/></svg>
+      <div class="brand">DRIVE COACH</div>
+      <div class="rc">
+        <div class="eb">제휴 시험장</div>
+        <div class="nt">예시입니다 — 실제 예약 연계 없음</div>
+        <div class="cards">
+          <div class="card on">
+            <div class="top"><div class="name"><span class="big">서초</span><span class="sm">시험장</span></div><span class="pill">3 km</span></div>
+            <div class="tags"><span class="tag">주차 3종</span><span class="tag">도로 A</span><span class="tag">도로 B</span><span class="tag">장내기능 모의시험</span></div>
+            <div class="avail"><i></i>오늘 자리 있음</div>
+            <svg class="check"><use href="#chk"/></svg>
+          </div>
+          <div class="card">
+            <div class="top"><div class="name"><span class="big">강남</span><span class="sm">시험장</span></div><span class="pill">6 km</span></div>
+            <div class="tags"><span class="tag">주차 3종</span><span class="tag">도로 A</span><span class="tag">장내기능 모의시험</span></div>
+            <div class="avail"><i></i>오늘 자리 있음</div>
+          </div>
+          <div class="card">
+            <div class="top"><div class="name"><span class="big">분당</span><span class="sm">시험장</span></div><span class="pill">14 km</span></div>
+            <div class="tags"><span class="tag">주차 3종</span><span class="tag">도로 B</span><span class="tag">장내기능 모의시험</span></div>
+            <div class="avail"><i></i>오늘 자리 있음</div>
+          </div>
+        </div>
+        <div class="crow" style="top:240px"><span class="lbl">시간</span><span class="chip on">14:00–15:00</span><span class="chip off">16:00–17:00</span><span class="chip">18:00–19:00</span></div>
+        <div class="crow" style="top:282px"><span class="lbl">코스</span><span class="chip on">주차 3종</span><span class="chip">도로 A</span><span class="chip">도로 B</span><span class="chip">장내기능 모의시험</span></div>
+        <div class="back">돌아가기</div>
+        <div class="go">예약 <span>→</span></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="tag-id">시안 A</div>
+      <h2>들림 (Lift)</h2>
+      <p class="one">Paper 카드를 그림자로 띄우고, 지역 이름을 제목 크기로 키우고, 거리는 알약·코스는 작은 태그로 나눈다.</p>
+      <h3>장점</h3>
+      <ul>
+        <li>과제 시트의 과제 카드와 같은 선택 문법(Periwinkle 채움 + 빨간 체크) — 앱 안에서 한 가지 규칙</li>
+        <li>정보가 "이름 / 거리 / 코스 / 자리" 네 층으로 갈라져 한눈에 읽힌다</li>
+        <li>코스가 태그라 넘쳐도 줄바꿈될 뿐 잘리지 않는다</li>
+        <li>시간·코스는 "라벨 + 칩" 한 줄씩으로 접어 카드 키운 만큼 아래로 내려도 예약 알약과 겹치지 않는다</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li>구현 쉬움 — 기존 카드에 그림자·태그 행·체크 배지만 추가</li>
+        <li>태그 글자 33 dp 안팎 — 정차 화면이라 괜찮지만 이보다 작게 줄이지 않는다</li>
+        <li>세 카드가 모두 같은 색(Paper)이라 "단조로움" 이 완전히 사라지지는 않는다</li>
+      </ul>
+      <p class="sel"><b>선택 표시</b> · Periwinkle 채움 + 흰 글자 + 아래 가운데 빨간 체크(과제 카드와 같음)</p>
+    </div>
+  </section>
+
+  <!-- ===================== B ===================== -->
+  <section class="block">
+    <div class="screen pb">
+      <svg class="lp" viewBox="0 0 256 423"><use href="#ill"/></svg>
+      <div class="brand">DRIVE COACH</div>
+      <div class="rc">
+        <div class="eb">제휴 시험장</div>
+        <div class="nt">예시입니다 — 실제 예약 연계 없음</div>
+        <div class="cards">
+          <div class="card on">
+            <div class="thumb">
+              <svg viewBox="0 0 176 60" preserveAspectRatio="xMidYMid slice">
+                <rect width="176" height="60" fill="#070827"/>
+                <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="16" y="14" width="100" height="32" rx="16" stroke="#5B60A1" stroke-width="7"/>
+                  <rect x="16" y="14" width="100" height="32" rx="16" stroke="#FCFCFA" stroke-width=".8" stroke-dasharray="3 3" opacity=".55"/>
+                  <path d="M32 46 H100 A16 16 0 0 0 100 14 H60" stroke="#F52D48" stroke-width="2.6"/>
+                  <path d="M130 26 V50 M140 26 V50 M150 26 V50 M160 26 V50" stroke="#E5E6F0" stroke-width="1" opacity=".55"/>
+                </g>
+              </svg>
+              <span class="pill">3 km</span>
+            </div>
+            <div class="body">
+              <div class="vn">서초 시험장</div>
+              <div class="cl">주차 3종 · 도로 A · 도로 B<br>장내기능 모의시험</div>
+              <div class="avail"><i></i>오늘 자리 있음</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="thumb">
+              <svg viewBox="0 0 176 60" preserveAspectRatio="xMidYMid slice">
+                <rect width="176" height="60" fill="#070827"/>
+                <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 44 C18 22 40 14 60 22 C80 30 92 40 112 32 C126 26 130 16 144 16 C156 16 158 30 152 38 C146 46 130 48 112 48 L30 50 C22 50 18 48 18 44 Z" stroke="#5B60A1" stroke-width="7"/>
+                  <path d="M18 44 C18 22 40 14 60 22 C80 30 92 40 112 32 C126 26 130 16 144 16 C156 16 158 30 152 38 C146 46 130 48 112 48 L30 50 C22 50 18 48 18 44 Z" stroke="#FCFCFA" stroke-width=".8" stroke-dasharray="3 3" opacity=".55"/>
+                </g>
+              </svg>
+              <span class="pill">6 km</span>
+            </div>
+            <div class="body">
+              <div class="vn">강남 시험장</div>
+              <div class="cl">주차 3종 · 도로 A<br>장내기능 모의시험</div>
+              <div class="avail"><i></i>오늘 자리 있음</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="thumb">
+              <svg viewBox="0 0 176 60" preserveAspectRatio="xMidYMid slice">
+                <rect width="176" height="60" fill="#070827"/>
+                <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 46 H148 A12 12 0 0 0 148 22 H72 C52 22 44 14 32 14 C20 14 14 24 14 34 Z" stroke="#5B60A1" stroke-width="7"/>
+                  <path d="M14 46 H148 A12 12 0 0 0 148 22 H72 C52 22 44 14 32 14 C20 14 14 24 14 34 Z" stroke="#FCFCFA" stroke-width=".8" stroke-dasharray="3 3" opacity=".55"/>
+                  <path d="M84 4 V14 M94 4 V14 M104 4 V14 M114 4 V14" stroke="#E5E6F0" stroke-width="1" opacity=".55"/>
+                </g>
+              </svg>
+              <span class="pill">14 km</span>
+            </div>
+            <div class="body">
+              <div class="vn">분당 시험장</div>
+              <div class="cl">주차 3종 · 도로 B<br>장내기능 모의시험</div>
+              <div class="avail"><i></i>오늘 자리 있음</div>
+            </div>
+          </div>
+        </div>
+        <div class="crow" style="top:244px"><span class="lbl">시간</span><span class="chip on">14:00–15:00</span><span class="chip off">16:00–17:00</span><span class="chip">18:00–19:00</span></div>
+        <div class="crow" style="top:286px"><span class="lbl">코스</span><span class="chip on">주차 3종</span><span class="chip">도로 A</span><span class="chip">도로 B</span><span class="chip">장내기능 모의시험</span></div>
+        <div class="back">돌아가기</div>
+        <div class="go">예약 <span>→</span></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="tag-id">시안 B</div>
+      <h2>지도 (Track)</h2>
+      <p class="one">카드 위쪽에 Ink 미니 트랙 지도를 얹고, 아래 Paper 에 이름·코스·자리를 적는다. 거리는 지도 위 알약.</p>
+      <h3>장점</h3>
+      <ul>
+        <li>세 시험장이 그림으로 서로 달라 보인다 — 단조로움 해소가 가장 크다</li>
+        <li>Ink 띠가 왼쪽 Ink 패널과 이어져 "기하학 포스터" 와 잘 맞는다</li>
+        <li>선택하면 지도 위 경로가 빨갛게 — "이 코스를 탄다" 는 의미가 읽힌다</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li>구현 중간 — 시험장마다 지도 모양 데이터(또는 Canvas 경로) 필요. 지금 있는 코스 지도 데이터를 줄여 쓰면 된다</li>
+        <li>지도 썸네일은 정확한 축척이 아니라 "모양 표시" 임을 지켜야 한다(가짜 정밀도 금지)</li>
+        <li>코스 목록이 두 줄 회색 글씨 — 태그(A)보다 한 단계 약하다</li>
+      </ul>
+      <p class="sel"><b>선택 표시</b> · 빨간 테두리 2 px(실제 6 dp) + 지도 경로가 Signal 로 바뀜</p>
+    </div>
+  </section>
+
+  <!-- ===================== C ===================== -->
+  <section class="block">
+    <div class="screen pc">
+      <svg class="lp" viewBox="0 0 256 423"><use href="#ill"/></svg>
+      <div class="brand">DRIVE COACH</div>
+      <div class="rc">
+        <div class="eb">제휴 시험장</div>
+        <div class="nt">예시입니다 — 실제 예약 연계 없음</div>
+        <div class="list">
+          <div class="vrow on">
+            <div class="name"><span class="big">서초</span><span class="sm">시험장</span></div>
+            <div class="tags"><span class="tag">주차 3종</span><span class="tag">도로 A</span><span class="tag">도로 B</span><span class="tag">장내기능 모의시험</span></div>
+            <div class="meta"><div class="km">3 km</div><div class="avail"><i></i>오늘 자리 있음</div></div>
+          </div>
+          <div class="vrow">
+            <div class="name"><span class="big">강남</span><span class="sm">시험장</span></div>
+            <div class="tags"><span class="tag">주차 3종</span><span class="tag">도로 A</span><span class="tag">장내기능 모의시험</span></div>
+            <div class="meta"><div class="km">6 km</div><div class="avail"><i></i>오늘 자리 있음</div></div>
+          </div>
+          <div class="vrow">
+            <div class="name"><span class="big">분당</span><span class="sm">시험장</span></div>
+            <div class="tags"><span class="tag">주차 3종</span><span class="tag">도로 B</span><span class="tag">장내기능 모의시험</span></div>
+            <div class="meta"><div class="km">14 km</div><div class="avail"><i></i>오늘 자리 있음</div></div>
+          </div>
+        </div>
+        <div class="crow" style="top:246px"><span class="lbl">시간</span><span class="chip on">14:00–15:00</span><span class="chip off">16:00–17:00</span><span class="chip">18:00–19:00</span></div>
+        <div class="crow" style="top:288px"><span class="lbl">코스</span><span class="chip on">주차 3종</span><span class="chip">도로 A</span><span class="chip">도로 B</span><span class="chip">장내기능 모의시험</span></div>
+        <div class="back">돌아가기</div>
+        <div class="go">예약 <span>→</span></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="tag-id">시안 C</div>
+      <h2>목록 (Rows)</h2>
+      <p class="one">시험장 하나 = 가로 한 줄. 왼쪽 이름, 가운데 코스 태그, 오른쪽 거리·자리. 가까운 순으로 위에서 아래.</p>
+      <h3>장점</h3>
+      <ul>
+        <li>가로 폭을 다 쓰니 코스 태그 넷이 한 줄에 다 들어간다 — 잘림·줄바꿈 없음</li>
+        <li>거리가 오른쪽 끝에 세로로 정렬돼 "어디가 가까운가" 비교가 가장 쉽다</li>
+        <li>시험장이 늘어나도(넷·다섯) 같은 틀로 늘어난다</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li>구현 쉬움 — Row 세 개</li>
+        <li>줄 높이 약 140 dp — 터치는 충분하지만 "카드" 의 존재감은 A·B·E 보다 약하다</li>
+        <li>설정 화면 같은 표 느낌이 나서 포스터 콘셉트와는 거리가 조금 있다</li>
+      </ul>
+      <p class="sel"><b>선택 표시</b> · 줄 전체 Periwinkle 채움 + 왼쪽 끝 빨간 세로 띠</p>
+    </div>
+  </section>
+
+  <!-- ===================== D ===================== -->
+  <section class="block">
+    <div class="screen pd">
+      <svg class="lp" viewBox="0 0 256 423"><use href="#ill"/></svg>
+      <div class="brand">DRIVE COACH</div>
+      <div class="rc">
+        <div class="eb">제휴 시험장</div>
+        <div class="nt">예시입니다 — 실제 예약 연계 없음</div>
+        <div class="main">
+          <div class="hd">
+            <div class="name"><span class="big">서초</span><span class="sm">시험장</span></div>
+            <span class="pill">3 km</span>
+            <div class="avail"><i></i>오늘 자리 있음</div>
+          </div>
+          <div class="rule"></div>
+          <div class="sl">시간</div>
+          <div class="chips"><span class="chip on">14:00–15:00</span><span class="chip off">16:00–17:00</span><span class="chip">18:00–19:00</span></div>
+          <div class="gap"></div>
+          <div class="sl">코스</div>
+          <div class="grid"><span class="chip on">주차 3종</span><span class="chip">도로 A</span><span class="chip">도로 B</span><span class="chip">장내기능 모의시험</span></div>
+        </div>
+        <div class="side">
+          <div class="mini">
+            <div class="top"><div class="name"><span class="big">강남</span><span class="sm">시험장</span></div><span class="pill">6 km</span></div>
+            <div class="cl">주차 3종 · 도로 A<br>장내기능 모의시험</div>
+            <div class="avail"><i></i>오늘 자리 있음</div>
+          </div>
+          <div class="mini">
+            <div class="top"><div class="name"><span class="big">분당</span><span class="sm">시험장</span></div><span class="pill">14 km</span></div>
+            <div class="cl">주차 3종 · 도로 B<br>장내기능 모의시험</div>
+            <div class="avail"><i></i>오늘 자리 있음</div>
+          </div>
+        </div>
+        <div class="back">돌아가기</div>
+        <div class="go">예약 <span>→</span></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="tag-id">시안 D</div>
+      <h2>펼침 (Expand)</h2>
+      <p class="one">고른 시험장 카드가 넓게 펼쳐져 그 안에 시간·코스를 담는다. 나머지 둘은 오른쪽에 작게 쌓인다.</p>
+      <h3>장점</h3>
+      <ul>
+        <li>"이 시험장의 시간·코스" 라는 소속이 그림으로 분명 — 코스 목록과 코스 칩이 중복되지 않는다</li>
+        <li>펼친 카드가 화면의 주인공이라 크기·여백이 가장 넉넉하다</li>
+        <li>시간·코스가 별도 줄로 떠다니지 않아 아래 빈 띠가 없어진다</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li>구현 어려움 — 선택이 바뀔 때 카드 크기·위치가 바뀌는 전환 애니메이션, 아무것도 안 고른 첫 상태 디자인(세 카드 같은 크기)이 따로 필요</li>
+        <li>카드를 바꿀 때 시간·코스 선택이 초기화되는 규칙을 정해야 한다</li>
+        <li>계측(androidTest)이 찾는 시간·코스 노드 위치가 바뀐다 — Codex 테스트 수정 동반</li>
+      </ul>
+      <p class="sel"><b>선택 표시</b> · 카드 자체가 넓어짐 + 위쪽 빨간 띠. 작은 카드는 "고르지 않은 것"</p>
+    </div>
+  </section>
+
+  <!-- ===================== E ===================== -->
+  <section class="block">
+    <div class="screen pe">
+      <svg class="lp" viewBox="0 0 256 423"><use href="#ill"/></svg>
+      <div class="brand">DRIVE COACH</div>
+      <div class="rc">
+        <div class="eb">제휴 시험장</div>
+        <div class="nt">예시입니다 — 실제 예약 연계 없음</div>
+        <div class="cards">
+          <div class="card on">
+            <svg class="deco" viewBox="0 0 70 70"><path d="M70 0 H14 A56 56 0 0 0 70 56 Z" fill="#F52D48"/></svg>
+            <div class="km">3 km</div>
+            <div class="area"><span class="big">서초</span><span class="sm">시험장</span></div>
+            <div class="tags"><span class="tag">주차 3종</span><span class="tag">도로 A</span><span class="tag">도로 B</span><span class="tag">장내기능 모의시험</span></div>
+            <div class="avail"><i></i>오늘 자리 있음</div>
+          </div>
+          <div class="card">
+            <svg class="deco" viewBox="0 0 70 70"><path d="M70 0 H22 L70 48 Z" fill="#5B60A1"/></svg>
+            <div class="km">6 km</div>
+            <div class="area"><span class="big">강남</span><span class="sm">시험장</span></div>
+            <div class="tags"><span class="tag">주차 3종</span><span class="tag">도로 A</span><span class="tag">장내기능 모의시험</span></div>
+            <div class="avail"><i></i>오늘 자리 있음</div>
+          </div>
+          <div class="card">
+            <svg class="deco" viewBox="0 0 70 70"><rect x="36" y="0" width="34" height="34" fill="#5B60A1"/><rect x="22" y="34" width="14" height="14" fill="#5B60A1" opacity=".55"/></svg>
+            <div class="km">14 km</div>
+            <div class="area"><span class="big">분당</span><span class="sm">시험장</span></div>
+            <div class="tags"><span class="tag">주차 3종</span><span class="tag">도로 B</span><span class="tag">장내기능 모의시험</span></div>
+            <div class="avail"><i></i>오늘 자리 있음</div>
+          </div>
+        </div>
+        <div class="crow" style="top:258px"><span class="lbl">시간</span><span class="chip on">14:00–15:00</span><span class="chip off">16:00–17:00</span><span class="chip">18:00–19:00</span></div>
+        <div class="crow" style="top:300px"><span class="lbl">코스</span><span class="chip on">주차 3종</span><span class="chip">도로 A</span><span class="chip">도로 B</span><span class="chip">장내기능 모의시험</span></div>
+        <div class="back">돌아가기</div>
+        <div class="go">예약 <span>→</span></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="tag-id">시안 E</div>
+      <h2>포스터 (Poster)</h2>
+      <p class="one">Ink 카드에 지역 이름을 아주 크게(약 120 dp), 모서리에 시험장마다 다른 기하 도형. 왼쪽 Ink 패널과 한 벌.</p>
+      <h3>장점</h3>
+      <ul>
+        <li>가장 "포스터" 답다 — 왼쪽 일러스트와 같은 Ink 면이라 화면 전체가 하나의 구도</li>
+        <li>지역 이름이 커서 운전석에서도 "서초" 가 바로 읽힌다</li>
+        <li>도형(원·삼각·사각)이 시험장을 구분하는 기억 단서가 된다</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li>구현 쉬움~중간 — 도형은 Canvas 한두 줄. 어두운 면 위 Lavender 글씨 대비는 지켜야 한다(투명도 .7 아래로 내리지 않기)</li>
+        <li>Ink 면이 셋 늘어 화면이 무거워진다 — 아래 칩(Lavender)과 무게 차이가 크다</li>
+        <li>Ink 카드는 화면 다른 곳에 없는 형식이라 잠금 화면 Ink 와 혼동되지 않게 그림자를 꼭 유지</li>
+      </ul>
+      <p class="sel"><b>선택 표시</b> · 모서리 도형이 Signal 로 바뀜 + 아래 빨간 띠. 고르지 않은 카드는 Periwinkle 도형</p>
+    </div>
+  </section>
+
+  <section class="reco">
+    <div class="k">추천</div>
+    <h2>시안 A · 들림 — 여유가 있으면 B 의 미니 지도를 A 카드 위에 얹기</h2>
+    <p>과제 카드와 같은 선택 문법(Periwinkle 채움 + 빨간 체크)이라 앱 전체 규칙이 하나로 맞고, 구현이 가장 가벼우면서 "크게 · 층을 나눠 · 그림자" 세 요구를 다 채운다. 단조로움을 더 덜고 싶으면 <em>B 의 지도 띠</em>만 더하면 된다.</p>
+  </section>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>코스 지도 차 크기</title>
+<style>
+  :root{
+    --ink:#070827; --paper:#FCFCFA; --peri:#5B60A1; --lav:#E5E6F0; --signal:#F52D48;
+    --muted:rgba(7,8,39,.60);
+    --tex:0 4px 10px rgba(7,8,39,.10),0 1px 2px rgba(7,8,39,.06),inset 0 1px 0 rgba(255,255,255,.9);
+    --font:"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);font-weight:400}
+  .page{max-width:1600px;margin:0 auto;padding:40px 24px 80px}
+  h1{font-size:34px;font-weight:500;margin:0 0 8px}
+  .lead{font-size:16px;color:var(--muted);margin:0 0 18px;max-width:1100px;line-height:1.6}
+  blockquote{margin:0 0 14px;padding:14px 18px;background:var(--lav);border-left:4px solid var(--peri);font-size:15px;line-height:1.7;max-width:1100px}
+  .scale-note{display:inline-block;font-size:13px;color:var(--peri);border:1px solid var(--peri);border-radius:999px;padding:4px 12px;margin-bottom:28px}
+  .eyebrow{font-size:12px;letter-spacing:.14em;color:var(--peri);margin:0 0 8px}
+  section{margin:0 0 44px}
+  .now{display:flex;gap:24px;flex-wrap:wrap}
+  .now figure{margin:0}
+  .now img{width:667px;display:block;box-shadow:var(--tex);border-radius:4px}
+  figcaption{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.5}
+  .row{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .cell{background:var(--paper);border-radius:14px;box-shadow:var(--tex);overflow:hidden}
+  .map{display:block;width:100%;height:auto;background:var(--ink)}
+  .body{padding:18px 22px 22px}
+  .body h3{font-size:24px;font-weight:500;margin:0 0 4px}
+  .body h3 .tag{font-size:13px;color:var(--peri);margin-left:8px;letter-spacing:.06em}
+  .body .one{font-size:15px;margin:0 0 10px;line-height:1.55}
+  .dims{display:grid;grid-template-columns:auto 1fr;gap:2px 14px;font-size:13px;margin:0 0 6px;padding:10px 12px;background:var(--lav);border-radius:8px}
+  .dims dt{color:var(--muted)} .dims dd{margin:0}
+  .body h4{font-size:13px;font-weight:500;color:var(--peri);margin:12px 0 4px;letter-spacing:.06em}
+  .body ul{margin:0;padding-left:18px;font-size:14px;line-height:1.7}
+  .zoomnote{font-size:13px;color:var(--muted);margin:10px 0 0}
+  .rec{background:var(--ink);color:var(--paper);border-radius:14px;padding:26px 30px;box-shadow:0 4px 10px rgba(7,8,39,.10),0 1px 2px rgba(7,8,39,.06)}
+  .rec .eyebrow{color:var(--lav)}
+  .rec p{font-size:18px;margin:0;line-height:1.6}
+  .rec .sub{font-size:14px;color:rgba(252,252,250,.75);margin-top:10px}
+  code{font-family:Consolas,monospace;font-size:.92em;background:rgba(229,230,240,.18);padding:1px 5px;border-radius:4px}
+  .cell code{background:var(--lav)}
+</style>
+</head>
+<body>
+<div class="page">
+  <p class="eyebrow">라운드 21 시안 · 8</p>
+  <h1>코스 지도 — 차 크기</h1>
+  <p class="lead">장내기능 모의시험 코스 지도(주행 화면 왼쪽 Ink 패널)의 차를 실제 축척(길이 4.5 m)에서 1.6배·2.2배로 키웠을 때를 같은 지도에 그려 본다. 차는 같은 회차 궤적에서 뽑은 두 자세 — 동쪽 직선을 남쪽으로 내려가는 중(가속 구간), 직각 주차 칸으로 후진해 들어가는 중 — 에 놓았다. 실제 화면에는 차가 하나만 그려진다.</p>
+  <blockquote>"자동차 크기가 살짝 작아 운전자 입장에서 잘 안 보일 수도 있을 거 같아 크기는 2개 정도 제시를 받아서 진행하고 싶은데"</blockquote>
+  <span class="scale-note">지도 칸은 실제 주행 화면 지도의 약 0.38배(1/3 축소보다 조금 큼) · 실제 화면은 약 2.7배</span>
+
+  <section>
+    <p class="eyebrow">지금</p>
+    <div class="now">
+      <figure>
+        <img src="../../screenshots/lesson/lesson-drive-exam.png" alt="지금 코스 주행 화면 — 가속 구간">
+        <figcaption>지금 · 가속 구간. 차(실제 축척 4.5 m)가 도로 폭 안에서 작은 점처럼 보인다.</figcaption>
+      </figure>
+      <figure>
+        <img src="../../screenshots/lesson/lesson-drive-exam-parking.png" alt="지금 코스 주행 화면 — 직각 주차 구간">
+        <figcaption>지금 · 직각 주차 구간. 칸 폭(2.6 m)과 차 폭(1.9 m)이 실제 비율이라 칸 안에 깔끔히 들어간다.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">같은 지도 · 세 크기</p>
+    <div class="row">
+      <div class="cell">
+        <svg class="map" data-k="1" data-view="full" viewBox="-2.5 -2.5 105 85"><rect x="-20" y="-20" width="160" height="130" fill="#070827"></rect><rect x="88" y="26" width="8" height="22" fill="rgba(91,96,161,.25)"></rect><rect x="5" y="70" width="10" height="10" fill="rgba(91,96,161,.07)"></rect><rect x="5" y="40" width="10" height="16" fill="rgba(91,96,161,.07)"></rect><rect x="4" y="8" width="20" height="17" fill="rgba(91,96,161,.07)"></rect><rect x="28" y="3" width="26" height="16" fill="rgba(91,96,161,.07)"></rect><rect x="63.5" y="11.5" width="5" height="5" fill="rgba(91,96,161,.07)"></rect><path d="M10 80 L10 20 A6 6 0 0 1 16 14 L86 14 A6 6 0 0 1 92 20 L92 54 A6 6 0 0 1 86 60 L36 60 A6 6 0 0 0 30 66 L30 75" fill="none" stroke="rgba(252,252,250,0.28)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M66 24 L66 2" fill="none" stroke="rgba(252,252,250,0.28)" stroke-width="5" stroke-linecap="round"></path><rect x="7.5" y="40" width="5" height="16" fill="rgba(91,96,161,.35)"></rect><polyline points="9,47 10,46 11,47" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23" stroke-linecap="round" stroke-linejoin="round"></polyline><polyline points="9,49 10,48 11,49" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23" stroke-linecap="round" stroke-linejoin="round"></polyline><polyline points="9,51 10,50 11,51" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23" stroke-linecap="round" stroke-linejoin="round"></polyline><line x1="54.5" y1="61.875" x2="57.5" y2="61.875" stroke="rgba(252,252,250,0.7)" stroke-width=".625"></line><line x1="54.5" y1="60.625" x2="57.5" y2="60.625" stroke="rgba(252,252,250,0.7)" stroke-width=".625"></line><line x1="54.5" y1="59.375" x2="57.5" y2="59.375" stroke="rgba(252,252,250,0.7)" stroke-width=".625"></line><line x1="54.5" y1="58.125" x2="57.5" y2="58.125" stroke="rgba(252,252,250,0.7)" stroke-width=".625"></line><line x1="63" y1="16.5" x2="63" y2="11.5" stroke="rgba(252,252,250,1)" stroke-width=".35"></line><circle cx="62" cy="19" r="1.15" fill="#070827"></circle><circle cx="62" cy="19" r=".77" fill="#5B60A1"></circle>
+          <circle cx="62" cy="19" r="1.15" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".154"></circle><path d="M32.95 11.5 L32.95 6 L35.55 6 L35.55 11.5" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23"></path><path d="M35.95 11.5 L35.95 6 L38.55 6 L38.55 11.5" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23"></path><path d="M38.95 11.5 L38.95 6 L41.55 6 L41.55 11.5" fill="none" stroke="#5B60A1" stroke-width=".23"></path><path d="M41.95 11.5 L41.95 6 L44.55 6 L44.55 11.5" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23"></path><path d="M44.95 11.5 L44.95 6 L47.55 6 L47.55 11.5" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23"></path><path d="M10 76 L10 20 A6 6 0 0 1 16 14 L46.75 14 L45.75 14 Q40.3 14.2 40.25 9 Q40.3 14.2 45.75 14 L86 14 A6 6 0 0 1 92 20 L92 54 A6 6 0 0 1 86 60 L36 60 A6 6 0 0 0 30 66 L30 75" fill="none" stroke="rgba(252,252,250,0.22)" stroke-width=".154" stroke-dasharray="2 2" stroke-linecap="round"></path><text x="17" y="75" font-size="2" fill="rgba(252,252,250,1)" text-anchor="middle" dominant-baseline="central" font-family="&quot;Noto Sans KR&quot;,&quot;Malgun Gothic&quot;,sans-serif">출발</text><text x="17" y="48" font-size="2" fill="rgba(252,252,250,1)" text-anchor="middle" dominant-baseline="central" font-family="&quot;Noto Sans KR&quot;,&quot;Malgun Gothic&quot;,sans-serif">경사로</text><text x="40.25" y="3" font-size="2" fill="rgba(252,252,250,1)" text-anchor="middle" dominant-baseline="central" font-family="&quot;Noto Sans KR&quot;,&quot;Malgun Gothic&quot;,sans-serif">직각 주차</text><text x="72" y="8" font-size="2" fill="rgba(252,252,250,1)" text-anchor="middle" dominant-baseline="central" font-family="&quot;Noto Sans KR&quot;,&quot;Malgun Gothic&quot;,sans-serif">신호</text><text x="84" y="37" font-size="2" fill="rgba(252,252,250,1)" text-anchor="middle" dominant-baseline="central" font-family="&quot;Noto Sans KR&quot;,&quot;Malgun Gothic&quot;,sans-serif">가속</text><text x="60" y="68" font-size="2" fill="rgba(252,252,250,1)" text-anchor="middle" dominant-baseline="central" font-family="&quot;Noto Sans KR&quot;,&quot;Malgun Gothic&quot;,sans-serif">돌발</text><text x="38" y="75" font-size="2" fill="rgba(252,252,250,1)" text-anchor="middle" dominant-baseline="central" font-family="&quot;Noto Sans KR&quot;,&quot;Malgun Gothic&quot;,sans-serif">종료</text><g transform="translate(92 35.85) rotate(-180) scale(1.046 0.978)">
+      <path d="M-0.93 -0.98 L-1.2 -0.9 L-1.2 -0.72 L-0.93 -0.74 Z M0.93 -0.98 L1.2 -0.9 L1.2 -0.72 L0.93 -0.74 Z" fill="rgba(252,252,250,1)"></path>
+      <path d="M-0.8 -2.3 Q0 -2.45 0.8 -2.3 Q0.93 -2.2 0.93 -1.7 L0.93 1.9 Q0.93 2.3 0.6 2.3 L-0.6 2.3 Q-0.93 2.3 -0.93 1.9 L-0.93 -1.7 Q-0.93 -2.2 -0.8 -2.3 Z" fill="rgba(252,252,250,1)" stroke="#070827" stroke-width=".06"></path>
+      <rect x="-0.64" y="-0.35" width="1.28" height="1.3" fill="#E5E6F0"></rect>
+      <path d="M-0.76 -1.05 Q0 -1.3 0.76 -1.05 L0.64 -0.35 L-0.64 -0.35 Z" fill="#070827"></path>
+      <path d="M-0.64 0.95 L0.64 0.95 L0.74 1.55 Q0 1.68 -0.74 1.55 Z" fill="#070827"></path>
+      <rect x="-0.74" y="-2.27" width="0.38" height="0.13" rx=".05" fill="#5B60A1"></rect>
+      <rect x="0.36" y="-2.27" width="0.38" height="0.13" rx=".05" fill="#5B60A1"></rect></g><g transform="translate(41.28 11.870000000000005) rotate(143.54) scale(1.046 0.978)">
+      <path d="M-0.93 -0.98 L-1.2 -0.9 L-1.2 -0.72 L-0.93 -0.74 Z M0.93 -0.98 L1.2 -0.9 L1.2 -0.72 L0.93 -0.74 Z" fill="rgba(252,252,250,1)"></path>
+      <path d="M-0.8 -2.3 Q0 -2.45 0.8 -2.3 Q0.93 -2.2 0.93 -1.7 L0.93 1.9 Q0.93 2.3 0.6 2.3 L-0.6 2.3 Q-0.93 2.3 -0.93 1.9 L-0.93 -1.7 Q-0.93 -2.2 -0.8 -2.3 Z" fill="rgba(252,252,250,1)" stroke="#070827" stroke-width=".06"></path>
+      <rect x="-0.64" y="-0.35" width="1.28" height="1.3" fill="#E5E6F0"></rect>
+      <path d="M-0.76 -1.05 Q0 -1.3 0.76 -1.05 L0.64 -0.35 L-0.64 -0.35 Z" fill="#070827"></path>
+      <path d="M-0.64 0.95 L0.64 0.95 L0.74 1.55 Q0 1.68 -0.74 1.55 Z" fill="#070827"></path>
+      <rect x="-0.74" y="-2.27" width="0.38" height="0.13" rx=".05" fill="#5B60A1"></rect>
+      <rect x="0.36" y="-2.27" width="0.38" height="0.13" rx=".05" fill="#5B60A1"></rect></g></svg>
+        <div class="body">
+          <h3>지금 <span class="tag">×1.0</span></h3>
+          <p class="one">실제 축척 그대로. 지도·칸과의 비례는 정확하다.</p>
+          <dl class="dims" data-dims="1">
+      <dt>지도 위 차</dt><dd>길이 4.5 m · 폭 1.9 m 상당</dd>
+      <dt>실제 화면</dt><dd>약 59 × 25 dp</dd>
+      <dt>도로 폭 대비</dt><dd>39% (도로 5 m)</dd>
+      <dt>주차 칸 대비</dt><dd>폭 74% · 길이 82%</dd></dl>
+          <h4>장점</h4>
+          <ul><li>칸·도로와 겹침 없음 — 주차 칸 안에 정확히 들어간다.</li></ul>
+          <h4>주의점</h4>
+          <ul><li>운전석에서 흘끗 볼 때 위치를 찾기 어렵다(사용자 피드백).</li></ul>
+        </div>
+      </div>
+      <div class="cell">
+        <svg class="map" data-k="1.6" data-view="full" viewBox="-2.5 -2.5 105 85"><rect x="-20" y="-20" width="160" height="130" fill="#070827"></rect><rect x="88" y="26" width="8" height="22" fill="rgba(91,96,161,.25)"></rect><rect x="5" y="70" width="10" height="10" fill="rgba(91,96,161,.07)"></rect><rect x="5" y="40" width="10" height="16" fill="rgba(91,96,161,.07)"></rect><rect x="4" y="8" width="20" height="17" fill="rgba(91,96,161,.07)"></rect><rect x="28" y="3" width="26" height="16" fill="rgba(91,96,161,.07)"></rect><rect x="63.5" y="11.5" width="5" height="5" fill="rgba(91,96,161,.07)"></rect><path d="M10 80 L10 20 A6 6 0 0 1 16 14 L86 14 A6 6 0 0 1 92 20 L92 54 A6 6 0 0 1 86 60 L36 60 A6 6 0 0 0 30 66 L30 75" fill="none" stroke="rgba(252,252,250,0.28)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M66 24 L66 2" fill="none" stroke="rgba(252,252,250,0.28)" stroke-width="5" stroke-linecap="round"></path><rect x="7.5" y="40" width="5" height="16" fill="rgba(91,96,161,.35)"></rect><polyline points="9,47 10,46 11,47" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23" stroke-linecap="round" stroke-linejoin="round"></polyline><polyline points="9,49 10,48 11,49" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23" stroke-linecap="round" stroke-linejoin="round"></polyline><polyline points="9,51 10,50 11,51" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23" stroke-linecap="round" stroke-linejoin="round"></polyline><line x1="54.5" y1="61.875" x2="57.5" y2="61.875" stroke="rgba(252,252,250,0.7)" stroke-width=".625"></line><line x1="54.5" y1="60.625" x2="57.5" y2="60.625" stroke="rgba(252,252,250,0.7)" stroke-width=".625"></line><line x1="54.5" y1="59.375" x2="57.5" y2="59.375" stroke="rgba(252,252,250,0.7)" stroke-width=".625"></line><line x1="54.5" y1="58.125" x2="57.5" y2="58.125" stroke="rgba(252,252,250,0.7)" stroke-width=".625"></line><line x1="63" y1="16.5" x2="63" y2="11.5" stroke="rgba(252,252,250,1)" stroke-width=".35"></line><circle cx="62" cy="19" r="1.15" fill="#070827"></circle><circle cx="62" cy="19" r=".77" fill="#5B60A1"></circle>
+          <circle cx="62" cy="19" r="1.15" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".154"></circle><path d="M32.95 11.5 L32.95 6 L35.55 6 L35.55 11.5" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23"></path><path d="M35.95 11.5 L35.95 6 L38.55 6 L38.55 11.5" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23"></path><path d="M38.95 11.5 L38.95 6 L41.55 6 L41.55 11.5" fill="none" stroke="#5B60A1" stroke-width=".23"></path><path d="M41.95 11.5 L41.95 6 L44.55 6 L44.55 11.5" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23"></path><path d="M44.95 11.5 L44.95 6 L47.55 6 L47.55 11.5" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23"></path><path d="M10 76 L10 20 A6 6 0 0 1 16 14 L46.75 14 L45.75 14 Q40.3 14.2 40.25 9 Q40.3 14.2 45.75 14 L86 14 A6 6 0 0 1 92 20 L92 54 A6 6 0 0 1 86 60 L36 60 A6 6 0 0 0 30 66 L30 75" fill="none" stroke="rgba(252,252,250,0.22)" stroke-width=".154" stroke-dasharray="2 2" stroke-linecap="round"></path><text x="17" y="75" font-size="2" fill="rgba(252,252,250,1)" text-anchor="middle" dominant-baseline="central" font-family="&quot;Noto Sans KR&quot;,&quot;Malgun Gothic&quot;,sans-serif">출발</text><text x="17" y="48" font-size="2" fill="rgba(252,252,250,1)" text-anchor="middle" dominant-baseline="central" font-family="&quot;Noto Sans KR&quot;,&quot;Malgun Gothic&quot;,sans-serif">경사로</text><text x="40.25" y="3" font-size="2" fill="rgba(252,252,250,1)" text-anchor="middle" dominant-baseline="central" font-family="&quot;Noto Sans KR&quot;,&quot;Malgun Gothic&quot;,sans-serif">직각 주차</text><text x="72" y="8" font-size="2" fill="rgba(252,252,250,1)" text-anchor="middle" dominant-baseline="central" font-family="&quot;Noto Sans KR&quot;,&quot;Malgun Gothic&quot;,sans-serif">신호</text><text x="84" y="37" font-size="2" fill="rgba(252,252,250,1)" text-anchor="middle" dominant-baseline="central" font-family="&quot;Noto Sans KR&quot;,&quot;Malgun Gothic&quot;,sans-serif">가속</text><text x="60" y="68" font-size="2" fill="rgba(252,252,250,1)" text-anchor="middle" dominant-baseline="central" font-family="&quot;Noto Sans KR&quot;,&quot;Malgun Gothic&quot;,sans-serif">돌발</text><text x="38" y="75" font-size="2" fill="rgba(252,252,250,1)" text-anchor="middle" dominant-baseline="central" font-family="&quot;Noto Sans KR&quot;,&quot;Malgun Gothic&quot;,sans-serif">종료</text><g transform="translate(92 35.85) rotate(-180) scale(1.674 1.565)">
+      <path d="M-0.93 -0.98 L-1.2 -0.9 L-1.2 -0.72 L-0.93 -0.74 Z M0.93 -0.98 L1.2 -0.9 L1.2 -0.72 L0.93 -0.74 Z" fill="rgba(252,252,250,1)"></path>
+      <path d="M-0.8 -2.3 Q0 -2.45 0.8 -2.3 Q0.93 -2.2 0.93 -1.7 L0.93 1.9 Q0.93 2.3 0.6 2.3 L-0.6 2.3 Q-0.93 2.3 -0.93 1.9 L-0.93 -1.7 Q-0.93 -2.2 -0.8 -2.3 Z" fill="rgba(252,252,250,1)" stroke="#070827" stroke-width=".06"></path>
+      <rect x="-0.64" y="-0.35" width="1.28" height="1.3" fill="#E5E6F0"></rect>
+      <path d="M-0.76 -1.05 Q0 -1.3 0.76 -1.05 L0.64 -0.35 L-0.64 -0.35 Z" fill="#070827"></path>
+      <path d="M-0.64 0.95 L0.64 0.95 L0.74 1.55 Q0 1.68 -0.74 1.55 Z" fill="#070827"></path>
+      <rect x="-0.74" y="-2.27" width="0.38" height="0.13" rx=".05" fill="#5B60A1"></rect>
+      <rect x="0.36" y="-2.27" width="0.38" height="0.13" rx=".05" fill="#5B60A1"></rect></g><g transform="translate(41.28 11.870000000000005) rotate(143.54) scale(1.674 1.565)">
+      <path d="M-0.93 -0.98 L-1.2 -0.9 L-1.2 -0.72 L-0.93 -0.74 Z M0.93 -0.98 L1.2 -0.9 L1.2 -0.72 L0.93 -0.74 Z" fill="rgba(252,252,250,1)"></path>
+      <path d="M-0.8 -2.3 Q0 -2.45 0.8 -2.3 Q0.93 -2.2 0.93 -1.7 L0.93 1.9 Q0.93 2.3 0.6 2.3 L-0.6 2.3 Q-0.93 2.3 -0.93 1.9 L-0.93 -1.7 Q-0.93 -2.2 -0.8 -2.3 Z" fill="rgba(252,252,250,1)" stroke="#070827" stroke-width=".06"></path>
+      <rect x="-0.64" y="-0.35" width="1.28" height="1.3" fill="#E5E6F0"></rect>
+      <path d="M-0.76 -1.05 Q0 -1.3 0.76 -1.05 L0.64 -0.35 L-0.64 -0.35 Z" fill="#070827"></path>
+      <path d="M-0.64 0.95 L0.64 0.95 L0.74 1.55 Q0 1.68 -0.74 1.55 Z" fill="#070827"></path>
+      <rect x="-0.74" y="-2.27" width="0.38" height="0.13" rx=".05" fill="#5B60A1"></rect>
+      <rect x="0.36" y="-2.27" width="0.38" height="0.13" rx=".05" fill="#5B60A1"></rect></g></svg>
+        <div class="body">
+          <h3>A · 또렷하게 <span class="tag">×1.6</span></h3>
+          <p class="one">면적 약 2.6배. 도로 폭 안에 머물면서 한눈에 찾힌다.</p>
+          <dl class="dims" data-dims="1.6">
+      <dt>지도 위 차</dt><dd>길이 7.2 m · 폭 3.1 m 상당</dd>
+      <dt>실제 화면</dt><dd>약 94 × 40 dp</dd>
+      <dt>도로 폭 대비</dt><dd>62% (도로 5 m)</dd>
+      <dt>주차 칸 대비</dt><dd>폭 119% · 길이 131%</dd></dl>
+          <h4>장점</h4>
+          <ul>
+            <li>직선·곡선 도로에서 차가 도로 폭 안에 머문다(도로 폭의 약 60%).</li>
+            <li>가운데 점선(경로)이 차 양옆으로 계속 보여 진행 방향이 읽힌다.</li>
+          </ul>
+          <h4>주의점</h4>
+          <ul>
+            <li>주차 칸 안에서는 차가 칸 줄을 살짝 덮고(폭 3.1 m &gt; 칸 2.6 m), 뒤쪽이 칸 밖으로 나온다.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="cell">
+        <svg class="map" data-k="2.2" data-view="full" viewBox="-2.5 -2.5 105 85"><rect x="-20" y="-20" width="160" height="130" fill="#070827"></rect><rect x="88" y="26" width="8" height="22" fill="rgba(91,96,161,.25)"></rect><rect x="5" y="70" width="10" height="10" fill="rgba(91,96,161,.07)"></rect><rect x="5" y="40" width="10" height="16" fill="rgba(91,96,161,.07)"></rect><rect x="4" y="8" width="20" height="17" fill="rgba(91,96,161,.07)"></rect><rect x="28" y="3" width="26" height="16" fill="rgba(91,96,161,.07)"></rect><rect x="63.5" y="11.5" width="5" height="5" fill="rgba(91,96,161,.07)"></rect><path d="M10 80 L10 20 A6 6 0 0 1 16 14 L86 14 A6 6 0 0 1 92 20 L92 54 A6 6 0 0 1 86 60 L36 60 A6 6 0 0 0 30 66 L30 75" fill="none" stroke="rgba(252,252,250,0.28)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M66 24 L66 2" fill="none" stroke="rgba(252,252,250,0.28)" stroke-width="5" stroke-linecap="round"></path><rect x="7.5" y="40" width="5" height="16" fill="rgba(91,96,161,.35)"></rect><polyline points="9,47 10,46 11,47" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23" stroke-linecap="round" stroke-linejoin="round"></polyline><polyline points="9,49 10,48 11,49" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23" stroke-linecap="round" stroke-linejoin="round"></polyline><polyline points="9,51 10,50 11,51" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23" stroke-linecap="round" stroke-linejoin="round"></polyline><line x1="54.5" y1="61.875" x2="57.5" y2="61.875" stroke="rgba(252,252,250,0.7)" stroke-width=".625"></line><line x1="54.5" y1="60.625" x2="57.5" y2="60.625" stroke="rgba(252,252,250,0.7)" stroke-width=".625"></line><line x1="54.5" y1="59.375" x2="57.5" y2="59.375" stroke="rgba(252,252,250,0.7)" stroke-width=".625"></line><line x1="54.5" y1="58.125" x2="57.5" y2="58.125" stroke="rgba(252,252,250,0.7)" stroke-width=".625"></line><line x1="63" y1="16.5" x2="63" y2="11.5" stroke="rgba(252,252,250,1)" stroke-width=".35"></line><circle cx="62" cy="19" r="1.15" fill="#070827"></circle><circle cx="62" cy="19" r=".77" fill="#5B60A1"></circle>
+          <circle cx="62" cy="19" r="1.15" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".154"></circle><path d="M32.95 11.5 L32.95 6 L35.55 6 L35.55 11.5" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23"></path><path d="M35.95 11.5 L35.95 6 L38.55 6 L38.55 11.5" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23"></path><path d="M38.95 11.5 L38.95 6 L41.55 6 L41.55 11.5" fill="none" stroke="#5B60A1" stroke-width=".23"></path><path d="M41.95 11.5 L41.95 6 L44.55 6 L44.55 11.5" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23"></path><path d="M44.95 11.5 L44.95 6 L47.55 6 L47.55 11.5" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23"></path><path d="M10 76 L10 20 A6 6 0 0 1 16 14 L46.75 14 L45.75 14 Q40.3 14.2 40.25 9 Q40.3 14.2 45.75 14 L86 14 A6 6 0 0 1 92 20 L92 54 A6 6 0 0 1 86 60 L36 60 A6 6 0 0 0 30 66 L30 75" fill="none" stroke="rgba(252,252,250,0.22)" stroke-width=".154" stroke-dasharray="2 2" stroke-linecap="round"></path><text x="17" y="75" font-size="2" fill="rgba(252,252,250,1)" text-anchor="middle" dominant-baseline="central" font-family="&quot;Noto Sans KR&quot;,&quot;Malgun Gothic&quot;,sans-serif">출발</text><text x="17" y="48" font-size="2" fill="rgba(252,252,250,1)" text-anchor="middle" dominant-baseline="central" font-family="&quot;Noto Sans KR&quot;,&quot;Malgun Gothic&quot;,sans-serif">경사로</text><text x="40.25" y="3" font-size="2" fill="rgba(252,252,250,1)" text-anchor="middle" dominant-baseline="central" font-family="&quot;Noto Sans KR&quot;,&quot;Malgun Gothic&quot;,sans-serif">직각 주차</text><text x="72" y="8" font-size="2" fill="rgba(252,252,250,1)" text-anchor="middle" dominant-baseline="central" font-family="&quot;Noto Sans KR&quot;,&quot;Malgun Gothic&quot;,sans-serif">신호</text><text x="84" y="37" font-size="2" fill="rgba(252,252,250,1)" text-anchor="middle" dominant-baseline="central" font-family="&quot;Noto Sans KR&quot;,&quot;Malgun Gothic&quot;,sans-serif">가속</text><text x="60" y="68" font-size="2" fill="rgba(252,252,250,1)" text-anchor="middle" dominant-baseline="central" font-family="&quot;Noto Sans KR&quot;,&quot;Malgun Gothic&quot;,sans-serif">돌발</text><text x="38" y="75" font-size="2" fill="rgba(252,252,250,1)" text-anchor="middle" dominant-baseline="central" font-family="&quot;Noto Sans KR&quot;,&quot;Malgun Gothic&quot;,sans-serif">종료</text><g transform="translate(92 35.85) rotate(-180) scale(2.301 2.152)">
+      <path d="M-0.93 -0.98 L-1.2 -0.9 L-1.2 -0.72 L-0.93 -0.74 Z M0.93 -0.98 L1.2 -0.9 L1.2 -0.72 L0.93 -0.74 Z" fill="rgba(252,252,250,1)"></path>
+      <path d="M-0.8 -2.3 Q0 -2.45 0.8 -2.3 Q0.93 -2.2 0.93 -1.7 L0.93 1.9 Q0.93 2.3 0.6 2.3 L-0.6 2.3 Q-0.93 2.3 -0.93 1.9 L-0.93 -1.7 Q-0.93 -2.2 -0.8 -2.3 Z" fill="rgba(252,252,250,1)" stroke="#070827" stroke-width=".06"></path>
+      <rect x="-0.64" y="-0.35" width="1.28" height="1.3" fill="#E5E6F0"></rect>
+      <path d="M-0.76 -1.05 Q0 -1.3 0.76 -1.05 L0.64 -0.35 L-0.64 -0.35 Z" fill="#070827"></path>
+      <path d="M-0.64 0.95 L0.64 0.95 L0.74 1.55 Q0 1.68 -0.74 1.55 Z" fill="#070827"></path>
+      <rect x="-0.74" y="-2.27" width="0.38" height="0.13" rx=".05" fill="#5B60A1"></rect>
+      <rect x="0.36" y="-2.27" width="0.38" height="0.13" rx=".05" fill="#5B60A1"></rect></g><g transform="translate(41.28 11.870000000000005) rotate(143.54) scale(2.301 2.152)">
+      <path d="M-0.93 -0.98 L-1.2 -0.9 L-1.2 -0.72 L-0.93 -0.74 Z M0.93 -0.98 L1.2 -0.9 L1.2 -0.72 L0.93 -0.74 Z" fill="rgba(252,252,250,1)"></path>
+      <path d="M-0.8 -2.3 Q0 -2.45 0.8 -2.3 Q0.93 -2.2 0.93 -1.7 L0.93 1.9 Q0.93 2.3 0.6 2.3 L-0.6 2.3 Q-0.93 2.3 -0.93 1.9 L-0.93 -1.7 Q-0.93 -2.2 -0.8 -2.3 Z" fill="rgba(252,252,250,1)" stroke="#070827" stroke-width=".06"></path>
+      <rect x="-0.64" y="-0.35" width="1.28" height="1.3" fill="#E5E6F0"></rect>
+      <path d="M-0.76 -1.05 Q0 -1.3 0.76 -1.05 L0.64 -0.35 L-0.64 -0.35 Z" fill="#070827"></path>
+      <path d="M-0.64 0.95 L0.64 0.95 L0.74 1.55 Q0 1.68 -0.74 1.55 Z" fill="#070827"></path>
+      <rect x="-0.74" y="-2.27" width="0.38" height="0.13" rx=".05" fill="#5B60A1"></rect>
+      <rect x="0.36" y="-2.27" width="0.38" height="0.13" rx=".05" fill="#5B60A1"></rect></g></svg>
+        <div class="body">
+          <h3>B · 크게 <span class="tag">×2.2</span></h3>
+          <p class="one">면적 약 4.8배. 지도에서 가장 먼저 눈에 띈다.</p>
+          <dl class="dims" data-dims="2.2">
+      <dt>지도 위 차</dt><dd>길이 9.9 m · 폭 4.3 m 상당</dd>
+      <dt>실제 화면</dt><dd>약 129 × 55 dp</dd>
+      <dt>도로 폭 대비</dt><dd>85% (도로 5 m)</dd>
+      <dt>주차 칸 대비</dt><dd>폭 164% · 길이 180%</dd></dl>
+          <h4>장점</h4>
+          <ul>
+            <li>먼 거리·짧은 흘끗 보기에서도 바로 찾힌다.</li>
+          </ul>
+          <h4>주의점</h4>
+          <ul>
+            <li>차 폭이 도로 폭의 약 85% — 곡선·교차로에서 도로 가장자리를 덮고 경로 점선이 가려진다.</li>
+            <li>주차 칸에서는 양옆 칸까지 덮고, 길이(9.9 m)가 칸(5.5 m)의 두 배 가까워 칸 위치가 안 보인다.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">직각 주차 구역 확대 · 차가 칸 안에 섰을 때</p>
+    <div class="row">
+      <div class="cell"><svg class="map" data-k="1" data-view="bay" viewBox="27 -0.5 27 18"><rect x="-20" y="-20" width="160" height="130" fill="#070827"></rect><rect x="88" y="26" width="8" height="22" fill="rgba(91,96,161,.25)"></rect><rect x="5" y="70" width="10" height="10" fill="rgba(91,96,161,.07)"></rect><rect x="5" y="40" width="10" height="16" fill="rgba(91,96,161,.07)"></rect><rect x="4" y="8" width="20" height="17" fill="rgba(91,96,161,.07)"></rect><rect x="28" y="3" width="26" height="16" fill="rgba(91,96,161,.07)"></rect><rect x="63.5" y="11.5" width="5" height="5" fill="rgba(91,96,161,.07)"></rect><path d="M10 80 L10 20 A6 6 0 0 1 16 14 L86 14 A6 6 0 0 1 92 20 L92 54 A6 6 0 0 1 86 60 L36 60 A6 6 0 0 0 30 66 L30 75" fill="none" stroke="rgba(252,252,250,0.28)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M66 24 L66 2" fill="none" stroke="rgba(252,252,250,0.28)" stroke-width="5" stroke-linecap="round"></path><rect x="7.5" y="40" width="5" height="16" fill="rgba(91,96,161,.35)"></rect><polyline points="9,47 10,46 11,47" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23" stroke-linecap="round" stroke-linejoin="round"></polyline><polyline points="9,49 10,48 11,49" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23" stroke-linecap="round" stroke-linejoin="round"></polyline><polyline points="9,51 10,50 11,51" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23" stroke-linecap="round" stroke-linejoin="round"></polyline><line x1="54.5" y1="61.875" x2="57.5" y2="61.875" stroke="rgba(252,252,250,0.7)" stroke-width=".625"></line><line x1="54.5" y1="60.625" x2="57.5" y2="60.625" stroke="rgba(252,252,250,0.7)" stroke-width=".625"></line><line x1="54.5" y1="59.375" x2="57.5" y2="59.375" stroke="rgba(252,252,250,0.7)" stroke-width=".625"></line><line x1="54.5" y1="58.125" x2="57.5" y2="58.125" stroke="rgba(252,252,250,0.7)" stroke-width=".625"></line><line x1="63" y1="16.5" x2="63" y2="11.5" stroke="rgba(252,252,250,1)" stroke-width=".35"></line><circle cx="62" cy="19" r="1.15" fill="#070827"></circle><circle cx="62" cy="19" r=".77" fill="#5B60A1"></circle>
+          <circle cx="62" cy="19" r="1.15" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".154"></circle><path d="M32.95 11.5 L32.95 6 L35.55 6 L35.55 11.5" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23"></path><path d="M35.95 11.5 L35.95 6 L38.55 6 L38.55 11.5" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23"></path><path d="M38.95 11.5 L38.95 6 L41.55 6 L41.55 11.5" fill="none" stroke="#5B60A1" stroke-width=".23"></path><path d="M41.95 11.5 L41.95 6 L44.55 6 L44.55 11.5" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23"></path><path d="M44.95 11.5 L44.95 6 L47.55 6 L47.55 11.5" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23"></path><path d="M10 76 L10 20 A6 6 0 0 1 16 14 L46.75 14 L45.75 14 Q40.3 14.2 40.25 9 Q40.3 14.2 45.75 14 L86 14 A6 6 0 0 1 92 20 L92 54 A6 6 0 0 1 86 60 L36 60 A6 6 0 0 0 30 66 L30 75" fill="none" stroke="rgba(252,252,250,0.22)" stroke-width=".154" stroke-dasharray="2 2" stroke-linecap="round"></path><g transform="translate(40.25 8.75) rotate(-180) scale(1.046 0.978)">
+      <path d="M-0.93 -0.98 L-1.2 -0.9 L-1.2 -0.72 L-0.93 -0.74 Z M0.93 -0.98 L1.2 -0.9 L1.2 -0.72 L0.93 -0.74 Z" fill="rgba(252,252,250,1)"></path>
+      <path d="M-0.8 -2.3 Q0 -2.45 0.8 -2.3 Q0.93 -2.2 0.93 -1.7 L0.93 1.9 Q0.93 2.3 0.6 2.3 L-0.6 2.3 Q-0.93 2.3 -0.93 1.9 L-0.93 -1.7 Q-0.93 -2.2 -0.8 -2.3 Z" fill="rgba(252,252,250,1)" stroke="#070827" stroke-width=".06"></path>
+      <rect x="-0.64" y="-0.35" width="1.28" height="1.3" fill="#E5E6F0"></rect>
+      <path d="M-0.76 -1.05 Q0 -1.3 0.76 -1.05 L0.64 -0.35 L-0.64 -0.35 Z" fill="#070827"></path>
+      <path d="M-0.64 0.95 L0.64 0.95 L0.74 1.55 Q0 1.68 -0.74 1.55 Z" fill="#070827"></path>
+      <rect x="-0.74" y="-2.27" width="0.38" height="0.13" rx=".05" fill="#5B60A1"></rect>
+      <rect x="0.36" y="-2.27" width="0.38" height="0.13" rx=".05" fill="#5B60A1"></rect></g></svg><div class="body"><h3>지금 <span class="tag">×1.0</span></h3><p class="zoomnote">칸 안에 여유 있게 들어간다.</p></div></div>
+      <div class="cell"><svg class="map" data-k="1.6" data-view="bay" viewBox="27 -0.5 27 18"><rect x="-20" y="-20" width="160" height="130" fill="#070827"></rect><rect x="88" y="26" width="8" height="22" fill="rgba(91,96,161,.25)"></rect><rect x="5" y="70" width="10" height="10" fill="rgba(91,96,161,.07)"></rect><rect x="5" y="40" width="10" height="16" fill="rgba(91,96,161,.07)"></rect><rect x="4" y="8" width="20" height="17" fill="rgba(91,96,161,.07)"></rect><rect x="28" y="3" width="26" height="16" fill="rgba(91,96,161,.07)"></rect><rect x="63.5" y="11.5" width="5" height="5" fill="rgba(91,96,161,.07)"></rect><path d="M10 80 L10 20 A6 6 0 0 1 16 14 L86 14 A6 6 0 0 1 92 20 L92 54 A6 6 0 0 1 86 60 L36 60 A6 6 0 0 0 30 66 L30 75" fill="none" stroke="rgba(252,252,250,0.28)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M66 24 L66 2" fill="none" stroke="rgba(252,252,250,0.28)" stroke-width="5" stroke-linecap="round"></path><rect x="7.5" y="40" width="5" height="16" fill="rgba(91,96,161,.35)"></rect><polyline points="9,47 10,46 11,47" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23" stroke-linecap="round" stroke-linejoin="round"></polyline><polyline points="9,49 10,48 11,49" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23" stroke-linecap="round" stroke-linejoin="round"></polyline><polyline points="9,51 10,50 11,51" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23" stroke-linecap="round" stroke-linejoin="round"></polyline><line x1="54.5" y1="61.875" x2="57.5" y2="61.875" stroke="rgba(252,252,250,0.7)" stroke-width=".625"></line><line x1="54.5" y1="60.625" x2="57.5" y2="60.625" stroke="rgba(252,252,250,0.7)" stroke-width=".625"></line><line x1="54.5" y1="59.375" x2="57.5" y2="59.375" stroke="rgba(252,252,250,0.7)" stroke-width=".625"></line><line x1="54.5" y1="58.125" x2="57.5" y2="58.125" stroke="rgba(252,252,250,0.7)" stroke-width=".625"></line><line x1="63" y1="16.5" x2="63" y2="11.5" stroke="rgba(252,252,250,1)" stroke-width=".35"></line><circle cx="62" cy="19" r="1.15" fill="#070827"></circle><circle cx="62" cy="19" r=".77" fill="#5B60A1"></circle>
+          <circle cx="62" cy="19" r="1.15" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".154"></circle><path d="M32.95 11.5 L32.95 6 L35.55 6 L35.55 11.5" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23"></path><path d="M35.95 11.5 L35.95 6 L38.55 6 L38.55 11.5" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23"></path><path d="M38.95 11.5 L38.95 6 L41.55 6 L41.55 11.5" fill="none" stroke="#5B60A1" stroke-width=".23"></path><path d="M41.95 11.5 L41.95 6 L44.55 6 L44.55 11.5" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23"></path><path d="M44.95 11.5 L44.95 6 L47.55 6 L47.55 11.5" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23"></path><path d="M10 76 L10 20 A6 6 0 0 1 16 14 L46.75 14 L45.75 14 Q40.3 14.2 40.25 9 Q40.3 14.2 45.75 14 L86 14 A6 6 0 0 1 92 20 L92 54 A6 6 0 0 1 86 60 L36 60 A6 6 0 0 0 30 66 L30 75" fill="none" stroke="rgba(252,252,250,0.22)" stroke-width=".154" stroke-dasharray="2 2" stroke-linecap="round"></path><g transform="translate(40.25 8.75) rotate(-180) scale(1.674 1.565)">
+      <path d="M-0.93 -0.98 L-1.2 -0.9 L-1.2 -0.72 L-0.93 -0.74 Z M0.93 -0.98 L1.2 -0.9 L1.2 -0.72 L0.93 -0.74 Z" fill="rgba(252,252,250,1)"></path>
+      <path d="M-0.8 -2.3 Q0 -2.45 0.8 -2.3 Q0.93 -2.2 0.93 -1.7 L0.93 1.9 Q0.93 2.3 0.6 2.3 L-0.6 2.3 Q-0.93 2.3 -0.93 1.9 L-0.93 -1.7 Q-0.93 -2.2 -0.8 -2.3 Z" fill="rgba(252,252,250,1)" stroke="#070827" stroke-width=".06"></path>
+      <rect x="-0.64" y="-0.35" width="1.28" height="1.3" fill="#E5E6F0"></rect>
+      <path d="M-0.76 -1.05 Q0 -1.3 0.76 -1.05 L0.64 -0.35 L-0.64 -0.35 Z" fill="#070827"></path>
+      <path d="M-0.64 0.95 L0.64 0.95 L0.74 1.55 Q0 1.68 -0.74 1.55 Z" fill="#070827"></path>
+      <rect x="-0.74" y="-2.27" width="0.38" height="0.13" rx=".05" fill="#5B60A1"></rect>
+      <rect x="0.36" y="-2.27" width="0.38" height="0.13" rx=".05" fill="#5B60A1"></rect></g></svg><div class="body"><h3>A <span class="tag">×1.6</span></h3><p class="zoomnote">목표 칸 줄을 덮지만 양옆 칸 줄이 보여 어느 칸에 섰는지는 읽힌다.</p></div></div>
+      <div class="cell"><svg class="map" data-k="2.2" data-view="bay" viewBox="27 -0.5 27 18"><rect x="-20" y="-20" width="160" height="130" fill="#070827"></rect><rect x="88" y="26" width="8" height="22" fill="rgba(91,96,161,.25)"></rect><rect x="5" y="70" width="10" height="10" fill="rgba(91,96,161,.07)"></rect><rect x="5" y="40" width="10" height="16" fill="rgba(91,96,161,.07)"></rect><rect x="4" y="8" width="20" height="17" fill="rgba(91,96,161,.07)"></rect><rect x="28" y="3" width="26" height="16" fill="rgba(91,96,161,.07)"></rect><rect x="63.5" y="11.5" width="5" height="5" fill="rgba(91,96,161,.07)"></rect><path d="M10 80 L10 20 A6 6 0 0 1 16 14 L86 14 A6 6 0 0 1 92 20 L92 54 A6 6 0 0 1 86 60 L36 60 A6 6 0 0 0 30 66 L30 75" fill="none" stroke="rgba(252,252,250,0.28)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M66 24 L66 2" fill="none" stroke="rgba(252,252,250,0.28)" stroke-width="5" stroke-linecap="round"></path><rect x="7.5" y="40" width="5" height="16" fill="rgba(91,96,161,.35)"></rect><polyline points="9,47 10,46 11,47" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23" stroke-linecap="round" stroke-linejoin="round"></polyline><polyline points="9,49 10,48 11,49" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23" stroke-linecap="round" stroke-linejoin="round"></polyline><polyline points="9,51 10,50 11,51" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23" stroke-linecap="round" stroke-linejoin="round"></polyline><line x1="54.5" y1="61.875" x2="57.5" y2="61.875" stroke="rgba(252,252,250,0.7)" stroke-width=".625"></line><line x1="54.5" y1="60.625" x2="57.5" y2="60.625" stroke="rgba(252,252,250,0.7)" stroke-width=".625"></line><line x1="54.5" y1="59.375" x2="57.5" y2="59.375" stroke="rgba(252,252,250,0.7)" stroke-width=".625"></line><line x1="54.5" y1="58.125" x2="57.5" y2="58.125" stroke="rgba(252,252,250,0.7)" stroke-width=".625"></line><line x1="63" y1="16.5" x2="63" y2="11.5" stroke="rgba(252,252,250,1)" stroke-width=".35"></line><circle cx="62" cy="19" r="1.15" fill="#070827"></circle><circle cx="62" cy="19" r=".77" fill="#5B60A1"></circle>
+          <circle cx="62" cy="19" r="1.15" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".154"></circle><path d="M32.95 11.5 L32.95 6 L35.55 6 L35.55 11.5" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23"></path><path d="M35.95 11.5 L35.95 6 L38.55 6 L38.55 11.5" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23"></path><path d="M38.95 11.5 L38.95 6 L41.55 6 L41.55 11.5" fill="none" stroke="#5B60A1" stroke-width=".23"></path><path d="M41.95 11.5 L41.95 6 L44.55 6 L44.55 11.5" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23"></path><path d="M44.95 11.5 L44.95 6 L47.55 6 L47.55 11.5" fill="none" stroke="rgba(252,252,250,0.6)" stroke-width=".23"></path><path d="M10 76 L10 20 A6 6 0 0 1 16 14 L46.75 14 L45.75 14 Q40.3 14.2 40.25 9 Q40.3 14.2 45.75 14 L86 14 A6 6 0 0 1 92 20 L92 54 A6 6 0 0 1 86 60 L36 60 A6 6 0 0 0 30 66 L30 75" fill="none" stroke="rgba(252,252,250,0.22)" stroke-width=".154" stroke-dasharray="2 2" stroke-linecap="round"></path><g transform="translate(40.25 8.75) rotate(-180) scale(2.301 2.152)">
+      <path d="M-0.93 -0.98 L-1.2 -0.9 L-1.2 -0.72 L-0.93 -0.74 Z M0.93 -0.98 L1.2 -0.9 L1.2 -0.72 L0.93 -0.74 Z" fill="rgba(252,252,250,1)"></path>
+      <path d="M-0.8 -2.3 Q0 -2.45 0.8 -2.3 Q0.93 -2.2 0.93 -1.7 L0.93 1.9 Q0.93 2.3 0.6 2.3 L-0.6 2.3 Q-0.93 2.3 -0.93 1.9 L-0.93 -1.7 Q-0.93 -2.2 -0.8 -2.3 Z" fill="rgba(252,252,250,1)" stroke="#070827" stroke-width=".06"></path>
+      <rect x="-0.64" y="-0.35" width="1.28" height="1.3" fill="#E5E6F0"></rect>
+      <path d="M-0.76 -1.05 Q0 -1.3 0.76 -1.05 L0.64 -0.35 L-0.64 -0.35 Z" fill="#070827"></path>
+      <path d="M-0.64 0.95 L0.64 0.95 L0.74 1.55 Q0 1.68 -0.74 1.55 Z" fill="#070827"></path>
+      <rect x="-0.74" y="-2.27" width="0.38" height="0.13" rx=".05" fill="#5B60A1"></rect>
+      <rect x="0.36" y="-2.27" width="0.38" height="0.13" rx=".05" fill="#5B60A1"></rect></g></svg><div class="body"><h3>B <span class="tag">×2.2</span></h3><p class="zoomnote">양옆 칸과 도로까지 덮어 "어느 칸에 섰는지"가 읽히지 않는다.</p></div></div>
+    </div>
+  </section>
+
+  <section class="rec">
+    <p class="eyebrow">추천</p>
+    <p><b style="font-weight:500">A · ×1.6</b> — 도로 위에서는 충분히 또렷해지고, 도로 가장자리·경로 점선을 덮지 않아 더 안전하다.</p>
+    <p class="sub">B(×2.2)는 가장 잘 보이지만 도로 폭을 거의 채우고 주차 칸을 덮어 지도의 의미(어디를 지나는지·어느 칸인지)를 가린다.
+      변경은 <code>CourseMap.kt</code> 에서 차 폭·길이(<code>VehicleSilhouetteGeometry.WIDTH/LENGTH × scale</code>)에 배율 상수 하나를 곱하는 것뿐이라 작업량은 작다(코스 Done 지도에도 같이 적용됨).
+      주차 칸 겹침이 거슬리면 "주차 구역 안에서만 ×1.0~1.2" 로 줄이는 변형도 가능하지만, 구역 판정이 들어가 조금 더 손이 간다.</p>
+  </section>
+</div>
+
+
+
+
+</body></html>

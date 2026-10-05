@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>출발 전 점검 카드 시안</title>
+<style>
+:root{
+  --ink:#070827; --paper:#FCFCFA; --peri:#5B60A1; --lav:#E5E6F0; --signal:#F52D48;
+  --muted:rgba(7,8,39,.60);
+  --tex:0 4px 10px rgba(7,8,39,.10),0 1px 2px rgba(7,8,39,.06),inset 0 1px 0 rgba(255,255,255,.9);
+  /* 같은 질감 B 를 Ink 패널 위 어두운 면에 맞춘 것: 그림자 진하게, 하이라이트 30% */
+  --tex-d:0 4px 10px rgba(0,0,0,.35),0 1px 2px rgba(0,0,0,.20),inset 0 1px 0 rgba(255,255,255,.30);
+  --p70:rgba(252,252,250,.70); --p50:rgba(252,252,250,.50);
+  --font:"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);font-weight:400;line-height:1.5}
+.page{max-width:1540px;margin:0 auto;padding:48px 40px 96px}
+h1{font-size:40px;font-weight:400;margin:0 0 6px;letter-spacing:-.5px}
+h2{font-size:26px;font-weight:400;margin:0 0 4px}
+h3{font-size:15px;font-weight:500;margin:18px 0 6px;color:var(--peri)}
+p{margin:0 0 8px}
+.lede{font-size:17px;color:var(--muted);margin-bottom:18px}
+blockquote{margin:0 0 14px;padding:14px 20px;background:var(--lav);border-left:4px solid var(--signal);font-size:16px}
+blockquote small{display:block;color:var(--muted);font-size:13px;margin-top:4px}
+.scale{display:inline-block;font-size:13px;color:var(--peri);border:1px solid var(--peri);border-radius:999px;padding:3px 12px}
+.cell{display:grid;grid-template-columns:853px 1fr;gap:44px;padding:40px 0;border-top:1px solid rgba(7,8,39,.14)}
+.cell.now{grid-template-columns:1fr}
+.letter{font-size:56px;line-height:1;color:var(--peri);margin-bottom:6px}
+.letter.cur{color:var(--muted);font-size:28px}
+.desc{font-size:17px;margin-bottom:10px}
+ul{margin:0;padding-left:20px;font-size:15px}
+li{margin:3px 0}
+.cap{font-size:12px;color:var(--muted);margin:14px 0 6px}
+.imgs{display:flex;gap:24px;flex-wrap:wrap}
+.imgs figure{margin:0}
+.imgs img{width:667px;display:block;box-shadow:0 0 0 1px rgba(7,8,39,.15)}
+.imgs figcaption{font-size:12px;color:var(--muted);margin-top:6px}
+table.words{border-collapse:collapse;font-size:15px;margin-top:18px}
+table.words th,table.words td{padding:8px 18px;border-bottom:1px solid rgba(7,8,39,.12);text-align:left;font-weight:400}
+table.words th{color:var(--muted);font-size:13px}
+.sig{color:var(--signal)}
+s{color:var(--muted)}
+
+/* ---------- frame (1/3) ---------- */
+.frame{position:relative;width:853px;height:423px;overflow:hidden;background:var(--paper);box-shadow:0 0 0 1px rgba(7,8,39,.18)}
+.abs{position:absolute}
+.lp{position:absolute;left:0;top:0;width:452px;height:423px;background:var(--ink);color:var(--paper)}
+.wm{position:absolute;left:60px;top:20px;font-size:9px;letter-spacing:3px;color:var(--paper)}
+.lcap{position:absolute;left:60px;top:390px;font-size:11px;color:rgba(252,252,250,.6)}
+.rhead{position:absolute;left:474px;top:44px;font-size:13px}
+.speed{position:absolute;right:21px;top:34px;text-align:right}
+.speed b{display:block;font-weight:400;font-size:16px;line-height:1.2}
+.speed i{font-style:normal;font-size:9px;color:var(--peri)}
+.coach-eb{position:absolute;left:474px;top:176px;font-size:11px}
+.coach{position:absolute;left:474px;top:194px;font-size:24px;width:360px;line-height:1.3}
+.pill{position:absolute;left:474px;top:359px;width:358px;height:46px;border-radius:999px;background:var(--signal);color:var(--paper);font-size:13px;display:flex;align-items:center;justify-content:center;gap:14px;
+  box-shadow:0 4px 10px rgba(7,8,39,.10),0 1px 2px rgba(7,8,39,.06),inset 0 1px 0 rgba(255,255,255,.35)}
+.grid{position:absolute;left:60px;top:42px;display:grid;grid-template-columns:175px 175px;grid-auto-rows:80px;gap:5.5px 8px}
+
+/* state strip */
+.strip{width:853px;background:var(--ink);display:flex;gap:16px;padding:14px 18px 18px;box-shadow:0 0 0 1px rgba(7,8,39,.18);margin-top:6px;align-items:flex-start;flex-wrap:wrap}
+.strip .sc{display:flex;flex-direction:column;gap:6px}
+.strip .sl{font-size:10px;color:rgba(252,252,250,.55)}
+.strip .w175{width:175px;height:80px}
+
+/* common bits */
+.lab{font-size:11px;color:var(--p70)}
+.val{font-size:16px;color:var(--paper);line-height:1.3;margin-top:2px}
+.chk{width:12px;height:12px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ===== A: 체크 원 ===== */
+.a{position:relative;padding:10px 12px;box-shadow:var(--tex-d)}
+.a.done{background:var(--peri)}
+.a.todo,.a.bad,.a.na{background:rgba(252,252,250,.07)}
+.a .st{position:absolute;right:10px;top:10px;width:20px;height:20px;border-radius:50%;display:grid;place-items:center}
+.a.done .st{background:var(--paper)} .a.done .st .chk{stroke:var(--peri)}
+.a.todo .st{border:1.5px solid var(--signal)}
+.a.todo .val{color:var(--signal)}
+.a.bad .st{background:var(--signal)} .a.bad .st .chk{stroke:var(--paper)}
+.a.na .st{border:1.5px dashed var(--p50)}
+.a.na .val{color:var(--p50)}
+
+/* ===== B: 진행 막대 + 줄 ===== */
+.blist{position:absolute;left:60px;top:42px;width:358px;height:338px;background:rgba(252,252,250,.06);box-shadow:var(--tex-d);padding:12px 16px}
+.bhead{display:flex;justify-content:space-between;font-size:11px;color:var(--p70)}
+.bbar{display:flex;gap:3px;margin:8px 0 8px}
+.bbar span{flex:1;height:4px;background:rgba(252,252,250,.14);border-radius:2px}
+.bbar span.on{background:var(--peri)}
+.brow{display:flex;align-items:center;height:38px;border-top:1px solid rgba(252,252,250,.08);font-size:13px;gap:10px}
+.brow .mk{width:14px;height:14px;display:grid;place-items:center;flex:none}
+.brow .mk .ring{width:10px;height:10px;border-radius:50%;border:1.5px solid var(--signal)}
+.brow .mk .chk{stroke:var(--peri);width:14px;height:14px}
+.brow .nm{flex:1;color:var(--paper)}
+.brow .v{color:var(--p70)}
+.brow.todo .v{color:var(--signal)}
+.brow.done .nm{color:var(--p70)}
+.brow.bad .mk .ring{background:var(--signal)}
+.brow.bad .v{color:var(--signal)}
+.brow.na .mk .ring{border:1.5px dashed var(--p50)}
+.brow.na .v{color:var(--p50)}
+
+/* ===== C: 선 아이콘 타일 ===== */
+.c{display:flex;align-items:center;gap:12px;padding:0 12px;box-shadow:var(--tex-d)}
+.c svg.ico{width:30px;height:30px;flex:none;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.c.done{background:var(--peri)} .c.done svg.ico{stroke:var(--paper)}
+.c.todo,.c.bad,.c.na{background:rgba(252,252,250,.04);box-shadow:var(--tex-d),inset 0 0 0 1px rgba(252,252,250,.18)}
+.c.todo svg.ico,.c.na svg.ico{stroke:var(--p50)}
+.c.todo .val{color:var(--signal)}
+.c.bad svg.ico{stroke:var(--signal)} .c.bad .val{color:var(--signal);font-size:13px}
+.c.na .val{color:var(--p50)}
+.c .val{font-size:15px}
+.ico text{fill:currentColor;stroke:none;font-family:var(--font);font-size:11px}
+.c.done .ico text{fill:var(--paper)} .c.todo .ico text,.c.na .ico text{fill:var(--p50)}
+
+/* ===== D: 왼쪽 띠 ===== */
+.d{padding:10px 12px 10px 14px;position:relative}
+.d.done{background:var(--lav);box-shadow:var(--tex);border-left:5px solid var(--peri)}
+.d.done .lab{color:var(--muted)} .d.done .val{color:var(--ink)}
+.d.todo{border:1.5px solid var(--signal);box-shadow:var(--tex-d)}
+.d.todo .val{color:var(--signal)}
+.d.bad{border:1.5px solid var(--signal);border-left:5px solid var(--signal);box-shadow:var(--tex-d)}
+.d.bad .val{color:var(--paper)}
+.d.na{border:1.5px dashed var(--p50)}
+.d.na .val{color:var(--p50)}
+
+/* ===== E: 순서 점 ===== */
+.tl{position:absolute;left:60px;top:44px;width:358px}
+.tl .line{position:absolute;left:10px;top:22px;width:2px;height:264px;background:rgba(252,252,250,.16)}
+.tl .line.on{height:132px;background:var(--peri)}
+.erow{position:relative;display:grid;grid-template-columns:22px 1fr;align-items:center;height:44px;column-gap:10px}
+.erow .dt{justify-self:center;width:12px;height:12px;border-radius:50%;background:var(--ink);position:relative;z-index:1}
+.erow.done .dt{background:var(--peri)}
+.erow.todo .dt{border:1.5px solid var(--signal)}
+.erow.cur .dt{width:16px;height:16px;border:2px solid var(--signal);box-shadow:0 0 0 5px rgba(245,45,72,.18)}
+.erow.bad .dt{background:var(--signal)}
+.erow.na .dt{border:1.5px dashed var(--p50)}
+.erow .bx{white-space:nowrap;display:flex;justify-content:space-between;align-items:center;height:36px;padding:0 12px;font-size:13px}
+.erow .nm{color:var(--paper)}
+.erow .v{color:var(--p70)}
+.erow.done .nm{color:var(--p70)} .erow.done .v{color:var(--p50)}
+.erow.todo .v,.erow.bad .v{color:var(--signal)}
+.erow.na .v{color:var(--p50)}
+.erow.cur .bx{background:rgba(252,252,250,.08);box-shadow:var(--tex-d);font-size:15px;height:40px}
+
+.reco{margin-top:48px;padding:28px 32px;background:var(--ink);color:var(--paper)}
+.reco .eb{color:rgba(252,252,250,.6);font-size:13px}
+.reco h2{font-size:30px;margin:6px 0 8px}
+.reco p{color:rgba(252,252,250,.85);font-size:16px}
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>4 · 출발 전 점검 카드</h1>
+<p class="lede">왼쪽 Ink 패널의 일곱 장 카드. "아직" 을 "미수행" 으로 바꾸고, 제목·값이 똑같이 반복되는 단조로운 구성을 미니멀한 다섯 가지 형태로 다시 짠다.</p>
+<blockquote>"왼쪽에 위치한 '도어/좌 지시등...' 등의 카드 내의 멘트 수정이 필요. 아직이라는 단어 보다는 미수행으로 변경. 카드 제목과 안에 내용의 구성이 단조롭고 디자인이 없는 느낌이라 5가지 정도 미니멀한 디자인 컨셉을 제안 받아서 진행하고 싶어"<small>— 사용자 피드백, 라운드 21</small></blockquote>
+<span class="scale">모든 시안은 1/3 축척 · 실제 화면은 약 3배 (853×423 = 2560×1268 dp) · 왼쪽 패널 카드 영역 약 358×340</span>
+
+<!-- ========== 지금 ========== -->
+<section class="cell now">
+  <div>
+    <div class="letter cur">지금</div>
+    <p class="desc">Periwinkle 직사각형 일곱 장, 2열. 완료와 미완료의 차이는 카드 색이 회색빛으로 어두워지는 것 하나뿐이고, 값 자리에 "아직" 이 들어간다. 잘못한 경우(-bad)는 "브레이크 없이 켜짐" 처럼 사실을 적고 같은 회색이 된다. 그림자·도형이 없어 "표" 처럼 보인다.</p>
+    <div class="imgs">
+      <figure><img src="../../screenshots/lesson/lesson-maneuver-checklist.png" alt="점검 완료 상태 현재 캡처"><figcaption>모두 완료</figcaption></figure>
+      <figure><img src="../../screenshots/lesson/lesson-maneuver-checklist-pending.png" alt="점검 진행 중 현재 캡처"><figcaption>진행 중 — 미완료 카드가 회색 + "아직"</figcaption></figure>
+    </div>
+    <table class="words">
+      <tr><th>상태</th><th>지금</th><th>시안(모든 안 공통)</th></tr>
+      <tr><td>완료</td><td>닫힘 · 채움 · P · 밟음 → 켜짐 · 확인</td><td>그대로</td></tr>
+      <tr><td>안 함</td><td><s>아직</s></td><td><span class="sig">미수행</span></td></tr>
+      <tr><td>잘못함</td><td>브레이크 없이 켜짐</td><td>그대로 (사실 문장) · 표시는 Signal</td></tr>
+      <tr><td>신호 없음</td><td>—</td><td>미측정 (점선 · 흐리게, 채점 제외)</td></tr>
+    </table>
+    <p class="cap">아래 시안은 모두 같은 섞인 상태 — 완료 4(도어 닫힘 · 안전벨트 채움 · 기어 P · 브레이크/시동 밟음 → 켜짐), 미수행 3(좌 지시등 · 우 지시등 · 비상등). 오른쪽 코치 문장은 다음 할 일. 화면에 숫자 없음(속도 계기 값만 예외).</p>
+  </div>
+</section>
+
+<!-- ========== A 체크 원 ========== -->
+<section class="cell">
+  <div>
+    <div class="frame">
+      <div class="lp">
+        <div class="wm">DRIVE COACH</div>
+        <div class="grid">
+          <div class="a done"><div class="lab">도어</div><div class="val">닫힘</div><span class="st"><svg class="chk" viewBox="0 0 20 20"><path d="M5 10.5l3.2 3.2L15 7"/></svg></span></div>
+          <div class="a todo"><div class="lab">좌 지시등</div><div class="val">미수행</div><span class="st"></span></div>
+          <div class="a done"><div class="lab">안전벨트</div><div class="val">채움</div><span class="st"><svg class="chk" viewBox="0 0 20 20"><path d="M5 10.5l3.2 3.2L15 7"/></svg></span></div>
+          <div class="a todo"><div class="lab">우 지시등</div><div class="val">미수행</div><span class="st"></span></div>
+          <div class="a done"><div class="lab">기어</div><div class="val">P</div><span class="st"><svg class="chk" viewBox="0 0 20 20"><path d="M5 10.5l3.2 3.2L15 7"/></svg></span></div>
+          <div class="a todo"><div class="lab">비상등</div><div class="val">미수행</div><span class="st"></span></div>
+          <div class="a done"><div class="lab">브레이크 / 시동</div><div class="val">밟음 → 켜짐</div><span class="st"><svg class="chk" viewBox="0 0 20 20"><path d="M5 10.5l3.2 3.2L15 7"/></svg></span></div>
+        </div>
+        <div class="lcap">출발 전 점검 · 확인 상태</div>
+      </div>
+      <div class="rhead">출발 전 점검</div>
+      <div class="speed"><b>0 km/h</b><i>시뮬레이션 신호</i></div>
+      <div class="coach-eb">코치</div>
+      <div class="coach">왼쪽 지시등을 켜 주세요.</div>
+      <div class="pill">다 됐어요 <span>→</span></div>
+    </div>
+    <div class="strip">
+      <div class="sc"><span class="sl">완료</span><div class="a done w175"><div class="lab">도어</div><div class="val">닫힘</div><span class="st"><svg class="chk" viewBox="0 0 20 20"><path d="M5 10.5l3.2 3.2L15 7"/></svg></span></div></div>
+      <div class="sc"><span class="sl">미수행</span><div class="a todo w175"><div class="lab">비상등</div><div class="val">미수행</div><span class="st"></span></div></div>
+      <div class="sc"><span class="sl">잘못함</span><div class="a bad w175"><div class="lab">브레이크 / 시동</div><div class="val">브레이크 없이 켜짐</div><span class="st"><svg class="chk" viewBox="0 0 20 20"><path d="M6.5 6.5l7 7M13.5 6.5l-7 7"/></svg></span></div></div>
+      <div class="sc"><span class="sl">미측정</span><div class="a na w175"><div class="lab">비상등</div><div class="val">미측정</div><span class="st"></span></div></div>
+    </div>
+  </div>
+  <div>
+    <div class="letter">A</div>
+    <h2>체크 원</h2>
+    <p class="desc">지금의 2열 카드를 그대로 두고, 오른쪽 위에 상태 원 하나를 더한다. 완료 = Paper 원 + 체크, 미수행 = 빈 Signal 고리.</p>
+    <h3>장점</h3>
+    <ul>
+      <li>배치가 그대로라 구현이 가장 쉽다(카드에 원 하나 + 색 규칙).</li>
+      <li>"채운 원 = 끝남, 빈 고리 = 남음" 은 설명이 필요 없는 기호다.</li>
+      <li>미수행 카드는 면을 거의 비워 완료 카드와 명도 차가 커진다 — 지금의 "회색으로 살짝 어두워짐" 보다 훨씬 또렷하다.</li>
+    </ul>
+    <h3>주의점</h3>
+    <ul>
+      <li>구성 자체(제목 위 · 값 아래)는 그대로라 "단조롭다" 는 지적을 절반만 푼다.</li>
+      <li>원이 실제 약 60 dp — 그보다 작으면 운전석 거리에서 체크가 안 보인다.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ========== B 진행 막대 ========== -->
+<section class="cell">
+  <div>
+    <div class="frame">
+      <div class="lp">
+        <div class="wm">DRIVE COACH</div>
+        <div class="blist">
+          <div class="bhead"><span>점검</span><span>확인 상태</span></div>
+          <div class="bbar"><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span></span><span></span><span></span></div>
+          <div class="brow done"><span class="mk"><svg class="chk" viewBox="0 0 20 20"><path d="M5 10.5l3.2 3.2L15 7"/></svg></span><span class="nm">도어</span><span class="v">닫힘</span></div>
+          <div class="brow done"><span class="mk"><svg class="chk" viewBox="0 0 20 20"><path d="M5 10.5l3.2 3.2L15 7"/></svg></span><span class="nm">안전벨트</span><span class="v">채움</span></div>
+          <div class="brow done"><span class="mk"><svg class="chk" viewBox="0 0 20 20"><path d="M5 10.5l3.2 3.2L15 7"/></svg></span><span class="nm">기어</span><span class="v">P</span></div>
+          <div class="brow done"><span class="mk"><svg class="chk" viewBox="0 0 20 20"><path d="M5 10.5l3.2 3.2L15 7"/></svg></span><span class="nm">브레이크 / 시동</span><span class="v">밟음 → 켜짐</span></div>
+          <div class="brow todo"><span class="mk"><span class="ring"></span></span><span class="nm">좌 지시등</span><span class="v">미수행</span></div>
+          <div class="brow todo"><span class="mk"><span class="ring"></span></span><span class="nm">우 지시등</span><span class="v">미수행</span></div>
+          <div class="brow todo"><span class="mk"><span class="ring"></span></span><span class="nm">비상등</span><span class="v">미수행</span></div>
+        </div>
+        <div class="lcap">출발 전 점검 · 확인 상태</div>
+      </div>
+      <div class="rhead">출발 전 점검</div>
+      <div class="speed"><b>0 km/h</b><i>시뮬레이션 신호</i></div>
+      <div class="coach-eb">코치</div>
+      <div class="coach">왼쪽 지시등을 켜 주세요.</div>
+      <div class="pill">다 됐어요 <span>→</span></div>
+    </div>
+    <div class="strip">
+      <div class="sc" style="width:392px"><span class="sl">완료</span><div class="brow done" style="border:0"><span class="mk"><svg class="chk" viewBox="0 0 20 20"><path d="M5 10.5l3.2 3.2L15 7"/></svg></span><span class="nm">도어</span><span class="v">닫힘</span></div></div>
+      <div class="sc" style="width:392px"><span class="sl">미수행</span><div class="brow todo" style="border:0"><span class="mk"><span class="ring"></span></span><span class="nm">비상등</span><span class="v">미수행</span></div></div>
+      <div class="sc" style="width:392px"><span class="sl">잘못함</span><div class="brow bad" style="border:0"><span class="mk"><span class="ring"></span></span><span class="nm">브레이크 / 시동</span><span class="v">브레이크 없이 켜짐</span></div></div>
+      <div class="sc" style="width:392px"><span class="sl">미측정</span><div class="brow na" style="border:0"><span class="mk"><span class="ring"></span></span><span class="nm">비상등</span><span class="v">미측정</span></div></div>
+    </div>
+  </div>
+  <div>
+    <div class="letter">B</div>
+    <h2>진행 막대</h2>
+    <p class="desc">카드 일곱 장 대신 질감 카드 한 장 안에 점검표 일곱 줄. 위에 일곱 칸짜리 얇은 막대가 숫자 없이 진행을 보여 준다.</p>
+    <h3>장점</h3>
+    <ul>
+      <li>"점검표" 그 자체의 모양 — 왼쪽 이름, 오른쪽 값으로 한 줄씩 훑기 쉽다.</li>
+      <li>막대가 "얼마나 남았나" 를 숫자 없이 알려 준다(운전자 화면 숫자 금지 지킴).</li>
+      <li>완료 줄은 흐리게, 미수행 값만 Signal 이라 남은 일에 눈이 간다.</li>
+    </ul>
+    <h3>주의점</h3>
+    <ul>
+      <li>줄 높이가 실제 약 114 dp 로 카드보다 작다 — 글자는 본문 크기(40 dp)를 유지해야 한다.</li>
+      <li>패널 아래 캡션과 막대 위 머리글이 겹쳐 말한다 — 둘 중 하나는 빼도 된다.</li>
+      <li>면 분할이 사라져 "기하학 포스터" 느낌은 약해진다.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ========== C 선 아이콘 타일 ========== -->
+<section class="cell">
+  <div>
+    <div class="frame">
+      <div class="lp">
+        <div class="wm">DRIVE COACH</div>
+        <div class="grid">
+          <div class="c done"><svg class="ico" viewBox="0 0 24 24"><path d="M5 21V9.5L10.5 4H19v17z"/><path d="M5 11h14"/><path d="M14.5 14.5h2.5"/></svg><div><div class="lab">도어</div><div class="val">닫힘</div></div></div>
+          <div class="c todo"><svg class="ico" viewBox="0 0 24 24"><path d="M3 12l7-7v4h10v6H10v4z"/></svg><div><div class="lab">좌 지시등</div><div class="val">미수행</div></div></div>
+          <div class="c done"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.2"/><path d="M7.5 21v-7a4.5 4.5 0 0 1 9 0v7"/><path d="M8.5 10.5L16.5 19"/><rect x="15.5" y="18.5" width="3.2" height="2.6" rx=".5"/></svg><div><div class="lab">안전벨트</div><div class="val">채움</div></div></div>
+          <div class="c todo"><svg class="ico" viewBox="0 0 24 24"><path d="M21 12l-7-7v4H4v6h10v4z"/></svg><div><div class="lab">우 지시등</div><div class="val">미수행</div></div></div>
+          <div class="c done"><svg class="ico" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><text x="12" y="16" text-anchor="middle">P</text></svg><div><div class="lab">기어</div><div class="val">P</div></div></div>
+          <div class="c todo"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10l4 7H8z"/></svg><div><div class="lab">비상등</div><div class="val">미수행</div></div></div>
+          <div class="c done"><svg class="ico" viewBox="0 0 24 24"><rect x="3.5" y="10" width="7.5" height="11" rx="2" transform="rotate(-12 7 15.5)"/><path d="M18 3.5v4.5"/><path d="M15 5.6a4.2 4.2 0 1 0 6 0"/></svg><div><div class="lab">브레이크 / 시동</div><div class="val">밟음 → 켜짐</div></div></div>
+        </div>
+        <div class="lcap">출발 전 점검 · 확인 상태</div>
+      </div>
+      <div class="rhead">출발 전 점검</div>
+      <div class="speed"><b>0 km/h</b><i>시뮬레이션 신호</i></div>
+      <div class="coach-eb">코치</div>
+      <div class="coach">왼쪽 지시등을 켜 주세요.</div>
+      <div class="pill">다 됐어요 <span>→</span></div>
+    </div>
+    <div class="strip">
+      <div class="sc"><span class="sl">완료</span><div class="c done w175"><svg class="ico" viewBox="0 0 24 24"><path d="M5 21V9.5L10.5 4H19v17z"/><path d="M5 11h14"/><path d="M14.5 14.5h2.5"/></svg><div><div class="lab">도어</div><div class="val">닫힘</div></div></div></div>
+      <div class="sc"><span class="sl">미수행</span><div class="c todo w175"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10l4 7H8z"/></svg><div><div class="lab">비상등</div><div class="val">미수행</div></div></div></div>
+      <div class="sc"><span class="sl">잘못함</span><div class="c bad w175"><svg class="ico" viewBox="0 0 24 24"><rect x="3.5" y="10" width="7.5" height="11" rx="2" transform="rotate(-12 7 15.5)"/><path d="M18 3.5v4.5"/><path d="M15 5.6a4.2 4.2 0 1 0 6 0"/></svg><div><div class="lab">브레이크 / 시동</div><div class="val">브레이크 없이 켜짐</div></div></div></div>
+      <div class="sc"><span class="sl">미측정</span><div class="c na w175"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10l4 7H8z"/></svg><div><div class="lab">비상등</div><div class="val">미측정</div></div></div></div>
+    </div>
+  </div>
+  <div>
+    <div class="letter">C</div>
+    <h2>선 아이콘</h2>
+    <p class="desc">2열 타일마다 왼쪽에 단선 아이콘(문 · 벨트 · P · 페달+전원 · 좌/우 화살표 · 삼각형). 완료 타일은 Periwinkle 면, 미수행 타일은 얇은 테두리만.</p>
+    <h3>장점</h3>
+    <ul>
+      <li>글자를 읽기 전에 그림으로 항목을 알아본다 — 계기판 경고등과 같은 시각 언어.</li>
+      <li>"디자인이 없는 느낌" 을 가장 직접적으로 해소한다.</li>
+      <li>완료/미수행이 면 vs 선으로 갈려 한눈에 구분된다.</li>
+    </ul>
+    <h3>주의점</h3>
+    <ul>
+      <li>아이콘 일곱 개를 벡터로 새로 그려야 한다(ImageVector) — 다섯 안 중 작업량이 가장 많다.</li>
+      <li>좌·우 지시등, 비상등 아이콘이 실제 계기판 기호와 닮아 "지금 켜졌다" 로 오해될 수 있다 — 미수행일 땐 흐리게 둔다.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ========== D 왼쪽 띠 ========== -->
+<section class="cell">
+  <div>
+    <div class="frame">
+      <div class="lp">
+        <div class="wm">DRIVE COACH</div>
+        <div class="grid">
+          <div class="d done"><div class="lab">도어</div><div class="val">닫힘</div></div>
+          <div class="d todo"><div class="lab">좌 지시등</div><div class="val">미수행</div></div>
+          <div class="d done"><div class="lab">안전벨트</div><div class="val">채움</div></div>
+          <div class="d todo"><div class="lab">우 지시등</div><div class="val">미수행</div></div>
+          <div class="d done"><div class="lab">기어</div><div class="val">P</div></div>
+          <div class="d todo"><div class="lab">비상등</div><div class="val">미수행</div></div>
+          <div class="d done"><div class="lab">브레이크 / 시동</div><div class="val">밟음 → 켜짐</div></div>
+        </div>
+        <div class="lcap">출발 전 점검 · 확인 상태</div>
+      </div>
+      <div class="rhead">출발 전 점검</div>
+      <div class="speed"><b>0 km/h</b><i>시뮬레이션 신호</i></div>
+      <div class="coach-eb">코치</div>
+      <div class="coach">왼쪽 지시등을 켜 주세요.</div>
+      <div class="pill">다 됐어요 <span>→</span></div>
+    </div>
+    <div class="strip">
+      <div class="sc"><span class="sl">완료</span><div class="d done w175"><div class="lab">도어</div><div class="val">닫힘</div></div></div>
+      <div class="sc"><span class="sl">미수행</span><div class="d todo w175"><div class="lab">비상등</div><div class="val">미수행</div></div></div>
+      <div class="sc"><span class="sl">잘못함</span><div class="d bad w175"><div class="lab">브레이크 / 시동</div><div class="val">브레이크 없이 켜짐</div></div></div>
+      <div class="sc"><span class="sl">미측정</span><div class="d na w175"><div class="lab">비상등</div><div class="val">미측정</div></div></div>
+    </div>
+  </div>
+  <div>
+    <div class="letter">D</div>
+    <h2>왼쪽 띠</h2>
+    <p class="desc">완료 카드는 Lavender 면 + 왼쪽 Periwinkle 띠 + 질감 그림자, 미수행 카드는 Signal 테두리만 남은 빈 칸.</p>
+    <h3>장점</h3>
+    <ul>
+      <li>밝은 면 vs 빈 칸이라 상태 대비가 다섯 안 중 가장 강하다 — 멀리서도 즉시 구분.</li>
+      <li>앱의 다른 Lavender 카드(과제·시험장)와 재질이 같아 화면끼리 이어진다.</li>
+      <li>"채워 나가는" 느낌 — 하나 끝날 때마다 빈 칸이 밝게 채워진다.</li>
+    </ul>
+    <h3>주의점</h3>
+    <ul>
+      <li>밝은 완료 카드가 눈을 더 끈다 — 정작 봐야 할 미수행 칸이 상대적으로 묻힐 수 있다(빨간 테두리로 보완).</li>
+      <li>미수행이 셋 이상이면 빨간 테두리가 많아져 "경고 화면" 처럼 보일 수 있다.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ========== E 순서 점 ========== -->
+<section class="cell">
+  <div>
+    <div class="frame">
+      <div class="lp">
+        <div class="wm">DRIVE COACH</div>
+        <div class="tl">
+          <div class="line"></div><div class="line on"></div>
+          <div class="erow done"><span class="dt"></span><div class="bx"><span class="nm">도어</span><span class="v">닫힘</span></div></div>
+          <div class="erow done"><span class="dt"></span><div class="bx"><span class="nm">안전벨트</span><span class="v">채움</span></div></div>
+          <div class="erow done"><span class="dt"></span><div class="bx"><span class="nm">기어</span><span class="v">P</span></div></div>
+          <div class="erow done"><span class="dt"></span><div class="bx"><span class="nm">브레이크 / 시동</span><span class="v">밟음 → 켜짐</span></div></div>
+          <div class="erow todo cur"><span class="dt"></span><div class="bx"><span class="nm">좌 지시등</span><span class="v">미수행</span></div></div>
+          <div class="erow todo"><span class="dt"></span><div class="bx"><span class="nm">우 지시등</span><span class="v">미수행</span></div></div>
+          <div class="erow todo"><span class="dt"></span><div class="bx"><span class="nm">비상등</span><span class="v">미수행</span></div></div>
+        </div>
+        <div class="lcap">출발 전 점검 · 확인 상태</div>
+      </div>
+      <div class="rhead">출발 전 점검</div>
+      <div class="speed"><b>0 km/h</b><i>시뮬레이션 신호</i></div>
+      <div class="coach-eb">코치</div>
+      <div class="coach">왼쪽 지시등을 켜 주세요.</div>
+      <div class="pill">다 됐어요 <span>→</span></div>
+    </div>
+    <div class="strip">
+      <div class="sc" style="width:165px"><span class="sl">완료</span><div class="erow done"><span class="dt"></span><div class="bx"><span class="nm">도어</span><span class="v">닫힘</span></div></div></div>
+      <div class="sc" style="width:195px"><span class="sl">지금 할 일 (첫 미수행)</span><div class="erow todo cur"><span class="dt"></span><div class="bx"><span class="nm">좌 지시등</span><span class="v">미수행</span></div></div></div>
+      <div class="sc" style="width:262px"><span class="sl">잘못함</span><div class="erow bad"><span class="dt"></span><div class="bx" style="padding-right:0"><span class="nm">브레이크 / 시동</span><span class="v" style="margin-left:8px">브레이크 없이 켜짐</span></div></div></div>
+      <div class="sc" style="width:140px"><span class="sl">미측정</span><div class="erow na"><span class="dt"></span><div class="bx"><span class="nm">비상등</span><span class="v">미측정</span></div></div></div>
+    </div>
+  </div>
+  <div>
+    <div class="letter">E</div>
+    <h2>순서 점</h2>
+    <p class="desc">세로 한 줄 타임라인. 코치가 부르는 순서(문 → 벨트 → 기어 P → 브레이크+시동 → 좌 지시등 → 우 지시등 → 비상등) 그대로 점을 잇고, 숫자 대신 점으로 단계를 표시한다. 지금 할 일 한 줄만 질감 카드로 떠오른다.</p>
+    <h3>장점</h3>
+    <ul>
+      <li>왼쪽 패널과 오른쪽 코치 문장이 같은 "지금 할 일" 을 가리킨다 — 음성·화면이 한 흐름.</li>
+      <li>선이 Periwinkle 로 차오르며 진행을 숫자 없이 보여 준다.</li>
+      <li>완료 줄은 흐리게, 지금 줄만 강조 — 일곱 개 중 하나만 보면 된다. 가장 미니멀하다.</li>
+    </ul>
+    <h3>주의점</h3>
+    <ul>
+      <li>2열 → 1열로 배치가 바뀐다(ViewModel 의 항목 순서를 점검 순서로 고정해야 함). 구현 중간 난이도.</li>
+      <li>순서와 다르게 해도 완료로 쳐야 한다 — 건너뛴 칸이 생기면 "지금 할 일" 은 위에서 첫 미수행으로 잡는다.</li>
+      <li>점(실제 약 36 dp)은 작아 상태를 글자(미수행)로 꼭 함께 적어야 한다.</li>
+    </ul>
+  </div>
+</section>
+
+<div class="reco">
+  <div class="eb">추천</div>
+  <h2>E · 순서 점</h2>
+  <p>왼쪽 패널이 코치가 지금 말하는 단계를 그대로 가리켜 음성과 화면이 한 흐름이 되고, 일곱 개 중 "지금 할 일" 한 줄만 떠올라 다섯 안 중 가장 미니멀하다. 배치를 2열로 지키고 싶다면 A(체크 원)가 가장 적은 변경으로 단조로움과 "미수행" 구분을 함께 해결한다.</p>
+</div>
+
+</div>
+</body>
+</html>

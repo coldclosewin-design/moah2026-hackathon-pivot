@@ -29,6 +29,14 @@ object TrackCourses {
 
     private const val ROAD_W = 5f
 
+    /** 지도에서 차를 [MAP_CAR_SCALE] 배로 그리므로 장내 주차 칸도 같은 비율로 키운다(10/5). 화면(CourseMap)이 같은 배율을 쓴다. */
+    const val MAP_CAR_SCALE = 1.3f
+    private const val BAY_WIDTH_M = 2.6f * MAP_CAR_SCALE
+    private const val BAY_LENGTH_M = 5.5f * MAP_CAR_SCALE
+    private const val BAY_PITCH_M = 3.0f * MAP_CAR_SCALE
+    /** 칸이 길어진 만큼(7.15 − 5.5)의 절반을 더 들어간다 — 칸 중심 = 도로 가장자리 + 칸 길이/2. */
+    private const val BAY_EXTRA_DEPTH = (BAY_LENGTH_M - 5.5f) / 2f
+
     // ───────── 장내기능 모의시험 (제휴 시험장) ─────────
     // 출발(장치 조작) → 북쪽 직선(경사로) → 우회전 → 동쪽 직선(직각 주차 · 신호 교차로) → 우회전 → 남쪽 직선(가속) → 우회전 → 서쪽 직선(돌발) → 좌회전 → 종료
 
@@ -41,10 +49,10 @@ object TrackCourses {
         val rightTurn1 = Turtle(slopeToCorner.end).arc(6f, -90f).path()
         /** 동쪽 직선 → 주차 칸을 지나 정지(x=47). */
         val toParkingStop = Turtle(rightTurn1.end).straight(31f).path()
-        /** 뒤로 칸에 넣기 — 진행 방향은 서쪽에서 북쪽으로. */
-        val reverseIn = Turtle(Pose(toParkingStop.end.at, 90f)).straight(1.5f).arc(5.25f, -90f).path()
-        /** 칸에서 앞으로 빠져나오기 — 남쪽에서 동쪽으로. */
-        val pullOut = Turtle(Pose(reverseIn.end.at, 180f)).arc(5.25f, 90f).path()
+        /** 뒤로 칸에 넣기 — 진행 방향은 서쪽에서 북쪽으로, 칸 깊이에 맞춰 마지막에 곧게 조금 더(10/5, 칸 1.3배). */
+        val reverseIn = Turtle(Pose(toParkingStop.end.at, 90f)).straight(1.5f).arc(5.25f, -90f).straight(BAY_EXTRA_DEPTH).path()
+        /** 칸에서 앞으로 빠져나오기 — 곧게 나온 뒤 남쪽에서 동쪽으로. */
+        val pullOut = Turtle(Pose(reverseIn.end.at, 180f)).straight(BAY_EXTRA_DEPTH).arc(5.25f, 90f).path()
         /** 신호 교차로 정지선 앞(x=59). */
         val toSignalStop = Turtle(pullOut.end).straight(59f - pullOut.end.at.x).path()
         val throughSignal = Turtle(toSignalStop.end).straight(86f - 59f).path()
@@ -73,8 +81,9 @@ object TrackCourses {
 
     val exam: TrackCourse by lazy {
         val e = Exam
+        // 10/5 사용자 결정: 지도 위 차를 1.3배로 그린다(가독성) → 칸도 1.3배(폭 3.4 · 길이 7.2 · 간격 3.9 m), 도로 가장자리(y=68.5)에서 시작
         val bays = (-2..2).map { k ->
-            MapShape.Bay(Vec2(e.bayCenter.x + k * 3f, 71.25f), widthM = 2.6f, lengthM = 5.5f, headingDeg = 0f, target = k == 0)
+            MapShape.Bay(Vec2(e.bayCenter.x + k * BAY_PITCH_M, e.bayCenter.y), widthM = BAY_WIDTH_M, lengthM = BAY_LENGTH_M, headingDeg = 0f, target = k == 0)
         }
         val map = TrackMap(
             id = "map-exam", title = "제휴 시험장 장내 코스(예시)", widthM = 100f, heightM = 80f,
@@ -87,7 +96,7 @@ object TrackCourses {
                 MapShape.Crosswalk(Vec2(56f, 17.5f), Vec2(56f, 22.5f), 3f),
                 MapShape.Label(Vec2(17f, 5f), "출발"),
                 MapShape.Label(Vec2(17f, 32f), "경사로"),
-                MapShape.Label(Vec2(40.25f, 77f), "직각 주차"),
+                MapShape.Label(Vec2(40.25f, 78.5f), "직각 주차"),
                 MapShape.Label(Vec2(72f, 72f), "신호"),
                 MapShape.Label(Vec2(84f, 43f), "가속"),
                 MapShape.Label(Vec2(60f, 12f), "돌발"),
