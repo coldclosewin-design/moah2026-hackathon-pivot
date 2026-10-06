@@ -28,7 +28,7 @@
 4. tools PR(Claude): 텍스트 한 줄로 의도 확인 단계.
 5. 태그 → 사내에서 Copilot 여러 턴 확인 → 영상 컷.
 
-## 모델 API(2의 모델 PR — 화면은 이것만 본다)
+## 모델 API(2의 모델 PR #198 머지 · 화면 발주 `docs/handoffs/2026-10-06_codex_ui_round24.md`)
 
 - `LessonPhase.Setup.coachTextInput: Boolean` — 관리자 토글 값. 켜져 있으면 대화 시트에 입력 칸·`보내기`·"음성 입력 · 시뮬레이션" 배지, 버튼 문구 `코치에게 말하기`. 꺼져 있으면 지금 칩 흐름 그대로, 버튼 문구 `코치와 고르기`.
 - `CoachDialog.turns: List<CoachTurn>`(첫 말 `line` 뒤의 대화 — `fromDriver` 로 좌우) · `CoachDialog.waiting`(코치가 답을 고르는 중 — 보내기 막음, "…" 말풍선). 칩(`choices`)은 대화 중에도 그대로.
