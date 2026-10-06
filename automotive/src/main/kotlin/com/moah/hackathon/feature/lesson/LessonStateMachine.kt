@@ -679,8 +679,7 @@ class LessonStateMachine(
         val s = pin?.let { ModeAdvisor.Suggestion(it.second, ModeAdvisor.pinnedReason(it.second)) } ?: ModeAdvisor.suggest(task, store)
         val reserved = reservedReadyTask()
         val fromReservation = booking != null && reserved?.id == task.id
-        val modeReason = if (bookingChoice == BookingOption.MOCK_EXAM && fromReservation && s.mode == LessonMode.EVALUATE) MOCK_EXAM_REASON else s.reason
-        val reason = if (fromReservation) "${ModeAdvisor.RESERVED_REASON} $modeReason" else modeReason
+        val reason = if (fromReservation) ModeAdvisor.reservedReason(s.mode, mockExam = bookingChoice == BookingOption.MOCK_EXAM) else s.reason
         return LessonPhase.Setup(profile, tasks, task, s.mode, reason, venues = venues, booking = booking,
             coach = if (coachOpen) CoachDialog(coachOpening ?: coachLine(), coachChoices(), coachTurns.toList(), coachWaiting) else null,
             bookingOptions = if (booking != null) bookingOptionsFor(reserved) else emptyList(),
@@ -975,9 +974,7 @@ class LessonStateMachine(
         const val TAG = "MOAH/LessonStateMachine"
         /** 채점 코루틴을 기다리는 최대 횟수 × 50 ms = 8 s(Cloud 코치 시간 제한 5 s + 여유). */
         const val FINISH_WAIT_STEPS = 160
-        /** 예약 카드 `모의시험` 의 이유 문장(숫자 없음, 4b 시안 문구). */
         /** 운전자 글의 최대 길이 — 넘으면 자른다. */
         const val MAX_UTTERANCE = 120
-        const val MOCK_EXAM_REASON = "시험장 코스 그대로, 제가 채점만 할게요."
     }
 }

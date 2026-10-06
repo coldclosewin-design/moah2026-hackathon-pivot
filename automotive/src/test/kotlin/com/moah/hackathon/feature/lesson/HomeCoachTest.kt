@@ -99,7 +99,7 @@ class HomeCoachTest {
         assertEquals(SeedCatalog.TASK_PARKING_REAR, h.setup.suggestedTask.id)
         assertEquals(LessonMode.EVALUATE, h.setup.suggestedMode)
         assertEquals(BookingOption.MOCK_EXAM, h.setup.bookingChoice)
-        assertTrue(h.setup.reason.endsWith("시험장 코스 그대로, 제가 채점만 할게요."))
+        assertEquals(ModeAdvisor.reservedReason(LessonMode.EVALUATE, mockExam = true), h.setup.reason)
 
         h.machine.chooseBooking(BookingOption.COURSE_PRACTICE)
         assertEquals(LessonMode.GUIDE, h.setup.suggestedMode)   // 처음 하는 과제 → 가이드
