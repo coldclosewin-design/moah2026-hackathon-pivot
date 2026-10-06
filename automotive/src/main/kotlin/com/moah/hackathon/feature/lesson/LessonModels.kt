@@ -52,6 +52,11 @@ data class Task(
      * [com.moah.hackathon.scoring.CourseRecorder] 로 채점한다. 위치는 시뮬레이션 신호(`Track.*`).
      */
     val course: TrackCourse? = null,
+    /**
+     * 정차 중 퀴즈로만 하는 과제(라운드 25 결정 5 H) — 지식 과제는 늘 그렇고, 점검 분류의 "도로 표시 읽기" 처럼 다른 분류에도 둘 수 있다.
+     * [supports] 가 이것으로 지식 테스트 모드만 받는다.
+     */
+    val quizOnly: Boolean = type == TaskType.KNOWLEDGE,
 ) {
     val isReady: Boolean get() = status == TaskStatus.READY
     val isCourse: Boolean get() = course != null
@@ -61,8 +66,8 @@ data class Task(
 
     /** 이 과제로 그 모드를 시작할 수 있나. 지식 테스트는 지식 과제에만, 나머지 셋은 주행·주차 과제에만. */
     fun supports(mode: LessonMode): Boolean = when (mode) {
-        LessonMode.QUIZ -> type == TaskType.KNOWLEDGE
-        else -> type != TaskType.KNOWLEDGE
+        LessonMode.QUIZ -> quizOnly
+        else -> !quizOnly
     }
 }
 
@@ -259,8 +264,20 @@ data class QuizItem(
     val answer: Int,
     /** 정답·오답 어느 쪽이든 읽어 주는 이유 — 퀴즈의 목적은 채점이 아니라 이걸 듣는 것. */
     val why: String,
+    /** 문항과 함께 그릴 도로 표시 도식(라운드 25 결정 5 H). null 이면 그림 없음 — 화면(Codex)이 도식으로 그린다. */
+    val figure: RoadFigure? = null,
 ) {
     init { require(answer in choices.indices) { "answer index out of range for $id" } }
+}
+
+/** 퀴즈 그림 — 바닥 화살표·선(위에서 본 차로 한 칸 도식). 색은 실제 도로 색이 아니라 앱 토큰 안에서 구분(화면 몫). */
+enum class RoadFigure(val label: String) {
+    LEFT_ARROW("좌회전 화살표"),
+    STRAIGHT_LEFT_ARROW("직진·좌회전 화살표"),
+    WHITE_SOLID("흰색 실선"),
+    YELLOW_SOLID_CENTER("노란 실선 중앙선"),
+    ZIGZAG("지그재그 서행 표시"),
+    BLUE_BUS_LANE("파란 버스전용차로"),
 }
 
 data class QuizResult(val itemId: String, val chosen: Int, val correct: Boolean)

@@ -78,7 +78,7 @@ object SeedCatalog {
         Task(TASK_KNOWLEDGE, "비상등·날씨별 행동", TaskType.KNOWLEDGE, Difficulty.EASY, "정차 중에 문제를 풀고 이유를 함께 살펴봐요.",
             listOf("비상등", "우천", "야간"), emptySet(), requiresDriving = false,
             status = TaskStatus.READY),   // 지식 테스트 모드로만 시작된다(Task.supports)
-    )
+    ) + RoadSigns.task   // 점검 분류의 그림 퀴즈(라운드 25 결정 5 H)
 
     val parkingTask: Task get() = tasks.first { it.id == TASK_PARKING_REAR }
     val frontParkingTask: Task get() = tasks.first { it.id == TASK_PARKING_FRONT }
@@ -91,6 +91,7 @@ object SeedCatalog {
         task.id == TASK_PARKING_PARALLEL -> MoreParkingScenarios.parallel
         task.id == TASK_PARKING_ANGLE -> MoreParkingScenarios.angle
         task.type == TaskType.PARKING -> ParkingScenarios.all
+        task.quizOnly -> emptyList()   // 퀴즈 과제는 차를 움직이지 않는다
         task.type == TaskType.CHECKLIST -> ChecklistScenarios.all
         else -> emptyList()
     }
@@ -278,6 +279,7 @@ object SeedCatalog {
     /** 정차 중 3지선다 (§3.2 지식 테스트). 채점보다 `why` 를 듣는 것이 목적. 문항 내용은 Codex 가 다듬는다. */
     fun quizFor(task: Task): List<QuizItem> = when (task.id) {
         TASK_KNOWLEDGE -> quiz
+        RoadSigns.TASK_ROAD_SIGNS -> RoadSigns.quiz
         else -> emptyList()
     }
 

@@ -58,6 +58,7 @@ object ModeAdvisor {
     data class Suggestion(val mode: LessonMode, val reason: String)
 
     fun suggest(task: Task, store: ProgressStore): Suggestion {
+        if (task.quizOnly) return Suggestion(LessonMode.QUIZ, pinnedReason(LessonMode.QUIZ))   // 퀴즈 과제는 모드가 하나
         val attempts = store.forTask(task.id)
         if (attempts.isEmpty()) return Suggestion(LessonMode.GUIDE, "처음 하는 과제라 가이드부터 해요. 제가 단계마다 확인할게요.")
         // 운전자에게 보이는·들리는 문장이라 숫자(점수·횟수)를 넣지 않는다(2026-09-27 규칙). 임계값은 위 상수로만.
