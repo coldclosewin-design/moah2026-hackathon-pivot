@@ -1,15 +1,21 @@
-# 사내 재검증 재개 — 태그 `inhouse-20261006-2` (2026-10-06)
+# 사내 재검증 재개 — 태그 `inhouse-20261006-3` (2026-10-06)
 
 사내 세션은 이 파일 하나를 보고 진행한다. **사내에서는 코드를 고치지 않는다 — 검증·녹화만.**
 이 파일은 태그를 만든 뒤 main 에 들어갔으므로 태그 체크아웃 폴더에는 없다. clone 한 뒤 `git show origin/main:docs/handoffs/2026-10-06_inhouse_resume.md` 로 읽는다(빌드는 태그로).
 
 ## 순서
 
-1. **저장소**: public clone 후 `git checkout inhouse-20261006-2` (= `0ab3c30`). clone 이 막히면 번들 `moah2026-20261006-2.bundle` 을 반입해 clone(그 브랜치 `inhouse/base-20261006-2` 가 바로 체크아웃된다).
+1. **저장소**: public clone 후 `git checkout inhouse-20261006-3` (= `624cf04`). clone 이 막히면 번들 `moah2026-20261006-3.bundle` 을 반입해 clone(그 브랜치 `inhouse/base-20261006-3` 가 바로 체크아웃된다). 화면은 `-2` 와 같고, 사내 검증 #4 에서 나온 수정 셋만 더해졌다.
 2. **jar 복사 직후** `REPO_ONLY=1 bash tools/inhouse_check.sh` → `PASS (저장소만)`.
 3. **빌드**: `local.properties` 에 `mobis.vss.jar=automotive/libs/mobis.framework.core.jar` 한 줄 → `./gradlew assembleDebug` (로그 첫 줄에 `USE_FAKE_VSS=false`).
 4. **세션 준비**: `adb root` · Wi-Fi · `copilot_config.json` push · `adb logcat -G 16M` → `bash tools/inhouse_check.sh`. 요약 전체를 적는다 — 배지 `live=` 값, `missing=[…]`, 우리 앱 FATAL 수, Copilot 상태·fallback 수.
-5. **이번 태그에서 새로 확인할 것**:
+5. **이번 태그에서 새로 확인할 것(#4 수정)**:
+   - **단위 테스트** `./gradlew testDebugUnitTest` 가 사내 jar 로 전부 통과하는가(324 — #4 의 `SimOnlySignalsTest` 실패가 없어야 한다).
+   - **회차 시작 직후, 움직이기 전에 띠 `문 열기`** → 화면이 멈추지 않고 홈(과제 고르기)으로 돌아오는가. 움직인 뒤 `문 열기` → 리포트(코치가 느려도 최대 8초 안에).
+   - `pm clear --user 10` 직후(첫 실행 상태)에도 `inhouse_check.sh` 가 프로필 질문을 건너뛰고 끝까지 가는가. 순수 Real 이면 "준비실 프리셋부터" 안내하고 멈추는 게 정상.
+   - 모의시험 배지 `live=` 가 #4(11)보다 늘었는가 — 전조등·와이퍼가 이제 실물 키라 사내 에뮬이 값을 주면 live 로 잡힌다. 와이퍼가 늘 미측정이면 값 포맷이 다른 것(관찰 노트에 값만 적는다).
+
+   #4 에서 이미 확인한 것(다시 볼 필요 없음, 녹화 전에 한 번 훑기만):
    - 홈 `DRIVE COACH` 를 약 2초 길게 → **준비실**이 열리는가(기본 Hybrid 빌드). 순수 Real(`-PfillMissing=false`)이면 열리지 않아야 한다.
    - 준비실 프리셋 `후면 주차 두 회차` → `이 설정으로 홈` → 홈 눈썹이 `연수생 · 장롱 10년차 · 목표 아이 등하원` 인가.
    - 화면 맨 아래 **띠**의 `정차`·`문 열기` 가 실차 신호와 함께 먹는가(리포트 배지 `실신호 N · 시뮬레이션 N`). `출발` 은 차를 움직이는 버튼이 아니라 `정차`(속도 0 고정)를 **푸는** 버튼이다 — 시나리오가 없을 때 누르면 아무 일도 없다.
