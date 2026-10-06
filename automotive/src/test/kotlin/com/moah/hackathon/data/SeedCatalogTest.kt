@@ -25,7 +25,7 @@ class SeedCatalogTest {
 
     @Test
     fun `parking variants are ordered catalogue entries - all four ready with their own spec`() {
-        assertEquals(12, SeedCatalog.tasks.size)
+        assertEquals(12 + RoadKnowledge.tasks.size, SeedCatalog.tasks.size)   // + 도로 상식 다섯(라운드 25)
         val parking = SeedCatalog.tasks.filter { it.type == TaskType.PARKING }
         assertEquals(listOf(SeedCatalog.TASK_PARKING_REAR, "parking-parallel", SeedCatalog.TASK_PARKING_FRONT, "parking-angle"), parking.map { it.id })
         assertEquals(listOf(Difficulty.MEDIUM, Difficulty.HARD), parking.takeLast(2).map { it.difficulty })
@@ -128,5 +128,25 @@ class SeedCatalogTest {
     @Test
     fun `the knowledge quiz is an easy task - three choices while parked is not harder than rear parking`() {
         assertEquals(Difficulty.EASY, SeedCatalog.tasks.first { it.id == SeedCatalog.TASK_KNOWLEDGE }.difficulty)
+    }
+
+    @Test
+    fun `road knowledge tasks are quiz-only with answerable items and no digits`() {
+        val road = SeedCatalog.tasks.filter { it.id in RoadKnowledge.quiz.keys }
+        assertEquals(RoadKnowledge.tasks.map { it.id }, road.map { it.id })
+        assertEquals("first knowledge task stays the original", SeedCatalog.TASK_KNOWLEDGE, SeedCatalog.tasks.first { it.type == TaskType.KNOWLEDGE }.id)
+        road.forEach { t ->
+            assertTrue(t.id, t.type == TaskType.KNOWLEDGE && t.isReady && t.supports(com.moah.hackathon.feature.lesson.LessonMode.QUIZ))
+            val items = SeedCatalog.quizFor(t)
+            assertTrue(t.id, items.size >= 3)
+            items.forEach { q ->
+                assertTrue(q.id, (q.question + q.why + q.choices.joinToString()).none(Char::isDigit))
+                assertTrue(q.id, q.choices.size in 2..3)
+            }
+        }
+        val ids = RoadKnowledge.quiz.values.flatten().map { it.id } + SeedCatalog.quiz.map { it.id }
+        assertEquals(ids.size, ids.toSet().size)
+        assertEquals(Difficulty.HARD, SeedCatalog.tasks.first { it.id == RoadKnowledge.TASK_TRICKY }.difficulty)
+        assertTrue(SeedCatalog.quizFor(SeedCatalog.tasks.first { it.id == RoadKnowledge.TASK_TRICKY }).all { it.choices == listOf("맞아요", "아니에요") })
     }
 }
