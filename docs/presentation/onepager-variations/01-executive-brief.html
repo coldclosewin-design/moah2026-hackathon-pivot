@@ -1,0 +1,184 @@
+<!-- meta: ① 사내 보고용 | 임원·부서장 | 16:9 1920×1080 | Noto Sans KR + Bahnschrift(숫자) | 남색·회색 + Signal 포인트 1곳 | 결론 박스 → 핵심 메시지 3칸 → 검증 KPI 타일 → 화면 1장 + 다음 단계/요청 -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>드라이브 코치 — 임원 보고</title>
+<style>
+  :root{
+    --navy:#14204A; --ink:#070827; --peri:#5B60A1; --lav:#E5E6F0;
+    --g9:#22252E; --g7:#4A4F5C; --g5:#7B808C; --g3:#C9CCD3; --g1:#EEF0F3; --paper:#FFFFFF;
+    --signal:#F52D48;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1920px;height:1080px;overflow:hidden}
+  body{background:var(--paper);font-family:"Noto Sans KR",sans-serif;color:var(--g9);position:relative}
+  .num{font-family:"Bahnschrift","Noto Sans KR",sans-serif;font-weight:600;letter-spacing:-0.01em}
+
+  header{position:absolute;left:72px;right:72px;top:40px;height:44px;display:flex;align-items:flex-end;justify-content:space-between;border-bottom:2px solid var(--navy);padding-bottom:12px}
+  header .l{display:flex;align-items:baseline;gap:22px}
+  header .doc{font-size:15px;font-weight:500;color:var(--g5);letter-spacing:.12em}
+  header h1{font-size:28px;font-weight:700;color:var(--navy);letter-spacing:-0.01em}
+  header h1 span{font-weight:400;color:var(--g7);font-size:22px;margin-left:10px}
+  header .r{font-size:16px;color:var(--g7)}
+  header .r b{font-weight:500;color:var(--navy)}
+
+  .verdict{position:absolute;left:72px;right:72px;top:110px;height:150px;background:var(--navy);color:#fff;display:flex;align-items:center;padding:0 48px 0 0}
+  .verdict .tag{width:150px;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;border-right:1px solid rgba(255,255,255,.18);margin-right:44px;position:relative}
+  .verdict .tag::before{content:"";position:absolute;left:0;top:0;bottom:0;width:10px;background:var(--signal)}
+  .verdict .tag b{font-size:30px;font-weight:700;letter-spacing:.06em}
+  .verdict .tag i{font-style:normal;font-size:14px;color:#AEB4D6;margin-top:4px;letter-spacing:.14em}
+  .verdict p{font-size:33px;font-weight:500;line-height:1.38;letter-spacing:-0.015em}
+  .verdict p em{font-style:normal;font-weight:700;color:#fff;border-bottom:3px solid #8E93D0}
+  .verdict p small{display:block;font-size:19px;font-weight:400;color:#C3C7E4;margin-top:6px;letter-spacing:0}
+
+  .row-h{position:absolute;left:72px;font-size:15px;font-weight:700;color:var(--g5);letter-spacing:.16em}
+
+  .msgs{position:absolute;left:72px;right:72px;top:318px;height:250px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .msg{border-top:4px solid var(--navy);background:var(--g1);padding:26px 30px 0}
+  .msg .k{font-size:15px;font-weight:700;color:var(--peri);letter-spacing:.1em}
+  .msg h3{font-size:26px;font-weight:700;color:var(--navy);margin-top:8px;line-height:1.3;letter-spacing:-0.02em}
+  .msg ul{list-style:none;margin-top:14px}
+  .msg li{font-size:17px;line-height:1.5;color:var(--g7);padding-left:16px;position:relative;margin-bottom:5px}
+  .msg li::before{content:"";position:absolute;left:0;top:11px;width:6px;height:6px;background:var(--g5)}
+  .msg li b{font-weight:700;color:var(--g9)}
+  .msg li .num{font-size:19px;color:var(--navy)}
+
+  .kpis{position:absolute;left:72px;top:628px;width:1080px;height:330px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:1fr 1fr;gap:16px}
+  .kpi{border:1px solid var(--g3);padding:18px 24px;display:flex;flex-direction:column;justify-content:space-between;background:#fff}
+  .kpi .lbl{font-size:15px;color:var(--g5);font-weight:500}
+  .kpi .val{font-size:58px;line-height:1;color:var(--navy)}
+  .kpi .val small{font-size:24px;color:var(--g7);margin-left:6px;font-weight:400}
+  .kpi .sub{font-size:14px;color:var(--g5)}
+  .kpi.wide{grid-column:span 2;background:var(--lav);border-color:var(--lav)}
+  .kpi.wide .trip{display:flex;align-items:flex-end;gap:36px}
+  .kpi.wide .trip div{display:flex;flex-direction:column}
+  .kpi.wide .trip .val{font-size:66px}
+  .kpi.wide .trip span{font-size:15px;color:var(--g7);margin-top:6px}
+  .kpi.wide .trip .sep{width:1px;height:70px;background:#B9BBD6}
+  .kpi.wide .trip .bar{height:12px;display:flex;flex-direction:row;margin-bottom:8px;width:100%}
+  .bar i{display:block;height:100%}
+
+  .side{position:absolute;left:1176px;right:72px;top:628px;height:330px;display:grid;grid-template-columns:1fr;grid-template-rows:auto 1fr;gap:14px}
+  .shot{display:flex;gap:16px;align-items:flex-start}
+  .shot img{width:270px;height:152px;object-fit:cover;border:1px solid var(--g3);display:block}
+  .shot p{font-size:14px;color:var(--g5);line-height:1.5}
+  .shot p b{display:block;font-size:16px;color:var(--g9);font-weight:500;margin-bottom:4px}
+  .next{border:2px solid var(--navy);padding:14px 22px}
+  .next h4{font-size:15px;font-weight:700;color:var(--navy);letter-spacing:.12em;margin-bottom:8px}
+  .next ol{list-style:none;counter-reset:n}
+  .next li{counter-increment:n;font-size:16px;line-height:1.45;color:var(--g9);padding-left:30px;position:relative;margin-bottom:4px}
+  .next li::before{content:counter(n);position:absolute;left:0;top:1px;width:20px;height:20px;background:var(--navy);color:#fff;font-family:"Bahnschrift",sans-serif;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .next li em{font-style:normal;color:var(--g5);font-size:14px}
+
+  footer{position:absolute;left:72px;right:72px;bottom:28px;border-top:1px solid var(--g3);padding-top:10px;font-size:12.5px;line-height:1.6;color:var(--g5)}
+  footer b{color:var(--g7);font-weight:500}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="l">
+    <span class="doc">임원 보고 · 한 장 요약</span>
+    <h1>드라이브 코치<span>화내지 않는 조수석 — AAOS 운전 연수 어시스턴트</span></h1>
+  </div>
+  <div class="r">MOAH 2026 · 팀 <b>사고치조</b> · 보고 <b>전준영</b> · 2026-10-07</div>
+</header>
+
+<section class="verdict">
+  <div class="tag"><b>결론</b><i>BOTTOM LINE</i></div>
+  <p>사내 차량 환경(Real VSS)에서 <em>코드 수정 없이</em> 빌드·실행되었고,<br>후면 주차 과제 신호 8개 중 <em>7개를 실신호</em>로 받아 과정 코칭이 동작합니다.
+    <small>주차·첫 100일처럼 사고가 몰리는 순간을, 화내지 않고 반복해 주는 조수석을 차량 안에 둡니다.</small></p>
+</section>
+
+<div class="row-h" style="top:288px">핵심 메시지 3</div>
+<section class="msgs">
+  <div class="msg">
+    <div class="k">01 · 왜 필요한가</div>
+    <h3>사고가 몰리는 순간에<br>옆에 조수석이 없다</h3>
+    <ul>
+      <li>차량 물적 사고 <b class="num">30.2%</b>가 주차 중, 그중 <b class="num">53.8%</b>가 후진 <sup>①</sup></li>
+      <li>초보 첫해 사고의 <b class="num">41%</b>가 처음 100일 안 <sup>②</sup></li>
+      <li>학원 도로연수 10시간 약 <b class="num">50~60</b>만 원 <sup>③</sup></li>
+    </ul>
+  </div>
+  <div class="msg">
+    <div class="k">02 · 무엇을 만들었나</div>
+    <h3>두려운 상황을 과제로 쪼개<br>신호로 과정을 잰다</h3>
+    <ul>
+      <li>과제 <b class="num">18</b> — 주차 4 · 도로 주행 6 · 점검 2 · 지식 6</li>
+      <li><b>가이드 → 힌트 → 평가</b> 순으로 도움을 줄여 간다</li>
+      <li>정차하면 회차 판정, 쌓이면 리포트·진단서</li>
+    </ul>
+  </div>
+  <div class="msg">
+    <div class="k">03 · 어떻게 믿게 하나</div>
+    <h3>무엇이 실신호인지<br>화면이 정직하게 말한다</h3>
+    <ul>
+      <li>신호마다 <b>실신호 / 시뮬레이션 / 미측정</b> 배지</li>
+      <li>틀린 순간 힌트는 <b>규칙이 지연 0</b>, 총평·대화는 사내 Copilot</li>
+      <li>주행 중 5 km/h 넘으면 화면 잠금</li>
+    </ul>
+  </div>
+</section>
+
+<div class="row-h" style="top:598px">검증 KPI · 사내 차량 환경(Real VSS)</div>
+<section class="kpis">
+  <div class="kpi wide">
+    <div class="lbl">후면 주차 과제 신호 출처 배지 (8개)</div>
+    <div class="trip">
+      <div><b class="val num">7</b><span>실신호</span></div>
+      <i class="sep"></i>
+      <div><b class="val num" style="color:var(--peri)">1</b><span>시뮬레이션</span></div>
+      <i class="sep"></i>
+      <div><b class="val num" style="color:var(--g5)">0</b><span>미측정</span></div>
+      <div style="flex:1;margin-left:10px">
+        <div class="bar"><i style="width:87.5%;background:var(--navy)"></i><i style="width:12.5%;background:var(--peri)"></i></div>
+        <span style="font-size:13px;color:var(--g5)">속도·조향·기어·안전벨트·시동·도어·지시등·비상등 계열</span>
+      </div>
+    </div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">사내 빌드 코드 수정</div>
+    <div class="val num">0<small>건</small></div>
+    <div class="sub">설정 한 줄로 실신호 전환</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">사내 Copilot 응답</div>
+    <div class="val num">1.2~1.5<small>s</small></div>
+    <div class="sub">실패 시 규칙 문장으로 대체</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">단위 테스트 (사외)</div>
+    <div class="val num">350</div>
+    <div class="sub">빌드·테스트 통과 기준</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">연습 과제</div>
+    <div class="val num">18</div>
+    <div class="sub">여정 6단계 · 모드 3(가이드·힌트·평가)</div>
+  </div>
+</section>
+
+<aside class="side">
+  <div class="shot">
+    <img src="../../screenshots/lesson/lesson-done-verdict-fix.png" alt="회차 판정 화면">
+    <p><b>회차 판정 화면</b>점수 대신 판정 네 줄과<br>신호로 추정한 궤적.<br>외부 에뮬레이터 캡처.</p>
+  </div>
+  <div class="next">
+    <h4>다음 단계 / 요청</h4>
+    <ol>
+      <li>10/9 제출 — PPT · 소스 · APK · 시연 영상</li>
+      <li>판정 네 줄이 실차 값으로 맞는지 사내 확인 기회 <em>(현재 미확인)</em></li>
+      <li>시뮬레이션 항목(시험장 위치·예약·진단서 공유)의 실제 연동처 검토</li>
+    </ol>
+  </div>
+</aside>
+
+<footer>
+  <b>출처</b> ① 보험개발원·현대해상·동부화재·KB손해보험 공동 조사(2012~2014 보험금 지급 분석, 2017.1 발표) ② 현대해상 교통기후환경연구소 「초보운전자 사고감소를 위한 정책방안 연구」(2009~2015 사고 317만 건, 2016.12) ③ 2025년 언론 보도 기준<br>
+  <b>한계</b> 카메라가 없어 칸 안 최종 위치는 판정하지 않는다(과정을 본다) · 예약·진단서 공유·시험장 위치 신호는 시뮬레이션/예시 · 검증은 사내 차량 환경 기준이며 실제 도로 검증이 아니다 · 캡처는 외부 에뮬레이터 화면
+</footer>
+
+</body>
+</html>

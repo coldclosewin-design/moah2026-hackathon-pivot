@@ -1,0 +1,169 @@
+<!-- meta: ③ 기관 제출용 | 공공기관·평가위원(정책 검토자) | A4 세로 1240×1754 | NanumMyeongjo·NanumMyeongjoExtraBold 제목 + NanumGothic 본문 | 흑백 + 남색(Ink #070827) 표 머리 · Periwinkle 각주 번호 | 정책 제안 요약서: 표지 정보 표 → 1~6절(배경 통계 표·제안·운영·개인정보 3단계·기대 효과·한계) → 각주 -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>정책 제안 요약서 — 드라이브 코치</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1240px; height: 1754px; background: #FFFFFF; }
+  body {
+    font-family: "NanumGothic", "Malgun Gothic", sans-serif;
+    color: #151515; font-size: 14.5px; line-height: 1.55;
+    padding: 50px 78px 36px 78px; display: flex; flex-direction: column;
+  }
+  .serif { font-family: "NanumMyeongjo", "Batang", serif; }
+  .eb { font-family: "NanumMyeongjoExtraBold", "NanumMyeongjo", "Batang", serif; }
+  sup.fn { color: #5B60A1; font-weight: 700; font-size: 11px; margin-left: 1px; }
+
+  .doc-kind { display: flex; justify-content: space-between; align-items: flex-end;
+    border-bottom: 1px solid #151515; padding-bottom: 8px; font-size: 13px; color: #444; letter-spacing: .02em; }
+  .doc-kind b { color: #070827; letter-spacing: .3em; font-size: 13px; }
+  h1 { font-size: 44px; line-height: 1.25; letter-spacing: -0.01em; margin-top: 22px; color: #070827; }
+  .sub { font-size: 19px; margin-top: 10px; color: #333; }
+
+  table { border-collapse: collapse; width: 100%; }
+  .cover { margin-top: 18px; border-top: 2px solid #070827; border-bottom: 2px solid #070827; font-size: 14.5px; }
+  .cover th { background: #070827; color: #fff; font-weight: 700; width: 108px; padding: 6px 12px; text-align: left; border-bottom: 1px solid #3a3d63; }
+  .cover td { padding: 6px 14px; border-bottom: 1px solid #c9c9c9; }
+  .cover tr:last-child th, .cover tr:last-child td { border-bottom: 0; }
+
+  .summary { margin-top: 16px; border: 1px solid #151515; padding: 11px 18px; display: flex; gap: 20px; }
+  .summary .lbl { font-size: 17px; color: #070827; white-space: nowrap; padding-top: 1px; }
+  .summary p { font-size: 14.5px; }
+
+  h2 { font-size: 21px; color: #070827; margin-top: 20px; padding-bottom: 4px; border-bottom: 1px solid #151515; display: flex; gap: 10px; align-items: baseline; }
+  h2 .no { font-family: "NanumMyeongjoExtraBold", serif; }
+  .para { margin-top: 7px; }
+  ul.dash { list-style: none; margin-top: 7px; }
+  ul.dash li { padding-left: 16px; position: relative; margin-top: 2px; }
+  ul.dash li::before { content: "–"; position: absolute; left: 0; color: #555; }
+
+  .data { margin-top: 10px; font-size: 14px; border-top: 1.5px solid #070827; }
+  .data th { background: #070827; color: #fff; font-weight: 700; padding: 5px 10px; text-align: left; font-size: 13.5px; }
+  .data td { padding: 4px 10px; border-bottom: 1px solid #cfcfcf; vertical-align: top; }
+  .data td.num { font-family: "NanumMyeongjoExtraBold", "NanumMyeongjo", serif; font-weight: 800; font-size: 19px; color: #070827; white-space: nowrap; width: 120px; }
+  .data tr:last-child td { border-bottom: 1.5px solid #070827; }
+  .cap { font-size: 12.5px; color: #555; margin-top: 5px; }
+
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 0 40px; }
+  .figs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; }
+  .figs figure img { width: 100%; height: 182px; object-fit: cover; object-position: 50% 50%; display: block; border: 1px solid #151515; filter: grayscale(0.15); }
+  .figs figcaption { font-size: 12.5px; color: #333; margin-top: 4px; }
+  .figs figcaption b { color: #070827; }
+
+  .tier td.lv { width: 92px; font-weight: 700; color: #070827; }
+  .tier tr.mid td { background: #EEEFF6; }
+
+  .foot { margin-top: auto; border-top: 1px solid #151515; padding-top: 8px; font-size: 11.8px; line-height: 1.55; color: #333; }
+  .foot ol { list-style: none; }
+  .foot li { display: flex; gap: 6px; }
+  .foot li .n { color: #5B60A1; font-weight: 700; width: 14px; flex: none; }
+  .pageno { display: flex; justify-content: space-between; margin-top: 8px; color: #666; font-size: 11.5px; }
+</style>
+</head>
+<body>
+  <div class="doc-kind">
+    <span><b>정책 제안 요약서</b> &nbsp;·&nbsp; 제안서 형식(팀 작성, 특정 기관 양식 아님)</span>
+    <span>팀 사고치조 · 2026. 10.</span>
+  </div>
+
+  <h1 class="eb">초보·장롱면허 운전자 연습 보조 도구 제안</h1>
+  <p class="sub serif">— 차량 신호로 연습 과정을 측정하는 차량용 앱 「드라이브 코치 — 화내지 않는 조수석」</p>
+
+  <table class="cover">
+    <tr><th>제안 팀</th><td>사고치조 (발표 전준영)</td><th>작성 일자</th><td>2026년 10월 7일</td></tr>
+    <tr><th>분류</th><td>운전 연습 보조 · 차량용 소프트웨어(AAOS)</td><th>출품</th><td>MOAH 2026 모비스 SW 해커톤</td></tr>
+    <tr><th>현재 상태</th><td colspan="3">시제품 — 사내 차량 신호 환경에서 코드 수정 없이 빌드·실행 확인<sup class="fn">4</sup>, 실제 도로 검증 전</td></tr>
+  </table>
+
+  <div class="summary">
+    <span class="lbl eb">요 약</span>
+    <p>사고가 몰리는 <b>주차(특히 후진)</b>와 <b>운전 첫 100일</b>을 혼자서도 반복 연습할 수 있도록, 두려운 상황을 <b>과제</b>로 나누고 차량 신호로 <b>과정</b>을 측정해 <b>가이드 → 힌트 → 평가</b> 순으로 도움을 줄여 가는 차량용 연습 보조 도구를 제안한다. 운전자는 정차 중에만 화면을 조작하며, 기록 공유 범위는 운전자가 정한다.</p>
+  </div>
+
+  <h2 class="serif"><span class="no">1.</span> 추진 배경 및 필요성</h2>
+  <p class="para">초보·장롱면허 운전자에게 가장 어려운 순간은 주차와 운전 초기다. 가족이 옆에서 가르치면 감정 소모가 크고, 학원 연수는 비용 부담이 있다. 제안 팀은 아이 때문에 다시 운전을 시작한 장롱면허 10년차 가족을 돕는 데서 출발했다.</p>
+  <table class="data">
+    <tr><th style="width:120px">수치</th><th>내용</th><th style="width:330px">출처</th></tr>
+    <tr><td class="num">30.2%</td><td>자동차보험 차량 물적 사고 중 <b>주차 중</b> 사고 비율(10건 중 3건). 그 주차 사고의 <b>53.8%가 후진</b> 중</td><td>보험사·보험개발원 공동 조사<sup class="fn">1</sup></td></tr>
+    <tr><td class="num">41%</td><td>초보운전자 첫해 사고 중 <b>처음 100일 안</b>에 일어난 비율</td><td>현대해상 교통기후환경연구소 연구<sup class="fn">2</sup></td></tr>
+    <tr><td class="num">50~60만 원</td><td>학원 도로연수 10시간 비용(약)</td><td>2025년 언론 보도 기준<sup class="fn">3</sup></td></tr>
+  </table>
+  <p class="cap">→ 사고가 가장 많은 순간(주차·첫 100일)을, 화내지 않고 반복해 줄 조수석이 없다는 것이 문제의식이다.</p>
+
+  <div class="two">
+    <div>
+      <h2 class="serif"><span class="no">2.</span> 제안 내용</h2>
+      <ul class="dash">
+        <li><b>과제 단위 연습 18종</b> — 주차 4(후면·전면 직각·평행·사선) · 도로 주행 6 · 점검 2 · 지식 6</li>
+        <li><b>과정 측정</b> — 속도·조향·기어·안전벨트·시동·도어·지시등·비상등 신호로 연습 과정을 본다</li>
+        <li><b>단계적 도움 축소</b> — 가이드(단계 안내) → 힌트(필요할 때만) → 평가(조용히 채점)</li>
+        <li><b>회차 판정과 리포트</b> — 점수 대신 판정 네 줄, 쌓이면 리포트·진단서(예시)</li>
+        <li><b>제휴 시험장 모의시험</b> — 구간 감점·합격선(시험장 신호는 시뮬레이션)</li>
+      </ul>
+    </div>
+    <div>
+      <h2 class="serif"><span class="no">3.</span> 운영 방식</h2>
+      <ul class="dash">
+        <li><b>정차 중에만 조작</b> — 과제 선택·리포트 확인은 차가 섰을 때</li>
+        <li><b>주행 중 잠금</b> — 시속 5 km를 넘으면 화면이 잠기고 점수·누계·터치 버튼이 사라진다. 안내는 음성으로만</li>
+        <li><b>틀린 순간은 규칙이 즉시</b> — 감점 순간의 힌트는 정해진 규칙 문장(지연 없음)</li>
+        <li><b>AI는 정차 후 총평만</b> — 회차 멘트·총평·홈 대화는 사내 AI, 실패하면 규칙 문장으로 대체</li>
+      </ul>
+    </div>
+  </div>
+  <div class="figs">
+    <figure><img src="../../screenshots/lesson/lesson-maneuver-guides.png" alt="저속 주차 중 조향 도식">
+      <figcaption><b>그림 1.</b> 저속 주차 중 — 조향 방향 도식과 한 단계 안내<sup class="fn">5</sup></figcaption></figure>
+    <figure><img src="../../screenshots/lesson/lesson-locked.png" alt="주행 중 잠금 화면">
+      <figcaption><b>그림 2.</b> 시속 5 km 초과 — 도식·점수를 감추는 주행 중 잠금<sup class="fn">5</sup></figcaption></figure>
+  </div>
+
+  <h2 class="serif"><span class="no">4.</span> 개인정보·데이터</h2>
+  <div style="display:grid;grid-template-columns:330px 1fr;gap:28px;align-items:start">
+    <div>
+      <p class="para">기록 공유는 <b>운전자 동의 기반</b>이며 범위를 3단계 중 운전자가 고른다. 진단서와 오른쪽 활용처는 <b>예시</b>이고, 현재 실제 전송·계약은 없다.</p>
+      <p class="para">신호마다 실신호·시뮬레이션·미측정을 리포트에 구분 표시한다. 정차 후 AI 총평에는 회차 요약 지표만 보내며 원시 시계열은 보내지 않는다.</p>
+    </div>
+    <table class="data tier">
+      <tr><th style="width:96px">단계</th><th>공유 범위</th><th style="width:250px">활용 예시(가정)</th></tr>
+      <tr><td class="lv">1 총점만</td><td>숙련·안전 두 점수만</td><td>제휴 시험장 대여료 할인</td></tr>
+      <tr class="mid"><td class="lv">2 항목별</td><td>구간 수·조향·기어·근접 등 수치</td><td>보험사 안전운전 특약 심사 대상</td></tr>
+      <tr><td class="lv">3 원시 신호</td><td>속도·조향각 시계열까지</td><td>적성검사 연계·연구 참여 대상</td></tr>
+    </table>
+  </div>
+
+  <div class="two">
+    <div>
+      <h2 class="serif"><span class="no">5.</span> 기대 효과 <span style="font-size:13px;color:#555;font-family:NanumGothic">(정성)</span></h2>
+      <ul class="dash">
+        <li>가족 간 감정 소모 없이 두려운 상황을 혼자 반복 연습할 기회</li>
+        <li>결과가 아닌 과정(조향·기어 전환·안전 확인)을 되돌아보는 습관</li>
+        <li>강사·동승자가 같은 기록을 보고 보충할 부분을 찾는 근거</li>
+        <li>측정 근거를 정직하게 밝힌 연습 기록의 표준 형식 논의 출발점</li>
+      </ul>
+    </div>
+    <div>
+      <h2 class="serif"><span class="no">6.</span> 한계 및 향후 과제</h2>
+      <ul class="dash">
+        <li>카메라가 없어 칸 안의 최종 위치는 판정하지 않는다(과정만 본다)</li>
+        <li>예약·진단서 공유·시험장 위치 신호는 시뮬레이션 또는 예시</li>
+        <li>실제 도로·실차 주행에서의 효과는 검증하지 않았다</li>
+        <li>향후: 실차 시범 연습, 시험장 신호 연계, 공유 동의 절차 정비</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="foot">
+    <ol>
+      <li><span class="n">1</span><span>보험개발원·현대해상·동부화재·KB손해보험 공동 조사 — 2012~2014년 자동차보험 보험금 지급 분석, 2017년 1월 발표.</span></li>
+      <li><span class="n">2</span><span>현대해상 교통기후환경연구소, 「초보운전자 사고감소를 위한 정책방안 연구」 — 2009~2015년 사고 317만 건 분석, 2016년 12월.</span></li>
+      <li><span class="n">3</span><span>학원 도로연수 10시간 비용 — 2025년 언론 보도 기준 약 50~60만 원. 지역·학원별로 다르다.</span></li>
+      <li><span class="n">4</span><span>사내 차량 신호 환경(Real VSS)에서 설정 한 줄만 바꿔 빌드·실행. 후면 주차 신호 실신호 7 · 시뮬레이션 1 · 미측정 0, 사내 AI 응답 1.2~1.5초, 단위 테스트 350건(사외). 실제 도로 검증 아님.</span></li>
+      <li><span class="n">5</span><span>그림은 외부 에뮬레이터 화면 캡처이며, 차량 신호는 시뮬레이션이다.</span></li>
+    </ol>
+    <div class="pageno"><span>드라이브 코치 · 팀 사고치조 · MOAH 2026</span><span>- 1 -</span></div>
+  </div>
+</body>
+</html>

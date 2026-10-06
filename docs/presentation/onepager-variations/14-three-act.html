@@ -1,0 +1,138 @@
+<!-- meta: ④ 발표용 | 발표장 청중 — 이야기로 여는 첫 장 | 16:9 1920×1080 | Noto Sans KR Black(제목) · Ownglyph 99 Regular(말풍선·내레이션) · Bahnschrift SemiBold(숫자) | 앱 색 그대로 — Lavender·Ink·Paper 세 칸, Signal 강조 | 만화 컷 3칸: 1막 아내 → 2막 통계 → 3막 캡처 + 가이드→힌트→평가 -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>3막 — 드라이브 코치</title>
+<style>
+  :root { --ink:#070827; --peri:#5B60A1; --lav:#E5E6F0; --signal:#F52D48; --paper:#FCFCFA; }
+  html, body { margin:0; padding:0; }
+  body { width:1920px; height:1080px; overflow:hidden; background:var(--paper); color:var(--ink);
+         font-family:'Noto Sans KR',sans-serif; position:relative; }
+  .hand { font-family:'Ownglyph 99 Regular','Noto Sans KR',sans-serif; }
+  .black { font-family:'Noto Sans KR Black','Noto Sans KR',sans-serif; font-weight:900; }
+
+  header { position:absolute; left:48px; right:48px; top:26px; height:56px; display:flex; align-items:baseline; justify-content:space-between; }
+  header .t { font-size:34px; letter-spacing:-0.01em; }
+  header .t span { font-family:'Noto Sans KR Medium','Noto Sans KR',sans-serif; font-weight:500; color:var(--peri); font-size:26px; margin-left:14px; }
+  header .who { font-size:20px; color:var(--peri); }
+
+  .panel { position:absolute; top:100px; width:581px; height:836px; border:7px solid var(--ink); box-sizing:border-box;
+           box-shadow:10px 10px 0 var(--ink); overflow:hidden; }
+  .p1 { left:48px; background:var(--lav); }
+  .p2 { left:667px; background:var(--ink); color:var(--paper); }
+  .p3 { left:1286px; background:var(--paper); }
+
+  .act { position:absolute; left:30px; top:28px; display:flex; align-items:center; gap:14px; }
+  .act .no { background:var(--signal); color:#fff; font-size:22px; padding:6px 14px 7px; border-radius:6px;
+             font-family:'Noto Sans KR Black','Noto Sans KR',sans-serif; font-weight:900; letter-spacing:0.04em; }
+  .act .no.dark { border:3px solid var(--paper); }
+  .title { position:absolute; left:30px; right:26px; top:84px; font-size:46px; line-height:1.18; letter-spacing:-0.035em; }
+
+  /* 말풍선 */
+  .bubble { position:absolute; background:#fff; color:var(--ink); border:4px solid var(--ink); border-radius:34px;
+            padding:14px 24px 16px; font-size:36px; line-height:1.15; }
+  .bubble::after { content:''; position:absolute; width:26px; height:26px; background:#fff;
+                   border-right:4px solid var(--ink); border-bottom:4px solid var(--ink); }
+  .tail-bl::after { left:46px; bottom:-17px; transform:rotate(45deg) skew(10deg,10deg); }
+  .tail-br::after { right:52px; bottom:-17px; transform:rotate(45deg) skew(10deg,10deg); }
+  .tail-tl::after { left:52px; top:-17px; transform:rotate(-135deg) skew(10deg,10deg); }
+  .tail-l::after  { left:-17px; top:30px; transform:rotate(135deg) skew(10deg,10deg); }
+  .narr { position:absolute; background:var(--ink); color:var(--paper); font-size:36px; line-height:1.2; padding:14px 22px 16px; border:4px solid var(--ink); }
+  .narr.light { background:var(--paper); color:var(--ink); }
+  .narr.sig { background:var(--signal); color:#fff; border-color:var(--ink); }
+
+  /* 1막 */
+  .wheel { position:absolute; left:94px; top:296px; width:400px; height:400px; }
+  .tag { position:absolute; left:330px; top:620px; background:var(--peri); color:#fff; font-size:22px; padding:6px 14px; transform:rotate(-4deg);
+         font-family:'Noto Sans KR Medium','Noto Sans KR',sans-serif; font-weight:500; border:3px solid var(--ink); }
+
+  /* 2막 */
+  .stat { position:absolute; left:30px; right:26px; }
+  .stat .n { font-family:'Bahnschrift SemiBold','Bahnschrift',sans-serif; font-weight:600; font-size:120px; line-height:0.95; letter-spacing:-0.02em; }
+  .stat .n small { font-size:64px; }
+  .stat .l { font-size:22px; line-height:1.4; color:#C9CBE6; margin-top:6px; }
+  .stat .l b { color:var(--paper); font-family:'Noto Sans KR Medium','Noto Sans KR',sans-serif; font-weight:500; }
+  .s1 { top:170px; } .s1 .n { color:var(--signal); font-size:150px; } .s1 .n small { font-size:76px; } .s1 .l { font-size:25px; }
+  .s2 { top:430px; right:auto; width:230px; } .s3 { top:430px; left:276px; }
+  .s2 .n, .s3 .n { font-size:100px; } .s2 .n small, .s3 .n small { font-size:52px; }
+  .s2 .l, .s3 .l { font-size:21px; }
+  .rule { position:absolute; left:30px; right:26px; height:2px; background:#2A2C55; }
+
+  /* 3막 */
+  .cap { position:absolute; left:26px; top:196px; width:515px; border:4px solid var(--ink); display:block; }
+  .steps { position:absolute; left:26px; right:26px; top:614px; display:flex; align-items:stretch; gap:0; }
+  .step { flex:1; border:4px solid var(--ink); background:var(--lav); padding:6px 8px 9px; text-align:center; }
+  .step:nth-child(3) { background:var(--peri); color:#fff; }
+  .step:nth-child(5) { background:var(--ink); color:var(--paper); }
+  .step .k { font-family:'Noto Sans KR Black','Noto Sans KR',sans-serif; font-weight:900; font-size:30px; letter-spacing:-0.02em; }
+  .step .d { font-size:17px; line-height:1.35; margin-top:4px; }
+  .arrow { width:26px; display:flex; align-items:center; justify-content:center; font-size:28px; color:var(--signal);
+           font-family:'Bahnschrift',sans-serif; font-weight:700; }
+
+  footer { position:absolute; left:48px; right:48px; top:966px; font-size:15.5px; line-height:1.6; color:#55597F; }
+  footer b { color:var(--ink); font-weight:500; font-family:'Noto Sans KR Medium','Noto Sans KR',sans-serif; }
+</style>
+</head>
+<body>
+  <header>
+    <div class="t black">드라이브 코치<span>화내지 않는 조수석 · 초보·장롱면허 운전자를 위한 차량용 안드로이드 운전 연수 어시스턴트</span></div>
+    <div class="who">사고치조 · 전준영 · MOAH 2026</div>
+  </header>
+
+  <!-- 1막 -->
+  <section class="panel p1">
+    <div class="act"><span class="no">1막</span></div>
+    <div class="title black">아이 때문에 다시<br>운전대를 잡은 아내</div>
+    <svg class="wheel" viewBox="0 0 420 420" aria-hidden="true">
+      <circle cx="210" cy="210" r="168" fill="none" stroke="#070827" stroke-width="34"/>
+      <circle cx="210" cy="210" r="168" fill="none" stroke="#5B60A1" stroke-width="8" stroke-dasharray="6 18" opacity="0.6"/>
+      <circle cx="210" cy="222" r="54" fill="#070827"/>
+      <circle cx="210" cy="222" r="20" fill="#F52D48"/>
+      <path d="M58 200 L160 214" stroke="#070827" stroke-width="30" stroke-linecap="round"/>
+      <path d="M362 200 L260 214" stroke="#070827" stroke-width="30" stroke-linecap="round"/>
+      <path d="M210 276 L210 372" stroke="#070827" stroke-width="30" stroke-linecap="round"/>
+    </svg>
+    <div class="bubble hand tail-bl" style="left:26px; top:222px;">이제 내가 운전해야 해.</div>
+    <div class="bubble hand tail-br" style="right:22px; top:340px; font-size:32px; background:#fff;">옆에서 가르쳐 줄게!</div>
+    <div class="tag">장롱면허 10년차</div>
+    <div class="narr hand" style="left:26px; right:26px; bottom:26px;">…옆에서 가르치면, 둘 다 힘들다.</div>
+  </section>
+
+  <!-- 2막 -->
+  <section class="panel p2">
+    <div class="act"><span class="no dark">2막</span></div>
+    <div class="title black" style="color:var(--paper)">가장 사고가 많은 순간</div>
+    <div class="stat s1"><div class="n">30.2<small>%</small></div>
+      <div class="l">자동차보험 차량 물적 사고 10건 중 3건은<br><b>주차 중</b></div></div>
+    <div class="rule" style="top:408px"></div>
+    <div class="stat s2"><div class="n">53.8<small>%</small></div>
+      <div class="l">그 주차 사고 가운데<br><b>후진</b>할 때</div></div>
+        <div class="stat s3"><div class="n">41<small>%</small></div>
+      <div class="l">초보운전자 첫해 사고 중<br><b>처음 100일 안</b></div></div>
+    <div class="bubble hand tail-tl" style="left:26px; right:26px; bottom:30px; font-size:36px; text-align:left;">그 순간을 화내지 않고 몇 번이든<br>함께 반복해 줄 조수석이 없다.</div>
+  </section>
+
+  <!-- 3막 -->
+  <section class="panel p3">
+    <div class="act"><span class="no">3막</span></div>
+    <div class="title black">화내지 않는 조수석</div>
+    <div class="narr light hand" style="left:26px; top:146px; font-size:28px; padding:6px 16px 8px; border:none; color:var(--peri);">두려운 상황을 과제로 · 차량 신호로 과정을 잰다</div>
+    <img class="cap" src="../../screenshots/lesson/lesson-maneuver-hint.png" alt="주차 중 힌트 화면">
+    <div class="bubble hand tail-tl" style="left:26px; right:22px; top:520px; font-size:25px; padding:9px 16px 11px; border-radius:26px; white-space:nowrap; text-align:center;">“뒤가 가까워요. 잠깐 멈추고 확인해 주세요.”</div>
+    <div class="steps">
+      <div class="step"><div class="k">가이드</div><div class="d">단계마다<br>할 일을 먼저</div></div>
+      <div class="arrow">→</div>
+      <div class="step"><div class="k">힌트</div><div class="d">틀린 순간에만<br>규칙이 바로</div></div>
+      <div class="arrow">→</div>
+      <div class="step"><div class="k">평가</div><div class="d">정차하면<br>판정 네 줄</div></div>
+    </div>
+    <div class="narr sig hand" style="left:26px; right:26px; bottom:22px; font-size:32px; padding:10px 20px 12px;">도움을 줄여 가며, 혼자 할 수 있을 때까지.</div>
+  </section>
+
+  <footer>
+    <div><b>출처</b> 30.2%·53.8%: 보험개발원·현대해상·동부화재·KB손해보험 공동 조사(2012~2014 보험금 지급 분석, 2017.1 발표) · 41%: 현대해상 교통기후환경연구소 「초보운전자 사고감소를 위한 정책방안 연구」(2009~2015 사고 317만 건, 2016.12)</div>
+    <div><b>한계</b> 카메라가 없어 칸 안 최종 위치는 판정하지 않는다(과정을 본다) · 캡처는 외부 에뮬레이터 화면 · 속도 표시는 시뮬레이션 신호</div>
+  </footer>
+</body>
+</html>

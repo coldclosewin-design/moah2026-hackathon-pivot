@@ -1,0 +1,201 @@
+<!-- meta: ③ 기관 제출용 | 개인정보·안전 검토 담당자 | 16:9 1920×1080 | Malgun Gothic 본문·제목 + Consolas 신호 경로 | 차분한 회청색(#4A5D73·#E9EEF2·#C9D3DD) + Ink #070827 · 경계에만 Signal #F52D48 · Periwinkle 공유 단계 | 데이터·안전 설명서: 왼쪽 신호 10행 표(경로·언제·왜·사내 검증) + 정직 표시 범례 / 오른쪽 공유 범위 3단계 도식·주행 중 잠금 축·AI 범위와 폴백 / 아래 한계 -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>데이터·안전 설명서 — 드라이브 코치</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: #E9EEF2; }
+  body { font-family: "Malgun Gothic", sans-serif; color: #070827; font-size: 16px; line-height: 1.45; }
+  .mono { font-family: "Consolas", monospace; }
+  :root { --slate:#4A5D73; --slate2:#7D8FA3; --line:#C9D3DD; --bg:#E9EEF2; --ink:#070827; --peri:#5B60A1; --lav:#E5E6F0; --sig:#F52D48; }
+
+  header { height: 118px; background: #fff; border-bottom: 1px solid var(--line); display: flex; align-items: center; padding: 0 56px; gap: 28px; }
+  header .mark { width: 10px; height: 64px; background: var(--ink); }
+  header h1 { font-size: 38px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+  header h1 span { color: var(--slate); font-weight: 400; font-size: 20px; display: block; letter-spacing: 0; margin-top: 6px; }
+  header .meta { margin-left: auto; text-align: right; font-size: 14px; color: var(--slate); line-height: 1.6; }
+  header .meta b { color: var(--ink); }
+  header .meta .mono { font-size: 13px; }
+
+  main { display: grid; grid-template-columns: 1132px 1fr; gap: 24px; padding: 22px 56px 0; }
+  .panel { background: #fff; border: 1px solid var(--line); }
+  .ph { display: flex; align-items: baseline; gap: 12px; padding: 14px 20px 10px; border-bottom: 1px solid var(--line); }
+  .ph .n { font-family: Consolas, monospace; font-size: 14px; color: #fff; background: var(--slate); padding: 1px 8px; }
+  .ph h2 { font-size: 20px; font-weight: 700; }
+  .ph .r { margin-left: auto; font-size: 13px; color: var(--slate); }
+
+  table.sig { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  table.sig th { text-align: left; font-weight: 700; font-size: 13px; color: var(--slate); padding: 8px 12px; background: #F4F7F9; border-bottom: 1px solid var(--line); }
+  table.sig td { padding: 7px 12px; border-bottom: 1px solid #E1E7EC; vertical-align: middle; line-height: 1.35; }
+  table.sig td.nm { font-weight: 700; font-size: 16px; white-space: nowrap; }
+  table.sig td.path { font-family: Consolas, monospace; font-size: 13.5px; color: #2D3D50; white-space: nowrap; }
+  table.sig td.path .pre { color: var(--slate2); }
+  table.sig tr.sim td { background: #F6F6FB; }
+  table.sig tr.road td { color: #3E4D5E; }
+  .st { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; white-space: nowrap; }
+  .st i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .st.live i { background: var(--ink); }
+  .st.sim i { background: #fff; border: 2px solid var(--peri); }
+  .st.sim { color: var(--peri); }
+  .st.na i { background: #fff; border: 2px dashed var(--slate2); }
+  .st.na { color: var(--slate); font-weight: 400; }
+  .tsum { display: flex; gap: 22px; align-items: center; padding: 10px 20px; font-size: 14px; color: var(--slate); border-top: 1px solid var(--line); }
+  .tsum b { color: var(--ink); }
+
+  .honest { margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; }
+  .honest > div { padding: 12px 18px; border-right: 1px solid var(--line); }
+  .honest > div:last-child { border-right: 0; }
+  .honest .k { font-family: Consolas, monospace; font-size: 13px; color: var(--slate); }
+  .honest .t { font-size: 17px; font-weight: 700; margin-top: 2px; }
+  .honest .d { font-size: 13.5px; color: #3E4D5E; margin-top: 3px; }
+
+  .nodo { margin-top: 14px; }
+  .nodo ul { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 5px 28px; padding: 10px 20px 12px; font-size: 14.5px; }
+  .nodo li { padding-left: 18px; position: relative; }
+  .nodo li::before { content: "×"; position: absolute; left: 0; color: #F52D48; font-weight: 700; }
+  .right { display: flex; flex-direction: column; gap: 14px; }
+  .right > .panel:last-child { flex: 1; }
+  .tiers { padding: 16px 20px 14px; display: grid; grid-template-columns: 1fr 170px; gap: 14px; align-items: center; }
+  .stair { display: flex; flex-direction: column; gap: 6px; }
+  .stair div { padding: 9px 14px; color: #fff; font-size: 14px; display: flex; justify-content: space-between; align-items: baseline; }
+  .stair div b { font-size: 16px; }
+  .stair div span { font-size: 12.5px; opacity: .92; }
+  .stair .l3 { width: 100%; background: var(--ink); }
+  .stair .l2 { width: 84%; background: var(--peri); }
+  .stair .l1 { width: 68%; background: var(--slate2); }
+  .choose { font-size: 13.5px; color: var(--slate); line-height: 1.5; border-left: 2px solid var(--line); padding-left: 12px; }
+  .choose b { color: var(--ink); display: block; font-size: 15px; margin-bottom: 2px; }
+  .exm { font-size: 12.5px; color: var(--slate); padding: 0 20px 12px; }
+
+  .lock { padding: 14px 20px 14px; }
+  .axis { position: relative; height: 70px; margin-top: 4px; }
+  .axis .bar { position: absolute; left: 0; right: 0; top: 26px; height: 16px; display: flex; }
+  .axis .bar .a { width: 22%; background: var(--lav); border: 1px solid var(--peri); }
+  .axis .bar .b { flex: 1; background: var(--ink); }
+  .axis .tick { position: absolute; left: 22%; top: 12px; width: 3px; height: 44px; background: var(--sig); transform: translateX(-1px); }
+  .axis .tl { position: absolute; left: 22%; top: -6px; transform: translateX(-50%); font-family: Consolas, monospace; font-size: 14px; color: var(--sig); font-weight: 700; white-space: nowrap; }
+  .axis .z0 { position: absolute; left: 0; top: 48px; font-size: 12.5px; color: var(--slate); }
+  .axis .z1 { position: absolute; left: 24%; top: 48px; font-size: 12.5px; color: var(--slate); }
+  .lockcols { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 13.5px; margin-top: 4px; }
+  .lockcols b { display: inline !important; margin-right: 8px; }
+  .lockcols b { display: block; font-size: 14.5px; }
+
+  .ai { padding: 12px 20px 16px; }
+  .lane { display: grid; grid-template-columns: 128px 1fr; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
+  .lane:last-of-type { border-bottom: 0; }
+  .lane .who { font-weight: 700; font-size: 14.5px; }
+  .lane .who small { display: block; font-weight: 400; font-size: 12px; color: var(--slate); }
+  .flow { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; }
+  .flow .box { border: 1px solid var(--line); padding: 3px 9px; font-size: 13.5px; background: #F8FAFB; white-space: nowrap; }
+  .flow .box.ink { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .flow .box.peri { background: var(--peri); color: #fff; border-color: var(--peri); }
+  .flow .ar { color: var(--slate2); font-family: Consolas, monospace; }
+  .sent { font-size: 13px; color: var(--slate); margin-top: 6px; }
+  .sent b { color: var(--ink); }
+
+  footer { position: absolute; left: 56px; right: 56px; bottom: 18px; display: flex; gap: 18px; align-items: flex-start; font-size: 13.5px; color: #3E4D5E; border-top: 1px solid var(--slate2); padding-top: 9px; }
+  footer .lb { font-weight: 700; color: var(--sig); white-space: nowrap; }
+  footer .id { margin-left: auto; white-space: nowrap; color: var(--slate); }
+</style>
+</head>
+<body>
+  <header>
+    <div class="mark"></div>
+    <h1>데이터·안전 설명서<span>드라이브 코치 — 어떤 차량 신호를, 언제, 왜 쓰는가 · 그리고 하지 않는 것</span></h1>
+    <div class="meta"><b>팀 사고치조</b> · 발표 전준영 · MOAH 2026 모비스 SW 해커톤<br>제안서 형식 · 2026. 10. · 대상: 초보·장롱면허 운전자용 AAOS 운전 연수 어시스턴트<br>차량 신호는 <span class="mono">VehiclePort</span> 한 곳으로만 드나든다</div>
+  </header>
+
+  <main>
+    <section>
+      <div class="panel">
+        <div class="ph"><span class="n">A</span><h2>사용하는 차량 신호(VSS)</h2><span class="r">사내 검증 = 사내 차량 환경(Real VSS)에서 코드 수정 없이 실행한 후면 주차 배지 기준</span></div>
+        <table class="sig">
+          <tr><th style="width:104px">신호</th><th style="width:418px">경로 <span style="font-weight:400">(앞의 Vehicle. 생략)</span></th><th style="width:150px">언제 읽나</th><th>왜 쓰나</th><th style="width:128px">사내 검증</th></tr>
+          <tr><td class="nm">속도</td><td class="path">Speed</td><td>연습 내내</td><td>급가속·급제동 판정 · 5 km/h 초과 시 화면 잠금 · 정차 인식</td><td><span class="st live"><i></i>실신호</span></td></tr>
+          <tr><td class="nm">조향</td><td class="path">Chassis.SteeringWheel.Angle</td><td>주차·도로 과제 중</td><td>조향 도식 · 되돌림 · 신호로 추정한 궤적</td><td><span class="st live"><i></i>실신호</span></td></tr>
+          <tr><td class="nm">기어</td><td class="path">Powertrain.Transmission.SelectedGear</td><td>주차 과제 · 출발 전 점검</td><td>후진·전진 보정 구간 · P로 마무리했는가</td><td><span class="st live"><i></i>실신호</span></td></tr>
+          <tr><td class="nm">안전벨트</td><td class="path">Cabin.Seat.Row1.DriverSide.IsBelted</td><td>출발 전 · 과제 시작</td><td>벨트를 먼저 맸는가(순서 조언)</td><td><span class="st live"><i></i>실신호</span></td></tr>
+          <tr><td class="nm">시동</td><td class="path">LowVoltageSystemState</td><td>출발 전 점검</td><td>벨트 → 시동 순서 확인</td><td><span class="st live"><i></i>실신호</span></td></tr>
+          <tr><td class="nm">도어</td><td class="path">Cabin.Door.Row1.DriverSide.IsOpen</td><td>정차 후</td><td>운전석 문이 열리면 연습 종료 → 리포트</td><td><span class="st live"><i></i>실신호</span></td></tr>
+          <tr><td class="nm">근접 경고</td><td class="path">ADAS.ObstacleDetection.IsWarning</td><td>후진 중</td><td>안전 판정(위험한 순간이 있었는가)</td><td><span class="st live"><i></i>실신호</span></td></tr>
+          <tr class="sim"><td class="nm">뒤 거리</td><td class="path">ADAS.ObstacleDetection.Rear.Distance</td><td>후진 중</td><td>뒤 거리 표시 · 근접 조언 — 실물 목록에 없는 경로</td><td><span class="st sim"><i></i>시뮬레이션</span></td></tr>
+          <tr class="road"><td class="nm">지시등</td><td class="path">Body.Lights.DirectionIndicator.{Left,Right}.IsSignaling</td><td>도로 과제 · 점검</td><td>좌회전·차선 변경 채점</td><td><span class="st na"><i></i>주차 배지 밖</span></td></tr>
+          <tr class="road"><td class="nm">비상등</td><td class="path">Body.Lights.Hazard.IsSignaling</td><td>도로 과제 · 점검</td><td>출발 전 점검(켜 보기) · 도로 과제</td><td><span class="st na"><i></i>주차 배지 밖</span></td></tr>
+        </table>
+        <div class="tsum"><span>후면 주차 8키 → <b>실신호 7 · 시뮬레이션 1 · 미측정 0</b></span><span>지시등·비상등은 주차 과제가 구독하지 않아 이 배지에 없다</span><span style="margin-left:auto">제휴 시험장 위치·신호(<span class="mono">Track.*</span>)는 시뮬레이션</span></div>
+      </div>
+
+      <div class="panel honest">
+        <div><div class="k">LIVE</div><div class="t">실신호</div><div class="d">차량에서 실제로 받은 값. 리포트 ‘신호 출처’에 개수로 센다.</div></div>
+        <div><div class="k">SIMULATED</div><div class="t" style="color:#5B60A1">시뮬레이션</div><div class="d">실물에 없어 앱이 채운 값. 숨기지 않고 따로 센다.</div></div>
+        <div><div class="k">MISSING</div><div class="t" style="color:#4A5D73">미측정</div><div class="d">받지 못한 값. 채점에서 빼고 ‘미측정’으로 적는다.</div></div>
+      </div>
+
+      <div class="panel nodo">
+        <div class="ph"><span class="n">E</span><h2>하지 않는 것</h2><span class="r">설계로 막아 둔 것</span></div>
+        <ul>
+          <li><b>카메라·영상</b>을 쓰지 않는다 — 칸 안 최종 위치도 판정하지 않는다</li>
+          <li><b>주행 중</b> 점수·감점 누계·터치 버튼을 보이지 않는다</li>
+          <li><b>주행 중 AI 실시간 발화</b>와 음성 인식(STT)은 넣지 않았다</li>
+          <li><b>원시 신호 시계열</b>을 AI 에 보내지 않는다</li>
+          <li><b>진단서</b>를 실제로 전송하지 않는다 — 공유 화면은 예시</li>
+          <li>운전자에게 들려주는 문장에 <b>횟수·초·점수</b>를 넣지 않는다</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="right">
+      <div class="panel">
+        <div class="ph"><span class="n">B</span><h2>공유 범위 3단계</h2><span class="r">운전자가 고른다 · 예시</span></div>
+        <div class="tiers">
+          <div class="stair">
+            <div class="l3"><b>원시 신호</b><span>속도·조향각 시계열까지</span></div>
+            <div class="l2"><b>항목별</b><span>구간 수·조향·기어·근접 수치</span></div>
+            <div class="l1"><b>총점만</b><span>숙련·안전 두 점수</span></div>
+          </div>
+          <div class="choose"><b>고른 만큼만 공유</b>위로 갈수록 넓다. 진단서는 예시이며 현재 실제 전송·계약은 없다.</div>
+        </div>
+        <div class="exm">활용 예시(가정): 총점만 — 제휴 시험장 대여료 할인 · 항목별 — 보험사 안전운전 특약 심사 대상 · 원시 신호 — 적성검사 연계·연구 참여</div>
+      </div>
+
+      <div class="panel">
+        <div class="ph"><span class="n">C</span><h2>주행 중 잠금 원칙</h2><span class="r">속도 신호로 판정</span></div>
+        <div class="lock" style="display:grid;grid-template-columns:1fr 290px;gap:18px;align-items:start">
+         <div>
+          <div class="axis">
+            <div class="tl">5 km/h</div>
+            <div class="bar"><div class="a"></div><div class="b"></div></div>
+            <div class="tick"></div>
+            <div class="z0">정차·저속</div>
+            <div class="z1">주행 중 — 화면 잠금</div>
+          </div>
+          <div class="lockcols">
+            <div><b>보여 줌</b>주차 도식 · 계기 값 · 조작은 정차 중</div>
+            <div><b>감춤</b>점수 · 감점 누계 · 터치 버튼. “운전에 집중해 주세요” 한 줄과 음성 안내만 남긴다.</div>
+          </div>
+         </div>
+         <figure style="margin:0"><div style="width:290px;height:150px;overflow:hidden;position:relative;border:1px solid #C9D3DD"><img src="../../screenshots/lesson/lesson-locked.png" alt="잠금 화면" style="width:290px;position:absolute;top:-8px;left:0"></div>
+           <figcaption style="font-size:12px;color:#4A5D73;margin-top:4px">주행 중 잠금 화면 · 외부 에뮬레이터 캡처</figcaption></figure>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="ph"><span class="n">D</span><h2>AI 사용 범위와 폴백</h2><span class="r">주행 중 실시간 AI 발화 없음</span></div>
+        <div class="ai">
+          <div class="lane"><div class="who">규칙<small>지연 0</small></div><div class="flow"><span class="box">틀린 순간</span><span class="ar">→</span><span class="box ink">정해진 힌트 문장</span><span class="ar">→</span><span class="box">음성</span></div></div>
+          <div class="lane"><div class="who">사내 Copilot<small>정차 후만</small></div><div class="flow"><span class="box">회차 멘트·총평·홈 대화</span><span class="ar">→</span><span class="box peri">AI 문장</span><span class="ar">— 실패 시 →</span><span class="box ink">규칙 문장</span></div></div>
+          <p class="sent">AI 에는 <b>회차 요약 지표와 프로필</b>만 보낸다 — 원시 신호 시계열은 보내지 않는다. 사내 응답 1.2~1.5 s.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span class="lb">한계</span>
+    <span>카메라가 없어 칸 안 최종 위치는 판정하지 않는다(과정을 본다) · 예약·진단서 공유·시험장 위치 신호는 시뮬레이션/예시 · 실제 도로 검증 전 · 단위 테스트 350(사외)</span>
+    <span class="id">드라이브 코치 — 화내지 않는 조수석</span>
+  </footer>
+</body>
+</html>

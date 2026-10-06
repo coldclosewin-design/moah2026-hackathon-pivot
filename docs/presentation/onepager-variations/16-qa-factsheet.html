@@ -1,0 +1,94 @@
+<!-- meta: ④ 발표용 | 발표자·심사위원 질의응답 — 화면에 띄워 두고 짚는 팩트시트 | 16:9 1920×1080 | NanumMyeongjoExtraBold(제목·질문) · NanumGothic(답) · Bahnschrift(Q 번호) | Paper 바탕 · Lavender 카드 · Ink 글자 · Periwinkle Q · Signal 'A' 표시 | 자주 받을 질문 6개를 2열×3행 카드로, 답은 브리프의 사실·한계 그대로 두 줄씩 -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>질의응답 팩트시트 — 드라이브 코치</title>
+<style>
+  :root { --ink:#070827; --peri:#5B60A1; --lav:#E5E6F0; --signal:#F52D48; --paper:#FCFCFA; }
+  html, body { margin:0; padding:0; }
+  body { width:1920px; height:1080px; overflow:hidden; background:var(--paper); color:var(--ink);
+         font-family:'NanumGothic','Noto Sans KR',sans-serif; position:relative; word-break:keep-all; }
+  .serif { font-family:'NanumMyeongjoExtraBold','NanumMyeongjo',serif; font-weight:800; }
+
+  .top { position:absolute; left:64px; right:64px; top:44px; height:120px; border-bottom:3px solid var(--ink); }
+  .top .qa { position:absolute; left:0; top:-6px; font-family:'NanumMyeongjoExtraBold',serif; font-size:90px; line-height:1; color:var(--peri); letter-spacing:-0.02em; }
+  .top h1 { position:absolute; left:262px; top:6px; margin:0; font-family:'NanumMyeongjoExtraBold',serif; font-weight:800; font-size:58px; letter-spacing:-0.03em; line-height:1.1; }
+  .top .sub { position:absolute; left:266px; top:78px; font-size:21px; color:#4A4E7A; }
+  .top .sub b { color:var(--ink); }
+  .top .who { position:absolute; right:0; top:22px; text-align:right; font-size:19px; color:#4A4E7A; line-height:1.55; }
+  .top .who b { color:var(--ink); font-size:22px; }
+
+  .grid { position:absolute; left:64px; right:64px; top:192px; height:780px; display:grid;
+          grid-template-columns:1fr 1fr; grid-template-rows:repeat(3, 1fr); gap:22px 28px; }
+  .card { background:var(--lav); border-radius:6px; position:relative; padding:36px 34px 0 128px; box-sizing:border-box; }
+  .card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:8px; background:var(--peri); border-radius:6px 0 0 6px; }
+  .card .no { position:absolute; left:34px; top:32px; font-family:'Bahnschrift SemiBold','Bahnschrift',sans-serif; font-weight:600;
+              font-size:54px; line-height:1; color:var(--peri); letter-spacing:-0.02em; }
+  .card .no small { font-size:30px; }
+  .card .tag { position:absolute; right:26px; top:38px; font-size:16px; font-weight:700; color:var(--paper); background:var(--ink);
+               padding:5px 12px 6px; border-radius:20px; letter-spacing:0.02em; }
+  .card .q { font-family:'NanumMyeongjoExtraBold',serif; font-weight:800; font-size:46px; letter-spacing:-0.03em; line-height:1.2; }
+  .card .a { position:relative; font-size:23.5px; line-height:1.6; color:#1C1F45; padding-left:32px; margin-left:-94px; margin-top:32px; }
+  .card .a::before { content:'A'; position:absolute; left:0; top:1px; font-family:'Bahnschrift SemiBold','Bahnschrift',sans-serif; font-weight:600;
+                     font-size:24px; color:var(--signal); }
+  .card .a b { font-weight:800; color:var(--ink); }
+  .card .a .lim { color:#5A5E85; }
+
+  .foot { position:absolute; left:64px; right:64px; top:996px; font-size:17px; line-height:1.55; color:#4A4E7A; display:flex; justify-content:space-between; }
+  .foot b { color:var(--signal); font-weight:800; }
+</style>
+</head>
+<body>
+  <div class="top">
+    <div class="qa">Q&amp;A</div>
+    <h1>자주 받을 질문 6</h1>
+    <div class="sub"><b>드라이브 코치 — 화내지 않는 조수석</b> · 초보·장롱면허 운전자를 위한 차량용 안드로이드(AAOS) 운전 연수 어시스턴트</div>
+    <div class="who"><b>사고치조</b><br>발표 전준영 · MOAH 2026</div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="no"><small>Q</small>1</div><div class="tag">신호</div>
+      <div class="q">카메라 없이 무엇을 보나?</div>
+      <div class="a">속도·조향·기어·벨트·시동·도어·지시등·비상등 — <b>차량 신호로 과정</b>을 잰다.<br>
+        <span class="lim">칸 안 최종 위치는 판정하지 않는다. 궤적은 ‘신호로 추정’이라고 적는다.</span></div>
+    </div>
+    <div class="card">
+      <div class="no"><small>Q</small>2</div><div class="tag">검증</div>
+      <div class="q">실차에서 되나?</div>
+      <div class="a">사내 차량 환경(Real VSS)에서 <b>코드 수정 없이</b> 빌드·실행했다.<br>
+        후면 주차 <b>실신호 7 · 시뮬레이션 1 · 미측정 0</b>. <span class="lim">캡처는 외부 에뮬레이터.</span></div>
+    </div>
+    <div class="card">
+      <div class="no"><small>Q</small>3</div><div class="tag">AI</div>
+      <div class="q">AI는 어디에?</div>
+      <div class="a">회차 멘트·총평·홈 대화는 <b>사내 Copilot</b>(1.2~1.5 s) — 실패하면 규칙 문장.<br>
+        틀린 순간의 힌트는 AI를 기다리지 않고 <b>규칙이 지연 0</b>으로 말한다.</div>
+    </div>
+    <div class="card">
+      <div class="no"><small>Q</small>4</div><div class="tag">이관</div>
+      <div class="q">사내 전환은?</div>
+      <div class="a">같은 코드가 사외(가짜 신호)·사내(Real VSS)에서 <b>그대로 빌드</b>된다.<br>
+        사내는 jar 경로 한 줄만 설정한다. <span class="lim">단위 테스트 350(사외).</span></div>
+    </div>
+    <div class="card">
+      <div class="no"><small>Q</small>5</div><div class="tag">안전</div>
+      <div class="q">주행 중 화면은?</div>
+      <div class="a"><b>5 km/h를 넘으면 화면을 잠그고</b> 음성으로만 코칭한다.<br>
+        주행 중엔 점수·감점 누계·터치 대상이 없다. 도식은 저속 주차에서만.</div>
+    </div>
+    <div class="card">
+      <div class="no"><small>Q</small>6</div><div class="tag">공유</div>
+      <div class="q">개인정보는?</div>
+      <div class="a">카메라 영상·음성 인식 없이 <b>차량 신호만</b> 읽는다.<br>
+        리포트·진단서 <b>공유 범위는 운전자가</b> 고른다. <span class="lim">지금은 예시 화면.</span></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <div><b>한계</b> 카메라가 없어 칸 안 최종 위치는 판정하지 않는다(과정을 본다) · 예약·진단서 공유·시험장 위치 신호는 시뮬레이션/예시 · 캡처는 외부 에뮬레이터 화면</div>
+    <div>과제 18 · 연습 여정 6단계</div>
+  </div>
+</body>
+</html>

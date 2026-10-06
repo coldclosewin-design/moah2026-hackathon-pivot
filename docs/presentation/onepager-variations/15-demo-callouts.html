@@ -1,0 +1,108 @@
+<!-- meta: ④ 발표용 | 시연 직후 청중 — 화면 한 장을 짚어 설명 | 16:9 1920×1080 | Bahnschrift(번호·수치·영문) · Noto Sans KR Black/Medium/Regular | 흰 바탕 · Signal 콜아웃 선 · Ink 글자 · Lavender 검증 띠 | 회차 판정 캡처를 중앙에 크게 + 발표자 포인터처럼 좌우 콜아웃 5개 + 아래 검증·한계 -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>회차 판정 — 드라이브 코치</title>
+<style>
+  :root { --ink:#070827; --peri:#5B60A1; --lav:#E5E6F0; --signal:#F52D48; --paper:#FCFCFA; }
+  html, body { margin:0; padding:0; }
+  body { width:1920px; height:1080px; overflow:hidden; background:#FFFFFF; color:var(--ink);
+         font-family:'Noto Sans KR',sans-serif; position:relative; word-break:keep-all; }
+  .latin { font-family:'Bahnschrift','Noto Sans KR',sans-serif; }
+
+  .kicker { position:absolute; left:340px; top:34px; font-family:'Bahnschrift SemiBold','Bahnschrift',sans-serif; font-size:21px;
+            letter-spacing:0.22em; color:var(--signal); }
+  .kicker span { color:var(--peri); letter-spacing:0.02em; font-family:'Noto Sans KR Medium','Noto Sans KR',sans-serif; font-weight:500; margin-left:12px; }
+  h1 { position:absolute; left:338px; top:62px; margin:0; font-family:'Noto Sans KR Black','Noto Sans KR',sans-serif; font-weight:900;
+       font-size:60px; letter-spacing:-0.035em; line-height:1.2; }
+  h1 em { font-style:normal; color:var(--signal); }
+  .brand { position:absolute; right:40px; top:40px; text-align:right; font-size:19px; color:var(--peri); line-height:1.45; }
+  .brand b { display:block; color:var(--ink); font-family:'Noto Sans KR Medium','Noto Sans KR',sans-serif; font-weight:500; font-size:22px; }
+
+  .cap { position:absolute; left:340px; top:172px; width:1240px; height:697.5px; display:block;
+         box-shadow:0 0 0 1px #D6D7E4, 0 18px 40px rgba(7,8,39,0.16); }
+
+  .co { position:absolute; width:282px; }
+  .co .h { display:flex; align-items:center; gap:10px; font-family:'Noto Sans KR Black','Noto Sans KR',sans-serif; font-weight:900;
+           font-size:27px; letter-spacing:-0.03em; line-height:1.2; }
+  .co .n { flex:none; width:40px; height:40px; border-radius:50%; background:var(--signal); color:#fff; display:flex; align-items:center; justify-content:center;
+           font-family:'Bahnschrift SemiBold','Bahnschrift',sans-serif; font-weight:600; font-size:23px; }
+  .co .d { font-size:18px; line-height:1.5; color:#3B3E66; margin-top:8px; padding-left:50px; }
+  .left { left:36px; }
+  .right { left:1608px; }
+
+  svg.lines { position:absolute; left:0; top:0; width:1920px; height:1080px; pointer-events:none; }
+
+  .proof { position:absolute; left:340px; width:1240px; top:896px; height:96px; background:var(--lav); display:flex; align-items:center; }
+  .proof .lead { width:300px; padding-left:26px; font-size:17px; line-height:1.45; color:var(--ink); }
+  .proof .lead b { font-family:'Noto Sans KR Medium','Noto Sans KR',sans-serif; font-weight:500; display:block; font-size:19px; }
+  .m { flex:1; text-align:center; border-left:2px solid #C9CBE0; height:64px; display:flex; flex-direction:column; justify-content:center; }
+  .m .v { font-family:'Bahnschrift SemiBold','Bahnschrift',sans-serif; font-weight:600; font-size:40px; line-height:1; color:var(--ink); }
+  .m .v.sig { color:var(--signal); }
+  .m .k { font-size:15px; color:#4A4E7A; margin-top:6px; }
+  .limit { position:absolute; left:340px; width:1240px; top:1006px; font-size:16px; color:#5A5E85; line-height:1.5; }
+  .limit b { color:var(--signal); font-family:'Noto Sans KR Medium','Noto Sans KR',sans-serif; font-weight:500; }
+</style>
+</head>
+<body>
+  <div class="kicker">DEMO 04<span>회차 판정 · 후면 직각 주차</span></div>
+  <h1>정차하면, 점수 대신 <em>네 줄</em>로 말해 줍니다</h1>
+  <div class="brand"><b>드라이브 코치</b>화내지 않는 조수석<br>사고치조 · 전준영</div>
+
+  <img class="cap" src="../../screenshots/lesson/lesson-done-verdict-fix.png" alt="회차 판정 화면">
+
+  <!-- 콜아웃 선: 상자 가장자리 → 캡처 위 대상(작은 고리) -->
+  <svg class="lines" viewBox="0 0 1920 1080" aria-hidden="true">
+    <g fill="none" stroke="#F52D48" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="318,248 560,248 692,396"/>
+      <polyline points="318,492 334,492 352,646"/>
+      <polyline points="318,740 330,740 348,756"/>
+      <polyline points="1602,324 1160,324 1012,464"/>
+      <polyline points="1602,708 1330,708 1270,716"/>
+    </g>
+    <g fill="#FFFFFF" stroke="#F52D48" stroke-width="4">
+      <circle cx="700" cy="404" r="10"/>
+      <circle cx="356" cy="658" r="10"/>
+      <circle cx="356" cy="764" r="10"/>
+      <circle cx="1004" cy="472" r="10"/>
+      <circle cx="1258" cy="718" r="10"/>
+    </g>
+    <g fill="#F52D48">
+      <circle cx="318" cy="248" r="5"/><circle cx="318" cy="492" r="5"/><circle cx="318" cy="740" r="5"/>
+      <circle cx="1602" cy="324" r="5"/><circle cx="1602" cy="708" r="5"/>
+    </g>
+  </svg>
+
+  <div class="co left" style="top:228px;">
+    <div class="h"><span class="n">1</span>신호로 추정한 궤적</div>
+    <div class="d">속도·조향·기어 신호로 그린 길. 카메라는 쓰지 않는다.</div>
+  </div>
+  <div class="co left" style="top:472px;">
+    <div class="h"><span class="n">2</span>‘추정’이라고 밝힌다</div>
+    <div class="d">실제 위치와 다를 수 있다고 화면에 그대로 적는다.</div>
+  </div>
+  <div class="co left" style="top:720px;">
+    <div class="h"><span class="n">3</span>판정 네 줄</div>
+    <div class="d">점수 대신, 잘한 것·틀어진 것·위험했던 순간.</div>
+  </div>
+  <div class="co right" style="top:304px;">
+    <div class="h"><span class="n">4</span>회차 멘트 두 문장</div>
+    <div class="d">서두 + 조언. 사내 Copilot이 쓰고, 실패하면 규칙 문장.</div>
+  </div>
+  <div class="co right" style="top:688px;">
+    <div class="h"><span class="n">5</span>반복은 운전자가</div>
+    <div class="d">‘한 번 더’ 또는 ‘오늘은 여기까지’. 화내지 않고 몇 번이든.</div>
+  </div>
+
+  <div class="proof">
+    <div class="lead"><b>사내 차량 환경(Real VSS)</b>코드 수정 없이 빌드·실행<br>후면 주차 기준</div>
+    <div class="m"><div class="v">7</div><div class="k">실신호</div></div>
+    <div class="m"><div class="v">1</div><div class="k">시뮬레이션</div></div>
+    <div class="m"><div class="v sig">0</div><div class="k">미측정</div></div>
+    <div class="m"><div class="v">1.2–1.5<span style="font-size:24px"> s</span></div><div class="k">사내 Copilot 응답</div></div>
+    <div class="m"><div class="v">350</div><div class="k">단위 테스트(사외)</div></div>
+  </div>
+  <div class="limit"><b>한계</b> 카메라가 없어 칸 안 최종 위치는 판정하지 않는다(과정을 본다) · 캡처는 외부 에뮬레이터 화면 · 시험장 위치 신호·진단서 공유는 시뮬레이션/예시</div>
+</body>
+</html>

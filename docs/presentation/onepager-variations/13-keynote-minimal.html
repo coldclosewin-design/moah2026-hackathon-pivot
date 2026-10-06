@@ -1,0 +1,42 @@
+<!-- meta: ④ 발표용 | 발표장 청중(뒷줄까지) | 16:9 1920×1080 | Segoe UI Variable Display(숫자) · Noto Sans KR Light/Thin/Medium | Ink 바탕 · Paper 글자 · Signal 점 하나 · Periwinkle 부제 | 거의 빈 검정 화면에 거대한 41% 하나 + 한 문장 + 부제, 구석에 출처 -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>41% — 드라이브 코치</title>
+<style>
+  :root { --ink:#070827; --peri:#5B60A1; --lav:#E5E6F0; --signal:#F52D48; --paper:#FCFCFA; }
+  html, body { margin:0; padding:0; }
+  body { width:1920px; height:1080px; overflow:hidden; background:var(--ink); color:var(--paper);
+         font-family:'Noto Sans KR Light','Noto Sans KR',sans-serif; position:relative; }
+  .glow { position:absolute; left:50%; top:46%; width:1500px; height:900px; transform:translate(-50%,-50%);
+          background:radial-gradient(ellipse at center, rgba(91,96,161,0.22) 0%, rgba(91,96,161,0.06) 40%, rgba(7,8,39,0) 70%); }
+  .num { position:absolute; left:0; right:0; top:120px; text-align:center;
+         font-family:'Segoe UI Variable Display','Segoe UI Variable Display Light',sans-serif; font-weight:200;
+         font-size:500px; line-height:1; letter-spacing:-0.04em; color:var(--paper); }
+  .num .pct { font-size:250px; font-weight:200; color:var(--lav); margin-left:10px; vertical-align:top; position:relative; top:48px; }
+  .line { position:absolute; left:0; right:0; top:660px; text-align:center; font-size:58px; letter-spacing:-0.01em; color:var(--paper); }
+  .line b { font-family:'Noto Sans KR Medium','Noto Sans KR',sans-serif; font-weight:500; }
+  .line2 { position:absolute; left:0; right:0; top:760px; text-align:center; font-family:'Noto Sans KR Thin','Noto Sans KR',sans-serif;
+           font-weight:100; font-size:40px; color:#B9BBD6; }
+  .dot { position:absolute; left:50%; top:880px; width:12px; height:12px; margin-left:-6px; border-radius:50%; background:var(--signal); }
+  .brand { position:absolute; left:0; right:0; top:916px; text-align:center; font-size:30px; color:#9EA1CC; letter-spacing:0.02em; }
+  .brand b { font-family:'Noto Sans KR Medium','Noto Sans KR',sans-serif; font-weight:500; color:var(--paper); }
+  .src { position:absolute; left:72px; bottom:44px; font-size:17px; color:#6E7199; letter-spacing:0.01em; }
+  .lim { position:absolute; left:72px; bottom:72px; font-size:15px; color:#6E7199; }
+  .team { position:absolute; right:72px; bottom:44px; font-size:17px; color:#6E7199;
+          font-family:'Segoe UI Variable Display','Noto Sans KR',sans-serif; letter-spacing:0.08em; }
+</style>
+</head>
+<body>
+  <div class="glow"></div>
+  <div class="num">41<span class="pct">%</span></div>
+  <div class="line">초보운전자 첫해 사고 가운데, <b>처음 100일 안에</b> 일어난 비율.</div>
+  <div class="line2">그 100일 동안, 옆에서 화내지 않고 몇 번이든 함께해 줄 사람이 있을까요.</div>
+  <div class="dot"></div>
+  <div class="brand"><b>드라이브 코치</b> — 화내지 않는 조수석</div>
+  <div class="lim">한계: 카메라가 없어 칸 안 최종 위치는 판정하지 않는다(과정을 본다)</div>
+  <div class="src">출처: 현대해상 교통기후환경연구소 「초보운전자 사고감소를 위한 정책방안 연구」(2009~2015 사고 317만 건 분석, 2016.12)</div>
+  <div class="team">사고치조 · MOAH 2026</div>
+</body>
+</html>
