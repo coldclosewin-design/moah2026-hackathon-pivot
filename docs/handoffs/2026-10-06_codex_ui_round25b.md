@@ -13,7 +13,7 @@
           adb install -r 뒤 bash tools/course_flow.sh → PASS. 바뀐 캡처 교체 + README 표. 에뮬은 네 것(emulator-5556)만.
 ```
 
-선행 상태: ✅ M1 #211 · M2 #212 · M3 #215 · M4 #213 · M5 #214(main `dfebf32`, 테스트 350) · ⏳ 25a(머지되면 시작)
+선행 상태: ✅ M1 #211 · M2 #212 · M3 #215 · M4 #213 · M5 #214(main `dfebf32`, 테스트 350) · ✅ 25a #217 `7009e5a` — 시작 가능. `lesson_shots` 상한은 #218(900 s · `ANDROID_SERIAL`) 머지 뒤 래퍼 없이
 
 ## 모델 (Claude — 화면이 쓰는 값)
 
