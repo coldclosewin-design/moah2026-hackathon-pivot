@@ -44,3 +44,12 @@
 - AI 는 **문장과 의도만** 고른다 — 화면 이동·채점·예약은 앱 규칙이 한다(AI 경계).
 - STT·마이크 권한은 넣지 않는다. 마이크 알약은 지금처럼 "준비 중".
 - 대화 이력은 기기에 저장하지 않는다.
+
+## 말 카드(라운드 25 결정 7 · 사내 검증 #5, 10/6 저녁)
+
+사내 에뮬은 화면 키보드가 뜨지 않아 한국어 입력이 불가(키보드 앱이 STT 권한으로 죽는다) → 미리 쓴 한국어 문장 카드를 누르면 운전자 말로 보낸다.
+
+- 입력 방식 `CoachInputMode` = `OFF`(칩만) · `CARDS`(카드만 — 사내, 입력 칸 접음) · `CARDS_AND_TEXT`(카드 + 글). `Setup.coachInput` · `admin.coachInput`/`setCoachInput(mode)`. 예전 `setTextInput(on)` 은 켬 = `CARDS_AND_TEXT`.
+- 카드 `data/SpeechCards.kt` 열한 장: 첫 화면(`OPENING`) 감정·인사 넷, 코치가 한 번 되물은 뒤(`FOLLOW_UP`) 과제·상황 일곱(예약 카드는 예약이 있을 때, "지난번 이어서요" 는 기록이 있을 때만). `CoachDialog.cards` · 진입점 `sendCoachCard(id)`(시트에 없는 카드는 무시) — 같은 `sendCoachText` 길이라 AI·폴백·로그(`home coach: card <id>`)가 같다.
+- Fake 키워드 규칙이 카드마다 같은 의도로 가는 것을 `SpeechCardsTest` 가 고정한다("뭐부터" → 첫 주차 과제 추천 · "긁/뻔했" · "등하원/아이" → 서로 다른 되물음 · "모의시험" → 예약 있으면 예약 모의시험, 없으면 장내기능 모의시험 과제 · "시험장 연습" → 예약 코스 연습).
+- 화면(Codex 25b): 시안 7 A — 입력 칸 위 가로 한 줄, `CARDS` 면 입력 칸을 접는다.

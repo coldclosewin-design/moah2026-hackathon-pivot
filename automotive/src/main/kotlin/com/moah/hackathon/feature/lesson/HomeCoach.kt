@@ -6,6 +6,24 @@ import com.moah.hackathon.ports.withObjectParticle
 // 운전자가 글로 말을 걸면 코치가 **문장 하나 + 안내 의도 하나**로 답한다. 의도는 아래 고정 목록뿐이고,
 // 앱이 가진 것(READY 과제·지원 모드·예약·지난 기록) 안에서만 받아들인다 — 화면 이동은 기존 진입점이 한다(AI 경계).
 
+/**
+ * 홈 코치 입력 방식 — 관리자 "시뮬레이션 음성 입력"(라운드 25 결정 7). [OFF] = 칩만 · [CARDS] = 말 카드만(키보드가 없는 사내 에뮬 — 입력 칸을 접는다) ·
+ * [CARDS_AND_TEXT] = 말 카드 + 글 입력 칸. 어느 쪽이든 STT 자리를 대신하는 시뮬레이션이라 화면은 "음성 입력 · 시뮬레이션" 을 단다.
+ */
+enum class CoachInputMode { OFF, CARDS, CARDS_AND_TEXT;
+    val on: Boolean get() = this != OFF
+    val textField: Boolean get() = this == CARDS_AND_TEXT
+}
+
+/** 말 카드가 보이는 대화 단계 — 첫 화면(감정·인사) / 코치가 한 번 되물은 뒤(과제·상황). */
+enum class CardStage { OPENING, FOLLOW_UP }
+
+/** 카드가 보이려면 필요한 것 — 예약이 있어야 / 이어서 할 지난 기록이 있어야. */
+enum class CardNeed { NONE, BOOKING, LAST }
+
+/** 말 카드 한 장 — 누르면 [text] 가 운전자 말로 보내진다. 시드는 `data/SpeechCards.kt`. */
+data class SpeechCard(val id: String, val text: String, val stage: CardStage, val needs: CardNeed = CardNeed.NONE)
+
 /** 대화 한 줄 — 운전자의 글 또는 코치의 말풍선. 시트를 닫으면 버린다(저장·반출 없음). */
 data class CoachTurn(val fromDriver: Boolean, val text: String)
 
@@ -81,6 +99,8 @@ object IntentRules {
     const val ASK_LINE = "주차, 도로 주행, 출발 전 점검, 지식 중에 어느 쪽이 궁금하세요? 아래에서 바로 골라도 돼요."
     const val WORRY_LINE = "어떤 순간이 가장 걱정되세요? 주차인지 도로인지 말해 주시면 골라 드릴게요."
     const val MOVING_LINE = "차를 세운 뒤에 이야기해요."
+    const val NEAR_MISS_LINE = "많이 놀라셨겠어요. 주차할 때였나요, 달릴 때였나요?"
+    const val KID_LINE = "아이를 태우려면 주차가 편해야 해요. 주차부터 해 볼까요?"
 
     /** 과제 제목 → 그 과제를 가리키는 말. 제목이 시드에 없으면 그 줄은 쓰이지 않는다. */
     private val TASK_WORDS: List<Pair<String, List<String>>> = listOf(
@@ -88,7 +108,7 @@ object IntentRules {
         "사선 주차" to listOf("사선"),
         "전면 직각 주차" to listOf("전면", "앞으로주차", "전진주차"),
         "후면 직각 주차" to listOf("후면", "후진주차", "뒤로주차", "직각주차"),
-        "장내기능 모의시험" to listOf("장내", "기능시험"),
+        "장내기능 모의시험" to listOf("장내", "기능시험", "모의시험"),
         "회전교차로" to listOf("회전교차로", "로터리"),
         "차선 변경" to listOf("차선"),
         "좌회전 방향지시등" to listOf("좌회전", "깜빡이"),
@@ -119,7 +139,7 @@ object IntentRules {
             val mock = CoachIntent.Booking(BookingOption.MOCK_EXAM)
             val practice = CoachIntent.Booking(BookingOption.COURSE_PRACTICE)
             if (has("모의시험", "시험보", "실전") && ctx.allows(mock)) return CoachReply("예약한 코스로 모의시험을 준비해 둘게요.", mock)
-            if (has("코스연습", "예약한코스") && ctx.allows(practice)) return CoachReply("예약한 코스를 연습할 수 있게 올려 둘게요.", practice)
+            if (has("코스연습", "예약한코스", "시험장연습") && ctx.allows(practice)) return CoachReply("예약한 코스를 연습할 수 있게 올려 둘게요.", practice)
             if (has("예약", "시험장")) return CoachReply("예약한 ${ctx.bookingVenue} 카드를 표시해 둘게요.", CoachIntent.ShowBooking)
         }
 
@@ -135,6 +155,17 @@ object IntentRules {
                 return CoachReply(say, pin)
             }
         }
+
+        // 말 카드(라운드 25): "뭐부터" → 지금 추천하는 첫 주차 과제를 그 모드로
+        if (has("뭐부터", "무엇부터", "추천해")) {
+            val first = ctx.tasks.firstOrNull { it.type == TaskType.PARKING } ?: ctx.tasks.firstOrNull()
+            if (first != null) {
+                val pin = CoachIntent.PinTask(first.id, first.suggested)
+                if (ctx.allows(pin)) return CoachReply("${first.title.withObjectParticle()} ${first.suggested.label} 모드로 시작해 봐요. 홈에 올려 둘게요.", pin)
+            }
+        }
+        if (has("긁", "부딪", "뻔했")) return CoachReply(NEAR_MISS_LINE, CoachIntent.AskMore)
+        if (has("등하원", "아이")) return CoachReply(KID_LINE, CoachIntent.AskMore)
 
         val category = when {
             has("주차") -> TaskType.PARKING
