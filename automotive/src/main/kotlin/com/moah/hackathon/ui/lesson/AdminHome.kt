@@ -27,12 +27,19 @@ import com.moah.hackathon.ui.CoachTexture
 /** Only Setup supplies this action, and only when the model exposes admin controls. */
 @Composable
 internal fun SetupBrandMark(modifier: Modifier = Modifier, onAdmin: (() -> Unit)? = null, onInk: Boolean = false) {
+    DemoBrandMark(modifier, onAdmin, onInk, "시연 준비실 열기")
+}
+
+/** The locked-screen gesture intentionally exposes no button or accessibility action. */
+@Composable
+internal fun DemoBrandMark(modifier: Modifier = Modifier, onHold: (() -> Unit)? = null,
+    onInk: Boolean = false, actionLabel: String? = null) {
     val config = LocalViewConfiguration.current
     val adminConfig = remember(config) { object : ViewConfiguration by config { override val longPressTimeoutMillis = 2_000L } }
     CompositionLocalProvider(LocalViewConfiguration provides adminConfig) {
-        BrandMark(modifier.then(if (onAdmin == null) Modifier else Modifier
-            .semantics { onLongClick("시연 준비실 열기") { onAdmin(); true } }
-            .pointerInput(onAdmin) { detectTapGestures(onLongPress = { onAdmin() }) }),
+        BrandMark(modifier.then(if (onHold == null) Modifier else Modifier
+            .then(if (actionLabel == null) Modifier else Modifier.semantics { onLongClick(actionLabel) { onHold(); true } })
+            .pointerInput(onHold) { detectTapGestures(onLongPress = { onHold() }) }),
             if (onInk) CoachColors.Paper else CoachColors.Ink)
     }
 }
@@ -64,8 +71,8 @@ internal fun AdminHome(admin: LessonViewModel.AdminControls, setup: LessonPhase.
                 LessonText(profileLine(setup.profile), 32, CoachColors.Paper)
                 if (textInput) LessonText("음성 입력 · 시뮬레이션(글)", 32, CoachColors.Paper)
             }
-            Column(Modifier.weight(.68f).fillMaxHeight().padding(64.dp), verticalArrangement = Arrangement.spacedBy(28.dp)) {
-                Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(28.dp)) {
+            Column(Modifier.weight(.68f).fillMaxHeight().padding(64.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(18.dp)) {
                     Eyebrow("시연 프리셋")
                     Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
                         admin.presets.forEach { preset ->

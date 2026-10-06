@@ -16,9 +16,10 @@ import com.moah.hackathon.ui.CoachTexture
 
 @Composable
 internal fun DoneScreen(task: Task, attempt: Int, record: AttemptRecord, subtitle: String?,
-    onAgain: () -> Unit, onEnd: () -> Unit, demo: (@Composable () -> Unit)? = null, locked: Boolean = false) {
+    onAgain: () -> Unit, onEnd: () -> Unit, demo: (@Composable () -> Unit)? = null, locked: Boolean = false,
+    onDemoStop: (() -> Unit)? = null) {
     if (locked) {
-        ResultLockedScreen()
+        ResultLockedScreen(onDemoStop)
         return
     }
     val showPath = remember(record.path) { hasEstimatedPath(record.path) }

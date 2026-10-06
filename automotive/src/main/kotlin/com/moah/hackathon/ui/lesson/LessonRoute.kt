@@ -11,6 +11,9 @@ internal fun LessonRoute(vm: LessonViewModel) {
     val subtitle by vm.subtitle.collectAsStateWithLifecycle()
     val admin = vm.admin
     val controls = admin?.demo
+    val stopDemo: (() -> Unit)? = remember(controls) {
+        controls?.let { { it.stopScenario(); it.stopCar() } }
+    }
     val bandVisible = admin?.bandVisible?.collectAsStateWithLifecycle()?.value == true
     var adminOpen by rememberSaveable { mutableStateOf(false) }
     // The inherited Fake port defaults to road speeds. Park it for the lesson setup;
@@ -45,10 +48,10 @@ internal fun LessonRoute(vm: LessonViewModel) {
         is LessonPhase.Maneuver -> ManeuverScreen(state.toDisplayState(), state.snapshot.locked, state.snapshot.stopped,
             subtitle, vm::finishAttempt, demo, state.task.title)
         is LessonPhase.Drive -> DriveScreen(state, subtitle, vm::finishAttempt, demo)
-        is LessonPhase.Done -> DoneScreen(state.task, state.attempt, state.record, subtitle, vm::nextAttempt, vm::endSession, demo, state.locked)
-        is LessonPhase.Report -> ReportScreen(state.report, vm::restart, state.locked, vm::answerProfile, vm::skipAsk)
+        is LessonPhase.Done -> DoneScreen(state.task, state.attempt, state.record, subtitle, vm::nextAttempt, vm::endSession, demo, state.locked, stopDemo)
+        is LessonPhase.Report -> ReportScreen(state.report, vm::restart, state.locked, vm::answerProfile, vm::skipAsk, stopDemo)
         is LessonPhase.Quiz -> QuizScreen(state.task, state.index, state.total, state.item, state.locked,
-            state.chosen, state.correctSoFar, vm::answer, vm::nextQuestion, vm::endSession)
-        is LessonPhase.QuizDone -> QuizDoneScreen(state.task, state.results, state.items, state.remark, vm::restart, state.locked)
+            state.chosen, state.correctSoFar, vm::answer, vm::nextQuestion, vm::endSession, stopDemo)
+        is LessonPhase.QuizDone -> QuizDoneScreen(state.task, state.results, state.items, state.remark, vm::restart, state.locked, stopDemo)
     }
 }

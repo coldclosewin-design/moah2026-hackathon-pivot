@@ -1,5 +1,38 @@
 # 화면 검증 캡처
 
+## UI 라운드 25a — 홈·선택 알약·잠금 시연 탈출·다듬기 (2026-10-06)
+
+`codex/ui-round25a` · 새 워크트리 시작 기준 `origin/main=dfebf32`(#214). [발주서](../../handoffs/2026-10-06_codex_ui_round25a.md)의 여섯 항목을 기존 모델 API로 구현했다. 모델·데이터·ports·vehicle·scoring·Gradle·tools·NEXT 변경은 없다. 검증 기기는 `emulator-5556` 하나다.
+
+| 선택 시안·요구 | 실제 앱 캡처 | 구현·확인 |
+|---|---|---|
+| ① [코치 버튼 1](../../design/round25-proposals/1-coach-button.html) ([PNG](../../design/round25-proposals/1-coach-button.png)) | [홈](lesson-setup.png), [예약 홈](lesson-setup-reserved.png), [코치 선택](lesson-setup-coach-sheet.png) | 입력 켬/끔 모두 마이크 + `코치와 대화`. 링크는 왼쪽, 알약은 시작 버튼 오른쪽 끝과 일치. 시트 눈썹도 같은 이름 |
+| ② [프로필 B](../../design/round25-proposals/2-profile-eyebrow.html) ([PNG](../../design/round25-proposals/2-profile-eyebrow.png)) | [알약 확대](lesson-profile-pill.png), [홈](lesson-setup-coach.png) | Lavender·기존 Chip 질감·사람 기호·문장·›. 높이 78 dp, 비운 프로필도 같은 모양. 눌러 기존 프로필 시트 진입 |
+| ③ [마감 A](../../design/round25-proposals/3-venue-slots.html) ([PNG](../../design/round25-proposals/3-venue-slots.png)) | [서초 시간대](lesson-venue-slots.png) | 먹 35% 취소선 + 작은 마감 꼬리표. 마감 칸은 위치 유지·그림자 없음·클릭 없음. 탭해도 선택 불변. 세 시험장 마감 시드는 기존 값 유지 |
+| ④ 한 칸 알약 | [지식 선택](lesson-setup-sheet-knowledge.png) | 공통 SelectionTrack에서 1~2개 항목도 세 칸 트랙의 한 칸 폭 유지. 바탕은 실제 항목 수만 감싸고 왼쪽 정렬 |
+| ⑤ [잠금 B·C](../../design/round25-proposals/6-lock-admin.html) ([PNG](../../design/round25-proposals/6-lock-admin.png)) | [시연 잠금](lesson-done-locked.png), [Real 조건 퀴즈 잠금](lesson-quiz-locked.png) | 시연 빌드만 옅은 안내 한 줄·워드마크 약 2초 길게 = stopScenario + stopCar. 네 단계 공통 평면 잠금, 숫자·보이는 터치/접근성 액션 없음. 관리자 띠 숨김에서도 동작. Real 조건은 안내·제스처 없음 |
+| ⑥ 준비실·띠·대화 | [준비실](lesson-admin-home.png), [AI 로그인](lesson-admin-band-ai-code.png), [긴 대화](lesson-setup-coach-long.png), [IME](lesson-setup-coach-ime.png) | 준비실 간격을 줄여 설정 상태 줄 전체 노출. 재생 상태는 신호 출처 줄, 주소·코드 위 AI 로그인 표지. 스크롤한 대화 위에 Paper→투명 36 dp 페이드 |
+
+예약 홈 이유는 최신 모델의 `예약한 코스부터, …` 문구로 다시 찍었다. 기존 화면 계약의 과제 개수만 최신 main의 18개에 맞췄으며 새 과제 그림·말 카드·S자 UI는 25b 범위다. 새 색 토큰·FontWeight.Bold 0, Color(0x…)는 CoachStyle에만 있다. 캡처의 글자 잘림·간격·알약 정렬·마감·페이드를 눈으로 확인했다.
+
+바뀐 캡처 **21장 교체·2장 추가**(프로필 알약 확대·긴 대화)했다. [예약 모의시험 홈](lesson-setup-reserved-exam.png)도 실제 앱 프리셋으로 다시 찍었다. [IME 캡처](lesson-setup-coach-ime.png)는 기본 Google Automotive Keyboard를 띄우고 ADB로 영어 `hello`를 넣어 입력줄·보내기·돌아가기가 키보드 위에 온전히 보이는지 확인한 것이다. 화면 키 직접 타이핑 검증으로 세지 않았다. 한국어 조합·버튼/IME 보내기 계약은 집중 계측과 전체 계측에서 통과했다.
+
+[PowerShell 빌드](build-round25a.txt): `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` 성공. 단위 테스트 **350개(실패·오류·건너뜀 0)**. [집중 계측](contract-round25a-focused.txt)은 홈·알약·마감·준비실·대화와 네 잠금 단계의 Real/시연 조건을 검사했다. 아래 세 실행은 같은 최종 앱·계측 APK로 원본 `tools/lesson_shots.sh`를 연속 실행한 결과다.
+
+| 실행 | 로그 | 결과 | 설치·캡처 가져오기 포함 경과 |
+|---|---|---|---|
+| 1 | [contract-round25a-1.txt](contract-round25a-1.txt) | Lesson contract passed | 356초 |
+| 2 | [contract-round25a-2.txt](contract-round25a-2.txt) | Lesson contract passed | 347초 |
+| 3 | [contract-round25a-3.txt](contract-round25a-3.txt) | Lesson contract passed | 353초 |
+
+`RESERVE=1 bash tools/emu_flow.sh` **PASS · clashes 0**([로그](flow-round25a-rear.txt)): 서초 시험장 예약→예약 홈→후면 주차 힌트 모드, **60/55·4구간 → 100/100·2구간**, 필수 힌트 3종·둘째 추가 힌트 없음·도어→Report·`실신호 0 · 시뮬레이션 8 · 미측정 0` 확인.
+
+최종 앱을 `adb -s emulator-5556 install -r`로 재설치한 뒤 원본 `bash tools/course_flow.sh`도 **PASS · 종료 코드 0**([로그](flow-round25a-course.txt)): **70 불합격·감점 3 → 100 합격·감점 0 → 도어→Report** 확인.
+
+최종 APK SHA-256: 앱 `818C7197988DFEC84A3EE1591285E2E1505FFF761073499FC2A45469426246A1`, 계측 `45CD3A309FB52F531B04F82A71B946DFD2FFEFA2CFCB2AE6A5DACF13F9B28D78`.
+
+원본 도구의 시작 검사에 고정된 `-s emulator-5554`는 기존 방식대로 ignored `build/adb-round25a.sh`를 `ADB`로 지정해 모든 호출을 `emulator-5556`에 고정했다. 전체 계측은 과제 18개와 네 잠금 단계의 Real/시연 길게 누르기 검사가 더해져 원본 300초 제한을 넘었다. 검사를 줄이지 않고 ignored `build/bin/timeout`에서 **300초 호출만 600초**로 허용해 위 세 실행을 마쳤다. `tools/` 파일·판정·탭·캡처는 변경하지 않았다. 재현 시 같은 실행 제한을 적용해야 하며, [INTEGRATION C](../../INTEGRATION.md)에 도구의 제한을 환경 변수로 조절하도록 요청했다.
+
 ## UI 라운드 24 — 홈 코치 텍스트 대화 (2026-10-06)
 
 `codex/ui-round24` · 새 워크트리 시작 기준 `origin/main=176736f`(#198 모델·#199 발주). [발주서](../../handoffs/2026-10-06_codex_ui_round24.md)의 모델 API만 화면에 연결했다. 전용 `emulator-5556`에서 검증했다.

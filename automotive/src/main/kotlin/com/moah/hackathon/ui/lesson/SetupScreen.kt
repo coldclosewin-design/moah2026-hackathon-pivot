@@ -8,8 +8,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.clickable
-import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
@@ -154,7 +152,7 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
                                 onBack = { sheet = false }, onStart = start, onVenues = { venuesOpen = true })
                         } else {
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
-                                Eyebrow(profileLine(profile), Modifier.testTag("profile-entry").clickable(role = Role.Button) { profileOpen = true }, color = CoachColors.Muted)
+                                ProfilePill(profileLine(profile)) { profileOpen = true }
                                 Spacer(Modifier.height(27.dp))
                                 Headline(setupProposal(task.type), size = if (compactHome) 56 else 72)
                                 Spacer(Modifier.height(36.dp))
@@ -172,13 +170,12 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
                                 Spacer(Modifier.height(33.dp))
                                 PrimaryPill(stringResource(R.string.lesson_start), start, Modifier.fillMaxWidth())
                                 Spacer(Modifier.height(57.dp))
-                                Row(horizontalArrangement = Arrangement.spacedBy(66.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                                     TextAction(stringResource(R.string.lesson_change_task_mode), {
                                         categoryName = task.type.name
                                         sheet = true
                                     })
-                                    CoachPill(if (coachTextInput) "코치에게 말하기" else "코치와 고르기", onOpenCoach,
-                                        microphone = coachTextInput)
+                                    CoachPill("코치와 대화", onOpenCoach)
                                 }
                             }
                             // The dialog already showed this speech; repeating it after return can

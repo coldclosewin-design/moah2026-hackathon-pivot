@@ -25,7 +25,7 @@ import com.moah.hackathon.ui.CoachColors
 import com.moah.hackathon.ui.CoachTexture
 
 @Composable
-internal fun CoachPill(label: String, onClick: (() -> Unit)?, modifier: Modifier = Modifier, microphone: Boolean = true) {
+internal fun CoachPill(label: String, onClick: (() -> Unit)?, modifier: Modifier = Modifier) {
     Row(modifier.height(112.dp)
         .then(if (onClick == null) Modifier.alpha(.55f).background(CoachColors.Lavender, RoundedCornerShape(100))
             else Modifier.surfaceTexture(CoachColors.Lavender, CoachTexture.Chip, pill = true))
@@ -34,7 +34,7 @@ internal fun CoachPill(label: String, onClick: (() -> Unit)?, modifier: Modifier
             else Modifier.clickable(role = Role.Button, onClick = onClick))
         .padding(horizontal = 40.dp), horizontalArrangement = Arrangement.spacedBy(20.dp),
         verticalAlignment = Alignment.CenterVertically) {
-        if (microphone) Canvas(Modifier.size(40.dp)) {
+        Canvas(Modifier.size(40.dp).testTag("coach-microphone")) {
             val ink = CoachColors.Periwinkle
             drawRoundRect(ink, Offset(size.width * .34f, 0f), Size(size.width * .32f, size.height * .6f), CornerRadius(size.width * .16f))
             drawArc(ink, 0f, 180f, false, Offset(size.width * .12f, size.height * .2f),
@@ -47,6 +47,23 @@ internal fun CoachPill(label: String, onClick: (() -> Unit)?, modifier: Modifier
 }
 
 @Composable
+internal fun ProfilePill(label: String, onClick: () -> Unit) {
+    Row(Modifier.heightIn(min = 78.dp).testTag("profile-entry")
+        .surfaceTexture(CoachColors.Lavender, CoachTexture.Chip, pill = true)
+        .clip(RoundedCornerShape(100)).clickable(role = Role.Button, onClick = onClick)
+        .padding(horizontal = 24.dp, vertical = 12.dp),
+        horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically) {
+        Canvas(Modifier.size(28.dp)) {
+            drawCircle(CoachColors.Periwinkle, size.width * .17f, Offset(size.width / 2, size.height * .23f))
+            drawArc(CoachColors.Periwinkle, 180f, 180f, true,
+                Offset(size.width * .12f, size.height * .50f), Size(size.width * .76f, size.height * .78f))
+        }
+        LessonText(label, 32, CoachColors.Periwinkle, maxLines = 1)
+        LessonText("›", 32, CoachColors.Periwinkle)
+    }
+}
+
+@Composable
 internal fun CoachSheet(coach: CoachDialog, onChoose: (CoachChoice) -> Unit, onBack: () -> Unit,
     textInput: Boolean = false, onSend: (String) -> Unit = {}) {
     if (textInput) {
@@ -55,7 +72,7 @@ internal fun CoachSheet(coach: CoachDialog, onChoose: (CoachChoice) -> Unit, onB
     }
     Column(Modifier.fillMaxSize()) {
         Spacer(Modifier.height(104.dp)) // The enclosing sheet starts at 64 dp; the eyebrow is at 168.
-        Eyebrow("코치와 이야기")
+        Eyebrow("코치와 대화")
         Spacer(Modifier.height(27.dp))
         Column(Modifier.fillMaxWidth()
             .surfaceTexture(CoachColors.Lavender, CoachTexture.Card,

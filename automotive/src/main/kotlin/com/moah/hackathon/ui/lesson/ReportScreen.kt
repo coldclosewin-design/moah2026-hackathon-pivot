@@ -26,12 +26,13 @@ private enum class ReportPage { SUMMARY, DETAILS, CERTIFICATE, SHARE_EXAMPLE }
 
 @Composable
 internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit, locked: Boolean = false,
-    onAnswerProfile: (ProfileField, String) -> Unit = { _, _ -> }, onSkipAsk: (ProfileField) -> Unit = {}) {
+    onAnswerProfile: (ProfileField, String) -> Unit = { _, _ -> }, onSkipAsk: (ProfileField) -> Unit = {},
+    onDemoStop: (() -> Unit)? = null) {
     var page by rememberSaveable(report) { mutableStateOf(ReportPage.SUMMARY) }
     var shareName by rememberSaveable(report) { mutableStateOf(report.shareLevels.firstOrNull()?.name) }
     val shareLevel = report.shareLevels.firstOrNull { it.name == shareName } ?: report.shareLevels.firstOrNull()
     if (locked) {
-        ResultLockedScreen()
+        ResultLockedScreen(onDemoStop)
         return
     }
     PosterSurface {

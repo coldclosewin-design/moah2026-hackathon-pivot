@@ -1,0 +1,25 @@
+PASS Card C parking-rear-perpendicular: 40.0 sp; ellipsis=false; available=305.0 dp; natural=242.0 dp
+PASS Card C parking-parallel: 40.0 sp; ellipsis=false; available=305.0 dp; natural=158.0 dp
+PASS Card C parking-front: 40.0 sp; ellipsis=false; available=305.0 dp; natural=242.0 dp
+PASS Card C parking-angle: 40.0 sp; ellipsis=false; available=305.0 dp; natural=158.0 dp
+PASS Round19 card: road edges, dashed center and Periwinkle course.route with visible lane change
+PASS Card C straight-stop: 39.0 sp; ellipsis=false; available=285.0 dp; natural=282.0 dp
+PASS Card C left-turn-signal: 37.0 sp; ellipsis=false; available=285.0 dp; natural=281.0 dp
+PASS Card C lane-change: 40.0 sp; ellipsis=false; available=285.0 dp; natural=158.0 dp
+PASS Card C road-course: 40.0 sp; ellipsis=false; available=285.0 dp; natural=242.0 dp
+PASS Card C lane-change: 40.0 sp; ellipsis=false; available=285.0 dp; natural=158.0 dp
+PASS Card C road-course: 40.0 sp; ellipsis=false; available=285.0 dp; natural=242.0 dp
+PASS Card C track-exam: 37.0 sp; ellipsis=false; available=285.0 dp; natural=281.0 dp
+PASS Card C roundabout: 40.0 sp; ellipsis=false; available=285.0 dp; natural=185.0 dp
+PASS Card C predrive-check: 40.0 sp; ellipsis=false; available=305.0 dp; natural=205.0 dp
+PASS Card C checklist-road-signs: 40.0 sp; ellipsis=false; available=305.0 dp; natural=242.0 dp
+PASS Card C knowledge-hazard-weather: 36.0 sp; ellipsis=false; available=285.0 dp; natural=282.0 dp
+PASS Card C knowledge-marking: 40.0 sp; ellipsis=false; available=285.0 dp; natural=242.0 dp
+PASS Card C knowledge-turn-signal: 40.0 sp; ellipsis=false; available=285.0 dp; natural=232.0 dp
+PASS Card C knowledge-priority: 40.0 sp; ellipsis=false; available=285.0 dp; natural=195.0 dp
+PASS Card C: 288/144 art and band, centred category marks, one-line 36-40 sp titles, shared baselines, ready/planned states
+PASS Round23a: three complete scope cards without scrolling, horizontal actions, preview inclusions/recipient; A1 gaps, conditional coach chips, disabled mic, consumed parking request, reservation highlight/options and exact begin/continue
+PASS Round23b: two-second Setup entry, five presets, profile/panel/reset actions, P2 two questions + five-row sheet + persisted answers, Real has no entry or band, preset intent
+PASS Round24: off/Real have no input; admin toggle; Korean SetText + button/IME send; Fake ask-more/parallel/profile; fresh draft; waiting disables input/send but retains chips; transcript follows last turn; no digits
+PASS Round25 locks: Done/Report/Quiz/QuizDone flat, no numbers or touch actions; Real has no hint or hold; demo short hold ignored, two-second hold stops at zero with band hidden
+Round25a contract passed
