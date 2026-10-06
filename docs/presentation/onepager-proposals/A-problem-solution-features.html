@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>시안 A · 문제 해법 기능</title>
+<style>
+  :root {
+    --ink: #070827;
+    --paper: #FCFCFA;
+    --peri: #5B60A1;
+    --lav: #E5E6F0;
+    --signal: #F52D48;
+    --muted: rgba(7, 8, 39, .60);
+    --shadow: 0 4px 10px rgba(7, 8, 39, .10), 0 1px 2px rgba(7, 8, 39, .06);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { margin: 0; background: var(--paper); }
+  body {
+    font-family: "Noto Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+    font-weight: 400;
+    color: var(--ink);
+    word-break: keep-all;
+  }
+  .slide {
+    position: relative;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background: var(--paper);
+  }
+
+  /* ---------- header ---------- */
+  .head {
+    position: absolute; left: 0; top: 0; width: 1920px; height: 150px;
+    padding: 30px 64px 0 64px;
+    display: flex; justify-content: space-between; align-items: flex-start;
+  }
+  .eyebrow { font-size: 22px; color: var(--peri); letter-spacing: .02em; }
+  .title { margin-top: 8px; font-size: 58px; font-weight: 500; line-height: 1.15; letter-spacing: -.01em; }
+  .title .dash { color: var(--peri); font-weight: 400; }
+  .who {
+    margin-top: 14px;
+    font-size: 22px; color: var(--muted);
+    border: 2px dashed rgba(7, 8, 39, .28);
+    border-radius: 999px; padding: 10px 26px;
+  }
+
+  /* ---------- three columns ---------- */
+  .cols { position: absolute; left: 0; top: 150px; width: 1920px; height: 760px; display: flex; }
+  .col-label { font-size: 20px; letter-spacing: .14em; }
+
+  /* problem (Ink) */
+  .problem {
+    position: relative;
+    width: 610px; height: 760px;
+    background: var(--ink); color: var(--paper);
+    padding: 40px 48px 0 64px;
+  }
+  .problem::after {           /* angled facet */
+    content: ""; position: absolute; right: 0; top: 0;
+    width: 120px; height: 120px; background: var(--peri);
+    clip-path: polygon(100% 0, 0 0, 100% 100%);
+  }
+  .problem .col-label { color: rgba(229, 230, 240, .75); }
+  .stat { margin-top: 18px; }
+  .stat .num { font-size: 78px; line-height: 1; color: var(--signal); font-weight: 500; letter-spacing: -.02em; }
+  .stat .num small { font-size: 34px; color: var(--paper); font-weight: 400; margin-left: 6px; }
+  .stat .txt { margin-top: 8px; font-size: 22px; line-height: 1.45; color: var(--lav); }
+  .stat.minor .num { font-size: 52px; color: var(--paper); }
+  .quote {
+    margin-top: 20px; padding-left: 18px; border-left: 3px solid var(--peri);
+    font-size: 21px; line-height: 1.5; color: rgba(229, 230, 240, .80);
+  }
+  .message {
+    position: absolute; left: 64px; right: 48px; bottom: 36px;
+    font-size: 27px; line-height: 1.42; color: var(--paper);
+  }
+  .message em { font-style: normal; color: var(--signal); }
+
+  /* solution (Paper) */
+  .solution { width: 590px; height: 760px; padding: 40px 52px 0 56px; position: relative; }
+  .solution .col-label { color: var(--peri); }
+  .sol-line { margin-top: 18px; font-size: 31px; line-height: 1.4; font-weight: 500; }
+  .sol-line .hl { color: var(--peri); }
+  .tasks { margin-top: 30px; }
+  .tasks-head { font-size: 22px; color: var(--muted); }
+  .tasks-head .big { font-weight: 500; color: var(--ink); font-size: 30px; margin-right: 6px; }
+  .chips { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 10px; }
+  .chip { font-size: 21px; background: var(--lav); border-radius: 999px; padding: 7px 18px; }
+  .times { margin: 20px 0 6px; font-size: 22px; color: var(--muted); display: flex; align-items: center; gap: 12px; }
+  .times::after { content: ""; flex: 1; height: 1px; background: rgba(7, 8, 39, .16); }
+  .ladder { margin-top: 10px; }
+  .rung { display: flex; align-items: center; height: 70px; }
+  .bar {
+    height: 52px; border-radius: 999px;
+    display: flex; align-items: center; padding-left: 22px;
+    font-size: 24px; color: var(--paper); flex: none;
+  }
+  .rung:nth-child(1) .bar { width: 230px; background: var(--peri); }
+  .rung:nth-child(2) .bar { width: 170px; background: rgba(91, 96, 161, .72); }
+  .rung:nth-child(3) .bar { width: 116px; background: rgba(91, 96, 161, .45); color: var(--ink); }
+  .rung .desc { margin-left: 18px; font-size: 21px; color: var(--muted); line-height: 1.3; }
+  .help-axis { font-size: 20px; color: var(--peri); margin-top: 4px; }
+  .then {
+    position: absolute; left: 56px; right: 52px; bottom: 36px;
+    font-size: 23px; line-height: 1.45;
+    padding-top: 16px; border-top: 2px solid var(--ink);
+  }
+  .then .hl { color: var(--signal); }
+
+  /* features (Lav) */
+  .features { flex: 1; height: 760px; background: var(--lav); padding: 40px 56px 0 48px; }
+  .features .col-label { color: var(--peri); }
+  .feat { display: flex; align-items: flex-start; margin-top: 18px; }
+  .feat:first-of-type { margin-top: 18px; }
+  .feat img {
+    width: 312px; height: 175.5px; flex: none;
+    border-radius: 6px; box-shadow: var(--shadow); display: block;
+  }
+  .feat .lbl { margin-left: 26px; }
+  .feat .lbl .t { font-size: 25px; line-height: 1.3; font-weight: 500; }
+  .feat .lbl .d { margin-top: 8px; font-size: 20px; line-height: 1.45; color: var(--muted); }
+  .feat .lbl .d .hl { color: var(--ink); }
+  .extra { margin-top: 18px; font-size: 20px; line-height: 1.45; color: var(--ink); }
+  .extra span { color: var(--muted); }
+
+  /* ---------- bottom band ---------- */
+  .band {
+    position: absolute; left: 0; top: 910px; width: 1920px; height: 170px;
+    padding: 20px 64px 0 64px;
+    border-top: 6px solid var(--ink);
+  }
+  .fact { font-size: 21px; line-height: 1.5; display: flex; gap: 14px; align-items: baseline; }
+  .tag {
+    flex: none; font-size: 18px; padding: 2px 14px; border-radius: 999px;
+    background: var(--ink); color: var(--paper);
+  }
+  .tag.lim { background: transparent; color: var(--ink); border: 1.5px solid var(--ink); }
+  .fact + .fact { margin-top: 6px; }
+  .src { margin-top: 12px; font-size: 15px; line-height: 1.5; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="slide">
+
+  <div class="head">
+    <div>
+      <div class="eyebrow">초보·장롱면허 운전자를 위한 AAOS 운전 연수 어시스턴트</div>
+      <div class="title">드라이브 코치 <span class="dash">—</span> 화내지 않는 조수석</div>
+    </div>
+    <div class="who">[팀명] · [발표자]</div>
+  </div>
+
+  <div class="cols">
+
+    <!-- 문제 -->
+    <section class="problem">
+      <div class="col-label">왜 필요한가</div>
+      <div class="stat">
+        <div class="num">30.2%</div>
+        <div class="txt">차량 물적 사고 10건 중 3건이 주차 중 —<br>그 주차 사고의 53.8%가 후진</div>
+      </div>
+      <div class="stat">
+        <div class="num">41%</div>
+        <div class="txt">초보운전자 첫해 사고 중<br>처음 100일 안에 난 비율</div>
+      </div>
+      <div class="stat minor">
+        <div class="num">50~60<small>만 원</small></div>
+        <div class="txt">학원 도로연수 10시간 — 혼자 연습할 도구가 부족하다</div>
+      </div>
+      <div class="quote">“장롱면허 10년차 아내를 옆에서 가르치다<br>둘 다 힘들었다.” — 발표자의 계기</div>
+      <div class="message">가장 사고가 많은 순간을,<br><em>화내지 않고 반복해 줄 조수석</em>이 없다.</div>
+    </section>
+
+    <!-- 해법 -->
+    <section class="solution">
+      <div class="col-label">해법</div>
+      <div class="sol-line">두려운 상황을 <span class="hl">과제</span>로 쪼개고,<br><span class="hl">차량 신호</span>로 과정을 측정해<br>도움을 조금씩 줄여 간다.</div>
+
+      <div class="tasks">
+        <div class="tasks-head"><span class="big">과제 18개</span></div>
+        <div class="chips">
+          <span class="chip">주차 4</span>
+          <span class="chip">도로 주행 6</span>
+          <span class="chip">점검 2</span>
+          <span class="chip">지식 6</span>
+        </div>
+      </div>
+
+      <div class="times">× 세 모드</div>
+      <div class="ladder">
+        <div class="rung"><div class="bar">가이드</div><div class="desc">단계마다 말하고<br>신호로 확인</div></div>
+        <div class="rung"><div class="bar">힌트</div><div class="desc">틀린 순간에만</div></div>
+        <div class="rung"><div class="bar">평가</div><div class="desc">조용히 보고 채점</div></div>
+      </div>
+      <div class="help-axis">막대 길이 = 코치가 돕는 양</div>
+
+      <div class="then">정차하면 <span class="hl">회차 판정</span>, 회차가 쌓이면 리포트·진단서.</div>
+    </section>
+
+    <!-- 기능 -->
+    <section class="features">
+      <div class="col-label">지금 앱에 있는 것</div>
+
+      <div class="feat">
+        <img src="../../screenshots/lesson/lesson-setup-coach-cards-follow.png" alt="홈 말 카드 대화">
+        <div class="lbl">
+          <div class="t">말 카드로 코치와 대화</div>
+          <div class="d">걱정을 말하면 과제·모드를 제안. <span class="hl">사내 Copilot</span>, 실패하면 규칙 문장</div>
+        </div>
+      </div>
+
+      <div class="feat">
+        <img src="../../screenshots/lesson/lesson-maneuver-hint.png" alt="주차 중 힌트">
+        <div class="lbl">
+          <div class="t">차량 신호로 과정 측정</div>
+          <div class="d">속도·조향·기어·벨트·도어·지시등. 틀린 순간 힌트는 <span class="hl">규칙이 지연 0</span></div>
+        </div>
+      </div>
+
+      <div class="feat">
+        <img src="../../screenshots/lesson/lesson-done-verdict-fix.png" alt="회차 판정 네 줄과 궤적">
+        <div class="lbl">
+          <div class="t">점수 대신 판정 네 줄</div>
+          <div class="d">한 번에·방향·마무리·안전 + 신호로 추정한 궤적</div>
+        </div>
+      </div>
+
+      <div class="extra">주행 중 화면 잠금 <span>(5 km/h↑ 점수·터치 0)</span><br>장내기능 모의시험 · 진단서 · 신호 출처 배지</div>
+    </section>
+  </div>
+
+  <div class="band">
+    <div class="fact"><span class="tag">검증</span><span>사내 차량 환경(Real VSS)에서 코드 수정 없이 빌드·실행 — 후면 주차 실신호 7 · 시뮬레이션 1 · 미측정 0 · 사내 Copilot 응답 1.2~1.5 s · 단위 테스트 350</span></div>
+    <div class="fact"><span class="tag lim">한계</span><span>카메라가 없어 칸 안 최종 위치는 판정하지 않는다(과정을 본다) · 예약·진단서 공유·시험장 위치 신호는 시뮬레이션/예시</span></div>
+    <div class="src">출처 · 30.2%·53.8%: 보험개발원·현대해상·동부화재·KB손해보험 공동 조사(2012~2014 보험금 지급 분석, 2017.1 발표) · 41%: 현대해상 교통기후환경연구소 「초보운전자 사고감소를 위한 정책방안 연구」(2009~2015 사고 317만 건, 2016.12)<br>50~60만 원: 2025년 언론 보도 기준 · 화면은 외부 에뮬레이터 캡처(시뮬레이션 신호 값)</div>
+  </div>
+
+</div>
+</body>
+</html>
