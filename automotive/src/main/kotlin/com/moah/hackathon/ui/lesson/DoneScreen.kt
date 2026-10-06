@@ -3,7 +3,6 @@ package com.moah.hackathon.ui.lesson
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -18,14 +17,12 @@ import com.moah.hackathon.ui.CoachTexture
 @Composable
 internal fun DoneScreen(task: Task, attempt: Int, record: AttemptRecord, subtitle: String?,
     onAgain: () -> Unit, onEnd: () -> Unit, demo: (@Composable () -> Unit)? = null, locked: Boolean = false) {
-    val expansion = rememberSaveable { mutableStateOf(false) }
-    LaunchedEffect(locked) { if (locked) expansion.value = false }
     if (locked) {
         ResultLockedScreen()
         return
     }
     val showPath = remember(record.path) { hasEstimatedPath(record.path) }
-    PosterSurface {
+    PosterSurface(band = demo) {
         Box(Modifier.fillMaxSize()) {
             Row(Modifier.fillMaxSize()) {
                 if (task.course != null && record.course != null) {
@@ -78,7 +75,6 @@ internal fun DoneScreen(task: Task, attempt: Int, record: AttemptRecord, subtitl
                     // removing that footer after TTS starts used to move the action row vertically.
                 }
             }
-            if (demo != null) DemoRail(expansion, demo)
         }
     }
 }

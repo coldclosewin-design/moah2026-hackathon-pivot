@@ -4,7 +4,6 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -33,11 +32,9 @@ internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stoppe
             visibleHint = null
         }
     }
-    val expansion = rememberSaveable { mutableStateOf(false) }
-    LaunchedEffect(locked) { if (locked) expansion.value = false }
     val commonSignal = state.commonSignal()
     val checklist = state.taskType == TaskType.CHECKLIST
-    PosterSurface {
+    PosterSurface(band = demo.takeUnless { locked }) {
         Box(Modifier.fillMaxSize()) {
             Row(Modifier.fillMaxSize()) {
                 Column(Modifier.weight(.53f).fillMaxHeight().background(CoachColors.Ink)
@@ -80,8 +77,7 @@ internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stoppe
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.Top) {
                             LessonText("$taskTitle · ${state.attempt}회차", 40, modifier = Modifier.weight(1f))
-                            val speedOffset = if (demo != null) (-16).dp else 0.dp
-                            Column(Modifier.offset(y = speedOffset), horizontalAlignment = Alignment.End) {
+                            Column(horizontalAlignment = Alignment.End) {
                                 LessonText("${state.speed} km/h", 56, bold = true)
                                 commonSignal?.let { StateLabel(collapsedSignalLabel(it), it) }
                             }
@@ -128,7 +124,6 @@ internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stoppe
                 }
             }
             // Locked frames have no panel, toggle, scrolling, or click actions.
-            if (!locked && demo != null) DemoRail(expansion, demo)
         }
     }
 }

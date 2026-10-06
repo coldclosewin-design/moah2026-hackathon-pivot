@@ -12,8 +12,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -42,14 +40,17 @@ import com.moah.hackathon.ui.CoachTexture
 import com.moah.hackathon.vehicle.SignalAvailability
 
 @Composable
-internal fun PosterSurface(content: @Composable () -> Unit) {
+internal fun PosterSurface(band: (@Composable () -> Unit)? = null, content: @Composable () -> Unit) {
     val offset = remember { Animatable(180f) }
     val density = LocalDensity.current.density
     LaunchedEffect(Unit) { offset.animateTo(0f, tween(260)) }
     // Only the incoming composition moves. Never retain outgoing score text or touch targets.
     Box(Modifier.fillMaxSize().background(CoachColors.Paper).clipToBounds()) {
-        Surface(Modifier.fillMaxSize().graphicsLayer { translationX = offset.value * density },
-            color = CoachColors.Paper, content = content)
+        Column(Modifier.fillMaxSize()) {
+            Surface(Modifier.weight(1f).fillMaxWidth().graphicsLayer { translationX = offset.value * density },
+                color = CoachColors.Paper, content = content)
+            band?.invoke()
+        }
     }
 }
 
@@ -194,16 +195,6 @@ internal fun SelectionChip(label: String, chosen: Boolean, onClick: () -> Unit, 
         .clickable(role = Role.RadioButton, onClick = onClick).semantics { selected = chosen }
         .padding(horizontal = 4.dp), contentAlignment = Alignment.Center) {
         LessonText(label, 40, if (chosen) CoachColors.Paper else CoachColors.Ink, maxLines = 1)
-    }
-}
-
-@Composable
-internal fun BoxScope.DemoRail(expansion: MutableState<Boolean>, demo: @Composable () -> Unit) {
-    CompositionLocalProvider(LocalDemoExpansion provides expansion) {
-        Box(Modifier.align(Alignment.TopEnd).padding(end = 8.dp)
-            .width(if (expansion.value) 420.dp else 88.dp)
-            .background(if (expansion.value) CoachColors.Lavender else Color.Transparent)
-            .padding(start = if (expansion.value) 24.dp else 0.dp, end = 24.dp, top = 24.dp, bottom = 24.dp)) { demo() }
     }
 }
 

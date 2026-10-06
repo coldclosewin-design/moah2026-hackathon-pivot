@@ -3,7 +3,6 @@ package com.moah.hackathon.ui.lesson
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -15,11 +14,9 @@ import kotlin.math.roundToInt
 
 @Composable
 internal fun DriveScreen(state: LessonPhase.Drive, subtitle: String?, onFinish: () -> Unit, demo: (@Composable () -> Unit)?) {
-    val expansion = rememberSaveable { mutableStateOf(false) }
-    LaunchedEffect(state.locked) { if (state.locked) expansion.value = false }
     val current = state.course.zone(state.progress.currentZoneId.orEmpty())
     val next = state.course.zone(state.progress.nextZoneId.orEmpty())
-    PosterSurface {
+    PosterSurface(band = demo.takeUnless { state.locked }) {
         Box(Modifier.fillMaxSize()) {
             Row(Modifier.fillMaxSize()) {
                 Column(Modifier.weight(.53f).fillMaxHeight().background(CoachColors.Ink).padding(48.dp)) {
@@ -60,7 +57,6 @@ internal fun DriveScreen(state: LessonPhase.Drive, subtitle: String?, onFinish: 
                     else Spacer(Modifier.height(140.dp))
                 }
             }
-            if (!state.locked && demo != null) DemoRail(expansion, demo)
         }
     }
 }

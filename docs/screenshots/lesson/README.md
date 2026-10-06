@@ -1,5 +1,41 @@
 # 화면 검증 캡처
 
+## UI 라운드 23b — 관리자 준비실·세션 띠·프로필 P2 (2026-10-06)
+
+`codex/ui-round23b` · 시작 기준 `origin/main=410cc6e`(#186). [발주서](../../handoffs/2026-10-06_codex_ui_round23.md) ④⑤를 main의 M2·M4 모델에 연결했다. 전용 AVD `Codex_Round23b`(CSTDe 이미지, 2560×1440, user 10), `ANDROID_SERIAL=emulator-5556` 고정. 기존 `emulator-5554`는 조작·종료하지 않았다.
+
+| 선택 시안 | 실제 앱 캡처 | 구현·확인 |
+|---|---|---|
+| ④ [관리자 D 준비실](../../design/round22-proposals/5-admin-mode.html) | [준비실](lesson-admin-home.png) | Setup의 DRIVE COACH를 약 2초 길게 눌러 진입. 왼쪽 지금 상태·오른쪽 프리셋 다섯/프로필 넷·신호 출처·띠 선택·기록/프로필 초기화·AI 상태/연결·이 설정으로 홈. Real fixture는 진입 핸들러와 띠가 모두 없음 |
+| ④ [세션 중 C 띠](../../design/round22-proposals/5-admin-mode.html) | [주차 중](lesson-admin-band.png), [예약 홈 펼침](lesson-admin-band-booking.png), [AI 코드 펼침](lesson-admin-band-ai-code.png) | 아래 Ink 90dp, 기존 시나리오/정차/출발/문/시나리오 정지 라벨 유지. 더 보기에서 초기화·AI 연결·숨김. 콘텐츠가 띠 위에서 끝나며 주요 버튼을 덮지 않음. 속도 >5에서는 띠·터치·스크롤 모두 제거 |
+| ⑤ [프로필 P2 한 장](../../design/round22-proposals/7b-profile-abd.html) | [첫 질문](lesson-profile-onboarding.png), [두 질문 완료](lesson-profile-onboarding-complete.png), [홈 프로필 시트](lesson-profile-sheet.png), [리포트 질문](lesson-report-ask-one.png) | 같은 다섯 줄 아코디언, 질문 56sp·선택 칩 112dp. 첫 실행은 무서운 상황/마지막 운전만 묻고 시작하기 또는 언제든 건너뛰기. 홈 눈썹에서 다섯 줄 편집·앱이 본 것 읽기. 답하면 다음 빈 줄, 리포트에서는 답/다음에요 뒤 카드가 닫힘 |
+
+`MainActivity`는 새 실행과 실행 중 전달된 `preset` extra 모두 `admin.applyPreset`으로 보낸다. 이미 처리한 extra는 제거해 화면 재생성 때 시연 기록을 다시 초기화하지 않는다. 프로필은 기존 M4의 `profile.properties`에 저장하며, 칩 답·건너뛰기·초기화만 기존 모델 진입점으로 전달한다. 리포트 질문이 있을 때 요약을 48sp로 정리해 과제 줄과 질문 카드를 함께 보여 준다. 코치 대화에서 이미 보여 준 문장은 홈 하단 자막에 반복하지 않아 예약 카드·링크 줄이 띠 위에서 잘리지 않는다. A1의 57dp·33dp 간격은 유지한다. 펼친 띠로 콘텐츠 높이가 줄어들 때만 홈 제목과 바깥 여백을 줄여 예약 카드가 있어도 시작 140dp·코치 버튼 112dp를 유지한다.
+
+옛 `lesson-demo-toggle-pill.png`와 `lesson-panel-*.png`는 삭제했다. 과거 기록의 패널 파일명은 당시 이력이며, 현재 화면은 위 관리자 띠 캡처로 대체한다. 우상단 시연 알약은 더 이상 없다.
+
+[PowerShell 빌드 로그](build-round23b.txt): `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` 성공. 단위 테스트 **321개(실패·오류·건너뜀 0)**. 아래 세 실행은 같은 최종 앱·계측 APK로 수정 없는 `tools/lesson_shots.sh`를 연속 실행한 결과다.
+
+| 실행 | 로그 | 결과 |
+|---|---|---|
+| 1 | [contract-round23b-1.txt](contract-round23b-1.txt) | Lesson contract passed |
+| 2 | [contract-round23b-2.txt](contract-round23b-2.txt) | Lesson contract passed |
+| 3 | [contract-round23b-3.txt](contract-round23b-3.txt) | Lesson contract passed |
+
+새 계약은 실제 포인터의 짧은/약 2초 누르기, 프리셋 다섯과 실제 과제·모드, 기록/프로필 초기화, 띠 선택, 첫 두 질문과 건너뛰기, 다섯 답 저장, 다음 빈 줄 전환, 리포트 답/다음에요, 실행 중 preset 인텐트를 검사한다. 기존 잠금 숫자/터치 0·Real 관리자 없음·AI 다섯 상태/코드 원문·라벨·23a 코치/예약/진단서 회귀도 유지한다. 펼친 예약 홈은 시작 140dp·코치 버튼 112dp와 띠 위 경계를 검사한다.
+
+[코스 전용 계측](contract-round23b-course.txt)도 **Round18 contract passed**. 코스 주행의 잠금/터치/숫자·출처, 실제 경로 재생과 감점 위치, Done/Report/진단서, 평행/사선 도착, 시험장 예약을 확인했다. 아래 띠가 생긴 정차 코스 캡처도 교체했다.
+
+원본 `tools/emu_flow.sh` **PASS·clashes 0·116초**([로그](flow-round23b-rear.txt)): 기존 글자로 띠의 조작을 찾고 **60/55·4구간 → 100/100·2구간**, 필수 힌트 3종·둘째 추가 힌트 없음·도어→Report·`실신호 0 · 시뮬레이션 8 · 미측정 0`을 확인했다. 실제 두 회차 Done 캡처도 교체했다.
+
+`adb install -r` 성공 뒤 원본 `tools/course_flow.sh`도 **PASS·종료 코드 0**([로그](flow-round23b-course.txt)): **70 불합격·감점 3 → 100 합격·감점 0 → 도어→Report**. 두 흐름 모두 `--es preset` 적용 로그가 남으며 온보딩 없이 해당 과제·모드로 시작했다. 설치 앱의 SHA-256도 아래 최종 APK와 일치한다.
+
+원본 세 도구의 시작 검사는 `-s emulator-5554`가 고정되어 있으므로, 로컬 ignored `build/adb-round23b.sh`를 `ADB`로 지정해 그 선두 serial 인수만 `ANDROID_SERIAL=emulator-5556`으로 통일했다. 이후 모든 adb 호출도 같은 전용 기기로 보낸다. 도구의 판정·대기·탭·캡처 코드는 그대로이며, 이 하드코딩은 [INTEGRATION C](../../INTEGRATION.md)에 후속 요청으로 남겼다.
+
+PNG **41장(33 교체·8 추가)**과 옛 패널/알약 6장 삭제를 반영했다. 최종 연속 계측 첫 실행, 코스 전용 계측, 실제 후면 시연에서 가져왔다. 준비실·온보딩·프로필 시트·리포트 질문·띠/AI 코드·펼친 예약 홈과 주차/코스 대표 화면의 줄바꿈·버튼 경계를 확인했다. 내용이 같은 기존 캡처와 작은 렌더링 차이만 있는 파일은 유지했다.
+
+APK SHA-256: 앱 `8A53EB534C89E6B0AAB3331401EB59829BCE9A0B13FF1CEEA7AEDD1113A5E7FD`, 계측 `0B64005D4F9AAD5113C84A4B6ABF5863E1105532C95658BAF52D577E59489037`. `ui/` Bold 0·새 색 토큰 0, 모델/차량/포트/채점/데이터/빌드/tools/NEXT 변경 없음.
+
 ## UI 라운드 23a — 진단서 B·분류 트랙 먹·홈 A1 (2026-10-06)
 
 `codex/ui-round23a` · 시작 기준 `origin/main=689e38c`(#185). [발주서](../../handoffs/2026-10-06_codex_ui_round23.md) ①②③을 M1·M3 모델에 연결했다. 전용 AVD `Codex_Round23a`(CSTDe 이미지, 2560×1440, user 10)에 `ANDROID_SERIAL=emulator-5556`을 고정했다. 관리자 준비실·프로필 화면은 23b 범위다.
