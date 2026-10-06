@@ -131,7 +131,7 @@ if [ "${SKIP_COACH_TEXT:-0}" != "1" ]; then
     if ! texts | grep -q "시뮬레이션 음성 입력"; then note "준비실 없음(순수 Real 빌드) — 건너뜀"; COACH_TEXT="skip"
     else
       press "켬"; sleep 1; press "이 설정으로 홈 →" "이 설정으로 홈"; sleep 2
-      press "코치에게 말하기"; sleep 2
+      press "코치와 대화" "코치에게 말하기"; sleep 2
       say_line() { # say_line "영어%s문장" 번호
         press "코치에게 글로 말해 보세요" || return 1; sleep 1
         adb shell input text "$1" >/dev/null 2>&1; sleep 1
