@@ -15,8 +15,9 @@ LOCK="$(dirname "$OUT")/emu_flow.lock"; PIDFILE="$(dirname "$OUT")/emu_flow.pid"
 if ! mkdir "$LOCK" 2>/dev/null; then echo "!! another instance is running (pid $(cat "$PIDFILE" 2>/dev/null)). abort."; exit 3; fi
 echo $$ > "$PIDFILE"
 trap 'rmdir "$LOCK" 2>/dev/null; rm -f "$PIDFILE"' EXIT
-if ! command timeout 20 "$ADB" -s emulator-5554 get-state </dev/null 2>/dev/null | grep -q device; then echo "!! no device. abort."; exit 4; fi
-adb() { command timeout 300 "$ADB" "$@" </dev/null; }
+if ! command timeout 20 "$ADB" -s "${ANDROID_SERIAL:-emulator-5554}" get-state </dev/null 2>/dev/null | grep -q device; then echo "!! no device. abort."; exit 4; fi
+# 계측 한 번의 상한 — 과제 18개 · 잠금 길게 누르기 검사가 늘어 300 s 를 넘었다(라운드 25a, INTEGRATION C). ADB_TIMEOUT 으로 바꿀 수 있다
+adb() { command timeout "${ADB_TIMEOUT:-900}" "$ADB" "$@" </dev/null; }
 
 for f in automotive/build/outputs/apk/debug/automotive-debug.apk automotive/build/outputs/apk/androidTest/debug/automotive-debug-androidTest.apk; do
   [ -f "$f" ] || { echo "!! missing $f (build first)"; exit 2; }
