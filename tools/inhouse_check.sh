@@ -13,6 +13,8 @@
 #   홈 코치 텍스트 대화(10/6, #198·#200): 리포트 → 다시 시작 → 준비실(DRIVE COACH 길게) "시뮬레이션 음성 입력 · 켬" → 홈 → 코치에게 말하기
 #         → 영어 두 줄(에뮬 키보드에 한국어가 없어 adb input text — Copilot 은 영어도 알아듣고, Fake 키워드 규칙은 한국어만이라 되묻기로 답한다)
 #         → 로그 `home coach: intent=… (ai|rule|fallback) N ms` 두 줄. 사내 목표: Copilot 로그인 뒤 (ai) 둘째 줄이 PIN_TASK(parking-parallel,…)
+#   말 카드(10/6 밤, #211·#219): 준비실 "카드 + 글" → 코치와 대화 → 카드 두 장(한국어 — 키보드 없이) "오랜만이라 무서워요" → "평행 주차 힌트로 할래요"
+#         → 다시 열어 영어 두 줄. intent 네 줄. 카드 둘째 줄은 Fake 규칙으로도 PIN_TASK(parking-parallel,HINT) 가 정상
 set -u
 APK="${1:-automotive/build/outputs/apk/debug/automotive-debug.apk}"
 PKG=com.moah.hackathon
@@ -74,8 +76,9 @@ tap() { # tap "라벨"  — text 또는 content-desc, 최대 4회 재시도
   [ -z "$b" ] && { bad "'$1' 못 찾음: $(texts | cut -c1-200)"; return 1; }
   set -- $b; adb shell input tap $(( ($1+$3)/2 )) $(( ($2+$4)/2 )) >/dev/null 2>&1; return 0
 }
-center() { # center "라벨" → "x y" (text 또는 content-desc)
-  local b; b=$(grep -oE "(text|content-desc)=\"$1\"[^>]*bounds=\"\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]\"" "$TMP/ui.xml" | head -1 | grep -oE 'bounds="[^"]*"' | grep -oE '[0-9]+')
+center() { # center "라벨" → "x y" (text 또는 content-desc) — 라벨은 글자 그대로("카드 + 글" 의 + 같은 정규식 문자를 이스케이프)
+  local re b; re=$(printf '%s' "$1" | sed 's/[][\.*^$+?(){}|]/\\&/g')
+  b=$(grep -oE "(text|content-desc)=\"$re\"[^>]*bounds=\"\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]\"" "$TMP/ui.xml" | head -1 | grep -oE 'bounds="[^"]*"' | grep -oE '[0-9]+')
   [ -z "$b" ] && return 1; set -- $b; echo "$(( ($1+$3)/2 )) $(( ($2+$4)/2 ))"
 }
 press() { # press "라벨" ["다른 라벨"…] — 먼저 보이는 것을 누른다, 최대 3회 다시 본다
@@ -121,8 +124,9 @@ wait_log "report: attempts=2" 15
 # ── 홈 코치 텍스트 대화(10/6) — 관리자 준비실이 있는 빌드(Fake/Hybrid)만. 순수 Real 은 건너뛴다 ──
 COACH_TEXT="skip"
 if [ "${SKIP_COACH_TEXT:-0}" != "1" ]; then
-  echo "== 홈 코치 텍스트 대화: 다시 시작 → 준비실 음성 입력 켬 → 코치에게 말하기 → 영어 두 줄"
+  echo "== 홈 코치 대화: 다시 시작 → 준비실 음성 입력(카드 + 글) → 코치와 대화 → 말 카드 두 장 → 다시 열어 영어 두 줄"
   COACH_TEXT="fail"
+  FAIL_BEFORE=$FAIL   # 이 단계에서 난 실패만 본다
   press "다시 시작 →" "다시 시작"; sleep 3
   dump; xy=$(center "DRIVE COACH")
   if [ -z "$xy" ]; then note "DRIVE COACH 못 찾음 — 건너뜀"; COACH_TEXT="skip"
@@ -130,7 +134,7 @@ if [ "${SKIP_COACH_TEXT:-0}" != "1" ]; then
     adb shell input swipe $xy $xy 3000 >/dev/null 2>&1; sleep 2; dump
     if ! texts | grep -q "시뮬레이션 음성 입력"; then note "준비실 없음(순수 Real 빌드) — 건너뜀"; COACH_TEXT="skip"
     else
-      press "켬"; sleep 1; press "이 설정으로 홈 →" "이 설정으로 홈"; sleep 2
+      press "카드 + 글" "켬"; sleep 1; press "이 설정으로 홈 →" "이 설정으로 홈"; sleep 2
       press "코치와 대화" "코치에게 말하기"; sleep 2
       say_line() { # say_line "영어%s문장" 번호
         press "코치에게 글로 말해 보세요" || return 1; sleep 1
@@ -139,8 +143,16 @@ if [ "${SKIP_COACH_TEXT:-0}" != "1" ]; then
         local i n; for i in $(seq 1 12); do n=$(adb logcat -d -s $TAG 2>/dev/null | grep -c "home coach: intent="); [ "$n" -ge "$2" ] && return 0; sleep 1; done
         bad "home coach 응답 $2 없음(12 s)"; return 1
       }
-      FAIL_BEFORE=$FAIL
-      say_line "hi,%sI%sam%snervous%sabout%sdriving%sagain" 1 && say_line "I%swant%sto%spractice%sparallel%sparking%swith%shints" 2
+      wait_intents() { local i n; for i in $(seq 1 12); do n=$(adb logcat -d -s $TAG 2>/dev/null | grep -c "home coach: intent="); [ "$n" -ge "$1" ] && return 0; sleep 1; done
+        bad "home coach 응답 $1 없음(12 s)"; return 1; }
+      CARDS=0
+      # 말 카드(카드가 없는 옛 태그면 건너뛰고 영어 두 줄만 — 그때 기대 intent 수는 둘)
+      dump; if texts | grep -q "오랜만이라 무서워요"; then
+        CARDS=2
+        press "오랜만이라 무서워요" && wait_intents 1 && sleep 2 && press "평행 주차 힌트로 할래요" && wait_intents 2
+        sleep 3; press "코치와 대화" "코치에게 말하기"; sleep 2   # PIN_TASK 면 시트가 닫힌다 — 다시 연다
+      else note "말 카드 없음(옛 태그) — 영어 두 줄만"; fi
+      say_line "hi,%sI%sam%snervous%sabout%sdriving%sagain" $((CARDS + 1)) && say_line "I%swant%sto%spractice%sparallel%sparking%swith%shints" $((CARDS + 2))
       [ "$FAIL" = "$FAIL_BEFORE" ] && COACH_TEXT="ok"
       xy=$(dump && center "← 돌아가기") && adb shell input tap $xy >/dev/null 2>&1
     fi
@@ -168,9 +180,10 @@ echo "-- Copilot: ${CP:-로그 없음(CLOUD_COACH=false 또는 설정 파일 없
 echo "-- 다 됐어요 → 채점 지연: 회차 1 ${D1} ms · 회차 2 ${D2} ms"
 echo "-- hints: $(echo "$LOG" | grep -c 'hint: ') (못한 주차 3종 기대)"
 case "$COACH_TEXT" in
-  ok)   echo "PASS 홈 코치 텍스트 대화 두 줄"
+  ok)   echo "PASS 홈 코치 대화(말 카드 + 영어 두 줄)"
         echo "$LOG" | grep -oE 'home coach: (say .*|intent=.*)' | sed 's/^/     /'
-        echo "     (ai = Copilot 응답 사용 · rule = 전송 계층 없음 · fallback = AI 응답 거절/시간 초과 → 키워드 규칙. 사내 목표: 로그인 뒤 ai, 둘째 줄 PIN_TASK)";;
+        echo "$LOG" | grep -oE 'home coach: card .*' | sed 's/^/     /'
+        echo "     (ai = Copilot 응답 사용 · rule = 전송 계층 없음 · fallback = AI 응답 거절/시간 초과 → 키워드 규칙. 사내 목표: 로그인 뒤 전부 ai — 카드 둘째 · 영어 둘째가 PIN_TASK(parking-parallel,HINT))";;
   fail) echo "FAIL 홈 코치 텍스트 대화 — 위 '== 홈 코치' 줄 참고";;
   *)    echo "-- 홈 코치 텍스트 대화: 건너뜀(SKIP_COACH_TEXT=1 또는 준비실 없음)";;
 esac
