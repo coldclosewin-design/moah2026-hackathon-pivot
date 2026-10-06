@@ -1,6 +1,7 @@
 package com.moah.hackathon.feature.lesson
 
 import android.util.Log
+import com.moah.hackathon.data.SpeechCards
 import com.moah.hackathon.ports.CoachPort
 import com.moah.hackathon.ports.SpeechPriority
 import com.moah.hackathon.ports.TtsPort
@@ -459,8 +460,12 @@ class LessonStateMachine(
     private var sheetRequest: TaskType? = null
     private var bookingChoice: BookingOption? = null
     private var profileRequest = false
-    /** 관리자 "시뮬레이션 음성 입력" — 기본 꺼짐. */
-    private var coachTextInput = false
+    /**
+     * 관리자 "시뮬레이션 음성 입력" — 기본 꺼짐(라운드 25: 끔 / 카드 / 카드 + 글).
+     * 생성자의 첫 `setup()` 이 이 필드보다 먼저 돌아 그때는 null 이다 — 읽기는 [coachInput] 으로(null = 끔).
+     */
+    private var coachInputSet: CoachInputMode? = null
+    private val coachInput: CoachInputMode get() = coachInputSet ?: CoachInputMode.OFF
     /** 이번 시트의 첫 말과 그 뒤 대화. 시트를 닫으면 버린다. */
     private var coachOpening: String? = null
     private val coachTurns = ArrayList<CoachTurn>()
@@ -534,13 +539,35 @@ class LessonStateMachine(
         if (_phase.value is LessonPhase.Setup) _phase.value = setup()
     }
 
-    /** 관리자 "시뮬레이션 음성 입력" 켜기·끄기. 끄면 진행 중 대화를 버린다(칩은 남는다). 로그 `admin: text input …`. */
-    fun setCoachTextInput(on: Boolean) {
-        if (coachTextInput == on) return
-        coachTextInput = on
-        if (!on) { coachTurns.clear(); coachWaiting = false; coachGen++ }
+    /** 관리자 "시뮬레이션 음성 입력" 켜기·끄기 — 켬 = 카드 + 글(라운드 24 와 같은 동작). 세 값은 [setCoachInput]. */
+    fun setCoachTextInput(on: Boolean) = setCoachInput(if (on) CoachInputMode.CARDS_AND_TEXT else CoachInputMode.OFF)
+
+    /** 입력 방식(라운드 25 결정 7). 끄면 진행 중 대화를 버린다(칩은 남는다). 로그 `admin: coach input …`. */
+    fun setCoachInput(mode: CoachInputMode) {
+        if (coachInput == mode) return
+        coachInputSet = mode
+        if (!mode.on) { coachTurns.clear(); coachWaiting = false; coachGen++ }
         if (_phase.value is LessonPhase.Setup) _phase.value = setup()
-        Log.i(TAG, "admin: text input ${if (on) "on" else "off"}")
+        Log.i(TAG, "admin: coach input $mode")
+    }
+
+    /** 말 카드 — 지금 시트에 보이는 카드만 받는다. 그 문장을 운전자 말로 보낸다([sendCoachText]). 로그 `home coach: card …`. */
+    fun sendCoachCard(cardId: String) {
+        val card = coachCards().firstOrNull { it.id == cardId } ?: run { Log.w(TAG, "home coach: card $cardId not offered"); return }
+        if (_phase.value !is LessonPhase.Setup || !coachOpen || coachWaiting) return
+        Log.i(TAG, "home coach: card ${card.id}")
+        sendCoachText(card.text)
+    }
+
+    /** 지금 보일 말 카드 — 입력이 켜져 있고 시트가 열려 있을 때, 코치가 한 번이라도 되물었으면 과제·상황 카드, 아니면 감정·인사 카드. */
+    private fun coachCards(): List<SpeechCard> {
+        if (!coachInput.on || !coachOpen) return emptyList()
+        val stage = if (coachTurns.any { !it.fromDriver }) CardStage.FOLLOW_UP else CardStage.OPENING
+        val booked = reservedReadyTask() != null
+        val last = lastResumable() != null
+        return SpeechCards.all.filter { c ->
+            c.stage == stage && when (c.needs) { CardNeed.NONE -> true; CardNeed.BOOKING -> booked; CardNeed.LAST -> last }
+        }
     }
 
     /**
@@ -549,7 +576,7 @@ class LessonStateMachine(
      * 로그 `home coach: heard …` · `home coach: say …` · `home coach: intent=… (ai|rule|fallback) N ms`.
      */
     fun sendCoachText(text: String) {
-        if (_phase.value !is LessonPhase.Setup || !coachOpen || !coachTextInput || coachWaiting) return
+        if (_phase.value !is LessonPhase.Setup || !coachOpen || !coachInput.on || coachWaiting) return
         val utterance = text.trim().replace('\n', ' ').take(MAX_UTTERANCE)
         if (utterance.isEmpty()) return
         val history = listOfNotNull(coachOpening?.let { CoachTurn(false, it) }) + coachTurns
@@ -681,12 +708,12 @@ class LessonStateMachine(
         val fromReservation = booking != null && reserved?.id == task.id
         val reason = if (fromReservation) ModeAdvisor.reservedReason(s.mode, mockExam = bookingChoice == BookingOption.MOCK_EXAM) else s.reason
         return LessonPhase.Setup(profile, tasks, task, s.mode, reason, venues = venues, booking = booking,
-            coach = if (coachOpen) CoachDialog(coachOpening ?: coachLine(), coachChoices(), coachTurns.toList(), coachWaiting) else null,
+            coach = if (coachOpen) CoachDialog(coachOpening ?: coachLine(), coachChoices(), coachTurns.toList(), coachWaiting, coachCards()) else null,
             bookingOptions = if (booking != null) bookingOptionsFor(reserved) else emptyList(),
             bookingChoice = bookingChoice, highlightBooking = highlightBooking, sheetRequest = sheetRequest,
             onboarding = if (onboardingPending) ProfileOnboarding(ProfileField.ONBOARDING) else null,
             profileRows = ProfileField.entries.map { profileRow(it) }, observedLines = observedLines(),
-            coachTextInput = coachTextInput, profileRequest = profileRequest)
+            coachTextInput = coachInput.on, coachInput = coachInput, profileRequest = profileRequest)
     }
 
     private fun briefingLine(task: Task, mode: LessonMode): String {

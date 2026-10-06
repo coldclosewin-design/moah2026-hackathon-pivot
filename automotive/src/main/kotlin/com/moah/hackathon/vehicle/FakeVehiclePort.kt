@@ -111,11 +111,26 @@ class FakeVehiclePort(
         simulationJob = scope.launch { runScenario(scenario, speedFactor) }
     }
 
-    /** 재생을 멈추고 마지막 값을 유지한다(기본 시뮬레이션으로 돌아가지 않는다). */
+    /**
+     * 재생을 멈춘다. 차가 움직이고 있었으면 **부드럽게 0 km/h 까지 감속**하고(라운드 25 결정 6 C — 시연 중 차가 계속 달려 정차 화면이
+     * 잠긴 채 남지 않게), 나머지 값은 유지한다. 기본 시뮬레이션으로 돌아가지 않는다.
+     */
     fun stop() {
         simulationJob?.cancel()
-        simulationJob = null
         _playback.value = null
+        simulationJob = scope.launch { coastToStop() }
+    }
+
+    /** 지금 속도에서 [COAST_KMH_PER_SECOND] 로 0 까지 — 급제동 감점이 생기지 않는 기울기. 속도 고정 중이면 아무것도 안 한다. */
+    private suspend fun coastToStop() {
+        if (speedOverrideKmh != null) return
+        var speed = store[VssConstants.VEHICLE_SPEED].toVssFloat()?.toDouble() ?: return
+        while (speed > 0.0) {
+            delay(COAST_STEP_MILLIS)
+            speed = (speed - COAST_KMH_PER_SECOND * COAST_STEP_MILLIS / 1000.0).coerceAtLeast(0.0)
+            if (speedOverrideKmh != null) return
+            inject(mapOf(VssConstants.VEHICLE_SPEED to ScenarioBuilder.formatSpeed(speed)))
+        }
     }
 
     /** 도로 주행용 기본 시뮬레이션(45~95 km/h)으로 돌아간다. */
@@ -138,6 +153,7 @@ class FakeVehiclePort(
             inject(values)
             _playback.value = ScenarioPlayback(scenario.id, index, scenario.steps.size)
         }
+        coastToStop()   // 움직이는 채 끝나는 시나리오라도 차는 멈춘다(라운드 25 결정 6 C)
     }
 
     private suspend fun runSimulation() {
@@ -152,6 +168,10 @@ class FakeVehiclePort(
     }
 
     companion object {
+        /** 시나리오가 끝나거나 멈출 때의 감속 — 초당 이만큼(급제동 기준보다 완만하게). */
+        const val COAST_KMH_PER_SECOND = 5.0
+        const val COAST_STEP_MILLIS = 250L
+
         /** 시동 꺼진 채 주차된 차. 가이드 모드의 첫 단계("안전벨트를 매세요")가 여기서 시작한다. */
         val DEFAULTS: Map<String, String> = mapOf(
             VssConstants.VEHICLE_SPEED to "0.0",
