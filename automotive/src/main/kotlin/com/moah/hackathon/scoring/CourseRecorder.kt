@@ -1,5 +1,6 @@
 package com.moah.hackathon.scoring
 
+import com.moah.hackathon.vehicle.DeviceSignals
 import com.moah.hackathon.vehicle.Gear
 import com.moah.hackathon.vehicle.SimOnlySignals
 import com.moah.hackathon.vehicle.TrackSignal
@@ -143,8 +144,8 @@ class CourseRecorder(val course: TrackCourse) {
         delta[VssConstants.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING]?.toVssBoolean()?.let { left = it }
         delta[VssConstants.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING]?.toVssBoolean()?.let { right = it }
         delta[VssConstants.VEHICLE_BODY_LIGHTS_HAZARD_ISSIGNALING]?.toVssBoolean()?.let { hazard = it }
-        delta[SimOnlySignals.LIGHTS_BEAM_LOW_ISON]?.toVssBoolean()?.let { headlight = it }
-        delta[SimOnlySignals.WIPER_FRONT_MODE]?.toWiperOn()?.let { wiper = it }
+        delta[VssConstants.VEHICLE_BODY_LIGHTS_BEAM_LOW_ISON]?.toVssBoolean()?.let { headlight = it }
+        delta[VssConstants.VEHICLE_BODY_WINDSHIELD_FRONT_WIPING_MODE]?.toWiperOn()?.let { wiper = it }
         delta[SimOnlySignals.TRACK_POSITION_X_M]?.toVssFloat()?.let { x = it }
         delta[SimOnlySignals.TRACK_POSITION_Y_M]?.toVssFloat()?.let { y = it }
         delta[SimOnlySignals.TRACK_HEADING_DEG]?.toVssFloat()?.let { heading = it }
@@ -334,8 +335,8 @@ class CourseRecorder(val course: TrackCourse) {
     }
 
     private fun deviceKey(d: Device): String = when (d) {
-        Device.HEADLIGHT -> SimOnlySignals.LIGHTS_BEAM_LOW_ISON
-        Device.WIPER -> SimOnlySignals.WIPER_FRONT_MODE
+        Device.HEADLIGHT -> VssConstants.VEHICLE_BODY_LIGHTS_BEAM_LOW_ISON
+        Device.WIPER -> VssConstants.VEHICLE_BODY_WINDSHIELD_FRONT_WIPING_MODE
         Device.LEFT_INDICATOR -> LEFT_KEY
         Device.RIGHT_INDICATOR -> RIGHT_KEY
         Device.DRIVE_GEAR -> VssConstants.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR
@@ -414,6 +415,6 @@ class CourseRecorder(val course: TrackCourse) {
             VssConstants.VEHICLE_LOWVOLTAGESYSTEMSTATE,
             VssConstants.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN,
             LEFT_KEY, RIGHT_KEY, HAZARD_KEY,
-        ) + SimOnlySignals.DEVICE_KEYS + SimOnlySignals.TRACK_KEYS
+        ) + DeviceSignals.KEYS + SimOnlySignals.TRACK_KEYS
     }
 }

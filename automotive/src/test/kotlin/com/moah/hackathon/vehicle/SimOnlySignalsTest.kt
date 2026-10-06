@@ -22,14 +22,16 @@ class SimOnlySignalsTest {
     }
 
     @Test fun `fake defaults cover every sim only key so badges start simulated`() {
-        val all = SimOnlySignals.TRACK_KEYS + SimOnlySignals.DEVICE_KEYS + SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM
+        val all = SimOnlySignals.TRACK_KEYS + DeviceSignals.KEYS + SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM
         assertTrue(all.all { it in FakeVehiclePort.DEFAULTS })
     }
 
     @Test fun `sim only keys never collide with in-house constants`() {
         val real = VssConstants::class.java.fields.mapNotNull { it.get(null) as? String }.toSet()
-        val sim = SimOnlySignals.TRACK_KEYS + SimOnlySignals.DEVICE_KEYS + SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM
+        val sim = SimOnlySignals.TRACK_KEYS + SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM
         assertFalse(sim.any { it in real })
+        // 사내 피드백 #4(10/6): 전조등·와이퍼는 사내 jar 에 있다 — 시뮬레이션 전용이 아니라 실물 상수
+        assertTrue(DeviceSignals.KEYS.all { it in real })
         assertTrue(SimOnlySignals.TRACK_KEYS.all { it.startsWith("Track.") })
     }
 }

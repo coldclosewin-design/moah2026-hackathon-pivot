@@ -66,9 +66,12 @@ public class VssConstants {               // "Vehicle.Xxx.Yyy" dot 경로 문자
     public static final String VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING = "Vehicle.Body.Lights.DirectionIndicator.Left.IsSignaling";   // boolean
     public static final String VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING = "Vehicle.Body.Lights.DirectionIndicator.Right.IsSignaling"; // boolean
     public static final String VEHICLE_BODY_LIGHTS_HAZARD_ISSIGNALING = "Vehicle.Body.Lights.Hazard.IsSignaling";                        // boolean
+    // 2026-10-06 사내 피드백 #4: 사내 jar 에 같은 경로·이름이 있어 SimOnlySignals 에서 옮김(장내기능 "장치 조작", 앱 vehicle/DeviceSignals.kt)
+    public static final String VEHICLE_BODY_LIGHTS_BEAM_LOW_ISON = "Vehicle.Body.Lights.Beam.Low.IsOn";                               // boolean
+    public static final String VEHICLE_BODY_WINDSHIELD_FRONT_WIPING_MODE = "Vehicle.Body.Windshield.Front.Wiping.Mode";               // string (COVESA OFF/SLOW/…, 사내 포맷 미확인)
     public static final String VEHICLE_CHASSIS_BRAKE_PEDALPOSITION = "Vehicle.Chassis.Brake.PedalPosition";                   // uint8, percent
     public static final String VEHICLE_ADAS_OBSTACLEDETECTION_ISWARNING = "Vehicle.ADAS.ObstacleDetection.IsWarning";                // boolean (표준)
-    // 10/4: 실물 목록에 없거나 미확인인 경로(뒤 거리·전조등·와이퍼·제휴 시험장 Track.*)는 스텁이 아니라 앱 vehicle/SimOnlySignals.kt 에 둔다(Fake 전용, Real 은 MISSING)
+    // 10/4: 실물 목록에 없거나 미확인인 경로(뒤 거리·제휴 시험장 Track.*)는 스텁이 아니라 앱 vehicle/SimOnlySignals.kt 에 둔다(Fake 전용, Real 은 MISSING). 전조등·와이퍼는 10/6 위로 옮김
     // ... 앱에 필요한 신호만 추가 (전체 목록: pageId 1323873443, 1,251개)
 }
 ```

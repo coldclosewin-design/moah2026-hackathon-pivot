@@ -1,5 +1,6 @@
 package com.moah.hackathon.data
 
+import mobis.vss.VssConstants
 import com.moah.hackathon.scoring.Pose
 import com.moah.hackathon.vehicle.Gear
 import com.moah.hackathon.vehicle.Scenario
@@ -33,8 +34,8 @@ object CourseScenarios {
         GEAR to Gear.PARK.vss,
         V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE to "0.0",
         LEFT to F, RIGHT to F, HAZARD to F,
-        SimOnlySignals.LIGHTS_BEAM_LOW_ISON to F,
-        SimOnlySignals.WIPER_FRONT_MODE to "OFF",
+        VssConstants.VEHICLE_BODY_LIGHTS_BEAM_LOW_ISON to F,
+        VssConstants.VEHICLE_BODY_WINDSHIELD_FRONT_WIPING_MODE to "OFF",
         SIGNAL to TrackSignal.OFF.name, EMERGENCY to F, CONTACT to F,
     ).hold(1.0)
 
@@ -49,10 +50,10 @@ object CourseScenarios {
         val e = TrackCourses.Exam
         val s = script(id, title, e.start)
         // 장치 조작 — 전조등 · 왼쪽/오른쪽 지시등 · 와이퍼 · 기어 D
-        s.set(SimOnlySignals.LIGHTS_BEAM_LOW_ISON to T).hold(1.5).set(SimOnlySignals.LIGHTS_BEAM_LOW_ISON to F).hold(1.0)
+        s.set(VssConstants.VEHICLE_BODY_LIGHTS_BEAM_LOW_ISON to T).hold(1.5).set(VssConstants.VEHICLE_BODY_LIGHTS_BEAM_LOW_ISON to F).hold(1.0)
         s.set(LEFT to T).hold(1.5).set(LEFT to F).hold(1.0)
         s.set(RIGHT to T).hold(1.5).set(RIGHT to F).hold(1.0)
-        s.set(SimOnlySignals.WIPER_FRONT_MODE to "SLOW").hold(1.5).set(SimOnlySignals.WIPER_FRONT_MODE to "OFF").hold(1.0)
+        s.set(VssConstants.VEHICLE_BODY_WINDSHIELD_FRONT_WIPING_MODE to "SLOW").hold(1.5).set(VssConstants.VEHICLE_BODY_WINDSHIELD_FRONT_WIPING_MODE to "OFF").hold(1.0)
         s.go()
         // 경사로 — 정지, (못한: 뒤로 밀림), 출발
         s.drive(e.toSlope, 15.0)

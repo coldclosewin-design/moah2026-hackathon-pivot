@@ -43,6 +43,10 @@ public class VssConstants {
     public static final String VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING = "Vehicle.Body.Lights.DirectionIndicator.Right.IsSignaling";
     /** 비상등. Type: sensor, boolean */
     public static final String VEHICLE_BODY_LIGHTS_HAZARD_ISSIGNALING = "Vehicle.Body.Lights.Hazard.IsSignaling";
+    /** 전조등(하향등) 켜짐. Type: actuator, boolean. 2026-10-06 사내 피드백 #4: 사내 jar 에 같은 경로·이름이 있어 SimOnlySignals 에서 옮김 */
+    public static final String VEHICLE_BODY_LIGHTS_BEAM_LOW_ISON = "Vehicle.Body.Lights.Beam.Low.IsOn";
+    /** 앞 와이퍼 모드. Type: actuator, string(COVESA: OFF/SLOW/MEDIUM/FAST/INTERVAL/RAINSENSOR — 사내 값 포맷 미확인). 2026-10-06 사내 피드백 #4 */
+    public static final String VEHICLE_BODY_WINDSHIELD_FRONT_WIPING_MODE = "Vehicle.Body.Windshield.Front.Wiping.Mode";
     /** 브레이크 페달. Type: sensor, uint8, percent */
     public static final String VEHICLE_CHASSIS_BRAKE_PEDALPOSITION = "Vehicle.Chassis.Brake.PedalPosition";
     /** 장애물 감지 경고(주차센서). Type: sensor, boolean. ObstacleDetection 아래 실물에 있는 것은 IsEnabled/IsError/IsWarning 뿐 */

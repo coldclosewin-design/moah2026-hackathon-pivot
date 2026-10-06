@@ -170,8 +170,8 @@ class FakeVehiclePort(
             VssConstants.VEHICLE_ADAS_OBSTACLEDETECTION_ISWARNING to VssValues.FALSE,
             SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM to "250.0",
             // 10/4 전 범위 구현 — 장치 조작·제휴 시험장 신호(전부 시뮬레이션, SimOnlySignals). 위치는 코스 시나리오가 출발점부터 낸다
-            SimOnlySignals.LIGHTS_BEAM_LOW_ISON to VssValues.FALSE,
-            SimOnlySignals.WIPER_FRONT_MODE to "OFF",
+            VssConstants.VEHICLE_BODY_LIGHTS_BEAM_LOW_ISON to VssValues.FALSE,
+            VssConstants.VEHICLE_BODY_WINDSHIELD_FRONT_WIPING_MODE to "OFF",
             SimOnlySignals.TRACK_POSITION_X_M to "0.0",
             SimOnlySignals.TRACK_POSITION_Y_M to "0.0",
             SimOnlySignals.TRACK_HEADING_DEG to "0.0",

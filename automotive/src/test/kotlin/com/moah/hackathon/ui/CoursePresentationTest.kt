@@ -1,5 +1,6 @@
 package com.moah.hackathon.ui
 
+import mobis.vss.VssConstants
 import com.moah.hackathon.data.CourseScenarios
 import com.moah.hackathon.data.TrackCourses
 import com.moah.hackathon.scoring.*
@@ -38,7 +39,7 @@ class CoursePresentationTest {
         assertEquals("시뮬레이션", trackSource(fake))
         assertEquals("실신호 · 시뮬레이션", trackSource(fake + (SimOnlySignals.TRACK_POSITION_X_M to SignalAvailability.LIVE)))
         assertEquals("시뮬레이션 · 미측정", trackSource(fake - SimOnlySignals.TRACK_HEADING_DEG))
-        assertEquals("미측정", trackSource(mapOf(SimOnlySignals.WIPER_FRONT_MODE to SignalAvailability.LIVE)))
+        assertEquals("미측정", trackSource(mapOf(VssConstants.VEHICLE_BODY_WINDSHIELD_FRONT_WIPING_MODE to SignalAvailability.LIVE)))
     }
 
     @Test fun trailReplayUsesTimeAndShortestHeadingArc() {
