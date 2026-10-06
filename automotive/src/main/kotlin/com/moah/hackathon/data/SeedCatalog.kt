@@ -1,5 +1,6 @@
 package com.moah.hackathon.data
 
+import com.moah.hackathon.vehicle.DeviceSignals
 import com.moah.hackathon.vehicle.SimOnlySignals
 import com.moah.hackathon.feature.lesson.Difficulty
 import com.moah.hackathon.feature.lesson.GuideStep
@@ -57,7 +58,7 @@ object SeedCatalog {
             listOf("보호구역 속도", "신호", "방향지시등"), setOf(V.VEHICLE_SPEED) + SimOnlySignals.TRACK_KEYS, requiresDriving = true,
             status = TaskStatus.READY, course = TrackCourses.road),
         Task(TASK_TRACK_EXAM, "장내기능 모의시험", TaskType.DRIVING, Difficulty.HARD, "제휴 시험장 장내 코스를 실제 시험처럼 달려요. 구간마다 감점을 매기고 합격선을 봐요.",
-            listOf("장치 조작", "경사로", "직각 주차", "신호", "돌발"), SimOnlySignals.TRACK_KEYS + SimOnlySignals.DEVICE_KEYS, requiresDriving = true,
+            listOf("장치 조작", "경사로", "직각 주차", "신호", "돌발"), SimOnlySignals.TRACK_KEYS + DeviceSignals.KEYS, requiresDriving = true,
             status = TaskStatus.READY, course = TrackCourses.exam),
         Task(TASK_PARKING_REAR, "후면 직각 주차", TaskType.PARKING, Difficulty.HARD, "핸들을 돌리고 천천히 후진하며 방향을 맞춰요.",
             listOf("핸들 방향", "기어 전환", "뒤 거리"), setOf(V.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE, V.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR, SimOnlySignals.OBSTACLE_REAR_DISTANCE_CM), requiresDriving = true,
