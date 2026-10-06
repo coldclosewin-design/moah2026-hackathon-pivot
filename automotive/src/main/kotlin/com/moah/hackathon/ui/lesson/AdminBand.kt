@@ -50,7 +50,8 @@ internal fun AdminBand(scenarios: List<Scenario>, playback: ScenarioPlayback?, o
             BandAction("패널 숨김", onHide)
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 val progress = playback?.let { "${if (it.finished) "재생 완료" else "재생 중"} · ${(it.stepIndex + 1).coerceAtMost(it.stepCount)}/${it.stepCount}" } ?: "재생 대기"
-                LessonText(listOf(signalSource, progress).filter { it.isNotEmpty() }.joinToString(" · "), 28, CoachColors.Paper.copy(alpha = .6f))
+                LessonText(listOf("신호 출처", signalSource, progress).filter { it.isNotEmpty() }.joinToString(" · "),
+                    28, CoachColors.Paper.copy(alpha = .6f), modifier = Modifier.testTag("admin-playback-source"))
                 AdminAiDetail(auth, onConnectAi, onInk = true)
             }
         }
@@ -70,6 +71,8 @@ internal fun AdminAiDetail(state: CopilotAuth.State?, onConnect: () -> Unit, onI
     aiLine(state)?.let { line ->
         Row(horizontalArrangement = Arrangement.spacedBy(24.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
+                if (state is CopilotAuth.State.Code) LessonText("AI 로그인", 24,
+                    if (onInk) CoachColors.Paper.copy(alpha = .6f) else CoachColors.Muted)
                 LessonText(if (state is CopilotAuth.State.Code) state.uri else line.detail, 28,
                     if (onInk) CoachColors.Paper.copy(alpha = .7f) else CoachColors.Muted)
                 if (state is CopilotAuth.State.Code) LessonText(state.userCode, 40,

@@ -111,15 +111,17 @@ internal fun ResultHeadline(text: String, modifier: Modifier = Modifier) {
 
 /** Replace the result subtree so no score, scroll action or demo target survives the lock. */
 @Composable
-internal fun ResultLockedScreen() {
+internal fun ResultLockedScreen(onDemoStop: (() -> Unit)? = null) {
     Column(Modifier.fillMaxSize().background(CoachColors.Ink)
         .padding(start = 180.dp, end = 100.dp, top = 64.dp, bottom = 52.dp)) {
-        BrandMark(color = CoachColors.Paper)
+        DemoBrandMark(onHold = onDemoStop, onInk = true)
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
             Headline("운전에 집중해 주세요", color = CoachColors.Paper)
             Spacer(Modifier.height(32.dp))
             LessonText("속도를 낮추면 결과가 다시 보여요.", 40, CoachColors.Paper.copy(alpha = .7f))
         }
+        if (onDemoStop != null) LessonText("시연 · 시나리오가 끝나면 차가 멈춰요 — 막히면 워드마크를 길게",
+            28, CoachColors.Paper.copy(alpha = .4f))
     }
 }
 

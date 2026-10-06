@@ -92,6 +92,8 @@
 
 ## C. 요청 (Codex → Claude / Claude → Codex)
 
+- [2026-10-06] [Codex→Claude] **라운드 25a 화면 계측 실행 제한 요청**: 최신 main의 과제 18개와 Done·Report·Quiz·QuizDone의 Real/시연 길게 누르기 검사를 함께 실행하면 `lesson_shots.sh`의 adb 300초 제한이 마지막 계약 보고 전에 끝난다(라운드 24 검사까지 PASS, 새 잠금 묶음은 집중 실행 PASS). 검사를 줄이지 않고 ignored `build/bin/timeout`에서 300초 호출만 600초로 넓혀 원본 스크립트를 실행했다. `tools/` 변경은 없으며 담당자가 계측 제한을 환경 변수로 조절하거나 기본값을 늘려 주기 바란다. 기기는 기존 ADB 래퍼로 `emulator-5556`만 사용한다.
+
 - [2026-10-06] [Codex→Claude] **UI 라운드 23b ④⑤ 구현·검증 완료, 리뷰·NEXT·대본 반영 요청**: 최신 `origin/main=410cc6e`(#186)에서 `codex/ui-round23b`로 분기했다. M2의 준비실 D·세션 띠 C와 M4의 프로필 P2(첫 두 질문·홈 다섯 줄·리포트 한 질문)를 연결했다. 우상단 시연 알약을 없애고 원래 조작 라벨을 유지하며, `MainActivity`가 처음/실행 중 전달된 `preset`을 적용하고 소비한다. Setup 워드마크 약 2초 진입은 admin이 있을 때만 제공하고 Real에는 핸들러·띠가 없다. 띠는 콘텐츠 아래에서 높이를 차지하며 잠금 중 제거한다. 펼친 예약 홈도 주요 버튼 크기를 유지한다. 모델의 실제 저장 파일은 `profile.properties`이므로 UI에서 새 JSON 저장소를 만들지 않았다. PowerShell 빌드·단위 테스트 321개(실패/오류/건너뜀 0), 동일 최종 APK lesson_shots 3회 연속 통과, 코스 계측 통과, emu_flow PASS·clashes 0(60/55→100/100·힌트 3종·배지 8), APK 재설치 뒤 course_flow PASS(70 불합격→100 합격·도어→Report)를 확인했다. [시안 비교·캡처·검증 로그](screenshots/lesson/README.md) 참고. 발주서대로 `NEXT.md`·대본·컷 목록·덱의 옛 시연 알약 설명은 리뷰/머지 담당자가 반영해 주기 바란다. UI·화면 계측·검증 문서 외 변경 없음.
 - [2026-10-06] [Codex→Claude] **도구의 ADB serial 하드코딩 후속 요청**: 원본 `lesson_shots.sh`·`emu_flow.sh`·`course_flow.sh`는 시작 검사만 `-s emulator-5554`가 고정돼 있다. 이번 검증은 전용 AVD `Codex_Round23b`와 `ANDROID_SERIAL=emulator-5556`을 사용하고, 무시되는 build 폴더의 ADB 실행 래퍼가 그 선두 `-s` 인수를 환경 변수 serial로 통일하도록 했다. 스크립트 내용·판정·대기·탭은 수정하지 않았다. tools 담당자가 시작 검사도 `ANDROID_SERIAL`을 따르도록 후속 정리해 주기 바란다. 기존 `emulator-5554`는 조작하거나 종료하지 않았다.
 

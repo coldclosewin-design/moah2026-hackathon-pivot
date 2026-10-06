@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
@@ -53,16 +54,21 @@ internal fun CoachTextSheet(coach: CoachDialog, onChoose: (CoachChoice) -> Unit,
         onDispose { focus.clearFocus(); keyboard?.hide() }
     }
     Column(Modifier.fillMaxSize().testTag("coach-text-sheet")) {
-        Eyebrow("코치와 이야기")
+        Eyebrow("코치와 대화")
         Spacer(Modifier.height(27.dp))
-        Column(Modifier.weight(1f).fillMaxWidth().testTag("coach-transcript").verticalScroll(scroll),
-            verticalArrangement = Arrangement.spacedBy(18.dp)) {
-            CoachMessage(coach.line)
-            coach.turns.forEach { turn ->
-                CoachMessage(turn.text, turn.fromDriver,
-                    Modifier.align(if (turn.fromDriver) Alignment.End else Alignment.Start))
+        Box(Modifier.weight(1f).fillMaxWidth()) {
+            Column(Modifier.fillMaxSize().testTag("coach-transcript").verticalScroll(scroll),
+                verticalArrangement = Arrangement.spacedBy(18.dp)) {
+                CoachMessage(coach.line)
+                coach.turns.forEach { turn ->
+                    CoachMessage(turn.text, turn.fromDriver,
+                        Modifier.align(if (turn.fromDriver) Alignment.End else Alignment.Start))
+                }
+                if (coach.waiting) CoachMessage("…", modifier = Modifier.testTag("coach-waiting"))
             }
-            if (coach.waiting) CoachMessage("…", modifier = Modifier.testTag("coach-waiting"))
+            if (scroll.value > 0) Box(Modifier.fillMaxWidth().height(36.dp).align(Alignment.TopCenter)
+                .testTag("coach-transcript-fade").background(Brush.verticalGradient(
+                    listOf(CoachColors.Paper, CoachColors.Paper.copy(alpha = 0f)))))
         }
         Spacer(Modifier.height(33.dp))
         CoachChoices(coach.choices, onChoose)

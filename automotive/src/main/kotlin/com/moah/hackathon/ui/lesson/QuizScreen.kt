@@ -29,7 +29,12 @@ import com.moah.hackathon.ui.CoachTexture
 
 @Composable
 internal fun QuizScreen(task: Task, index: Int, total: Int, item: QuizItem, locked: Boolean,
-    chosen: Int?, correctSoFar: Int, onAnswer: (Int) -> Unit, onNext: () -> Unit, onQuit: () -> Unit) {
+    chosen: Int?, correctSoFar: Int, onAnswer: (Int) -> Unit, onNext: () -> Unit, onQuit: () -> Unit,
+    onDemoStop: (() -> Unit)? = null) {
+    if (locked) {
+        ResultLockedScreen(onDemoStop)
+        return
+    }
     PosterSurface {
         Row(Modifier.fillMaxSize()) {
             QuizNumber((index + 1).toString().padStart(2, '0'), "${index + 1} / $total", Modifier.weight(.38f),

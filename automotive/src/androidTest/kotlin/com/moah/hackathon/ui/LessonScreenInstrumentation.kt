@@ -75,6 +75,7 @@ class LessonScreenInstrumentation : Instrumentation() {
     private var round23aOnly = false
     private var round23bOnly = false
     private var round24Only = false
+    private var round25aOnly = false
     override fun onCreate(arguments: Bundle?) {
         super.onCreate(arguments)
         seedSpeech = arguments?.getString("seedSpeech") == "true"
@@ -87,6 +88,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         textureOnly = arguments?.getString("textureOnly") == "true"
         round23bOnly = arguments?.getString("round23bOnly") == "true"
         round24Only = arguments?.getString("round24Only") == "true"
+        round25aOnly = arguments?.getString("round25aOnly") == "true"
         start()
     }
 
@@ -94,6 +96,15 @@ class LessonScreenInstrumentation : Instrumentation() {
         val activity = startActivitySync(Intent(targetContext, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as MainActivity
         try {
+            if (round25aOnly) {
+                cardLayoutContract(activity)
+                round23aContract(activity)
+                round23bContract(activity)
+                round24Contract(activity)
+                round25Locks(activity)
+                finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Round25a contract passed\n") })
+                return
+            }
             if (round24Only) {
                 round24Contract(activity)
                 finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Round24 contract passed\n") })
@@ -195,7 +206,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             val categoryCenters = categoryOrder().map { textBounds(taskTypeLabel(it)).centerX() }
             check(categoryCenters == categoryCenters.sorted())
             check(allText().none { Regex("\\d").containsMatchIn(it) }) { "Sheet leaked task counts or numbers: ${allText()}" }
-            check(SeedCatalog.tasks.size == 12 && SeedCatalog.tasks.all { it.isReady })
+            check(SeedCatalog.tasks.size == 18 && SeedCatalog.tasks.all { it.isReady })
             check("준비 중" !in texts())
             assertDriverButton(activity, "시작")
             val sheetStartBounds = buttonBounds("시작")
@@ -564,16 +575,11 @@ class LessonScreenInstrumentation : Instrumentation() {
             runOnMainSync { check(nextCount == SeedCatalog.quiz.size) }
             listOf<Int?>(null, 0).forEach { chosen ->
                 render(activity) { QuizScreen(knowledge, 0, SeedCatalog.quiz.size, SeedCatalog.quiz.first(), true, chosen, 0, {}, {}, { quitCount++ }) }
-                check(texts().contains("정차 후 답해 주세요"))
+                check(texts().contains("운전에 집중해 주세요"))
                 check(SeedCatalog.quiz.first().choices.none { it in texts() })
                 check(texts().none { it == "그만하기" })
                 check(nodes().none(::hasTouchAction))
-                val numberPanelRight = textBounds("01").right
-                check(nodes().filter { node ->
-                    Rect().also(node::getBoundsInScreen).left > numberPanelRight
-                }.none { node ->
-                    Regex("\\d").containsMatchIn(listOfNotNull(node.text, node.contentDescription).joinToString(" "))
-                }) { "Locked quiz leaked numbers outside the question number panel" }
+                check(allText().none { Regex("\\d").containsMatchIn(it) }) { "Locked quiz leaked numbers" }
                 check(allText().none { it.startsWith("맞은 문제") })
             }
             capture("quiz-locked")
@@ -810,6 +816,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             round23aContract(activity)
             round23bContract(activity)
             round24Contract(activity)
+            round25Locks(activity)
             captureDoneSettle(activity, task, pathRecord)
             captureDoneSettle(activity, SeedCatalog.predriveTask, checklistRecord, "done-checklist-settle-strip")
             finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Lesson contract passed\n") })
@@ -1107,6 +1114,91 @@ class LessonScreenInstrumentation : Instrumentation() {
         failure?.let { throw it }
     }
 
+    private fun round25Locks(activity: MainActivity) {
+        val container = (activity.application as App).container
+        val fake = container.vehicle as FakeVehiclePort
+        lateinit var vm: LessonViewModel
+        lateinit var real: LessonViewModel
+        onMainChecked {
+            vm = ViewModelProvider(activity, LessonViewModel.factory(container))[LessonViewModel::class.java]
+            real = LessonViewModel(container.lesson, container.tts)
+            vm.admin!!.applyPreset("rear-two")
+            vm.admin!!.setBand(false) // The emergency gesture is independent of the admin band.
+        }
+        check(real.admin == null)
+        fun awaitPhase(test: (LessonPhase) -> Boolean) {
+            repeat(80) {
+                if (test(vm.phase.value)) return
+                Thread.sleep(100)
+            }
+            error("Round25 phase did not settle: ${vm.phase.value}")
+        }
+        fun locked() = when (val p = vm.phase.value) {
+            is LessonPhase.Done -> p.locked
+            is LessonPhase.Report -> p.locked
+            is LessonPhase.Quiz -> p.locked
+            is LessonPhase.QuizDone -> p.locked
+            else -> false
+        }
+        fun hold(duration: Long) {
+            val r = textBounds("DRIVE COACH")
+            val down = SystemClock.uptimeMillis()
+            fun event(action: Int) {
+                val e = android.view.MotionEvent.obtain(down, SystemClock.uptimeMillis(), action,
+                    r.exactCenterX(), r.exactCenterY(), 0)
+                check(uiAutomation.injectInputEvent(e, true)); e.recycle()
+            }
+            event(android.view.MotionEvent.ACTION_DOWN)
+            Thread.sleep(duration)
+            event(android.view.MotionEvent.ACTION_UP)
+        }
+        fun exercise(name: String) {
+            // Use the same machine/signal stream with and without admin capability.
+            render(activity) { LessonRoute(real) }
+            fake.play(ParkingScenarios.bad)
+            runBlocking { fake.holdSpeed(12f) }
+            awaitPhase { locked() }
+            afterUiSettles("Real $name lock") { check("운전에 집중해 주세요" in texts()) }
+            check(allText().none { Regex("\\d|시연|관리자").containsMatchIn(it) })
+            check(nodes().none(::hasTouchAction))
+            hold(2_100)
+            check(locked()) { "Real $name exposed a simulator gesture" }
+            render(activity) { LessonRoute(vm) }
+            val note = "시연 · 시나리오가 끝나면 차가 멈춰요 — 막히면 워드마크를 길게"
+            check(note in texts())
+            check(nodes().none(::hasTouchAction))
+            check(allText().none { Regex("\\d|점수|감점").containsMatchIn(it) })
+            assertFullText(activity, note)
+            if (name == "done") capture("done-locked")
+            hold(700)
+            check(locked()) { "$name short hold stopped the car" }
+            hold(2_100)
+            awaitPhase { !locked() }
+            afterUiSettles("$name unlocked") { check("운전에 집중해 주세요" !in texts()) }
+            check(fake.playback.value == null)
+            check(fake.speedOverrideKmh == 0f)
+        }
+        onMainChecked { vm.begin(SeedCatalog.predriveTask.id, LessonMode.GUIDE) }
+        awaitPhase { it is LessonPhase.Maneuver }
+        onMainChecked { vm.finishAttempt() }
+        awaitPhase { it is LessonPhase.Done }
+        exercise("done")
+        onMainChecked { vm.endSession() }
+        awaitPhase { it is LessonPhase.Report }
+        exercise("report")
+        onMainChecked {
+            vm.restart()
+            vm.begin(SeedCatalog.tasks.first { it.type == TaskType.KNOWLEDGE }.id, LessonMode.QUIZ)
+        }
+        awaitPhase { it is LessonPhase.Quiz }
+        exercise("quiz")
+        onMainChecked { vm.endSession() }
+        awaitPhase { it is LessonPhase.QuizDone }
+        exercise("quiz-done")
+        onMainChecked { vm.restart(); vm.admin!!.setBand(true) }
+        pass("Round25 locks: Done/Report/Quiz/QuizDone flat, no numbers or touch actions; Real has no hint or hold; demo short hold ignored, two-second hold stops at zero with band hidden")
+    }
+
     private fun round24Contract(activity: MainActivity) {
         val container = (activity.application as App).container
         lateinit var vm: LessonViewModel
@@ -1138,17 +1230,17 @@ class LessonScreenInstrumentation : Instrumentation() {
             }
             check(send.config.contains(SemanticsProperties.Disabled) == expected)
         }
-        check("코치와 고르기" in texts() && "코치에게 말하기" !in texts())
-        click("코치와 고르기")
+        check("코치와 대화" in texts())
+        click("코치와 대화")
         assertNoInput()
         check("보내기" !in texts() && "음성 입력 · 시뮬레이션" !in texts())
         check("말로 답하기 — 준비 중" in texts())
         click("돌아가기")
         onMainChecked { vm.admin!!.setTextInput(true) }
-        afterUiSettles("Text input enabled") { check("코치에게 말하기" in texts()) }
+        afterUiSettles("Text input enabled") { check("코치와 대화" in texts()) }
         click("과제·모드 바꾸기"); click("전면 직각 주차"); click("돌아가기")
         afterUiSettles("Manual task before talking") { check(texts().any { it.startsWith("전면 직각 주차 ·") }) }
-        click("코치에게 말하기")
+        click("코치와 대화")
         afterUiSettles("Composer") { check("코치에게 글로 말해 보세요" in texts()) }
         check("음성 입력 · 시뮬레이션" in texts() && "말로 답하기 — 준비 중" !in texts())
         assertSendDisabled(true)
@@ -1170,14 +1262,14 @@ class LessonScreenInstrumentation : Instrumentation() {
             check((vm.phase.value as LessonPhase.Setup).coach == null)
             check(texts().any { it.startsWith("후면 직각 주차 ·") })
         }
-        click("코치에게 말하기")
+        click("코치와 대화")
         performTextInput("평행 주차")
         onMainChecked { check(tagged("coach-text-input").config[SemanticsActions.OnImeAction].action?.invoke() == true) }
         afterUiSettles("Fake pins parallel parking from IME send") {
             check((vm.phase.value as LessonPhase.Setup).coach == null)
             check(texts().any { it.startsWith("평행 주차 ·") })
         }
-        click("코치에게 말하기")
+        click("코치와 대화")
         afterUiSettles("Fresh conversation") { check("코치에게 글로 말해 보세요" in texts()) }
         check((vm.phase.value as LessonPhase.Setup).coach!!.turns.isEmpty())
         onMainChecked { check(tagged("coach-text-input").config[SemanticsActions.RequestFocus].action?.invoke() == true) }
@@ -1202,7 +1294,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             check(!(vm.phase.value as LessonPhase.Setup).profileRequest)
         }
         click("돌아가기")
-        afterUiSettles("Profile stays closed") { check("코치에게 말하기" in texts() && "앱이 본 것" !in texts()) }
+        afterUiSettles("Profile stays closed") { check("코치와 대화" in texts() && "앱이 본 것" !in texts()) }
 
         // A suspended reply fixture makes waiting deterministic without changing the model or ports.
         val dialog = mutableStateOf(CoachDialog("어떤 연습부터 함께할까요?", listOf(CoachChoice.PARKING_PRACTICE),
@@ -1236,12 +1328,17 @@ class LessonScreenInstrumentation : Instrumentation() {
                 check(!tagged("coach-text-input").config.contains(SemanticsProperties.Disabled))
             }
         }
+        onMainChecked { check(tagged("coach-transcript-fade").boundsInWindow.height > 0) }
+        capture("setup-coach-long")
         performTextInput("보내기 확인"); click("보내기"); check(sent == 1)
 
         val setup = vm.phase.value as LessonPhase.Setup
         render(activity) { AdminHome(vm.admin!!, setup, {}) }
         check("시뮬레이션 음성 입력" in texts() && "음성 입력 · 시뮬레이션(글)" in texts())
         assertSelected("켬")
+        val configNote = checkNotNull(aiLine(CopilotAuth.State.NoConfig)).detail
+        assertFullText(activity, configNote)
+        check(textBounds(configNote).bottom + 18 * designScale(activity) <= buttonBounds("이 설정으로 홈").top)
         capture("admin-home")
         click("끔")
         afterUiSettles("Admin input off") { check(!vm.admin!!.textInput.value && "음성 입력 · 시뮬레이션(글)" !in texts()) }
@@ -1251,8 +1348,8 @@ class LessonScreenInstrumentation : Instrumentation() {
         onMainChecked { real = LessonViewModel(container.lesson, container.tts) }
         check(real.admin == null)
         render(activity) { LessonRoute(real) }
-        check("코치와 고르기" in texts() && "코치에게 말하기" !in texts())
-        click("코치와 고르기"); assertNoInput()
+        check("코치와 대화" in texts())
+        click("코치와 대화"); assertNoInput()
         check("보내기" !in texts() && "시뮬레이션 음성 입력" !in texts())
         onMainChecked { vm.closeCoach(); vm.admin!!.setTextInput(false); vm.admin!!.setBand(true) }
         pass("Round24: off/Real have no input; admin toggle; Korean SetText + button/IME send; Fake ask-more/parallel/profile; fresh draft; waiting disables input/send but retains chips; transcript follows last turn; no digits")
@@ -1326,9 +1423,9 @@ class LessonScreenInstrumentation : Instrumentation() {
         click("이 설정으로 홈")
         click("더 보기 ▴")
         afterUiSettles("Expanded band on booking home") {
-            check(abs(buttonBounds("코치와 고르기").height() / designScale(activity) - 112) <= 1)
+            check(abs(buttonBounds("코치와 대화").height() / designScale(activity) - 112) <= 1)
             check(abs(buttonBounds("시작").height() / designScale(activity) - 140) <= 1)
-            assertBandBelow(activity, "코치와 고르기")
+            assertBandBelow(activity, "코치와 대화")
         }
         capture("admin-band-booking")
         click("접기 ▾")
@@ -1348,6 +1445,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         click("건너뛰기")
         check((vm.phase.value as LessonPhase.Setup).onboarding == null)
         check((vm.phase.value as LessonPhase.Setup).profileRows.all { it.answer == null })
+        check(buttonBounds(profileLine((vm.phase.value as LessonPhase.Setup).profile)).height() / designScale(activity) >= 76)
         lateinit var real: LessonViewModel
         runOnMainSync { real = LessonViewModel(container.lesson, container.tts) }
         check(real.admin == null)
@@ -1452,15 +1550,27 @@ class LessonScreenInstrumentation : Instrumentation() {
             vm.restart(); vm.cancelReservation()
         }
         render(activity) { LessonRoute(vm) }
-        fun awaitHome() = afterUiSettles("coach home") { check("코치와 고르기" in texts()) }
+        fun awaitHome() = afterUiSettles("coach home") { check("코치와 대화" in texts()) }
         fun assertLinkGap() {
             val start = buttonBounds("시작")
-            val coach = buttonBounds("코치와 고르기")
+            val coach = buttonBounds("코치와 대화")
             check(abs((coach.top - start.bottom) / designScale(activity) - 57) <= 1)
             check(abs(coach.centerY() - buttonBounds("과제·모드 바꾸기").centerY()) <= 1)
+            check(abs(coach.right - start.right) <= 1) { "Coach pill must align with start right edge" }
         }
+        val profile = buttonBounds(profileLine((vm.phase.value as LessonPhase.Setup).profile))
+        check(profile.height() / designScale(activity) >= 76)
+        val screenshot = screenshot()
+        val margin = (20 * designScale(activity)).roundToInt()
+        val closeup = Bitmap.createBitmap(screenshot, profile.left - margin, profile.top - margin,
+            profile.width() + 2 * margin, profile.height() + 2 * margin)
+        File(targetContext.filesDir, "lesson-profile-pill.png").outputStream().use { closeup.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        closeup.recycle(); screenshot.recycle()
+        click(profileLine((vm.phase.value as LessonPhase.Setup).profile))
+        check("앱이 본 것" in texts())
+        click("돌아가기"); awaitHome()
         assertLinkGap(); capture("setup-coach")
-        click("코치와 고르기")
+        click("코치와 대화")
         check("주차 연습" in texts() && "예약한 시험장으로" !in texts() && "지난번 이어서" !in texts())
         runOnMainSync {
             val microphone = composeNodes(activity).single { it.config.getOrNull(SemanticsProperties.Text)?.any { text -> text.text == "말로 답하기 — 준비 중" } == true }
@@ -1473,7 +1583,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         click("과제·모드 바꾸기"); assertSelected("주차")
         click("지식"); click("돌아가기"); awaitHome()
         val manualTaskLine = texts().single { it.endsWith("모드") }
-        click("코치와 고르기"); click("돌아가기"); awaitHome()
+        click("코치와 대화"); click("돌아가기"); awaitHome()
         check(manualTaskLine in texts()) { "Closing coach replaced a manual task choice" }
 
         val recorder = ParkingRecorder(SignalRegistry(ParkingRecorder.KEYS, simulated = true))
@@ -1503,7 +1613,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             }
         }
         assertBookingGaps(); capture("setup-booking-card")
-        click("코치와 고르기")
+        click("코치와 대화")
         CoachChoice.entries.forEach { assertFullText(activity, it.label) }
         check(texts().containsAll(CoachChoice.entries.map { it.label }))
         capture("setup-coach-sheet")
@@ -1527,10 +1637,10 @@ class LessonScreenInstrumentation : Instrumentation() {
         awaitHome(); click("코스 연습")
         afterUiSettles("booking practice") { assertSelected("코스 연습") }
         runOnMainSync { check((vm.phase.value as LessonPhase.Setup).suggestedMode in listOf(LessonMode.GUIDE, LessonMode.HINT)) }
-        click("코치와 고르기"); click("주차 연습")
+        click("코치와 대화"); click("주차 연습")
         afterUiSettles("parking request with booking choice") { assertSelected("주차"); assertSelected(task.title) }
         click("돌아가기"); awaitHome()
-        click("코치와 고르기"); click("지난번 이어서"); awaitHome()
+        click("코치와 대화"); click("지난번 이어서"); awaitHome()
         afterUiSettles("continue exact last task") { check("${task.title} · 힌트 모드" in texts()) }
         runOnMainSync { vm.cancelReservation() }
 
@@ -1725,6 +1835,10 @@ class LessonScreenInstrumentation : Instrumentation() {
         clickAndAwait(parking.title) { isSelected(parking.title) }
         check(texts().none { it == "예약" }) { "Course alone exposed reservation" }
         clickAndAwait(seocho.slots.first().label) { isSelected(seocho.slots.first().label) && "예약" in texts() }
+        val closed = textBounds(seocho.slots.single { !it.available }.label)
+        tap(closed.centerX(), closed.centerY())
+        assertSelected(seocho.slots.first().label)
+        check("마감" in texts())
         assertDriverButton(activity, "예약")
         clickAndAwait(gangnam.name) { isSelected(gangnam.name) && "예약" !in texts() }
         check(texts().none { it == "예약" }) { "Changing venue kept old slot/course selection" }
@@ -1752,7 +1866,7 @@ class LessonScreenInstrumentation : Instrumentation() {
                 card.top + (180 * designScale(activity)).roundToInt())
             check(!colorBounds(bitmap, map, CoachColors.Signal.toArgb()).isEmpty) { "Selected venue route must be red" }
             val unavailable = textBounds(seocho.slots.single { !it.available }.label)
-            check(!colorBounds(bitmap, unavailable, CoachColors.Muted.compositeOver(CoachColors.Lavender).toArgb(), tolerance = 1).isEmpty)
+            check(!colorBounds(bitmap, unavailable, CoachColors.Ink.copy(alpha = .35f).compositeOver(CoachColors.Lavender).toArgb(), tolerance = 1).isEmpty)
         }
         click("예약")
         runOnMainSync {
@@ -1856,6 +1970,8 @@ class LessonScreenInstrumentation : Instrumentation() {
         awaitState(CopilotAuth.State.NeedsLogin)
         click("AI 연결")
         awaitState(CopilotAuth.State.Code("ABCD-1234", "https://github.com/login/device"))
+        check("AI 로그인" in texts())
+        check(textBounds("AI 로그인").bottom <= textBounds("https://github.com/login/device").top)
         capture("admin-band-ai-code")
         awaitState(CopilotAuth.State.Ready)
         awaitState(CopilotAuth.State.NoConfig)
@@ -2466,11 +2582,26 @@ class LessonScreenInstrumentation : Instrumentation() {
             }
         }
         inspect(TaskType.PARKING)
+        val modeWidth = buttonBounds("가이드").width()
+        val modeLeft = buttonBounds("가이드").left
         for ((type, name) in listOf(TaskType.DRIVING to "setup-sheet-driving", TaskType.CHECKLIST to "setup-sheet-checklist", TaskType.KNOWLEDGE to "setup-sheet-knowledge")) {
             click(taskTypeLabel(type))
             if (type == TaskType.DRIVING) afterUiSettles("lane thumbnail pixels") {
                 capture(name) { assertLanePreview(activity, it) }
             } else capture(name)
+            if (type == TaskType.KNOWLEDGE) {
+                afterUiSettles("One-cell knowledge mode") {
+                    onMainChecked {
+                        // Android marks a selected radio button non-clickable; use its Compose bounds.
+                        val pill = composeNodes(activity).single { node ->
+                            node.config.contains(SemanticsProperties.Selected) &&
+                                node.config.getOrNull(SemanticsProperties.Text)?.any { it.text == "지식 테스트" } == true
+                        }.boundsInWindow
+                        check(abs(pill.width - modeWidth) <= 1)
+                        check(abs(pill.left - modeLeft) <= 1)
+                    }
+                }
+            }
             inspect(type)
             if (type == TaskType.DRIVING) {
                 check(nodes().first { it.isScrollable }.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD))

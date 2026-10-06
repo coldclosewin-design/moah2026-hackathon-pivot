@@ -20,9 +20,9 @@ import com.moah.hackathon.ui.CoachColors
 
 @Composable
 internal fun QuizDoneScreen(task: Task, results: List<QuizResult>, items: List<QuizItem>, remark: String,
-    onRestart: () -> Unit, locked: Boolean = false) {
+    onRestart: () -> Unit, locked: Boolean = false, onDemoStop: (() -> Unit)? = null) {
     if (locked) {
-        ResultLockedScreen()
+        ResultLockedScreen(onDemoStop)
         return
     }
     val byItem = results.associateBy { it.itemId }
