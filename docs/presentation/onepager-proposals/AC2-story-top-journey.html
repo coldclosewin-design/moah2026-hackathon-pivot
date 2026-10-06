@@ -15,13 +15,15 @@
   .slide { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: var(--paper); }
 
   /* 제목 */
-  .head { position: absolute; left: 64px; top: 30px; right: 64px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .head { position: absolute; left: 64px; top: 24px; right: 64px; display: flex; justify-content: space-between; align-items: flex-start; }
+  .head > div:first-child { padding-top: 6px; }
   .eyebrow { font-size: 21px; color: var(--peri); letter-spacing: .04em; }
   .title { margin-top: 6px; font-size: 56px; line-height: 1.1; font-weight: 500; letter-spacing: -.01em; }
   .title .sub { color: var(--peri); font-weight: 400; }
-  .team { font-size: 20px; color: var(--muted); border: 1.5px dashed rgba(7, 8, 39, .35); border-radius: 999px; padding: 6px 20px; display: inline-block; }
-  .right { text-align: right; margin-bottom: 8px; }
-  .hq { margin-top: 14px; font-size: 20px; color: var(--muted); }
+  .team { font-size: 20px; color: var(--paper); background: var(--ink); border-radius: 999px; padding: 5px 20px; display: inline-block; }
+  .right { text-align: right; }
+  .hq { margin-top: 10px; font-size: 25px; line-height: 1.35; color: var(--ink); padding-right: 2px; }
+  .hq em { font-style: normal; color: var(--signal); }
 
   /* 이야기 띠: 왜(Ink) → 어떻게(Paper) */
   .story { position: absolute; left: 0; top: 150px; width: 1920px; height: 300px; display: flex; }
@@ -108,7 +110,7 @@
       <div class="eyebrow">초보·장롱면허 운전자를 위한 AAOS 운전 연수 어시스턴트</div>
       <div class="title">드라이브 코치 <span class="sub">— 화내지 않는 조수석</span></div>
     </div>
-    <div class="right"><div class="team">[팀명] · [발표자]</div><div class="hq">“장롱면허 10년차 아내를 옆에서 가르치다 둘 다 힘들었다” — 발표자의 계기</div></div>
+    <div class="right"><div class="team">사고치조 · 전준영</div><div class="hq">아이 때문에 다시 운전을 시작한<br><em>장롱면허 10년차 아내를 위해</em> 만들었습니다</div></div>
   </header>
 
   <div class="why-back"></div>
