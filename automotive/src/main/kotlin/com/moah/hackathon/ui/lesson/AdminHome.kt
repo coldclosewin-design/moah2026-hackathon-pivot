@@ -20,6 +20,7 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moah.hackathon.feature.lesson.LessonPhase
+import com.moah.hackathon.feature.lesson.CoachInputMode
 import com.moah.hackathon.feature.lesson.LessonViewModel
 import com.moah.hackathon.ui.CoachColors
 import com.moah.hackathon.ui.CoachTexture
@@ -47,7 +48,7 @@ internal fun DemoBrandMark(modifier: Modifier = Modifier, onHold: (() -> Unit)? 
 @Composable
 internal fun AdminHome(admin: LessonViewModel.AdminControls, setup: LessonPhase.Setup, onHome: () -> Unit) {
     val band by admin.bandVisible.collectAsStateWithLifecycle()
-    val textInput by admin.textInput.collectAsStateWithLifecycle()
+    val inputMode by admin.coachInput.collectAsStateWithLifecycle()
     val profileId by admin.profileId.collectAsStateWithLifecycle()
     val auth = admin.demo.aiState?.collectAsStateWithLifecycle()?.value
     var selectedPreset by remember { mutableStateOf<String?>(null) }
@@ -69,7 +70,7 @@ internal fun AdminHome(admin: LessonViewModel.AdminControls, setup: LessonPhase.
                 LessonText("신호 출처 · ${admin.signalSource}", 32, CoachColors.Paper)
                 LessonText("기록 · ${setup.profile.observation.attempts}회", 32, CoachColors.Paper)
                 LessonText(profileLine(setup.profile), 32, CoachColors.Paper)
-                if (textInput) LessonText("음성 입력 · 시뮬레이션(글)", 32, CoachColors.Paper)
+                LessonText("음성 입력 · ${coachInputLabel(inputMode)}", 32, CoachColors.Paper)
             }
             Column(Modifier.weight(.68f).fillMaxHeight().padding(64.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
                 Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(18.dp)) {
@@ -109,8 +110,10 @@ internal fun AdminHome(admin: LessonViewModel.AdminControls, setup: LessonPhase.
                     Row(horizontalArrangement = Arrangement.spacedBy(48.dp), verticalAlignment = Alignment.CenterVertically) {
                         Eyebrow("시뮬레이션 음성 입력", Modifier.weight(1f))
                         Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                            SelectionChip("켬", textInput, { admin.setTextInput(true) }, Modifier.weight(1f))
-                            SelectionChip("끔", !textInput, { admin.setTextInput(false) }, Modifier.weight(1f))
+                            CoachInputMode.entries.forEach { mode ->
+                                SelectionChip(coachInputLabel(mode), inputMode == mode,
+                                    { admin.setCoachInput(mode) }, Modifier.weight(1f))
+                            }
                         }
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(64.dp)) {
@@ -123,4 +126,10 @@ internal fun AdminHome(admin: LessonViewModel.AdminControls, setup: LessonPhase.
             }
         }
     }
+}
+
+private fun coachInputLabel(mode: CoachInputMode) = when (mode) {
+    CoachInputMode.OFF -> "끔"
+    CoachInputMode.CARDS -> "카드"
+    CoachInputMode.CARDS_AND_TEXT -> "카드 + 글"
 }

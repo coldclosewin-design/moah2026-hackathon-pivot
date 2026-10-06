@@ -42,7 +42,8 @@ internal fun LessonRoute(vm: LessonViewModel) {
             vm::openCoach, vm::chooseCoach, vm::closeCoach, vm::chooseBooking, vm::consumeSheetRequest,
             state.onboarding, state.profileRows, state.observedLines, vm::answerProfile, vm::finishOnboarding,
             if (admin != null) ({ adminOpen = true }) else null,
-            coachTextInput = admin != null && state.coachTextInput, onSendCoachText = vm::sendCoachText,
+            coachInput = if (admin != null) state.coachInput else CoachInputMode.OFF,
+            onSendCoachText = vm::sendCoachText, onSendCoachCard = vm::sendCoachCard,
             profileRequest = state.profileRequest, onConsumeProfileRequest = vm::consumeProfileRequest)
         is LessonPhase.Briefing -> BriefingScreen(state.task, state.mode, state.line, subtitle)
         is LessonPhase.Maneuver -> ManeuverScreen(state.toDisplayState(), state.snapshot.locked, state.snapshot.stopped,

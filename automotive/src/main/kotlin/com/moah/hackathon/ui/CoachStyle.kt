@@ -31,6 +31,10 @@ internal object CoachColors {
     val Signal = Color(0xFFF52D48)
     val Muted = Ink.copy(alpha = .60f)
 
+    // Semantic road paint: confined to the parked RoadFigure illustration, never UI controls.
+    val RoadMarkingYellow = Color(0xFFF4CC42)
+    val RoadMarkingBlue = Color(0xFF398BEB)
+
 }
 
 /** Design-space sizes; DesignScale fixes the canvas at 2560 × 1268 dp. */

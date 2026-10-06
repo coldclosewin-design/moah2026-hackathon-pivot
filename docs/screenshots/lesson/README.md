@@ -1,5 +1,43 @@
 # 화면 검증 캡처
 
+## UI 라운드 25b — 말 카드·S자 연습·도로 표시·과제 시트 (2026-10-06)
+
+`codex/ui-round25b` · 새 워크트리 시작 기준 `origin/main=5f6b9cc`(#218). [발주서](../../handoffs/2026-10-06_codex_ui_round25b.md)의 네 항목을 머지된 모델에 연결했다. 모델·데이터·ports·vehicle·scoring·Gradle·tools·NEXT 변경은 없다. 검증 기기는 `emulator-5556` 하나다.
+
+| 선택 시안·요구 | 실제 앱 캡처 | 구현·확인 |
+|---|---|---|
+| ① [말 카드 A](../../design/round25-proposals/7-word-cards.html) ([PNG](../../design/round25-proposals/7-word-cards.png)) | [첫 카드](lesson-setup-coach-cards.png), [되물음 뒤](lesson-setup-coach-cards-follow.png), [카드만](lesson-setup-coach-cards-only.png) | Paper·Periwinkle 테두리·앞 마이크, 높이 96 dp·40 sp 한 줄. 입력 바로 위 가로 스크롤, 오른쪽 흐림과 ›. 모델의 현재 카드만 `sendCoachCard`로 전송. CARDS에서는 입력과 보내기를 접고 시뮬레이션 배지는 유지 |
+| ① 준비실 세 값·대기 | [준비실](lesson-admin-home.png), [글과 카드](lesson-setup-coach-text.png), [대기](lesson-setup-coach-waiting.png), [긴 대화](lesson-setup-coach-long.png), [IME](lesson-setup-coach-ime.png) | 끔 / 카드 / 카드 + 글과 왼쪽 상태가 일치. 응답 대기 카드는 옅게 표시하고 실제 탭도 차단. 대화만 세로 스크롤, 카드·입력·돌아가기는 고정 |
+| ② [장내 곁가지 A](../../design/round25-proposals/4-track-center.html) ([PNG](../../design/round25-proposals/4-track-center.png)) | [진입](lesson-drive-exam-practice-s-0.png), [회전](lesson-drive-exam-practice-s.png), [복귀](lesson-drive-exam-practice-s-2.png) | 기존 CourseMap이 모델의 S자 Road·Label을 같은 도로 문법으로 그린다. 도로 아래 라벨과 차가 겹치지 않아 지도 코드는 유지. 연습 route와 실제 `examPracticeS` 신호에서 얻은 세 위치를 계측해 캡처 |
+| ③ [도로 표시 H](../../design/round25-proposals/5-road-knowledge.html) ([PNG](../../design/round25-proposals/5-road-knowledge.png)) | [좌회전](lesson-quiz-road-sign.png), [직진·좌회전](lesson-quiz-road-straight_left_arrow.png), [흰 실선](lesson-quiz-road-white_solid.png), [노란 중앙선](lesson-quiz-road-yellow_solid_center.png), [지그재그](lesson-quiz-road-zigzag.png), [버스 차로](lesson-quiz-road-blue_bus_lane.png) | 왼쪽 Ink 패널에 위에서 본 도로 표시. 정답 설명 중에도 그림 유지. 노랑·파랑은 그림의 선에만 사용, 속도 잠금이면 그림도 평면 잠금으로 교체 |
+| ④ [주제 A·헷갈리는 상식 C′·점검 H](../../design/round25-proposals/5-road-knowledge.html) | [지식 앞](lesson-setup-sheet-knowledge.png), [지식 끝](lesson-setup-sheet-knowledge-end.png), [도로 표시 선택](lesson-setup-sheet-checklist.png) | 지식 여섯·점검 둘, 카드 C의 그림/글자 기준선·난이도 꼬리표·스크롤 유지. 도로 표시 읽기는 단색 차로 기호와 지식 테스트 한 칸. 마지막 상식은 맞아요/아니에요 두 보기로 진입. 시트 숫자 0 |
+
+[집중 계측](contract-round25b-focused.txt)은 OFF·Real 조건에서 입력·카드가 없는 상태, 세 모드, 가로 스크롤 끝 카드, 예약 유무에 따른 카드, 카드의 프로필 요청 소비, 대기 중 실제 탭 차단, 그림 여섯의 문장 잘림·색 경계·잠금, 과제 시트에서 실제 퀴즈 진입을 검사한다. S자 세 캡처는 시나리오 신호를 CourseRecorder와 VehicleSnapshot에 순서대로 넣어 얻은 위치로, 지도 위 차 위치·주행 중 점수/터치 없음도 검사한다. [평가 경로](lesson-drive-exam.png)와 [주차 위치](lesson-drive-exam-parking.png)도 최신 곁가지가 표시된 도면으로 교체했다.
+
+입력 끔의 [기존 칩 시트](lesson-setup-coach-sheet.png)는 기존 캡처와 앱 영역(2560×1268, 시스템 바 제외)의 다른 픽셀 0개를 확인해 유지했다. 말 카드·대기·긴 대화·준비실·그림 여섯·S자 라벨·지식 마지막 카드의 글자 잘림과 경계를 눈으로 확인했다.
+
+별도로 앱에서 `장내기능 모의시험 → 가이드 → 시작 → S자 연습`을 눌러 Fake 시나리오를 실제 재생했다. [곁가지 주행](lesson-drive-exam-practice-s-live.png)과 [진행 후](lesson-drive-exam-practice-s-live-turn.png)는 실재생 중 캡처이며, [로그](flow-round25b-s-practice.txt)에 GUIDE 시작과 `exam-s-curve` 진입이 남아 있다. 속도 표시 8 km/h에서 관리자 띠·터치·점수는 없고 연습 안내가 보인다.
+
+바뀐 캡처 **9장 교체·15장 추가**. [IME 캡처](lesson-setup-coach-ime.png)는 기본 Google Automotive Keyboard를 띄운 뒤 ADB로 영어 `hello`를 넣어 카드·입력줄·보내기·돌아가기가 키보드 위에 온전히 보이는지 확인한 것이다. 화면 키 직접 타이핑 검증으로 세지 않았다. 한국어 조합·버튼/IME 보내기 계약은 기존 전체 계측에서 통과했다.
+
+새 색은 CoachStyle의 `RoadMarkingYellow`·`RoadMarkingBlue` 둘뿐이며 RoadFigureDiagram 안에서만 사용한다. 그림 없는 퀴즈는 기존 번호 패널을 유지한다. `ui/`의 FontWeight.Bold 0, `Color(0x…)`는 CoachStyle에만 있다.
+
+[PowerShell 빌드](build-round25b.txt): `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` 성공. 단위 테스트 **350개(실패·오류·건너뜀 0)**. 아래 세 실행은 같은 최종 앱·계측 APK로 원본 `tools/lesson_shots.sh`를 연속 실행한 결과다. #218의 기본 **900초**와 `ANDROID_SERIAL=emulator-5556`을 사용했으며, 이 세 실행에는 ADB/timeout 래퍼를 사용하지 않았다.
+
+| 실행 | 로그 | 결과 | 설치·캡처 가져오기 포함 경과 |
+|---|---|---|---|
+| 1 | [contract-round25b-1.txt](contract-round25b-1.txt) | Lesson contract passed | 378초 |
+| 2 | [contract-round25b-2.txt](contract-round25b-2.txt) | Lesson contract passed | 380초 |
+| 3 | [contract-round25b-3.txt](contract-round25b-3.txt) | Lesson contract passed | 382초 |
+
+`RESERVE=1 bash tools/emu_flow.sh` **PASS · clashes 0**([로그](flow-round25b-rear.txt), 225초): 서초 시험장 예약→예약 홈→후면 주차 힌트 모드, **60/55·4구간 → 100/100·2구간**, 필수 힌트 세 종류·둘째 추가 힌트 없음·도어→Report·`실신호 0 · 시뮬레이션 8 · 미측정 0` 확인.
+
+최종 앱을 `adb -s emulator-5556 install -r`로 [재설치](install-round25b-course.txt)한 뒤 원본 `bash tools/course_flow.sh`도 **PASS · 종료 코드 0**([로그](flow-round25b-course.txt), 350초): **70 불합격·감점 3 → 100 합격·감점 0 → 도어→Report** 확인.
+
+`emu_flow.sh`와 `course_flow.sh`에는 시작 검사의 `-s emulator-5554`가 아직 고정되어 있다. 이 두 도구만 기존 [INTEGRATION C 방식](../../INTEGRATION.md)대로 ignored `build/adb-round25b.sh`를 `ADB`로 지정했다. 래퍼는 선두 serial 인수를 제거하고 모든 호출을 `-s emulator-5556`으로 실행한다. 두 도구의 판정·탭·대기·캡처 코드와 제한 시간은 변경하지 않았다.
+
+최종 APK SHA-256: 앱 `4C8A5D5BAACC2D5BB906D792A0D8DF565AF7EA59D97B9A89BAB9850BDAABC6F4`, 계측 `2BC95AF252F3687ACA17B35F7178717FD27D4260B5E2F843D521DC92A4012B00`.
+
 ## UI 라운드 25a — 홈·선택 알약·잠금 시연 탈출·다듬기 (2026-10-06)
 
 `codex/ui-round25a` · 새 워크트리 시작 기준 `origin/main=dfebf32`(#214). [발주서](../../handoffs/2026-10-06_codex_ui_round25a.md)의 여섯 항목을 기존 모델 API로 구현했다. 모델·데이터·ports·vehicle·scoring·Gradle·tools·NEXT 변경은 없다. 검증 기기는 `emulator-5556` 하나다.

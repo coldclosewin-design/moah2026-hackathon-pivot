@@ -37,8 +37,9 @@ internal fun QuizScreen(task: Task, index: Int, total: Int, item: QuizItem, lock
     }
     PosterSurface {
         Row(Modifier.fillMaxSize()) {
-            QuizNumber((index + 1).toString().padStart(2, '0'), "${index + 1} / $total", Modifier.weight(.38f),
-                correct = chosen?.let { it == item.answer }.takeUnless { locked })
+            if (item.figure != null) RoadFigurePanel(item.figure, "${index + 1} / $total", Modifier.weight(.38f))
+            else QuizNumber((index + 1).toString().padStart(2, '0'), "${index + 1} / $total", Modifier.weight(.38f),
+                correct = chosen?.let { it == item.answer })
             Column(Modifier.weight(.62f).fillMaxHeight().padding(start = 100.dp, end = 120.dp, top = 64.dp, bottom = 52.dp),
                 verticalArrangement = Arrangement.spacedBy(24.dp)) {
                 Eyebrow("지식 테스트 · ${task.title}")

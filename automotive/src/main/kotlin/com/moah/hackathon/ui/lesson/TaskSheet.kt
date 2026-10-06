@@ -116,7 +116,7 @@ private fun TaskBay(task: Task, chosen: Boolean, modifier: Modifier, onClick: ()
                     TaskType.PARKING -> ParkingTaskDiagram(task.id, ink,
                         if (chosen) CoachColors.Lavender else CoachColors.Periwinkle,
                         if (chosen) CoachColors.Periwinkle else CoachColors.Lavender, art)
-                    TaskType.CHECKLIST -> ChecklistTaskDiagram(ink, art)
+                    TaskType.CHECKLIST -> if (task.quizOnly) RoadSignsTaskDiagram(ink, art) else ChecklistTaskDiagram(ink, art)
                     else -> if (task.course != null) CourseMap(task.course, art, thumbnail = true, ink = ink)
                         else CategoryTaskDiagram(task.type, ink, art)
                 }
