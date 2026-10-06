@@ -73,6 +73,7 @@ class LessonScreenInstrumentation : Instrumentation() {
     private var reservationOnly = false
     private var round22Only = false
     private var round23aOnly = false
+    private var round23bOnly = false
     override fun onCreate(arguments: Bundle?) {
         super.onCreate(arguments)
         seedSpeech = arguments?.getString("seedSpeech") == "true"
@@ -83,6 +84,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         round23aOnly = arguments?.getString("round23aOnly") == "true"
         reservationOnly = arguments?.getString("reservationOnly") == "true"
         textureOnly = arguments?.getString("textureOnly") == "true"
+        round23bOnly = arguments?.getString("round23bOnly") == "true"
         start()
     }
 
@@ -90,6 +92,11 @@ class LessonScreenInstrumentation : Instrumentation() {
         val activity = startActivitySync(Intent(targetContext, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as MainActivity
         try {
+            if (round23bOnly) {
+                round23bContract(activity)
+                finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Round23b contract passed\n") })
+                return
+            }
             if (round23aOnly) {
                 round23aContract(activity)
                 finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Round23a contract passed\n") })
@@ -138,11 +145,11 @@ class LessonScreenInstrumentation : Instrumentation() {
             val panelAi = mutableStateOf<StateFlow<CopilotAuth.State>?>(null)
             var aiConnections = 0
             val setupDemo: @Composable () -> Unit = {
-                DemoPanel(container.scenarios, null, { played = it }, {}, {}, {}, {},
+                AdminBand(container.scenarios, null, { played = it }, {}, {}, {}, {},
                     aiState = panelAi.value, onConnectAi = { aiConnections++ })
             }
             val demo: @Composable () -> Unit = {
-                DemoPanel(container.scenariosFor(task), null, {}, {}, {}, {}, {})
+                AdminBand(container.scenariosFor(task), null, {}, {}, {}, {}, {})
             }
             var started: Pair<String, LessonMode>? = null
             render(activity) {
@@ -150,21 +157,23 @@ class LessonScreenInstrumentation : Instrumentation() {
                     "처음은 제가 순서대로 함께할게요.", "오늘은 편안한 곳에서 주차부터 연습해 봐요.",
                     { id, mode -> started = id to mode }, setupDemo, venues = SeedCatalog.venues)
             }
-            check(allText().containsAll(listOf(setupProposal(TaskType.PARKING), "시작", "시연")))
+            check(allText().containsAll(listOf(setupProposal(TaskType.PARKING), "시작", "관리자")))
             check(allText().none { it.startsWith("동승자 · ") })
             assertDriverButton(activity, "시작")
-            assertPanelCollapsed()
+            assertAdminBand()
             capture("setup")
             val setupPillWidth = buttonBounds("시작").width()
             val proposalBounds = textBounds(setupProposal(TaskType.PARKING))
-            click("시연")
             check(texts().containsAll(listOf("잘한 주차", "못한 주차")))
             check(textBounds(setupProposal(TaskType.PARKING)) == proposalBounds) { "Demo rail resized the reading area" }
+            click("더 보기 ▴")
             checkAiPanel(activity, panelAi)
+            assertBandBelow(activity, "시작")
+            click("접기 ▾")
             runOnMainSync { check(aiConnections == 2) { "AI connect/reconnect must dispatch exactly once per click" } }
             click("잘한 주차")
             runOnMainSync { check(played == container.scenarios.first { it.title == "잘한 주차" }.id) }
-            assertPanelCollapsed()
+            assertAdminBand()
             click("과제·모드 바꾸기")
             uiAutomation.waitForIdle(100, 2_000)
             check(texts().contains("연습할 과제"))
@@ -322,30 +331,19 @@ class LessonScreenInstrumentation : Instrumentation() {
             check(texts().contains("${task.title} · 1회차"))
             check(allText().any { "후진 중" in it && "조향 방향 호" in it && "보조선" in it })
             check(texts().containsAll(listOf("오른쪽 450°", "오른쪽으로 한 바퀴", "코치")))
-            assertPanelCollapsed()
+            assertAdminBand()
             capture("maneuver")
             capture("maneuver-b")
             capture("maneuver-guides") { bitmap -> assertWheelGuidePixels(bitmap, -1) }
-            capture("demo-toggle-pill")
-            val pillBounds = buttonBounds("시연")
-            val scale = designScale(activity)
-            check(abs(pillBounds.width() / scale - 88) < 1 && abs(pillBounds.height() / scale - 88) < 1) { "Pill touch bounds: $pillBounds" }
-            val pillDrawing = colorBounds(screenshot(), pillBounds, CoachColors.Lavender.toArgb())
-            check(abs(pillDrawing.width() / scale - 64) < 1 && abs(pillDrawing.height() / scale - 32) < 1) { "Pill drawing changed: $pillDrawing" }
-            check(textBounds("3 km/h").top - pillDrawing.bottom == (24 * scale).toInt())
-            // Actual pointer events at the outer corners, beyond the original 64 x 32 pill.
-            listOf(pillBounds.left + 2 to pillBounds.top + 2, pillBounds.right - 2 to pillBounds.bottom - 2).forEach { (x, y) ->
-                tap(x, y)
-                check(texts().contains("잘한 주차")) { "88 dp target did not open at $x,$y" }
-                click("시연")
-            }
+            capture("admin-band")
+            val bandTop = textBounds("관리자").top
+            check(textBounds("85 cm").bottom < bandTop)
             val gearBounds = textBounds("R")
             val distanceBounds = textBounds("85 cm")
-            click("시연")
             check(texts().contains("잘한 주차"))
             click("잘한 주차")
-            assertPanelCollapsed()
-            check(texts().none { it == "잘한 주차" })
+            assertAdminBand()
+            check(texts().contains("잘한 주차"))
             check(texts().contains("시뮬레이션 신호"))
             capture("maneuver-collapsed")
             listOf("hint" to "뒤가 가까워요. 잠깐 멈추고 확인해 주세요.", "evaluate" to null).forEach { (name, hint) ->
@@ -355,6 +353,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             render(activity) { ManeuverScreen(moving.copy(speed = "0"), false, true, null, {}, demo) }
             check(textBounds("R") == gearBounds && textBounds("85 cm") == distanceBounds) { "Telemetry shifted when finish button appeared" }
             assertDriverButton(activity, "다 됐어요")
+            assertBandBelow(activity, "다 됐어요")
             assertNoScores()
 
             listOf(450f, 0f).forEach { steering ->
@@ -431,7 +430,7 @@ class LessonScreenInstrumentation : Instrumentation() {
                 indicatorLeftSignal = SignalAvailability.SIMULATED, indicatorRightSignal = SignalAvailability.SIMULATED,
                 hazardSignal = SignalAvailability.SIMULATED)
             val checklistDemo: @Composable () -> Unit = {
-                DemoPanel(container.scenariosFor(SeedCatalog.predriveTask), null, {}, {}, {}, {}, {})
+                AdminBand(container.scenariosFor(SeedCatalog.predriveTask), null, {}, {}, {}, {}, {})
             }
             render(activity) { ManeuverScreen(checklist, false, true, null, {}, checklistDemo, SeedCatalog.predriveTask.title) }
             val checklistLabels = listOf("도어", "안전벨트", "기어", "브레이크 / 시동", "좌 지시등", "우 지시등", "비상등")
@@ -440,7 +439,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             check(allText().none { Regex("조향각|뒤 거리|cm|이동 \\d+회").containsMatchIn(it) })
             assertNoScores()
             assertDriverButton(activity, "다 됐어요")
-            assertPanelCollapsed()
+            assertAdminBand()
             val chipLabels = checklistLabels.map(::textBounds)
             check(chipLabels.map { it.left }.distinct().size == 1)
             check(chipLabels.zipWithNext().all { (a, b) -> a.bottom < b.top })
@@ -626,7 +625,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             render(activity) { DoneScreen(task, 1, record, record.remark, { again++ }, { ended++ }, demo) }
             check(texts().none { "지난번보다" in it })
             assertNoDoneMetrics()
-            assertPanelCollapsed()
+            assertAdminBand()
             check(allText().none { it == "추정 궤적" })
             check(texts().count { it == record.remark } == 1) { "Repeated remark in subtitle footer" }
             capture("done-no-path")
@@ -650,7 +649,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             capture("done-arrival-empty") { bitmap -> assertArrivalBay(activity, bitmap, path, settled = false) }
             Thread.sleep(3_000) // 500 ms initial delay + 3 s playback, including render's 700 ms.
             check(allText().contains("추정 궤적"))
-            assertPanelCollapsed()
+            assertAdminBand()
             check(texts().containsAll(listOf("신호로 추정한 궤적이에요.", "실제 위치와 다를 수 있어요.")))
             assertNoDoneMetrics()
             check(allText().none { "셰브론" in it })
@@ -683,6 +682,25 @@ class LessonScreenInstrumentation : Instrumentation() {
                 "다음에는 뒤 거리를 조금 더 남겨 볼까요?\n주변도 함께 살펴요.",
                 task, LessonMode.GUIDE, "핸들 타이밍을 한 단계씩 함께 익혀요.", ShareLevel.entries,
                 SeedCatalog.benefits, listOf("안전벨트 확인"))
+            val ask = ProfileRow(ProfileField.GOAL, null, ProfileChips.chips(ProfileField.GOAL))
+            val askedReport = mutableStateOf(report.copy(askOne = ask))
+            var profileAnswer: Pair<ProfileField, String>? = null
+            var skipped: ProfileField? = null
+            render(activity) { ReportScreen(askedReport.value, {}, onAnswerProfile = { field, id ->
+                profileAnswer = field to id; askedReport.value = report
+            }, onSkipAsk = { field -> skipped = field; askedReport.value = report }) }
+            check(textBounds("하나만 물어볼게요").top < buttonBounds("다시 시작").top)
+            check(textBounds("${report.task.title} · ${report.mode.label}").bottom < textBounds("하나만 물어볼게요").top)
+            assertFullText(activity, ask.field.question)
+            capture("report-ask-one")
+            click("아이 등하원")
+            afterUiSettles("Answered report question closes") { check("하나만 물어볼게요" !in texts()) }
+            check(profileAnswer == ProfileField.GOAL to "school-run")
+            runOnMainSync { askedReport.value = report.copy(askOne = ask) }
+            afterUiSettles("Report skip available") { check("다음에요" in texts()) }
+            click("다음에요")
+            afterUiSettles("Skipped report question closes") { check("하나만 물어볼게요" !in texts()) }
+            check(skipped == ProfileField.GOAL)
             var restarted = 0
             render(activity) { ReportScreen(report, { restarted++ }) }
             check(texts().containsAll(listOf(badgeText(score.badge), "다시 시작", "진단서", "신호 출처", "이 신호는 이 차에서 받지 못했어요")))
@@ -783,10 +801,13 @@ class LessonScreenInstrumentation : Instrumentation() {
             cardLayoutContract(activity)
             courseContract(activity, full = false)
             round23aContract(activity)
+            round23bContract(activity)
             captureDoneSettle(activity, task, pathRecord)
             captureDoneSettle(activity, SeedCatalog.predriveTask, checklistRecord, "done-checklist-settle-strip")
             finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Lesson contract passed\n") })
         } catch (failure: Throwable) {
+            println("Failure screen: ${allText()}")
+            runCatching { capture("failure") }
             finish(Activity.RESULT_CANCELED, Bundle().apply { putString("stream", failure.stackTraceToString()) })
         }
     }
@@ -851,12 +872,11 @@ class LessonScreenInstrumentation : Instrumentation() {
         }
         listOf(task to pathRecord, SeedCatalog.predriveTask to checklistRecord).forEach { (resultTask, attempt) ->
             render(activity) { DoneScreen(resultTask, 1, attempt, null, { actions++ }, { actions++ }, demo, locked.value) }
-            click("시연")
             setLock(true)
             assertLocked(if (resultTask == task) "done-locked" else "done-checklist-locked")
             setLock(false)
             afterUiSettles("Done remark after unlocking") { check(attempt.remark in texts()) }
-            assertPanelCollapsed()
+            assertAdminBand()
             click("한 번 더")
         }
         render(activity) { ReportScreen(report, { actions++ }, locked.value) }
@@ -1071,6 +1091,110 @@ class LessonScreenInstrumentation : Instrumentation() {
         check(vm.phase.value is LessonPhase.Setup)
         check(texts().containsAll(listOf("시작", "과제·모드 바꾸기")))
         pass("Quiz quit: real LessonRoute retains all three correct answers in QuizDone; restart returns to Setup")
+    }
+
+    private fun round23bContract(activity: MainActivity) {
+        val container = (activity.application as App).container
+        lateinit var vm: LessonViewModel
+        runOnMainSync {
+            vm = ViewModelProvider(activity, LessonViewModel.factory(container))[LessonViewModel::class.java]
+            vm.restart()
+            vm.admin!!.resetProfile()
+            vm.admin!!.setBand(true)
+        }
+        render(activity) { LessonRoute(vm) }
+        check("건너뛰기" in texts() && "시작하기" !in texts())
+        check(ProfileField.entries.all { it.title in texts() })
+        check(texts().none { Regex("\\d|마이크|말로 답하기").containsMatchIn(it) })
+        capture("profile-onboarding")
+        click("주차")
+        afterUiSettles("Second onboarding question") { check(ProfileField.LAST_DRIVE.question in texts()) }
+        click("십 년 넘게")
+        afterUiSettles("Two questions complete") {
+            check("시작하기" in texts())
+            check(ProfileField.entries.none { it.question in texts() })
+        }
+        capture("profile-onboarding-complete")
+        click("시작하기")
+        afterUiSettles("Onboarding closes") { check("과제·모드 바꾸기" in texts()) }
+        val setup = vm.phase.value as LessonPhase.Setup
+        click(profileLine(setup.profile))
+        afterUiSettles("Profile sheet") { check("앱이 본 것" in texts()) }
+        check(ProfileField.entries.none { it.question in texts() })
+        capture("profile-sheet")
+        click("필요한 일")
+        click("아이 등하원")
+        afterUiSettles("Next empty profile field") { check(ProfileField.LICENSE.question in texts()) }
+        click("작년쯤")
+        afterUiSettles("Car last") { check(ProfileField.CAR.question in texts()) }
+        click("준중형")
+        click("돌아가기")
+        afterUiSettles("Profile persisted") {
+            val stored = checkNotNull(FileProfileStore(File(targetContext.filesDir, "profile.properties")).load())
+            check(stored.onboarded && stored.answered.size == 5)
+            check(stored.statement.goal == "아이 등하원" && stored.statement.car == "준중형")
+        }
+        fun holdBrand(duration: Long) {
+            val rect = textBounds("DRIVE COACH")
+            val now = SystemClock.uptimeMillis()
+            fun event(action: Int) {
+                val e = android.view.MotionEvent.obtain(now, SystemClock.uptimeMillis(), action, rect.centerX().toFloat(), rect.centerY().toFloat(), 0)
+                check(uiAutomation.injectInputEvent(e, true)); e.recycle()
+            }
+            event(android.view.MotionEvent.ACTION_DOWN)
+            Thread.sleep(duration)
+            event(android.view.MotionEvent.ACTION_UP)
+            Thread.sleep(350)
+        }
+        holdBrand(700)
+        check("시연 준비" !in texts())
+        holdBrand(2_100)
+        afterUiSettles("Admin home") { check("시연 준비" in texts()) }
+        capture("admin-home")
+        vm.admin!!.presets.forEach { preset ->
+            click(preset.title)
+            afterUiSettles("Preset ${preset.id}") {
+                val state = vm.phase.value as LessonPhase.Setup
+                check(state.suggestedTask.id == preset.taskId && state.suggestedMode == preset.mode)
+            }
+        }
+        click("이 설정으로 홈")
+        click("더 보기 ▴")
+        afterUiSettles("Expanded band on booking home") {
+            check(abs(buttonBounds("코치에게 말하기").height() / designScale(activity) - 112) <= 1)
+            check(abs(buttonBounds("시작").height() / designScale(activity) - 140) <= 1)
+            assertBandBelow(activity, "코치에게 말하기")
+        }
+        capture("admin-band-booking")
+        click("접기 ▾")
+        holdBrand(2_100)
+        click("초보")
+        click("숨김")
+        click("기록 초기화")
+        check(!vm.admin!!.bandVisible.value)
+        check((vm.phase.value as LessonPhase.Setup).profile.observation.attempts == 0)
+        click("이 설정으로 홈")
+        check("관리자" !in texts())
+        holdBrand(2_100)
+        click("아래 띠")
+        click("프로필 초기화")
+        click("이 설정으로 홈")
+        check("건너뛰기" in texts())
+        click("건너뛰기")
+        check((vm.phase.value as LessonPhase.Setup).onboarding == null)
+        check((vm.phase.value as LessonPhase.Setup).profileRows.all { it.answer == null })
+        lateinit var real: LessonViewModel
+        runOnMainSync { real = LessonViewModel(container.lesson, container.tts) }
+        check(real.admin == null)
+        render(activity) { LessonRoute(real) }
+        runOnMainSync { check(composeNodes(activity).none { it.config.contains(SemanticsActions.OnLongClick) }) }
+        check("관리자" !in texts() && "시연" !in allText())
+        runOnMainSync {
+            activity.startActivity(Intent(activity, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP).putExtra(com.moah.hackathon.data.AdminPresets.EXTRA_PRESET, "rear-two"))
+        }
+        afterUiSettles("Warm preset intent") { check((vm.phase.value as LessonPhase.Setup).suggestedMode == LessonMode.HINT) }
+        check((vm.phase.value as LessonPhase.Setup).onboarding == null)
+        pass("Round23b: two-second Setup entry, five presets, profile/panel/reset actions, P2 two questions + five-row sheet + persisted answers, Real has no entry or band, preset intent")
     }
 
     private fun round22Contract(activity: MainActivity) {
@@ -1545,80 +1669,36 @@ class LessonScreenInstrumentation : Instrumentation() {
     }
 
     private fun checkAiPanel(activity: MainActivity, state: MutableState<StateFlow<CopilotAuth.State>?>) {
-        val labels = listOf("시연", "잘한 주차", "못한 주차", "잘한 점검", "못한 점검",
-            "정차", "출발", "문 열기", "문 닫기", "시나리오 정지")
-        val originalBounds = labels.associateWith(::buttonBounds)
-        check(allText().none { it.startsWith("AI ") }) { "Null aiState must render no AI nodes" }
+        check(allText().none { it.startsWith("AI ") })
         val auth = MutableStateFlow<CopilotAuth.State>(CopilotAuth.State.NeedsLogin)
         runOnMainSync { state.value = auth }
-        fun awaitLine(line: AiLine, detail: String = line.detail) {
-            val deadline = SystemClock.uptimeMillis() + 1_000
-            fun matches(): Boolean = texts().let { current ->
-                line.title in current && detail in current && ("AI 연결" in current) == line.showConnect
-            }
-            while (!matches() && SystemClock.uptimeMillis() < deadline) Thread.sleep(50)
-            check(matches()) { "AI StateFlow update did not render $line: ${texts()}" }
-            originalBounds.forEach { (label, bounds) ->
-                check(buttonBounds(label) == bounds) { "AI section moved $label" }
-            }
-        }
-        awaitLine(checkNotNull(aiLine(CopilotAuth.State.NeedsLogin)))
-        check(texts().containsAll(listOf("GitHub 에서 코드를 넣고 Authorize 까지 눌러 주세요", "AI 연결")))
-        check(textBounds("AI 코치 · 로그인 필요").top > originalBounds.getValue("시나리오 정지").bottom)
-        capture("panel-open")
-        click("AI 연결")
-
-        val code = CopilotAuth.State.Code("ABCD-1234", "https://github.com/login/device")
-        runOnMainSync { auth.value = code }
-        val detail = "https://github.com/login/device\nABCD-1234"
-        awaitLine(checkNotNull(aiLine(code)), detail)
-        check(detail in texts()) { "Device URI and code must remain readable verbatim" }
-        check("AI 연결" !in texts())
-        runOnMainSync {
-            val node = composeNodes(activity).first { node ->
-                node.config.getOrNull(SemanticsProperties.Text)?.singleOrNull()?.text == detail
-            }
-            val layouts = mutableListOf<TextLayoutResult>()
-            check(node.config.getOrNull(SemanticsActions.GetTextLayoutResult)?.action?.invoke(layouts) == true)
-            val layout = layouts.single()
-            check(!layout.hasVisualOverflow) { "Device code is clipped" }
-            check(layout.lineCount == 2 && layout.getLineStart(1) == code.uri.length + 1) {
-                "Device URI and code must each occupy one complete line"
-            }
-            check(layout.layoutInput.style.fontSize == 28.sp)
-            check(layout.layoutInput.style.localeList == LocaleList("ko-KR"))
-            check(layout.layoutInput.style.lineBreak.wordBreak == LineBreak.WordBreak.Phrase)
-            val codeStyle = layout.layoutInput.text.spanStyles.single { it.item.fontSize == 40.sp }
-            check(codeStyle.item.fontSize == 40.sp && codeStyle.item.color == CoachColors.Ink)
-            check(layout.layoutInput.text.text.substring(codeStyle.start, codeStyle.end) == code.userCode)
-        }
-        capture("panel-ai-code") { bitmap ->
-            val bounds = textBounds(detail)
-            check(bounds.bottom <= bitmap.height && bounds.right <= bitmap.width)
-            check(!colorBounds(bitmap, bounds, CoachColors.Ink.toArgb()).isEmpty) { "Code Ink glyphs are missing" }
-        }
-        val longError = "연결 상태를 확인할 수 없어요. 잠시 후 다시 연결해 주세요. ".repeat(3).take(80)
-        listOf(CopilotAuth.State.Ready, CopilotAuth.State.NoConfig, CopilotAuth.State.Error(longError)).forEach { value ->
+        fun awaitState(value: CopilotAuth.State) {
             runOnMainSync { auth.value = value }
             val line = checkNotNull(aiLine(value))
-            awaitLine(line)
-            check(line.detail in texts())
-            check(("AI 연결" in texts()) == line.showConnect)
-            assertFullText(activity, line.detail)
-            capture(when (value) {
-                CopilotAuth.State.Ready -> "panel-ai-ready"
-                CopilotAuth.State.NoConfig -> "panel-ai-no-config"
-                else -> "panel-ai-error"
-            })
+            afterUiSettles("Admin AI ${line.title}") {
+                check(line.title in texts())
+                check(("AI 연결" in texts()) == line.showConnect)
+                if (value is CopilotAuth.State.Code) {
+                    check(value.uri in texts() && value.userCode in texts())
+                    assertFullText(activity, value.uri)
+                    assertFullText(activity, value.userCode)
+                } else {
+                    check(line.detail in texts())
+                    assertFullText(activity, line.detail)
+                }
+            }
         }
+        awaitState(CopilotAuth.State.NeedsLogin)
+        click("AI 연결")
+        awaitState(CopilotAuth.State.Code("ABCD-1234", "https://github.com/login/device"))
+        capture("admin-band-ai-code")
+        awaitState(CopilotAuth.State.Ready)
+        awaitState(CopilotAuth.State.NoConfig)
+        awaitState(CopilotAuth.State.Error("연결 상태를 확인할 수 없어요. 잠시 후 다시 연결해 주세요. ".repeat(3).take(80)))
         click("AI 연결")
         runOnMainSync { state.value = null }
-        val hiddenDeadline = SystemClock.uptimeMillis() + 1_000
-        while (allText().any { it.startsWith("AI ") } && SystemClock.uptimeMillis() < hiddenDeadline) Thread.sleep(50)
-        uiAutomation.waitForIdle(100, 2_000)
-        check(allText().none { it.startsWith("AI ") || it == longError })
-        originalBounds.forEach { (label, bounds) -> check(buttonBounds(label) == bounds) }
-        pass("AI panel: null hides all AI nodes; five live states, connect/reconnect, exact 40 sp Ink code without overflow; toggle/scenario bounds unchanged")
+        afterUiSettles("AI disabled") { check(allText().none { it.startsWith("AI ") }) }
+        pass("Admin band: null and five live AI states; connect/reconnect and complete device URI/code")
     }
 
     // The full course suite is also runnable with -e round18Only true. Keep the existing
@@ -1645,7 +1725,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         val parked = frame(courses.exam, scenarios.examGood) { p, s -> p.currentZoneId == "exam-parking" && s.stopped }
         val road = frame(courses.road, scenarios.roadGood) { _, s -> s.signal == TrackSignal.RED && s.stopped }
         val round = frame(courses.roundabout, scenarios.roundGood) { p, s -> p.currentZoneId == "rb-ring" && (p.pose?.at?.x ?: 0f) > 43f && s.locked }
-        val demo: @Composable () -> Unit = { DemoPanel(listOf(scenarios.examGood, scenarios.examBad), null, {}, {}, {}, {}, {}) }
+        val demo: @Composable () -> Unit = { AdminBand(listOf(scenarios.examGood, scenarios.examBad), null, {}, {}, {}, {}, {}) }
         var finished = 0
         fun driverText(live: Boolean = true) {
             if (live) assertNoScores()
@@ -2639,10 +2719,16 @@ class LessonScreenInstrumentation : Instrumentation() {
     }
     private fun assertNoScores() { check(allText().none { Regex("점수|감점|\\d+\\s*점|이동 \\d+회|\\d+초").containsMatchIn(it) }) }
     private fun assertNoDoneMetrics() { check(allText().none { Regex("\\d+회(?!차)|\\d+초|지난번보다|cm").containsMatchIn(it) }) }
-    private fun assertPanelCollapsed() {
-        check(allText().contains("시연"))
-        check(texts().none { it == "시연" }) { "Demo toggle must only expose its accessible label" }
-        check(texts().none { it in listOf("잘한 주차", "못한 주차", "잘한 점검", "못한 점검", "문 열기") })
+    private fun assertBandBelow(activity: MainActivity, action: String) {
+        val actionBottom = buttonBounds(action).bottom
+        runOnMainSync {
+            val band = composeNodes(activity).single { it.config.getOrNull(SemanticsProperties.TestTag) == "admin-band" }.boundsInWindow
+            check(actionBottom <= band.top) { "$action overlaps the admin band" }
+        }
+    }
+    private fun assertAdminBand() {
+        check("시연" !in allText())
+        check(texts().containsAll(listOf("관리자", "정차", "출발", "문 열기", "문 닫기", "시나리오 정지", "더 보기 ▴")))
     }
     private fun textBounds(label: String) = Rect().also { rect ->
         nodes().first { it.text?.toString() == label }.getBoundsInScreen(rect)

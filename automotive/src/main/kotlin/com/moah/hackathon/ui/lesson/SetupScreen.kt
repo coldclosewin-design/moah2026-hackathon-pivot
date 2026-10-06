@@ -8,6 +8,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
@@ -34,7 +36,17 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
     coach: CoachDialog? = null, bookingOptions: List<BookingOption> = emptyList(), bookingChoice: BookingOption? = null,
     highlightBooking: Boolean = false, sheetRequest: TaskType? = null, onOpenCoach: () -> Unit = {},
     onChooseCoach: (CoachChoice) -> Unit = {}, onCloseCoach: () -> Unit = {},
-    onChooseBooking: (BookingOption) -> Unit = {}, onConsumeSheetRequest: () -> Unit = {}) {
+    onChooseBooking: (BookingOption) -> Unit = {}, onConsumeSheetRequest: () -> Unit = {},
+    onboarding: ProfileOnboarding? = null, profileRows: List<ProfileRow> = emptyList(),
+    observedLines: List<String> = emptyList(), onAnswerProfile: (ProfileField, String) -> Unit = { _, _ -> },
+    onFinishOnboarding: () -> Unit = {}, onAdmin: (() -> Unit)? = null) {
+    if (onboarding != null) {
+        ProfileOnboardingScreen(profileRows, onboarding, onAnswerProfile, onFinishOnboarding, onAdmin)
+        return
+    }
+    var profileOpen by rememberSaveable { mutableStateOf(false) }
+    var lastCoachLine by rememberSaveable { mutableStateOf<String?>(null) }
+    LaunchedEffect(coach?.line) { coach?.line?.let { lastCoachLine = it } }
     var selectedTaskId by rememberSaveable(suggestedTask.id, booking) { mutableStateOf(suggestedTask.id) }
     var categoryName by rememberSaveable(suggestedTask.id, booking) { mutableStateOf(suggestedTask.type.name) }
     var modeName by rememberSaveable(suggestedMode, booking) { mutableStateOf(suggestedMode.name) }
@@ -61,17 +73,19 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
             onConsumeSheetRequest()
         }
     }
-    val expansion = rememberSaveable { mutableStateOf(false) }
     val task = tasks.firstOrNull { it.id == selectedTaskId && it.isReady } ?: suggestedTask
     // Browsing a planned category clears its selection but retains the last ready choice on return.
     val selectedTask = task.takeIf { it.isReady && it.type.name == categoryName }
     val mode = supportedMode(task, LessonMode.valueOf(modeName))
     val start = { if (task.isReady && (!sheet || selectedTask != null)) onBegin(task.id, mode) }
-    val fraction by animateFloatAsState(if (sheet) .30f else .53f,
+    val fraction by animateFloatAsState(if (sheet || profileOpen) .30f else .53f,
         tween(400, easing = FastOutSlowInEasing), label = "poster")
     val slide = with(LocalDensity.current) { 40.dp.roundToPx() }
-    PosterSurface {
-        Box(Modifier.fillMaxSize()) {
+    PosterSurface(band = demo.takeUnless { sheet || profileOpen || coach != null }) {
+        BoxWithConstraints(Modifier.fillMaxSize()) {
+            // An expanded admin band needs room as well as a booking card. Keep the
+            // A1 action/card gaps and full button heights; compact only the reading area.
+            val compactHome = maxHeight < 1120.dp
             Row(Modifier.fillMaxSize()) {
                 Box(Modifier.weight(fraction).fillMaxHeight().clipToBounds().testTag("setup-poster")) {
                     Image(painterResource(R.drawable.poster_car), null, Modifier.fillMaxSize().graphicsLayer {
@@ -79,17 +93,20 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
                         scaleY = scaleX
                         translationX = -(.53f - fraction) * 220.dp.toPx()
                     }, contentScale = ContentScale.Crop, alignment = Alignment.CenterStart)
-                    BrandMark(Modifier.padding(start = 180.dp, top = 64.dp))
+                    SetupBrandMark(Modifier.padding(start = 180.dp, top = 64.dp), onAdmin)
                 }
-                AnimatedContent(if (coach != null) "coach" else if (sheet) "tasks" else "home", Modifier.weight(1f - fraction).fillMaxHeight(),
+                AnimatedContent(if (profileOpen) "profile" else if (coach != null) "coach" else if (sheet) "tasks" else "home", Modifier.weight(1f - fraction).fillMaxHeight(),
                     transitionSpec = {
                         (fadeIn(tween(300)) + slideInHorizontally(tween(300)) { slide }) togetherWith fadeOut(tween(300))
                     }, label = "setup-content") { page ->
                     val showSheet = page != "home"
                     Column(Modifier.fillMaxSize().padding(start = 64.dp, end = 64.dp,
-                        top = if (showSheet) 64.dp else 96.dp, bottom = 52.dp),
+                        top = if (showSheet) 64.dp else if (compactHome) 48.dp else 96.dp,
+                        bottom = if (compactHome) 24.dp else 52.dp),
                         verticalArrangement = Arrangement.spacedBy(24.dp)) {
-                        if (page == "coach") {
+                        if (page == "profile") {
+                            ProfileScreen(profileRows, onAnswerProfile, { profileOpen = false }, observedLines = observedLines)
+                        } else if (page == "coach") {
                             coach?.let { dialog -> CoachSheet(dialog, { choice ->
                                 awaitingRecommendation = choice == CoachChoice.CONTINUE_LAST
                                 onChooseCoach(choice)
@@ -116,13 +133,13 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
                                 onBack = { sheet = false }, onStart = start, onVenues = { venuesOpen = true })
                         } else {
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
-                                Eyebrow(profileLine(profile), color = CoachColors.Muted)
+                                Eyebrow(profileLine(profile), Modifier.testTag("profile-entry").clickable(role = Role.Button) { profileOpen = true }, color = CoachColors.Muted)
                                 Spacer(Modifier.height(27.dp))
-                                Headline(setupProposal(task.type), size = 72)
+                                Headline(setupProposal(task.type), size = if (compactHome) 56 else 72)
                                 Spacer(Modifier.height(36.dp))
                                 LessonText("${task.title} · ${mode.label} 모드", 40)
                                 Spacer(Modifier.height(12.dp))
-                                LessonText(selectionReason(task, mode, suggestedTask, suggestedMode, reason), 36, CoachColors.Muted,
+                                LessonText(selectionReason(task, mode, suggestedTask, suggestedMode, reason), if (compactHome) 32 else 36, CoachColors.Muted,
                                     modifier = Modifier.testTag("home-reason"))
                                 bookingDetails(booking, venues)?.let { details ->
                                     Spacer(Modifier.height(33.dp))
@@ -142,12 +159,13 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
                                     CoachPill("코치에게 말하기", onOpenCoach)
                                 }
                             }
-                            SpeechFooter(subtitle)
+                            // The dialog already showed this speech; repeating it after return can
+                            // squeeze the booking home's action row above the admin band.
+                            SpeechFooter(subtitle?.takeUnless { it == lastCoachLine })
                         }
                     }
                 }
             }
-            if (demo != null) DemoRail(expansion, demo)
         }
     }
 }

@@ -17,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.moah.hackathon.R
 import com.moah.hackathon.feature.lesson.LessonReport
+import com.moah.hackathon.feature.lesson.ProfileField
 import com.moah.hackathon.feature.lesson.TaskType
 import com.moah.hackathon.ui.CoachColors
 import com.moah.hackathon.ui.CoachTexture
@@ -24,7 +25,8 @@ import com.moah.hackathon.ui.CoachTexture
 private enum class ReportPage { SUMMARY, DETAILS, CERTIFICATE, SHARE_EXAMPLE }
 
 @Composable
-internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit, locked: Boolean = false) {
+internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit, locked: Boolean = false,
+    onAnswerProfile: (ProfileField, String) -> Unit = { _, _ -> }, onSkipAsk: (ProfileField) -> Unit = {}) {
     var page by rememberSaveable(report) { mutableStateOf(ReportPage.SUMMARY) }
     var shareName by rememberSaveable(report) { mutableStateOf(report.shareLevels.firstOrNull()?.name) }
     val shareLevel = report.shareLevels.firstOrNull { it.name == shareName } ?: report.shareLevels.firstOrNull()
@@ -48,15 +50,17 @@ internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit, locked: B
                     ReportPage.SUMMARY -> {
                         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.Center) {
                             Eyebrow("오늘의 기록")
-                            Spacer(Modifier.height(28.dp))
-                            ResultHeadline(driverReportSummary(report.summary), Modifier.fillMaxWidth().heightIn(max = 520.dp))
-                            Spacer(Modifier.height(32.dp))
-                            LessonText("${report.task.title} · ${report.mode.label}", 40)
+                            Spacer(Modifier.height(if (report.askOne != null) 12.dp else 28.dp))
+                            if (report.askOne != null) LessonText(driverReportSummary(report.summary), 48)
+                            else ResultHeadline(driverReportSummary(report.summary), Modifier.fillMaxWidth().heightIn(max = 520.dp))
+                            Spacer(Modifier.height(if (report.askOne != null) 16.dp else 32.dp))
+                            LessonText("${report.task.title} · ${report.mode.label}", if (report.askOne != null) 32 else 40)
                             if (report.best.missingSignals.isNotEmpty() || report.unverifiedGuideSteps.isNotEmpty()) {
                                 Spacer(Modifier.height(32.dp))
                                 ReportLimitations(report)
                             }
                         }
+                        report.askOne?.let { ProfileAskCard(it, onAnswerProfile, onSkipAsk) }
                         PrimaryPill(stringResource(R.string.lesson_restart), onRestart)
                         Row(horizontalArrangement = Arrangement.spacedBy(64.dp)) {
                             TextAction("자세히 보기", { page = ReportPage.DETAILS })
