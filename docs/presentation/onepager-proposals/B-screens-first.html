@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>시안 B · 화면이 주인공</title>
+<style>
+  :root {
+    --ink: #070827;
+    --paper: #FCFCFA;
+    --peri: #5B60A1;
+    --lav: #E5E6F0;
+    --signal: #F52D48;
+    --muted: rgba(7, 8, 39, .60);
+    --shadow: 0 4px 10px rgba(7, 8, 39, .10), 0 1px 2px rgba(7, 8, 39, .06);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { margin: 0; background: var(--paper); }
+  body {
+    font-family: "Noto Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+    font-weight: 400;
+    color: var(--ink);
+    word-break: keep-all;
+  }
+  .slide {
+    position: relative;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background: var(--paper);
+  }
+
+  /* ---------- top band (Ink) ---------- */
+  .top {
+    position: absolute; left: 0; top: 0; width: 1920px; height: 196px;
+    background: var(--ink); color: var(--paper);
+    padding: 30px 64px 0 64px;
+    display: flex; justify-content: space-between;
+  }
+  .top::after {               /* angled facet */
+    content: ""; position: absolute; left: 1060px; top: 0; width: 120px; height: 196px;
+    background: var(--peri);
+    clip-path: polygon(0 0, 100% 0, 40% 100%, 0 100%);
+    opacity: .9;
+  }
+  .brand { position: relative; z-index: 1; }
+  .eyebrow { font-size: 22px; color: rgba(229, 230, 240, .80); }
+  .eyebrow .who {
+    margin-left: 18px; padding: 3px 18px; border-radius: 999px;
+    border: 1.5px dashed rgba(229, 230, 240, .55); color: rgba(229, 230, 240, .80);
+  }
+  .title { margin-top: 12px; font-size: 56px; font-weight: 500; line-height: 1.15; letter-spacing: -.01em; }
+  .title .dash { color: var(--peri); font-weight: 400; }
+  .why { margin-top: 12px; font-size: 22px; color: rgba(229, 230, 240, .80); }
+  .why em { font-style: normal; color: var(--paper); }
+
+  .stats { position: relative; z-index: 1; display: flex; gap: 52px; padding-top: 6px; }
+  .stat { width: 300px; }
+  .stat .num { font-size: 82px; line-height: 1; color: var(--signal); font-weight: 500; letter-spacing: -.02em; }
+  .stat .txt { margin-top: 10px; font-size: 21px; line-height: 1.4; color: var(--lav); }
+
+  /* ---------- stage ---------- */
+  .stage { position: absolute; left: 0; top: 196px; width: 1920px; height: 744px; }
+  .shot { position: absolute; }
+  .shot img { display: block; border-radius: 6px; box-shadow: var(--shadow); }
+  .side img { width: 384px; height: 216px; }
+  .cap { margin-top: 12px; display: flex; gap: 12px; align-items: flex-start; }
+  .n {
+    flex: none; width: 34px; height: 34px; border-radius: 50%;
+    background: var(--lav); color: var(--peri);
+    font-size: 20px; line-height: 34px; text-align: center;
+  }
+  .n.hot { background: var(--signal); color: var(--paper); }
+  .cap .t { font-size: 23px; line-height: 1.25; font-weight: 500; }
+  .cap .d { margin-top: 4px; font-size: 20px; line-height: 1.4; color: var(--muted); }
+
+  /* positions: left column 1·2, center 3, right column 4·5 */
+  .s1 { left: 64px;   top: 52px; }
+  .s2 { left: 64px;   top: 404px; }
+  .s4 { left: 1472px; top: 52px; }
+  .s5 { left: 1472px; top: 404px; }
+
+  .center { position: absolute; left: 496px; top: 22px; width: 928px; }
+  .solution { font-size: 25px; line-height: 1.4; text-align: center; }
+  .solution .hl { color: var(--peri); }
+  .ladder { margin-top: 12px; display: flex; justify-content: center; gap: 10px; align-items: center; }
+  .pill { font-size: 20px; padding: 5px 20px; border-radius: 999px; }
+  .pill.g { background: var(--peri); color: var(--paper); }
+  .pill.h { background: rgba(91, 96, 161, .55); color: var(--paper); }
+  .pill.e { background: var(--lav); color: var(--ink); }
+  .arrow { color: var(--muted); font-size: 20px; }
+  .big { margin-top: 20px; }
+  .big img { width: 928px; height: 522px; display: block; border-radius: 6px; box-shadow: var(--shadow); }
+  .big .cap { margin-top: 14px; }
+  .big .cap .t { font-size: 26px; line-height: 34px; }
+  .big .cap .sub { margin-left: 14px; font-size: 21px; font-weight: 400; color: var(--muted); }
+
+
+  /* ---------- bottom band ---------- */
+  .band {
+    position: absolute; left: 0; top: 940px; width: 1920px; height: 140px;
+    background: var(--lav);
+    padding: 18px 64px 0 64px;
+  }
+  .fact { font-size: 20px; line-height: 1.5; display: flex; gap: 14px; align-items: baseline; }
+  .tag {
+    flex: none; font-size: 17px; padding: 1px 13px; border-radius: 999px;
+    background: var(--ink); color: var(--paper);
+  }
+  .tag.lim { background: transparent; color: var(--ink); border: 1.5px solid var(--ink); }
+  .fact + .fact { margin-top: 4px; }
+  .src { margin-top: 8px; font-size: 14px; line-height: 1.45; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="slide">
+
+  <div class="top">
+    <div class="brand">
+      <div class="eyebrow">초보·장롱면허 운전자를 위한 AAOS 운전 연수 어시스턴트<span class="who">[팀명] · [발표자]</span></div>
+      <div class="title">드라이브 코치 <span class="dash">—</span> 화내지 않는 조수석</div>
+      <div class="why">가장 사고가 많은 순간을, <em>화내지 않고 반복해 줄 조수석</em>이 없다.</div>
+    </div>
+    <div class="stats">
+      <div class="stat">
+        <div class="num">30.2%</div>
+        <div class="txt">차량 물적 사고 중 주차 중 사고 — 그중 53.8%가 후진</div>
+      </div>
+      <div class="stat">
+        <div class="num">41%</div>
+        <div class="txt">초보운전자 첫해 사고 중 처음 100일 안에 난 비율</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stage">
+
+    <div class="shot side s1">
+      <img src="../../screenshots/lesson/lesson-setup-coach-cards-follow.png" alt="홈 말 카드 대화">
+      <div class="cap"><span class="n">1</span><div><div class="t">말 카드로 코치와 대화</div><div class="d">걱정을 말하면 과제 18개 중 골라 준다</div></div></div>
+    </div>
+
+    <div class="shot side s2">
+      <img src="../../screenshots/lesson/lesson-maneuver-hint.png" alt="주차 중 힌트">
+      <div class="cap"><span class="n">2</span><div><div class="t">주차 중 — 신호로 과정 측정</div><div class="d">틀린 순간 힌트는 규칙이 지연 0</div></div></div>
+    </div>
+
+    <div class="center">
+      <div class="solution">두려운 상황을 <span class="hl">과제</span>로 쪼개고 <span class="hl">차량 신호</span>로 과정을 측정해, 도움을 줄여 간다</div>
+      <div class="ladder">
+        <span class="pill g">가이드</span><span class="arrow">→</span>
+        <span class="pill h">힌트</span><span class="arrow">→</span>
+        <span class="pill e">평가</span>
+      </div>
+      <div class="big">
+        <img src="../../screenshots/lesson/lesson-done-verdict-fix.png" alt="회차 판정 네 줄과 추정 궤적">
+        <div class="cap"><span class="n hot">3</span><div><div class="t">정차하면 점수 대신 판정 네 줄 <span class="sub">한 번에·방향·마무리·안전 + 추정 궤적</span></div></div></div>
+      </div>
+    </div>
+
+    <div class="shot side s4">
+      <img src="../../screenshots/lesson/lesson-report-session.png" alt="세션 리포트">
+      <div class="cap"><span class="n">4</span><div><div class="t">리포트 · 진단서</div><div class="d">회차가 쌓이면 무엇이 나아졌는지</div></div></div>
+    </div>
+
+    <div class="shot side s5">
+      <img src="../../screenshots/lesson/lesson-drive-exam.png" alt="장내기능 모의시험 지도">
+      <div class="cap"><span class="n">5</span><div><div class="t">제휴 시험장 모의시험</div><div class="d">장내기능 구간 감점·합격선 (예시)</div></div></div>
+    </div>
+
+  </div>
+
+  <div class="band">
+    <div class="fact"><span class="tag">검증</span><span>사내 차량 환경(Real VSS)에서 코드 수정 없이 빌드·실행 — 후면 주차 실신호 7 · 시뮬레이션 1 · 미측정 0 · 사내 Copilot 응답 1.2~1.5 s · 단위 테스트 350</span></div>
+    <div class="fact"><span class="tag lim">한계</span><span>카메라가 없어 칸 안 최종 위치는 판정하지 않는다(과정을 본다) · 예약·진단서 공유·시험장 위치 신호는 시뮬레이션/예시</span></div>
+    <div class="src">출처 · 30.2%·53.8%: 보험개발원·현대해상·동부화재·KB손해보험 공동 조사(2012~2014 보험금 지급 분석, 2017.1 발표) · 41%: 현대해상 교통기후환경연구소 「초보운전자 사고감소를 위한 정책방안 연구」(2009~2015 사고 317만 건, 2016.12) · 화면은 외부 에뮬레이터 캡처(시뮬레이션 신호 값)</div>
+  </div>
+
+</div>
+</body>
+</html>
