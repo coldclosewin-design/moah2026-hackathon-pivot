@@ -56,7 +56,8 @@ if [ "${SKIP_INSTALL:-0}" != "1" ]; then
   r=$(adb install -r "$APK" 2>&1 | tail -1); note "install: $r"
 fi
 adb shell am force-stop $PKG >/dev/null 2>&1; adb logcat -c
-adb shell am start -n $PKG/.ui.MainActivity >/dev/null 2>&1; sleep 5
+# 관리자 프리셋(#187): Hybrid 기본 빌드는 장롱 10년차 프로필로 시작하고 첫 실행 프로필 질문을 건너뛴다. 순수 Real 은 준비실이 없어 무시된다
+adb shell am start -n $PKG/.ui.MainActivity --es preset rear-two >/dev/null 2>&1; sleep 5
 
 # ── 화면 도우미(글자로 찾아 누른다) ──
 dump() { rm -f "$TMP/ui.xml"; adb shell rm -f /sdcard/ui.xml >/dev/null 2>&1; adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1; adb pull /sdcard/ui.xml "$TMPW/ui.xml" >/dev/null 2>&1; [ -s "$TMP/ui.xml" ]; }
@@ -69,7 +70,7 @@ tap() { # tap "라벨"  — text 또는 content-desc, 최대 4회 재시도
   [ -z "$b" ] && { bad "'$1' 못 찾음: $(texts | cut -c1-200)"; return 1; }
   set -- $b; adb shell input tap $(( ($1+$3)/2 )) $(( ($2+$4)/2 )) >/dev/null 2>&1; return 0
 }
-panel() { dump; texts | grep -qE "못한 주차|잘한 주차" || { tap "시연" || return 1; sleep 1; }; }
+panel() { dump; texts | grep -qE "못한 주차|잘한 주차" || { bad "아래 띠가 안 보임 — 준비실(홈 DRIVE COACH 약 2초 길게)에서 '세션 중 패널 · 아래 띠'"; return 1; }; }
 # 과제 시트("제휴 시험장" 이 보이면 열린 것). 첫 탭이 먹지 않을 때가 있어 3회
 open_sheet() { local i; for i in 1 2 3; do dump; texts | grep -q "제휴 시험장" && return 0; tap "과제·모드 바꾸기" || return 1; sleep 2; done; dump; texts | grep -q "제휴 시험장"; }
 wait_log() { local i; for i in $(seq 1 "$2"); do adb logcat -d -s $TAG 2>/dev/null | grep -qE "$1" && return 0; sleep 1; done; bad "로그 대기 초과: $1"; return 1; }
@@ -80,6 +81,12 @@ elapsed_to() { # elapsed_to "패턴" 최대초 → 로그가 뜰 때까지 ms
 
 # ── 흐름 ──
 echo "== 흐름: 시트($CATEGORY → $TASK → $MODE) → 시작 → 못한 주차 → 다 됐어요 → 한 번 더 → 잘한 주차 → 다 됐어요 → 오늘은 여기까지"
+# 첫 실행 프로필 질문 화면이면 과제 시트가 없다 — 안내하고 멈춘다(사내 피드백 #4, 10/6)
+dump; if texts | grep -q "건너뛰기" && texts | grep -q "내 프로필"; then
+  echo "!! 첫 실행 프로필 질문 화면이다 — 준비실 프리셋부터: 홈 'DRIVE COACH' 약 2초 길게 → '후면 주차 두 회차' → '이 설정으로 홈' 뒤 다시 실행"
+  echo "   (순수 Real 빌드는 준비실이 없다 — 화면에서 '건너뛰기' 를 누르고 다시 실행)"
+  exit 1
+fi
 open_sheet || { echo "!! 과제 시트가 열리지 않음"; exit 1; }
 tap "$CATEGORY"; sleep 1; tap "$TASK"; sleep 1; tap "$MODE"; sleep 1; tap "시작"; sleep 1
 wait_log "begin parking-rear-perpendicular HINT" 10 || { echo "!! 세션이 시작되지 않음"; adb logcat -d -s $TAG | tail -20; exit 1; }
