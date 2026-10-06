@@ -329,6 +329,8 @@ data class CoachDialog(
     val choices: List<CoachChoice>,
     val turns: List<CoachTurn> = emptyList(),
     val waiting: Boolean = false,
+    /** 말 카드(라운드 25 결정 7) — 입력이 켜져 있을 때만, 대화 단계·예약·지난 기록에 맞는 것만. 누르면 `sendCoachCard(id)`. */
+    val cards: List<SpeechCard> = emptyList(),
 )
 
 /** 예약 카드의 선택지 — 둘 다 예약한 코스의 과제. 코스 연습 = 지금 실력에 맞는 모드, 모의시험 = 평가 모드(채점만). */

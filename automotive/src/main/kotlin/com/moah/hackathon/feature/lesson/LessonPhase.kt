@@ -48,6 +48,8 @@ sealed interface LessonPhase {
          * 버튼 문구는 `코치에게 말하기`. 꺼져 있으면 지금 칩 흐름 그대로이고 버튼 문구는 `코치와 고르기`(말을 듣는다고 읽히지 않게).
          */
         val coachTextInput: Boolean = false,
+        /** 입력 방식(라운드 25 결정 7) — [coachTextInput] 은 `coachInput.on`, 입력 칸은 `coachInput.textField` 일 때만(사내 = [CoachInputMode.CARDS] 로 접는다). */
+        val coachInput: CoachInputMode = CoachInputMode.OFF,
         /** 대화가 "프로필 시트를 열어라" 를 요청했다. 화면은 홈 눈썹 시트를 연 뒤 `consumeProfileRequest` 를 부른다. */
         val profileRequest: Boolean = false,
     ) : LessonPhase

@@ -39,7 +39,7 @@ class ScenarioPlaybackTest {
     }
 
     @Test
-    fun `play injects steps on schedule compressed by speedFactor and holds the last value`() = runTest {
+    fun `play injects steps on schedule compressed by speedFactor and coasts to a stop at the end`() = runTest {
         val port = FakeVehiclePort(simulate = false, dispatcher = StandardTestDispatcher(testScheduler))
         port.play(tiny, speedFactor = 2.0) // 3 s 시나리오 → 1.5 s
         testScheduler.runCurrent()
@@ -52,11 +52,32 @@ class ScenarioPlaybackTest {
 
         testScheduler.advanceTimeBy(1000); testScheduler.runCurrent()  // 끝
         assertEquals(Gear.PARK.vss, port.get(listOf(VssConstants.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR)).values.first())
-        assertEquals("4.0", port.get(listOf(VssConstants.VEHICLE_SPEED)).values.first())
+        // 마지막 스텝(4 km/h) 뒤 0.26 s 가 지나 감속이 막 시작됐다 — 한 번에 0 이 아니라 완만하게(라운드 25 결정 6 C)
+        val coasting = port.get(listOf(VssConstants.VEHICLE_SPEED)).values.first().toVssFloat()!!
+        assertTrue("$coasting", coasting > 2f && coasting < 4f)
         assertTrue(port.playback.value!!.finished)
 
-        testScheduler.advanceTimeBy(5000); testScheduler.runCurrent()  // 끝난 뒤 기본 시뮬레이션으로 돌아가지 않는다
-        assertEquals("4.0", port.get(listOf(VssConstants.VEHICLE_SPEED)).values.first())
+        // 끝난 뒤: 기본 시뮬레이션으로 돌아가지 않고 0 에 멈춘다 — 기어 등 나머지는 그대로
+        testScheduler.advanceTimeBy(5000); testScheduler.runCurrent()
+        assertEquals("0.0", port.get(listOf(VssConstants.VEHICLE_SPEED)).values.first())
+        assertEquals(Gear.PARK.vss, port.get(listOf(VssConstants.VEHICLE_POWERTRAIN_TRANSMISSION_SELECTEDGEAR)).values.first())
+        port.dispose()
+    }
+
+    @Test
+    fun `stopping mid-scenario coasts the car to zero instead of leaving it moving`() = runTest {
+        val port = FakeVehiclePort(simulate = false, dispatcher = StandardTestDispatcher(testScheduler))
+        val fast = scenario("fast", "fast") { speedRamp(0.0, 4.0, 0.0, 20.0); at(30.0, VssConstants.VEHICLE_SPEED to "20.0") }
+        port.play(fast)
+        testScheduler.advanceTimeBy(4100); testScheduler.runCurrent()
+        assertEquals("20.0", port.get(listOf(VssConstants.VEHICLE_SPEED)).values.first())
+        port.stop()
+        assertNull(port.playback.value)
+        testScheduler.advanceTimeBy(1000); testScheduler.runCurrent()
+        val mid = port.get(listOf(VssConstants.VEHICLE_SPEED)).values.first().toVssFloat()!!
+        assertTrue("gentle, not instant: $mid", mid in 14f..16f)
+        testScheduler.advanceTimeBy(5000); testScheduler.runCurrent()
+        assertEquals("0.0", port.get(listOf(VssConstants.VEHICLE_SPEED)).values.first())
         port.dispose()
     }
 
