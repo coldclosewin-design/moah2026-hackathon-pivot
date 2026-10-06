@@ -43,6 +43,13 @@ sealed interface LessonPhase {
         val profileRows: List<ProfileRow> = emptyList(),
         /** 시트 아래 "앱이 본 것" — 숫자 없는 문장. */
         val observedLines: List<String> = emptyList(),
+        /**
+         * 홈 코치 텍스트 입력(10/6, 관리자 "시뮬레이션 음성 입력"). 켜져 있으면 대화 시트에 입력 칸·보내기와 "음성 입력 · 시뮬레이션" 배지,
+         * 버튼 문구는 `코치에게 말하기`. 꺼져 있으면 지금 칩 흐름 그대로이고 버튼 문구는 `코치와 고르기`(말을 듣는다고 읽히지 않게).
+         */
+        val coachTextInput: Boolean = false,
+        /** 대화가 "프로필 시트를 열어라" 를 요청했다. 화면은 홈 눈썹 시트를 연 뒤 `consumeProfileRequest` 를 부른다. */
+        val profileRequest: Boolean = false,
     ) : LessonPhase
 
     /** "후면 직각 주차, 가이드 모드. 오늘은 핸들 방향과 기어 전환을 봅니다." */

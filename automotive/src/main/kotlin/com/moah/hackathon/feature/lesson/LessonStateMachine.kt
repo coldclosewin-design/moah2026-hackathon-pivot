@@ -17,6 +17,9 @@ import com.moah.hackathon.scoring.ParkingRecorder
 import com.moah.hackathon.scoring.ParkingRubric
 import com.moah.hackathon.vehicle.SignalRegistry
 import com.moah.hackathon.vehicle.VehiclePort
+import com.moah.hackathon.vehicle.toVssFloat
+import kotlinx.coroutines.CancellationException
+import mobis.vss.VssConstants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -448,18 +451,37 @@ class LessonStateMachine(
 
     // ───────── 홈 코치 대화 (라운드 22 결정 4 = A 알약 → 시트 + D 예약 카드, 10/5) — Setup 에서만, 탭 대화(STT 없음) ─────────
     // 결과는 새 화면이 아니라 기존 것: 홈 제안을 바꾸거나(고정), 과제 시트를 분류로 열라고 요청하거나, 예약 카드를 강조한다.
-    // 말풍선 문장은 규칙 문장이다 — AI 는 세션 종료 총평만 맡는다(AGENTS "AI 경계").
+    // 첫 말풍선은 규칙 문장. 텍스트 대화(10/6)를 켜면 운전자 글에 코치가 문장 + 의도로 답한다 — 의도는 앱이 가진 것 안에서만,
+    // 결과는 위와 같은 기존 진입점(AI 는 문장과 의도만 고른다, docs/design/12_home_coach_dialog.md).
 
     private var coachOpen = false
     private var highlightBooking = false
     private var sheetRequest: TaskType? = null
     private var bookingChoice: BookingOption? = null
+    private var profileRequest = false
+    /** 관리자 "시뮬레이션 음성 입력" — 기본 꺼짐. */
+    private var coachTextInput = false
+    /** 이번 시트의 첫 말과 그 뒤 대화. 시트를 닫으면 버린다. */
+    private var coachOpening: String? = null
+    private val coachTurns = ArrayList<CoachTurn>()
+    private var coachWaiting = false
+    /** 시트 세대 — 닫히거나 새로 열리면 올라간다. 늦게 온 답이 닫힌 시트에 떨어지지 않게. */
+    private var coachGen = 0
 
     private fun clearHomeTransient() {
         coachOpen = false
         highlightBooking = false
         sheetRequest = null
         bookingChoice = null
+        profileRequest = false
+        clearCoachTalk()
+    }
+
+    private fun clearCoachTalk() {
+        coachOpening = null
+        coachTurns.clear()
+        coachWaiting = false
+        coachGen++
     }
 
     /** `코치에게 말하기` — 대화 시트를 열고 말풍선을 읽어 준다. 로그 `home coach: open`. */
@@ -467,6 +489,8 @@ class LessonStateMachine(
         if (_phase.value !is LessonPhase.Setup) return
         coachOpen = true
         highlightBooking = false
+        clearCoachTalk()
+        coachOpening = coachLine()
         val next = setup()
         _phase.value = next
         next.coach?.let { tts.speak(it.line) }
@@ -477,6 +501,7 @@ class LessonStateMachine(
     fun closeCoach() {
         if (_phase.value !is LessonPhase.Setup || !coachOpen) return
         coachOpen = false
+        clearCoachTalk()
         _phase.value = setup()
     }
 
@@ -485,6 +510,7 @@ class LessonStateMachine(
         if (_phase.value !is LessonPhase.Setup || !coachOpen) return
         if (choice !in coachChoices()) { Log.w(TAG, "home coach: $choice not offered"); return }
         coachOpen = false
+        clearCoachTalk()
         when (choice) {
             CoachChoice.RESERVED_VENUE -> highlightBooking = true
             CoachChoice.PARKING_PRACTICE -> sheetRequest = TaskType.PARKING
@@ -501,9 +527,101 @@ class LessonStateMachine(
         if (_phase.value is LessonPhase.Setup) _phase.value = setup()
     }
 
+    /** 화면이 프로필 시트를 연 뒤 부른다. */
+    fun consumeProfileRequest() {
+        if (!profileRequest) return
+        profileRequest = false
+        if (_phase.value is LessonPhase.Setup) _phase.value = setup()
+    }
+
+    /** 관리자 "시뮬레이션 음성 입력" 켜기·끄기. 끄면 진행 중 대화를 버린다(칩은 남는다). 로그 `admin: text input …`. */
+    fun setCoachTextInput(on: Boolean) {
+        if (coachTextInput == on) return
+        coachTextInput = on
+        if (!on) { coachTurns.clear(); coachWaiting = false; coachGen++ }
+        if (_phase.value is LessonPhase.Setup) _phase.value = setup()
+        Log.i(TAG, "admin: text input ${if (on) "on" else "off"}")
+    }
+
+    /**
+     * 대화 시트의 `보내기` — 텍스트 입력이 켜져 있고 시트가 열려 있고 답을 기다리는 중이 아닐 때만. **움직이는 중(> 5 km/h)이면 답하지 않는다**(절대 규칙 10).
+     * 코치 답의 의도가 [CoachIntent.AskMore] 면 시트에 되물음을 쌓고, 아니면 시트를 닫고 기존 진입점으로 떨어진다.
+     * 로그 `home coach: heard …` · `home coach: say …` · `home coach: intent=… (ai|rule|fallback) N ms`.
+     */
+    fun sendCoachText(text: String) {
+        if (_phase.value !is LessonPhase.Setup || !coachOpen || !coachTextInput || coachWaiting) return
+        val utterance = text.trim().replace('\n', ' ').take(MAX_UTTERANCE)
+        if (utterance.isEmpty()) return
+        val history = listOfNotNull(coachOpening?.let { CoachTurn(false, it) }) + coachTurns
+        val context = coachContext()
+        coachTurns += CoachTurn(true, utterance)
+        coachWaiting = true
+        val gen = coachGen
+        _phase.value = setup()
+        Log.i(TAG, "home coach: heard \"$utterance\"")
+        scope.launch {
+            val started = clock()
+            val speed = runCatching { vehicle.get(listOf(VssConstants.VEHICLE_SPEED))[VssConstants.VEHICLE_SPEED].toVssFloat() }.getOrNull() ?: 0f
+            val reply = when {
+                speed > VehicleSnapshot.LOCK_SPEED_KMH -> CoachReply(IntentRules.MOVING_LINE, CoachIntent.AskMore)
+                else -> try {
+                    coach.converse(history, utterance, context)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.w(TAG, "coach.converse failed → rules", e)
+                    IntentRules.reply(utterance, context).copy(source = ReplySource.FALLBACK)
+                }
+            }.let { r -> if (context.allows(r.intent)) r else CoachReply(IntentRules.ASK_LINE, CoachIntent.AskMore, ReplySource.FALLBACK) }
+            if (gen != coachGen || _phase.value !is LessonPhase.Setup || !coachOpen) {
+                Log.w(TAG, "home coach: reply after the sheet closed → dropped"); return@launch
+            }
+            coachWaiting = false
+            Log.i(TAG, "home coach: say \"${reply.say}\"")
+            Log.i(TAG, "home coach: intent=${reply.intent.code} (${reply.source.log}) ${clock() - started} ms")
+            applyCoachReply(reply)
+        }
+    }
+
+    private fun applyCoachReply(reply: CoachReply) {
+        tts.speak(reply.say)
+        when (val intent = reply.intent) {
+            CoachIntent.AskMore -> coachTurns += CoachTurn(false, reply.say)
+            else -> {
+                coachOpen = false
+                clearCoachTalk()
+                when (intent) {
+                    is CoachIntent.OpenSheet -> sheetRequest = intent.category
+                    is CoachIntent.PinTask -> { pinned = intent.taskId to intent.mode; bookingChoice = null }
+                    is CoachIntent.Booking -> pinBooking(intent.option)
+                    CoachIntent.ShowBooking -> highlightBooking = true
+                    CoachIntent.ContinueLast -> lastResumable()?.let { (task, mode) -> pinned = task.id to mode }
+                    CoachIntent.OpenProfile -> profileRequest = true
+                    CoachIntent.AskMore -> {}
+                }
+            }
+        }
+        _phase.value = setup()
+    }
+
+    /** 대화의 상황 — READY 과제(지원 모드·지금 추천) · 예약 · 지난 기록. 프롬프트와 의도 검증이 같이 쓴다. */
+    private fun coachContext(): CoachContext {
+        fun option(task: Task) = TaskOption(task.id, task.title, task.type, LessonMode.entries.filter { task.supports(it) },
+            ModeAdvisor.suggest(task, store).mode.takeIf { task.supports(it) } ?: LessonMode.entries.first { task.supports(it) })
+        val reserved = reservedReadyTask()
+        val last = lastResumable()
+        return CoachContext(profile, tasks.filter { it.isReady }.map(::option),
+            bookingVenue = store.reservation?.venue(venues)?.name?.takeIf { reserved != null },
+            bookingOptions = bookingOptionsFor(reserved), last = last?.first?.let(::option), lastMode = last?.second)
+    }
+
     /** 예약 카드의 `코스 연습`/`모의시험` — 예약 코스 과제로 홈 제안을 고정한다. 로그 `home booking: …`. */
     fun chooseBooking(option: BookingOption) {
         if (_phase.value !is LessonPhase.Setup) return
+        pinBooking(option)
+    }
+
+    private fun pinBooking(option: BookingOption) {
         val task = reservedReadyTask() ?: return
         if (option !in bookingOptionsFor(task)) return
         val mode = when (option) {
@@ -564,11 +682,12 @@ class LessonStateMachine(
         val modeReason = if (bookingChoice == BookingOption.MOCK_EXAM && fromReservation && s.mode == LessonMode.EVALUATE) MOCK_EXAM_REASON else s.reason
         val reason = if (fromReservation) "${ModeAdvisor.RESERVED_REASON} $modeReason" else modeReason
         return LessonPhase.Setup(profile, tasks, task, s.mode, reason, venues = venues, booking = booking,
-            coach = if (coachOpen) CoachDialog(coachLine(), coachChoices()) else null,
+            coach = if (coachOpen) CoachDialog(coachOpening ?: coachLine(), coachChoices(), coachTurns.toList(), coachWaiting) else null,
             bookingOptions = if (booking != null) bookingOptionsFor(reserved) else emptyList(),
             bookingChoice = bookingChoice, highlightBooking = highlightBooking, sheetRequest = sheetRequest,
             onboarding = if (onboardingPending) ProfileOnboarding(ProfileField.ONBOARDING) else null,
-            profileRows = ProfileField.entries.map { profileRow(it) }, observedLines = observedLines())
+            profileRows = ProfileField.entries.map { profileRow(it) }, observedLines = observedLines(),
+            coachTextInput = coachTextInput, profileRequest = profileRequest)
     }
 
     private fun briefingLine(task: Task, mode: LessonMode): String {
@@ -857,6 +976,8 @@ class LessonStateMachine(
         /** 채점 코루틴을 기다리는 최대 횟수 × 50 ms = 8 s(Cloud 코치 시간 제한 5 s + 여유). */
         const val FINISH_WAIT_STEPS = 160
         /** 예약 카드 `모의시험` 의 이유 문장(숫자 없음, 4b 시안 문구). */
+        /** 운전자 글의 최대 길이 — 넘으면 자른다. */
+        const val MAX_UTTERANCE = 120
         const val MOCK_EXAM_REASON = "시험장 코스 그대로, 제가 채점만 할게요."
     }
 }
