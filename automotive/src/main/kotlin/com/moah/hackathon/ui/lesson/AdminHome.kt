@@ -40,6 +40,7 @@ internal fun SetupBrandMark(modifier: Modifier = Modifier, onAdmin: (() -> Unit)
 @Composable
 internal fun AdminHome(admin: LessonViewModel.AdminControls, setup: LessonPhase.Setup, onHome: () -> Unit) {
     val band by admin.bandVisible.collectAsStateWithLifecycle()
+    val textInput by admin.textInput.collectAsStateWithLifecycle()
     val profileId by admin.profileId.collectAsStateWithLifecycle()
     val auth = admin.demo.aiState?.collectAsStateWithLifecycle()?.value
     var selectedPreset by remember { mutableStateOf<String?>(null) }
@@ -61,6 +62,7 @@ internal fun AdminHome(admin: LessonViewModel.AdminControls, setup: LessonPhase.
                 LessonText("신호 출처 · ${admin.signalSource}", 32, CoachColors.Paper)
                 LessonText("기록 · ${setup.profile.observation.attempts}회", 32, CoachColors.Paper)
                 LessonText(profileLine(setup.profile), 32, CoachColors.Paper)
+                if (textInput) LessonText("음성 입력 · 시뮬레이션(글)", 32, CoachColors.Paper)
             }
             Column(Modifier.weight(.68f).fillMaxHeight().padding(64.dp), verticalArrangement = Arrangement.spacedBy(28.dp)) {
                 Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(28.dp)) {
@@ -95,6 +97,13 @@ internal fun AdminHome(admin: LessonViewModel.AdminControls, setup: LessonPhase.
                                 SelectionChip("아래 띠", band, { admin.setBand(true) }, Modifier.weight(1f))
                                 SelectionChip("숨김", !band, { admin.setBand(false) }, Modifier.weight(1f))
                             }
+                        }
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(48.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Eyebrow("시뮬레이션 음성 입력", Modifier.weight(1f))
+                        Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            SelectionChip("켬", textInput, { admin.setTextInput(true) }, Modifier.weight(1f))
+                            SelectionChip("끔", !textInput, { admin.setTextInput(false) }, Modifier.weight(1f))
                         }
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(64.dp)) {

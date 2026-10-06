@@ -1,0 +1,56 @@
+PASS Setup opening morph: 0/100/200/300/400 ms poster widths [1357.0, 1217.0, 900.0, 792.0, 768.0]; first-frame modes/start present
+PASS Setup return morph: 0/100/200/300/400 ms poster widths [768.0, 907.0, 1225.0, 1333.0, 1357.0]; first-frame modes/start present
+PASS Admin band: null and five live AI states; connect/reconnect and complete device URI/code
+PASS Card silhouette parking-rear-perpendicular: large front glass below, widths=46/34 px; selected=true
+PASS Card silhouette parking-front: large front glass above, widths=46/34 px; selected=false
+PASS Setup first render: filled Periwinkle/40% Lavender bays without outlines, Paper selection, modes/start, equal pill tabs and 64 dp checked circle
+PASS Setup categories: six ready driving cards, scroll and start dispatch, checklist dispatch, knowledge QUIZ, reopen selection and mode filtering; fixed footer
+PASS Briefing has its full sentence and no touch targets
+PASS Steering guide pixels: concentric turns widen toward the bottom in both directions; neutral guides stay straight
+PASS Maneuver: no scores, exact lock/stop boundaries, missing signals, four-line subtitle, hint expiry
+PASS Checklist: seven ordered dots, segmented progress, only first pending row lifted, complete/pending/missing states, mixed brake/ignition sources, no parking telemetry, locked touch gate
+PASS Quiz quit: real LessonRoute retains all three correct answers in QuizDone; restart returns to Setup
+PASS Quiz: wrong/correct answer eyebrows and outline, explanations, next/result, stopped quit once before/after answering, locked touch zero, colored keyed comparisons and restart
+PASS Path silhouette: large front glass follows body heading; front=37 px, rear=27 px; Ink/Periwinkle/Lavender
+PASS Path painted margins: top=119 px, bottom=120 px; caption gap=64 dp
+PASS Done rear-up arrival bay: fixed target heading, Lavender sides/rear and open front, faint neighbor strokes without plane, measured car heading and dim starting silhouette; balanced painted margins; no settled rear chevron or metrics
+PASS Done actions and Report badge, certificate sharing choices, restart
+PASS Checklist Report: seven recorded checks, only belt/ignition timing, good/bad/missing distinction; Done retains two sentences
+PASS Round11: result lock removes numbers and touch, unlock restores pages/actions; full 90/160-character results; 12 missing signals and seven unverified steps scroll above fixed back/badge; capture gaps
+PASS Round12 verdict: recorded good/fix/unknown/null, last attempt rather than best, angles only in details, Done/Report lock hides all four lines and restores them
+PASS Card silhouette parking-rear-perpendicular: large front glass below, widths=46/34 px; selected=false
+PASS Card silhouette parking-front: large front glass above, widths=46/34 px; selected=true
+PASS Path silhouette: large front glass follows body heading; front=38 px, rear=28 px; Ink/Periwinkle/Lavender
+PASS Path painted margins: top=119 px, bottom=119 px; caption gap=64 dp
+PASS Path silhouette: large front glass follows body heading; front=43 px, rear=31 px; Ink/Periwinkle/Lavender
+PASS Path painted margins: top=118 px, bottom=118 px; caption gap=64 dp
+PASS Path silhouette: large front glass follows body heading; front=39 px, rear=28 px; Ink/Periwinkle/Lavender
+PASS Path silhouette: large front glass follows body heading; front=39 px, rear=28 px; Ink/Periwinkle/Lavender
+PASS Front parking: sheet dispatch, front-up windshield, D/R chevrons, no rear-distance text, locked touch zero, four verdicts, rear-open dashed entrance, settled/start chevrons, front caption, replay D/R, details and 7-signal badge
+PASS Seed verdict openers: one_go/one_fix/many and recent fallback come from the seed without aligned-only openers and fit the existing Done layout
+PASS Reservation: three 512 dp map cards, Periwinkle selected card/Paper name/red route, unavailable slot disabled, both choices required/reset per venue, reserve/cancel once, real ViewModel recommendation, confirmation/reopen, badge without leftover space
+PASS 5-second screenrecord clips: /sdcard/lesson-round4-steering.mp4 and /sdcard/lesson-round4-done.mp4
+PASS Texture B: primary shadow retained, smaller Lavender back with pressed inset, flat touch-free lock
+PASS Card C parking-rear-perpendicular: 40.0 sp; ellipsis=false; available=305.0 dp; natural=242.0 dp
+PASS Card C parking-parallel: 40.0 sp; ellipsis=false; available=305.0 dp; natural=158.0 dp
+PASS Card C parking-front: 40.0 sp; ellipsis=false; available=305.0 dp; natural=242.0 dp
+PASS Card C parking-angle: 40.0 sp; ellipsis=false; available=305.0 dp; natural=158.0 dp
+PASS Round19 card: road edges, dashed center and Periwinkle course.route with visible lane change
+PASS Card C straight-stop: 39.0 sp; ellipsis=false; available=285.0 dp; natural=282.0 dp
+PASS Card C left-turn-signal: 37.0 sp; ellipsis=false; available=285.0 dp; natural=281.0 dp
+PASS Card C lane-change: 40.0 sp; ellipsis=false; available=285.0 dp; natural=158.0 dp
+PASS Card C road-course: 40.0 sp; ellipsis=false; available=285.0 dp; natural=242.0 dp
+PASS Card C lane-change: 40.0 sp; ellipsis=false; available=285.0 dp; natural=158.0 dp
+PASS Card C road-course: 40.0 sp; ellipsis=false; available=285.0 dp; natural=242.0 dp
+PASS Card C track-exam: 37.0 sp; ellipsis=false; available=285.0 dp; natural=281.0 dp
+PASS Card C roundabout: 40.0 sp; ellipsis=false; available=285.0 dp; natural=185.0 dp
+PASS Card C predrive-check: 40.0 sp; ellipsis=false; available=305.0 dp; natural=205.0 dp
+PASS Card C knowledge-hazard-weather: 38.0 sp; ellipsis=false; available=305.0 dp; natural=299.0 dp
+PASS Card C: 288/144 art and band, centred category marks, one-line 36-40 sp titles, shared baselines, ready/planned states
+PASS Round18 Drive safety: actual exam acceleration has zero touch targets/scores, parking stop exposes FinishButton once; simulation provenance
+PASS Round23a: three complete scope cards without scrolling, horizontal actions, preview inclusions/recipient; A1 gaps, conditional coach chips, disabled mic, consumed parking request, reservation highlight/options and exact begin/continue
+PASS Round23b: two-second Setup entry, five presets, profile/panel/reset actions, P2 two questions + five-row sheet + persisted answers, Real has no entry or band, preset intent
+PASS Round24: off/Real have no input; admin toggle; Korean SetText + button/IME send; Fake ask-more/parallel/profile; fresh draft; waiting disables input/send but retains chips; transcript follows last turn; no digits
+PASS done-settle-strip: Done pill y at 0/500/1000 ms = [1152.0, 1152.0, 1152.0]
+PASS done-checklist-settle-strip: Done pill y at 0/500/1000 ms = [1152.0, 1152.0, 1152.0]
+Lesson contract passed

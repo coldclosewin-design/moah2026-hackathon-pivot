@@ -18,6 +18,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
@@ -123,14 +124,16 @@ internal fun ResultLockedScreen() {
 }
 
 @Composable
-internal fun PrimaryPill(label: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+internal fun PrimaryPill(label: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) {
     // Setup summary: 47% of the 2560 dp canvas, minus its two 64 dp margins.
     val dimensions = Modifier.widthIn(min = (2560 * .47f - 128).dp).height(140.dp)
     val interactions = remember { MutableInteractionSource() }
     val pressed = interactions.collectIsPressedAsState()
-    Button(onClick, modifier.then(dimensions).surfaceTexture(CoachColors.Signal, CoachTexture.Button,
+    Button(onClick, modifier.then(dimensions).alpha(if (enabled) 1f else .55f).surfaceTexture(CoachColors.Signal, CoachTexture.Button,
         pill = true, pressed = { pressed.value }), shape = RoundedCornerShape(100), interactionSource = interactions,
-        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent, contentColor = CoachColors.Paper),
+        enabled = enabled,
+        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent, contentColor = CoachColors.Paper,
+            disabledContainerColor = Color.Transparent, disabledContentColor = CoachColors.Paper),
         contentPadding = PaddingValues(horizontal = 48.dp, vertical = 24.dp)) {
         LessonText(label, 40, CoachColors.Paper, bold = true)
         Spacer(Modifier.width(32.dp))
