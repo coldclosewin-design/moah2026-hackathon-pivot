@@ -25,7 +25,7 @@ class SeedCatalogTest {
 
     @Test
     fun `parking variants are ordered catalogue entries - all four ready with their own spec`() {
-        assertEquals(12 + RoadKnowledge.tasks.size, SeedCatalog.tasks.size)   // + 도로 상식 다섯(라운드 25)
+        assertEquals(12 + RoadKnowledge.tasks.size + 1, SeedCatalog.tasks.size)   // + 도로 상식 다섯 + 도로 표시 읽기(라운드 25)
         val parking = SeedCatalog.tasks.filter { it.type == TaskType.PARKING }
         assertEquals(listOf(SeedCatalog.TASK_PARKING_REAR, "parking-parallel", SeedCatalog.TASK_PARKING_FRONT, "parking-angle"), parking.map { it.id })
         assertEquals(listOf(Difficulty.MEDIUM, Difficulty.HARD), parking.takeLast(2).map { it.difficulty })

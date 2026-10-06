@@ -7,6 +7,7 @@ import com.moah.hackathon.data.SeedCatalog
 import com.moah.hackathon.ports.CoachPort
 import com.moah.hackathon.ports.FakeCoachPort
 import com.moah.hackathon.ports.FakeTtsPort
+import com.moah.hackathon.ports.withObjectParticle
 import com.moah.hackathon.ports.SpeechPriority
 import com.moah.hackathon.scoring.ParkingDelta
 import com.moah.hackathon.scoring.ParkingRecorder
@@ -354,7 +355,9 @@ class LessonStateMachineTest {
         val h = harness(tasks = SeedCatalog.tasks + plannedTask)
         h.machine.begin(plannedTask.id, LessonMode.HINT)
         assertTrue(h.tts.spoken.last(), h.tts.spoken.last().startsWith("야간 주차는 아직 준비 중이에요. 지금은 출발 전 점검·"))
-        assertTrue(h.tts.spoken.last(), h.tts.spoken.last().endsWith("헷갈리는 상식을 할 수 있어요."))   // 마지막 READY 과제(라운드 25 도로 상식)
+        // 끝은 마지막 READY 과제 + 목적격 조사 — 과제가 늘어도 조사 규칙을 본다(라운드 25 에서 과제가 늘었다)
+        val lastReady = SeedCatalog.tasks.last { it.isReady }.title
+        assertTrue(h.tts.spoken.last(), h.tts.spoken.last().endsWith("${lastReady.withObjectParticle()} 할 수 있어요."))
         h.machine.begin(SeedCatalog.TASK_PARKING_REAR, LessonMode.QUIZ)
         assertTrue(h.tts.spoken.last().startsWith("후면 직각 주차는 지식 테스트 모드로는"))
         h.machine.begin(SeedCatalog.TASK_PARKING_REAR, LessonMode.GUIDE)
