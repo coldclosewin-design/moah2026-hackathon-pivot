@@ -1,0 +1,670 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>도로 위 상식 시안</title>
+<style>
+:root{
+  --ink:#070827; --paper:#FCFCFA; --peri:#5B60A1; --lav:#E5E6F0; --signal:#F52D48;
+  --muted:rgba(7,8,39,.60);
+  --tex:0 4px 10px rgba(7,8,39,.10),0 1px 2px rgba(7,8,39,.06),inset 0 1px 0 rgba(255,255,255,.9);
+  --font:"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);font-weight:400;line-height:1.5}
+b{font-weight:500}
+.page{max-width:1540px;margin:0 auto;padding:48px 40px 96px}
+h1{font-size:40px;font-weight:400;margin:0 0 6px;letter-spacing:-.5px}
+h2{font-size:26px;font-weight:400;margin:0 0 4px}
+h3{font-size:15px;font-weight:500;margin:16px 0 6px;color:var(--peri)}
+p{margin:0 0 8px}
+.lede{font-size:17px;color:var(--muted);margin-bottom:18px}
+blockquote{margin:0 0 12px;padding:14px 20px;background:var(--lav);border-left:4px solid var(--signal);font-size:15px}
+blockquote pre{margin:0;font-family:var(--font);white-space:pre-wrap;line-height:1.6}
+blockquote small{display:block;color:var(--muted);font-size:13px;margin-top:6px}
+.interp{font-size:15px;margin:0 0 14px;padding:8px 14px;border:1px solid var(--peri);color:var(--peri);display:inline-block}
+.scale{display:inline-block;font-size:13px;color:var(--peri);border:1px solid var(--peri);border-radius:999px;padding:3px 12px;margin:0 8px 6px 0}
+.cell{display:grid;grid-template-columns:853px 1fr;gap:44px;padding:40px 0;border-top:1px solid rgba(7,8,39,.14)}
+.cell.now{grid-template-columns:1fr}
+.letter{font-size:56px;line-height:1;color:var(--peri);margin-bottom:6px}
+.letter.cur{color:var(--muted);font-size:28px}
+.desc{font-size:17px;margin-bottom:10px}
+ul{margin:0;padding-left:20px;font-size:15px}
+li{margin:3px 0}
+.cap{font-size:12px;color:var(--muted);margin:16px 0 6px}
+.cap:first-child{margin-top:0}
+.imgs{display:flex;gap:24px;flex-wrap:wrap}
+.imgs figure{margin:0}
+.imgs img{width:460px;display:block;box-shadow:0 0 0 1px rgba(7,8,39,.15)}
+.imgs figcaption{font-size:12px;color:var(--muted);margin-top:6px;max-width:460px}
+code{font-family:Consolas,"Malgun Gothic",monospace;font-size:.92em;background:var(--lav);padding:0 4px}
+.spec{display:grid;grid-template-columns:92px 1fr;gap:5px 12px;font-size:14px;margin-top:10px}
+.spec dt{color:var(--peri)}
+.spec dd{margin:0}
+.rule{display:inline-block;font-size:12px;padding:2px 10px;border-radius:999px;background:var(--ink);color:var(--paper);margin:2px 6px 2px 0}
+.rule.w{background:var(--lav);color:var(--peri)}
+.rule.r{background:var(--signal);color:var(--paper)}
+
+/* ---------- 1/3 frames ---------- */
+.frame{position:relative;overflow:hidden;width:853px;height:423px;background:var(--paper);box-shadow:0 0 0 1px rgba(7,8,39,.18);font-size:11px;line-height:1.35;margin-bottom:4px}
+.frame.mid{height:260px}
+.frame.crop{width:420px;height:150px}
+.abs{position:absolute}
+.wm{font-size:9px;letter-spacing:3px}
+.eyebrow{font-size:11px;color:var(--peri)}
+.ill{left:0;top:0;width:249px;height:423px;overflow:hidden}
+.pill{height:46px;border-radius:999px;background:var(--signal);color:var(--paper);font-size:13px;display:flex;align-items:center;justify-content:center;gap:14px;
+  box-shadow:0 4px 10px rgba(7,8,39,.10),0 1px 2px rgba(7,8,39,.06),inset 0 1px 0 rgba(255,255,255,.35)}
+.pill2{height:37px;padding:0 16px;border-radius:999px;background:var(--lav);color:var(--ink);font-size:12px;display:inline-flex;align-items:center;justify-content:center;gap:8px;box-shadow:var(--tex);white-space:nowrap}
+.pill2.s{height:26px;padding:0 12px;font-size:10.5px}
+.chip{display:inline-flex;align-items:center;justify-content:center;height:28px;padding:0 12px;font-size:11px;background:var(--lav);box-shadow:var(--tex);white-space:nowrap}
+.chip.ghost{background:transparent;box-shadow:inset 0 0 0 1px rgba(7,8,39,.25);color:var(--muted)}
+.row{display:flex;gap:6px;flex-wrap:nowrap}
+.note{font-size:10px;color:var(--muted)}
+.lnk{font-size:11px;text-decoration:underline}
+/* category track */
+.ctrack{left:277px;top:50px;width:555px;height:32px;display:flex;padding:3px;border-radius:999px;background:var(--lav);box-shadow:var(--tex)}
+.ctrack span{flex:1;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--muted);border-radius:999px}
+.ctrack span.on{background:var(--ink);color:var(--paper)}
+.ctrack span.new{color:var(--signal)}
+.ctrack span.new.on{background:var(--ink);color:var(--paper);box-shadow:inset 0 0 0 2px var(--signal)}
+/* task cards (card C) */
+.cards{left:277px;top:113px;width:555px;height:160px;display:flex;gap:8px;overflow:hidden}
+.tc{position:relative;flex:0 0 133px;height:144px;background:var(--lav);box-shadow:var(--tex);display:flex;flex-direction:column;color:var(--ink)}
+.tc .ti{height:95px;display:flex;align-items:center;justify-content:center}
+.tc .ti svg{width:42px;height:42px;color:var(--ink)}
+.tc .tb{flex:1;border-top:1px solid rgba(7,8,39,.08);padding:0 8px;display:flex;align-items:center;justify-content:space-between;gap:4px;font-size:10.5px;white-space:nowrap}
+.tc .df{font-size:9px;color:var(--peri)}
+.tc.on{background:var(--peri);color:var(--paper)}
+.tc.on .ti svg{color:var(--paper)}
+.tc.on .df{color:rgba(252,252,250,.8)}
+.tc .chk{position:absolute;left:54px;bottom:-13px;width:26px;height:26px;border-radius:50%;background:var(--signal);color:var(--paper);font-size:13px;display:flex;align-items:center;justify-content:center;font-style:normal}
+.tc .tag{position:absolute;top:6px;right:6px;font-size:8.5px;padding:1px 6px;border-radius:999px;background:var(--paper);color:var(--peri)}
+.tc .tag.hard{background:var(--ink);color:var(--paper)}
+.fade{position:absolute;right:0;top:0;width:40px;height:150px;background:linear-gradient(90deg,rgba(252,252,250,0),var(--paper))}
+/* mode track */
+.mtrack{left:277px;top:276px;height:30px;display:flex;padding:3px;border-radius:999px;background:var(--lav);box-shadow:var(--tex)}
+.mtrack span{width:92px;display:flex;align-items:center;justify-content:center;font-size:11.5px;color:var(--muted);border-radius:999px;white-space:nowrap}
+.mtrack span.on{background:var(--peri);color:var(--paper)}
+.mtrack span.on.hard{background:var(--ink)}
+.back{left:277px;top:364px;width:103px}
+.startp{left:473px;top:359px;width:359px}
+/* quiz */
+.qink{left:0;top:0;width:324px;height:423px;background:var(--ink);color:var(--paper);overflow:hidden}
+.qnum{position:absolute;left:96px;top:176px;font-size:84px;line-height:1;letter-spacing:-2px}
+.qof{position:absolute;left:146px;top:144px;font-size:10px}
+.qey{left:357px;top:29px;font-size:11px}
+.qt{left:357px;top:54px;width:470px;font-size:22px;line-height:1.3}
+.qrow{position:absolute;left:357px;width:456px;height:37px;background:var(--lav);box-shadow:var(--tex);padding:0 10px;font-size:12.5px;display:flex;align-items:center;gap:10px}
+.qrow i{font-style:normal;font-size:10px;color:var(--muted);width:8px}
+.qrow.ok{background:var(--peri);color:var(--paper)}
+.qrow.ok i{color:rgba(252,252,250,.8)}
+.qrow.mine{box-shadow:inset 0 0 0 1.5px var(--signal),var(--tex)}
+.qrow .t{margin-left:auto;font-size:9.5px;padding:1px 8px;border-radius:999px;background:var(--paper);color:var(--peri)}
+.qrow.mine .t{background:var(--signal);color:var(--paper)}
+.qwhy{position:absolute;left:357px;width:456px;background:var(--lav);box-shadow:var(--tex);padding:8px 12px 8px 26px;font-size:11.5px;line-height:1.45}
+.qwhy:before{content:"\201C";position:absolute;left:10px;top:4px;color:var(--peri);font-size:16px}
+/* OX tiles */
+.ox{position:absolute;top:140px;width:222px;height:104px;background:var(--lav);box-shadow:var(--tex);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.ox .g{font-size:44px;line-height:1}
+.ox .l{font-size:12px}
+.ox.ok{background:var(--peri);color:var(--paper)}
+.ox .t{position:absolute;right:8px;top:8px;font-size:9.5px;padding:1px 8px;border-radius:999px;background:var(--paper);color:var(--peri)}
+/* home */
+.band{left:0;top:393px;width:853px;height:30px;background:var(--ink);color:rgba(252,252,250,.75);display:flex;align-items:center;gap:6px;padding:0 8px;font-size:9px}
+.band span.c{background:rgba(252,252,250,.12);color:var(--paper);border-radius:999px;padding:3px 8px}
+.card{background:var(--paper);box-shadow:var(--tex);padding:9px 12px}
+.t16{font-size:15px;line-height:1.3;margin:2px 0 6px}
+/* coach */
+.bub{position:absolute;background:var(--lav);box-shadow:var(--tex);padding:7px 11px;font-size:12px;line-height:1.4}
+.bub.me{background:var(--peri);color:var(--paper)}
+.bub .who{font-size:9px;color:var(--peri);margin-bottom:2px}
+.say{display:inline-flex;align-items:center;height:36px;padding:0 12px;background:var(--paper);box-shadow:var(--tex),inset 0 0 0 1px rgba(91,96,161,.35);font-size:11.5px;white-space:nowrap}
+.badge{font-size:9.5px;color:var(--peri);background:var(--lav);border-radius:999px;padding:2px 9px}
+/* tables */
+table{border-collapse:collapse;width:100%;font-size:13.5px;margin-top:10px}
+th,td{border-top:1px solid rgba(7,8,39,.14);padding:9px 10px;text-align:left;vertical-align:top;font-weight:400}
+th{color:var(--peri);font-weight:500}
+thead th{border-top:0;border-bottom:1px solid var(--ink)}
+td.n{color:var(--peri);width:30px}
+td.w{color:var(--muted);font-size:12.5px}
+.tag{display:inline-block;font-size:11px;padding:1px 8px;border-radius:999px;background:var(--lav);color:var(--peri);white-space:nowrap}
+.tag.mid{background:var(--peri);color:var(--paper)}
+.tag.hard{background:var(--ink);color:var(--paper)}
+.tag.r{background:var(--signal);color:var(--paper)}
+ol.ch{margin:0;padding-left:18px;font-size:13px}
+ol.ch li{margin:1px 0}
+ol.ch li.ok{color:var(--peri)}
+ol.ch li.ok:after{content:" — 정답";font-size:11px}
+ol.ch li.dr{color:var(--muted)}
+ol.ch li.dr:after{content:" (셋으로 줄일 때 뺄 보기)";font-size:10.5px}
+.unc{color:var(--signal);font-size:12px;white-space:nowrap}
+.reco{margin-top:48px;padding:28px 32px;background:var(--ink);color:var(--paper)}
+.reco .eyebrow{color:rgba(252,252,250,.6);font-size:13px}
+.reco h2{font-size:30px;margin:6px 0 8px}
+.reco p,.reco li{color:rgba(252,252,250,.85);font-size:16px}
+.reco .sig{color:var(--signal)}
+.reco code{color:var(--ink)}
+.reco table th{color:rgba(252,252,250,.6)}
+.reco table td{border-top-color:rgba(252,252,250,.18);color:rgba(252,252,250,.9)}
+.reco thead th{border-bottom-color:rgba(252,252,250,.6)}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="car" viewBox="0 0 401 423">
+    <rect width="401" height="423" fill="#FCFCFA"/>
+    <path d="M110 90 L330 90 L401 140 V423 H0 V300 Z" fill="#5B60A1"/>
+    <path d="M0 150 C70 118 190 112 270 132 L401 205 V423 H0Z" fill="#070827"/>
+    <path d="M250 150 C300 140 340 150 360 170 L401 215 V190 Z" fill="#FCFCFA" opacity=".85"/>
+    <path d="M0 230 L118 236 L128 258 L0 264Z" fill="#F52D48"/>
+    <path d="M0 300 C130 288 260 330 401 306 V423 H0Z" fill="#FCFCFA" opacity=".92"/>
+    <path d="M0 365 C150 352 300 384 401 372 V423 H0Z" fill="#070827"/>
+    <circle cx="300" cy="372" r="34" fill="#070827"/><circle cx="300" cy="372" r="18" fill="#FCFCFA"/>
+  </symbol>
+  <!-- card icons: stroke follows currentColor -->
+  <symbol id="ic-book" viewBox="0 0 40 40"><path d="M6 10 Q13 7 20 11 Q27 7 34 10 V31 Q27 28 20 32 Q13 28 6 31 Z M20 11 V32" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+  <symbol id="ic-arrow" viewBox="0 0 40 40"><path d="M6 4 V36 M34 4 V36" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M22 35 V18 Q22 14 18 14 H12 M15 10 L11 14 L15 18" stroke="currentColor" stroke-width="2.2" fill="none"/></symbol>
+  <symbol id="ic-light" viewBox="0 0 40 40"><rect x="5" y="13" width="30" height="13" rx="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="19.5" r="3" fill="currentColor"/><circle cx="20" cy="19.5" r="3" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="28" cy="19.5" r="3" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M20 26 V35" stroke="currentColor" stroke-width="1.8"/></symbol>
+  <symbol id="ic-cross" viewBox="0 0 40 40"><path d="M15 3 V15 H3 M25 3 V15 H37 M15 37 V25 H3 M25 37 V25 H37" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M20 34 V22 M17 25 L20 21 L23 25" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+  <symbol id="ic-hazard" viewBox="0 0 40 40"><path d="M20 6 L35 32 H5 Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M20 15 L28 28 H12 Z" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+  <symbol id="ic-check" viewBox="0 0 40 40"><path d="M8 11 L10 13 L14 9 M8 20 L10 22 L14 18 M8 29 L10 31 L14 27" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M18 11 H33 M18 20 H33 M18 29 H33" stroke="currentColor" stroke-width="1.6"/></symbol>
+  <symbol id="ic-road" viewBox="0 0 40 40"><path d="M10 4 L4 36 M30 4 L36 36" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M20 4 L18 9 L22 14 L18 19 L22 24 L18 29 L22 34" stroke="currentColor" stroke-width="1.6" fill="none"/></symbol>
+</svg>
+<div class="page">
+
+<h1>5 · 알고도 헷갈리는 도로 위 상식 — 어디에, 어떻게 넣을까</h1>
+<p class="lede">면허시험에서는 크게 다루지 않지만 길에서 매일 부딪히는 상식(노면 화살표 · 빨간불 우회전 · 교차로 양보 · 비보호 · 점멸 신호 · 지그재그 · 선 색)을 앱의 어느 자리에 둘지 구조안 여덟(A–H)과, 사용자가 든 항목을 그대로 문항으로 옮긴 내용 표다. 모든 안은 지금의 <code>QuizItem</code>(문제 · 보기 목록 · 정답 위치 · 이유)을 그대로 쓰거나 최소로 늘린다.</p>
+<blockquote><pre>#새로운컨텐츠?
+- 알고도 헷갈리는 도로 위 상식 등을 지식 혹은 점검 란에 헷갈릴만한 컨텐츠를 추가 하고 싶은데 하위 항목에 추가해야 할지 아니면 다른 큰 카테고리로 빼야 할지 아니면 다른 방법으로 제공할지 다양한 방법 제시해줘 8가지 정도
+- 내용 : 도로표시 왼쪽 꺽임은 직진이 되는지. 우회전 시 신호등에 따라 어떻게 서고 가야 하는지. 직진 좌회전 사거리에서 누가 우선인지 비보호시에는 어떻게 해야 하는지 신호등이 3개 혹은 4개 혹은 특이케이스 대처 방법. 법에는 없지만 필요한 운전 그라운드룰 비상깜빡이 감사표시 등. 지그재그 표시, 노란색 파란색 흰선 점선의 용도 등 이 앱을 사용할 타겟의 눈높이에 맞춘 그리고 면허시험에서는 강조하지는 않지만 일상 속에서 필요한 노하우
+- 기본적이지 않은 난이도 높다고 생각하는 항목을 따로 하위 항목으로 빼는 것도 좋고 다양하게 생각.</pre><small>— 사용자 피드백 원문, 10/6 저녁 (녹화 기준 태그 <code>inhouse-20261006-5</code> APK 를 눌러 보고)</small></blockquote>
+<p class="interp">해석: 질문은 둘이다 — ① <b>어디에</b>(지식 하위 · 새 분류 · 점검 · 다른 길) → 구조안 A–H, ② <b>무엇을</b>(항목 여덟 + 어려운 것 따로) → 아래 내용 표와 "하위 단계로 뺄 것" 표.</p>
+<div>
+  <span class="scale">모든 목업은 1/3 축척 · 실제 화면은 약 3배 (853×423 = 2560×1268 dp)</span>
+  <span class="scale">시안끼리 같은 과제 이름 · 같은 문항</span>
+  <span class="scale">모드 알약은 "한 칸" 으로 그렸다 (#지식테스트 피드백 반영 가정)</span>
+</div>
+
+<!-- ========== 지금 ========== -->
+<section class="cell now" style="margin-top:28px">
+  <div>
+    <div class="letter cur">지금</div>
+    <p class="desc">지식 분류 아래 과제는 <code>비상등·날씨별 행동</code> 하나, 모드는 <code>지식 테스트</code>(QUIZ) 하나 — 그 알약이 세 칸 폭을 다 차지한다. 문항은 <code>SeedCatalog.quiz</code> 열 개, 지금은 전부 <b>3지선다</b>다. 모델의 보기는 목록이라 둘(OX)이든 넷이든 화면이 그대로 그리지만, 넷이면 답한 뒤 이유 상자가 "맞은 문제" 줄과 부딪힐 수 있어 캡처 확인이 필요하다. 이미 시드에 회전교차로 우선 · 횡단보도 양보 · 꼬리물기 문항이 있어 "교차로 우선" 묶음으로 옮길 수 있다.</p>
+    <div class="imgs">
+      <figure><img src="../../screenshots/lesson/lesson-setup-sheet-knowledge.png" alt="지식 과제 시트 현재 캡처"><figcaption>과제 시트 · 지식 — 카드 하나, 모드 알약이 세 칸. 카드 그림은 지금 과제 종류별(지식 = 책)이라 새 지식 과제도 같은 책 그림으로 나온다.</figcaption></figure>
+      <figure><img src="../../screenshots/lesson/lesson-quiz.png" alt="지식 테스트 현재 캡처"><figcaption>지식 테스트 — 왼쪽 Ink 에 문항 번호, 오른쪽에 문제와 보기 셋.</figcaption></figure>
+      <figure><img src="../../screenshots/lesson/lesson-quiz-answered.png" alt="지식 테스트 답한 뒤 캡처"><figcaption>답한 뒤 — 정답 · 내 답 표시와 이유(<code>why</code>). 퀴즈의 목적은 채점보다 이 이유를 듣는 것.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ========== A ========== -->
+<section class="cell">
+  <div>
+    <p class="cap">과제 시트 · 지식 — 주제 카드가 넷 늘고 줄은 가로로 넘긴다 (다섯째 "운전 매너" 는 넘긴 뒤에 보임)</p>
+    <div class="frame">
+      <div class="abs ill"><svg width="401" height="423"><use href="#car"/></svg></div>
+      <div class="abs wm" style="left:61px;top:28px">DRIVE COACH</div>
+      <div class="abs eyebrow" style="left:277px;top:26px">연습할 과제</div>
+      <div class="abs ctrack"><span>주차</span><span>주행</span><span>점검</span><span class="on">지식</span></div>
+      <div class="abs eyebrow" style="left:277px;top:93px">지식 세부 과제</div>
+      <div class="abs cards">
+        <div class="tc"><div class="ti"><svg><use href="#ic-book"/></svg></div><div class="tb"><span>비상등·날씨별 행동</span><span class="df">하</span></div></div>
+        <div class="tc on"><div class="ti"><svg><use href="#ic-light"/></svg></div><div class="tb"><span>신호와 우회전</span><span class="df">중</span></div><i class="chk">✓</i></div>
+        <div class="tc"><div class="ti"><svg><use href="#ic-cross"/></svg></div><div class="tb"><span>교차로 우선</span><span class="df">중</span></div></div>
+        <div class="tc"><div class="ti"><svg><use href="#ic-arrow"/></svg></div><div class="tb"><span>노면 표시</span><span class="df">하</span></div></div>
+        <div class="tc"><div class="ti"><svg><use href="#ic-hazard"/></svg></div><div class="tb"><span>운전 매너</span><span class="df">하</span></div></div>
+        <div class="fade"></div>
+      </div>
+      <div class="abs mtrack"><span class="on">지식 테스트</span></div>
+      <div class="abs lnk" style="left:780px;top:284px">제휴 시험장</div>
+      <div class="abs pill2 back">← 돌아가기</div>
+      <div class="abs pill startp">시작 <span>→</span></div>
+    </div>
+  </div>
+  <div>
+    <div class="letter">A</div>
+    <h2>주제 카드</h2>
+    <p class="desc">지식 분류는 그대로, 세부 과제를 <b>주제 묶음</b>으로 넷 더한다 — 신호와 우회전 · 교차로 우선 · 노면 표시 · 운전 매너. 카드 하나 = 지식 과제 하나 = 문항 목록 하나. 카드 모서리의 하/중/상은 지금 있는 <code>Difficulty</code> 그대로.</p>
+    <dl class="spec">
+      <dt>들어가는 곳</dt><dd>과제 시트 · 지식 분류의 카드 줄(<code>LazyRow</code> 라 다섯 장이면 가로로 넘김).</dd>
+      <dt>비용</dt><dd><b>데이터만</b> — <code>SeedCatalog.tasks</code> 에 지식 과제 넷 + <code>quizFor</code> 분기 넷 + 문항. 화면 변경 0. 주제별 카드 그림은 선택(Codex, 없으면 전부 책 그림).</dd>
+      <dt>절대 규칙</dt><dd><span class="rule">지킴</span> 퀴즈는 정차 화면 — 움직이면 잠금. 문장에 숫자 없음.</dd>
+      <dt>녹화 전</dt><dd>가능. 문구는 시드 "내용" 이라 Codex 몫 — 아래 내용 표를 핸드오프에 붙이면 된다.</dd>
+    </dl>
+    <h3>장점</h3>
+    <ul><li>가장 싸다. 운전자가 이미 배운 카드 문법 그대로.</li><li>"우회전이 헷갈려" 가 바로 카드 이름 — 코치 대화 의도(지식 + 주제)와도 곧장 이어진다.</li></ul>
+    <h3>주의점</h3>
+    <ul><li>한 줄에 카드 넷이 꽉 차서 다섯째(운전 매너)는 넘겨야 보인다 — 넘김 표시가 없다.</li><li>"어려운 것 따로" 는 모서리 글자 하나뿐 — 사용자가 바란 하위 단계로는 약하다(C 와 묶으면 해결).</li></ul>
+  </div>
+</section>
+
+<!-- ========== B ========== -->
+<section class="cell">
+  <div>
+    <p class="cap">과제 시트 — 분류 알약 다섯째 "상식"</p>
+    <div class="frame">
+      <div class="abs ill"><svg width="401" height="423"><use href="#car"/></svg></div>
+      <div class="abs wm" style="left:61px;top:28px">DRIVE COACH</div>
+      <div class="abs eyebrow" style="left:277px;top:26px">연습할 과제</div>
+      <div class="abs ctrack"><span>주차</span><span>주행</span><span>점검</span><span>지식</span><span class="new on">상식</span></div>
+      <div class="abs eyebrow" style="left:277px;top:93px">상식 세부 과제 · 면허시험엔 덜 나오지만 길에서 헷갈리는 것</div>
+      <div class="abs cards">
+        <div class="tc on"><div class="ti"><svg><use href="#ic-light"/></svg></div><div class="tb"><span>신호와 우회전</span><span class="df">중</span></div><i class="chk">✓</i></div>
+        <div class="tc"><div class="ti"><svg><use href="#ic-cross"/></svg></div><div class="tb"><span>교차로 우선</span><span class="df">중</span></div></div>
+        <div class="tc"><div class="ti"><svg><use href="#ic-arrow"/></svg></div><div class="tb"><span>노면 표시</span><span class="df">하</span></div></div>
+        <div class="tc"><div class="ti"><svg><use href="#ic-hazard"/></svg></div><div class="tb"><span>운전 매너</span><span class="df">하</span></div></div>
+      </div>
+      <div class="abs mtrack"><span class="on">지식 테스트</span></div>
+      <div class="abs lnk" style="left:780px;top:284px">제휴 시험장</div>
+      <div class="abs pill2 back">← 돌아가기</div>
+      <div class="abs pill startp">시작 <span>→</span></div>
+    </div>
+  </div>
+  <div>
+    <div class="letter">B</div>
+    <h2>다섯째 분류</h2>
+    <p class="desc">분류 트랙에 <code>상식</code> 을 더한다. 지식 = 시험·안전 수칙(비상등 · 날씨), 상식 = "알고도 헷갈리는 일상 노하우". 상식 아래 카드는 A 의 넷과 같다.</p>
+    <dl class="spec">
+      <dt>들어가는 곳</dt><dd>과제 시트 분류 트랙(네 칸 → 다섯 칸).</dd>
+      <dt>비용</dt><dd><b>모델</b> — <code>TaskType</code> 값 추가(또는 지식 과제에 묶음 표시) + <code>supports()</code> · 분류 이름 · 홈 제안 문구 · 코치 의도 목록 · Copilot 프롬프트의 분류 설명까지 손이 간다. 화면은 트랙 칸 수만.</dd>
+      <dt>절대 규칙</dt><dd><span class="rule">지킴</span> 정차 화면만.</dd>
+      <dt>녹화 전</dt><dd><span class="rule r">비추천</span> 브리프상 분류 트랙(주차·주행·점검·지식)은 <b>확정</b> 항목이다.</dd>
+    </dl>
+    <h3>장점</h3>
+    <ul><li>"새 콘텐츠가 생겼다" 가 가장 크게 보인다 — 발표 한 컷 감.</li><li>지식(시험형)과 상식(일상형)의 결이 이름으로 갈린다.</li></ul>
+    <h3>주의점</h3>
+    <ul><li>지식과 상식의 경계가 운전자에게 모호하다(비상등은 어느 쪽?).</li><li>칸이 다섯이면 알약 한 칸이 좁아지고, 확정된 트랙을 다시 연다.</li></ul>
+  </div>
+</section>
+
+<!-- ========== C ========== -->
+<section class="cell">
+  <div>
+    <p class="cap">과제 시트 · 지식 — 모드 트랙 자리가 "난이도" 세 칸이 된다 (C) · 카드 모서리 단계 글자 (C′)</p>
+    <div class="frame">
+      <div class="abs ill"><svg width="401" height="423"><use href="#car"/></svg></div>
+      <div class="abs wm" style="left:61px;top:28px">DRIVE COACH</div>
+      <div class="abs eyebrow" style="left:277px;top:26px">연습할 과제</div>
+      <div class="abs ctrack"><span>주차</span><span>주행</span><span>점검</span><span class="on">지식</span></div>
+      <div class="abs eyebrow" style="left:277px;top:93px">지식 세부 과제</div>
+      <div class="abs cards">
+        <div class="tc"><span class="tag">기본</span><div class="ti"><svg><use href="#ic-book"/></svg></div><div class="tb"><span>비상등·날씨별 행동</span><span class="df">하</span></div></div>
+        <div class="tc on"><span class="tag">헷갈리는</span><div class="ti"><svg><use href="#ic-light"/></svg></div><div class="tb"><span>신호와 우회전</span><span class="df">중</span></div><i class="chk">✓</i></div>
+        <div class="tc"><span class="tag">헷갈리는</span><div class="ti"><svg><use href="#ic-cross"/></svg></div><div class="tb"><span>교차로 우선</span><span class="df">중</span></div></div>
+        <div class="tc"><span class="tag">기본</span><div class="ti"><svg><use href="#ic-arrow"/></svg></div><div class="tb"><span>노면 표시</span><span class="df">하</span></div></div>
+        <div class="fade"></div>
+      </div>
+      <div class="abs eyebrow" style="left:277px;top:262px;font-size:9.5px">난이도</div>
+      <div class="abs mtrack" style="top:276px"><span>기본</span><span class="on">헷갈리는</span><span>고수</span></div>
+      <div class="abs note" style="left:563px;top:283px">이 주제의 헷갈리는 문항만 풀어요.</div>
+      <div class="abs pill2 back">← 돌아가기</div>
+      <div class="abs pill startp">시작 <span>→</span></div>
+    </div>
+  </div>
+  <div>
+    <div class="letter">C</div>
+    <h2>난이도 세 칸</h2>
+    <p class="desc">지식 과제는 모드가 하나뿐이라 모드 트랙이 비어 있다 — 그 자리를 <b>기본 · 헷갈리는 · 고수</b> 세 칸으로 쓴다(한 칸씩이라 #지식테스트 피드백과도 맞는다). 주제를 고르고 단계를 고르면 그 단계 문항만. 카드 위 작은 태그는 "이 주제의 주 단계".</p>
+    <dl class="spec">
+      <dt>들어가는 곳</dt><dd>과제 시트의 모드 트랙 자리(지식 분류에서만).</dd>
+      <dt>비용</dt><dd><b>모델(작음)</b> — <code>QuizItem</code> 에 단계 값 하나, <code>quizFor(task, tier)</code>. 상태기계는 "지식 테스트" 그대로, 화면은 트랙 라벨만 바뀐다.<br><b>C′(데이터만)</b> — 단계를 별도 과제로: <code>헷갈리는 상식</code>(중) · <code>고수 상식</code>(상) 카드 둘. 카드 모서리 하/중/상이 이미 나온다.</dd>
+      <dt>절대 규칙</dt><dd><span class="rule">지킴</span></dd>
+      <dt>녹화 전</dt><dd>C′ 만 가능. C 는 이후.</dd>
+    </dl>
+    <h3>장점</h3>
+    <ul><li>사용자가 말한 "어려운 것은 따로 하위 항목" 을 가장 직접 보여 준다.</li><li>"고수" 칸은 다 맞히면 다음 단계로 — 회차가 쌓이는 앱 논리와 같다.</li></ul>
+    <h3>주의점</h3>
+    <ul><li>D(OX 모드)와 같은 자리를 쓴다 — 둘 다 고르면 트랙이 둘 필요.</li><li>단계별 문항 수가 고르지 않으면 "고수" 가 두세 문항으로 끝날 수 있다.</li></ul>
+  </div>
+</section>
+
+<!-- ========== D ========== -->
+<section class="cell">
+  <div>
+    <p class="cap">① 과제 시트 · 지식 — 모드 알약 둘 (한 칸씩)</p>
+    <div class="frame" style="height:322px">
+      <div class="abs ill"><svg width="401" height="423"><use href="#car"/></svg></div>
+      <div class="abs wm" style="left:61px;top:28px">DRIVE COACH</div>
+      <div class="abs eyebrow" style="left:277px;top:26px">연습할 과제</div>
+      <div class="abs ctrack"><span>주차</span><span>주행</span><span>점검</span><span class="on">지식</span></div>
+      <div class="abs eyebrow" style="left:277px;top:93px">지식 세부 과제</div>
+      <div class="abs cards" style="height:150px">
+        <div class="tc"><div class="ti"><svg><use href="#ic-book"/></svg></div><div class="tb"><span>비상등·날씨별 행동</span><span class="df">하</span></div></div>
+        <div class="tc on"><div class="ti"><svg><use href="#ic-light"/></svg></div><div class="tb"><span>신호와 우회전</span><span class="df">중</span></div></div>
+        <div class="tc"><div class="ti"><svg><use href="#ic-cross"/></svg></div><div class="tb"><span>교차로 우선</span><span class="df">중</span></div></div>
+        <div class="tc"><div class="ti"><svg><use href="#ic-arrow"/></svg></div><div class="tb"><span>노면 표시</span><span class="df">하</span></div></div>
+      </div>
+      <div class="abs mtrack"><span>지식 테스트</span><span class="on">OX 빠른 확인</span></div>
+    </div>
+    <p class="cap">② OX 빠른 확인 — 답한 뒤 (보기 둘을 큰 타일로)</p>
+    <div class="frame">
+      <div class="abs qink">
+        <svg class="abs" style="left:0;top:0" width="324" height="423"><circle cx="81" cy="395" r="235" fill="none" stroke="#5B60A1" stroke-width="36"/></svg>
+        <div class="abs wm" style="left:61px;top:28px">DRIVE COACH</div>
+        <div class="qof">3 / 8</div>
+        <div class="qnum">03</div>
+      </div>
+      <div class="abs qey">OX 빠른 확인 · 신호와 우회전</div>
+      <div class="abs qt">빨간불이어도, 정지선 앞에서 일단 멈춘 뒤라면 우회전할 수 있다.</div>
+      <div class="ox ok" style="left:357px"><span class="t">정답 · 내 답</span><span class="g">O</span><span class="l">맞아요</span></div>
+      <div class="ox" style="left:591px"><span class="g">X</span><span class="l">아니에요</span></div>
+      <div class="qwhy" style="top:256px">일단 멈춘 뒤 보행자와 다른 차를 방해하지 않을 때만 돌아요. 우회전 신호등이 따로 있으면 초록 화살표일 때만 가요.</div>
+      <div class="abs lnk" style="left:357px;top:378px">그만하기</div>
+      <div class="abs pill" style="left:455px;top:359px;width:358px">다음 문제 <span>→</span></div>
+    </div>
+  </div>
+  <div>
+    <div class="letter">D</div>
+    <h2>OX 빠른 확인</h2>
+    <p class="desc">"헷갈리는 상식" 은 대개 <b>맞다/아니다</b> 한 판정이다. 지식 과제의 둘째 모드로 OX 를 두고, 보기 둘을 화면 절반씩의 큰 타일로. 4지선다보다 읽을 것이 적어 한 문항이 짧다 — 신호 대기처럼 짧은 정차에 맞는다.</p>
+    <dl class="spec">
+      <dt>들어가는 곳</dt><dd>지식 과제의 모드 트랙(둘째 알약) + 퀴즈 화면의 OX 배치.</dd>
+      <dt>비용</dt><dd><b>데이터판</b> — OX 문항은 "보기 둘(맞아요 / 아니에요)" 인 <code>QuizItem</code> 이라 모델 변경 없이 지금 화면이 세로 두 줄로 그린다(과제를 따로 두거나 문항에 섞음).<br><b>정식판</b> — <code>LessonMode.OX</code> 추가(<code>supports</code>) + 큰 타일 배치(Codex).</dd>
+      <dt>절대 규칙</dt><dd><span class="rule">지킴</span> 정차 화면. 타일이 커서 터치 실수도 적다.</dd>
+      <dt>녹화 전</dt><dd>데이터판만 가능.</dd>
+    </dl>
+    <h3>장점</h3>
+    <ul><li>"알고도 헷갈리는" 의 결에 가장 맞는 형식 — 오답 이유가 곧 교정.</li><li>음성으로 묻고 답하기(추후 STT)에도 가장 쉬운 형식.</li></ul>
+    <h3>주의점</h3>
+    <ul><li>찍어도 반은 맞는다 — 평가보다 "확인" 이라는 이름을 지킨다.</li><li>C 와 모드 트랙 자리를 다툰다.</li></ul>
+  </div>
+</section>
+
+<!-- ========== E ========== -->
+<section class="cell">
+  <div>
+    <p class="cap">① 홈 — 아래 안내 줄 자리에 "오늘의 한 장"</p>
+    <div class="frame">
+      <svg class="abs" style="left:0;top:0" width="401" height="423"><use href="#car"/></svg>
+      <div class="abs wm" style="left:61px;top:28px">DRIVE COACH</div>
+      <div class="abs" style="left:473px;top:61px;font-size:10.5px;color:var(--muted)">연수생 · 장롱 10년차 · 목표 아이 등하원</div>
+      <div class="abs" style="left:473px;top:80px;font-size:24px;line-height:1.3">오늘은 가볍게,<br>주차부터 해 볼까요?</div>
+      <div class="abs" style="left:473px;top:152px;font-size:13px">후면 직각 주차 · 가이드 모드</div>
+      <div class="abs" style="left:473px;top:174px;font-size:12px;color:var(--muted)">처음은 제가 순서대로 함께할게요.</div>
+      <div class="abs pill" style="left:473px;top:200px;width:359px">시작 <span>→</span></div>
+      <div class="abs lnk" style="left:473px;top:268px">과제·모드 바꾸기</div>
+      <div class="abs pill2" style="left:591px;top:258px">코치와 고르기</div>
+      <div class="abs card" style="left:473px;top:310px;width:359px;height:76px;display:flex;align-items:center;gap:12px">
+        <svg width="34" height="34" style="color:var(--peri);flex:0 0 34px"><use href="#ic-light"/></svg>
+        <div style="flex:1">
+          <div class="eyebrow" style="font-size:9.5px">오늘의 한 장 · 신호와 우회전</div>
+          <div style="font-size:14px;margin-top:2px">빨간불이 깜빡이면 어떻게 할까요?</div>
+        </div>
+        <span class="pill2 s">답 보기</span>
+      </div>
+      <div class="abs band"><span>관리자</span><span class="c">잘한 주차</span><span class="c">못한 주차</span><span style="margin-left:auto" class="c">정차</span><span class="c">출발</span><span class="c">문 열기</span><span class="c">더 보기</span></div>
+    </div>
+    <p class="cap">② "답 보기" 를 누르면 같은 카드가 펼쳐진다 (같은 축척 일부)</p>
+    <div class="frame crop" style="background:var(--paper)">
+      <div class="abs card" style="left:20px;top:14px;width:380px">
+        <div class="eyebrow" style="font-size:9.5px">오늘의 한 장 · 신호와 우회전</div>
+        <div style="font-size:13px;margin:2px 0 4px">빨간불이 깜빡이면 어떻게 할까요?</div>
+        <div style="font-size:12px;color:var(--peri)">정지선 앞에서 일단 멈춘 뒤, 살피고 지나가요.</div>
+        <div class="note" style="margin:2px 0 6px">노란불이 깜빡이면 멈추지 않아도 되지만 천천히 주의하며 가요.</div>
+        <span class="lnk" style="font-size:10.5px">이 주제 더 풀기 →</span>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="letter">E</div>
+    <h2>오늘의 한 장</h2>
+    <p class="desc">홈 맨 아래 안내 줄(지금 "오늘은 편안한 곳에서 주차부터 연습해 봐요.") 자리에 하루 한 문항 카드. 앱을 켤 때마다 조용히 하나씩 익힌다. 답을 보면 그 주제 카드(A)로 이어지는 링크.</p>
+    <dl class="spec">
+      <dt>들어가는 곳</dt><dd>홈 오른쪽 칼럼 아래(예약 카드가 있으면 예약 카드가 우선, 한 장은 숨김).</dd>
+      <dt>비용</dt><dd><b>새 카드 1</b>(Codex) + "오늘 고르기" 규칙(날짜 → 문항, 순수 Kotlin) — 문항은 <code>QuizItem</code> 재사용(<code>question</code> + <code>why</code> 첫 문장).</dd>
+      <dt>절대 규칙</dt><dd><span class="rule">지킴</span> 홈은 정차 화면. <span class="rule w">확인</span> 홈이 움직일 때 카드를 숨기는지 잠금 규칙 점검 필요.</dd>
+      <dt>녹화 전</dt><dd>이후. 홈은 영상의 첫 컷이라 지금 바꾸면 대본·컷 재측정이 생긴다.</dd>
+    </dl>
+    <h3>장점</h3>
+    <ul><li>과제를 일부러 고르지 않아도 콘텐츠가 닿는다 — 장롱면허 사용자의 "부담 없는 시작" 과 맞다.</li><li>홈 아래 빈 줄을 쓰므로 레이아웃이 크게 안 흔들린다.</li></ul>
+    <h3>주의점</h3>
+    <ul><li>홈 요소가 하나 늘어 "시작" 의 무게가 줄 수 있다.</li><li>예약 카드 · 관리자 띠 · 코치 알약과 자리 다툼.</li></ul>
+  </div>
+</section>
+
+<!-- ========== F ========== -->
+<section class="cell">
+  <div>
+    <p class="cap">① 리포트 요약 — 방금 한 과제와 이어지는 상식 한 장 (좌회전 방향지시등 → 비보호 좌회전)</p>
+    <div class="frame">
+      <div class="abs qink">
+        <div class="abs wm" style="left:61px;top:28px">DRIVE COACH</div>
+        <div class="abs" style="left:50px;top:78px;font-size:11px;color:rgba(252,252,250,.8)">연습한 회차</div>
+        <div class="abs" style="left:46px;top:96px;font-size:84px;line-height:1">02</div>
+        <div class="abs" style="left:50px;top:200px;font-size:12px;color:rgba(252,252,250,.6)">회</div>
+        <div class="abs" style="left:0;top:238px;width:324px;border-top:1px solid rgba(252,252,250,.12)"></div>
+        <div class="abs" style="left:40px;top:252px;font-size:10px;color:rgba(252,252,250,.6)">마지막 회차의 판정</div>
+        <div class="abs" style="left:40px;top:272px;font-size:12.5px;line-height:2">방향지시등을 미리 켰어요<br>돌 때 속도를 줄였어요<br>돌고 나서 껐어요</div>
+        <div class="abs" style="left:286px;top:272px;font-size:12.5px;line-height:2;color:var(--peri)">✓<br>✓<br>✓</div>
+      </div>
+      <div class="abs" style="left:364px;top:34px;font-size:11px">오늘의 기록</div>
+      <div class="abs" style="left:364px;top:52px;width:450px;font-size:20px;line-height:1.3">신호를 미리 켜는 습관이 잡혀 가요.</div>
+      <div class="abs" style="left:364px;top:86px;font-size:12.5px">좌회전 방향지시등 · 힌트</div>
+      <div class="abs card" style="left:364px;top:116px;width:450px">
+        <div class="eyebrow" style="font-size:9.5px">이어서 알아 두면 좋은 것 · 교차로 우선</div>
+        <div class="t16">비보호 좌회전은 언제 할 수 있을까요?</div>
+        <div class="row"><span class="chip">한 문제 풀기</span><span class="chip ghost">다음에요</span></div>
+      </div>
+      <div class="abs pill" style="left:364px;top:261px;width:358px">다시 시작 <span>→</span></div>
+      <div class="abs lnk" style="left:364px;top:320px">자세히 보기</div>
+      <div class="abs lnk" style="left:452px;top:320px">진단서</div>
+      <div class="abs" style="left:364px;top:350px;width:450px;border-top:1px solid rgba(7,8,39,.12)"></div>
+      <div class="abs note" style="left:364px;top:360px">신호 출처</div>
+      <div class="abs" style="left:364px;top:378px;font-size:10.5px;color:var(--peri)">실신호 0 · 시뮬레이션 4 · 미측정 0</div>
+    </div>
+    <p class="cap">② 브리핑 — 같은 연결표로 "오늘 길에서 만날 수 있는 것" 한 줄 (출발 전, 정차)</p>
+    <div class="frame mid">
+      <div class="abs wm" style="left:61px;top:28px">DRIVE COACH</div>
+      <div class="abs eyebrow" style="left:61px;top:70px">연습 준비</div>
+      <div class="abs" style="left:61px;top:88px;font-size:22px;line-height:1.3">방향지시등, 회전 속도와<br>선을 볼게요.</div>
+      <div class="abs" style="left:61px;top:152px;font-size:12.5px">좌회전 방향지시등 · 힌트 모드</div>
+      <div class="abs" style="left:61px;top:184px;width:400px;display:flex;gap:10px;align-items:center;padding-top:10px;border-top:1px solid rgba(7,8,39,.12)">
+        <svg width="28" height="28" style="color:var(--peri)"><use href="#ic-cross"/></svg>
+        <div><div class="eyebrow" style="font-size:9.5px">오늘 길에서 만날 수 있는 것</div><div style="font-size:12px">'비보호' 표지 — 초록불에서만, 마주 오는 차를 먼저 보내요.</div></div>
+      </div>
+      <div class="abs" style="left:486px;top:0;width:367px;height:260px;background:var(--ink);overflow:hidden">
+        <svg width="367" height="260"><circle cx="250" cy="250" r="190" fill="none" stroke="#5B60A1" stroke-width="44"/><circle cx="250" cy="250" r="214" fill="none" stroke="#FCFCFA" stroke-width="5"/><path d="M226 54 L240 40" stroke="#F52D48" stroke-width="9"/></svg>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="letter">F</div>
+    <h2>과제에 이어 붙이기</h2>
+    <p class="desc">상식을 따로 찾아가지 않아도, <b>방금 연습한 과제와 이어지는 것</b>을 과제 앞뒤에 한 장씩. 좌회전 방향지시등 → 비보호 좌회전, 일반 도로 코스 → 빨간불 우회전, 차선 변경 → 흰 실선·점선, 회전교차로 → 진입 양보, 출발 전 점검 → 비상등 감사 표시.</p>
+    <dl class="spec">
+      <dt>들어가는 곳</dt><dd>리포트 요약(다시 시작 위) · Done 화면 아래 · 브리핑 한 줄. 전부 정차 화면.</dd>
+      <dt>비용</dt><dd><b>연결표(데이터)</b> 과제 id → 문항 id 목록(<code>SeedCatalog</code>, Claude) + <b>카드 1</b>(Codex). "한 문제 풀기" 는 기존 퀴즈 흐름에 문항 하나만 넘김.</dd>
+      <dt>절대 규칙</dt><dd><span class="rule">지킴</span> 주행(<code>Driving</code>) 중에는 말하지도 띄우지도 않는다 — 브리핑과 정차 뒤에만.</dd>
+      <dt>녹화 전</dt><dd>이후. 리포트 · 브리핑은 본편 컷이라 대본 영향.</dd>
+    </dl>
+    <h3>장점</h3>
+    <ul><li>"과제 단위 연습" 이라는 제품 논리에 가장 자연스럽게 녹는다 — 심사 설명이 쉽다.</li><li>필요한 순간에 하나만 — 학습 효과가 가장 크다.</li></ul>
+    <h3>주의점</h3>
+    <ul><li>리포트 · 프로필 D 카드(라운드 22)와 같은 자리 — 한 번에 하나만 뜨게 우선순위가 필요.</li><li>연결표가 과제 늘 때마다 같이 늘어야 한다.</li></ul>
+  </div>
+</section>
+
+<!-- ========== G ========== -->
+<section class="cell">
+  <div>
+    <p class="cap">코치 시트 — 말 카드로 묻고, 답은 지식 문항의 이유에서 가져온다</p>
+    <div class="frame">
+      <svg class="abs" style="left:0;top:0" width="401" height="423"><use href="#car"/></svg>
+      <div class="abs wm" style="left:61px;top:28px">DRIVE COACH</div>
+      <div class="abs" style="left:473px;top:24px;font-size:11px">코치와 이야기</div>
+      <div class="bub" style="left:473px;top:42px;width:359px">헷갈리는 도로 상식도 물어보세요.</div>
+      <div class="bub me" style="left:640px;top:80px;width:192px">우회전할 때 언제 서요?</div>
+      <div class="bub" style="left:473px;top:118px;width:359px"><div class="who">코치</div>빨간불이면 정지선 앞에서 일단 멈춘 뒤, 사람과 차를 살피고 돌아요. 우회전 신호등이 따로 있으면 초록 화살표일 때만 가요.<div style="font-size:9px;color:var(--peri);margin-top:3px">지식 카드 '신호와 우회전' 의 답이에요</div></div>
+      <div class="abs" style="left:473px;top:222px;width:380px;display:flex;gap:6px;overflow:hidden"><span class="say">비보호는 언제 돼요?</span><span class="say">노란불이 깜빡이면요?</span><span class="say">이 주제 문제 풀래요</span></div>
+      <div class="abs" style="left:473px;top:268px"><span class="badge">음성 입력 · 시뮬레이션</span></div>
+      <div class="abs note" style="left:473px;top:292px">카드를 누르면 그 말을 한 것으로 보내요.</div>
+      <div class="abs pill2" style="left:473px;top:364px">← 돌아가기</div>
+    </div>
+  </div>
+  <div>
+    <div class="letter">G</div>
+    <h2>코치에게 묻기</h2>
+    <p class="desc">사내 검증 #5 의 <b>말 카드</b>에 "상식 질문" 갈래를 더한다. 운전자가 "우회전할 때 언제 서요?" 를 누르면 코치가 짧게 답하고, 이어서 풀 문제로 보낸다. 답 문장은 AI 가 지어내지 않고 <b>지식 문항의 <code>why</code></b> 에서 가져와 출처를 한 줄로 밝힌다.</p>
+    <dl class="spec">
+      <dt>들어가는 곳</dt><dd>홈 코치 시트(정차) — 말 카드 줄과 대화 말풍선.</dd>
+      <dt>비용</dt><dd><b>의도 하나 + 연결</b> — 의도 목록에 "지식 질문(문항 id)" 추가, 키워드 규칙(사외)·Copilot(사내)은 문항 id 만 고르고 답은 앱이 문항에서 꺼낸다. 말 카드 부품은 #5 와 공유.</dd>
+      <dt>절대 규칙</dt><dd><span class="rule">지킴</span> 코치 시트는 정차 화면. 주행 중 AI 발화 없음(AGENTS AI 경계 그대로).</dd>
+      <dt>녹화 전</dt><dd>말 카드(#5)를 녹화에 넣는다면 카드 하나로 맛보기 가능, 의도 연결은 이후.</dd>
+    </dl>
+    <h3>장점</h3>
+    <ul><li>"화내지 않는 조수석" — 옆자리 사람에게 묻듯 묻는다. 콘셉트에 가장 가깝다.</li><li>법규 문장을 AI 가 만들지 않아 틀린 상식을 말할 위험이 낮다.</li></ul>
+    <h3>주의점</h3>
+    <ul><li>문항에 없는 질문엔 "아직 모르는 내용이에요" 로 정직하게 — 만능처럼 보이면 안 된다.</li><li>답이 길면 말풍선이 넘친다 — <code>why</code> 첫 두 문장까지만.</li></ul>
+  </div>
+</section>
+
+<!-- ========== H ========== -->
+<section class="cell">
+  <div>
+    <p class="cap">① 과제 시트 · 점검 — 둘째 카드 "도로 표시 읽기"</p>
+    <div class="frame" style="height:322px">
+      <div class="abs ill"><svg width="401" height="423"><use href="#car"/></svg></div>
+      <div class="abs wm" style="left:61px;top:28px">DRIVE COACH</div>
+      <div class="abs eyebrow" style="left:277px;top:26px">연습할 과제</div>
+      <div class="abs ctrack"><span>주차</span><span>주행</span><span class="on">점검</span><span>지식</span></div>
+      <div class="abs eyebrow" style="left:277px;top:93px">점검 세부 과제</div>
+      <div class="abs cards" style="height:150px">
+        <div class="tc"><div class="ti"><svg><use href="#ic-check"/></svg></div><div class="tb"><span>출발 전 점검</span><span class="df">하</span></div></div>
+        <div class="tc on"><div class="ti"><svg><use href="#ic-road"/></svg></div><div class="tb"><span>도로 표시 읽기</span><span class="df">중</span></div></div>
+      </div>
+      <div class="abs mtrack"><span class="on">그림 퀴즈</span></div>
+    </div>
+    <p class="cap">② 그림 퀴즈 — 왼쪽 Ink 패널이 노면 그림이 된다</p>
+    <div class="frame">
+      <div class="abs qink">
+        <div class="abs wm" style="left:61px;top:28px">DRIVE COACH</div>
+        <svg class="abs" style="left:30px;top:60px" width="264" height="320">
+          <rect x="22" y="0" width="220" height="320" fill="#FCFCFA" opacity=".07"/>
+          <line x1="128" y1="0" x2="128" y2="320" stroke="#FCFCFA" stroke-width="3"/>
+          <line x1="136" y1="0" x2="136" y2="320" stroke="#FCFCFA" stroke-width="3"/>
+          <line x1="75" y1="0" x2="75" y2="320" stroke="#FCFCFA" stroke-width="2" stroke-dasharray="18 14"/>
+          <line x1="189" y1="0" x2="189" y2="320" stroke="#FCFCFA" stroke-width="2" stroke-dasharray="18 14"/>
+          <path d="M104 262 V206 Q104 190 90 190 H86 M95 179 L83 190 L95 201" fill="none" stroke="#5B60A1" stroke-width="6"/>
+          <rect x="88" y="285" width="26" height="16" rx="3" fill="#F52D48"/>
+        </svg>
+        <div class="abs" style="left:134px;top:384px;font-size:9px;color:rgba(252,252,250,.6)">가운데 두 줄 = 황색 실선</div>
+      </div>
+      <div class="abs qey">그림 퀴즈 · 도로 표시 읽기</div>
+      <div class="abs qt">빨간 차가 있는 차로, 바닥 화살표대로라면 어디로 갈 수 있나요?</div>
+      <div class="qrow" style="top:148px"><i>1</i>직진</div>
+      <div class="qrow" style="top:192px"><i>2</i>좌회전</div>
+      <div class="qrow" style="top:236px"><i>3</i>직진과 좌회전 둘 다</div>
+      <div class="abs note" style="left:357px;top:288px">그림은 실제 노면 색(황색 · 청색)으로 그린다 — 교육 그림에 한한 색 예외 필요.</div>
+      <div class="abs lnk" style="left:357px;top:378px">그만하기</div>
+    </div>
+  </div>
+  <div>
+    <div class="letter">H</div>
+    <h2>도로 표시 읽기</h2>
+    <p class="desc">사용자가 말한 "점검 란" 쪽. 출발 전 점검 옆에 <b>출발 전 2분 그림 문제</b>: 노면 화살표 · 선 색 · 지그재그처럼 눈으로 읽어야 하는 것만 그림으로 묻는다. 차 안에서 시동 전 "오늘 길 미리 보기" 로 둔다.</p>
+    <dl class="spec">
+      <dt>들어가는 곳</dt><dd>과제 시트 · 점검 분류 둘째 카드 + 퀴즈 화면의 왼쪽 패널(그림).</dd>
+      <dt>비용</dt><dd><b>모델</b> — <code>supports()</code> 가 지금 QUIZ 를 지식 과제에만 허용 → 점검 과제에도 허용(또는 지식 과제를 점검 칸에 노출) + <code>QuizItem</code> 에 그림 키 추가 + 노면 그림 여러 장(Codex).</dd>
+      <dt>절대 규칙</dt><dd><span class="rule">지킴</span> 정차 화면. <span class="rule w">색</span> 노면 색을 그대로 그리려면 다섯 토큰 밖의 색이 필요 — 교육 그림 한정 예외를 정해야 한다.</dd>
+      <dt>녹화 전</dt><dd>이후. 그림 제작량이 가장 많다.</dd>
+    </dl>
+    <h3>장점</h3>
+    <ul><li>노면 표시는 글보다 그림이 압도적으로 빠르다 — 이 콘텐츠에 가장 맞는 형식.</li><li>점검 = "출발 전에 하는 것" 이라는 분류 뜻과 맞는다.</li></ul>
+    <h3>주의점</h3>
+    <ul><li>점검은 지금 "차 조작 확인(신호 측정)" 과제라 퀴즈가 섞이면 분류 뜻이 흐려진다.</li><li>그림 · 색 예외 · 모델 변경 — 비용이 가장 크다.</li></ul>
+  </div>
+</section>
+
+<!-- ========== 비교 ========== -->
+<section class="cell now">
+  <div>
+    <h2>여덟 안 비교</h2>
+    <table>
+      <thead><tr><th></th><th>안</th><th>들어가는 곳</th><th>비용</th><th>절대 규칙 (정차 · 문장 숫자 없음)</th><th>녹화 10/7–8 전</th></tr></thead>
+      <tbody>
+        <tr><td class="n">A</td><td>주제 카드</td><td>지식 세부 과제 줄</td><td><span class="tag">데이터만</span></td><td>지킴</td><td><span class="tag mid">가능</span></td></tr>
+        <tr><td class="n">B</td><td>다섯째 분류 "상식"</td><td>분류 트랙</td><td><span class="tag hard">모델</span> TaskType · 프롬프트 · 의도</td><td>지킴</td><td><span class="tag r">비추천</span> 확정 트랙</td></tr>
+        <tr><td class="n">C</td><td>난이도 세 칸</td><td>모드 트랙 자리</td><td><span class="tag hard">모델(작음)</span> / C′ <span class="tag">데이터만</span></td><td>지킴</td><td>C′ 만 가능</td></tr>
+        <tr><td class="n">D</td><td>OX 빠른 확인</td><td>모드 트랙 + 퀴즈 배치</td><td>데이터판 <span class="tag">데이터만</span> / 정식 <span class="tag hard">모드 + 화면</span></td><td>지킴</td><td>데이터판만</td></tr>
+        <tr><td class="n">E</td><td>오늘의 한 장</td><td>홈 아래 줄</td><td><span class="tag mid">새 카드</span> + 고르기 규칙</td><td>지킴 · 홈 이동 시 숨김 확인</td><td>이후</td></tr>
+        <tr><td class="n">F</td><td>과제에 이어 붙이기</td><td>리포트 · Done · 브리핑</td><td>연결표(데이터) + <span class="tag mid">카드 1</span></td><td>지킴 · 주행 중 발화 없음</td><td>이후</td></tr>
+        <tr><td class="n">G</td><td>코치에게 묻기</td><td>코치 시트 말 카드</td><td>의도 1 + 말 카드(#5 공유)</td><td>지킴 · 답은 고정 문항에서</td><td>맛보기만</td></tr>
+        <tr><td class="n">H</td><td>도로 표시 읽기</td><td>점검 분류 + 그림 퀴즈</td><td><span class="tag hard">모델 + 그림</span> · 색 예외</td><td>지킴</td><td>이후</td></tr>
+      </tbody>
+    </table>
+    <p class="cap">모든 안이 정차 화면에만 있다 — 퀴즈 · 리포트 · 홈 · 코치 시트는 속도 &gt; 5 km/h 면 잠금(터치 0). 운전자 문장(이유 · 카드 문구)에는 숫자를 넣지 않았다.</p>
+  </div>
+</section>
+
+<!-- ========== 내용 표 ========== -->
+<section class="cell now">
+  <div>
+    <h2>내용 표 — 사용자 항목 여덟을 문항으로</h2>
+    <p class="desc" style="color:var(--muted)">묶음 = A 의 주제 카드, 단계 = C 의 세 칸. 보기 넷 중 흐린 것은 지금 화면(3지선다)에 맞춰 녹화 전에 넣을 때 뺄 보기. 이유는 운전자에게 들리는 문장이라 숫자 · 연도를 넣지 않았고, 근거는 오른쪽 메모에만.</p>
+    <table>
+      <thead><tr><th></th><th>사용자 항목</th><th>묶음 · 단계</th><th style="width:250px">문제</th><th style="width:270px">보기</th><th>이유 (why)</th><th>근거 · 메모</th></tr></thead>
+      <tbody>
+        <tr><td class="n">1</td><td>노면 화살표<br>(왼쪽 꺾임에서 직진?)</td><td>노면 표시<br><span class="tag">기본</span></td><td>차로 바닥에 왼쪽으로 꺾인 화살표만 있어요. 이 차로에서 직진해도 되나요?</td><td><ol class="ch"><li>신호만 맞으면 직진해도 돼요</li><li class="ok">안 돼요, 이 차로는 좌회전만 해요</li><li>앞차가 직진하면 따라가도 돼요</li><li class="dr">밤에는 직진해도 돼요</li></ol></td><td>바닥 화살표는 그 차로에서 갈 수 있는 방향이에요. 직진하려면 미리 직진 화살표가 있는 차로로 옮겨요.</td><td class="w">노면표시 "진행방향". 직진·좌회전 겸용 화살표면 둘 다 가능. 위반 시 적용 조항·범칙금은 <span class="unc">출처 확인 필요</span> — 문장에서 뺐다.</td></tr>
+        <tr><td class="n">2</td><td>우회전 — 신호에 따라 서고 가기</td><td>신호와 우회전<br><span class="tag mid">헷갈리는</span></td><td>차량 신호가 빨간불일 때 교차로에서 우회전하려면?</td><td><ol class="ch"><li>멈추지 않고 천천히 돌아요</li><li>초록불이 될 때까지 기다려요</li><li class="ok">정지선 앞에서 일단 멈춘 뒤, 보행자와 다른 차를 방해하지 않게 돌아요</li><li class="dr">경적을 울리고 돌아요</li></ol></td><td>빨간불 우회전은 일단 멈춘 뒤에만 돼요. 우회전 신호등이 따로 있으면 초록 화살표일 때만 가요. 횡단보도에 사람이 건너거나 건너려 하면 멈춰요.</td><td class="w">2023-01-22 시행(도로교통법 시행규칙 신호의 뜻 개정) — 적색 시 정지선 · 횡단보도 · 교차로 직전 일시정지 후 우회전, 우회전 신호등이 있으면 녹색 화살표 때만. 횡단보도 일시정지는 2022-07 시행 개정(보행자가 "건너려 할 때" 포함, 시드 <code>crosswalk-yield</code> 와 같은 내용).</td></tr>
+        <tr><td class="n">3</td><td>교차로 우선순위 (신호 없는 사거리)</td><td>교차로 우선<br><span class="tag mid">헷갈리는</span></td><td>신호등 없는 교차로에 나와 오른쪽 길의 차가 동시에 들어가려 해요. 누가 먼저?</td><td><ol class="ch"><li class="ok">오른쪽 길의 차가 먼저예요</li><li>내가 먼저 가요</li><li>차가 더 큰 쪽이 먼저예요</li><li class="dr">경적을 먼저 울린 차가 먼저예요</li></ol></td><td>이미 교차로에 들어간 차가 먼저, 내 길이 좁으면 넓은 길의 차가 먼저, 동시에 들어가면 오른쪽 차가 먼저예요. 좌회전하는 차는 직진하거나 우회전하는 차에 양보해요.</td><td class="w">도로교통법 제26조(교통정리가 없는 교차로에서의 양보운전). 시드의 회전교차로 · 꼬리물기 문항도 이 묶음으로.</td></tr>
+        <tr><td class="n">4</td><td>비보호 좌회전</td><td>교차로 우선<br><span class="tag mid">헷갈리는</span></td><td>'비보호' 표지가 있는 교차로에서 좌회전할 수 있는 때는?</td><td><ol class="ch"><li>빨간불일 때</li><li>노란불일 때 서둘러서</li><li class="ok">초록불일 때, 마주 오는 차를 방해하지 않을 때</li><li class="dr">언제든 비어 보이면</li></ol></td><td>비보호 좌회전은 초록불에서만, 마주 오는 차를 먼저 보내고 해요. 빨간불에 돌면 신호 위반이에요.</td><td class="w">비보호좌회전 표지 · 보조표지 "녹색신호시". 사고 시 과실 비율은 <span class="unc">출처 확인 필요</span> — 문장에서 뺐다.</td></tr>
+        <tr><td class="n">5</td><td>3색 · 4색 신호등과 특이 신호</td><td>신호와 우회전<br><span class="tag mid">헷갈리는</span></td><td>교차로 신호등에 빨간불이 깜빡이고 있어요.</td><td><ol class="ch"><li>그냥 지나가요</li><li class="ok">정지선 앞에서 일단 멈춘 뒤 주의하며 지나가요</li><li>초록불이 켜질 때까지 기다려요</li><li class="dr">상향등을 켜고 지나가요</li></ol></td><td>빨간불 깜빡임은 일단 멈춤이에요. 노란불 깜빡임은 멈추지 않아도 되지만 주의하며 천천히 지나가요.</td><td class="w">시행규칙 신호의 뜻 — 황색 등화 점멸: 주의하며 진행 / 적색 등화 점멸: 일시정지 후 진행. 4색 = 적 · 황 · 녹색 화살표(좌회전) · 녹. 기본 단계 문항: "녹색 화살표 = 그 방향으로 가도 됨".</td></tr>
+        <tr><td class="n">6</td><td>법에 없는 매너 (비상등 감사)</td><td>운전 매너<br><span class="tag">기본</span></td><td>끼어들 때 양보해 준 뒤차에 고마움을 전하는 흔한 방법은?</td><td><ol class="ch"><li class="ok">비상등을 짧게 깜빡여요</li><li>경적을 짧게 울려요</li><li>상향등을 켜요</li><li class="dr">브레이크를 살짝 밟아요</li></ol></td><td>법에 정해진 신호는 아니고 운전자들 사이의 관행이에요. 짧게 켰다 끄고, 오래 켜 두면 고장이나 정차로 오해할 수 있어요.</td><td class="w">관행 — 법정 신호 아님(문장에 그대로 밝힘). 같은 묶음 후보: 끼어들기 전 방향지시등, 경적 자제.</td></tr>
+        <tr><td class="n">7</td><td>지그재그 노면 표시</td><td>노면 표시<br><span class="tag mid">헷갈리는</span></td><td>흰색 지그재그 선이 차로에 그려져 있어요. 무슨 뜻일까요?</td><td><ol class="ch"><li>차로를 마음대로 바꿔도 되는 구간이에요</li><li>잠깐 세워도 되는 자리예요</li><li class="ok">앞에 횡단보도가 있으니 속도를 줄이고 살피라는 표시예요</li><li class="dr">공사 구간이 끝났다는 표시예요</li></ol></td><td>지그재그 선은 앞에 횡단보도가 있다는 뜻이에요. 사람이 보이면 멈출 수 있게 미리 천천히 가요.</td><td class="w">서행 · 주의 유도 표시. 공식 명칭 · 번호, 그 구간의 앞지르기 · 주정차 금지 효과는 <span class="unc">출처 확인 필요</span> — 문장에 넣지 않았다.</td></tr>
+        <tr><td class="n">8</td><td>노란 · 파란 · 흰 선, 실선 · 점선</td><td>노면 표시<br><span class="tag">기본</span></td><td>흰색 실선으로 나뉜 차로에서는?</td><td><ol class="ch"><li>언제든 차로를 바꿔도 돼요</li><li class="ok">차로를 바꾸지 않아요</li><li>버스만 다니는 차로예요</li><li class="dr">반대 방향 차로예요</li></ol></td><td>같은 방향 차로는 흰 선으로 나눠요. 점선이면 바꿔도 되고 실선이면 바꾸지 않아요. 노란 선은 반대 방향과 나누는 중앙선, 파란 선은 버스전용차로예요.</td><td class="w">황색 = 중앙선 · 반대 방향 분리, 백색 = 같은 방향 차로, 청색 = 버스전용차로. 실선 = 넘지 않음/차로 변경 금지, 점선 = 허용. 세부(가장자리 황색 · 청색 점선)는 아래 고수 단계.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ========== 하위 단계 ========== -->
+<section class="cell now">
+  <div>
+    <h2>하위 단계로 뺄 것 — "헷갈리는" · "고수"</h2>
+    <p class="desc" style="color:var(--muted)">위 여덟 중 2 · 3 · 4 · 5 · 7 은 이미 "헷갈리는". 아래는 같은 주제를 한 단계 더 판 문항 — C 의 고수 칸, C′ 의 <code>고수 상식</code> 과제, D 의 OX 로 쓰기 좋다.</p>
+    <table>
+      <thead><tr><th></th><th>단계</th><th>묶음</th><th style="width:330px">문제 (OX 로도 씀)</th><th>정답 · 이유</th><th>근거 · 메모</th></tr></thead>
+      <tbody>
+        <tr><td class="n">h1</td><td><span class="tag mid">헷갈리는</span></td><td>신호와 우회전</td><td>노란불이 켜졌는데 이미 교차로에 들어와 있다면?</td><td>멈추지 말고 빨리 교차로 밖으로 빠져나가요. 들어가기 전이면 정지선 앞에 서요.</td><td class="w">시행규칙 신호의 뜻(황색 등화).</td></tr>
+        <tr><td class="n">h2</td><td><span class="tag mid">헷갈리는</span></td><td>신호와 우회전</td><td>초록불에 우회전하는데 횡단보도 앞에서 사람이 건너려 해요.</td><td>횡단보도 앞에서 멈춰 먼저 보내요. 건너려 할 때도 멈춰요.</td><td class="w">2022-07 시행 개정. 시드 <code>crosswalk-yield</code> 와 겹침 — 묶음만 옮김.</td></tr>
+        <tr><td class="n">g1</td><td><span class="tag hard">고수</span></td><td>신호와 우회전</td><td>우회전 신호등이 따로 있는 교차로, 그 신호가 빨간 화살표예요.</td><td>초록 화살표가 켜질 때까지 정지선 앞에서 기다려요.</td><td class="w">2023-01-22 시행 — 우회전 신호등이 있으면 녹색 화살표 때만.</td></tr>
+        <tr><td class="n">g2</td><td><span class="tag hard">고수</span></td><td>신호와 우회전</td><td>경찰관의 손 신호와 신호등이 다르게 말하고 있어요.</td><td>경찰관의 손 신호를 따라요.</td><td class="w">도로교통법 제5조(신호 또는 지시에 따를 의무).</td></tr>
+        <tr><td class="n">g3</td><td><span class="tag hard">고수</span></td><td>교차로 우선</td><td>신호등이 꺼져 있는 교차로라면?</td><td>신호 없는 교차로처럼 — 먼저 들어간 차, 넓은 길, 오른쪽 차 순으로 양보하며 천천히.</td><td class="w"><span class="unc">출처 확인 필요</span> — 고장 · 소등 신호기를 "교통정리가 없는 교차로" 로 보는 근거 확인 후 넣는다.</td></tr>
+        <tr><td class="n">g4</td><td><span class="tag hard">고수</span></td><td>노면 표시</td><td>길 가장자리에 노란 점선이 그어져 있어요. 잠깐 세워도 되나요?</td><td>잠깐 서는 정차는 되지만 주차는 안 돼요. 노란 실선이면 정차도 안 돼요.</td><td class="w">노면표시 정차 · 주차금지(가장자리 황색 실선 = 주정차 금지, 점선 = 주차 금지). 정차 허용 시간은 숫자라 문장에서 뺌.</td></tr>
+        <tr><td class="n">g5</td><td><span class="tag hard">고수</span></td><td>노면 표시</td><td>중앙선이 한쪽은 노란 실선, 한쪽은 노란 점선이에요. 내 쪽이 점선이면?</td><td>앞지르기 등 꼭 필요할 때 안전을 확인하고 넘을 수 있어요. 실선 쪽에서는 넘지 않아요.</td><td class="w">복선 중앙선(실선 + 점선). 넘을 수 있는 경우의 세부는 <span class="unc">출처 확인 필요</span>.</td></tr>
+        <tr><td class="n">g6</td><td><span class="tag hard">고수</span></td><td>노면 표시</td><td>파란 점선 버스전용차로, 일반 차는 언제 들어갈 수 있나요?</td><td>표지판에 적힌 운영 시간 밖, 또는 우회전을 위해 표시된 구간에서만.</td><td class="w">청색 실선 = 전일 · 점선 = 시간제로 흔히 설명되나 지역 · 구간마다 다름 — <span class="unc">출처 확인 필요</span>. 확인 전엔 넣지 않는 것을 권장.</td></tr>
+      </tbody>
+    </table>
+    <h3>확인이 필요한 사실 (문항에 넣기 전에)</h3>
+    <ul>
+      <li>지그재그 노면표시의 공식 명칭 · 번호와, 그 구간에 앞지르기 · 주정차 금지 효과가 있는지.</li>
+      <li>청색 실선 · 점선의 전일/시간제 구분과 버스전용차로 우회전 진입 허용 구간.</li>
+      <li>신호기가 꺼지거나 고장 난 교차로를 신호 없는 교차로 규칙(제26조)으로 보는 근거.</li>
+      <li>복선 중앙선(실선 + 점선)에서 점선 쪽이 넘을 수 있는 경우의 범위.</li>
+      <li>노면 화살표 위반의 적용 조항 · 범칙금, 비보호 좌회전 사고 과실 비율(둘 다 문장에서는 뺐다).</li>
+    </ul>
+    <p class="cap">URL 은 붙이지 않았다 — 확인한 출처만 나중에 <code>docs/INTEGRATION.md</code> 가정 로그 형식으로 남긴다.</p>
+  </div>
+</section>
+
+<div class="reco">
+  <div class="eyebrow">추천</div>
+  <h2>지금은 A + C′ (데이터만) · 제출 뒤 F → G → E</h2>
+  <p><span class="sig">녹화 전(10/7–8)</span>: 지식 아래에 주제 카드 넷(A)을 더하고, 위 내용 표의 여덟 문항을 묶음대로 넣는다. "어려운 것 따로" 는 별도 과제 <code>헷갈리는 상식</code>(중) 하나로(C′) — 카드 모서리 단계 글자가 이미 나오고, 안에 h1 · h2 · g1 · g2 · g4 를 "~해도 된다" 문장으로 바꾼 "맞아요 / 아니에요" 보기 둘짜리 문항으로 섞으면 D 의 OX 맛도 모델 변경 없이 난다. 화면 · 상태기계 변경 0, 보기는 셋으로(흐린 보기 제거). 단, 녹화 태그 뒤에 넣으면 지식 시트 컷이 바뀌므로 <b>새 태그를 낼 때만</b> 함께 넣고, 아니면 제출 뒤로.</p>
+  <p><span class="sig">제출 뒤 · 발표 로드맵</span>: F(과제 뒤 이어지는 상식 — 제품 논리에 가장 잘 녹음) → G(말 카드 질문 갈래, 답은 고정 문항에서) → E(홈 한 장). C 정식판(난이도 세 칸)은 D 정식판과 자리가 겹치니 하나만. B 는 확정 트랙을 다시 열고, H 는 그림 · 색 예외 · 모델이 모두 필요해 보류.</p>
+  <table>
+    <thead><tr><th>할 일</th><th>누가</th><th>언제</th></tr></thead>
+    <tbody>
+      <tr><td>지식 과제 넷 + <code>헷갈리는 상식</code> 과제, <code>quizFor</code> 분기, 개수 단언 테스트 갱신</td><td>Claude (시드 구조)</td><td>새 태그를 낼 때</td></tr>
+      <tr><td>문항 문구(이 표 그대로) · "출처 확인 필요" 항목은 빼고</td><td>Codex (시드 내용) — 핸드오프</td><td>같은 PR 묶음, scope 분리</td></tr>
+      <tr><td>F 연결표 · G 의도 · E 고르기 규칙</td><td>Claude</td><td>10/9 뒤</td></tr>
+    </tbody>
+  </table>
+</div>
+
+</div>
+</body>
+</html>
