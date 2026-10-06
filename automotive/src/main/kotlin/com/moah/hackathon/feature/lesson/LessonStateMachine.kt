@@ -102,6 +102,8 @@ class LessonStateMachine(
      * 닫히는 것을 한 번 본 뒤에만 "정차 + 도어 열림 → 리포트" 가 살아난다. 안 그러면 첫 신호에서 회차가 바로 끝난다.
      */
     private var doorArmed = true
+    /** 세션 세대 — 시작·리셋마다 올라간다. 늦게 끝난 채점 코루틴이 끝난 세션 위에 Done 을 덮어쓰지 않게(사내 피드백 #4, 10/6). */
+    private var sessionGen = 0
     private val sessionRecords = ArrayList<AttemptRecord>()
     private val unverifiedSteps = LinkedHashSet<String>()
     private var current: Pair<Task, LessonMode>? = null
@@ -127,6 +129,7 @@ class LessonStateMachine(
         if (pinned != null && pinned != (task.id to mode)) pinned = null   // 운전자가 다른 걸 고르면 프리셋 고정이 풀린다
         clearHomeTransient()
         current = task to mode
+        sessionGen++
         sessionRecords.clear()
         unverifiedSteps.clear()
         attempt = 0
@@ -236,6 +239,7 @@ class LessonStateMachine(
         val delta = previous?.let { ParkingDelta.of(score.metrics, it.score.metrics) }
         // 네 가지 판정(docs/design/09) — 서두 선택의 조건이자 화면의 네 줄. 목표 각은 과제 사양(후면·전면 직각 모두 90°). 코스·점검은 없음
         val verdict = if (checklist || courseResult != null) null else recorder.verdict(until, task.parkingSpec.targetHeadingDeg)
+        val gen = sessionGen
         scope.launch {
             val remark = try {
                 coach.remark(task, score, delta, profile, attempt, verdict, courseResult)
@@ -244,6 +248,7 @@ class LessonStateMachine(
                 courseResult?.let { com.moah.hackathon.ports.CourseRemarks.remark(it) }
                     ?: "수고했어요.\n${com.moah.hackathon.ports.AdviceRules.advice(task, score, rubric)}"
             }
+            if (gen != sessionGen) { Log.w(TAG, "attempt $attempt finished after the session ended → dropped"); return@launch }
             val record = AttemptRecord(attempt, task.id, mode, score, delta, remark, clock(),
                 path = if (courseResult != null) emptyList() else recorder.path(), verdict = verdict, course = courseResult)
             store.add(record)
@@ -308,6 +313,8 @@ class LessonStateMachine(
     }
 
     private fun stopEverything() {
+        sessionGen++
+        finishing = false
         briefingJob?.cancel(); briefingJob = null
         vehicleJob?.cancel(); vehicleJob = null
         guide = null
@@ -704,11 +711,7 @@ class LessonStateMachine(
             Log.i(TAG, "asked done (attempt $attempt)")
         }
         publishDrive(p.task, p.mode)
-        if (doorExit) {
-            Log.i(TAG, "door opened while stopped → finish + report")
-            finishAttempt()
-            scope.launch { toReport() }
-        }
+        if (doorExit) exitByDoor()
     }
 
     /** [publishManeuver] 와 같은 경합 규칙 — 지금이 Drive 이고 마무리 중이 아닐 때만 갱신. */
@@ -769,11 +772,7 @@ class LessonStateMachine(
                 if (guide?.finished == true && !askedDone) { askedDone = true; Log.i(TAG, "asked done (attempt $attempt, guide finished)") }
                 publishManeuver(p.task, p.mode)
                 // 출발 전 점검(7단계, 9/28)은 "문 닫기" 가 1단계라 회차 중 도어 열림이 종료가 아니다 — 리포트 진입은 Done 에서만
-                if (doorExit && p.task.type != TaskType.CHECKLIST) {
-                    Log.i(TAG, "door opened while stopped → finish + report")
-                    finishAttempt()
-                    scope.launch { toReport() }
-                }
+                if (doorExit && p.task.type != TaskType.CHECKLIST) exitByDoor()
             }
             // 결과 화면(정차 전용)에서 다시 움직이면 잠근다 — 화면은 버튼을 숨기고 "운전에 집중" 만(절대 규칙 10, 감사 08 A1-01)
             is LessonPhase.Done -> {
@@ -807,10 +806,22 @@ class LessonStateMachine(
         else _phase.update { current -> if (current is LessonPhase.Maneuver && !finishing) next else current }
     }
 
+    /**
+     * 정차 + 운전석 도어 열림 = 세션 끝. 이번 회차에 **움직임이 있었을 때만** 채점한다 — 회차 시작 직후(움직이기 전) 문을 열면
+     * 만점짜리 빈 회차를 만들지 않고 지난 회차들로 리포트(없으면 Setup)로 간다(사내 피드백 #4, 10/6).
+     */
+    private fun exitByDoor() {
+        val moved = recorder.metrics()?.motion?.firstMoveMillis != null
+        if (moved) { Log.i(TAG, "door opened while stopped → finish + report"); finishAttempt() }
+        else Log.i(TAG, "door opened before moving → report without scoring this attempt")
+        scope.launch { toReport() }
+    }
+
     private suspend fun toReport() {
-        // finishAttempt 가 코루틴으로 Done 을 만들 때까지 잠시 기다린다
+        // finishAttempt 가 코루틴으로 Done 을 만들 때까지 기다린다 — 사내 Cloud 코치 응답이 1.4~3.3 s 라 예전 1 s 대기로는
+        // "no attempts → back to setup" 뒤에 Done 이 늦게 덮여 화면이 멈췄다(사내 피드백 #4). 코치 시간 제한(5 s)보다 넉넉히
         var waited = 0
-        while ((_phase.value is LessonPhase.Maneuver || _phase.value is LessonPhase.Drive) && waited < 20) { delay(50); waited++ }
+        while (finishing && waited < FINISH_WAIT_STEPS) { delay(50); waited++ }
         val p = _phase.value
         if (p is LessonPhase.Report) return
         val (task, mode) = current ?: return
@@ -843,6 +854,8 @@ class LessonStateMachine(
 
     private companion object {
         const val TAG = "MOAH/LessonStateMachine"
+        /** 채점 코루틴을 기다리는 최대 횟수 × 50 ms = 8 s(Cloud 코치 시간 제한 5 s + 여유). */
+        const val FINISH_WAIT_STEPS = 160
         /** 예약 카드 `모의시험` 의 이유 문장(숫자 없음, 4b 시안 문구). */
         const val MOCK_EXAM_REASON = "시험장 코스 그대로, 제가 채점만 할게요."
     }
