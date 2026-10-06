@@ -1,6 +1,10 @@
 package com.moah.hackathon.ports
 
 import com.moah.hackathon.feature.lesson.AttemptRecord
+import com.moah.hackathon.feature.lesson.CoachContext
+import com.moah.hackathon.feature.lesson.CoachReply
+import com.moah.hackathon.feature.lesson.CoachTurn
+import com.moah.hackathon.feature.lesson.IntentRules
 import com.moah.hackathon.feature.lesson.LessonMode
 import com.moah.hackathon.feature.lesson.Profile
 import com.moah.hackathon.feature.lesson.RemarkPool
@@ -33,6 +37,12 @@ interface CoachPort {
     /** 세션 총평 — 리포트 상단 두 문장(흐름 / 안전 한 가지). 숫자 없음. */
     suspend fun summarize(task: Task, mode: LessonMode, attempts: List<AttemptRecord>, profile: Profile): String
 
+    /**
+     * 홈 코치 텍스트 대화 한 턴(사내 피드백 #4, 10/6) — [history] 는 이번 시트의 앞선 줄(코치 첫 말 포함), [utterance] 는 운전자의 새 글.
+     * 답은 문장 하나 + 안내 의도 하나이고, 의도는 [context] 안의 것만. 기본은 키워드 규칙([IntentRules]) — Fake 가 이것으로 완결된다.
+     */
+    suspend fun converse(history: List<CoachTurn>, utterance: String, context: CoachContext): CoachReply =
+        IntentRules.reply(utterance, context)
 }
 
 /** 회차의 숫자 머리말 — **운전자 문장에는 쓰지 않는다.** 리포트 자세히 보기·AI 프롬프트 컨텍스트용. 주차 "N번 만에, N초." / 점검 "출발 준비 N초." */

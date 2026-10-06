@@ -28,6 +28,16 @@
 4. tools PR(Claude): 텍스트 한 줄로 의도 확인 단계.
 5. 태그 → 사내에서 Copilot 여러 턴 확인 → 영상 컷.
 
+## 모델 API(2의 모델 PR — 화면은 이것만 본다)
+
+- `LessonPhase.Setup.coachTextInput: Boolean` — 관리자 토글 값. 켜져 있으면 대화 시트에 입력 칸·`보내기`·"음성 입력 · 시뮬레이션" 배지, 버튼 문구 `코치에게 말하기`. 꺼져 있으면 지금 칩 흐름 그대로, 버튼 문구 `코치와 고르기`.
+- `CoachDialog.turns: List<CoachTurn>`(첫 말 `line` 뒤의 대화 — `fromDriver` 로 좌우) · `CoachDialog.waiting`(코치가 답을 고르는 중 — 보내기 막음, "…" 말풍선). 칩(`choices`)은 대화 중에도 그대로.
+- `LessonPhase.Setup.profileRequest` — 대화가 프로필 시트를 요청. 화면은 홈 눈썹 시트를 연 뒤 `consumeProfileRequest()`.
+- 진입점: `LessonViewModel.sendCoachText(text)` · `consumeProfileRequest()` · `admin.textInput: StateFlow<Boolean>` · `admin.setTextInput(on)`.
+- 의도(`CoachIntent`): `OpenSheet(category)` → `sheetRequest` · `PinTask(taskId, mode)` → 홈 제안 고정 · `Booking(option)` → 예약 카드 선택 · `ShowBooking` → `highlightBooking` · `ContinueLast` → 지난번 고정 · `OpenProfile` → `profileRequest` · `AskMore` → 시트에 되물음. `AskMore` 가 아니면 시트가 닫히고 답 문장은 TTS(자막)로.
+- 출처(`ReplySource`): `ai`(Copilot JSON 응답이 검증 통과) · `rule`(전송 계층 없음 = Fake·`CLOUD_COACH=false`) · `fallback`(AI 응답이 형식·문장·의도 검증에 실패, 예외, 5 s 초과 → 키워드 규칙). 앱이 가진 것 밖의 의도는 규칙 결과여도 버리고 되물음.
+- 프롬프트: system = 페르소나(`persona` 키 또는 기본) + "형식 규칙은 위 설명보다 우선" + JSON 형식·숫자 없음·금지어 + 의도 목록(예약·지난 기록이 없으면 그 의도는 목록에서 빠짐) + READY 과제(id | 제목 | 분류 | 모드, 추천 먼저) + 프로필·예약·지난 연습. messages = 최근 8줄(코치 = assistant JSON, 운전자 = user) + 새 글.
+
 ## 경계(바꾸지 않는 것)
 
 - 주행 중(> 5 km/h) 입력·대화 없음(절대 규칙 10). 홈은 정차 화면.

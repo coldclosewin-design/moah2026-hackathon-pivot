@@ -109,6 +109,14 @@ class LessonViewModel(
         /** 프로필 초기화 — 저장을 지우고 다음 홈에서 첫 실행 질문이 다시 나온다. */
         fun resetProfile() { machine.resetProfile(); _profileId.value = AdminPresets.PROFILE_EMPTY }
         fun setBand(visible: Boolean) { _bandVisible.value = visible }
+
+        private val _textInput = MutableStateFlow(false)
+        /**
+         * "시뮬레이션 음성 입력"(10/6) — 켜면 홈 코치 시트에 텍스트 입력이 생기고 AI(또는 Fake 키워드 규칙)가 답한다. 기본 꺼짐.
+         * 화면의 입력 칸·배지·버튼 문구는 이 값이 아니라 `Setup.coachTextInput` 을 본다(같은 값).
+         */
+        val textInput: StateFlow<Boolean> = _textInput
+        fun setTextInput(on: Boolean) { machine.setCoachTextInput(on); _textInput.value = on }
     }
 
     private fun currentTask(): Task? = when (val p = phase.value) {
@@ -141,6 +149,9 @@ class LessonViewModel(
     fun chooseCoach(choice: CoachChoice) = machine.chooseCoach(choice)
     fun closeCoach() = machine.closeCoach()
     fun consumeSheetRequest() = machine.consumeSheetRequest()
+    /** 텍스트 대화(10/6) — 입력 칸 `보내기`. 입력이 꺼져 있거나 답을 기다리는 중이면 무시. 프로필 시트 요청은 시트를 연 뒤 소비한다. */
+    fun sendCoachText(text: String) = machine.sendCoachText(text)
+    fun consumeProfileRequest() = machine.consumeProfileRequest()
     /** 예약 카드 `코스 연습`·`모의시험`. */
     fun chooseBooking(option: BookingOption) = machine.chooseBooking(option)
 

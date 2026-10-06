@@ -319,8 +319,17 @@ enum class CoachChoice(val label: String) {
     CONTINUE_LAST("지난번 이어서"),
 }
 
-/** 대화 시트 — 코치 말풍선 한 줄 + 답 칩. 칩은 상황에 맞는 것만(예약이 없으면 예약 칩 없음, 기록이 없으면 "지난번" 없음). */
-data class CoachDialog(val line: String, val choices: List<CoachChoice>)
+/**
+ * 대화 시트 — 코치 말풍선 한 줄 + 답 칩. 칩은 상황에 맞는 것만(예약이 없으면 예약 칩 없음, 기록이 없으면 "지난번" 없음).
+ * 텍스트 대화(10/6, [LessonPhase.Setup.coachTextInput])가 켜져 있으면 [turns] 에 첫 말 뒤의 대화(운전자 글 · 코치 되물음)가 쌓이고,
+ * [waiting] 동안은 코치가 답을 고르는 중(보내기를 막는다). 칩은 대화 중에도 그대로 — AI 가 실패해도 고를 수 있게.
+ */
+data class CoachDialog(
+    val line: String,
+    val choices: List<CoachChoice>,
+    val turns: List<CoachTurn> = emptyList(),
+    val waiting: Boolean = false,
+)
 
 /** 예약 카드의 선택지 — 둘 다 예약한 코스의 과제. 코스 연습 = 지금 실력에 맞는 모드, 모의시험 = 평가 모드(채점만). */
 enum class BookingOption(val label: String) {

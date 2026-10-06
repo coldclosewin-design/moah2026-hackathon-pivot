@@ -66,6 +66,7 @@ class AppContainer(context: Context) {
         fallback = FakeCoachPort(RemarkPool(SeedCatalog.remarks)),
         transport = copilot?.config?.let { cfg -> CopilotCoachTransport(copilot, cfg, UrlHttpClient()) },
         timeoutMillis = 5_000L,
+        persona = copilot?.config?.persona,
     )
     /** 시연 조작 패널이 고르는 Fake 시나리오(전체). 진행 중인 과제가 정해지면 [scenariosFor] 로 좁힌다. Real 에서는 쓰이지 않는다. */
     val scenarios: List<Scenario> = ParkingScenarios.all + ChecklistScenarios.all
