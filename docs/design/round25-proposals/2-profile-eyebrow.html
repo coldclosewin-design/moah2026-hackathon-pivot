@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>홈 눈썹 안내 시안</title>
+<style>
+:root{
+  --ink:#070827; --paper:#FCFCFA; --peri:#5B60A1; --lav:#E5E6F0; --signal:#F52D48;
+  --muted:rgba(7,8,39,.60);
+  --tex:0 4px 10px rgba(7,8,39,.10),0 1px 2px rgba(7,8,39,.06),inset 0 1px 0 rgba(255,255,255,.9);
+  --font:"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);font-weight:400;line-height:1.5}
+b{font-weight:500}
+.page{max-width:1540px;margin:0 auto;padding:48px 40px 96px}
+h1{font-size:40px;font-weight:400;margin:0 0 6px;letter-spacing:-.5px}
+h2{font-size:26px;font-weight:400;margin:0 0 4px}
+h3{font-size:15px;font-weight:500;margin:16px 0 6px;color:var(--peri)}
+p{margin:0 0 8px}
+.lede{font-size:17px;color:var(--muted);margin-bottom:18px}
+blockquote{margin:0 0 12px;padding:14px 20px;background:var(--lav);border-left:4px solid var(--signal);font-size:16px;white-space:pre-line}
+blockquote small{display:block;color:var(--muted);font-size:13px;margin-top:4px;white-space:normal}
+.interp{font-size:15px;margin:0 0 14px;padding:8px 14px;border:1px solid var(--peri);color:var(--peri);display:inline-block}
+.scale{display:inline-block;font-size:13px;color:var(--peri);border:1px solid var(--peri);border-radius:999px;padding:3px 12px;margin:0 8px 6px 0}
+.cell{display:grid;grid-template-columns:853px 1fr;gap:44px;padding:40px 0;border-top:1px solid rgba(7,8,39,.14)}
+.cell.now{grid-template-columns:1fr}
+.letter{font-size:56px;line-height:1;color:var(--peri);margin-bottom:6px}
+.letter.cur{color:var(--muted);font-size:28px}
+.desc{font-size:17px;margin-bottom:10px}
+ul{margin:0;padding-left:20px;font-size:15px}
+li{margin:3px 0}
+.cap{font-size:12px;color:var(--muted);margin:16px 0 6px}
+.cap:first-child{margin-top:0}
+.imgs{display:flex;gap:24px;flex-wrap:wrap}
+.imgs figure{margin:0}
+.imgs img{width:640px;display:block;box-shadow:0 0 0 1px rgba(7,8,39,.15)}
+.imgs figcaption{font-size:12px;color:var(--muted);margin-top:6px;max-width:640px}
+code{font-family:Consolas,"Malgun Gothic",monospace;font-size:.92em;background:var(--lav);padding:0 4px}
+
+/* ---------- 1/3 frames ---------- */
+.frame{position:relative;overflow:hidden;width:853px;height:423px;background:var(--paper);box-shadow:0 0 0 1px rgba(7,8,39,.18);font-size:11px;line-height:1.35}
+.abs{position:absolute}
+.eyebrow{font-size:11px;color:var(--peri);white-space:nowrap}
+.wm{font-size:9px;letter-spacing:3px}
+.t24{font-size:24px;line-height:1.3}
+.t20{font-size:20px;line-height:1.3}
+.task{font-size:13px}
+.note{font-size:12px;color:var(--muted)}
+.pill{height:46px;border-radius:999px;background:var(--signal);color:var(--paper);font-size:13px;display:flex;align-items:center;justify-content:center;gap:14px;
+  box-shadow:0 4px 10px rgba(7,8,39,.10),0 1px 2px rgba(7,8,39,.06),inset 0 1px 0 rgba(255,255,255,.35)}
+.pill2{height:37px;padding:0 18px;border-radius:999px;background:var(--lav);color:var(--ink);font-size:12px;display:inline-flex;align-items:center;justify-content:center;gap:8px;box-shadow:var(--tex);white-space:nowrap}
+.lnk{font-size:13px;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
+.linkrow{display:flex;gap:24px;align-items:center}
+.rule{width:359px;border-top:1px solid rgba(7,8,39,.12)}
+/* admin band (demo build) */
+.band{left:0;top:393px;width:853px;height:30px;background:var(--ink);display:flex;align-items:center;gap:4px;padding:0 6px}
+.band .lb{font-size:8px;color:rgba(252,252,250,.55);margin-right:3px}
+.band .c{height:18px;padding:0 7px;border-radius:999px;background:rgba(252,252,250,.12);color:var(--paper);font-size:8px;display:inline-flex;align-items:center;white-space:nowrap}
+.band .sp{flex:1}
+/* touch-target annotation (explanatory only) */
+.tgt{position:absolute;border:1px dashed var(--peri);border-radius:4px}
+.tgt i{position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:6px;font-style:normal;font-size:8.5px;color:var(--peri);white-space:nowrap;background:rgba(252,252,250,.9);padding:0 3px}
+/* B chip */
+.pchip{height:26px;padding:0 10px 0 8px;border-radius:999px;background:var(--lav);box-shadow:var(--tex);display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--ink);white-space:nowrap}
+.pchip .ch{color:var(--peri);font-size:13px;margin-left:2px}
+/* C coach mark */
+.hole{border-radius:6px;box-shadow:0 0 0 1600px rgba(7,8,39,.62)}
+.tip{background:var(--paper);color:var(--ink);padding:10px 14px;box-shadow:0 4px 10px rgba(7,8,39,.25);width:290px}
+.tip:before{content:"";position:absolute;left:28px;top:-8px;border:8px solid transparent;border-top:0;border-bottom-color:var(--paper)}
+.tip .t{font-size:14px;line-height:1.35}
+.tip .s{font-size:10px;color:var(--muted);margin-top:4px}
+/* D help */
+.qbtn{width:30px;height:30px;border-radius:50%;background:var(--lav);box-shadow:var(--tex);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--ink)}
+.dim{opacity:.35}
+.sh{left:277px;top:0;width:576px;height:100%;background:var(--paper);box-shadow:-4px 0 12px rgba(7,8,39,.10);padding:20px 26px}
+.hrow{display:grid;grid-template-columns:64px 1fr 14px;gap:12px;align-items:center;height:54px;border-top:1px solid rgba(7,8,39,.10)}
+.hrow .lb{font-size:12px}
+.hrow .ds{font-size:10.5px;color:var(--muted);line-height:1.4}
+.hrow .go{color:var(--peri);font-size:13px}
+.mini{position:relative;width:60px;height:38px;background:var(--paper);box-shadow:0 0 0 1px rgba(7,8,39,.18)}
+.mini span{position:absolute;background:rgba(7,8,39,.22)}
+.mini .il{left:0;top:0;width:24px;height:38px;background:var(--peri);opacity:.45}
+.mini .e{left:28px;top:4px;width:18px;height:2px}
+.mini .tt{left:28px;top:8px;width:26px;height:3px}
+.mini .tt2{left:28px;top:13px;width:20px;height:3px}
+.mini .cd{left:28px;top:18px;width:28px;height:4px;background:transparent;box-shadow:inset 0 0 0 1px rgba(7,8,39,.3)}
+.mini .p{left:28px;top:24px;width:28px;height:5px;border-radius:3px;background:rgba(245,45,72,.35)}
+.mini .k{left:28px;top:32px;width:10px;height:2px}
+.mini .c2{left:41px;top:31px;width:12px;height:4px;border-radius:2px;background:var(--lav);box-shadow:inset 0 0 0 1px rgba(7,8,39,.2)}
+.mini .hi{background:var(--signal) !important;opacity:1;box-shadow:none}
+/* E */
+.uline{text-decoration:underline;text-decoration-color:rgba(91,96,161,.55);text-underline-offset:3px}
+.say{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--ink)}
+/* spec */
+.spec{display:grid;grid-template-columns:96px 1fr;gap:5px 12px;font-size:14px;margin-top:10px}
+.spec dt{color:var(--peri)}
+.spec dd{margin:0}
+/* table */
+table{border-collapse:collapse;width:100%;font-size:13.5px;margin-top:10px}
+th,td{border-top:1px solid rgba(7,8,39,.14);padding:9px 10px;text-align:left;vertical-align:top;font-weight:400}
+th{color:var(--peri);font-weight:500}
+thead th{border-top:0;border-bottom:1px solid var(--ink)}
+td.n{color:var(--peri);width:34px}
+.tag{display:inline-block;font-size:11px;padding:1px 8px;border-radius:999px;background:var(--lav);color:var(--peri);white-space:nowrap}
+.tag.set{background:var(--ink);color:var(--paper)}
+.tag.r{background:var(--signal);color:var(--paper)}
+.reco{margin-top:48px;padding:28px 32px;background:var(--ink);color:var(--paper)}
+.reco .eyebrow{color:rgba(252,252,250,.6);font-size:13px}
+.reco h2{font-size:30px;margin:6px 0 8px}
+.reco p{color:rgba(252,252,250,.85);font-size:16px}
+.reco .sig{color:var(--signal)}
+.reco code{color:var(--ink)}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="car" viewBox="0 0 401 423">
+    <rect width="401" height="423" fill="#FCFCFA"/>
+    <path d="M110 90 L330 90 L401 140 V423 H0 V300 Z" fill="#5B60A1"/>
+    <path d="M0 150 C70 118 190 112 270 132 L401 205 V423 H0Z" fill="#070827"/>
+    <path d="M250 150 C300 140 340 150 360 170 L401 215 V190 Z" fill="#FCFCFA" opacity=".85"/>
+    <path d="M0 230 L118 236 L128 258 L0 264Z" fill="#F52D48"/>
+    <path d="M0 300 C130 288 260 330 401 306 V423 H0Z" fill="#FCFCFA" opacity=".92"/>
+    <path d="M0 365 C150 352 300 384 401 372 V423 H0Z" fill="#070827"/>
+    <circle cx="300" cy="372" r="34" fill="#070827"/><circle cx="300" cy="372" r="18" fill="#FCFCFA"/>
+  </symbol>
+  <symbol id="pen" viewBox="0 0 20 20"><path d="M3 17 L4 12.5 L13 3.5 L16.5 7 L7.5 16 Z M11.5 5 L15 8.5" fill="none" stroke="#5B60A1" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+  <symbol id="person" viewBox="0 0 20 20"><circle cx="10" cy="6.5" r="3.6" fill="#5B60A1"/><path d="M3 18 C3 13 6.5 11.5 10 11.5 C13.5 11.5 17 13 17 18 Z" fill="#5B60A1"/></symbol>
+  <symbol id="spk" viewBox="0 0 20 20"><path d="M3 7.5 H7 L12 3.5 V16.5 L7 12.5 H3 Z" fill="#5B60A1"/><path d="M14.5 7 Q16.5 10 14.5 13" fill="none" stroke="#5B60A1" stroke-width="1.6"/></symbol>
+</svg>
+<div class="page">
+
+<h1>2 · 홈 눈썹에서 프로필로 — 안내와 도움말</h1>
+<p class="lede">홈 오른쪽 맨 위 눈썹 <code>연수생 · 장롱 10년차 · 목표 아이 등하원</code> 을 누르면 프로필 시트가 열리는데, 화면에는 누를 수 있다는 표시가 없다. 운전자가 읽을 거리를 늘리지 않으면서 이 길을 알리는 방법 다섯 가지.</p>
+<blockquote>#연수생/장롱10년차/목표 아이등하원/
+- 여기서 프로필 편집으로 가는 가이드가 없어 눌러서 확인해봐야 하는 번거로움이 있음
+- 해당 앱에 도움말 혹은 운전자 UX를 고려하여 어떤 방법이 좋을지 여러가지 대안을 5가지 제시해줘<small>— 사용자 피드백 원문, 10/6 저녁 (녹화 기준 태그 <code>inhouse-20261006-5</code> APK 를 직접 눌러 보고)</small></blockquote>
+<p class="interp">기준: 홈은 정차 화면이다(주행 중엔 홈이 없다). 그래도 차 안 화면이라 한눈에 읽히고, 새 문장은 최소로, 터치 영역은 76 dp 이상.</p>
+<div><span class="scale">모든 목업은 1/3 축척 · 실제 화면은 약 3배 (853×423 = 2560×1268 dp)</span><span class="scale">점선 = 터치 영역 표시 (설명용, 화면에는 그리지 않음)</span><span class="scale">문구·배치는 다섯 시안 모두 같다 — 눈썹 자리만 다르다</span></div>
+
+<!-- ========== 지금 ========== -->
+<section class="cell now" style="margin-top:28px">
+  <div>
+    <div class="letter cur">지금</div>
+    <p class="desc">눈썹은 Periwinkle 32 dp 글자 한 줄뿐이다. 밑줄·화살표·아이콘이 없어 장식 문구로 읽히고, 바로 아래 <code>과제·모드 바꾸기</code> 는 밑줄이 있어 오히려 "밑줄 = 누르는 곳" 을 앱이 이미 가르치고 있다. 누르면 프로필 시트(다섯 줄 + 앱이 본 것 + <code>← 돌아가기</code>)가 오른쪽 열을 덮는다.</p>
+    <div class="imgs">
+      <figure><img src="../../screenshots/lesson/lesson-setup.png" alt="홈 현재 캡처"><figcaption>홈 — 오른쪽 열 맨 위 회색 한 줄이 눈썹. 누를 수 있다는 표시가 없다.</figcaption></figure>
+      <figure><img src="../../screenshots/lesson/lesson-profile-sheet.png" alt="프로필 시트 현재 캡처"><figcaption>눈썹을 누르면 열리는 프로필 시트 — 이 화면의 존재를 운전자는 눌러 봐야 안다.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ========== A ========== -->
+<section class="cell">
+  <div>
+    <p class="cap">홈 — 눈썹 끝에 연필 + "고치기", 줄 전체가 하나의 터치 영역</p>
+    <div class="frame">
+      <svg class="abs" style="left:0;top:0" width="401" height="423"><use href="#car"/></svg>
+      <div class="abs wm" style="left:61px;top:24px">DRIVE COACH</div>
+      <div class="abs eyebrow" style="left:473px;top:54px;display:flex;align-items:center;gap:6px">연수생 · 장롱 10년차 · 목표 아이 등하원<span style="width:10px"></span><svg width="11" height="11"><use href="#pen"/></svg><span class="uline">고치기</span></div>
+      <div class="tgt" style="left:465px;top:47px;width:270px;height:27px"><i>터치 영역 · 줄 전체 80 dp</i></div>
+      <div class="abs t24" style="left:473px;top:84px">오늘은 가볍게,<br>주차부터 해 볼까요?</div>
+      <div class="abs task" style="left:473px;top:160px">후면 직각 주차 · 가이드 모드</div>
+      <div class="abs note" style="left:473px;top:181px">처음은 제가 순서대로 함께할게요.</div>
+      <div class="abs pill" style="left:473px;top:205px;width:359px">시작 <span>→</span></div>
+      <div class="abs linkrow" style="left:473px;top:272px"><span class="lnk">과제·모드 바꾸기</span><span class="pill2">코치와 고르기</span></div>
+      <div class="abs rule" style="left:473px;top:337px"></div>
+      <div class="abs note" style="left:473px;top:358px">오늘은 편안한 곳에서 주차부터 연습해 봐요.</div>
+      <div class="abs band"><span class="lb">관리자</span><span class="c">잘한 주차</span><span class="c">못한 주차</span><span class="c">잘한 점검</span><span class="c">못한 점검</span><span class="sp"></span><span class="c">시나리오 정지</span><span class="c">정차</span><span class="c">출발</span><span class="c">문 열기</span><span class="c">문 닫기</span><span class="c">더 보기</span></div>
+    </div>
+  </div>
+  <div>
+    <div class="letter">A</div>
+    <h2>연필 · 고치기</h2>
+    <p class="desc">눈썹 문장은 그대로 두고 끝에 <b>연필 기호 + "고치기"</b> 를 붙인다. "고치기" 에는 <code>과제·모드 바꾸기</code> 와 같은 밑줄 문법을 쓰고, 터치 영역은 글자가 아니라 <b>줄 전체</b>(높이 80 dp, 폭은 눈썹 끝까지).</p>
+    <dl class="spec">
+      <dt>터치 영역</dt><dd>지금은 글자 높이(약 44 dp)만큼 — 줄 높이를 80 dp 로 키우고 위아래 여백을 영역에 포함. 제목과 사이 간격은 그대로.</dd>
+      <dt>발견성</dt><dd>높음. 연필은 "편집" 의 가장 흔한 기호이고, 밑줄은 이 화면 안에서 이미 배운 문법.</dd>
+      <dt>복잡도</dt><dd>글자 셋 + 기호 하나. 색은 눈썹과 같은 Periwinkle 이라 위계(시작 &gt; 링크 줄 &gt; 눈썹)가 안 바뀐다.</dd>
+      <dt>첫 실행 / 이후</dt><dd>늘 같은 모양 — 처음에도, 열 번째에도 같은 자리에 있다.</dd>
+      <dt>난이도</dt><dd>하. UI 만(Codex) — 아이콘 하나와 클릭 영역 패딩. 모델 변경 없음.</dd>
+    </dl>
+    <h3>장점</h3>
+    <ul><li>읽을 거리가 가장 적게 늘면서 상시 표시가 생긴다.</li><li>눈썹이 "누구를 위한 제안인지" 알려 주는 원래 역할을 잃지 않는다.</li></ul>
+    <h3>주의점</h3>
+    <ul><li>"고치기" 는 프로필 시트의 "바꾸기"(행마다)와 낱말이 다르다 — 하나로 맞추려면 "바꾸기", 다만 그러면 바로 아래 <code>과제·모드 바꾸기</code> 와 겹친다.</li><li>눈썹이 길어지면(목표 문구가 긴 프로필) 한 줄을 넘을 수 있어 말줄임 규칙 필요.</li></ul>
+  </div>
+</section>
+
+<!-- ========== B ========== -->
+<section class="cell">
+  <div>
+    <p class="cap">홈 — 눈썹이 Lavender 알약(사람 기호 + 문장 + ›)이 된다</p>
+    <div class="frame">
+      <svg class="abs" style="left:0;top:0" width="401" height="423"><use href="#car"/></svg>
+      <div class="abs wm" style="left:61px;top:24px">DRIVE COACH</div>
+      <div class="abs" style="left:467px;top:47px"><span class="pchip"><svg width="12" height="12"><use href="#person"/></svg>연수생 · 장롱 10년차 · 목표 아이 등하원<span class="ch">›</span></span></div>
+      <div class="tgt" style="left:464px;top:44px;width:244px;height:32px"><i>터치 영역 · 알약 78 dp</i></div>
+      <div class="abs t24" style="left:473px;top:86px">오늘은 가볍게,<br>주차부터 해 볼까요?</div>
+      <div class="abs task" style="left:473px;top:162px">후면 직각 주차 · 가이드 모드</div>
+      <div class="abs note" style="left:473px;top:183px">처음은 제가 순서대로 함께할게요.</div>
+      <div class="abs pill" style="left:473px;top:207px;width:359px">시작 <span>→</span></div>
+      <div class="abs linkrow" style="left:473px;top:274px"><span class="lnk">과제·모드 바꾸기</span><span class="pill2">코치와 고르기</span></div>
+      <div class="abs rule" style="left:473px;top:337px"></div>
+      <div class="abs note" style="left:473px;top:358px">오늘은 편안한 곳에서 주차부터 연습해 봐요.</div>
+      <div class="abs band"><span class="lb">관리자</span><span class="c">잘한 주차</span><span class="c">못한 주차</span><span class="c">잘한 점검</span><span class="c">못한 점검</span><span class="sp"></span><span class="c">시나리오 정지</span><span class="c">정차</span><span class="c">출발</span><span class="c">문 열기</span><span class="c">문 닫기</span><span class="c">더 보기</span></div>
+    </div>
+  </div>
+  <div>
+    <div class="letter">B</div>
+    <h2>프로필 알약</h2>
+    <p class="desc">눈썹을 <b>보조 알약 문법</b>(Lavender 채움 + 질감 그림자)으로 바꾸고 앞에 사람 기호, 끝에 <code>›</code>. 글자는 Ink 로 올려 "버튼" 으로 읽히게 한다. 문장은 지금 눈썹 그대로라 새로 읽을 것은 없다.</p>
+    <dl class="spec">
+      <dt>터치 영역</dt><dd>알약 자체 — 높이 78 dp, 폭은 문장 길이. 경계가 눈에 보여 누를 곳이 가장 분명하다.</dd>
+      <dt>발견성</dt><dd>가장 높다. 앱의 모든 알약이 누르는 것이라는 규칙과 일치.</dd>
+      <dt>복잡도</dt><dd>중. 오른쪽 열에 알약이 셋(프로필 · 시작 · 코치와 고르기)이 되어 "무엇이 주인공인지" 가 약간 흐려진다.</dd>
+      <dt>첫 실행 / 이후</dt><dd>늘 같은 모양.</dd>
+      <dt>난이도</dt><dd>하. UI 만 — 기존 보조 알약 컴포넌트를 작은 높이로 재사용.</dd>
+    </dl>
+    <h3>장점</h3>
+    <ul><li>설명이 전혀 필요 없는 형태 — 누르면 무엇인가 열린다는 것이 확실하다.</li><li>나중에 프로필이 여러 명(가족 운전자)이 되면 "사람 전환" 알약으로 자연스럽게 자란다.</li></ul>
+    <h3>주의점</h3>
+    <ul><li><code>코치와 고르기</code> 와 같은 Lavender 알약이 위아래로 둘 — 시선이 분산된다. 테두리만 있는 알약(채움 없음)으로 한 단계 낮추는 변형도 가능.</li><li>눈썹이 "포스터 제목 위 작은 글" 이던 컨셉이 사라진다.</li></ul>
+  </div>
+</section>
+
+<!-- ========== C ========== -->
+<section class="cell">
+  <div>
+    <p class="cap">홈 — 처음 한 번만: 화면을 어둡게 덮고 눈썹만 밝게, 말풍선 한 줄</p>
+    <div class="frame">
+      <svg class="abs" style="left:0;top:0" width="401" height="423"><use href="#car"/></svg>
+      <div class="abs wm" style="left:61px;top:24px">DRIVE COACH</div>
+      <div class="abs eyebrow" style="left:473px;top:54px">연수생 · 장롱 10년차 · 목표 아이 등하원</div>
+      <div class="abs t24" style="left:473px;top:84px">오늘은 가볍게,<br>주차부터 해 볼까요?</div>
+      <div class="abs task" style="left:473px;top:160px">후면 직각 주차 · 가이드 모드</div>
+      <div class="abs note" style="left:473px;top:181px">처음은 제가 순서대로 함께할게요.</div>
+      <div class="abs pill" style="left:473px;top:205px;width:359px">시작 <span>→</span></div>
+      <div class="abs linkrow" style="left:473px;top:272px"><span class="lnk">과제·모드 바꾸기</span><span class="pill2">코치와 고르기</span></div>
+      <div class="abs rule" style="left:473px;top:337px"></div>
+      <div class="abs note" style="left:473px;top:358px">오늘은 편안한 곳에서 주차부터 연습해 봐요.</div>
+      <div class="abs band"><span class="lb">관리자</span><span class="c">잘한 주차</span><span class="c">못한 주차</span><span class="c">잘한 점검</span><span class="c">못한 점검</span><span class="sp"></span><span class="c">시나리오 정지</span><span class="c">정차</span><span class="c">출발</span><span class="c">문 열기</span><span class="c">문 닫기</span><span class="c">더 보기</span></div>
+      <div class="abs hole" style="left:463px;top:46px;width:204px;height:29px"></div>
+      <div class="abs tip" style="left:463px;top:90px">
+        <div class="t">여기를 누르면<br>프로필을 바꿀 수 있어요.</div>
+        <div class="s">아무 곳이나 누르면 닫혀요.</div>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="letter">C</div>
+    <h2>처음 한 번 코치 마크</h2>
+    <p class="desc">프로필이 처음 만들어진 뒤 홈에 <b>처음 들어왔을 때 한 번만</b>, 화면을 Ink 62% 로 덮고 눈썹 자리만 뚫어 밝힌 뒤 Paper 말풍선 한 줄을 띄운다. 아무 곳이나 누르면 닫히고 다시는 안 뜬다(관리자 준비실 "기록 초기화" 로 되살림).</p>
+    <dl class="spec">
+      <dt>터치 영역</dt><dd>덮개 전체(닫기). 눈썹 자체의 터치 영역은 지금 그대로라 A 와 함께 써야 76 dp 를 넘는다.</dd>
+      <dt>발견성</dt><dd>첫 회에는 가장 강하다. 그 뒤에는 다시 지금과 같다 — 잊으면 찾을 길이 없다.</dd>
+      <dt>복잡도</dt><dd>평소 홈은 0. 첫 회에만 탭 하나가 늘어난다.</dd>
+      <dt>첫 실행 / 이후</dt><dd>첫 실행 전용. 이후는 다른 장치(A·B·E)가 필요.</dd>
+      <dt>난이도</dt><dd>중. UI(덮개·구멍·말풍선, Codex) + "봤음" 플래그 저장(모델, Claude — 프로필 파일 옆 한 칸).</dd>
+    </dl>
+    <h3>장점</h3>
+    <ul><li>평소 화면을 하나도 바꾸지 않는다 — 포스터 컨셉 보존.</li><li>시연 영상에서 "처음 쓰는 사람을 이렇게 안내한다" 는 한 컷이 된다.</li></ul>
+    <h3>주의점</h3>
+    <ul><li>첫 탭을 덮개가 먹는다 — 바로 <code>시작</code> 을 누르려던 운전자는 한 번 더 눌러야 한다.</li><li>차 안 화면에서 덮개형 튜토리얼은 "광고 팝업" 처럼 느껴질 수 있고, 시연 프리셋에서는 꺼 둬야 대본이 안 바뀐다.</li></ul>
+  </div>
+</section>
+
+<!-- ========== D ========== -->
+<section class="cell">
+  <div>
+    <p class="cap">① 홈 — 오른쪽 위 "?" 단추 하나</p>
+    <div class="frame">
+      <svg class="abs" style="left:0;top:0" width="401" height="423"><use href="#car"/></svg>
+      <div class="abs wm" style="left:61px;top:24px">DRIVE COACH</div>
+      <div class="abs qbtn" style="left:802px;top:16px">?</div>
+      <div class="tgt" style="left:798px;top:12px;width:38px;height:38px"><i style="left:auto;right:100%;margin:0 6px 0 0">터치 영역 · 90 dp</i></div>
+      <div class="abs eyebrow" style="left:473px;top:54px">연수생 · 장롱 10년차 · 목표 아이 등하원</div>
+      <div class="abs t24" style="left:473px;top:84px">오늘은 가볍게,<br>주차부터 해 볼까요?</div>
+      <div class="abs task" style="left:473px;top:160px">후면 직각 주차 · 가이드 모드</div>
+      <div class="abs note" style="left:473px;top:181px">처음은 제가 순서대로 함께할게요.</div>
+      <div class="abs pill" style="left:473px;top:205px;width:359px">시작 <span>→</span></div>
+      <div class="abs linkrow" style="left:473px;top:272px"><span class="lnk">과제·모드 바꾸기</span><span class="pill2">코치와 고르기</span></div>
+      <div class="abs rule" style="left:473px;top:337px"></div>
+      <div class="abs note" style="left:473px;top:358px">오늘은 편안한 곳에서 주차부터 연습해 봐요.</div>
+      <div class="abs band"><span class="lb">관리자</span><span class="c">잘한 주차</span><span class="c">못한 주차</span><span class="c">잘한 점검</span><span class="c">못한 점검</span><span class="sp"></span><span class="c">시나리오 정지</span><span class="c">정차</span><span class="c">출발</span><span class="c">문 열기</span><span class="c">문 닫기</span><span class="c">더 보기</span></div>
+    </div>
+    <p class="cap">② "?" 를 누르면 — 한 장짜리 도움말 시트 (프로필 시트와 같은 자리·모양)</p>
+    <div class="frame">
+      <svg class="abs dim" style="left:0;top:0" width="401" height="423"><use href="#car"/></svg>
+      <div class="abs wm" style="left:61px;top:24px">DRIVE COACH</div>
+      <div class="abs sh">
+        <div class="eyebrow">도움말 · 홈</div>
+        <div class="t20" style="margin:2px 0 10px">이 화면에서 할 수 있는 것</div>
+        <div class="hrow"><div class="mini"><span class="il"></span><span class="e hi"></span><span class="tt"></span><span class="tt2"></span><span class="p"></span><span class="k"></span><span class="c2"></span></div><div><div class="lb">맨 위 이름 줄</div><div class="ds">내 프로필을 보고 바꿔요. 첫 과제와 코치 말투가 여기에 맞춰져요.</div></div><span class="go">›</span></div>
+        <div class="hrow"><div class="mini"><span class="il"></span><span class="e"></span><span class="tt"></span><span class="tt2"></span><span class="p"></span><span class="k hi"></span><span class="c2"></span></div><div><div class="lb">과제·모드 바꾸기</div><div class="ds">다른 과제나 가이드 · 힌트 · 평가 모드를 직접 골라요.</div></div><span class="go">›</span></div>
+        <div class="hrow"><div class="mini"><span class="il"></span><span class="e"></span><span class="tt"></span><span class="tt2"></span><span class="p"></span><span class="k"></span><span class="c2 hi"></span></div><div><div class="lb">코치와 고르기</div><div class="ds">코치와 이야기하며 오늘 할 것을 정해요.</div></div><span class="go">›</span></div>
+        <div class="hrow" style="border-bottom:1px solid rgba(7,8,39,.10)"><div class="mini"><span class="il"></span><span class="e"></span><span class="tt"></span><span class="tt2"></span><span class="cd hi"></span><span class="p"></span><span class="k"></span><span class="c2"></span></div><div><div class="lb">예약 카드</div><div class="ds">예약한 시험장이 있을 때만 보여요. 누르면 그 연습으로 가요.</div></div><span class="go">›</span></div>
+        <div class="note" style="font-size:10.5px;margin-top:10px">줄을 누르면 그 자리로 바로 가요. 차가 움직이면 도움말은 닫혀요.</div>
+        <div class="abs" style="left:26px;top:364px"><span class="pill2" style="height:32px;font-size:11px">← 돌아가기</span></div>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="letter">D</div>
+    <h2>도움말 한 장</h2>
+    <p class="desc">홈 오른쪽 위에 둥근 <b>"?" 단추</b>(Lavender, 90 dp). 누르면 프로필 시트와 같은 자리에 <b>도움말 시트 한 장</b>: 홈의 네 요소를 작은 도식(해당 부분만 Signal)과 한 줄 설명으로. 줄을 누르면 그 기능으로 바로 간다 — 도움말이 곧 바로가기.</p>
+    <dl class="spec">
+      <dt>터치 영역</dt><dd>"?" 90 dp 원 · 시트의 각 줄 높이 160 dp · 돌아가기 보조 알약.</dd>
+      <dt>발견성</dt><dd>"?" 는 보편 기호라 찾기 쉽지만, 프로필로 가는 길은 <b>두 단계</b>(? → 이름 줄)가 된다. 눈썹 자체의 표시 문제는 그대로.</dd>
+      <dt>복잡도</dt><dd>홈에 기호 하나. 시트는 읽을 거리가 가장 많다(네 줄) — 정차 중에만 열리고 움직이면 닫힌다.</dd>
+      <dt>첫 실행 / 이후</dt><dd>언제든 같은 곳. 다른 화면(과제 시트·리포트)으로 넓히기 쉽다.</dd>
+      <dt>난이도</dt><dd>중. UI 새 시트 하나(Codex) + 문구(시드) + 시트 상태 하나(모델, 작음). 화면마다 넓히면 그만큼 늘어난다.</dd>
+    </dl>
+    <h3>장점</h3>
+    <ul><li>사용자가 말한 "도움말" 에 가장 정직하게 답한다 — 앱 전체 설명서의 첫 장.</li><li>심사·발표에서 "처음 쓰는 사람도 혼자 쓴다" 를 보여 주기 좋다.</li></ul>
+    <h3>주의점</h3>
+    <ul><li>운전 앱의 도움말은 대개 안 열린다 — 이것만으로는 원래 문제(눈썹이 버튼인 줄 모름)가 풀리지 않는다.</li><li>오른쪽 위는 시스템 바 "Driver" 단추 바로 아래라 손이 겹칠 수 있다.</li></ul>
+  </div>
+</section>
+
+<!-- ========== E ========== -->
+<section class="cell">
+  <div>
+    <p class="cap">홈 — 코치가 처음 한 번 말해 주고, 눈썹에는 옅은 밑줄이 늘 남는다</p>
+    <div class="frame">
+      <svg class="abs" style="left:0;top:0" width="401" height="423"><use href="#car"/></svg>
+      <div class="abs wm" style="left:61px;top:24px">DRIVE COACH</div>
+      <div class="abs eyebrow uline" style="left:473px;top:54px">연수생 · 장롱 10년차 · 목표 아이 등하원</div>
+      <div class="tgt" style="left:465px;top:47px;width:204px;height:27px"><i>터치 영역 · 줄 전체 80 dp</i></div>
+      <div class="abs t24" style="left:473px;top:84px">오늘은 가볍게,<br>주차부터 해 볼까요?</div>
+      <div class="abs task" style="left:473px;top:160px">후면 직각 주차 · 가이드 모드</div>
+      <div class="abs note" style="left:473px;top:181px">처음은 제가 순서대로 함께할게요.</div>
+      <div class="abs pill" style="left:473px;top:205px;width:359px">시작 <span>→</span></div>
+      <div class="abs linkrow" style="left:473px;top:272px"><span class="lnk">과제·모드 바꾸기</span><span class="pill2">코치와 고르기</span></div>
+      <div class="abs rule" style="left:473px;top:337px"></div>
+      <div class="abs say" style="left:473px;top:356px"><svg width="13" height="13"><use href="#spk"/></svg>프로필은 맨 위 이름 줄을 누르면 바꿀 수 있어요.</div>
+      <div class="abs band"><span class="lb">관리자</span><span class="c">잘한 주차</span><span class="c">못한 주차</span><span class="c">잘한 점검</span><span class="c">못한 점검</span><span class="sp"></span><span class="c">시나리오 정지</span><span class="c">정차</span><span class="c">출발</span><span class="c">문 열기</span><span class="c">문 닫기</span><span class="c">더 보기</span></div>
+    </div>
+  </div>
+  <div>
+    <div class="letter">E</div>
+    <h2>코치가 알려 주기</h2>
+    <p class="desc">앱의 본체인 <b>목소리</b>로 알린다. 프로필이 처음 만들어진 뒤 첫 홈에서 코치가 인사 다음에 한 문장 — "프로필은 맨 위 이름 줄을 누르면 바꿀 수 있어요." — 을 TTS 로 말하고, 같은 문장이 맨 아래 말 자막 줄(SpeechFooter)에 남는다. 눈썹에는 <code>과제·모드 바꾸기</code> 와 같은 계열의 옅은 Periwinkle 밑줄을 늘 둔다.</p>
+    <dl class="spec">
+      <dt>터치 영역</dt><dd>A 와 같이 줄 전체 80 dp.</dd>
+      <dt>발견성</dt><dd>첫 회에는 귀로 듣고 눈으로 확인(자막) — 덮개 없이 강하다. 이후에는 밑줄 하나뿐이라 A 보다 약하다.</dd>
+      <dt>복잡도</dt><dd>홈에 새 요소 0 — 자막 줄은 이미 있는 자리, 밑줄은 글자 장식.</dd>
+      <dt>첫 실행 / 이후</dt><dd>말은 한 번(또는 처음 두 번)만. 같은 문장을 매번 들으면 소음이 된다.</dd>
+      <dt>난이도</dt><dd>하~중. 모델(Claude): 홈 진입 멘트에 한 문장 + "들려줬음" 플래그. UI(Codex): 밑줄. 숫자 없는 문장이라 규칙 위반 없음.</dd>
+    </dl>
+    <h3>장점</h3>
+    <ul><li>"화내지 않는 조수석" 컨셉 그대로 — 사람 강사가 옆에서 알려 주는 방식. 화면에 읽을 것을 더하지 않는다.</li><li>나중에 프로필 시트 · 과제 바꾸기 등 다른 숨은 길도 같은 방식으로 한 번씩 알려 줄 수 있다.</li></ul>
+    <h3>주의점</h3>
+    <ul><li>소리를 끈 차, 다른 소리가 나는 상황에서는 놓친다 — 자막이 남지만 다음 TTS 가 오면 지워진다.</li><li>홈 첫 멘트가 길어진다(인사 + 제안 + 안내) — 안내는 제안 문장 뒤 짧은 틈을 두고.</li></ul>
+  </div>
+</section>
+
+<!-- ========== 비교 ========== -->
+<section class="cell now">
+  <div>
+    <h2>다섯 시안 비교</h2>
+    <table>
+      <thead><tr><th></th><th>평소 홈에 보이는 표시</th><th>첫 실행</th><th>열 번째 방문</th><th>프로필까지 탭</th><th>새로 읽을 것</th><th>터치 영역</th><th>난이도 · 누가</th></tr></thead>
+      <tbody>
+        <tr><td class="n">A</td><td>연필 + 고치기</td><td>보임</td><td>보임</td><td>1</td><td>세 글자</td><td>줄 전체 80 dp</td><td><span class="tag">하</span> UI(Codex)</td></tr>
+        <tr><td class="n">B</td><td>알약 + ›</td><td>보임</td><td>보임</td><td>1</td><td>없음</td><td>알약 78 dp</td><td><span class="tag">하</span> UI(Codex)</td></tr>
+        <tr><td class="n">C</td><td>없음</td><td>덮개 + 말풍선</td><td>지금과 같음</td><td>1 (첫 회 +1)</td><td>첫 회 두 줄</td><td>지금 그대로 — A 필요</td><td><span class="tag r">중</span> UI + 플래그(모델)</td></tr>
+        <tr><td class="n">D</td><td>"?" 단추</td><td>찾아야 함</td><td>찾아야 함</td><td>2 (? → 줄)</td><td>시트 네 줄</td><td>"?" 90 dp · 줄 160 dp</td><td><span class="tag r">중</span> UI 새 시트 + 문구</td></tr>
+        <tr><td class="n">E</td><td>옅은 밑줄</td><td>코치 음성 + 자막</td><td>밑줄만</td><td>1</td><td>없음(들음)</td><td>줄 전체 80 dp</td><td><span class="tag">하~중</span> 멘트·플래그(모델) + 밑줄(UI)</td></tr>
+      </tbody>
+    </table>
+    <p class="cap">"새로 읽을 것" = 평소 홈에 더해지는 글자. 모든 시안이 정차 화면에서만 보인다 — 차가 움직이면 홈 자체가 없다(절대 규칙 10).</p>
+  </div>
+</section>
+
+<div class="reco">
+  <div class="eyebrow">추천</div>
+  <h2>A + E — 늘 보이는 연필 하나, 처음 한 번은 코치가 말로</h2>
+  <p><span class="sig">A</span> 가 상시 표시(연필 + "고치기", 줄 전체 80 dp)를 맡아 눈썹의 위계를 지키면서 누를 곳임을 알리고, <span class="sig">E</span> 의 첫 홈 한 문장이 덮개 없이 그 자리를 짚어 준다 — 화면에 더하는 것은 세 글자와 기호 하나, 나머지는 이 앱의 본체인 목소리로. E 의 밑줄은 A 의 "고치기" 밑줄과 겹치므로 뺀다.</p>
+  <p>D(도움말 한 장)는 원래 문제를 풀지 못해 지금은 미루고, 발표에서 "처음 쓰는 사람" 장면이 필요하면 C 대신 E 를 영상에 담는다. 구현: UI 아이콘·영역은 Codex, 첫 홈 멘트 한 문장 + "들려줬음" 플래그는 Claude(관리자 프리셋은 들려준 상태로 시작 — 대본 불변).</p>
+</div>
+
+</div>
+</body>
+</html>

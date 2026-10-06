@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>코치 시트 · 말 카드 — 미리 쓴 문장을 눌러 말하기 · 배치 세 가지</title>
+<style>
+:root{
+  --ink:#070827; --paper:#FCFCFA; --peri:#5B60A1; --lav:#E5E6F0; --signal:#F52D48;
+  --muted:rgba(7,8,39,.60);
+  --tex-full:0 4px 10px rgba(7,8,39,.10),0 1px 2px rgba(7,8,39,.06),inset 0 1px 0 rgba(255,255,255,.9);
+  --tex:0 2px 4px rgba(7,8,39,.10),0 1px 1px rgba(7,8,39,.06),inset 0 1px 0 rgba(255,255,255,.9);
+  --tex-dark:0 4px 10px rgba(7,8,39,.16),0 1px 2px rgba(7,8,39,.10),inset 0 1px 0 rgba(255,255,255,.16);
+  --font:"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-weight:400}
+h1,h2,h3,h4,b,strong,th{font-weight:500}
+a{color:var(--peri)}
+body{background:var(--paper);color:var(--ink);font-family:var(--font);line-height:1.5}
+.page{max-width:1560px;margin:0 auto;padding:40px 32px 64px}
+
+/* 머리 */
+.head h1{font-size:30px;letter-spacing:-.01em}
+.head .lead{font-size:16px;color:var(--muted);margin-top:4px;max-width:1150px}
+.quote{margin-top:18px;background:rgba(229,230,240,.6);border-left:4px solid var(--peri);padding:14px 18px;font-size:15px;max-width:1150px}
+.quote .who{display:block;font-size:12px;color:var(--peri);margin-bottom:4px}
+.scale{display:inline-flex;align-items:center;gap:8px;margin-top:16px;font-size:13px;color:var(--peri);background:rgba(91,96,161,.08);padding:6px 12px;border-radius:14px}
+.tokens{display:flex;gap:14px;margin-top:12px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.tokens span{display:inline-flex;align-items:center;gap:6px}
+.tokens i{width:14px;height:14px;border-radius:3px;display:inline-block;box-shadow:0 0 0 1px rgba(7,8,39,.12)}
+.pre{margin-top:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;max-width:1400px}
+.pre div{background:var(--paper);box-shadow:var(--tex-full);border:1px solid rgba(7,8,39,.05);padding:12px 14px;font-size:13px}
+.pre div .k{display:block;color:var(--peri);font-size:12px;letter-spacing:.04em;margin-bottom:3px}
+.legend{margin-top:14px;font-size:12px;color:var(--muted);display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.legend i{display:inline-block;width:26px;height:12px;outline:1px dashed var(--signal);outline-offset:2px;vertical-align:middle;margin-right:4px}
+
+/* 칸 */
+.block{display:grid;grid-template-columns:853px 1fr;gap:36px;margin-top:44px;padding-top:28px;border-top:1px solid rgba(7,8,39,.10)}
+.tag-id{font-size:13px;color:var(--peri);letter-spacing:.08em}
+.notes h2{font-size:26px;margin-top:2px}
+.notes .one{font-size:15px;margin-top:6px}
+.notes h3{font-size:13px;color:var(--peri);margin-top:16px;letter-spacing:.04em}
+.notes ul{margin-top:6px;padding-left:18px;font-size:14px}
+.notes li{margin-top:4px}
+.notes .sel{margin-top:14px;font-size:13px;background:rgba(229,230,240,.55);padding:10px 12px;border-radius:6px}
+.notes .sel b{color:var(--peri)}
+.notes .impl{margin-top:8px;font-size:13px;border-left:3px solid var(--signal);padding:4px 10px}
+.notes .impl b{color:var(--signal);margin-right:4px}
+.cur img{display:block;width:853px;height:auto;border-radius:6px;box-shadow:0 0 0 1px rgba(7,8,39,.14)}
+.state{font-size:12px;color:var(--peri);letter-spacing:.06em;margin:0 0 6px}
+.cur img+.state{margin-top:18px}
+.kv{width:100%;border-collapse:collapse;margin-top:8px;font-size:13px}
+.kv td{padding:4px 8px;border-bottom:1px solid rgba(7,8,39,.07);vertical-align:top}
+.kv td:first-child{color:var(--peri);white-space:nowrap;width:120px}
+
+/* 두 상태 나란히 (1/3 크롭) */
+.pair{display:flex;gap:14px}
+.pcol{display:flex;flex-direction:column;gap:6px}
+.crop{position:relative;width:413px;height:423px;background:var(--paper);overflow:hidden;border-radius:6px;box-shadow:0 0 0 1px rgba(7,8,39,.14),0 8px 24px rgba(7,8,39,.08)}
+.crop::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:linear-gradient(90deg,rgba(7,8,39,.10),rgba(7,8,39,0))}
+.rc{position:absolute;left:28px;top:0;width:358px;height:423px}
+.rc>div{position:absolute;left:0}
+.cap{font-size:12px;line-height:17px;color:var(--muted);width:413px}
+.cap em{font-style:normal;color:var(--peri)}
+
+.eb{font-size:11px;line-height:14px;color:var(--ink)}
+.bub{background:var(--lav);border-radius:12px 12px 12px 3px;padding:6px 11px 7px;box-shadow:var(--tex);width:358px}
+.bub .k{font-size:9px;line-height:12px;color:var(--ink);display:block}
+.bub .q{font-size:15px;line-height:20px}
+.me{align-self:flex-end;background:var(--peri);color:var(--paper);border-radius:12px 12px 3px 12px;padding:4px 12px;font-size:15px;line-height:20px;box-shadow:var(--tex-dark);white-space:nowrap}
+.tr{width:358px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;gap:6px}
+.tr .bub{flex:none}
+.tr::before{content:"";position:absolute;left:0;right:0;top:0;height:22px;background:linear-gradient(var(--paper),rgba(252,252,250,0));z-index:2}
+.chips{display:flex;gap:5px}
+.chips span{height:30px;line-height:30px;padding:0 11px;background:var(--lav);font-size:12px;box-shadow:var(--tex);white-space:nowrap}
+.hint{font-size:10px;line-height:14px;color:var(--muted)}
+.lab{font-size:10px;line-height:14px;color:var(--peri);display:flex;align-items:center;gap:5px;width:358px}
+.lab svg{width:10px;height:10px}
+.lab .badge{margin-left:auto}
+.badge{display:inline-flex;align-items:center;height:16px;padding:0 8px;border-radius:8px;background:var(--lav);color:var(--peri);font-size:9px;white-space:nowrap}
+.field{width:358px;height:47px;display:flex;gap:6px}
+.field .in{flex:1;border-radius:24px;background:var(--lav);font-size:14px;color:var(--muted);display:flex;align-items:center;padding-left:14px}
+.field .snd{width:68px;border-radius:24px;background:var(--signal);opacity:.55;color:var(--paper);font-size:12px;display:flex;align-items:center;justify-content:center;gap:6px}
+.back{height:37px;border-radius:19px;padding:0 16px;background:var(--lav);font-size:13px;display:inline-flex;align-items:center;gap:8px;box-shadow:var(--tex-full);white-space:nowrap}
+
+/* 말 카드 */
+.wc{flex:none;height:32px;border-radius:16px;border:1.5px solid var(--peri);background:var(--paper);color:var(--ink);font-size:13px;display:inline-flex;align-items:center;gap:5px;padding:0 12px 0 10px;box-shadow:var(--tex);white-space:nowrap}
+.wc svg{width:11px;height:11px;color:var(--peri);flex:none}
+.new{outline:1px dashed var(--signal);outline-offset:3px}
+.strip{width:358px;height:40px;overflow:hidden;position:relative}
+.strip .in{display:flex;gap:8px;padding:3px 0 5px}
+.strip .fade{position:absolute;right:0;top:0;bottom:0;width:40px;background:linear-gradient(90deg,rgba(252,252,250,0),var(--paper) 80%);display:flex;align-items:center;justify-content:flex-end;color:var(--peri);font-size:13px;padding-right:2px}
+.grid{width:358px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid .wc{width:100%;padding:0 10px;font-size:13px}
+.grid .wc.void{border:1.5px dashed rgba(91,96,161,.25);box-shadow:none;background:transparent}
+.bubs{width:358px;display:flex;flex-direction:column;align-items:flex-end;gap:5px;overflow:hidden;position:relative}
+.ob{flex:none;height:32px;border-radius:12px 12px 3px 12px;border:1.5px solid var(--peri);background:var(--paper);font-size:13px;display:inline-flex;align-items:center;gap:5px;padding:0 13px 0 10px;box-shadow:var(--tex);white-space:nowrap}
+.ob svg{width:11px;height:11px;color:var(--peri)}
+.bubs .fadeb{position:absolute;left:0;right:0;bottom:0;height:30px;background:linear-gradient(rgba(252,252,250,0),var(--paper) 85%)}
+.dot{position:absolute;font-size:9px;color:var(--signal);white-space:nowrap}
+
+/* 표 */
+.sect{margin-top:56px;padding-top:28px;border-top:1px solid rgba(7,8,39,.10)}
+.sect h2{font-size:24px}
+.sect>p{font-size:14px;color:var(--muted);margin-top:4px;max-width:1200px}
+.sect table{width:100%;border-collapse:collapse;margin-top:16px;font-size:14px}
+.sect th{font-size:12px;color:var(--peri);letter-spacing:.04em;text-align:left;padding:8px 10px;border-bottom:1px solid rgba(7,8,39,.14);white-space:nowrap}
+.sect td{padding:9px 10px;border-bottom:1px solid rgba(7,8,39,.08);vertical-align:top}
+.sect td.nw{white-space:nowrap}
+.sect tr.pick td{background:rgba(229,230,240,.45)}
+.sect .lo{color:var(--peri)} .sect .hi{color:var(--signal)}
+.sect td .wc{height:28px;font-size:12px}
+.tn{display:inline-block;font-size:11px;padding:1px 8px;border-radius:9px;background:rgba(91,96,161,.10);color:var(--peri);white-space:nowrap}
+code{font-family:Consolas,monospace;font-size:12px;background:rgba(229,230,240,.7);padding:0 4px;border-radius:3px}
+.reco{margin-top:40px;padding:24px 28px;background:var(--ink);color:var(--paper);border-radius:8px;box-shadow:var(--tex-dark)}
+.reco .k{font-size:13px;color:rgba(229,230,240,.75);letter-spacing:.06em}
+.reco h2{font-size:26px;margin-top:4px}
+.reco p{font-size:15px;margin-top:8px;color:rgba(252,252,250,.9)}
+.reco p em{font-style:normal;color:var(--signal)}
+.reco ol{margin-top:10px;padding-left:20px;font-size:14px;color:rgba(252,252,250,.85)}
+.reco li{margin-top:3px}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="mic" viewBox="0 0 16 16"><rect x="5.6" y="1.4" width="4.8" height="8.4" rx="2.4" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3.2 7.6a4.8 4.8 0 0 0 9.6 0M8 12.5v2.1M5.6 14.6h4.8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+  </defs>
+</svg>
+
+<div class="page">
+
+  <header class="head">
+    <h1>코치 시트 · 말 카드 — 미리 쓴 한국어 문장을 눌러 코치에게 말하기</h1>
+    <p class="lead">사내 에뮬레이터는 화면 키보드가 뜨지 않아 코치 시트의 입력 칸에 한국어를 칠 수 없다. 그래서 운전자가 할 법한 문장을 카드로 미리 써 두고, 누르면 그 문장이 운전자의 말로 보내져 AI(사내 Copilot · 사외 키워드 규칙)가 답한다. 음성 인식 자리를 대신하는 시뮬레이션이므로 배지 `음성 입력 · 시뮬레이션` 을 유지한다. 카드를 시트 안 어디에 어떤 모양으로 둘지 세 가지(A · B · C)를, 각각 <b>첫 화면</b>과 <b>코치가 되물은 뒤</b> 두 상태로 그렸다.</p>
+    <blockquote class="quote">
+      <span class="who">사내 검증 #5 요청 · 사용자 결정 (10/6) — 말 카드</span>
+      사내 에뮬은 화면 키보드가 뜨지 않아 한국어 입력이 불가. 코치 시트에 미리 쓴 한국어 문장 카드를 두고, 누르면 그 문장이 운전자 말로 보내져 AI 대화로 간다(STT 자리를 대신하는 시뮬레이션이므로 "음성 입력 · 시뮬레이션" 표시 유지). 카드는 의도별로 섞어 여러 갈래로 흐르게(감정 · 과제 · 상황 · 되묻기 · 프로필), 대화 단계에 따라 카드가 바뀐다(첫 화면 = 감정·인사 위주, AI 가 되물으면 과제·상황 카드). 정차 중만, 큰 터치 타깃, 카드 줄은 가로 스크롤 한 줄.
+    </blockquote>
+    <div class="scale">아래 그림은 모두 실제의 1/3 — 실제 화면은 약 3배. 오른쪽 열(실제 약 1075 dp 폭, 1/3 358px)만 잘라 두 상태를 나란히 놓았다. 왼쪽 일러스트는 그대로라 생략</div>
+    <div class="tokens">
+      <span><i style="background:#070827"></i>Ink</span>
+      <span><i style="background:#FCFCFA"></i>Paper</span>
+      <span><i style="background:#5B60A1"></i>Periwinkle</span>
+      <span><i style="background:#E5E6F0"></i>Lavender</span>
+      <span><i style="background:#F52D48"></i>Signal</span>
+      <span>· 세 시안이 같은 데이터: 같은 코치 말 · 같은 칩 · 같은 카드 아홉 장 · 예약 있음</span>
+    </div>
+    <div class="pre">
+      <div><span class="k">카드 = 운전자의 말</span>카드는 칩(누르면 바로 그 화면으로 가는 버튼)과 다르다. 누르면 그 문장이 대화에 운전자 말풍선으로 올라가고, AI 가 문장 + 의도 하나로 답한다. 의도가 `되물음` 이면 시트가 남고 카드가 다음 단계로 바뀐다.</div>
+      <div><span class="k">카드 모양 · 공통</span>Paper 면 + Periwinkle 1.5 dp 테두리 + 질감 그림자, 앞에 작은 마이크(B 는 폭 때문에 생략). Lavender 사각 칩과 한눈에 갈린다. 높이 96 dp(1/3 32px) · 글자 40 dp(13px) · 한 줄 · 숫자 없음.</div>
+      <div><span class="k">단계</span><b>첫 화면</b>(운전자 말이 아직 없음) = 감정·인사·되묻기·프로필 넷. <b>되물은 뒤</b> = 과제·상황 다섯. 예약이 없으면 예약·모의시험 카드, 지난 기록이 없으면 `지난번 이어서요` 를 뺀다(의도 목록과 같은 규칙).</div>
+      <div><span class="k">정차 중만</span>코치 시트는 홈(정차 화면)의 보조 시트라 속도 &gt; 5 km/h 면 잠금 화면으로 덮인다 — 카드도 함께 사라진다(절대 규칙 10). 답을 기다리는 동안은 카드를 흐리게, 누를 수 없게.</div>
+    </div>
+    <div class="legend"><span><i></i>빨간 점선 = 첫 화면에서 누른 카드(오른쪽 그림에서 운전자 말풍선이 된다)</span><span>· 오른쪽 끝 흐림 / 아래 흐림 = 더 있음(스크롤)</span></div>
+  </header>
+
+  <!-- ===================== 지금 ===================== -->
+  <section class="block cur">
+    <div>
+      <div class="state">지금 · 입력 켬 (lesson-setup-coach-text.png)</div>
+      <img src="../../screenshots/lesson/lesson-setup-coach-text.png" alt="지금의 코치 시트 — 입력 칸, 보내기, 음성 입력 시뮬레이션 배지">
+      <div class="state">지금 · 입력 끔 (lesson-setup-coach-sheet.png)</div>
+      <img src="../../screenshots/lesson/lesson-setup-coach-sheet.png" alt="지금의 코치 시트 — 칩 셋과 흐린 마이크">
+    </div>
+    <div class="notes">
+      <div class="tag-id">지금</div>
+      <h2>입력 칸 아니면 칩 셋</h2>
+      <p class="one">관리자 "시뮬레이션 음성 입력" 을 켜면 입력 칸 + `보내기 →` + 배지가 생기고, 끄면 칩 셋 + 흐린 `말로 답하기 — 준비 중` 만 있다. 위 캡처는 사외에서 영어 키보드로 "안녕" 을 보낸 뒤 코치가 되물은 상태.</p>
+      <h3>사내에서 막히는 것</h3>
+      <ul>
+        <li>사내 에뮬은 화면 키보드가 뜨지 않는다 — 입력 칸을 눌러도 아무것도 칠 수 없어 AI 대화를 시연할 길이 없다</li>
+        <li>칩은 AI 를 거치지 않고 바로 화면을 연다 — "AI 와 대화한다" 는 장면이 영상에 남지 않는다</li>
+        <li>입력 끔 화면의 흐린 마이크는 "준비 중" 이라 누를 것이 칩 셋뿐이다</li>
+      </ul>
+      <h3>지금 오른쪽 열 실측 (1/3 px)</h3>
+      <table class="kv">
+        <tr><td>눈썹</td><td>위에서 약 29</td></tr>
+        <tr><td>대화(말풍선)</td><td>약 46 – 205 · 위로 넘치면 잘림</td></tr>
+        <tr><td>칩 · 안내</td><td>약 216 – 249 · 264</td></tr>
+        <tr><td>입력 칸 · 보내기</td><td>약 279 – 326 (높이 약 47)</td></tr>
+        <tr><td>배지</td><td>약 332 – 350</td></tr>
+        <tr><td>`← 돌아가기`</td><td>약 364 – 400 (고정)</td></tr>
+      </table>
+      <p class="sel"><b>읽는 법</b> · 세 시안 모두 눈썹 · `← 돌아가기` 자리는 그대로, 대화 영역을 조금 줄여 카드 자리를 만든다. 차이는 카드가 <b>가로 한 줄</b>(A) · <b>두 칸 격자</b>(B) · <b>세로 말풍선</b>(C)인 것.</p>
+    </div>
+  </section>
+
+  <!-- ===================== A ===================== -->
+  <section class="block">
+    <div>
+      <div class="pair">
+        <div class="pcol">
+          <div class="state">첫 화면</div>
+          <div class="crop"><div class="rc">
+            <div class="eb" style="top:24px">코치와 이야기</div>
+            <div class="bub" style="top:42px"><span class="k">코치</span><div class="q">오늘은 뭘 해 볼까요? 예약한 서초 시험장에서 해도 돼요.</div></div>
+            <div class="chips" style="top:116px"><span>예약한 시험장으로</span><span>주차 연습</span><span>지난번 이어서</span></div>
+            <div class="hint" style="top:151px">고르면 바로 그 자리로 가요.</div>
+            <div class="lab" style="top:174px"><svg><use href="#mic"/></svg>누르면 코치에게 말해요</div>
+            <div class="strip" style="top:190px"><div class="in">
+              <span class="wc new"><svg><use href="#mic"/></svg>오랜만이라 무서워요</span>
+              <span class="wc"><svg><use href="#mic"/></svg>어제 긁을 뻔했어요</span>
+              <span class="wc"><svg><use href="#mic"/></svg>뭐부터 하면 좋을까요?</span>
+              <span class="wc"><svg><use href="#mic"/></svg>아이 등하원 때문에 배워요</span>
+            </div><div class="fade">›</div></div>
+            <div class="field" style="top:238px"><div class="in">코치에게 글로 말해 보세요</div><div class="snd">보내기 →</div></div>
+            <div style="top:292px"><span class="badge">음성 입력 · 시뮬레이션</span></div>
+            <div style="top:364px"><span class="back">← 돌아가기</span></div>
+          </div></div>
+          <div class="cap">카드 넷 중 <em>둘 반</em>이 보이고 오른쪽 끝이 흐려 "옆으로 더 있다" 가 읽힌다.</div>
+        </div>
+        <div class="pcol">
+          <div class="state">코치가 되물은 뒤</div>
+          <div class="crop"><div class="rc">
+            <div class="eb" style="top:24px">코치와 이야기</div>
+            <div class="tr" style="top:40px;height:108px">
+              <div class="bub"><span class="k">코치</span><div class="q">오늘은 뭘 해 볼까요? 예약한 서초 시험장에서 해도 돼요.</div></div>
+              <div class="me">오랜만이라 무서워요</div>
+              <div class="bub"><span class="k">코치</span><div class="q">괜찮아요, 천천히 같이 해요. 주차부터 할까요, 시험장에서 연습할까요?</div></div>
+            </div>
+            <div class="chips" style="top:156px"><span>주차 연습</span><span>예약한 시험장으로</span></div>
+            <div class="lab" style="top:194px"><svg><use href="#mic"/></svg>누르면 코치에게 말해요</div>
+            <div class="strip" style="top:210px"><div class="in">
+              <span class="wc"><svg><use href="#mic"/></svg>평행 주차 힌트로 할래요</span>
+              <span class="wc"><svg><use href="#mic"/></svg>후면 주차 다시 해 볼래요</span>
+              <span class="wc"><svg><use href="#mic"/></svg>모의시험 볼래요</span>
+              <span class="wc"><svg><use href="#mic"/></svg>예약한 시험장 연습할래요</span>
+              <span class="wc"><svg><use href="#mic"/></svg>지난번 이어서요</span>
+            </div><div class="fade">›</div></div>
+            <div class="field" style="top:258px"><div class="in">코치에게 글로 말해 보세요</div><div class="snd">보내기 →</div></div>
+            <div style="top:312px"><span class="badge">음성 입력 · 시뮬레이션</span></div>
+            <div style="top:364px"><span class="back">← 돌아가기</span></div>
+          </div></div>
+          <div class="cap">카드 다섯 중 <em>둘</em>만 보인다(문장이 길다). 나머지 셋은 옆으로 밀어야 보인다.</div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="tag-id">시안 A</div>
+      <h2>입력 칸 위 가로 한 줄 (Strip)</h2>
+      <p class="one">칩 · 안내 아래, 입력 칸 바로 위에 말 카드 한 줄. 가로로 밀어 넘긴다. 입력 칸 · `보내기` · 배지는 지금 자리 그대로 남아 영어 키보드가 있는 사외 빌드에서는 계속 글을 칠 수 있다.</p>
+      <h3>터치 · 보이는 양</h3>
+      <ul>
+        <li>카드 높이 96 dp · 폭은 문장 길이(약 450 – 520 dp). 카드 사이 24 dp</li>
+        <li>한 번에 둘 ~ 둘 반. 첫 화면 넷 중 뒤 둘, 되물은 뒤 다섯 중 뒤 셋은 밀어야 보인다</li>
+        <li><b>스크롤 힌트</b> — 오른쪽 끝 흐림 + `›`. 끝까지 밀면 왼쪽에 흐림이 생긴다</li>
+      </ul>
+      <h3>누르면</h3>
+      <ul>
+        <li>카드 문장이 그대로 운전자 말풍선(Periwinkle)으로 올라가고, 입력 칸에 친 글을 보낸 것과 같은 길(`sendCoachText`)로 AI 에 간다. 답을 기다리는 동안 카드 줄 흐림</li>
+        <li>답 의도가 `되물음` 이면 카드 줄이 다음 단계로 바뀌고 처음 위치로 돌아간다. 아니면 시트가 닫히고 그 화면으로</li>
+        <li><b>Fake 키워드 규칙</b>도 같은 문장을 받으므로 사외·오프라인에서 그대로 동작(아래 표)</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li>사용자 결정("가로 스크롤 한 줄")과 그대로 맞는다. 다만 <b>사내 에뮬에서는 입력 칸이 쓸모없이 자리만 차지</b>한다(키보드 없음) — 칸이 있는데 칠 수 없어 보인다</li>
+        <li>가로 밀기는 차 화면에서 손가락이 미끄러지기 쉽다. 문장이 길어 한 장씩 보이는 양이 적다</li>
+        <li>칩(바로 이동)과 카드(말하기)가 위아래로 붙어 두 종류 버튼이 섞여 보일 수 있다 — 테두리·마이크로 구분</li>
+      </ul>
+      <p class="impl"><b>구현</b>LazyRow 한 줄 + 단계별 카드 목록(상태기계에 "운전자 말 있음 / 되물음" 두 값) · 입력 칸 그대로 · 난이도 하</p>
+    </div>
+  </section>
+
+  <!-- ===================== B ===================== -->
+  <section class="block">
+    <div>
+      <div class="pair">
+        <div class="pcol">
+          <div class="state">첫 화면 · 카드 모드</div>
+          <div class="crop"><div class="rc">
+            <div class="eb" style="top:24px">코치와 이야기</div>
+            <div class="bub" style="top:42px"><span class="k">코치</span><div class="q">오늘은 뭘 해 볼까요? 예약한 서초 시험장에서 해도 돼요.</div></div>
+            <div class="chips" style="top:116px"><span>예약한 시험장으로</span><span>주차 연습</span><span>지난번 이어서</span></div>
+            <div class="hint" style="top:151px">고르면 바로 그 자리로 가요.</div>
+            <div class="lab" style="top:180px"><svg><use href="#mic"/></svg>누르면 코치에게 말해요<span class="badge">음성 입력 · 시뮬레이션</span></div>
+            <div class="grid" style="top:200px">
+              <span class="wc new">오랜만이라 무서워요</span>
+              <span class="wc">어제 긁을 뻔했어요</span>
+              <span class="wc">뭐부터 하면 좋을까요?</span>
+              <span class="wc">아이 등하원 때문에 배워요</span>
+            </div>
+            <div style="top:364px"><span class="back">← 돌아가기</span></div>
+          </div></div>
+          <div class="cap">넷이 <em>한눈에</em> 다 보인다. 입력 칸 자리를 격자가 쓴다.</div>
+        </div>
+        <div class="pcol">
+          <div class="state">코치가 되물은 뒤 · 카드 모드</div>
+          <div class="crop"><div class="rc">
+            <div class="eb" style="top:24px">코치와 이야기</div>
+            <div class="tr" style="top:40px;height:108px">
+              <div class="bub"><span class="k">코치</span><div class="q">오늘은 뭘 해 볼까요? 예약한 서초 시험장에서 해도 돼요.</div></div>
+              <div class="me">오랜만이라 무서워요</div>
+              <div class="bub"><span class="k">코치</span><div class="q">괜찮아요, 천천히 같이 해요. 주차부터 할까요, 시험장에서 연습할까요?</div></div>
+            </div>
+            <div class="chips" style="top:156px"><span>주차 연습</span><span>예약한 시험장으로</span></div>
+            <div class="lab" style="top:196px"><svg><use href="#mic"/></svg>누르면 코치에게 말해요<span class="badge">음성 입력 · 시뮬레이션</span></div>
+            <div class="grid" style="top:216px">
+              <span class="wc">평행 주차 힌트로 할래요</span>
+              <span class="wc">후면 주차 다시 해 볼래요</span>
+              <span class="wc">모의시험 볼래요</span>
+              <span class="wc">예약한 시험장 연습할래요</span>
+              <span class="wc">지난번 이어서요</span>
+              <span class="wc void"></span>
+            </div>
+            <div style="top:364px"><span class="back">← 돌아가기</span></div>
+          </div></div>
+          <div class="cap">다섯이 <em>세 줄</em>로 다 보인다(빈 칸 하나). 스크롤 없음.</div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="tag-id">시안 B</div>
+      <h2>입력 칸 대신 두 칸 격자 (Grid)</h2>
+      <p class="one">관리자 입력 방식이 "카드" 일 때 입력 칸 · `보내기` 자리에 두 칸 격자를 둔다. 카드 폭이 열의 반(약 525 dp)으로 같아 표처럼 정돈된다. 배지는 카드 머리 줄 오른쪽 끝으로 옮겨 카드와 붙인다.</p>
+      <h3>터치 · 보이는 양</h3>
+      <ul>
+        <li>카드 96 dp × 약 525 dp — 셋 중 가장 넓은 터치 면. 사이 24 dp</li>
+        <li>첫 화면 넷 · 되물은 뒤 다섯 <b>모두 한눈에</b> — 스크롤 힌트가 필요 없다</li>
+        <li>되물은 뒤는 세 줄(약 360 dp)로 늘어 `← 돌아가기` 위 여백이 약 140 dp 로 준다. 여섯 장이 넘으면 넘칠 수 있어 단계마다 <b>최대 여섯</b></li>
+      </ul>
+      <h3>누르면</h3>
+      <ul>
+        <li>A 와 같다 — 문장이 운전자 말풍선으로, 같은 `sendCoachText` 길. 기다리는 동안 격자 흐림</li>
+        <li><b>Fake 키워드 규칙</b> 그대로</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li>"가로 스크롤 한 줄" 이라는 사용자 결정과 다르다(한 줄이 아니라 격자)</li>
+        <li>폭이 반이라 마이크를 뺐고, 가장 긴 문장(`예약한 시험장 연습할래요`)이 칸을 거의 꽉 채운다 — 문구를 더 길게 못 쓴다</li>
+        <li>입력 칸이 사라지므로 "카드 모드 / 글 모드" 관리자 전환이 하나 더 생긴다(사외 키보드 빌드는 글 모드)</li>
+      </ul>
+      <p class="impl"><b>구현</b>고정 2열 격자 + 관리자 입력 방식 세 값(끔 · 글 · 카드) · 난이도 하~중</p>
+    </div>
+  </section>
+
+  <!-- ===================== C ===================== -->
+  <section class="block">
+    <div>
+      <div class="pair">
+        <div class="pcol">
+          <div class="state">첫 화면</div>
+          <div class="crop"><div class="rc">
+            <div class="eb" style="top:24px">코치와 이야기</div>
+            <div style="top:19px;left:auto;right:0;z-index:3"><span class="badge">음성 입력 · 시뮬레이션</span></div>
+            <div class="bub" style="top:42px"><span class="k">코치</span><div class="q">오늘은 뭘 해 볼까요? 예약한 서초 시험장에서 해도 돼요.</div></div>
+            <div class="chips" style="top:116px"><span>예약한 시험장으로</span><span>주차 연습</span><span>지난번 이어서</span></div>
+            <div class="hint" style="top:156px;left:auto;right:0">이렇게 말해 볼 수 있어요 — 누르면 보내져요</div>
+            <div class="bubs" style="top:174px;height:180px">
+              <span class="ob new"><svg><use href="#mic"/></svg>오랜만이라 무서워요</span>
+              <span class="ob"><svg><use href="#mic"/></svg>어제 긁을 뻔했어요</span>
+              <span class="ob"><svg><use href="#mic"/></svg>뭐부터 하면 좋을까요?</span>
+              <span class="ob"><svg><use href="#mic"/></svg>아이 등하원 때문에 배워요</span>
+            </div>
+            <div style="top:364px"><span class="back">← 돌아가기</span></div>
+          </div></div>
+          <div class="cap">넷이 <em>오른쪽 정렬로 세로</em>로 다 보인다 — 보내기 전의 운전자 말풍선 모양.</div>
+        </div>
+        <div class="pcol">
+          <div class="state">코치가 되물은 뒤</div>
+          <div class="crop"><div class="rc">
+            <div class="eb" style="top:24px">코치와 이야기</div>
+            <div style="top:19px;left:auto;right:0;z-index:3"><span class="badge">음성 입력 · 시뮬레이션</span></div>
+            <div class="tr" style="top:40px;height:108px">
+              <div class="bub"><span class="k">코치</span><div class="q">오늘은 뭘 해 볼까요? 예약한 서초 시험장에서 해도 돼요.</div></div>
+              <div class="me">오랜만이라 무서워요</div>
+              <div class="bub"><span class="k">코치</span><div class="q">괜찮아요, 천천히 같이 해요. 주차부터 할까요, 시험장에서 연습할까요?</div></div>
+            </div>
+            <div class="chips" style="top:156px"><span>주차 연습</span><span>예약한 시험장으로</span></div>
+            <div class="bubs" style="top:194px;height:160px">
+              <span class="ob"><svg><use href="#mic"/></svg>평행 주차 힌트로 할래요</span>
+              <span class="ob"><svg><use href="#mic"/></svg>후면 주차 다시 해 볼래요</span>
+              <span class="ob"><svg><use href="#mic"/></svg>모의시험 볼래요</span>
+              <span class="ob"><svg><use href="#mic"/></svg>예약한 시험장 연습할래요</span>
+              <span class="ob"><svg><use href="#mic"/></svg>지난번 이어서요</span>
+              <div class="fadeb"></div>
+            </div>
+            <div style="top:364px"><span class="back">← 돌아가기</span></div>
+          </div></div>
+          <div class="cap">다섯 중 <em>넷</em>이 보이고 다섯째는 아래 흐림 속 — 세로로 밀어야 한다.</div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="tag-id">시안 C</div>
+      <h2>보낼 말풍선 (Bubbles)</h2>
+      <p class="one">카드를 "아직 보내지 않은 운전자 말풍선" 으로 그린다 — 오른쪽 정렬, Periwinkle 테두리만, 오른쪽 아래 모서리가 각진 말풍선 꼬리. 누르면 같은 자리에서 Periwinkle 로 채워지며 대화 위로 올라간다. 입력 칸은 없고 배지는 눈썹 줄 오른쪽 끝.</p>
+      <h3>터치 · 보이는 양</h3>
+      <ul>
+        <li>카드 96 dp × 문장 길이(약 450 – 520 dp). 세로 사이 15 dp</li>
+        <li>첫 화면 넷은 다 보이고, 되물은 뒤 다섯은 넷 + 아래 흐림(세로 스크롤)</li>
+        <li><b>스크롤 힌트</b> — 아래쪽 흐림. 세로 밀기는 가로 밀기보다 차 화면에서 익숙하다</li>
+      </ul>
+      <h3>누르면</h3>
+      <ul>
+        <li>"이 말을 내가 한다" 가 모양으로 가장 잘 읽힌다 — 누른 말풍선이 채워진 운전자 말풍선(대화 속 `오랜만이라 무서워요`)과 같은 꼴</li>
+        <li>같은 `sendCoachText` 길 · <b>Fake 키워드 규칙</b> 그대로</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li>보낸 말(채움)과 보낼 말(테두리)이 같은 오른쪽 열에 섞여 처음 보는 사람은 "이미 말했나?" 하고 헷갈릴 수 있다</li>
+        <li>카드가 세로로 쌓여 대화 영역이 가장 많이 줄어든다(코치 말이 길면 위로 잘림). 다섯 장이 넘으면 스크롤 필수</li>
+        <li>오른쪽 정렬이라 카드 왼쪽 끝이 들쭉날쭉 — 운전석에서 가장 먼 오른쪽 끝에 손이 가야 한다</li>
+        <li>사외 키보드 빌드에서 입력 칸을 다시 넣을 자리가 마땅치 않다</li>
+      </ul>
+      <p class="impl"><b>구현</b>세로 목록 + 말풍선 모양 · 누름 → 채움 애니메이션(선택) · 난이도 중</p>
+    </div>
+  </section>
+
+  <!-- ===================== 카드 → 의도 ===================== -->
+  <section class="sect">
+    <h2>카드 아홉 장 → 의도 (세 시안 공통)</h2>
+    <p>카드는 문장 그대로 보내므로 AI(사내 Copilot)는 다른 글처럼 판단한다. 사외·오프라인은 키워드 규칙(`IntentRules`, 지금 "주차" · "평행" · "시험" · "예약" · "이어서" · "프로필" · 과제 제목)이 받는다. 아래 "규칙" 칸은 지금 키워드 기준의 어림 — 실제 매칭은 구현 때 단위 테스트로 고정한다. 의도 이름은 `docs/design/12_home_coach_dialog.md` 의 `CoachIntent`.</p>
+    <table>
+      <thead><tr><th>단계</th><th>카드</th><th>갈래</th><th>지금 키워드 규칙이 잡는 것</th><th>바라는 의도 · 그다음</th></tr></thead>
+      <tbody>
+        <tr><td class="nw">첫 화면</td><td class="nw"><span class="wc"><svg><use href="#mic"/></svg>오랜만이라 무서워요</span></td><td><span class="tn">감정</span></td><td>키워드 없음 → 되물음</td><td>`AskMore` — 달래는 한 문장 + 과제·상황 카드로</td></tr>
+        <tr><td class="nw">첫 화면</td><td class="nw"><span class="wc"><svg><use href="#mic"/></svg>어제 긁을 뻔했어요</span></td><td><span class="tn">감정</span></td><td>키워드 없음 → 되물음</td><td>`AskMore`(주차 쪽으로 되묻기) — "긁" 을 주차 키워드로 보태면 `OpenSheet(주차)` 도 가능</td></tr>
+        <tr><td class="nw">첫 화면</td><td class="nw"><span class="wc"><svg><use href="#mic"/></svg>뭐부터 하면 좋을까요?</span></td><td><span class="tn">되묻기</span></td><td>키워드 없음 → 되물음</td><td>`AskMore` 또는 추천 과제 `PinTask` — 홈 제안을 한 번 더 설명</td></tr>
+        <tr><td class="nw">첫 화면</td><td class="nw"><span class="wc"><svg><use href="#mic"/></svg>아이 등하원 때문에 배워요</span></td><td><span class="tn">프로필</span></td><td class="hi">"프로필" 이 아니라 못 잡음 → 되물음</td><td>`OpenProfile` — 규칙에 "등하원" · "배워요" 보강 필요</td></tr>
+        <tr><td class="nw">되물은 뒤</td><td class="nw"><span class="wc"><svg><use href="#mic"/></svg>평행 주차 힌트로 할래요</span></td><td><span class="tn">과제</span></td><td>"평행" · "주차"</td><td>`PinTask(평행 주차, 힌트)` — "힌트" 를 모드로 읽는지 확인</td></tr>
+        <tr><td class="nw">되물은 뒤</td><td class="nw"><span class="wc"><svg><use href="#mic"/></svg>후면 주차 다시 해 볼래요</span></td><td><span class="tn">과제</span></td><td>"주차"(제목 `후면 직각 주차` 와 글자가 달라 제목 매칭은 안 됨)</td><td>`PinTask(후면 직각 주차)` — "후면" 키워드 보강 필요, 지금은 `OpenSheet(주차)`</td></tr>
+        <tr><td class="nw">되물은 뒤</td><td class="nw"><span class="wc"><svg><use href="#mic"/></svg>모의시험 볼래요</span></td><td><span class="tn">상황</span></td><td>"시험"</td><td>`Booking(모의시험)` — 예약이 없으면 카드 자체를 빼거나 `OpenSheet` 평가 모드</td></tr>
+        <tr><td class="nw">되물은 뒤</td><td class="nw"><span class="wc"><svg><use href="#mic"/></svg>예약한 시험장 연습할래요</span></td><td><span class="tn">상황</span></td><td>"예약" · "시험"</td><td>`Booking(코스 연습)` 또는 `ShowBooking` — 예약 없으면 카드 빠짐</td></tr>
+        <tr><td class="nw">되물은 뒤</td><td class="nw"><span class="wc"><svg><use href="#mic"/></svg>지난번 이어서요</span></td><td><span class="tn">상황</span></td><td>"이어서"</td><td>`ContinueLast` — 지난 기록이 없으면 카드 빠짐</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ===================== 비교 ===================== -->
+  <section class="sect">
+    <h2>한눈에 비교</h2>
+    <p>터치 면은 실제 dp. "보이는 양" = 스크롤 없이 보이는 카드 수(첫 화면 / 되물은 뒤).</p>
+    <table>
+      <thead><tr><th>시안</th><th>카드 터치 면</th><th>보이는 양</th><th>스크롤</th><th>입력 칸</th><th>"한 줄 가로 스크롤" 결정과</th><th>대화 영역 줄어듦</th><th>난이도</th></tr></thead>
+      <tbody>
+        <tr class="pick"><td class="nw">A 가로 한 줄</td><td>96 × 약 450 – 520</td><td>둘 반 / 둘</td><td>가로 · 흐림 + `›`</td><td class="lo">그대로(사외 키보드 OK)</td><td class="lo">같음</td><td>조금</td><td class="lo">하</td></tr>
+        <tr><td class="nw">B 두 칸 격자</td><td class="lo">96 × 약 525 (가장 넓음)</td><td class="lo">넷 / 다섯 (전부)</td><td class="lo">없음</td><td>카드 모드에선 없음</td><td class="hi">다름(격자)</td><td>조금</td><td>하~중</td></tr>
+        <tr><td class="nw">C 보낼 말풍선</td><td>96 × 약 450 – 520</td><td>넷 / 넷</td><td>세로 · 아래 흐림</td><td class="hi">자리 없음</td><td>다름(세로)</td><td class="hi">가장 많이</td><td>중</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="reco">
+    <div class="k">추천</div>
+    <h2>시안 A · 입력 칸 위 가로 한 줄 — 단, 사내(키보드 없음)에서는 입력 칸을 접는다</h2>
+    <p>사용자가 정한 "큰 카드 · 가로 스크롤 한 줄" 과 그대로 맞고, 입력 칸·배지·칩 자리를 바꾸지 않아 <em>지금 시트에 한 줄만 끼우면</em> 된다. 같은 `sendCoachText` 길로 가므로 Copilot · Fake 규칙 어느 쪽에서도 대화가 이어진다.</p>
+    <ol>
+      <li>Claude(상태기계): 단계별 카드 목록(첫 화면 넷 · 되물은 뒤 다섯, 예약·지난 기록 없으면 해당 카드 빼기) · 카드 누름 = `sendCoachText(카드 문장)` · 기다리는 동안 카드 잠금 · `IntentRules` 에 "등하원" · "후면" · "힌트" 보강 + 카드 아홉 장 매칭 단위 테스트</li>
+      <li>Codex(화면): 칩 · 안내 아래 LazyRow 한 줄(카드 96 dp · Periwinkle 테두리 · 앞 마이크 · 오른쪽 흐림 + `›`) · 배지는 입력 칸 아래 그대로</li>
+      <li>사내 에뮬처럼 키보드가 없을 때 입력 칸이 빈자리로 남는 문제는 관리자 입력 방식에 "카드만" 값을 두어 칸을 접는 것으로 — 그때는 B 처럼 카드가 그 자리를 써도 된다(B 는 이 경우의 대안으로 남김)</li>
+    </ol>
+  </section>
+
+</div>
+</body>
+</html>

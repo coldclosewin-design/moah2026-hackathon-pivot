@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>홈 · 코치 대화 버튼 — 이름 열 가지 · 마이크 · 오른쪽 정렬</title>
+<style>
+:root{
+  --ink:#070827; --paper:#FCFCFA; --peri:#5B60A1; --lav:#E5E6F0; --signal:#F52D48;
+  --muted:rgba(7,8,39,.60);
+  --tex-full:0 4px 10px rgba(7,8,39,.10),0 1px 2px rgba(7,8,39,.06),inset 0 1px 0 rgba(255,255,255,.9);
+  --tex:0 2px 4px rgba(7,8,39,.10),0 1px 1px rgba(7,8,39,.06),inset 0 1px 0 rgba(255,255,255,.9);
+  --tex-dark:0 4px 10px rgba(7,8,39,.16),0 1px 2px rgba(7,8,39,.10),inset 0 1px 0 rgba(255,255,255,.16);
+  --font:"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-weight:400}
+h1,h2,h3,h4,b,strong,th{font-weight:500}
+a{color:var(--peri)}
+body{background:var(--paper);color:var(--ink);font-family:var(--font);line-height:1.5}
+.page{max-width:1560px;margin:0 auto;padding:40px 32px 64px}
+
+/* 머리 */
+.head h1{font-size:30px;letter-spacing:-.01em}
+.head .lead{font-size:16px;color:var(--muted);margin-top:4px;max-width:1150px}
+.quote{margin-top:18px;background:rgba(229,230,240,.6);border-left:4px solid var(--peri);padding:14px 18px;font-size:15px;max-width:1150px}
+.quote .who{display:block;font-size:12px;color:var(--peri);margin-bottom:4px}
+.scale{display:inline-flex;align-items:center;gap:8px;margin-top:16px;font-size:13px;color:var(--peri);background:rgba(91,96,161,.08);padding:6px 12px;border-radius:14px}
+.tokens{display:flex;gap:14px;margin-top:12px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.tokens span{display:inline-flex;align-items:center;gap:6px}
+.tokens i{width:14px;height:14px;border-radius:3px;display:inline-block;box-shadow:0 0 0 1px rgba(7,8,39,.12)}
+.pre{margin-top:20px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:1400px}
+.pre div{background:var(--paper);box-shadow:var(--tex-full);border:1px solid rgba(7,8,39,.05);padding:12px 14px;font-size:13px}
+.pre div b{display:block;color:var(--peri);font-size:12px;letter-spacing:.04em;margin-bottom:3px}
+.legend{margin-top:14px;font-size:12px;color:var(--muted);display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.legend i{display:inline-block;width:26px;height:12px;outline:1px dashed var(--signal);outline-offset:2px;vertical-align:middle;margin-right:4px}
+
+/* 칸 */
+.block{display:grid;grid-template-columns:853px 1fr;gap:36px;margin-top:44px;padding-top:28px;border-top:1px solid rgba(7,8,39,.10)}
+.tag-id{font-size:13px;color:var(--peri);letter-spacing:.08em}
+.notes h2{font-size:26px;margin-top:2px}
+.notes .one{font-size:15px;margin-top:6px}
+.notes h3{font-size:13px;color:var(--peri);margin-top:16px;letter-spacing:.04em}
+.notes ul{margin-top:6px;padding-left:18px;font-size:14px}
+.notes li{margin-top:4px}
+.notes .sel{margin-top:14px;font-size:13px;background:rgba(229,230,240,.55);padding:10px 12px;border-radius:6px}
+.notes .sel b{color:var(--peri)}
+.notes .impl{margin-top:8px;font-size:13px;border-left:3px solid var(--signal);padding:4px 10px}
+.notes .impl b{color:var(--signal);margin-right:4px}
+.cur img{display:block;width:853px;height:auto;border-radius:6px;box-shadow:0 0 0 1px rgba(7,8,39,.14)}
+.state{font-size:12px;color:var(--peri);letter-spacing:.06em;margin:0 0 6px}
+.cur img+.state{margin-top:18px}
+
+/* 1/3 화면 */
+.screen{position:relative;width:853px;height:423px;background:var(--paper);overflow:hidden;border-radius:6px;box-shadow:0 0 0 1px rgba(7,8,39,.14),0 8px 24px rgba(7,8,39,.08)}
+.lp{position:absolute;left:0;top:0;width:400px;height:423px;overflow:hidden}
+.lp svg{display:block;width:400px;height:423px}
+.brand{position:absolute;left:48px;top:22px;font-size:8px;letter-spacing:4px;color:var(--ink)}
+.rc{position:absolute;left:473px;top:0;width:358px;height:423px}
+.rc>div{position:absolute;left:0}
+.pro{font-size:10px;line-height:15px;color:var(--muted)}
+.ttl{font-size:24px;line-height:28px;white-space:pre-line}
+.tm{font-size:13px;line-height:19px}
+.why{font-size:12px;line-height:16px;color:var(--muted);width:358px}
+.go{width:358px;height:46px;border-radius:23px;background:var(--signal);color:var(--paper);font-size:13px;display:flex;align-items:center;justify-content:center;gap:12px;box-shadow:0 4px 10px rgba(245,45,72,.22),0 1px 2px rgba(7,8,39,.08),inset 0 1px 0 rgba(255,255,255,.35)}
+.lk{font-size:13px;line-height:19px;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
+.row{display:flex;align-items:center;justify-content:space-between;width:358px;height:37px}
+.rule{width:358px;height:1px;background:rgba(7,8,39,.12)}
+.ai{font-size:12px;line-height:16px;color:var(--muted)}
+.sub{height:37px;border-radius:19px;padding:0 15px 0 13px;background:var(--lav);color:var(--ink);font-size:12px;display:inline-flex;align-items:center;gap:6px;box-shadow:var(--tex-full);white-space:nowrap}
+.sub svg{width:13px;height:13px;flex:none;color:var(--peri)}
+.sub.ink svg{color:var(--ink)}
+.new{outline:1px dashed var(--signal);outline-offset:3px}
+.edge{position:absolute;top:0;bottom:0;width:0;border-left:1px dashed rgba(245,45,72,.55)}
+.edge span{position:absolute;top:4px;left:4px;font-size:8px;color:var(--signal);white-space:nowrap}
+
+/* 관리자 띠 */
+.band{position:absolute;left:0;right:0;bottom:0;height:30px;background:var(--ink);display:flex;align-items:center;gap:4px;padding:0 6px;font-size:8px;color:rgba(252,252,250,.85)}
+.band .t{color:rgba(252,252,250,.55);margin-right:2px}
+.band span.c{height:18px;line-height:18px;padding:0 7px;border-radius:9px;background:rgba(252,252,250,.12);white-space:nowrap}
+.band .sp{flex:1}
+
+/* 예약 카드 */
+.rcard{width:358px;height:64px;background:var(--paper);box-shadow:var(--tex-full);border:1px solid rgba(7,8,39,.05);display:flex;align-items:center;gap:8px;padding:0 6px}
+.map{width:42px;height:38px;background:var(--ink);flex:none;position:relative}
+.map svg{position:absolute;inset:0;width:42px;height:38px}
+.tx{flex:1;min-width:0}
+.re{font-size:8px;line-height:12px;color:var(--peri)}
+.rt{font-size:9px;line-height:14px;white-space:nowrap}
+.rs{font-size:8px;color:var(--muted);line-height:12px}
+.rch{display:flex;flex-direction:column;gap:4px;flex:none}
+.rch span{height:22px;line-height:22px;padding:0 10px;font-size:9px;background:var(--lav);box-shadow:var(--tex);white-space:nowrap}
+
+/* 후보 표 */
+.cand{margin-top:44px;padding-top:28px;border-top:1px solid rgba(7,8,39,.10)}
+.cand h2{font-size:24px}
+.cand>p{font-size:14px;color:var(--muted);margin-top:4px;max-width:1200px}
+.ct{width:100%;border-collapse:collapse;margin-top:16px;font-size:14px}
+.ct th{font-size:12px;color:var(--peri);letter-spacing:.04em;text-align:left;padding:8px 10px;border-bottom:1px solid rgba(7,8,39,.14);white-space:nowrap}
+.ct td{padding:10px 10px;border-bottom:1px solid rgba(7,8,39,.08);vertical-align:middle}
+.ct td.n{color:var(--peri);font-size:13px;width:34px}
+.ct td.pl{width:200px}
+.ct td.eb{white-space:nowrap;color:var(--peri);font-size:13px}
+.ct td.tone{white-space:nowrap;font-size:13px}
+.ct td.hn{font-size:13px;max-width:560px}
+.ct td.len{white-space:nowrap;font-size:12px;color:var(--muted)}
+.ct tr.top td{background:rgba(229,230,240,.45)}
+.ct tr.pick td{background:rgba(245,45,72,.06)}
+.ct tr.pick td:first-child{border-left:2px solid var(--signal)}
+.tn{display:inline-block;font-size:11px;padding:1px 8px;border-radius:9px;background:rgba(91,96,161,.10);color:var(--peri)}
+.hn .ok{color:var(--peri)} .hn .warn{color:var(--signal)}
+
+/* 마이크 색 비교 */
+.micc{display:flex;gap:28px;margin-top:18px;align-items:center;flex-wrap:wrap}
+.micc .it{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--muted)}
+.big .sub{height:74px;border-radius:37px;font-size:24px;padding:0 30px 0 26px;gap:12px}
+.big .sub svg{width:26px;height:26px}
+
+/* 비교·추천 */
+.cmp{margin-top:56px;padding-top:28px;border-top:1px solid rgba(7,8,39,.10)}
+.cmp h2{font-size:24px}
+.cmp p{font-size:14px;color:var(--muted);margin-top:4px}
+.cmp table{width:100%;border-collapse:collapse;margin-top:16px;font-size:14px}
+.cmp th{font-size:12px;color:var(--peri);letter-spacing:.04em;text-align:left;padding:8px 10px;border-bottom:1px solid rgba(7,8,39,.14)}
+.cmp td{padding:9px 10px;border-bottom:1px solid rgba(7,8,39,.08);vertical-align:top}
+.cmp td:first-child{white-space:nowrap}
+.cmp tr.pick td{background:rgba(229,230,240,.45)}
+.cmp .lo{color:var(--peri)} .cmp .hi{color:var(--signal)}
+.reco{margin-top:40px;padding:24px 28px;background:var(--ink);color:var(--paper);border-radius:8px;box-shadow:var(--tex-dark)}
+.reco .k{font-size:13px;color:rgba(229,230,240,.75);letter-spacing:.06em}
+.reco h2{font-size:26px;margin-top:4px;display:flex;align-items:center;gap:14px}
+.reco h2 .sub{font-size:16px;height:44px;border-radius:22px;padding:0 20px 0 16px}
+.reco h2 .sub svg{width:17px;height:17px}
+.reco p{font-size:15px;margin-top:8px;color:rgba(252,252,250,.9)}
+.reco p em{font-style:normal;color:var(--signal)}
+.reco ol{margin-top:10px;padding-left:20px;font-size:14px;color:rgba(252,252,250,.85)}
+.reco li{margin-top:3px}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="car" viewBox="0 0 400 423">
+      <rect width="400" height="423" fill="#FCFCFA"/>
+      <path d="M130 110 L330 100 L400 120 V423 H0 V130 Z" fill="#5B60A1"/>
+      <path d="M0 340 C120 300 260 290 400 300 V423 H0 Z" fill="#070827"/>
+      <path d="M0 160 C70 130 150 120 210 140 C270 160 320 200 360 250 C380 275 380 310 370 340 C300 360 160 360 60 345 L0 335 Z" fill="#FCFCFA"/>
+      <path d="M20 178 C80 150 150 146 200 168 L240 215 L60 220 L10 205 Z" fill="#070827"/>
+      <path d="M90 268 C180 252 280 262 350 280 L340 330 C250 318 150 318 90 332 Z" fill="#5B60A1" opacity=".55"/>
+      <path d="M0 222 L70 216 C76 230 68 248 56 256 L0 262 Z" fill="#F52D48"/>
+      <circle cx="270" cy="345" r="48" fill="#070827"/><circle cx="270" cy="345" r="32" fill="#FCFCFA"/><circle cx="270" cy="345" r="24" fill="#5B60A1"/>
+    </symbol>
+    <!-- 선 마이크 (stroke) -->
+    <symbol id="mic" viewBox="0 0 16 16"><rect x="5.6" y="1.4" width="4.8" height="8.4" rx="2.4" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M3.2 7.6a4.8 4.8 0 0 0 9.6 0M8 12.5v2.1M5.6 14.6h4.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+    <symbol id="track" viewBox="0 0 42 38"><g fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M8 32 V11 H32 V24 H19" stroke="#5B60A1" stroke-width="3.4"/><path d="M8 32 V11 H32 V24 H19" stroke="#FCFCFA" stroke-width=".6" stroke-dasharray="2 2" opacity=".6"/></g></symbol>
+  </defs>
+</svg>
+
+<div class="page">
+
+  <header class="head">
+    <h1>홈 · 코치 대화 버튼 — 이름 열 가지 · 마이크 기호 · 오른쪽 정렬</h1>
+    <p class="lead">홈 `시작` 아래 링크 줄의 보조 알약 `코치와 고르기` 를 "AI 와 말로 대화한다" 가 읽히는 이름으로 바꾸고, 이름 앞에 마이크 기호를 붙이고, 알약을 오른쪽 열 오른쪽 끝(= `시작` 오른쪽 끝)에 맞춘다. 이름 후보 열 개를 같은 알약 모양으로 늘어놓고, 위 네 개는 홈 1/3 화면에 넣어 봤다. 예약 카드가 있는 홈도 한 장.</p>
+    <blockquote class="quote">
+      <span class="who">사용자 피드백 (원문, 10/6 저녁) — #코치와 고르기</span>
+      - 이 이름 말고 AI 음성 대화 관련 좀 괜찮은 대안 10개 제시 필요 + 마이크 같은 기호도 앞에 (예. (마이크) 음성 대화<br>
+      - 코치와 고르기 알약이 우측으로 정렬되었으면 해
+    </blockquote>
+    <div class="scale">아래 화면·알약은 모두 실제의 1/3 (화면 853 × 423) — 실제 화면은 약 3배</div>
+    <div class="tokens">
+      <span><i style="background:#070827"></i>Ink</span>
+      <span><i style="background:#FCFCFA"></i>Paper</span>
+      <span><i style="background:#5B60A1"></i>Periwinkle</span>
+      <span><i style="background:#E5E6F0"></i>Lavender</span>
+      <span><i style="background:#F52D48"></i>Signal</span>
+      <span>· 모든 시안이 같은 데이터: 후면 직각 주차 · 가이드 모드 · 시연 빌드(관리자 띠 있음)</span>
+    </div>
+    <div class="pre">
+      <div><b>정직성 전제</b>앱에는 진짜 음성 인식(STT)이 없다. 시트의 "말" 은 글 입력(사외 키보드)·칩·말 카드(시안 7)로 흉내 내고, 시트에 배지 `음성 입력 · 시뮬레이션` 이 그대로 남는다. 이름이 "듣는다" 를 얼마나 약속하느냐를 후보마다 적었다.</div>
+      <div><b>지금 이름이 둘</b>관리자 "시뮬레이션 음성 입력" 이 꺼져 있으면 `코치와 고르기`, 켜면 마이크 + `코치에게 말하기`. 이번에 하나로 통일하고 마이크를 늘 붙이는 것을 전제로 했다(말 카드가 들어가면 어느 빌드에서나 "말하는" 길이 있다).</div>
+      <div><b>오른쪽 정렬 규칙</b>링크 `과제·모드 바꾸기` 는 열 왼쪽에 그대로, 알약은 열 오른쪽 끝에 붙인다. 이름 길이가 바뀌면 알약은 왼쪽으로 자란다. 높이 112 dp(1/3 37px) · 글자 36 dp 그대로.</div>
+    </div>
+    <div class="legend"><span><i></i>빨간 점선 = 이번에 바뀌는 요소</span><span>· 세로 빨간 점선 = 오른쪽 열 오른쪽 끝(`시작` 오른쪽 끝, 실제 x 약 2496 dp)</span><span>· 이름에 숫자 없음</span></div>
+  </header>
+
+  <!-- ===================== 지금 ===================== -->
+  <section class="block cur">
+    <div>
+      <div class="state">지금 · 예약 없음 (lesson-setup.png)</div>
+      <img src="../../screenshots/lesson/lesson-setup.png" alt="지금의 홈 — 링크 줄에 코치와 고르기 알약">
+      <div class="state">지금 · 예약 있음 (lesson-setup-reserved.png)</div>
+      <img src="../../screenshots/lesson/lesson-setup-reserved.png" alt="지금의 홈 — 예약 카드가 있는 상태">
+    </div>
+    <div class="notes">
+      <div class="tag-id">지금</div>
+      <h2>글자 링크 + `코치와 고르기`</h2>
+      <p class="one">`시작` 아래 한 줄에 글자 링크 `과제·모드 바꾸기` 와 Lavender 보조 알약 `코치와 고르기` 가 왼쪽부터 나란히 붙어 있다. 알약 오른쪽은 열 끝까지 약 1000 dp 가 비어 있다.</p>
+      <h3>문제</h3>
+      <ul>
+        <li><b>이름</b> — "고르기" 는 과제 시트(`과제·모드 바꾸기`)와 뜻이 겹친다. 누르면 코치와 이야기하는 시트가 열린다는 것이 이름에서 안 읽힌다</li>
+        <li><b>기호 없음</b> — 같은 줄의 링크와 모양만 다르고, "음성·대화" 를 알리는 표시가 없다(관리자 음성 입력 켬일 때만 마이크가 붙는다)</li>
+        <li><b>정렬</b> — 알약이 링크 옆에 붙어 줄 전체가 왼쪽으로 몰린다. 위 `시작` 은 열 전체 폭이라 오른쪽 끝이 허전하다</li>
+      </ul>
+      <p class="sel"><b>바뀌지 않는 것</b> · 링크 줄 자리(`시작` 아래, 홈 A1), 링크 글자, `시작` 크기, 예약 카드, 관리자 띠. 바뀌는 것은 알약의 <b>이름 · 앞 기호 · 가로 자리</b> 셋뿐.</p>
+    </div>
+  </section>
+
+  <!-- ===================== 후보 열 개 ===================== -->
+  <section class="cand">
+    <h2>이름 후보 열 가지</h2>
+    <p>알약은 1/3 크기 그대로(높이 37px · 글자 12px · 마이크 Periwinkle 선). 시트 눈썹 = 알약을 누르면 열리는 코치 시트 맨 위 작은 제목(지금 `코치와 이야기`) — 알약 이름과 같은 말이면 "누른 곳에 왔다" 가 바로 읽힌다. 음절 수는 띄어쓰기 뺀 한글 기준. 옅은 줄 = 홈 화면에 넣어 본 위 네 개, 빨간 줄 = 추천.</p>
+    <table class="ct">
+      <thead><tr><th>#</th><th>알약 (1/3)</th><th>시트 눈썹</th><th>톤</th><th>정직성 · 쓰임 메모</th><th>길이</th></tr></thead>
+      <tbody>
+        <tr class="pick"><td class="n">01</td><td class="pl"><span class="sub"><svg><use href="#mic"/></svg>코치와 대화</span></td><td class="eb">코치와 대화</td><td class="tone"><span class="tn">친근 · 평이</span></td>
+          <td class="hn"><span class="ok">가장 안전</span> — "대화" 는 글·칩·말 카드·(나중의) 진짜 음성을 모두 덮는다. 듣는다고 약속하지 않으면서 마이크 기호가 "말로 해도 된다" 를 보탠다. 지금 눈썹 `코치와 이야기` 와 뜻이 같아 바꾸기 쉽다.</td><td class="len">5음절</td></tr>
+        <tr class="top"><td class="n">02</td><td class="pl"><span class="sub"><svg><use href="#mic"/></svg>음성 대화</span></td><td class="eb">코치와 음성 대화</td><td class="tone"><span class="tn">평이 · 기능명</span></td>
+          <td class="hn">사용자 예시 그대로. 가장 짧고 기능이 분명하다. <span class="warn">다만 "음성" 이 이름에 박혀</span> 진짜 인식이 없다는 사실과 가장 멀다 — 시트 배지 `음성 입력 · 시뮬레이션` 이 반드시 같이 보여야 한다.</td><td class="len">4음절</td></tr>
+        <tr class="top"><td class="n">03</td><td class="pl"><span class="sub"><svg><use href="#mic"/></svg>코치에게 말하기</span></td><td class="eb">코치에게 말하기</td><td class="tone"><span class="tn">친근</span></td>
+          <td class="hn">지금 관리자 음성 입력 켬일 때의 이름 — 하나로 합치면 바뀌는 문구가 가장 적다. 말 카드(시안 7)를 누르는 것 = "말하기" 의 시뮬레이션이라 뜻이 맞는다. 운전자가 주어라 행동이 분명.</td><td class="len">7음절</td></tr>
+        <tr class="top"><td class="n">04</td><td class="pl"><span class="sub"><svg><use href="#mic"/></svg>말로 고르기</span></td><td class="eb">말로 골라요</td><td class="tone"><span class="tn">평이</span></td>
+          <td class="hn">"고르기" 를 남겨 지금 이름과 이어진다(사용자가 익힌 말). 목적(오늘 할 과제 고르기)이 분명하다. 다만 "AI 와 대화" 느낌은 약하고, 링크 `과제·모드 바꾸기` 와 여전히 역할이 비슷해 보인다.</td><td class="len">5음절</td></tr>
+        <tr><td class="n">05</td><td class="pl"><span class="sub"><svg><use href="#mic"/></svg>AI 코치와 대화</span></td><td class="eb">AI 코치와 대화</td><td class="tone"><span class="tn">기술</span></td>
+          <td class="hn">"AI" 가 바로 읽혀 발표에서 눈에 띈다. <span class="warn">사외·오프라인(Fake)은 AI 가 아니라 키워드 규칙</span>이라 그 빌드에서는 이름이 사실과 다르다 — 아래 `AI 코치 · 연결됨` 상태 줄과 짝을 맞춰야 정직하다. 가장 길다.</td><td class="len">AI + 5음절</td></tr>
+        <tr><td class="n">06</td><td class="pl"><span class="sub"><svg><use href="#mic"/></svg>음성 코치</span></td><td class="eb">음성 코치</td><td class="tone"><span class="tn">기술 · 제품명</span></td>
+          <td class="hn">기능 이름(제품 안의 한 모드)처럼 읽힌다. <span class="warn">"음성" 약속이 02 보다 강하다</span> — 음성으로만 되는 코치로 오해할 수 있고, 주행 중 TTS 코치(이미 있는 음성 안내)와도 헷갈린다.</td><td class="len">4음절</td></tr>
+        <tr><td class="n">07</td><td class="pl"><span class="sub"><svg><use href="#mic"/></svg>말 걸기</span></td><td class="eb">코치에게 말 걸기</td><td class="tone"><span class="tn">친근</span></td>
+          <td class="hn">가장 짧고 부담이 적다 — "화내지 않는 조수석" 톤에 맞는다. 누구에게 거는지가 빠져 있어 홈 첫 화면에서는 조금 모호하다(눈썹이 보충).</td><td class="len">3음절</td></tr>
+        <tr><td class="n">08</td><td class="pl"><span class="sub"><svg><use href="#mic"/></svg>코치에게 묻기</span></td><td class="eb">코치에게 묻기</td><td class="tone"><span class="tn">친근</span></td>
+          <td class="hn">초보가 망설임 없이 누를 말. <span class="warn">다만 "아무거나 물어봐도 된다" 로 읽혀</span> 일반 상식 질문을 하면 의도 목록이 정해진 코치가 답하지 못한다 — 기대와 실제 차이가 가장 크다.</td><td class="len">6음절</td></tr>
+        <tr><td class="n">09</td><td class="pl"><span class="sub"><svg><use href="#mic"/></svg>코치 부르기</span></td><td class="eb">코치를 불렀어요</td><td class="tone"><span class="tn">친근 · 기술</span></td>
+          <td class="hn">차량 음성 비서의 호출을 닮아 "AI 음성" 느낌이 강하다. <span class="warn">호출어("하이 ○○")가 있는 것처럼 읽히는데 없다</span> — 시연에서 말로 부르는 장면을 기대하게 만든다.</td><td class="len">5음절</td></tr>
+        <tr><td class="n">10</td><td class="pl"><span class="sub"><svg><use href="#mic"/></svg>대화로 정하기</span></td><td class="eb">대화로 정해요</td><td class="tone"><span class="tn">평이</span></td>
+          <td class="hn">목적(오늘 할 것을 정함)과 수단(대화)을 둘 다 담는다. 정직하다. 다만 딱딱하고, 버튼이라기보다 설명문처럼 읽힌다.</td><td class="len">6음절</td></tr>
+      </tbody>
+    </table>
+    <div class="micc">
+      <div class="it"><span class="big"><span class="sub"><svg><use href="#mic"/></svg>코치와 대화</span></span>마이크 Periwinkle 선 (추천) — 글자와 한 단계 떨어져 "기호" 로 읽힘. 실제 크기의 2/3</div>
+      <div class="it"><span class="big"><span class="sub ink"><svg><use href="#mic"/></svg>코치와 대화</span></span>마이크 Ink 선 — 글자와 한 몸, 더 차분함. 실제 크기의 2/3</div>
+    </div>
+  </section>
+
+  <!-- ===================== 후보 01 ===================== -->
+  <section class="block">
+    <div>
+      <div class="state">후보 01 · 코치와 대화 · 예약 없음</div>
+      <div class="screen">
+        <div class="lp"><svg viewBox="0 0 400 423"><use href="#car"/></svg></div>
+        <div class="brand">DRIVE COACH</div>
+        <div class="rc">
+          <div class="edge" style="left:358px"><span style="left:-58px">열 오른쪽 끝</span></div>
+          <div class="pro" style="top:54px">연수생 · 장롱 10년차 · 목표 아이 등하원</div>
+          <div class="ttl" style="top:80px">오늘은 가볍게,
+주차부터 해 볼까요?</div>
+          <div class="tm" style="top:152px">후면 직각 주차 · 가이드 모드</div>
+          <div class="why" style="top:170px">처음은 제가 순서대로 함께할게요.</div>
+          <div class="go" style="top:205px">시작 <span>→</span></div>
+          <div class="row" style="top:271px"><span class="lk">과제·모드 바꾸기</span><span class="sub new"><svg><use href="#mic"/></svg>코치와 대화</span></div>
+          <div class="rule" style="top:336px"></div>
+          <div class="ai" style="top:358px">오늘은 편안한 곳에서 주차부터 연습해 봐요.</div>
+        </div>
+        <div class="band"><span class="t">관리자</span><span class="c">잘한 주차</span><span class="c">못한 주차</span><span class="c">잘한 점검</span><span class="c">못한 점검</span><span class="sp"></span><span class="c">시나리오 정지</span><span class="c">정차</span><span class="c">출발</span><span class="c">문 열기</span><span class="c">문 닫기</span><span class="c">더 보기</span></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="tag-id">후보 01 (추천)</div>
+      <h2>코치와 대화</h2>
+      <p class="one">알약 폭 약 300 dp(1/3 약 100px). 링크 오른쪽 끝과 알약 왼쪽 끝 사이 약 410 dp 가 비어 두 요소가 "왼쪽 = 바꾸기, 오른쪽 = 말하기" 로 갈린다.</p>
+      <h3>장점</h3>
+      <ul>
+        <li>오른쪽 끝이 `시작` 오른쪽 끝과 같은 세로선 — 링크 줄이 `시작` 폭 안에 양 끝으로 걸려 정돈돼 보인다</li>
+        <li>이름이 글·칩·말 카드 어느 입력에도 맞아 빌드·관리자 설정마다 바꿀 필요가 없다</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>손 닿음</b> — 알약이 지금보다 오른쪽으로 약 700 dp 멀어진다(왼쪽 운전석 기준). 정차 화면이라 규칙 위반은 아니지만 운전석 팔이 더 뻗는다</li>
+        <li>시트 눈썹을 `코치와 대화` 로 바꾸면 계측(`androidTest`)·캡처 스크립트에 이 문구를 찾는 곳이 있는지 같이 확인한다</li>
+      </ul>
+      <p class="impl"><b>구현</b>링크 줄 Row 에 `Arrangement.SpaceBetween`(또는 가운데 Spacer weight 1) · 문구 하나 · 마이크 늘 표시 · 난이도 하</p>
+    </div>
+  </section>
+
+  <!-- ===================== 후보 02 ===================== -->
+  <section class="block">
+    <div>
+      <div class="state">후보 02 · 음성 대화 · 예약 없음</div>
+      <div class="screen">
+        <div class="lp"><svg viewBox="0 0 400 423"><use href="#car"/></svg></div>
+        <div class="brand">DRIVE COACH</div>
+        <div class="rc">
+          <div class="edge" style="left:358px"><span style="left:-58px">열 오른쪽 끝</span></div>
+          <div class="pro" style="top:54px">연수생 · 장롱 10년차 · 목표 아이 등하원</div>
+          <div class="ttl" style="top:80px">오늘은 가볍게,
+주차부터 해 볼까요?</div>
+          <div class="tm" style="top:152px">후면 직각 주차 · 가이드 모드</div>
+          <div class="why" style="top:170px">처음은 제가 순서대로 함께할게요.</div>
+          <div class="go" style="top:205px">시작 <span>→</span></div>
+          <div class="row" style="top:271px"><span class="lk">과제·모드 바꾸기</span><span class="sub new"><svg><use href="#mic"/></svg>음성 대화</span></div>
+          <div class="rule" style="top:336px"></div>
+          <div class="ai" style="top:358px">오늘은 편안한 곳에서 주차부터 연습해 봐요.</div>
+        </div>
+        <div class="band"><span class="t">관리자</span><span class="c">잘한 주차</span><span class="c">못한 주차</span><span class="c">잘한 점검</span><span class="c">못한 점검</span><span class="sp"></span><span class="c">시나리오 정지</span><span class="c">정차</span><span class="c">출발</span><span class="c">문 열기</span><span class="c">문 닫기</span><span class="c">더 보기</span></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="tag-id">후보 02</div>
+      <h2>음성 대화</h2>
+      <p class="one">가장 짧은 알약(약 260 dp). 마이크 + "음성" 이 겹쳐 기능이 한눈에 읽힌다.</p>
+      <h3>장점</h3>
+      <ul>
+        <li>사용자 예시 그대로 — 원하는 인상("AI 음성 대화")에 가장 직접적</li>
+        <li>짧아서 오른쪽 끝에 작게 붙어도 또렷하다</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>정직성</b> — 실제 음성 인식이 없는데 이름이 "음성" 이다. 시트에서 배지 `음성 입력 · 시뮬레이션` 이 말 카드·입력 칸 바로 옆에 보여야 하고, 발표에서도 "음성 입력은 시뮬레이션" 을 먼저 말해야 한다</li>
+        <li>주어(코치)가 빠져 누구와 대화하는지는 눈썹 `코치와 음성 대화` 가 채운다</li>
+      </ul>
+      <p class="impl"><b>구현</b>후보 01 과 같음 · 난이도 하</p>
+    </div>
+  </section>
+
+  <!-- ===================== 후보 03 ===================== -->
+  <section class="block">
+    <div>
+      <div class="state">후보 03 · 코치에게 말하기 · 예약 없음</div>
+      <div class="screen">
+        <div class="lp"><svg viewBox="0 0 400 423"><use href="#car"/></svg></div>
+        <div class="brand">DRIVE COACH</div>
+        <div class="rc">
+          <div class="edge" style="left:358px"><span style="left:-58px">열 오른쪽 끝</span></div>
+          <div class="pro" style="top:54px">연수생 · 장롱 10년차 · 목표 아이 등하원</div>
+          <div class="ttl" style="top:80px">오늘은 가볍게,
+주차부터 해 볼까요?</div>
+          <div class="tm" style="top:152px">후면 직각 주차 · 가이드 모드</div>
+          <div class="why" style="top:170px">처음은 제가 순서대로 함께할게요.</div>
+          <div class="go" style="top:205px">시작 <span>→</span></div>
+          <div class="row" style="top:271px"><span class="lk">과제·모드 바꾸기</span><span class="sub new"><svg><use href="#mic"/></svg>코치에게 말하기</span></div>
+          <div class="rule" style="top:336px"></div>
+          <div class="ai" style="top:358px">오늘은 편안한 곳에서 주차부터 연습해 봐요.</div>
+        </div>
+        <div class="band"><span class="t">관리자</span><span class="c">잘한 주차</span><span class="c">못한 주차</span><span class="c">잘한 점검</span><span class="c">못한 점검</span><span class="sp"></span><span class="c">시나리오 정지</span><span class="c">정차</span><span class="c">출발</span><span class="c">문 열기</span><span class="c">문 닫기</span><span class="c">더 보기</span></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="tag-id">후보 03</div>
+      <h2>코치에게 말하기</h2>
+      <p class="one">가장 긴 알약(약 380 dp). 링크와의 빈 틈이 약 330 dp 로 줄지만 두 요소는 여전히 양 끝으로 갈린다.</p>
+      <h3>장점</h3>
+      <ul>
+        <li>이미 앱에 있는 문구(관리자 음성 입력 켬) — 문자열 하나를 지우고 하나로 통일하면 끝</li>
+        <li>운전자가 하는 행동("말하기")이 그대로 이름 — 말 카드를 누르는 동작과 정확히 맞는다</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li>길어서 링크 줄이 꽉 차 보인다. 예약 카드가 있는 홈에서는 카드 오른쪽 칩 열과 세로로 겹쳐 오른쪽이 무거워진다</li>
+        <li>"AI" 느낌은 01 보다 약하다(사람 코치에게 말하는 느낌)</li>
+      </ul>
+      <p class="impl"><b>구현</b>후보 01 과 같음 · 기존 문자열 재사용 · 난이도 하</p>
+    </div>
+  </section>
+
+  <!-- ===================== 후보 04 ===================== -->
+  <section class="block">
+    <div>
+      <div class="state">후보 04 · 말로 고르기 · 예약 없음 · 마이크 Ink</div>
+      <div class="screen">
+        <div class="lp"><svg viewBox="0 0 400 423"><use href="#car"/></svg></div>
+        <div class="brand">DRIVE COACH</div>
+        <div class="rc">
+          <div class="edge" style="left:358px"><span style="left:-58px">열 오른쪽 끝</span></div>
+          <div class="pro" style="top:54px">연수생 · 장롱 10년차 · 목표 아이 등하원</div>
+          <div class="ttl" style="top:80px">오늘은 가볍게,
+주차부터 해 볼까요?</div>
+          <div class="tm" style="top:152px">후면 직각 주차 · 가이드 모드</div>
+          <div class="why" style="top:170px">처음은 제가 순서대로 함께할게요.</div>
+          <div class="go" style="top:205px">시작 <span>→</span></div>
+          <div class="row" style="top:271px"><span class="lk">과제·모드 바꾸기</span><span class="sub ink new"><svg><use href="#mic"/></svg>말로 고르기</span></div>
+          <div class="rule" style="top:336px"></div>
+          <div class="ai" style="top:358px">오늘은 편안한 곳에서 주차부터 연습해 봐요.</div>
+        </div>
+        <div class="band"><span class="t">관리자</span><span class="c">잘한 주차</span><span class="c">못한 주차</span><span class="c">잘한 점검</span><span class="c">못한 점검</span><span class="sp"></span><span class="c">시나리오 정지</span><span class="c">정차</span><span class="c">출발</span><span class="c">문 열기</span><span class="c">문 닫기</span><span class="c">더 보기</span></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="tag-id">후보 04</div>
+      <h2>말로 고르기</h2>
+      <p class="one">지금 이름에서 앞말만 바꾼 셈(코치와 → 말로). 이 칸만 마이크를 Ink 선으로 그려 색 차이도 함께 본다.</p>
+      <h3>장점</h3>
+      <ul>
+        <li>사용자가 이미 익힌 "고르기" 가 남아 바뀐 것이 적다. 링크는 "직접 바꾸기", 알약은 "말로 고르기" 로 수단의 차이가 대구를 이룬다</li>
+        <li>목적이 분명해 의도 목록이 정해진 코치의 실제 능력과 기대가 잘 맞는다</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li>사용자가 원한 "AI 음성 대화" 의 인상은 넷 중 가장 약하다</li>
+        <li>Ink 마이크는 차분하지만 글자와 붙어 "기호" 로 덜 튄다 — 기호를 앞에 둔 이유가 약해진다</li>
+      </ul>
+      <p class="impl"><b>구현</b>후보 01 과 같음 · 난이도 하</p>
+    </div>
+  </section>
+
+  <!-- ===================== 예약 카드 변형 ===================== -->
+  <section class="block">
+    <div>
+      <div class="state">추천(후보 01) · 예약 카드 있음 · 관리자 띠 없음(사내 Real 빌드 모양)</div>
+      <div class="screen">
+        <div class="lp"><svg viewBox="0 0 400 423"><use href="#car"/></svg></div>
+        <div class="brand">DRIVE COACH</div>
+        <div class="rc">
+          <div class="edge" style="left:358px"><span style="left:-58px">열 오른쪽 끝</span></div>
+          <div class="pro" style="top:47px">연수생 · 장롱 10년차 · 목표 아이 등하원</div>
+          <div class="ttl" style="top:72px">오늘은 가볍게,
+주차부터 해 볼까요?</div>
+          <div class="tm" style="top:146px">후면 직각 주차 · 가이드 모드</div>
+          <div class="why" style="top:168px">예약한 코스의 과제부터 해요. 처음 하는 과제라 가이드부터 해요. 제가 단계마다 확인할게요.</div>
+          <div class="rcard" style="top:213px">
+            <div class="map"><svg viewBox="0 0 42 38"><use href="#track"/></svg></div>
+            <div class="tx"><div class="re">예약 · 서초 14:00</div><div class="rt">예약한 서초 시험장 · 주차 3종</div><div class="rs">거기서 할 걸 골라요</div></div>
+            <div class="rch"><span>코스 연습</span><span>모의시험</span></div>
+          </div>
+          <div class="go" style="top:289px">시작 <span>→</span></div>
+          <div class="row" style="top:356px"><span class="lk">과제·모드 바꾸기</span><span class="sub new"><svg><use href="#mic"/></svg>코치와 대화</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="tag-id">예약 카드가 있을 때</div>
+      <h2>오른쪽 끝 세로선이 셋</h2>
+      <p class="one">예약 카드의 칩 열(`코스 연습`·`모의시험`) · `시작` · 코치 알약이 모두 같은 오른쪽 끝에 선다. 지금 캡처의 세로 자리(카드 → `시작` → 링크 줄)는 그대로.</p>
+      <h3>장점</h3>
+      <ul>
+        <li>오른쪽 끝선이 카드 · `시작` · 알약을 한 줄로 꿰어 예약이 있어도 정돈돼 보인다</li>
+        <li>알약이 링크 옆을 떠나 `시작` 바로 아래 왼쪽은 링크 하나만 — 예약 카드 칩과 알약이 서로 다른 세로 띠에 있어 "뭘 누르지" 가 덜 섞인다</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li>카드 칩 열과 코치 알약이 같은 오른쪽 끝이라 둘 다 Lavender 면이 세로로 쌓인다 — 알약 쪽은 둥근 모양 + 마이크로 구분된다</li>
+        <li>이 상태는 화면 아래가 빠듯하다(알약 아래 약 90 dp). 관리자 띠가 있는 시연 빌드에서는 지금과 같이 띠 위로 알약 아래 여백이 줄어든다 — 위치는 바꾸지 않는다</li>
+      </ul>
+      <p class="impl"><b>구현</b>예약 유무와 무관하게 같은 Row 규칙 · 난이도 하</p>
+    </div>
+  </section>
+
+  <!-- ===================== 비교 ===================== -->
+  <section class="cmp">
+    <h2>홈에 넣어 본 네 개 비교</h2>
+    <p>알약 폭은 실제 dp 어림값(마이크 + 글자 + 안쪽 여백). 정직성 = 진짜 음성 인식이 없다는 사실과 이름이 얼마나 맞나.</p>
+    <table>
+      <thead><tr><th>후보</th><th>알약 폭</th><th>"AI 음성 대화" 인상</th><th>정직성</th><th>지금 문구와의 연속</th><th>시트 눈썹</th></tr></thead>
+      <tbody>
+        <tr class="pick"><td>01 코치와 대화</td><td>약 300</td><td>보통 (마이크가 보탬)</td><td class="lo">높음 — 모든 입력을 덮음</td><td>눈썹 `코치와 이야기` 와 같은 뜻</td><td>코치와 대화</td></tr>
+        <tr><td>02 음성 대화</td><td>약 260</td><td class="lo">가장 강함</td><td class="hi">낮음 — 배지 필수</td><td>새 문구</td><td>코치와 음성 대화</td></tr>
+        <tr><td>03 코치에게 말하기</td><td>약 380</td><td>보통</td><td>보통 — 말 카드와 맞음</td><td class="lo">이미 있는 문구</td><td>코치에게 말하기</td></tr>
+        <tr><td>04 말로 고르기</td><td>약 290</td><td class="hi">약함</td><td>보통</td><td class="lo">지금 이름과 앞말만 다름</td><td>말로 골라요</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="reco">
+    <div class="k">추천</div>
+    <h2><span class="sub"><svg><use href="#mic"/></svg>코치와 대화</span> 오른쪽 끝 정렬 · 마이크 Periwinkle 선</h2>
+    <p>"대화" 는 글 입력 · 칩 · <em>말 카드(시안 7)</em> · 나중의 진짜 음성까지 모두 사실대로 덮어, 음성 인식이 없는 지금도 이름이 거짓이 되지 않는다. "AI 음성" 인상은 앞의 마이크 기호와 시트 배지 `음성 입력 · 시뮬레이션` 이 맡는다.</p>
+    <ol>
+      <li>Codex: 링크 줄 Row 를 열 폭 양 끝 정렬(링크 왼쪽 · 알약 오른쪽 끝 = `시작` 오른쪽 끝) · 알약 문구 `코치와 대화` 하나로 통일 · 마이크(Periwinkle 선) 늘 표시 · 시트 눈썹 `코치와 대화`</li>
+      <li>Claude: 관리자 "시뮬레이션 음성 입력" 켬/끔에 따라 이름이 바뀌던 분기 제거(시트 안 입력 방식만 바뀜) · 계측 문구 계약 갱신</li>
+      <li>사용자가 "음성" 이 이름에 꼭 보이길 원하면 02 `음성 대화` — 이때는 시트 배지가 말 카드 바로 옆에 늘 보이는 것을 조건으로</li>
+    </ol>
+  </section>
+
+</div>
+</body>
+</html>
