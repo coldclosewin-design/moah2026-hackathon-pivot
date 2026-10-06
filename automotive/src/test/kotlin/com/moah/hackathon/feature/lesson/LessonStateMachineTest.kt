@@ -354,7 +354,7 @@ class LessonStateMachineTest {
         val h = harness(tasks = SeedCatalog.tasks + plannedTask)
         h.machine.begin(plannedTask.id, LessonMode.HINT)
         assertTrue(h.tts.spoken.last(), h.tts.spoken.last().startsWith("야간 주차는 아직 준비 중이에요. 지금은 출발 전 점검·"))
-        assertTrue(h.tts.spoken.last(), h.tts.spoken.last().endsWith("비상등·날씨별 행동을 할 수 있어요."))
+        assertTrue(h.tts.spoken.last(), h.tts.spoken.last().endsWith("헷갈리는 상식을 할 수 있어요."))   // 마지막 READY 과제(라운드 25 도로 상식)
         h.machine.begin(SeedCatalog.TASK_PARKING_REAR, LessonMode.QUIZ)
         assertTrue(h.tts.spoken.last().startsWith("후면 직각 주차는 지식 테스트 모드로는"))
         h.machine.begin(SeedCatalog.TASK_PARKING_REAR, LessonMode.GUIDE)
