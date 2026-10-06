@@ -25,7 +25,7 @@ import com.moah.hackathon.ui.CoachColors
 import com.moah.hackathon.ui.CoachTexture
 
 @Composable
-internal fun CoachPill(label: String, onClick: (() -> Unit)?, modifier: Modifier = Modifier) {
+internal fun CoachPill(label: String, onClick: (() -> Unit)?, modifier: Modifier = Modifier, microphone: Boolean = true) {
     Row(modifier.height(112.dp)
         .then(if (onClick == null) Modifier.alpha(.55f).background(CoachColors.Lavender, RoundedCornerShape(100))
             else Modifier.surfaceTexture(CoachColors.Lavender, CoachTexture.Chip, pill = true))
@@ -34,7 +34,7 @@ internal fun CoachPill(label: String, onClick: (() -> Unit)?, modifier: Modifier
             else Modifier.clickable(role = Role.Button, onClick = onClick))
         .padding(horizontal = 40.dp), horizontalArrangement = Arrangement.spacedBy(20.dp),
         verticalAlignment = Alignment.CenterVertically) {
-        Canvas(Modifier.size(40.dp)) {
+        if (microphone) Canvas(Modifier.size(40.dp)) {
             val ink = CoachColors.Periwinkle
             drawRoundRect(ink, Offset(size.width * .34f, 0f), Size(size.width * .32f, size.height * .6f), CornerRadius(size.width * .16f))
             drawArc(ink, 0f, 180f, false, Offset(size.width * .12f, size.height * .2f),
@@ -47,7 +47,12 @@ internal fun CoachPill(label: String, onClick: (() -> Unit)?, modifier: Modifier
 }
 
 @Composable
-internal fun CoachSheet(coach: CoachDialog, onChoose: (CoachChoice) -> Unit, onBack: () -> Unit) {
+internal fun CoachSheet(coach: CoachDialog, onChoose: (CoachChoice) -> Unit, onBack: () -> Unit,
+    textInput: Boolean = false, onSend: (String) -> Unit = {}) {
+    if (textInput) {
+        CoachTextSheet(coach, onChoose, onBack, onSend)
+        return
+    }
     Column(Modifier.fillMaxSize()) {
         Spacer(Modifier.height(104.dp)) // The enclosing sheet starts at 64 dp; the eyebrow is at 168.
         Eyebrow("코치와 이야기")
@@ -60,19 +65,24 @@ internal fun CoachSheet(coach: CoachDialog, onChoose: (CoachChoice) -> Unit, onB
             LessonText(coach.line, 48)
         }
         Spacer(Modifier.height(33.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            coach.choices.forEach { choice ->
-                Box(Modifier.height(102.dp).surfaceTexture(CoachColors.Lavender, CoachTexture.Chip)
-                    .clickable(role = Role.Button) { onChoose(choice) }.padding(horizontal = 24.dp),
-                    contentAlignment = Alignment.Center) { LessonText(choice.label, 36, maxLines = 1) }
-            }
-        }
+        CoachChoices(coach.choices, onChoose)
         Spacer(Modifier.height(18.dp))
         LessonText("고르면 바로 그 자리로 가요.", 32, CoachColors.Muted)
         Spacer(Modifier.height(57.dp))
         CoachPill("말로 답하기 — 준비 중", null)
         Spacer(Modifier.weight(1f))
         BottomActions(secondary = { BackPill(onBack) })
+    }
+}
+
+@Composable
+internal fun CoachChoices(choices: List<CoachChoice>, onChoose: (CoachChoice) -> Unit) {
+    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        choices.forEach { choice ->
+            Box(Modifier.height(102.dp).surfaceTexture(CoachColors.Lavender, CoachTexture.Chip)
+                .clickable(role = Role.Button) { onChoose(choice) }.padding(horizontal = 24.dp),
+                contentAlignment = Alignment.Center) { LessonText(choice.label, 36, maxLines = 1) }
+        }
     }
 }
 

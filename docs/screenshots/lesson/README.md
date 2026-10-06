@@ -1,5 +1,41 @@
 # 화면 검증 캡처
 
+## UI 라운드 24 — 홈 코치 텍스트 대화 (2026-10-06)
+
+`codex/ui-round24` · 새 워크트리 시작 기준 `origin/main=176736f`(#198 모델·#199 발주). [발주서](../../handoffs/2026-10-06_codex_ui_round24.md)의 모델 API만 화면에 연결했다. 전용 `emulator-5556`에서 검증했다.
+
+| 상태 | 실제 앱 캡처 | 구현·확인 |
+|---|---|---|
+| 입력 끔 · 홈 | [홈](lesson-setup.png), [코치 선택 홈](lesson-setup-coach.png) | `코치와 고르기`, 마이크 아이콘 없음. A1의 시작 아래 57dp·링크와 같은 중심선 유지 |
+| 입력 켬 · 대화 | [텍스트 대화](lesson-setup-coach-text.png) | 운전자 오른쪽 Periwinkle/Paper, 코치 왼쪽 말풍선. 대화만 스크롤하며 새 마지막 줄 표시. 기존 칩·48sp 한 줄 입력·보내기·시뮬레이션 배지 |
+| 답변 대기 | [대기](lesson-setup-coach-waiting.png) | 코치 쪽 `…`, 입력과 보내기 비활성. 기존 선택 칩은 사용 가능 |
+| 준비실 | [관리자 준비실](lesson-admin-home.png) | 세션 중 패널 아래 켬/끔 토글, 왼쪽 지금 열에 `음성 입력 · 시뮬레이션(글)` |
+| 실제 IME | [영어 입력](lesson-setup-coach-ime.png) | 기본 Google Automotive Keyboard에서 `hello`를 화면 키로 입력하고 IME 보내기로 전송. 입력줄·보내기·돌아가기가 키보드 위에 표시됨 |
+
+보내기와 IME 보내기는 같은 진입점을 사용하며 공백·대기 중 전송을 막는다. 조합을 끝낸 뒤 초안을 비워 IME의 마지막 조합 확정이 이미 보낸 글을 되살리지 않게 했다. `ADJUST_RESIZE`와 `imePadding`으로 키보드가 입력줄을 가리지 않게 한다. 대화가 끝나면 과제 시트·홈 추천·프로필 시트로 기존 API를 따라 이동한다. 프로필 요청은 시트를 연 뒤 소비한다. 과제 시트에서 수동 선택한 뒤 모델의 기존 추천과 같은 과제를 대화로 요청해도 홈에 요청한 과제가 반영된다. 돌아가기와 칩 선택은 기존 동작을 유지한다.
+
+에뮬 기본 Google Automotive Keyboard에는 한국어 항목이 없었다(언어 추가 목록 끝까지 확인, `Korean` 검색 결과 없음). 그래서 한국어 IME 직접 입력은 확인하지 못했다. 한국어 `안녕`·`평행 주차`는 화면 텍스트 입력 계측과 Android `InputConnection.setComposingText`/IME 보내기 계측으로 확인했다. 영어 `hello`는 실제 화면 키 입력·IME 보내기·되물음·초안 비우기를 확인했다.
+
+새 화면 계약은 입력 끔/켬·Real 조건, 준비실 토글, 공백 전송 방지, Fake 되물음·평행 주차 추천·프로필 요청 소비, 수동 선택 뒤 동일 추천 재지정, 시트 재진입 시 대화 초기화, 조합 전송 후 초안 비우기, 대기 입력 잠금과 칩 유지, 긴 대화 마지막 줄 표시·숫자 없는 시트 문구를 검사한다. 기존 잠금/라벨/시연 고정값 검사는 유지한다.
+
+입력 끔의 `lesson-setup-coach-sheet.png`는 기존 캡처와 앱 영역(2560×1268, 시스템 바 제외)의 **다른 픽셀 0개**를 확인해 유지했다. 홈 문구가 보이는 캡처와 준비실은 **11장 교체**, 텍스트 대화·대기·실제 IME는 **3장 추가**했다. 새 텍스트·대기·준비실·홈·예약 홈·펼친 띠의 글자와 버튼 경계를 눈으로 확인했다.
+
+[PowerShell 빌드](build-round24.txt): `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` 성공. 단위 테스트 **340개(실패·오류·건너뜀 0)**. 아래 세 실행은 같은 최종 앱·계측 APK로 원본 `tools/lesson_shots.sh`를 연속 실행한 결과다.
+
+| 실행 | 로그 | 결과 |
+|---|---|---|
+| 1 | [contract-round24-1.txt](contract-round24-1.txt) | Lesson contract passed |
+| 2 | [contract-round24-2.txt](contract-round24-2.txt) | Lesson contract passed |
+| 3 | [contract-round24-3.txt](contract-round24-3.txt) | Lesson contract passed |
+
+`RESERVE=1 bash tools/emu_flow.sh` **PASS · clashes 0**([로그](flow-round24-rear.txt)): 서초 시험장 예약→예약 홈→후면 주차 힌트 모드, **60/55·4구간 → 100/100·2구간**, 필수 힌트 3종·둘째 추가 힌트 없음·도어→Report·`실신호 0 · 시뮬레이션 8 · 미측정 0` 확인.
+
+최종 앱을 `adb -s emulator-5556 install -r`로 재설치한 뒤 원본 `bash tools/course_flow.sh`도 **PASS · 종료 코드 0**([로그](flow-round24-course.txt)): **70 불합격·감점 3 → 100 합격·감점 0 → 도어→Report** 확인.
+
+최종 APK SHA-256: 앱 `02530F5A6F2DEE06D7A8446AE0DA89F598F08DA4B0E1F1860BD5B2F4815ECC8E`, 계측 `91BFD7FD3153FEB327E16B6466EBAA8EB739D6BD1051BDE1303A747FCF7CCE39`.
+
+원본 도구의 시작 검사는 `-s emulator-5554`가 고정되어 있어 ignored `build/adb-round24.sh`를 `ADB`로 지정했다. 이 래퍼는 선두 serial 인수만 제거하고 모든 호출에 `-s emulator-5556`을 붙인다. 도구의 판정·대기·탭·캡처 코드는 그대로이며 기존 [INTEGRATION C 요청](../../INTEGRATION.md)의 우회 방식을 재사용했다. 모델·ports·tools·build 설정·NEXT 변경은 없다.
+
 ## UI 라운드 23b — 관리자 준비실·세션 띠·프로필 P2 (2026-10-06)
 
 `codex/ui-round23b` · 시작 기준 `origin/main=410cc6e`(#186). [발주서](../../handoffs/2026-10-06_codex_ui_round23.md) ④⑤를 main의 M2·M4 모델에 연결했다. 전용 AVD `Codex_Round23b`(CSTDe 이미지, 2560×1440, user 10), `ANDROID_SERIAL=emulator-5556` 고정. 기존 `emulator-5554`는 조작·종료하지 않았다.

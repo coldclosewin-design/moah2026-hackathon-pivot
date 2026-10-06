@@ -39,12 +39,20 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
     onChooseBooking: (BookingOption) -> Unit = {}, onConsumeSheetRequest: () -> Unit = {},
     onboarding: ProfileOnboarding? = null, profileRows: List<ProfileRow> = emptyList(),
     observedLines: List<String> = emptyList(), onAnswerProfile: (ProfileField, String) -> Unit = { _, _ -> },
-    onFinishOnboarding: () -> Unit = {}, onAdmin: (() -> Unit)? = null) {
+    onFinishOnboarding: () -> Unit = {}, onAdmin: (() -> Unit)? = null,
+    coachTextInput: Boolean = false, onSendCoachText: (String) -> Unit = {},
+    profileRequest: Boolean = false, onConsumeProfileRequest: () -> Unit = {}) {
     if (onboarding != null) {
         ProfileOnboardingScreen(profileRows, onboarding, onAnswerProfile, onFinishOnboarding, onAdmin)
         return
     }
     var profileOpen by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(profileRequest) {
+        if (profileRequest) {
+            profileOpen = true
+            onConsumeProfileRequest()
+        }
+    }
     var lastCoachLine by rememberSaveable { mutableStateOf<String?>(null) }
     LaunchedEffect(coach?.line) { coach?.line?.let { lastCoachLine = it } }
     var selectedTaskId by rememberSaveable(suggestedTask.id, booking) { mutableStateOf(suggestedTask.id) }
@@ -53,6 +61,15 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
     var sheet by rememberSaveable { mutableStateOf(false) }
     var venuesOpen by rememberSaveable { mutableStateOf(false) }
     var awaitingRecommendation by remember { mutableStateOf(false) }
+    var coachTextSubmitted by remember { mutableStateOf(false) }
+    LaunchedEffect(coach, profileRequest, sheetRequest) {
+        if (coach == null && coachTextSubmitted) {
+            // A text intent can pin the same model recommendation after manual browsing.
+            // Restore that recommendation even when its task/mode keys did not change.
+            awaitingRecommendation = !profileRequest && sheetRequest == null
+            coachTextSubmitted = false
+        }
+    }
     LaunchedEffect(awaitingRecommendation) {
         if (awaitingRecommendation) {
             selectedTaskId = suggestedTask.id
@@ -86,7 +103,7 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
             // An expanded admin band needs room as well as a booking card. Keep the
             // A1 action/card gaps and full button heights; compact only the reading area.
             val compactHome = maxHeight < 1120.dp
-            Row(Modifier.fillMaxSize()) {
+            Row(Modifier.fillMaxSize().then(if (coachTextInput && coach != null) Modifier.imePadding() else Modifier)) {
                 Box(Modifier.weight(fraction).fillMaxHeight().clipToBounds().testTag("setup-poster")) {
                     Image(painterResource(R.drawable.poster_car), null, Modifier.fillMaxSize().graphicsLayer {
                         scaleX = 1f + (.53f - fraction) * .35f
@@ -108,9 +125,13 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
                             ProfileScreen(profileRows, onAnswerProfile, { profileOpen = false }, observedLines = observedLines)
                         } else if (page == "coach") {
                             coach?.let { dialog -> CoachSheet(dialog, { choice ->
+                                coachTextSubmitted = false
                                 awaitingRecommendation = choice == CoachChoice.CONTINUE_LAST
                                 onChooseCoach(choice)
-                            }, onCloseCoach) }
+                            }, { coachTextSubmitted = false; onCloseCoach() }, coachTextInput, { text ->
+                                coachTextSubmitted = true
+                                onSendCoachText(text)
+                            }) }
                         } else if (showSheet) {
                             if (venuesOpen) VenueSheet(venues, booking, onReserve, onCancelReservation,
                                 onBack = { venuesOpen = false }, onDone = { venuesOpen = false; sheet = false })
@@ -156,7 +177,8 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
                                         categoryName = task.type.name
                                         sheet = true
                                     })
-                                    CoachPill("코치에게 말하기", onOpenCoach)
+                                    CoachPill(if (coachTextInput) "코치에게 말하기" else "코치와 고르기", onOpenCoach,
+                                        microphone = coachTextInput)
                                 }
                             }
                             // The dialog already showed this speech; repeating it after return can
