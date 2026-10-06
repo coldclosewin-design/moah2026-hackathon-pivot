@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>시안 AC-1 · 이야기 왼쪽 + 여정</title>
+<style>
+  :root {
+    --ink: #070827; --paper: #FCFCFA; --peri: #5B60A1; --lav: #E5E6F0; --signal: #F52D48;
+    --muted: rgba(7, 8, 39, .60);
+    --shadow: 0 4px 10px rgba(7, 8, 39, .10), 0 1px 2px rgba(7, 8, 39, .06);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { margin: 0; background: var(--paper); }
+  body { font-family: "Noto Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif; font-weight: 400; color: var(--ink); word-break: keep-all; }
+  .slide { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: var(--paper); }
+
+  /* 왼쪽: 왜 필요한가 (A 의 이야기) */
+  .why { position: absolute; left: 0; top: 0; width: 600px; height: 930px; background: var(--ink); color: var(--paper); padding: 44px 44px 0 60px; }
+  .why::after { content: ""; position: absolute; right: 0; top: 0; width: 110px; height: 110px; background: var(--peri); clip-path: polygon(100% 0, 0 0, 100% 100%); }
+  .lbl { font-size: 20px; letter-spacing: .14em; }
+  .why .lbl { color: rgba(229, 230, 240, .78); }
+  .stat { margin-top: 22px; }
+  .stat .num { font-size: 84px; line-height: 1; font-weight: 500; letter-spacing: -.02em; color: var(--signal); }
+  .stat .num sup { font-size: 20px; color: var(--lav); vertical-align: top; position: relative; top: 8px; margin-left: 4px; }
+  .stat .txt { margin-top: 10px; font-size: 22px; line-height: 1.45; color: rgba(229, 230, 240, .9); }
+  .stat.minor .num { font-size: 56px; color: var(--paper); }
+  .stat.minor .num small { font-size: 28px; margin-left: 4px; }
+  .quote { margin-top: 28px; padding-left: 18px; border-left: 3px solid var(--peri); font-size: 21px; line-height: 1.5; color: rgba(229, 230, 240, .80); }
+  .msg { position: absolute; left: 60px; right: 44px; bottom: 40px; font-size: 28px; line-height: 1.42; }
+  .msg em { font-style: normal; color: var(--signal); }
+
+  /* 오른쪽 위: 제목 + 어떻게 */
+  .right { position: absolute; left: 660px; top: 36px; right: 60px; }
+  .top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .eyebrow { font-size: 21px; color: var(--peri); letter-spacing: .04em; }
+  .title { margin-top: 6px; font-size: 58px; line-height: 1.1; font-weight: 500; letter-spacing: -.01em; }
+  .title .sub { color: var(--peri); font-weight: 400; }
+  .team { font-size: 20px; color: var(--muted); border: 1.5px dashed rgba(7, 8, 39, .35); border-radius: 999px; padding: 6px 20px; white-space: nowrap; }
+  .how { margin-top: 22px; display: flex; align-items: center; gap: 22px; padding: 16px 22px; background: var(--lav); border-radius: 6px; }
+  .how .sol { font-size: 23px; line-height: 1.4; font-weight: 500; flex: none; width: 430px; }
+  .how .sol .hl { color: var(--peri); }
+  .how .vsep { width: 1.5px; align-self: stretch; background: rgba(7, 8, 39, .18); }
+  .how .grid { display: flex; flex-direction: column; gap: 10px; }
+  .row { display: flex; align-items: center; gap: 8px; font-size: 20px; flex-wrap: wrap; }
+  .row .big { font-size: 22px; font-weight: 500; margin-right: 4px; }
+  .chip { background: var(--paper); border-radius: 999px; padding: 3px 13px; }
+  .m { border-radius: 999px; padding: 3px 14px; }
+  .m.g { background: var(--ink); color: var(--paper); }
+  .m.h { background: var(--peri); color: var(--paper); }
+  .m.e { background: var(--paper); }
+  .ar, .note { color: var(--muted); }
+
+  /* 오른쪽: 여정 3 + 3 */
+  .jlbl { position: absolute; left: 660px; top: 290px; font-size: 20px; letter-spacing: .14em; color: var(--peri); }
+  .steps { position: absolute; left: 660px; top: 324px; display: grid; grid-template-columns: repeat(3, 380px); column-gap: 30px; row-gap: 14px; }
+  .step { position: relative; }
+  .hd { display: flex; align-items: center; gap: 12px; }
+  .dot { width: 38px; height: 38px; border-radius: 50%; background: var(--ink); color: var(--paper); font-size: 17px; line-height: 38px; text-align: center; font-weight: 500; flex: none; }
+  .step.key .dot { background: var(--signal); }
+  .hd h3 { font-size: 24px; font-weight: 500; white-space: nowrap; }
+  .cap { margin-top: 8px; width: 380px; height: 160px; object-position: center; display: block; border-radius: 6px; box-shadow: var(--shadow); object-fit: cover; }
+  .desc { margin-top: 6px; font-size: 20px; line-height: 1.4; height: 28px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chips { margin-top: 6px; display: flex; gap: 8px; }
+  .sc { display: inline-flex; align-items: center; gap: 6px; background: var(--lav); border-radius: 999px; padding: 2px 12px 2px 9px; font-size: 18px; line-height: 1.3; }
+  .sc.sim { background: transparent; border: 1.5px dashed var(--peri); color: var(--peri); }
+  .sc.ai { background: var(--peri); color: var(--paper); }
+  .ic { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  .arrow { position: absolute; color: var(--peri); font-size: 26px; }
+
+  /* 아래 */
+  .foot { position: absolute; left: 0; right: 0; bottom: 0; height: 150px; background: var(--lav); padding: 18px 60px 0 60px; border-top: 6px solid var(--ink); }
+  .proof { display: flex; align-items: center; gap: 14px; font-size: 20px; }
+  .tag { background: var(--ink); color: var(--paper); border-radius: 999px; padding: 2px 16px; font-size: 18px; flex: none; }
+  .badge { color: var(--peri); }
+  .sep { width: 1.5px; height: 22px; background: rgba(7, 8, 39, .25); }
+  .small { margin-top: 10px; font-size: 15px; line-height: 1.5; color: var(--muted); }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H10l-5 4v-4H4z"/></symbol>
+    <symbol id="i-stop" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M10 16V8h3a2.5 2.5 0 0 1 0 5h-3"/></symbol>
+    <symbol id="i-belt" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><path d="M5 21v-5a7 7 0 0 1 14 0v5"/><path d="M8 10.5l9 10"/></symbol>
+    <symbol id="i-power" viewBox="0 0 24 24"><path d="M12 3v8"/><path d="M7 6.5a8 8 0 1 0 10 0"/></symbol>
+    <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M3.5 17a8.5 8.5 0 1 1 17 0"/><path d="M12 17l4.5-5.5"/></symbol>
+    <symbol id="i-wheel" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.2"/><path d="M3.3 10.5h6.5M14.2 10.5h6.5M12 14.2V21"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><path d="M6 5v14M12 5v14M18 5v7M6 12h12"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M4 20V10l6-6h10v16z"/><path d="M14 13h3"/></symbol>
+    <symbol id="i-turn" viewBox="0 0 24 24"><path d="M9 6l-6 6 6 6M3 12h9"/><path d="M15 6l6 6-6 6"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></symbol>
+  </defs>
+</svg>
+
+<div class="slide">
+
+  <section class="why">
+    <div class="lbl">왜 필요한가</div>
+    <div class="stat"><div class="num">30.2%<sup>①</sup></div><div class="txt">차량 물적 사고 10건 중 3건이 주차 중 —<br>그 주차 사고의 53.8%가 후진</div></div>
+    <div class="stat"><div class="num">41%<sup>②</sup></div><div class="txt">초보운전자 첫해 사고 중<br>처음 100일 안에 난 비율</div></div>
+    <div class="stat minor"><div class="num">50~60<small>만 원</small><sup>③</sup></div><div class="txt">학원 도로연수 10시간 — 혼자 연습할 도구가 없다</div></div>
+    <div class="quote">“장롱면허 10년차 아내를 옆에서 가르치다<br>둘 다 힘들었다.” — 발표자의 계기</div>
+    <div class="msg">가장 사고가 많은 순간을,<br><em>화내지 않고 반복해 줄 조수석</em>이 없다.</div>
+  </section>
+
+  <div class="right">
+    <div class="top">
+      <div>
+        <div class="eyebrow">초보·장롱면허 운전자를 위한 AAOS 운전 연수 어시스턴트</div>
+        <div class="title">드라이브 코치 <span class="sub">— 화내지 않는 조수석</span></div>
+      </div>
+      <div class="team">[팀명] · [발표자]</div>
+    </div>
+    <div class="how">
+      <div class="sol">두려운 상황을 <span class="hl">과제</span>로 쪼개고, <span class="hl">차량 신호</span>로 과정을 측정해 도움을 줄여 간다.</div>
+      <div class="vsep"></div>
+      <div class="grid">
+        <div class="row"><span class="big">과제 18</span><span class="chip">주차 4</span><span class="chip">도로 주행 6</span><span class="chip">점검 2</span><span class="chip">지식 6</span></div>
+        <div class="row"><span class="ar">×</span><span class="m g">가이드</span><span class="ar">→</span><span class="m h">힌트</span><span class="ar">→</span><span class="m e">평가</span><span class="note">— 도움을 줄여 간다</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="jlbl">연습 여정</div>
+  <div class="steps">
+    <div class="step">
+      <div class="hd"><div class="dot">01</div><h3>대화로 과제 고르기</h3></div>
+      <img class="cap" src="../../screenshots/lesson/lesson-setup-coach-cards-follow.png" alt="">
+      <p class="desc">“오랜만이라 무서워요” → 과제·모드 제안</p>
+      <div class="chips"><span class="sc ai"><svg class="ic"><use href="#i-chat"/></svg>AI 코치</span><span class="sc"><svg class="ic"><use href="#i-stop"/></svg>정차 중</span></div>
+    </div>
+    <div class="step">
+      <div class="hd"><div class="dot">02</div><h3>브리핑</h3></div>
+      <img class="cap" src="../../screenshots/lesson/lesson-briefing.png" alt="">
+      <p class="desc">무엇을 볼지 먼저 말해 준다</p>
+      <div class="chips"><span class="sc"><svg class="ic"><use href="#i-belt"/></svg>벨트</span><span class="sc"><svg class="ic"><use href="#i-power"/></svg>시동</span></div>
+    </div>
+    <div class="step key">
+      <div class="hd"><div class="dot">03</div><h3>연습 · 후면 주차</h3></div>
+      <img class="cap" src="../../screenshots/lesson/lesson-maneuver-hint.png" alt="">
+      <p class="desc">틀린 순간엔 규칙이 바로 말한다</p>
+      <div class="chips"><span class="sc"><svg class="ic"><use href="#i-gauge"/></svg>속도</span><span class="sc"><svg class="ic"><use href="#i-wheel"/></svg>조향</span><span class="sc"><svg class="ic"><use href="#i-gear"/></svg>기어</span></div>
+    </div>
+    <div class="step">
+      <div class="hd"><div class="dot">04</div><h3>회차 판정</h3></div>
+      <img class="cap" src="../../screenshots/lesson/lesson-done-verdict-fix.png" alt="">
+      <p class="desc">점수 대신 판정 네 줄 + 추정 궤적</p>
+      <div class="chips"><span class="sc"><svg class="ic"><use href="#i-gauge"/></svg>정차</span><span class="sc ai"><svg class="ic"><use href="#i-chat"/></svg>회차 멘트</span></div>
+    </div>
+    <div class="step">
+      <div class="hd"><div class="dot">05</div><h3>리포트 · 진단서</h3></div>
+      <img class="cap" src="../../screenshots/lesson/lesson-report-session.png" alt="">
+      <p class="desc">무엇이 실신호인지 배지로</p>
+      <div class="chips"><span class="sc"><svg class="ic"><use href="#i-door"/></svg>도어</span><span class="sc sim">공유 · 예시</span></div>
+    </div>
+    <div class="step">
+      <div class="hd"><div class="dot">06</div><h3>시험장 모의시험</h3></div>
+      <img class="cap" src="../../screenshots/lesson/lesson-drive-exam.png" alt="">
+      <p class="desc">장내 코스 구간 감점과 합격선</p>
+      <div class="chips"><span class="sc"><svg class="ic"><use href="#i-turn"/></svg>지시등</span><span class="sc sim"><svg class="ic"><use href="#i-pin"/></svg>시험장 · 시뮬</span></div>
+    </div>
+  </div>
+
+  <footer class="foot">
+    <div class="proof">
+      <span class="tag">검증</span>
+      <span>사내 차량 환경(Real VSS)에서 코드 수정 없이 실행</span>
+      <span class="badge">실신호 7 · 시뮬레이션 1 · 미측정 0 (후면 주차)</span>
+      <span class="sep"></span>
+      <span>주행 중 5 km/h↑ 점수·터치 0 · 사내 Copilot 1.2~1.5 s · 테스트 350</span>
+    </div>
+    <p class="small">
+      한계 — 카메라가 없어 칸 안 최종 위치는 판정하지 않는다(과정을 본다) · 예약·진단서 공유·시험장 위치 신호는 시뮬레이션/예시 · 캡처는 외부 에뮬(시뮬레이션 신호)<br>
+      ① 보험개발원·현대해상·동부화재·KB손해보험 공동 조사(2012~2014 보험금 지급 분석, 2017.1) · ② 현대해상 교통기후환경연구소 「초보운전자 사고감소를 위한 정책방안 연구」(2009~2015 사고 317만 건, 2016.12)<br>
+      ③ 2025년 언론 보도 기준(학원 도로연수 10시간)
+    </p>
+  </footer>
+
+</div>
+</body>
+</html>
