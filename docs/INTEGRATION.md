@@ -2,12 +2,13 @@
 
 사내 세션의 전체 순서(clone → 설정 한 줄 → 빌드 → `inhouse_check.sh` → 제출)는 [06_inhouse_migration.md](06_inhouse_migration.md)·[07_two_site_workflow.md](07_two_site_workflow.md) §3. 이 문서는 그 중 **체크 항목(A)·가정 로그(B)·요청(C)의 원장**이다.
 
-**현재 전달 태그 `inhouse-20261006-1` = `ab63dab`(10/5 아침, 동결 — 전 범위 구현 + 라운드 18·19, 테스트 287, 번들 `build/moah2026-20261006-1.bundle`)**. 직전 기준 태그 `inhouse-20261002-3` = `194a6d4`(10/2 밤). 사내 검증은 세 번 했다 — 이관 1차(9/29~30, B 9/30 [inhouse]·[hybrid]·[ai]) · 검증 #2(10/1, 태그 `inhouse-20261001-2`, B 10/1 [inhouse]) · **검증 #3(10/2, 태그 `inhouse-20261001-3`, B 10/2 [inhouse] — Real 전부 PASS)**. 외부에선 컴파일 정확성과 Fake 전체 흐름만 보장되므로, 외부 개발 중 가정은 B 절에 적고 사내에서 A 절 순서대로 확인한다. 관찰은 **사람이 옮긴 요지만**(사내 소스·캡처·로그 원문 금지, 내부 호스트명 없이).
+**현재 전달 태그 `inhouse-20261006-2` = `0ab3c30`(10/6, 동결 — 직접 조작 피드백 반영 라운드 22·23a·23b: 진단서 B · 분류 트랙 · 홈 코치 대화·예약 카드 · 관리자 준비실·하단 띠 · 프로필 저장, 테스트 321, 번들 `build/moah2026-20261006-2.bundle`)**. 직전 태그 `inhouse-20261006-1` = `ab63dab`(10/5 저녁) · `inhouse-20261002-3` = `194a6d4`(10/2 밤). 사내 검증은 세 번 했다 — 이관 1차(9/29~30, B 9/30 [inhouse]·[hybrid]·[ai]) · 검증 #2(10/1, 태그 `inhouse-20261001-2`, B 10/1 [inhouse]) · **검증 #3(10/2, 태그 `inhouse-20261001-3`, B 10/2 [inhouse] — Real 전부 PASS)**. 외부에선 컴파일 정확성과 Fake 전체 흐름만 보장되므로, 외부 개발 중 가정은 B 절에 적고 사내에서 A 절 순서대로 확인한다. 관찰은 **사람이 옮긴 요지만**(사내 소스·캡처·로그 원문 금지, 내부 호스트명 없이).
 
 ## A. 사내 세션 체크리스트 (순서대로 · ✅ = 검증 #1~#3 에서 확인됨, ⬜ = 다음 재검증 `inhouse-20261006-1` 에서)
 
-- [x] **코드**: public 저장소 clone → `git checkout inhouse-20261006-1`(막히면 번들 `build/moah2026-20261006-1.bundle` 반입 — clone 이 `inhouse/base-20261006-1` 을 바로 체크아웃, 10/5 사외 clone 테스트 PASS). 사내 템플릿에 얹는 방식(docs/06 §1 B)은 대안일 뿐, 9/30~10/2 세 번 모두 필요 없었다
+- [x] **코드**: public 저장소 clone → `git checkout inhouse-20261006-2`(막히면 번들 `build/moah2026-20261006-2.bundle` 반입 — clone 이 `inhouse/base-20261006-2` 를 바로 체크아웃, 10/6 사외 clone 테스트 PASS). 사내 템플릿에 얹는 방식(docs/06 §1 B)은 대안일 뿐, 9/30~10/2 세 번 모두 필요 없었다
 - [ ] **코스 과제(10/5 태그부터)**: Hybrid 빌드에서 장내기능 모의시험을 평가 모드로 한 번 — 지도 위 차가 움직이고 "○○ 구간입니다"·"○○, 감점입니다" 가 나오는지, 리포트 배지가 시험장 6 + 장치 2 는 시뮬레이션이고 나머지(속도·기어·조향·벨트·시동·도어·지시등·비상등) 중 실물이 주는 것은 실신호인지. 실물 속도가 live 면 시나리오 속도는 write-through 로 실물에 쓴다(10/1 검증 #2 정상) — 막히면 Signal Simulator 로 속도만 준다. 기대: 못한 시험 70 불합격·감점 셋(B 10/4 [scoring] 모의 감점표)
+- [ ] **준비실·띠·프로필(10/6 태그부터, #187)**: ① 홈 `DRIVE COACH` 워드마크를 약 2초 길게 → 준비실이 열리는지(Hybrid 기본 빌드), 순수 Real(`-PfillMissing=false`)에서는 **열리지 않아야** 한다 ② 준비실 프리셋 `후면 주차 두 회차` → `이 설정으로 홈` → 눈썹 `연수생 · 장롱 10년차 · 목표 아이 등하원` ③ 화면 맨 아래 띠의 정차·문 열기가 Hybrid 에서 먹는지(write-through) ④ `adb install -r` 뒤 첫 실행 질문이 **다시 나오지 않는지**(프로필 파일 유지 — B 10/6 [feature] 가정), `pm clear` 뒤에는 나오는지
 - [ ] **jar 복사 직후** `REPO_ONLY=1 bash tools/inhouse_check.sh` → `PASS (저장소만)`(#100, 10/2 밤 추가 — 검증 #3 에서 `.gitignore` 뒤 글자 주석 때문에 jar 가 `??` 로 보였던 것을 잡는다. 사내에서 처음 돌리는 것)
 - [x] **스위치 = 설정 한 줄**: `local.properties` 에 `mobis.vss.jar=automotive/libs/mobis.framework.core.jar` → `./gradlew assembleDebug` 로그 첫 줄 `mobis.vss: jar … → USE_FAKE_VSS=false`, 단위 테스트 203(검증 #3 ✅). 코드 변경 0 — 같은 커밋이 사외(Fake)·사내(Real)
 - [x] **APK**: 라벨 "드라이브 코치" · `uses-library-not-required:'mobis.framework'` · versionCode 1 / 1.0.0(검증 #3 ✅ — #2 에서는 `uses-library` 가 빠져 Real 이 Fake 로 폴백했었다, #68)
