@@ -8,6 +8,7 @@ import com.moah.hackathon.vehicle.Scenario
 import com.moah.hackathon.vehicle.SignalRegistry
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /** 모드 제안 이유는 Setup 화면과 리포트 TTS 에 그대로 나간다 — 운전자 문장이라 숫자 없음(9/28 동승자 화면 리뷰에서 "가이드를 0번 통과했어요" 발견). */
@@ -43,5 +44,17 @@ class ModeAdvisorReasonTest {
         reasons += evaluate.reason
         reasons.forEach { assertFalse(it, digits.containsMatchIn(it)) }
         assertEquals(5, reasons.toSet().size)
+    }
+
+    @Test
+    fun `reserved reasons are one short sentence per mode without digits`() {
+        val reasons = LessonMode.entries.map { ModeAdvisor.reservedReason(it) } + ModeAdvisor.reservedReason(LessonMode.EVALUATE, mockExam = true)
+        reasons.forEach { r ->
+            assertTrue(r, r.startsWith(ModeAdvisor.RESERVED_REASON))
+            assertFalse(r, digits.containsMatchIn(r))
+            assertEquals(r, 1, r.count { it == '.' })   // 한 문장(10/6 디자인 검토 F — 예전엔 세 문장·두 줄)
+            assertTrue(r, r.length <= 32)
+        }
+        assertEquals(reasons.size, reasons.toSet().size)
     }
 }

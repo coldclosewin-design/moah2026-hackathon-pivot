@@ -96,8 +96,20 @@ object ModeAdvisor {
         LessonMode.QUIZ -> "정차 중에 짧게 풀어 봐요."
     }
 
-    /** 제안 이유 앞에 붙이는 한 문장(숫자 없음) — 과제가 예약 코스에서 왔을 때만. */
-    const val RESERVED_REASON = "예약한 코스의 과제부터 해요."
+    /** 예약 코스에서 온 제안의 이유 머리(숫자 없음). 이유는 이 머리 + 모드 한 마디로 **한 문장**([reservedReason]). */
+    const val RESERVED_REASON = "예약한 코스부터,"
+
+    /**
+     * 과제가 예약 코스에서 왔을 때의 이유 한 문장(10/6 디자인 검토 F) — 예전엔 "예약한 코스의 과제부터 해요." 뒤에 모드 이유 두 문장이 붙어
+     * 세 문장·두 줄이 됐다(대본 0:00 오프닝). [mockExam] = 예약 카드에서 `모의시험` 을 골라 평가 모드일 때.
+     */
+    fun reservedReason(mode: LessonMode, mockExam: Boolean = false): String = "$RESERVED_REASON " + when {
+        mockExam && mode == LessonMode.EVALUATE -> "시험장 그대로 제가 채점만 할게요."
+        mode == LessonMode.GUIDE -> "제가 단계마다 함께할게요."
+        mode == LessonMode.HINT -> "틀린 순간에만 말할게요."
+        mode == LessonMode.EVALUATE -> "이번엔 조용히 지켜볼게요."
+        else -> "정차 중에 짧게 풀어 봐요."
+    }
 
     private fun TaskType.koreanKey(): String = when (this) {
         TaskType.PARKING -> "주차"
