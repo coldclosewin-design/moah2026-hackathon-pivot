@@ -52,7 +52,7 @@ class CourseScenariosTest {
         res.trail.forEach { p ->
             assertTrue("${scenario.id} off map $p", p.x in 0f..course.map.widthM && p.y in 0f..course.map.heightM)
         }
-        if (reasons.isEmpty()) assertTrue(scenario.id, res.zones.all { it.visited })
+        if (reasons.isEmpty()) assertTrue(scenario.id, res.zones.all { it.visited || course.zone(it.zoneId)?.practiceOnly == true })   // 연습 곁가지는 안 들러도 된다
         println("${scenario.id}: ${"%.1f".format(scenario.durationSeconds)} s, score ${res.score}, ${res.deductions.map { it.reason }}")
         return res
     }
@@ -64,6 +64,34 @@ class CourseScenariosTest {
         val bad = check(TrackCourses.exam, CourseScenarios.examBad, setOf("뒤로 밀림", "검지선 접촉", "비상등 미점등"))
         assertEquals(70, bad.score)
         assertEquals(false, bad.passed)
+    }
+
+    @Test fun `s-curve branch is practice only and leaves the exam scoring untouched`() {
+        val exam = TrackCourses.exam.forMode(evaluate = true)
+        val practice = TrackCourses.exam.forMode(evaluate = false)
+        assertTrue(exam === TrackCourses.exam && exam.zones.none { it.practiceOnly })
+        assertEquals("exam-s-curve", practice.zones.single { it.practiceOnly }.id)
+        assertEquals(listOf("exam-device", "exam-slope", "exam-s-curve", "exam-right"), practice.zones.take(4).map { it.id })
+        practice.zones.forEachIndexed { i, a -> practice.zones.drop(i + 1).forEach { b ->
+            val overlap = a.area.minX < b.area.maxX && b.area.minX < a.area.maxX && a.area.minY < b.area.maxY && b.area.minY < a.area.maxY
+            assertTrue("${a.id} overlaps ${b.id}", !overlap)
+        } }
+        assertTrue(practice.route != exam.route)
+        // 곁가지는 원래 길의 북쪽 끝 모서리(10, 60)에서 북쪽을 보고 다시 만난다
+        val end = TrackCourses.Exam.sBranch.end
+        assertEquals(10f, end.at.x, 0.05f); assertEquals(60f, end.at.y, 0.05f)
+        assertEquals(0f, com.moah.hackathon.data.TrackPath.normalize(end.headingDeg), 0.5f)
+        // 시험 모드: 기대값 그대로(70 → 100), S자 연습 주행도 감점 없음
+        assertEquals(100, check(exam, CourseScenarios.examGood, emptySet()).score)
+        assertEquals(70, check(exam, CourseScenarios.examBad, setOf("뒤로 밀림", "검지선 접촉", "비상등 미점등")).score)
+        assertEquals(100, replay(exam, CourseScenarios.examPracticeS).score)
+        // 연습 모드: S자를 지나면 그 구간도 들르고, 안 지나도 "미통과" 가 아니다
+        val withS = check(practice, CourseScenarios.examPracticeS, emptySet())
+        assertTrue(withS.zones.first { it.zoneId == "exam-s-curve" }.visited)
+        val withoutS = replay(practice, CourseScenarios.examGood)
+        assertTrue(withoutS.deductions.toString(), withoutS.deductions.isEmpty())
+        assertEquals(true, withoutS.passed)
+        assertEquals(70, replay(practice, CourseScenarios.examBad).score)
     }
 
     @Test fun `exam good stops for the emergency with at least half a second to spare`() {
@@ -100,7 +128,7 @@ class CourseScenariosTest {
 
     @Test fun `practice courses have no pass line and every course has scenarios`() {
         TrackCourses.all.forEach { c ->
-            assertEquals(c.id, 2, CourseScenarios.forCourse(c.id).size)
+            assertEquals(c.id, if (c.id == TrackCourses.EXAM) 3 else 2, CourseScenarios.forCourse(c.id).size)   // 장내는 + S자 연습(라운드 25)
             assertEquals(c.id == TrackCourses.EXAM, c.isExam)
             c.zones.forEach { z -> assertTrue(z.id, z.guide.none(Char::isDigit) && z.announce.none(Char::isDigit)) }
         }

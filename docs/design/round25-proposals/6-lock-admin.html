@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>잠금 중 시연 조작</title>
+<style>
+:root{
+  --ink:#070827; --paper:#FCFCFA; --peri:#5B60A1; --lav:#E5E6F0; --signal:#F52D48;
+  --muted:rgba(7,8,39,.60);
+  --tex:0 4px 10px rgba(7,8,39,.10),0 1px 2px rgba(7,8,39,.06),inset 0 1px 0 rgba(255,255,255,.9);
+  --font:"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);font-weight:400;line-height:1.5}
+b{font-weight:500}
+.page{max-width:1540px;margin:0 auto;padding:48px 40px 96px}
+h1{font-size:40px;font-weight:400;margin:0 0 6px;letter-spacing:-.5px}
+h2{font-size:26px;font-weight:400;margin:0 0 4px}
+h3{font-size:15px;font-weight:500;margin:16px 0 6px;color:var(--peri)}
+p{margin:0 0 8px}
+.lede{font-size:17px;color:var(--muted);margin-bottom:18px}
+blockquote{margin:0 0 12px;padding:14px 20px;background:var(--lav);border-left:4px solid var(--signal);font-size:16px;white-space:pre-line}
+blockquote small{display:block;color:var(--muted);font-size:13px;margin-top:4px;white-space:normal}
+.scale{display:inline-block;font-size:13px;color:var(--peri);border:1px solid var(--peri);border-radius:999px;padding:3px 12px;margin:0 8px 6px 0}
+.ctx{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:18px 0 8px;box-shadow:0 0 0 1px rgba(7,8,39,.14)}
+.ctx > div{padding:18px 22px}
+.ctx .dr{background:var(--paper)}
+.ctx .ad{background:var(--ink);color:var(--paper)}
+.ctx .ad .eyebrow{color:rgba(252,252,250,.6)}
+.ctx h4{font-size:19px;font-weight:400;margin:2px 0 8px}
+.ctx ul{font-size:14.5px}
+.ctx .foot{grid-column:1 / span 2;background:var(--lav);font-size:15px;padding:12px 22px}
+.cell{display:grid;grid-template-columns:853px 1fr;gap:44px;padding:40px 0;border-top:1px solid rgba(7,8,39,.14)}
+.cell.now{grid-template-columns:1fr}
+.letter{font-size:56px;line-height:1;color:var(--peri);margin-bottom:6px}
+.letter.cur{color:var(--muted);font-size:28px}
+.desc{font-size:17px;margin-bottom:10px}
+ul{margin:0;padding-left:20px;font-size:15px}
+li{margin:3px 0}
+.cap{font-size:12px;color:var(--muted);margin:16px 0 6px}
+.cap:first-child{margin-top:0}
+.imgs{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}
+.imgs figure{margin:0}
+.imgs img{width:640px;display:block;box-shadow:0 0 0 1px rgba(7,8,39,.15)}
+.imgs figcaption{font-size:12px;color:var(--muted);margin-top:6px;max-width:640px}
+code{font-family:Consolas,"Malgun Gothic",monospace;font-size:.92em;background:var(--lav);padding:0 4px}
+.eyebrow{font-size:11px;color:var(--peri);white-space:nowrap}
+
+/* ---------- 1/3 lock frames ---------- */
+.frame{position:relative;overflow:hidden;width:853px;height:423px;background:var(--ink);color:var(--paper);box-shadow:0 0 0 1px rgba(7,8,39,.18);font-size:11px;line-height:1.35}
+.abs{position:absolute}
+.wm{font-size:9px;letter-spacing:3px;color:var(--paper)}
+.lt{font-size:24px;line-height:1.3}
+.ls{font-size:13px;color:rgba(252,252,250,.72)}
+/* admin strip */
+.strip{left:0;top:393px;width:853px;height:30px;background:rgba(252,252,250,.06);border-top:1px solid rgba(252,252,250,.18);display:flex;align-items:center;gap:5px;padding:0 6px}
+.strip .lb{font-size:8px;color:rgba(252,252,250,.55);margin-right:3px;white-space:nowrap}
+.strip .c{height:20px;padding:0 9px;border-radius:999px;background:rgba(252,252,250,.12);color:var(--paper);font-size:8.5px;display:inline-flex;align-items:center;white-space:nowrap}
+.strip .c.on{background:var(--paper);color:var(--ink)}
+.strip .sp{flex:1}
+/* annotations (explanatory only) */
+.tgt{position:absolute;border:1px dashed rgba(229,230,240,.75);border-radius:4px}
+.tgt i{position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:8px;font-style:normal;font-size:8.5px;color:var(--lav);white-space:nowrap}
+.prog{height:2px;background:rgba(252,252,250,.18)}
+.prog span{display:block;height:100%;width:62%;background:var(--signal)}
+.hint{font-size:9.5px;color:rgba(252,252,250,.5);display:flex;gap:6px;align-items:center;white-space:nowrap}
+.hint .tg{height:14px;padding:0 6px;border-radius:999px;box-shadow:inset 0 0 0 1px rgba(252,252,250,.35);font-size:8px;display:inline-flex;align-items:center}
+/* flow strip */
+.flow{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:12px;flex-wrap:wrap}
+.flow .st{padding:6px 10px;background:var(--lav);box-shadow:var(--tex);white-space:nowrap}
+.flow .st.hi{background:var(--ink);color:var(--paper)}
+.flow .st.d{background:var(--peri);color:var(--paper)}
+.flow .ar{color:var(--muted)}
+/* spec */
+.spec{display:grid;grid-template-columns:96px 1fr;gap:5px 12px;font-size:14px;margin-top:10px}
+.spec dt{color:var(--peri)}
+.spec dd{margin:0}
+/* table */
+table{border-collapse:collapse;width:100%;font-size:13.5px;margin-top:10px}
+th,td{border-top:1px solid rgba(7,8,39,.14);padding:9px 10px;text-align:left;vertical-align:top;font-weight:400}
+th{color:var(--peri);font-weight:500}
+thead th{border-top:0;border-bottom:1px solid var(--ink)}
+td.n{color:var(--peri);width:34px}
+.tag{display:inline-block;font-size:11px;padding:1px 8px;border-radius:999px;background:var(--lav);color:var(--peri);white-space:nowrap}
+.tag.set{background:var(--ink);color:var(--paper)}
+.tag.r{background:var(--signal);color:var(--paper)}
+.reco{margin-top:48px;padding:28px 32px;background:var(--ink);color:var(--paper)}
+.reco .eyebrow{color:rgba(252,252,250,.6);font-size:13px}
+.reco h2{font-size:30px;margin:6px 0 8px}
+.reco p{color:rgba(252,252,250,.85);font-size:16px}
+.reco .sig{color:var(--signal)}
+.reco code{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>6 · 잠금 화면에서 시연 조작하기</h1>
+<p class="lede">Done · 리포트 · 퀴즈 같은 정차 화면은 시뮬레이션 차가 5 km/h 를 넘으면 Ink 평면 잠금 "운전에 집중해 주세요" 로 바뀌고 관리자 띠까지 숨는다. 그래서 시연 중 발표자가 <code>정차</code> 를 누를 길이 없다. 잠금 화면을 지키면서 발표자만 빠져나오는 방법 세 가지.</p>
+<blockquote>#버그?
+- 운전에 집중해 주세요 속도를 낮추면 결과가 다시 보여요' 라는 멘트가 나오는데 관리자모드를 중간에 어떻게 켤지 모르겠어 팝업 상하단 회색 알약등이 없어서 어떻게 속도를 줄이지 방법을 못 찾음<small>— 사용자 피드백 원문, 10/6 저녁 (녹화 기준 태그 <code>inhouse-20261006-5</code> APK 를 직접 눌러 보고)</small></blockquote>
+<div><span class="scale">모든 목업은 1/3 축척 · 실제 화면은 약 3배 (853×423 = 2560×1268 dp)</span><span class="scale">점선 = 설명용 표시 (화면에는 그리지 않음)</span><span class="scale">잠금 화면 문구는 세 시안 모두 그대로</span></div>
+
+<!-- ========== 규칙 10 vs 관리자 ========== -->
+<div class="ctx">
+  <div class="dr">
+    <div class="eyebrow">운전자 화면 — 절대 규칙 10</div>
+    <h4>주행 중(&gt; 5 km/h)에는 터치 타깃 · 점수가 없다</h4>
+    <ul><li>운전자가 화면을 보지 않게 하는 규칙. 잠금 화면은 이 규칙을 화면으로 보여 주는 장면이다.</li><li>모든 빌드에 적용 — 사외 Fake, 사내 Hybrid, 순수 Real 차량 빌드.</li><li>세 시안 모두 운전자에게 보이는 부분(문구 · 평면 Ink · 타깃 0)은 바꾸지 않는다.</li></ul>
+  </div>
+  <div class="ad">
+    <div class="eyebrow">관리자 띠 — 운전자 UI 가 아니다</div>
+    <h4>가짜 차를 움직이는 시뮬레이터 조작부</h4>
+    <ul><li>시연 빌드(Fake · Hybrid)에만 있다. 순수 Real 빌드에서는 관리자 객체가 null 이라 띠 · 준비실 · 워드마크 길게 누르기가 <b>아예 없다</b>.</li><li>실차라면 발표자 손의 별도 장치(또는 시뮬레이터 PC)에 있을 조작을, 에뮬 화면 한 장에 같이 그려 둔 것.</li><li>그래도 영상에서 잠금 화면에 단추가 보이면 심사자 눈에는 "주행 중 터치 타깃" 이다.</li></ul>
+  </div>
+  <div class="foot">그래서 고르는 것은 <b>발표자의 탈출구를 보이게 둘지(A), 숨길지(B), 애초에 막힐 일을 줄일지(C)</b>다. 지금 화면 안에는 탈출구가 없다 — 차는 시나리오가 끝나도 마지막 속도를 유지하고(<code>FakeVehiclePort.stop()</code> 은 마지막 값 유지), <code>정차</code>(<code>stopCar</code> = 0 km/h 고정)는 띠에만 있다.</div>
+</div>
+
+<!-- ========== 지금 ========== -->
+<section class="cell now" style="margin-top:28px">
+  <div>
+    <div class="letter cur">지금</div>
+    <p class="desc">Done 에서 차가 다시 움직이면(시나리오가 아직 속도를 넣고 있거나 띠의 <code>출발</code> 을 누른 뒤) 화면 전체가 Ink 평면이 되고 맨 아래 관리자 띠도 사라진다. 운전자 기준으로는 맞는 동작이지만, 가짜 차를 멈출 사람(발표자)에게는 막다른 길이다.</p>
+    <div class="imgs">
+      <figure><img src="../../screenshots/lesson/lesson-done-locked.png" alt="Done 잠금 현재 캡처"><figcaption>Done 잠금 — "운전에 집중해 주세요 / 속도를 낮추면 결과가 다시 보여요." 터치 타깃 0, 띠 없음.</figcaption></figure>
+      <figure><img src="../../screenshots/lesson/lesson-setup.png" alt="홈 관리자 띠 캡처"><figcaption>비교: 정차 화면의 관리자 띠(맨 아래 Ink 줄) — <code>정차</code> 는 여기에만 있다.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ========== A ========== -->
+<section class="cell">
+  <div>
+    <p class="cap">잠금 화면 — 맨 아래에 관리자 띠의 축소판(정차 · 시나리오 정지)만 남긴다</p>
+    <div class="frame">
+      <div class="abs wm" style="left:61px;top:24px">DRIVE COACH</div>
+      <div class="abs lt" style="left:61px;top:196px">운전에 집중해 주세요</div>
+      <div class="abs ls" style="left:61px;top:236px">속도를 낮추면 결과가 다시 보여요.</div>
+      <div class="abs strip"><span class="lb">관리자 · 시연 조작 — 운전자 화면 아님</span><span class="sp"></span><span class="c">시나리오 정지</span><span class="c on">정차</span></div>
+    </div>
+    <div class="flow"><span class="st hi">잠금 (움직임)</span><span class="ar">→</span><span class="st d">띠의 정차</span><span class="ar">→</span><span class="st">가짜 차 0 km/h 고정</span><span class="ar">→</span><span class="st">잠금 풀림 · Done 그대로</span></div>
+  </div>
+  <div>
+    <div class="letter">A</div>
+    <h2>얇은 관리자 띠</h2>
+    <p class="desc">잠금일 때도 관리자 띠 자리를 남기되 <b>칩 둘만</b>(<code>정차</code> · <code>시나리오 정지</code>) 오른쪽에 둔다. 왼쪽에는 "관리자 · 시연 조작 — 운전자 화면 아님" 라벨, 위쪽 1px 선과 아주 옅은 면으로 운전자 영역과 갈라 놓는다. 평소 띠와 같은 자리 · 같은 칩 모양이라 발표자가 이미 아는 곳이다.</p>
+    <dl class="spec">
+      <dt>규칙 10</dt><dd>글자 그대로는 어긋난다 — 주행 중 화면에 터치 타깃 둘. "시뮬레이터 조작부라 운전자 화면이 아니다" 라는 설명이 필요하고, 영상에 그대로 찍힌다.</dd>
+      <dt>잘못 누름</dt><dd>낮음. 둘 다 해가 없다. 다만 <code>시나리오 정지</code> 는 재생만 멈추고 <b>속도는 유지</b>하므로 잠금이 안 풀린다 — 헷갈리면 <code>정차</code> 하나만 두는 편이 낫다.</dd>
+      <dt>발표자가 찾기</dt><dd>가장 쉽다. 설명 없이 바로 보인다.</dd>
+      <dt>난이도</dt><dd>하. UI 만(Codex) — 잠금일 때 띠를 숨기는 대신 축소판을 넘긴다. 모델 변경 없음(<code>stopCar</code> 이미 있음).</dd>
+    </dl>
+    <h3>장점</h3>
+    <ul><li>가장 빠르고 확실한 탈출구. 녹화 중 사고(차가 안 멈춤)에서 바로 회복.</li><li>"관리자 띠는 운전자 UI 가 아니다" 를 화면이 스스로 말한다.</li></ul>
+    <h3>주의점</h3>
+    <ul><li>잠금 화면이 "주행 중 화면에는 아무것도 누를 게 없다" 를 보여 주는 장면인데, 그 장면에 단추가 보인다 — 발표 메시지와 충돌.</li><li>띠 칩 높이는 운전자용 76 dp 기준보다 작다(관리자용이라 허용해 왔지만 잠금에서는 더 눈에 띈다).</li></ul>
+  </div>
+</section>
+
+<!-- ========== B ========== -->
+<section class="cell">
+  <div>
+    <p class="cap">잠금 화면 — 보이는 것은 지금과 같다. 워드마크를 2초 누르면 정차 (누르는 동안만 아래 선이 찬다)</p>
+    <div class="frame">
+      <div class="abs wm" style="left:61px;top:24px">DRIVE COACH</div>
+      <div class="abs prog" style="left:61px;top:40px;width:116px"><span></span></div>
+      <div class="tgt" style="left:41px;top:6px;width:156px;height:48px"><i>숨은 영역 · 워드마크 · 길게 2초 (그리지 않음)</i></div>
+      <div class="abs lt" style="left:61px;top:196px">운전에 집중해 주세요</div>
+      <div class="abs ls" style="left:61px;top:236px">속도를 낮추면 결과가 다시 보여요.</div>
+    </div>
+    <div class="flow"><span class="st hi">잠금 (움직임)</span><span class="ar">→</span><span class="st d">워드마크 길게 2초</span><span class="ar">→</span><span class="st">가짜 차 0 km/h 고정</span><span class="ar">→</span><span class="st">잠금 풀림 · Done 그대로</span><span class="ar">·</span><span class="st">홈에서 같은 손짓 = 준비실</span></div>
+  </div>
+  <div>
+    <div class="letter">B</div>
+    <h2>워드마크 길게 누르기</h2>
+    <p class="desc">잠금 화면은 그대로 두고, <code>DRIVE COACH</code> 워드마크를 <b>2초 길게 누르면 정차</b>. 준비실에 들어가는 손짓(홈에서 워드마크 2초, <code>AdminHome</code> 의 2,000 ms)과 같아 "막히면 워드마크를 길게" 하나만 외우면 된다. 누르는 동안만 워드마크 아래 Signal 선이 차올라 제대로 누르고 있다는 것을 알려 준다.</p>
+    <dl class="spec">
+      <dt>규칙 10</dt><dd>지킨다 — 보이는 터치 타깃 0. 숨은 핸들러는 시연 빌드에만 달리고 순수 Real 에는 없다(관리자 null). 2초 누르기라 운전자가 우연히 할 일도 없다.</dd>
+      <dt>잘못 누름</dt><dd>거의 없다. 다만 홈에서는 같은 손짓이 준비실이므로, 잠금에서 손을 늦게 떼고 화면이 풀린 뒤에도 누르고 있으면 준비실이 열리지 않게 "잠금에서 시작한 누름" 은 정차만 하도록.</dd>
+      <dt>발표자가 찾기</dt><dd>알려 주지 않으면 못 찾는다. 대본 · 런북 · 준비실 안내에 한 줄 적어야 한다.</dd>
+      <dt>난이도</dt><dd>하. UI 만(Codex) — 잠금 화면 워드마크에 길게 누르기 + 진행 선. 모델은 기존 <code>stopCar</code>.</dd>
+    </dl>
+    <h3>장점</h3>
+    <ul><li>영상 속 잠금 화면이 완전히 깨끗하다 — 규칙 10 장면을 그대로 보여 줄 수 있다.</li><li>관리자 진입과 같은 손짓이라 규칙이 하나로 모인다.</li></ul>
+    <h3>주의점</h3>
+    <ul><li>숨은 기능은 아는 사람만 쓴다 — 이번 피드백처럼 처음 만진 사람은 여전히 막힌다.</li><li>사내 에뮬 터치(마우스)로 2초 누르기가 잘 되는지 사내에서 한 번 확인 필요.</li></ul>
+  </div>
+</section>
+
+<!-- ========== C ========== -->
+<section class="cell">
+  <div>
+    <p class="cap">잠금 화면 — 시나리오가 끝나면 가짜 차가 스스로 0 km/h. 시연 빌드에만 아래 안내 한 줄 + B 의 탈출구</p>
+    <div class="frame">
+      <div class="abs wm" style="left:61px;top:24px">DRIVE COACH</div>
+      <div class="tgt" style="left:41px;top:6px;width:156px;height:48px"><i>숨은 영역 · 길게 2초 = 바로 정차</i></div>
+      <div class="abs lt" style="left:61px;top:196px">운전에 집중해 주세요</div>
+      <div class="abs ls" style="left:61px;top:236px">속도를 낮추면 결과가 다시 보여요.</div>
+      <div class="abs hint" style="left:61px;top:388px"><span class="tg">시연</span>시나리오가 끝나면 차가 멈춰요. 바로 세우려면 DRIVE COACH 를 길게 누르세요.</div>
+    </div>
+    <div class="flow"><span class="st hi">시나리오 마지막 단계</span><span class="ar">→</span><span class="st d">가짜 차 0 km/h 고정 (자동)</span><span class="ar">→</span><span class="st">Done · 리포트는 잠기지 않음</span><span class="ar">·</span><span class="st hi">그래도 잠기면 (출발을 누른 뒤)</span><span class="ar">→</span><span class="st d">워드마크 길게</span></div>
+  </div>
+  <div>
+    <div class="letter">C</div>
+    <h2>저절로 멈추는 차</h2>
+    <p class="desc">원인을 없앤다. 시나리오의 마지막 단계가 지나면 가짜 차가 <b>스스로 0 km/h 에 고정</b>되어(<code>stopCar</code> 와 같은 상태) Done · 리포트가 시연 중에 잠길 일이 거의 없다. 일부러 <code>출발</code> 을 눌러 잠금을 보여 준 뒤에는 B 의 워드마크 길게 누르기로 세운다. 시연 빌드의 잠금 화면에만 맨 아래 옅은 안내 한 줄(터치 타깃 아님)로 이 두 가지를 적어 둔다.</p>
+    <dl class="spec">
+      <dt>규칙 10</dt><dd>지킨다 — 터치 타깃 0, 숫자 0. 안내 한 줄은 글자일 뿐이고 "시연" 표시를 달아 정직하게, 순수 Real 에는 없다.</dd>
+      <dt>잘못 누름</dt><dd>없다 — 대부분의 잠금이 애초에 생기지 않는다.</dd>
+      <dt>발표자가 찾기</dt><dd>안내 줄이 스스로 알려 준다. 처음 만진 사람도 읽고 빠져나온다.</dd>
+      <dt>난이도</dt><dd>중. 모델(Claude): 시나리오 재생 끝 → 0 km/h 고정(<code>FakeVehiclePort</code> / <code>LessonViewModel</code>, JVM 테스트). UI(Codex): 안내 줄 + B 의 길게 누르기. 시나리오별 끝 속도를 대본과 맞춰 재측정.</dd>
+    </dl>
+    <h3>장점</h3>
+    <ul><li>막히는 상황 자체를 줄이고, 막혀도 화면이 탈출법을 알려 준다 — 이번 피드백의 두 문제(방법을 모름 · 속도를 못 줄임)를 둘 다 푼다.</li><li>영상의 잠금 장면은 B 처럼 깨끗하고, 안내 줄은 옅어서 주제를 해치지 않는다.</li></ul>
+    <h3>주의점</h3>
+    <ul><li>"Done 에서 다시 움직이면 잠긴다" 를 보여 주려면 이제 <code>출발</code> 을 일부러 눌러야 한다 — 대본에 한 단계.</li><li>안내 줄이 영상에 찍히는 것이 싫으면 녹화 빌드에서만 끌 수 있게(관리자 준비실 토글) — 그러면 B 와 같아진다.</li></ul>
+  </div>
+</section>
+
+<!-- ========== 비교 ========== -->
+<section class="cell now">
+  <div>
+    <h2>세 시안 비교</h2>
+    <table>
+      <thead><tr><th></th><th>잠금 화면에 보이는 것</th><th>규칙 10 (주행 중 터치 타깃)</th><th>잘못 누를 위험</th><th>처음 만진 발표자</th><th>영상 속 잠금 장면</th><th>난이도 · 누가</th></tr></thead>
+      <tbody>
+        <tr><td class="n">A</td><td>관리자 축소 띠(칩 둘)</td><td><span class="tag r">어긋남</span> 시뮬레이터 조작부라는 설명 필요</td><td>낮음 (시나리오 정지는 효과 없음)</td><td>바로 찾음</td><td>단추가 보임</td><td><span class="tag">하</span> UI(Codex)</td></tr>
+        <tr><td class="n">B</td><td>지금과 같음</td><td><span class="tag set">지킴</span> 숨은 핸들러 · 시연 빌드만</td><td>거의 없음 (2초)</td><td>못 찾음 — 대본에 적어야</td><td>깨끗함</td><td><span class="tag">하</span> UI(Codex)</td></tr>
+        <tr><td class="n">C</td><td>옅은 "시연" 안내 한 줄</td><td><span class="tag set">지킴</span> 글자만 · 시연 빌드만</td><td>없음 (대부분 잠기지 않음)</td><td>안내 줄을 읽고 빠져나옴</td><td>거의 깨끗함 (끌 수 있음)</td><td><span class="tag r">중</span> 모델(Claude) + UI(Codex)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="reco">
+  <div class="eyebrow">추천</div>
+  <h2>C — 시나리오가 끝나면 차가 멈추고, 막히면 워드마크를 길게</h2>
+  <p>규칙 10 장면(잠금 화면)을 단추 없이 지키면서 <span class="sig">막히는 원인</span>(시나리오 뒤에도 남는 속도)을 모델에서 없애고, 남는 경우(일부러 <code>출발</code>)는 준비실과 같은 손짓으로 빠져나온다. 안내 한 줄 덕분에 이번 피드백처럼 처음 만진 사람도 길을 찾는다.</p>
+  <p>마감이 빠듯하면 순서대로: <span class="sig">B 먼저</span>(UI 만, 반나절 이하) → 모델의 자동 정차 → 안내 줄. A 는 영상 메시지와 부딪혀 권하지 않지만, 사내 녹화 중 비상용으로만 쓰려면 칩을 <code>정차</code> 하나로 줄인다.</p>
+</div>
+
+</div>
+</body>
+</html>

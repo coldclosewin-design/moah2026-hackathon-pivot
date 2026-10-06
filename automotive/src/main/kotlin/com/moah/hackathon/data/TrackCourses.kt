@@ -70,10 +70,24 @@ object TrackCourses {
         val leftTurn = Turtle(toLeftTurn.end).arc(6f, 90f).path()
         val toFinish = Turtle(leftTurn.end).straight(9f).path()
 
+        // ── S자 연습 곁가지(라운드 25 결정 4 — 실제 장내기능시험엔 S자가 없다, 연습 모드에만) ──
+        // 경사로를 지난 왼쪽 직선(y=40)에서 오른쪽으로 빠져 가운데에서 S 로 출렁이고, U 턴해 돌아와 북쪽 끝 모서리(10, 60)에서 원래 길과 만난다.
+        /** 물결(±35° 호 넷)이 북쪽으로 2·8·(1−cos35°) ≈ 2.89 m 치우치므로 U 턴 반지름으로 맞춰 돌아오는 길을 y=56 에 둔다(→ 끝 모서리 y=60). */
+        private val S_UTURN_R = (12f - 16f * (1f - kotlin.math.cos(Math.toRadians(35.0)).toFloat())) / 2f
+        /** 경사로 정지점 → 곁가지 갈림(y=40). */
+        val slopeToBranch = Turtle(toSlope.end).straight(8f).path()
+        val sBranch = Turtle(slopeToBranch.end).arc(4f, -90f).straight(4f)
+            .arc(8f, 35f).arc(8f, -70f).arc(8f, 70f).arc(8f, -35f)
+            .straight(8f).arc(S_UTURN_R, 180f).path()
+            .let { out -> out + Turtle(out.end).straight(out.end.at.x - 14f).arc(4f, -90f).path() }
+
         val bayCenter: Vec2 = reverseIn.end.at
         /** 도면의 도로 — 주차 칸 출입을 뺀 고리. */
         val roadLoop = toSlope + slopeToCorner + rightTurn1 + Turtle(rightTurn1.end).straight(70f).path() + rightTurn2 + accelRoad + rightTurn3 +
             toEmergency + emergencyBrake + toLeftTurn + leftTurn + toFinish
+        /** 연습 모드 기대 경로 — 경사로 뒤 S자 곁가지를 지나 같은 모서리로. */
+        val practiceRoute get() = toSlope + slopeToBranch + sBranch + rightTurn1 + toParkingStop + reverseIn + pullOut + toSignalStop + throughSignal +
+            rightTurn2 + accelRoad + rightTurn3 + toEmergency + emergencyBrake + toLeftTurn + leftTurn + toFinish
         /** 기대 경로 — 주차 칸에 후진으로 넣고 빼는 길까지. */
         val route = toSlope + slopeToCorner + rightTurn1 + toParkingStop + reverseIn + pullOut + toSignalStop + throughSignal + rightTurn2 +
             accelRoad + rightTurn3 + toEmergency + emergencyBrake + toLeftTurn + leftTurn + toFinish
@@ -90,6 +104,7 @@ object TrackCourses {
             shapes = listOf(
                 MapShape.Road(listOf(Vec2(10f, 0f)) + e.roadLoop.points.thin(), ROAD_W),
                 MapShape.Road(listOf(Vec2(66f, 56f), Vec2(66f, 78f)), ROAD_W),   // 교차로를 지나는 남북 도로(장식)
+                MapShape.Road(e.sBranch.points.thin(), ROAD_W),                     // S자 연습 곁가지(시설 — 시험 모드에도 그려진다)
                 MapShape.Ramp(Area(7.5f, 24f, 12.5f, 40f), upHeadingDeg = 0f),
                 MapShape.StopLine(Vec2(63f, 63.5f), Vec2(63f, 68.5f)),
                 MapShape.Light(Vec2(62f, 61f), facingDeg = 90f),
@@ -101,11 +116,13 @@ object TrackCourses {
                 MapShape.Label(Vec2(84f, 43f), "가속"),
                 MapShape.Label(Vec2(60f, 12f), "돌발"),
                 MapShape.Label(Vec2(38f, 5f), "종료"),
+                MapShape.Label(Vec2(34f, 36f), "S자 연습 · 시험 항목 아님"),
             ) + bays,
         )
         TrackCourse(
             id = EXAM, title = "장내기능 모의시험", map = map, start = e.start,
             route = e.route.points.thin(),
+            practiceRoute = e.practiceRoute.points.thin(),
             zones = listOf(
                 CourseZone("exam-device", "장치 조작", ZoneKind.DEVICE, Area(5f, 0f, 15f, 10f), 0f,
                     listOf(ZoneRule.Devices(listOf(Device.HEADLIGHT, Device.LEFT_INDICATOR, Device.RIGHT_INDICATOR, Device.WIPER, Device.DRIVE_GEAR))),
@@ -138,6 +155,11 @@ object TrackCourses {
                     guide = "종료 구간이에요. 멈추고 주차 기어에 놓아요.", announce = "종료 구간입니다."),
             ),
             passScore = ExamPoints.PASS_SCORE,
+            practiceZones = mapOf("exam-slope" to
+                CourseZone("exam-s-curve", "S자 연습", ZoneKind.S_CURVE, Area(15f, 38.5f, 61f, 54.5f), -90f,
+                    listOf(ZoneRule.NoLineContact(points = 0)),
+                    guide = "S자 연습 구간이에요. 시험에는 없는 연습이에요. 천천히, 핸들을 미리 돌려 선에 닿지 않게 지나요.",
+                    announce = "S자 연습 구간입니다.", practiceOnly = true)),
         )
     }
 

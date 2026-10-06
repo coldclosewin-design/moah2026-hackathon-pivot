@@ -78,7 +78,7 @@ object SeedCatalog {
         Task(TASK_KNOWLEDGE, "비상등·날씨별 행동", TaskType.KNOWLEDGE, Difficulty.EASY, "정차 중에 문제를 풀고 이유를 함께 살펴봐요.",
             listOf("비상등", "우천", "야간"), emptySet(), requiresDriving = false,
             status = TaskStatus.READY),   // 지식 테스트 모드로만 시작된다(Task.supports)
-    ) + RoadSigns.task   // 점검 분류의 그림 퀴즈(라운드 25 결정 5 H)
+    ) + RoadKnowledge.tasks + RoadSigns.task   // 도로 상식 다섯(라운드 25 결정 5) — 지식 분류에 기존 과제 뒤로 · 점검 분류의 그림 퀴즈(H)
 
     val parkingTask: Task get() = tasks.first { it.id == TASK_PARKING_REAR }
     val frontParkingTask: Task get() = tasks.first { it.id == TASK_PARKING_FRONT }
@@ -280,7 +280,7 @@ object SeedCatalog {
     fun quizFor(task: Task): List<QuizItem> = when (task.id) {
         TASK_KNOWLEDGE -> quiz
         RoadSigns.TASK_ROAD_SIGNS -> RoadSigns.quiz
-        else -> emptyList()
+        else -> RoadKnowledge.quiz[task.id].orEmpty()
     }
 
     val quiz: List<QuizItem> = listOf(
