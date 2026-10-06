@@ -22,7 +22,8 @@
 
 1. **Codex 25a**(지금, 모델 불필요): 1 · 2 · 3 · 지식 알약 한 칸 · 6 의 화면(워드마크 길게 = `admin.demo.stopScenario()` + `stopCar()`, 안내 한 줄) · 다듬기 셋. 발주 `docs/handoffs/2026-10-06_codex_ui_round25a.md`.
 2. **Claude 모델**(한 PR = 한 scope): M1 feature 말 카드 · M2 vehicle 시나리오 끝·정지 = 0 km/h · M3 data/scoring S자 연습 곁가지 · M4 data 상식 주제 과제 + 헷갈리는 상식 · M5 feature 점검 "도로 표시 읽기"(그림 퀴즈).
-3. **Codex 25b**(M1~M5 머지 뒤): 말 카드 줄·입력 칸 접기 · S자 곁가지 그리기 · 도로 표시 그림 · 캡처.
+3. **Codex 25b**(M1~M5 머지 뒤): 말 카드 줄·입력 칸 접기 · S자 곁가지 그리기 · 도로 표시 그림 · 캡처. 발주 `docs/handoffs/2026-10-06_codex_ui_round25b.md`.
+   - 모델 머지(10/6 밤): M1 #211 말 카드(`CoachInputMode` · `SpeechCards` 열한 장) · M2 #212 시나리오 끝·정지 = 초당 5 km/h 로 0 · M3 #215 S자 곁가지(`practiceZones` · `forMode`, 모의시험 70 → 100 그대로) · M4 #213 도로 상식 과제 다섯(문항 열일곱, 확인한 법 내용만 — `data/RoadKnowledge.kt` 주석) · M5 #214 점검 "도로 표시 읽기"(`Task.quizOnly` · `RoadFigure` 여섯) — 테스트 350
 4. 태그 → 사내 확인(말 카드로 한국어 대화 `(ai)`) → 녹화. 그 전엔 사내는 `-5` 로 녹화해 둔다.
 
 ## 경계
