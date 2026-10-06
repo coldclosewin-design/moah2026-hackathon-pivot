@@ -65,9 +65,9 @@ internal fun ProfilePill(label: String, onClick: () -> Unit) {
 
 @Composable
 internal fun CoachSheet(coach: CoachDialog, onChoose: (CoachChoice) -> Unit, onBack: () -> Unit,
-    textInput: Boolean = false, onSend: (String) -> Unit = {}) {
-    if (textInput) {
-        CoachTextSheet(coach, onChoose, onBack, onSend)
+    inputMode: CoachInputMode = CoachInputMode.OFF, onSend: (String) -> Unit = {}, onSendCard: (String) -> Unit = {}) {
+    if (inputMode != CoachInputMode.OFF) {
+        CoachTextSheet(coach, onChoose, onBack, onSend, inputMode, onSendCard)
         return
     }
     Column(Modifier.fillMaxSize()) {

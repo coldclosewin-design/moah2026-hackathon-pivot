@@ -24,13 +24,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.moah.hackathon.feature.lesson.CoachChoice
 import com.moah.hackathon.feature.lesson.CoachDialog
+import com.moah.hackathon.feature.lesson.CoachInputMode
 import com.moah.hackathon.ui.CoachColors
 import com.moah.hackathon.ui.CoachTexture
 
 /** The transcript alone scrolls; choices, composer and return stay within the sheet. */
 @Composable
 internal fun CoachTextSheet(coach: CoachDialog, onChoose: (CoachChoice) -> Unit, onBack: () -> Unit,
-    onSend: (String) -> Unit) {
+    onSend: (String) -> Unit, inputMode: CoachInputMode = CoachInputMode.CARDS_AND_TEXT,
+    onSendCard: (String) -> Unit = {}) {
     // Preserve the IME's composition/selection until submission; never save conversation drafts.
     var draft by remember { mutableStateOf(TextFieldValue()) }
     val scroll = rememberScrollState()
@@ -75,7 +77,11 @@ internal fun CoachTextSheet(coach: CoachDialog, onChoose: (CoachChoice) -> Unit,
         Spacer(Modifier.height(18.dp))
         LessonText("고르면 바로 그 자리로 가요.", 32, CoachColors.Muted)
         Spacer(Modifier.height(24.dp))
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(20.dp),
+        if (coach.cards.isNotEmpty()) {
+            SpeechCardsRow(coach.cards, coach.waiting, onSendCard)
+            if (inputMode == CoachInputMode.CARDS_AND_TEXT) Spacer(Modifier.height(18.dp))
+        }
+        if (inputMode == CoachInputMode.CARDS_AND_TEXT) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(20.dp),
             verticalAlignment = Alignment.CenterVertically) {
             BasicTextField(draft, { draft = it }, Modifier.weight(1f).height(140.dp)
                 .testTag("coach-text-input").background(CoachColors.Lavender, RoundedCornerShape(36.dp))

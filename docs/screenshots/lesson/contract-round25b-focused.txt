@@ -1,0 +1,3 @@
+PASS Round25b S practice: scenario-derived entry/turn/return poses render on practice route with simulation provenance and no moving touch targets
+PASS Round25b: OFF/Real unchanged; three input modes; 96 dp scrolling cards, follow-up/context/profile and waiting guard; six road figures/color boundary/locks; six knowledge and two checklist cards, quiz-only mode and two-choice task
+Round25b contract passed

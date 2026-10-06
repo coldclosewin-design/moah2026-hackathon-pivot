@@ -38,7 +38,8 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
     onboarding: ProfileOnboarding? = null, profileRows: List<ProfileRow> = emptyList(),
     observedLines: List<String> = emptyList(), onAnswerProfile: (ProfileField, String) -> Unit = { _, _ -> },
     onFinishOnboarding: () -> Unit = {}, onAdmin: (() -> Unit)? = null,
-    coachTextInput: Boolean = false, onSendCoachText: (String) -> Unit = {},
+    coachInput: CoachInputMode = CoachInputMode.OFF, onSendCoachText: (String) -> Unit = {},
+    onSendCoachCard: (String) -> Unit = {},
     profileRequest: Boolean = false, onConsumeProfileRequest: () -> Unit = {}) {
     if (onboarding != null) {
         ProfileOnboardingScreen(profileRows, onboarding, onAnswerProfile, onFinishOnboarding, onAdmin)
@@ -101,7 +102,7 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
             // An expanded admin band needs room as well as a booking card. Keep the
             // A1 action/card gaps and full button heights; compact only the reading area.
             val compactHome = maxHeight < 1120.dp
-            Row(Modifier.fillMaxSize().then(if (coachTextInput && coach != null) Modifier.imePadding() else Modifier)) {
+            Row(Modifier.fillMaxSize().then(if (coachInput == CoachInputMode.CARDS_AND_TEXT && coach != null) Modifier.imePadding() else Modifier)) {
                 Box(Modifier.weight(fraction).fillMaxHeight().clipToBounds().testTag("setup-poster")) {
                     Image(painterResource(R.drawable.poster_car), null, Modifier.fillMaxSize().graphicsLayer {
                         scaleX = 1f + (.53f - fraction) * .35f
@@ -126,9 +127,12 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
                                 coachTextSubmitted = false
                                 awaitingRecommendation = choice == CoachChoice.CONTINUE_LAST
                                 onChooseCoach(choice)
-                            }, { coachTextSubmitted = false; onCloseCoach() }, coachTextInput, { text ->
+                            }, { coachTextSubmitted = false; onCloseCoach() }, coachInput, { text ->
                                 coachTextSubmitted = true
                                 onSendCoachText(text)
+                            }, { id ->
+                                coachTextSubmitted = true
+                                onSendCoachCard(id)
                             }) }
                         } else if (showSheet) {
                             if (venuesOpen) VenueSheet(venues, booking, onReserve, onCancelReservation,

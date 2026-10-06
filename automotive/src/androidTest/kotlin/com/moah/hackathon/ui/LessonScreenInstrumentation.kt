@@ -76,6 +76,7 @@ class LessonScreenInstrumentation : Instrumentation() {
     private var round23bOnly = false
     private var round24Only = false
     private var round25aOnly = false
+    private var round25bOnly = false
     override fun onCreate(arguments: Bundle?) {
         super.onCreate(arguments)
         seedSpeech = arguments?.getString("seedSpeech") == "true"
@@ -89,6 +90,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         round23bOnly = arguments?.getString("round23bOnly") == "true"
         round24Only = arguments?.getString("round24Only") == "true"
         round25aOnly = arguments?.getString("round25aOnly") == "true"
+        round25bOnly = arguments?.getString("round25bOnly") == "true"
         start()
     }
 
@@ -96,6 +98,11 @@ class LessonScreenInstrumentation : Instrumentation() {
         val activity = startActivitySync(Intent(targetContext, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as MainActivity
         try {
+            if (round25bOnly) {
+                round25bContract(activity)
+                finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Round25b contract passed\n") })
+                return
+            }
             if (round25aOnly) {
                 cardLayoutContract(activity)
                 round23aContract(activity)
@@ -817,6 +824,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             round23bContract(activity)
             round24Contract(activity)
             round25Locks(activity)
+            round25bContract(activity)
             captureDoneSettle(activity, task, pathRecord)
             captureDoneSettle(activity, SeedCatalog.predriveTask, checklistRecord, "done-checklist-settle-strip")
             finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Lesson contract passed\n") })
@@ -1114,6 +1122,203 @@ class LessonScreenInstrumentation : Instrumentation() {
         failure?.let { throw it }
     }
 
+    private fun round25bContract(activity: MainActivity) {
+        val container = (activity.application as App).container
+        lateinit var vm: LessonViewModel
+        onMainChecked {
+            vm = ViewModelProvider(activity, LessonViewModel.factory(container))[LessonViewModel::class.java]
+            vm.admin!!.applyPreset("rear-two")
+            vm.admin!!.setCoachInput(CoachInputMode.OFF)
+        }
+        fun setup() = vm.phase.value as LessonPhase.Setup
+        fun awaitQuiz() {
+            repeat(80) {
+                if (vm.phase.value is LessonPhase.Quiz) return
+                Thread.sleep(100)
+            }
+            error("Quiz did not begin after briefing: ${vm.phase.value}")
+        }
+        fun tagged(tag: String) = composeNodes(activity).single { it.config.getOrNull(SemanticsProperties.TestTag) == tag }
+        fun hasTag(tag: String) = composeNodes(activity).any { it.config.getOrNull(SemanticsProperties.TestTag) == tag }
+        fun noInput() = onMainChecked { check(composeNodes(activity).none { it.config.contains(SemanticsActions.SetText) }) }
+        render(activity) { LessonRoute(vm) }
+        click("코치와 대화")
+        noInput()
+        onMainChecked { check(!hasTag("coach-speech-cards")) }
+        check("말로 답하기 — 준비 중" in texts())
+        click("돌아가기")
+        render(activity) { AdminHome(vm.admin!!, setup(), {}) }
+        listOf("끔" to CoachInputMode.OFF, "카드" to CoachInputMode.CARDS, "카드 + 글" to CoachInputMode.CARDS_AND_TEXT).forEach { (label, mode) ->
+            if (vm.admin!!.coachInput.value != mode) click(label)
+            afterUiSettles("Admin input $label") { check(vm.admin!!.coachInput.value == mode); assertSelected(label); check("음성 입력 · $label" in texts()) }
+            assertFullText(activity, label)
+        }
+        capture("admin-home")
+        click("카드")
+        render(activity) { LessonRoute(vm) }
+        click("코치와 대화")
+        noInput(); check("보내기" !in texts() && "음성 입력 · 시뮬레이션" in texts())
+        val opening = setup().coach!!.cards
+        check(opening.size == 4)
+        val cardScale = designScale(activity)
+        onMainChecked {
+            val row = tagged("coach-speech-cards").boundsInWindow
+            opening.forEach { card ->
+                val node = tagged("speech-card-${card.id}")
+                if (node.boundsInWindow.width > 0) {
+                    check(node.boundsInWindow.height / cardScale >= 95)
+                    check(abs(node.boundsInWindow.center.y - row.center.y) <= 3 * cardScale)
+                }
+                check(!node.config.contains(SemanticsProperties.Disabled))
+            }
+            check(hasTag("speech-cards-more"))
+        }
+        capture("setup-coach-cards-only")
+        click(opening.first().text)
+        afterUiSettles("Card enters dialogue and advances stage") {
+            check(setup().coach!!.turns.any { it.fromDriver && it.text == opening.first().text })
+            check(setup().coach!!.cards.all { it.stage == CardStage.FOLLOW_UP })
+        }
+        check(setup().coach!!.cards.none { it.needs == CardNeed.BOOKING || it.needs == CardNeed.LAST })
+        capture("setup-coach-cards-follow")
+        onMainChecked { check(tagged("speech-cards-scroll").config[SemanticsActions.ScrollBy].action?.invoke(10_000f, 0f) == true) }
+        afterUiSettles("Last speech card is reachable") { check(buttonBounds("내 프로필 고칠래요").width() > 100) }
+        click("내 프로필 고칠래요")
+        afterUiSettles("Card profile intent consumed") { check("앱이 본 것" in texts() && !setup().profileRequest) }
+        click("돌아가기")
+        onMainChecked { vm.admin!!.setCoachInput(CoachInputMode.CARDS_AND_TEXT) }
+        click("코치와 대화")
+        afterUiSettles("Cards with composer") { check("코치에게 글로 말해 보세요" in texts() && "보내기" in texts()) }
+        onMainChecked {
+            check(tagged("coach-speech-cards").boundsInWindow.bottom < tagged("coach-text-input").boundsInWindow.top)
+        }
+        capture("setup-coach-cards")
+        click("돌아가기")
+        onMainChecked { vm.admin!!.applyPreset("reserved-exam"); vm.openCoach() }
+        afterUiSettles("Booking opening cards") { check(setup().coach != null) }
+        click(opening.first().text)
+        afterUiSettles("Booking follow-up includes venue card") { check(setup().coach!!.cards.any { it.needs == CardNeed.BOOKING }) }
+        onMainChecked { vm.closeCoach() }
+        // The pure Real fixture shares the state, deliberately leaving the model input mode enabled.
+        lateinit var real: LessonViewModel
+        onMainChecked { real = LessonViewModel(container.lesson, container.tts) }
+        render(activity) { LessonRoute(real) }
+        click("코치와 대화"); noInput()
+        onMainChecked { check(!hasTag("coach-speech-cards")); check(!hasTag("admin-home")); check(!hasTag("admin-band")) }
+        check("음성 입력 · 시뮬레이션" !in texts())
+        onMainChecked { vm.closeCoach() }
+
+        var sends = 0
+        val waiting = mutableStateOf(true)
+        val dialog = CoachDialog("어떤 연습부터 함께할까요?", listOf(CoachChoice.PARKING_PRACTICE), cards = opening)
+        render(activity) { PosterSurface { CoachTextSheet(dialog.copy(waiting = waiting.value), {}, {}, {}, CoachInputMode.CARDS, { sends++ }) } }
+        noInput()
+        onMainChecked { opening.forEach { check(tagged("speech-card-${it.id}").config.contains(SemanticsProperties.Disabled)) } }
+        val first = textBounds(opening.first().text)
+        tap(first.centerX(), first.centerY()); check(sends == 0)
+        onMainChecked { waiting.value = false }
+        afterUiSettles("Speech card enabled after reply") {
+            onMainChecked { check(!tagged("speech-card-${opening.first().id}").config.contains(SemanticsProperties.Disabled)) }
+        }
+        tap(first.centerX(), first.centerY()); check(sends == 1)
+
+        val signs = com.moah.hackathon.data.RoadSigns
+        signs.quiz.forEachIndexed { index, item ->
+            val figure = checkNotNull(item.figure)
+            render(activity) { QuizScreen(signs.task, index, signs.quiz.size, item, false, null, 0, {}, {}, {}) }
+            assertFullText(activity, item.question)
+            // Each answer merges its number and sentence for accessibility. Measure the sentence leaf.
+            onMainChecked {
+                item.choices.forEach { choice ->
+                    val leaf = composeNodes(activity, unmerged = true).single {
+                        it.config.getOrNull(SemanticsProperties.Text)?.singleOrNull()?.text == choice
+                    }
+                    val layouts = mutableListOf<TextLayoutResult>()
+                    check(leaf.config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts) == true)
+                    check(!layouts.single().hasVisualOverflow)
+                    check(layouts.single().getLineEnd(layouts.single().lineCount - 1) == choice.length)
+                }
+            }
+            lateinit var art: androidx.compose.ui.geometry.Rect
+            onMainChecked { art = tagged("road-figure-${figure.name}").boundsInWindow }
+            capture("quiz-road-${figure.name.lowercase()}") { bitmap ->
+                for ((color, expected) in listOf(CoachColors.RoadMarkingYellow to (figure == RoadFigure.YELLOW_SOLID_CENTER),
+                    CoachColors.RoadMarkingBlue to (figure == RoadFigure.BLUE_BUS_LANE))) {
+                    val pixels = colorBounds(bitmap, Rect(0, 0, bitmap.width, bitmap.height), color.toArgb())
+                    check(pixels.isEmpty != expected)
+                    if (expected) check(pixels.left >= art.left && pixels.right <= art.right && pixels.top >= art.top && pixels.bottom <= art.bottom)
+                }
+            }
+            if (index == 0) capture("quiz-road-sign")
+            render(activity) { QuizScreen(signs.task, index, signs.quiz.size, item, false, item.answer, 1, {}, {}, {}) }
+            assertFullText(activity, item.why)
+            onMainChecked { check(hasTag("road-figure-${figure.name}")) }
+            render(activity) { QuizScreen(signs.task, index, signs.quiz.size, item, true, null, 0, {}, {}, {}) }
+            check(nodes().none(::hasTouchAction))
+            check(allText().none { Regex("\\d").containsMatchIn(it) })
+            onMainChecked { check(!hasTag("road-figure-${figure.name}")) }
+        }
+        onMainChecked { vm.admin!!.applyPreset("rear-two"); vm.admin!!.setCoachInput(CoachInputMode.OFF) }
+        render(activity) { LessonRoute(vm) }
+        click("과제·모드 바꾸기"); click("점검"); click(signs.task.title)
+        assertSelected("지식 테스트")
+        check("가이드" !in texts() && "힌트" !in texts() && "평가" !in texts())
+        check(allText().none { Regex("\\d").containsMatchIn(it) })
+        capture("setup-sheet-checklist")
+        click("시작")
+        awaitQuiz()
+        afterUiSettles("Road sign card begins quiz") { check(signs.quiz.first().question in texts()) }
+        onMainChecked { vm.restart() }
+        render(activity) { LessonRoute(vm) }
+        click("과제·모드 바꾸기"); click("지식")
+        check(SeedCatalog.tasks.count { it.type == TaskType.KNOWLEDGE } == 6)
+        capture("setup-sheet-knowledge")
+        check(nodes().first { it.isScrollable }.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD))
+        afterUiSettles("Last knowledge tasks reachable") { check("헷갈리는 상식" in texts()) }
+        click("헷갈리는 상식")
+        assertSelected("지식 테스트")
+        check(allText().none { Regex("\\d").containsMatchIn(it) })
+        capture("setup-sheet-knowledge-end")
+        click("시작")
+        awaitQuiz()
+        afterUiSettles("Two-choice knowledge task") { check("맞아요" in texts() && "아니에요" in texts()) }
+        onMainChecked { vm.restart() }
+        round25bPracticeMap(activity)
+        pass("Round25b: OFF/Real unchanged; three input modes; 96 dp scrolling cards, follow-up/context/profile and waiting guard; six road figures/color boundary/locks; six knowledge and two checklist cards, quiz-only mode and two-choice task")
+    }
+
+    private fun round25bPracticeMap(activity: MainActivity) {
+        val course = com.moah.hackathon.data.TrackCourses.exam.forMode(evaluate = false)
+        val task = SeedCatalog.tasks.single { it.course?.id == course.id }
+        val recorder = CourseRecorder(course)
+        var snapshot = VehicleSnapshot()
+        val frames = mutableListOf<LessonPhase.Drive>()
+        com.moah.hackathon.data.CourseScenarios.examPracticeS.steps.forEach { step ->
+            val t = (step.atSeconds * 1000).toLong()
+            recorder.onDelta(t, step.values); snapshot = snapshot.apply(step.values)
+            val progress = recorder.progress()
+            val point = progress.pose?.at
+            if (point != null && when (frames.size) {
+                0 -> progress.currentZoneId == "exam-s-curve" && point.x > 24f && point.y < 54f
+                1 -> progress.currentZoneId == "exam-s-curve" && point.x > 48f && point.y < 54f
+                2 -> point.x in 30f..40f && point.y in 54f..58f
+                else -> false
+            }) frames += LessonPhase.Drive(task, LessonMode.GUIDE, 1, snapshot, course, progress,
+                course.zone("exam-s-curve")!!.guide, null, t, false,
+                CourseRecorder.KEYS.associateWith { SignalAvailability.SIMULATED })
+        }
+        check(frames.size == 3)
+        frames.forEachIndexed { index, state ->
+            render(activity) { DriveScreen(state, null, {}, null) }
+            check(nodes().none(::hasTouchAction)); assertNoScores()
+            check(texts().any { it.contains("시험에는 없는 연습") })
+            capture(if (index == 1) "drive-exam-practice-s" else "drive-exam-practice-s-$index") {
+                assertCourseCar(activity, it, course, checkNotNull(state.progress.pose))
+            }
+        }
+        pass("Round25b S practice: scenario-derived entry/turn/return poses render on practice route with simulation provenance and no moving touch targets")
+    }
+
     private fun round25Locks(activity: MainActivity) {
         val container = (activity.application as App).container
         val fake = container.vehicle as FakeVehiclePort
@@ -1298,12 +1503,13 @@ class LessonScreenInstrumentation : Instrumentation() {
 
         // A suspended reply fixture makes waiting deterministic without changing the model or ports.
         val dialog = mutableStateOf(CoachDialog("어떤 연습부터 함께할까요?", listOf(CoachChoice.PARKING_PRACTICE),
-            listOf(CoachTurn(true, "안녕")), waiting = true))
+            listOf(CoachTurn(true, "안녕")), waiting = true,
+            cards = com.moah.hackathon.data.SpeechCards.all.filter { it.stage == CardStage.FOLLOW_UP && it.needs == CardNeed.NONE }))
         var sent = 0
         var chosen: CoachChoice? = null
         render(activity) {
             SetupScreen(SeedCatalog.demoProfile, SeedCatalog.tasks, SeedCatalog.parkingTask, LessonMode.GUIDE,
-                "함께 연습해요.", null, { _, _ -> }, coach = dialog.value, coachTextInput = true,
+                "함께 연습해요.", null, { _, _ -> }, coach = dialog.value, coachInput = CoachInputMode.CARDS_AND_TEXT,
                 onSendCoachText = { sent++ }, onChooseCoach = { chosen = it })
         }
         assertSendDisabled(true)
@@ -1334,15 +1540,15 @@ class LessonScreenInstrumentation : Instrumentation() {
 
         val setup = vm.phase.value as LessonPhase.Setup
         render(activity) { AdminHome(vm.admin!!, setup, {}) }
-        check("시뮬레이션 음성 입력" in texts() && "음성 입력 · 시뮬레이션(글)" in texts())
-        assertSelected("켬")
+        check("시뮬레이션 음성 입력" in texts() && "음성 입력 · 카드 + 글" in texts())
+        assertSelected("카드 + 글")
         val configNote = checkNotNull(aiLine(CopilotAuth.State.NoConfig)).detail
         assertFullText(activity, configNote)
         check(textBounds(configNote).bottom + 18 * designScale(activity) <= buttonBounds("이 설정으로 홈").top)
         capture("admin-home")
         click("끔")
-        afterUiSettles("Admin input off") { check(!vm.admin!!.textInput.value && "음성 입력 · 시뮬레이션(글)" !in texts()) }
-        click("켬")
+        afterUiSettles("Admin input off") { check(!vm.admin!!.textInput.value && "음성 입력 · 끔" in texts()) }
+        click("카드 + 글")
         afterUiSettles("Admin input on") { check(vm.admin!!.textInput.value) }
         lateinit var real: LessonViewModel
         onMainChecked { real = LessonViewModel(container.lesson, container.tts) }
@@ -2603,11 +2809,11 @@ class LessonScreenInstrumentation : Instrumentation() {
                 }
             }
             inspect(type)
-            if (type == TaskType.DRIVING) {
+            if (type == TaskType.DRIVING || type == TaskType.KNOWLEDGE) {
                 check(nodes().first { it.isScrollable }.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD))
                 Thread.sleep(350)
                 inspect(type)
-                capture("setup-sheet-driving-end")
+                capture(if (type == TaskType.DRIVING) "setup-sheet-driving-end" else "setup-sheet-knowledge-end")
             }
         }
         pass("Card C: 288/144 art and band, centred category marks, one-line 36-40 sp titles, shared baselines, ready/planned states")
