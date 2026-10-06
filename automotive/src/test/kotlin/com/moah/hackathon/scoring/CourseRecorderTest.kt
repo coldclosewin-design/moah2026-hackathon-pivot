@@ -56,8 +56,8 @@ class CourseRecorderTest {
         VssConstants.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_LEFT_ISSIGNALING to "false",
         VssConstants.VEHICLE_BODY_LIGHTS_DIRECTIONINDICATOR_RIGHT_ISSIGNALING to "false",
         VssConstants.VEHICLE_BODY_LIGHTS_HAZARD_ISSIGNALING to "false",
-        SimOnlySignals.LIGHTS_BEAM_LOW_ISON to "false",
-        SimOnlySignals.WIPER_FRONT_MODE to "OFF",
+        VssConstants.VEHICLE_BODY_LIGHTS_BEAM_LOW_ISON to "false",
+        VssConstants.VEHICLE_BODY_WINDSHIELD_FRONT_WIPING_MODE to "OFF",
         SimOnlySignals.TRACK_SIGNAL_STATE to "GREEN",
         SimOnlySignals.TRACK_EVENT_EMERGENCY to "false",
         SimOnlySignals.TRACK_LINE_CONTACT to "false",
@@ -68,8 +68,8 @@ class CourseRecorderTest {
         val r = CourseRecorder(course)
         val d = Drive(r)
         d.at(0.0, 2f, 0f, *baseSignals)
-        if ("headlight" !in skip) { d.at(1.0, 2f, 0f, SimOnlySignals.LIGHTS_BEAM_LOW_ISON to "true"); d.at(2.0, 2f, 0f, SimOnlySignals.LIGHTS_BEAM_LOW_ISON to "false") }
-        if ("wiper" !in skip) { d.at(3.0, 2f, 0f, SimOnlySignals.WIPER_FRONT_MODE to "SLOW"); d.at(4.0, 2f, 0f, SimOnlySignals.WIPER_FRONT_MODE to "OFF") }
+        if ("headlight" !in skip) { d.at(1.0, 2f, 0f, VssConstants.VEHICLE_BODY_LIGHTS_BEAM_LOW_ISON to "true"); d.at(2.0, 2f, 0f, VssConstants.VEHICLE_BODY_LIGHTS_BEAM_LOW_ISON to "false") }
+        if ("wiper" !in skip) { d.at(3.0, 2f, 0f, VssConstants.VEHICLE_BODY_WINDSHIELD_FRONT_WIPING_MODE to "SLOW"); d.at(4.0, 2f, 0f, VssConstants.VEHICLE_BODY_WINDSHIELD_FRONT_WIPING_MODE to "OFF") }
         d.at(5.0, 12f, 10f)
         if (lineOut) { d.at(5.5, 15f, 10f, SimOnlySignals.TRACK_LINE_CONTACT to "true"); d.at(6.0, 16f, 10f, SimOnlySignals.TRACK_LINE_CONTACT to "false") }
         d.at(6.5, 22f, 8f)
