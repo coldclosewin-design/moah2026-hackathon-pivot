@@ -735,7 +735,7 @@ class LessonStateMachine(
         // 배지 분모 — 점검 12(9/28) · 주차는 과제 사양의 키(후면 8 · 전면 7, 10/2). 힌트 문장도 진입 기어로 갈린다("전진/후진으로 보정")
         val spec = task.parkingSpec
         // 코스 과제(10/4)는 차량 9 + 장치 2 + 시험장 6 = 17키가 배지 분모
-        course = task.course?.let { CourseRecorder(it) }
+        course = task.course?.let { CourseRecorder(it.forMode(evaluate = mode == LessonMode.EVALUATE)) }   // 연습 곁가지(S자)는 연습 모드에만(라운드 25 결정 4)
         recorder.keys = when {
             checklist -> ParkingRecorder.CHECKLIST_KEYS
             course != null -> CourseRecorder.KEYS

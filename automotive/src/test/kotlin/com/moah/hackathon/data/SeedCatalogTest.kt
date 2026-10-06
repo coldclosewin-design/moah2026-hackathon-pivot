@@ -59,7 +59,8 @@ class SeedCatalogTest {
         assertEquals(SeedCatalog.tasks.map { it.id }, ready.map { it.id })
         // 코스 과제는 전부 도면·시나리오 2벌을 갖고, 주행 모드 셋만 받는다
         ready.filter { it.type == TaskType.DRIVING }.forEach { t ->
-            assertTrue(t.id, t.isCourse && SeedCatalog.scenariosFor(t).size == 2 && !t.supports(com.moah.hackathon.feature.lesson.LessonMode.QUIZ))
+            assertTrue(t.id, t.isCourse && SeedCatalog.scenariosFor(t).size == (if (t.id == SeedCatalog.TASK_TRACK_EXAM) 3 else 2) &&   // 장내 + S자 연습(라운드 25)
+                !t.supports(com.moah.hackathon.feature.lesson.LessonMode.QUIZ))
         }
         assertTrue(SeedCatalog.tasks.first { it.id == SeedCatalog.TASK_TRACK_EXAM }.course!!.isExam)
         assertTrue(!SeedCatalog.predriveTask.requiresDriving)
