@@ -85,6 +85,8 @@ enum class ZoneKind(val label: String) {
     LANE_CHANGE("차로 변경"),
     ROUNDABOUT("회전교차로"),
     SCHOOL_ZONE("어린이 보호구역"),
+    /** 연습 구간(라운드 25 결정 4) — 실제 장내기능시험(2016-12 개정 이후)에는 없다. 시험 모드에선 코스에서 빠진다. */
+    S_CURVE("S자"),
     FINISH("종료"),
 }
 
@@ -166,6 +168,7 @@ sealed interface ZoneRule {
 /**
  * 코스의 한 구간. [area] 에 들어오면 진입, 나가면 이탈. [direction] 은 구간의 진행 방향(°) — 밀림 계산에 쓴다.
  * [guide] 는 가이드 모드에서 진입할 때 읽는 문장, [announce] 는 시험(평가) 모드의 구간 안내 — 둘 다 숫자 없음.
+ * [practiceOnly] = 연습 모드(가이드·힌트)에서만 있는 곁가지 구간 — [TrackCourse.practiceZones] 에 두고 [TrackCourse.forMode] 가 연습 모드에만 끼운다. 안 지나도 "미통과" 가 아니다.
  */
 data class CourseZone(
     val id: String,
@@ -176,6 +179,7 @@ data class CourseZone(
     val rules: List<ZoneRule>,
     val guide: String,
     val announce: String = "${kind.label} 구간입니다.",
+    val practiceOnly: Boolean = false,
 )
 
 /**
@@ -183,6 +187,8 @@ data class CourseZone(
  * @param route 화면이 옅게 그리는 기대 경로(m). 채점과 무관.
  * @param passScore 합격선. null 이면 합격 판정이 없는 연습 코스(도로 과제) — 리포트는 "놓친 것" 만.
  * @param laneContactPoints 구간 밖(또는 선 규칙이 없는 구간)에서 검지선에 닿을 때 깎는 점수(차로 준수). 0 이면 안 깎는다.
+ * @param practiceZones 연습 모드에만 끼우는 곁가지 구간 — 키 = 그 앞 구간 id. [zones] 는 시험(평가) 그대로라 기존 채점·화면이 바뀌지 않는다.
+ * @param practiceRoute 연습 모드의 기대 경로(곁가지를 지나는 길). null 이면 [route] 그대로.
  */
 data class TrackCourse(
     val id: String,
@@ -193,6 +199,8 @@ data class TrackCourse(
     val zones: List<CourseZone>,
     val passScore: Int? = null,
     val laneContactPoints: Int = ExamPoints.LANE_CONTACT,
+    val practiceZones: Map<String, CourseZone> = emptyMap(),
+    val practiceRoute: List<Vec2>? = null,
 ) {
     init {
         require(zones.map { it.id }.toSet().size == zones.size) { "duplicate zone id in $id" }
@@ -200,4 +208,11 @@ data class TrackCourse(
 
     val isExam: Boolean get() = passScore != null
     fun zone(id: String): CourseZone? = zones.firstOrNull { it.id == id }
+
+    /**
+     * 모드별 코스 — [evaluate](평가 = 모의시험)면 그대로, 연습 모드면 곁가지 구간([practiceZones])을 끼우고 곁가지를 지나는 기대 경로로.
+     * 도면은 같다(곁가지 도로는 시설로 늘 그려진다).
+     */
+    fun forMode(evaluate: Boolean): TrackCourse = if (evaluate || practiceZones.isEmpty()) this
+        else copy(zones = zones.flatMap { z -> listOfNotNull(z, practiceZones[z.id]) }, route = practiceRoute ?: route, practiceZones = emptyMap())
 }

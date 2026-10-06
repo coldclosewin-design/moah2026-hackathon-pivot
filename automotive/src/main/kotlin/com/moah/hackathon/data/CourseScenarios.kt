@@ -46,7 +46,7 @@ object CourseScenarios {
 
     // ───────── 장내기능 모의시험 ─────────
 
-    private fun exam(id: String, title: String, good: Boolean): Scenario {
+    private fun exam(id: String, title: String, good: Boolean, sCurve: Boolean = false): Scenario {
         val e = TrackCourses.Exam
         val s = script(id, title, e.start)
         // 장치 조작 — 전조등 · 왼쪽/오른쪽 지시등 · 와이퍼 · 기어 D
@@ -59,8 +59,14 @@ object CourseScenarios {
         s.drive(e.toSlope, 15.0)
         s.hold(2.0)
         if (!good) s.drive(Turtle(Pose(e.toSlope.end.at, 180f)).straight(1.5f).path(), 3.0, reverse = true).hold(1.0)
-        val fromSlope = if (good) e.slopeToCorner else Turtle(Pose(e.toSlope.end.at.copy(y = e.toSlope.end.at.y - 1.5f), 0f)).straight(29.5f).path()
-        s.drive(fromSlope, 15.0, endKmh = 10.0, events = listOf(fromSlope.length - 12f to on(RIGHT)))
+        if (sCurve) {
+            // 연습: 경사로 뒤 S자 곁가지를 천천히 돌아 원래 모서리로(라운드 25 결정 4) — 끝 무렵 오른쪽 지시등(다음 우회전)
+            s.drive(e.slopeToBranch, 10.0, endKmh = 8.0)
+            s.drive(e.sBranch, 8.0, endKmh = 8.0, events = listOf(e.sBranch.length - 8f to on(RIGHT)))
+        } else {
+            val fromSlope = if (good) e.slopeToCorner else Turtle(Pose(e.toSlope.end.at.copy(y = e.toSlope.end.at.y - 1.5f), 0f)).straight(29.5f).path()
+            s.drive(fromSlope, 15.0, endKmh = 10.0, events = listOf(fromSlope.length - 12f to on(RIGHT)))
+        }
         s.drive(e.rightTurn1, 10.0, endKmh = 10.0)
         // 직각 주차 — 칸을 지나 정지 → 후진으로 칸 안 → 앞으로 빠져나옴
         s.drive(e.toParkingStop, 15.0, events = listOf(2f to off(RIGHT)))
@@ -94,6 +100,8 @@ object CourseScenarios {
     val examGood: Scenario by lazy { exam("exam-good", "잘한 시험", good = true) }
     /** 경사로 밀림 · 주차 검지선 접촉 · 돌발 비상등 미점등 — 감점 셋, 불합격. */
     val examBad: Scenario by lazy { exam("exam-bad", "못한 시험", good = false) }
+    /** 코스 연습(가이드·힌트) — 모범 주행 + S자 연습 곁가지. 평가 모드에선 S자 구간이 없어 채점이 같다. */
+    val examPracticeS: Scenario by lazy { exam("exam-practice-s", "S자 연습", good = true, sCurve = true) }
 
     // ───────── 도로 연습 ─────────
 
@@ -189,7 +197,7 @@ object CourseScenarios {
 
     /** 코스 id → 시연 패널 시나리오(잘한 것 먼저). */
     fun forCourse(courseId: String): List<Scenario> = when (courseId) {
-        TrackCourses.EXAM -> listOf(examGood, examBad)
+        TrackCourses.EXAM -> listOf(examGood, examBad, examPracticeS)
         TrackCourses.STRAIGHT_STOP -> listOf(straightGood, straightBad)
         TrackCourses.LEFT_TURN -> listOf(leftGood, leftBad)
         TrackCourses.LANE_CHANGE -> listOf(laneGood, laneBad)

@@ -209,7 +209,14 @@ class CourseRecorder(val course: TrackCourse) {
      */
     private fun locate(p: Vec2): ZoneRun? {
         current?.let { if (p in it.zone.area) return it }
-        for (i in nextIdx until minOf(runs.size, nextIdx + MAX_SKIP + 1)) if (p in runs[i].zone.area) return runs[i]
+        // 연습 곁가지(practiceOnly)는 건너뛰어도 건너뛸 수 있는 수를 쓰지 않는다 — 곁가지를 안 지나도 다음 구간에 들어간다
+        var skipped = 0
+        var i = nextIdx
+        while (i < runs.size && skipped <= MAX_SKIP) {
+            if (p in runs[i].zone.area) return runs[i]
+            if (!runs[i].zone.practiceOnly) skipped++
+            i++
+        }
         return null
     }
 
@@ -382,7 +389,7 @@ class CourseRecorder(val course: TrackCourse) {
                 deductions = run.deductions + pending, unmeasured = unmeasured(run))
         }
         // 위치가 있는데 들르지 못한 구간 = 미통과. 시험 코스면 실격(코스 이탈), 연습 코스면 기록만(감점 0)
-        val missed = if (trail.isEmpty()) emptyList() else runs.filter { it.enteredAt == null }.map { run ->
+        val missed = if (trail.isEmpty()) emptyList() else runs.filter { it.enteredAt == null && !it.zone.practiceOnly }.map { run ->
             Deduction(t, run.zone.id, run.zone.title, "visit", "${run.zone.title} 미통과", "${run.zone.title} 구간을 지나지 않았어요.",
                 0, course.isExam, null)
         }
