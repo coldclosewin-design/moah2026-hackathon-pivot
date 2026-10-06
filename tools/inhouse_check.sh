@@ -9,6 +9,10 @@
 # 사용:  bash tools/inhouse_check.sh [APK 경로]     (기본 automotive/build/outputs/apk/debug/automotive-debug.apk)
 #        SKIP_INSTALL=1 이면 설치 생략, SKIP_WIFI=1 이면 Wi-Fi 단계 생략, SERIAL=<adb 시리얼> 로 기기 지정
 #        REPO_ONLY=1 이면 "저장소" 단계(.gitignore 검사)만 하고 끝낸다 — 기기 없이, jar 복사 직후에
+#        SKIP_COACH_TEXT=1 이면 마지막 "홈 코치 텍스트 대화" 단계를 건너뛴다
+#   홈 코치 텍스트 대화(10/6, #198·#200): 리포트 → 다시 시작 → 준비실(DRIVE COACH 길게) "시뮬레이션 음성 입력 · 켬" → 홈 → 코치에게 말하기
+#         → 영어 두 줄(에뮬 키보드에 한국어가 없어 adb input text — Copilot 은 영어도 알아듣고, Fake 키워드 규칙은 한국어만이라 되묻기로 답한다)
+#         → 로그 `home coach: intent=… (ai|rule|fallback) N ms` 두 줄. 사내 목표: Copilot 로그인 뒤 (ai) 둘째 줄이 PIN_TASK(parking-parallel,…)
 set -u
 APK="${1:-automotive/build/outputs/apk/debug/automotive-debug.apk}"
 PKG=com.moah.hackathon
@@ -70,6 +74,16 @@ tap() { # tap "라벨"  — text 또는 content-desc, 최대 4회 재시도
   [ -z "$b" ] && { bad "'$1' 못 찾음: $(texts | cut -c1-200)"; return 1; }
   set -- $b; adb shell input tap $(( ($1+$3)/2 )) $(( ($2+$4)/2 )) >/dev/null 2>&1; return 0
 }
+center() { # center "라벨" → "x y" (text 또는 content-desc)
+  local b; b=$(grep -oE "(text|content-desc)=\"$1\"[^>]*bounds=\"\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]\"" "$TMP/ui.xml" | head -1 | grep -oE 'bounds="[^"]*"' | grep -oE '[0-9]+')
+  [ -z "$b" ] && return 1; set -- $b; echo "$(( ($1+$3)/2 )) $(( ($2+$4)/2 ))"
+}
+press() { # press "라벨" ["다른 라벨"…] — 먼저 보이는 것을 누른다, 최대 3회 다시 본다
+  local try l xy; for try in 1 2 3; do
+    dump; for l in "$@"; do xy=$(center "$l") && { adb shell input tap $xy >/dev/null 2>&1; return 0; }; done; sleep 2
+  done
+  bad "'$1' 못 찾음: $(texts | cut -c1-200)"; return 1
+}
 panel() { dump; texts | grep -qE "못한 주차|잘한 주차" || { bad "아래 띠가 안 보임 — 준비실(홈 DRIVE COACH 약 2초 길게)에서 '세션 중 패널 · 아래 띠'"; return 1; }; }
 # 과제 시트("제휴 시험장" 이 보이면 열린 것). 첫 탭이 먹지 않을 때가 있어 3회
 open_sheet() { local i; for i in 1 2 3; do dump; texts | grep -q "제휴 시험장" && return 0; tap "과제·모드 바꾸기" || return 1; sleep 2; done; dump; texts | grep -q "제휴 시험장"; }
@@ -104,6 +118,35 @@ wait_log "attempt 2: skill=" 5
 sleep 4; tap "오늘은 여기까지"; sleep 3
 wait_log "report: attempts=2" 15
 
+# ── 홈 코치 텍스트 대화(10/6) — 관리자 준비실이 있는 빌드(Fake/Hybrid)만. 순수 Real 은 건너뛴다 ──
+COACH_TEXT="skip"
+if [ "${SKIP_COACH_TEXT:-0}" != "1" ]; then
+  echo "== 홈 코치 텍스트 대화: 다시 시작 → 준비실 음성 입력 켬 → 코치에게 말하기 → 영어 두 줄"
+  COACH_TEXT="fail"
+  press "다시 시작 →" "다시 시작"; sleep 3
+  dump; xy=$(center "DRIVE COACH")
+  if [ -z "$xy" ]; then note "DRIVE COACH 못 찾음 — 건너뜀"; COACH_TEXT="skip"
+  else
+    adb shell input swipe $xy $xy 3000 >/dev/null 2>&1; sleep 2; dump
+    if ! texts | grep -q "시뮬레이션 음성 입력"; then note "준비실 없음(순수 Real 빌드) — 건너뜀"; COACH_TEXT="skip"
+    else
+      press "켬"; sleep 1; press "이 설정으로 홈 →" "이 설정으로 홈"; sleep 2
+      press "코치에게 말하기"; sleep 2
+      say_line() { # say_line "영어%s문장" 번호
+        press "코치에게 글로 말해 보세요" || return 1; sleep 1
+        adb shell input text "$1" >/dev/null 2>&1; sleep 1
+        press "보내기 →" "보내기" || return 1
+        local i n; for i in $(seq 1 12); do n=$(adb logcat -d -s $TAG 2>/dev/null | grep -c "home coach: intent="); [ "$n" -ge "$2" ] && return 0; sleep 1; done
+        bad "home coach 응답 $2 없음(12 s)"; return 1
+      }
+      FAIL_BEFORE=$FAIL
+      say_line "hi,%sI%sam%snervous%sabout%sdriving%sagain" 1 && say_line "I%swant%sto%spractice%sparallel%sparking%swith%shints" 2
+      [ "$FAIL" = "$FAIL_BEFORE" ] && COACH_TEXT="ok"
+      xy=$(dump && center "← 돌아가기") && adb shell input tap $xy >/dev/null 2>&1
+    fi
+  fi
+fi
+
 # ── 요약(한 화면) ──
 LOG=$(adb logcat -d -s $TAG 2>/dev/null)
 echo
@@ -124,5 +167,12 @@ CP=$(echo "$LOG" | grep -E 'CopilotAuth' | tail -1 | sed 's/^.*CopilotAuth: //' 
 echo "-- Copilot: ${CP:-로그 없음(CLOUD_COACH=false 또는 설정 파일 없음)}"
 echo "-- 다 됐어요 → 채점 지연: 회차 1 ${D1} ms · 회차 2 ${D2} ms"
 echo "-- hints: $(echo "$LOG" | grep -c 'hint: ') (못한 주차 3종 기대)"
+case "$COACH_TEXT" in
+  ok)   echo "PASS 홈 코치 텍스트 대화 두 줄"
+        echo "$LOG" | grep -oE 'home coach: (say .*|intent=.*)' | sed 's/^/     /'
+        echo "     (ai = Copilot 응답 사용 · rule = 전송 계층 없음 · fallback = AI 응답 거절/시간 초과 → 키워드 규칙. 사내 목표: 로그인 뒤 ai, 둘째 줄 PIN_TASK)";;
+  fail) echo "FAIL 홈 코치 텍스트 대화 — 위 '== 홈 코치' 줄 참고";;
+  *)    echo "-- 홈 코치 텍스트 대화: 건너뜀(SKIP_COACH_TEXT=1 또는 준비실 없음)";;
+esac
 echo "================================================"
 [ "$FAIL" = "0" ] && { echo "== result: PASS"; exit 0; } || { echo "== result: FAIL"; exit 1; }
