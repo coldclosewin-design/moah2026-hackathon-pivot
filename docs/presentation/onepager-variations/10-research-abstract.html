@@ -1,0 +1,146 @@
+<!-- meta: ③ 기관 제출용 | 연구·평가 심사위원(학회 포스터 독자) | 16:9 1920×1080 | Noto Serif KR 제목·섹션 + Noto Sans KR 본문 | 흰 바탕 · Ink 글자 · Periwinkle 섹션 번호·괘선 · Signal 은 결과 수치 한 곳 | Extended abstract 3단: 목적·방법 / 그림 1·2(캡처)+캡션 / 결과 표·한계·향후·참고문헌 -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>연구 요약 — 드라이브 코치</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; background: #FFFFFF; overflow: hidden; }
+  body { font-family: "Noto Sans KR", "Malgun Gothic", sans-serif; color: #070827; font-size: 17px; line-height: 1.62; font-weight: 400; }
+  .serif { font-family: "Noto Serif KR", "Batang", serif; }
+
+  header { padding: 38px 64px 20px; border-bottom: 1px solid #070827; position: relative; }
+  .tag { font-size: 14px; letter-spacing: .14em; color: #5B60A1; font-weight: 500; }
+  h1 { font-family: "Noto Serif KR", serif; font-weight: 700; font-size: 40px; line-height: 1.3; margin-top: 8px; letter-spacing: -0.01em; }
+  h1 .en { display: block; font-family: "Georgia", serif; font-style: italic; font-weight: 400; font-size: 20px; color: #3b3e66; margin-top: 4px; letter-spacing: 0; }
+  .authors { margin-top: 10px; font-size: 17px; }
+  .authors b { font-weight: 500; }
+  .authors .aff { color: #555; font-size: 15px; margin-left: 14px; }
+  .kw { position: absolute; right: 64px; bottom: 22px; font-size: 14px; color: #444; text-align: right; line-height: 1.5; }
+  .kw span { color: #5B60A1; font-weight: 500; }
+
+  main { display: grid; grid-template-columns: 560px 1fr 520px; gap: 0; padding: 0 64px; height: 820px; }
+  .col { padding: 22px 34px 0 0; }
+  .col + .col { padding-left: 34px; border-left: 1px solid #D5D6E3; }
+  .col:last-child { padding-right: 0; }
+
+  h2 { font-family: "Noto Serif KR", serif; font-weight: 700; font-size: 22px; margin-top: 18px; display: flex; align-items: baseline; gap: 10px; }
+  h2:first-child { margin-top: 0; }
+  h2 .n { font-family: "Georgia", serif; color: #5B60A1; font-size: 20px; font-weight: 400; }
+  p { margin-top: 6px; text-align: justify; }
+  .cite { color: #5B60A1; font-size: 13px; vertical-align: super; line-height: 0; }
+  ol.m { list-style: none; margin-top: 6px; counter-reset: m; }
+  ol.m li { counter-increment: m; padding-left: 28px; position: relative; margin-top: 4px; }
+  ol.m li::before { content: "(" counter(m) ")"; position: absolute; left: 0; color: #5B60A1; font-family: Georgia, serif; }
+  .modes { display: flex; margin-top: 10px; border: 1px solid #070827; }
+  .modes div { flex: 1; padding: 6px 10px; font-size: 15px; line-height: 1.4; }
+  .modes div + div { border-left: 1px solid #070827; }
+  .modes b { font-weight: 700; display: block; font-size: 16px; }
+  .modes div:nth-child(1) { background: #E5E6F0; }
+  .modes div:nth-child(2) { background: #F1F1F7; }
+
+  figure { margin-top: 0; }
+  figure + figure { margin-top: 18px; }
+  .crop { width: 100%; height: 318px; overflow: hidden; border: 1px solid #070827; position: relative; }
+  .crop img { width: 100%; display: block; position: absolute; top: -19px; left: 0; }
+  figcaption { font-size: 14.5px; line-height: 1.5; margin-top: 7px; color: #222; text-align: justify; }
+  figcaption b { font-family: "Noto Serif KR", serif; font-weight: 700; color: #070827; }
+
+  table.res { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 15.5px; }
+  table.res caption { text-align: left; font-size: 14px; color: #333; padding-bottom: 4px; }
+  table.res caption b { font-family: "Noto Serif KR", serif; }
+  table.res th, table.res td { padding: 5px 6px; text-align: left; vertical-align: top; }
+  table.res thead th { border-top: 2px solid #070827; border-bottom: 1px solid #070827; font-weight: 500; font-size: 14px; }
+  table.res tbody tr:last-child td { border-bottom: 2px solid #070827; }
+  table.res td.v { font-family: "Noto Serif KR", serif; font-weight: 700; white-space: nowrap; }
+  table.res td.v .sig { color: #F52D48; }
+  .refs { margin-top: 6px; font-size: 13px; line-height: 1.5; color: #222; }
+  .refs li { list-style: none; padding-left: 26px; position: relative; margin-top: 3px; }
+  .refs li span { position: absolute; left: 0; color: #5B60A1; font-family: Georgia, serif; }
+  ul.lim { list-style: none; margin-top: 6px; }
+  ul.lim li { padding-left: 16px; position: relative; margin-top: 3px; font-size: 16px; }
+  ul.lim li::before { content: "·"; position: absolute; left: 4px; color: #5B60A1; font-weight: 700; }
+
+  footer { position: absolute; left: 64px; right: 64px; bottom: 18px; display: flex; justify-content: space-between; font-size: 13px; color: #666; border-top: 1px solid #D5D6E3; padding-top: 8px; }
+</style>
+</head>
+<body>
+  <header>
+    <div class="tag">EXTENDED ABSTRACT · 연구 요약 · 제안서 형식</div>
+    <h1>차량 신호 기반 과제 단위 운전 연습 보조: 초보·장롱면허 운전자를 위한 ‘화내지 않는 조수석’
+      <span class="en">Drive Coach — Task-based practice assistance for novice and returning drivers using in-vehicle signals (AAOS)</span></h1>
+    <div class="authors"><b>전준영</b> (팀 사고치조)<span class="aff">MOAH 2026 모비스 SW 해커톤 출품 · 2026. 10.</span></div>
+    <div class="kw"><span>Keywords</span> &nbsp;운전 연수 · Android Automotive OS · VSS 차량 신호<br>과정 측정 · 단계적 도움 축소 · 측정 근거 표시</div>
+  </header>
+
+  <main>
+    <section class="col">
+      <h2><span class="n">1</span>목적</h2>
+      <p>자동차보험 차량 물적 사고의 30.2%는 주차 중이고 그중 53.8%가 후진이며<span class="cite">[1]</span>, 초보운전자 첫해 사고의 41%는 처음 100일 안에 일어난다<span class="cite">[2]</span>. 학원 도로연수 10시간은 약 50~60만 원이다<span class="cite">[3]</span>. 사고가 몰리는 이 구간을 가족의 꾸중이나 비용 부담 없이 <b>반복 연습</b>하도록 돕는 차량용 보조 도구를 설계·구현하는 것이 목적이다. 출발점은 아이 때문에 다시 운전을 시작한 장롱면허 10년차 가족이다.</p>
+
+      <h2><span class="n">2</span>방법</h2>
+      <ol class="m">
+        <li><b>차량 신호 측정</b> — 속도·조향·기어·안전벨트·시동·도어·지시등·비상등(VSS)을 단일 포트로 구독하고, 신호마다 실신호·시뮬레이션·미측정 상태를 기록한다.</li>
+        <li><b>과제</b> — 두려운 상황을 18개 과제로 분해: 주차 4 · 도로 주행 6 · 점검 2 · 지식 6. 결과가 아니라 <b>과정</b>(이동 구간·조향 되돌림·기어 전환·근접)을 채점한다.</li>
+        <li><b>모드</b> — 도움을 단계적으로 줄인다.</li>
+      </ol>
+      <div class="modes">
+        <div><b>가이드</b>단계마다 안내</div>
+        <div><b>힌트</b>필요할 때만</div>
+        <div><b>평가</b>조용히 채점</div>
+      </div>
+      <ol class="m" start="4" style="counter-reset: m 3">
+        <li><b>안전 경계</b> — 시속 5 km 초과 시 화면 잠금(점수·터치 없음). 감점 순간 힌트는 규칙(지연 0), AI(사내 Copilot)는 정차 후 회차 멘트·총평·홈 대화만 맡고 실패 시 규칙 문장으로 폴백.</li>
+        <li><b>출력</b> — 정차 시 판정 네 줄과 신호로 추정한 궤적, 누적 시 리포트·진단서(공유 범위 3단계, 예시).</li>
+      </ol>
+    </section>
+
+    <section class="col">
+      <figure>
+        <div class="crop"><img src="../../screenshots/lesson/lesson-maneuver-guides.png" alt="그림 1"></div>
+        <figcaption><b>그림 1.</b> 후면 직각 주차 · 가이드 모드. 저속(5 km/h 이하)에서만 조향 도식과 계기 값(조향각·기어·뒤 거리)을 보이고 한 단계씩 안내한다. 외부 에뮬레이터 화면·시뮬레이션 신호.</figcaption>
+      </figure>
+      <figure>
+        <div class="crop"><img src="../../screenshots/lesson/lesson-done-verdict-fix.png" alt="그림 2"></div>
+        <figcaption><b>그림 2.</b> 회차 판정. 점수 대신 판정 네 줄(한 번에·방향·마무리·안전)과 신호로 추정한 궤적. 추정이라 실제 위치와 다를 수 있음을 화면에 함께 적는다. 외부 에뮬레이터 화면.</figcaption>
+      </figure>
+    </section>
+
+    <section class="col">
+      <h2><span class="n">3</span>결과</h2>
+      <table class="res">
+        <caption><b>표 1.</b> 사내 차량 신호 환경(Real VSS) 실행 결과</caption>
+        <thead><tr><th>항목</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td>이관 방식</td><td class="v">코드 수정 없이 빌드·실행</td></tr>
+          <tr><td>후면 주차 신호 배지</td><td class="v"><span class="sig">실신호 7</span> · 시뮬 1 · 미측정 0</td></tr>
+          <tr><td>사내 Copilot 응답</td><td class="v">1.2~1.5 s</td></tr>
+          <tr><td>단위 테스트(사외)</td><td class="v">350</td></tr>
+          <tr><td>구현 과제</td><td class="v">18</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:15px">시뮬 1은 실물 신호 목록에 없는 후방 거리 경로로, 앱이 시뮬레이션으로 채우고 배지에 그대로 표시했다.</p>
+
+      <h2><span class="n">4</span>한계</h2>
+      <ul class="lim">
+        <li>카메라가 없어 칸 안의 최종 위치는 판정하지 않는다(과정만 본다).</li>
+        <li>예약·진단서 공유·시험장 위치 신호는 시뮬레이션 또는 예시다.</li>
+        <li>실제 도로 주행 검증과 효과 측정은 하지 않았다. 그림은 외부 에뮬레이터 캡처.</li>
+      </ul>
+
+      <h2><span class="n">5</span>향후 과제</h2>
+      <p style="font-size:16px">실차 시범 연습으로 판정의 타당성 확인, 제휴 시험장 신호 연계, 공유 동의 절차 정비.</p>
+
+      <h2 style="font-size:18px"><span class="n" style="font-size:17px">R</span>참고문헌</h2>
+      <ol class="refs">
+        <li><span>[1]</span>보험개발원·현대해상·동부화재·KB손해보험 공동 조사, 2012~2014 보험금 지급 분석, 2017.1.</li>
+        <li><span>[2]</span>현대해상 교통기후환경연구소, 「초보운전자 사고감소를 위한 정책방안 연구」, 2009~2015 사고 317만 건, 2016.12.</li>
+        <li><span>[3]</span>학원 도로연수 10시간 비용 관련 언론 보도, 2025년 기준.</li>
+      </ol>
+    </section>
+  </main>
+
+  <footer><span>드라이브 코치 — 화내지 않는 조수석 · 팀 사고치조</span><span>MOAH 2026 · 연구 요약(Extended abstract) · 제안서 형식</span></footer>
+</body>
+</html>

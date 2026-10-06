@@ -1,0 +1,218 @@
+<!-- meta: ③ 기관 제출용 | 공공기관 검토자·일반 심사위원(한눈 보고) | A4 세로 1240×1754 | Noto Sans KR Thin~Black 다양한 굵기 | 앱 색(Ink·Periwinkle·Lavender·Signal) + 청회색 보조(#52677F·#D9E1EA) | 인포그래픽 보고: SVG 도넛(30.2% 주차·53.8% 후진)·막대(41% 첫 100일)·비용 → 연습 여정 6단계 다이어그램 → 신호 아이콘 표 + 캡처 2장 → 검증 수치 띠·한계 → 출처 -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>인포그래픽 보고 — 드라이브 코치</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1240px; height: 1754px; background: #F6F8FA; overflow: hidden; }
+  body { font-family: "Noto Sans KR", "Malgun Gothic", sans-serif; color: #070827; font-weight: 400; position: relative; }
+  :root { --ink:#070827; --peri:#5B60A1; --lav:#E5E6F0; --sig:#F52D48; --slate:#52677F; --slate2:#8A9BB0; --mist:#D9E1EA; }
+
+  header { background: var(--ink); color: #fff; padding: 38px 64px 30px; position: relative; overflow: hidden; }
+  header .tag { font-size: 14px; letter-spacing: .18em; color: #B9BCE0; font-weight: 500; }
+  header h1 { font-weight: 900; font-size: 52px; line-height: 1.22; margin-top: 14px; letter-spacing: -0.02em; }
+  header h1 em { font-style: normal; color: #A9ADEA; }
+  header .sub { font-weight: 300; font-size: 21px; margin-top: 14px; color: #D8DAF0; }
+  header .sub b { font-weight: 700; color: #fff; }
+  header svg.deco { position: absolute; right: -30px; top: -30px; opacity: .9; }
+
+  .sec { padding: 0 64px; }
+  .sh { display: flex; align-items: baseline; gap: 14px; margin-top: 24px; }
+  .sh .k { font-weight: 900; font-size: 15px; color: #fff; background: var(--slate); padding: 2px 10px; letter-spacing: .1em; }
+  .sh h2 { font-weight: 700; font-size: 25px; letter-spacing: -0.01em; }
+  .sh .note { font-weight: 300; font-size: 15px; color: var(--slate); margin-left: auto; }
+
+  .stats { display: grid; grid-template-columns: 1.15fr 1.15fr .8fr; gap: 18px; margin-top: 14px; }
+  .card { background: #fff; border: 1px solid var(--mist); padding: 20px 22px; position: relative; }
+  .card .lbl { font-size: 15px; font-weight: 500; color: var(--slate); }
+  .card .src { position: absolute; left: 22px; right: 22px; bottom: 14px; font-size: 11.5px; font-weight: 300; color: #6B7A8C; line-height: 1.4; }
+  .donut { display: flex; align-items: center; gap: 16px; margin-top: 8px; }
+  .legend div { font-size: 15px; line-height: 1.35; margin-top: 10px; display: flex; gap: 8px; }
+  .legend i { width: 12px; height: 12px; flex: none; margin-top: 4px; }
+  .legend b { font-weight: 900; font-size: 26px; display: block; letter-spacing: -0.02em; }
+  .big { font-weight: 900; font-size: 64px; letter-spacing: -0.03em; line-height: 1; }
+  .big small { font-size: 26px; font-weight: 700; }
+
+  .journey { margin-top: 14px; display: grid; grid-template-columns: repeat(6, 1fr); position: relative; }
+  .step { position: relative; padding: 0 8px; text-align: center; }
+  .step .dot { width: 84px; height: 84px; border-radius: 50%; margin: 0 auto; background: #fff; border: 2px solid var(--peri); display: flex; align-items: center; justify-content: center; position: relative; z-index: 2; }
+  .step.hot .dot { background: var(--ink); border-color: var(--ink); }
+  .step .no { font-weight: 900; font-size: 13px; color: var(--peri); margin-top: 10px; letter-spacing: .1em; }
+  .step .t { font-weight: 700; font-size: 17px; margin-top: 2px; line-height: 1.3; }
+  .step .d { font-weight: 300; font-size: 13.5px; color: #3D4A5C; margin-top: 4px; line-height: 1.45; }
+  .journey .line { position: absolute; left: 8%; right: 8%; top: 41px; height: 3px; background: repeating-linear-gradient(90deg, var(--peri) 0 10px, transparent 10px 16px); z-index: 1; }
+  .modebar { display: flex; margin: 16px 0 0; height: 34px; font-size: 14px; font-weight: 700; color: #fff; }
+  .modebar div { display: flex; align-items: center; justify-content: center; clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%, 14px 50%); }
+  .modebar div:first-child { clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%); }
+  .modebar span { font-weight: 300; margin-left: 8px; opacity: .9; }
+
+  .lower { display: grid; grid-template-columns: 600px 1fr; gap: 24px; margin-top: 10px; align-items: start; }
+  table.sig { width: 100%; border-collapse: separate; border-spacing: 0 5px; margin-top: -5px; }
+  table.sig td { background: #fff; padding: 6px 10px; vertical-align: middle; border-top: 1px solid var(--mist); border-bottom: 1px solid var(--mist); }
+  table.sig td:first-child { border-left: 4px solid var(--peri); width: 56px; text-align: center; }
+  table.sig td:last-child { border-right: 1px solid var(--mist); }
+  table.sig .n { font-weight: 700; font-size: 16px; }
+  table.sig .p { font-family: "Consolas", monospace; font-size: 11.5px; color: var(--slate); }
+  table.sig .u { font-size: 13.5px; font-weight: 400; color: #2B3545; line-height: 1.4; }
+  .pill { display: inline-block; font-size: 12px; font-weight: 700; padding: 1px 8px; border-radius: 10px; white-space: nowrap; }
+  .pill.live { background: var(--ink); color: #fff; }
+  .pill.road { background: var(--mist); color: var(--slate); }
+  .shots figure { background: #fff; border: 1px solid var(--mist); padding: 7px; }
+  .shots figure + figure { margin-top: 12px; }
+  .shots .crop { height: 200px; overflow: hidden; position: relative; }
+  .shots img { width: 100%; position: absolute; top: -30px; left: 0; display: block; }
+  .shots img.rep { top: -47px; }
+  .shots figcaption { font-size: 13px; font-weight: 400; color: #3D4A5C; margin-top: 6px; }
+  .shots figcaption b { font-weight: 700; color: var(--ink); }
+
+  .proof { margin: 20px 64px 0; background: var(--lav); display: grid; grid-template-columns: 1fr 1.6fr 1fr 1fr; }
+  .proof > div { padding: 12px 20px; border-right: 1px solid #C9CBE0; }
+  .proof > div:last-child { border-right: 0; }
+  .proof .v { font-weight: 900; font-size: 36px; letter-spacing: -0.02em; line-height: 1.1; }
+  .proof .v .s { color: var(--sig); }
+  .proof .v small { font-size: 18px; font-weight: 500; }
+  .proof .k2 { font-size: 13.5px; color: #3D4A5C; margin-top: 4px; font-weight: 400; }
+  .limit { margin: 10px 64px 0; font-size: 14px; color: #2B3545; display: flex; gap: 12px; }
+  .limit b { font-weight: 900; color: var(--sig); white-space: nowrap; }
+
+  footer { position: absolute; left: 64px; right: 64px; bottom: 28px; border-top: 1px solid var(--slate2); padding-top: 8px; font-size: 11.5px; font-weight: 300; color: #4A5668; line-height: 1.55; }
+  footer .end { display: flex; justify-content: space-between; margin-top: 6px; font-weight: 500; color: var(--slate); }
+</style>
+</head>
+<body>
+  <header>
+    <svg class="deco" width="360" height="300" viewBox="0 0 360 300" aria-hidden="true">
+      <circle cx="250" cy="110" r="150" fill="none" stroke="#5B60A1" stroke-width="2" opacity=".55"/>
+      <circle cx="250" cy="110" r="110" fill="none" stroke="#5B60A1" stroke-width="26" opacity=".35"/>
+      <path d="M250 -40 A150 150 0 0 1 395 150" fill="none" stroke="#F52D48" stroke-width="5"/>
+    </svg>
+    <div class="tag">INFOGRAPHIC REPORT · 인포그래픽 보고 · 제안서 형식</div>
+    <h1>사고가 몰리는 순간을<br><em>화내지 않는 조수석</em>과 반복 연습</h1>
+    <p class="sub"><b>드라이브 코치</b> — 초보·장롱면허 운전자를 위한 AAOS 운전 연수 어시스턴트 · 팀 사고치조</p>
+  </header>
+
+  <section class="sec">
+    <div class="sh"><span class="k">WHY</span><h2>왜 필요한가</h2><span class="note">확인한 공개 통계 · 출처는 아래 ①②③</span></div>
+    <div class="stats">
+      <div class="card" style="height:262px">
+        <div class="lbl">자동차보험 차량 물적 사고 중 <b>주차 중</b> ①</div>
+        <div class="donut" style="margin-top:4px">
+          <svg width="172" height="172" viewBox="0 0 190 190">
+            <circle cx="95" cy="95" r="80" fill="none" stroke="#D9E1EA" stroke-width="22"/>
+            <circle cx="95" cy="95" r="80" fill="none" stroke="#070827" stroke-width="22" stroke-dasharray="151.8 502.7" transform="rotate(-90 95 95)"/>
+            <circle cx="95" cy="95" r="54" fill="none" stroke="#E5E6F0" stroke-width="14"/>
+            <circle cx="95" cy="95" r="54" fill="none" stroke="#F52D48" stroke-width="14" stroke-dasharray="182.5 339.3" transform="rotate(-90 95 95)"/>
+            <text x="95" y="96" text-anchor="middle" font-family="Noto Sans KR" font-weight="900" font-size="25" fill="#070827">30.2%</text>
+            <text x="95" y="118" text-anchor="middle" font-family="Noto Sans KR" font-weight="400" font-size="13" fill="#52677F">10건 중 3건</text>
+          </svg>
+          <div class="legend">
+            <div><i style="background:#070827"></i><span><b>30.2%</b>주차 중 사고</span></div>
+            <div><i style="background:#F52D48"></i><span><b>53.8%</b>그 주차 사고 중 후진</span></div>
+          </div>
+        </div>
+        <div class="src">바깥 고리 = 물적 사고 중 주차 · 안쪽 고리 = 주차 사고 중 후진</div>
+      </div>
+
+      <div class="card" style="height:262px">
+        <div class="lbl">초보운전자 <b>첫해</b> 사고가 일어난 시기 ②</div>
+        <div class="big" style="margin-top:10px">41<small>%</small></div>
+        <div style="font-size:15px;margin-top:4px">가 <b style="font-weight:900">처음 100일</b> 안에</div>
+        <svg width="100%" height="96" viewBox="0 0 330 96" preserveAspectRatio="none" style="margin-top:12px">
+          <text x="0" y="12" font-family="Noto Sans KR" font-size="12" fill="#52677F">첫해 사고</text>
+          <rect x="0" y="18" width="135.3" height="24" fill="#F52D48"/>
+          <rect x="135.3" y="18" width="194.7" height="24" fill="#D9E1EA"/>
+          <text x="8" y="35" font-family="Noto Sans KR" font-weight="700" font-size="13" fill="#fff">41%</text>
+          <text x="322" y="35" text-anchor="end" font-family="Noto Sans KR" font-size="12" fill="#52677F">59%</text>
+          <text x="0" y="62" font-family="Noto Sans KR" font-size="12" fill="#52677F">첫해 기간</text>
+          <rect x="0" y="68" width="90.4" height="12" fill="#070827"/>
+          <rect x="90.4" y="68" width="239.6" height="12" fill="#E5E6F0"/>
+          <text x="0" y="94" font-family="Noto Sans KR" font-size="11" fill="#070827">100일</text>
+          <text x="330" y="94" text-anchor="end" font-family="Noto Sans KR" font-size="11" fill="#52677F">365일</text>
+        </svg>
+      </div>
+
+      <div class="card" style="height:262px">
+        <div class="lbl">학원 도로연수 <b>10시간</b> ③</div>
+        <svg width="60" height="60" viewBox="0 0 70 70" style="margin-top:12px">
+          <circle cx="35" cy="35" r="30" fill="none" stroke="#5B60A1" stroke-width="5"/>
+          <path d="M35 16 V35 L48 43" fill="none" stroke="#070827" stroke-width="5" stroke-linecap="round"/>
+        </svg>
+        <div style="font-weight:900;font-size:40px;letter-spacing:-0.03em;line-height:1.1;margin-top:8px">약 50~60<small style="font-size:20px;font-weight:700">만 원</small></div>
+        <div style="font-size:14px;font-weight:300;margin-top:6px;color:#2B3545">가족이 가르치면 둘 다 힘들고, 학원은 비용이 든다.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sh"><span class="k">HOW</span><h2>연습 여정 6단계</h2><span class="note">과제 18 = 주차 4 · 도로 주행 6 · 점검 2 · 지식 6</span></div>
+    <div class="journey">
+      <div class="line"></div>
+      <div class="step"><div class="dot"><svg width="40" height="40" viewBox="0 0 40 40"><path d="M5 8 h30 v18 h-16 l-8 7 v-7 h-6z" fill="none" stroke="#5B60A1" stroke-width="3" stroke-linejoin="round"/></svg></div>
+        <div class="no">01</div><div class="t">대화로 과제 고르기</div><div class="d">말 카드 · AI 코치</div></div>
+      <div class="step"><div class="dot"><svg width="40" height="40" viewBox="0 0 40 40"><rect x="8" y="5" width="24" height="30" fill="none" stroke="#5B60A1" stroke-width="3"/><path d="M13 14h14M13 20h14M13 26h9" stroke="#5B60A1" stroke-width="3"/></svg></div>
+        <div class="no">02</div><div class="t">브리핑</div><div class="d">무엇을 보는지 먼저</div></div>
+      <div class="step hot"><div class="dot"><svg width="42" height="42" viewBox="0 0 42 42"><circle cx="21" cy="21" r="16" fill="none" stroke="#fff" stroke-width="3"/><circle cx="21" cy="21" r="4" fill="#fff"/><path d="M5 21h12M25 21h12M21 25v12" stroke="#fff" stroke-width="3"/></svg></div>
+        <div class="no">03</div><div class="t">연습</div><div class="d">틀린 순간 규칙이 바로 말함 · 5 km/h 넘으면 화면 잠금</div></div>
+      <div class="step"><div class="dot"><svg width="40" height="40" viewBox="0 0 40 40"><path d="M7 11l4 4 7-8M7 23l4 4 7-8" fill="none" stroke="#5B60A1" stroke-width="3"/><path d="M22 12h12M22 24h12" stroke="#5B60A1" stroke-width="3"/></svg></div>
+        <div class="no">04</div><div class="t">회차 판정</div><div class="d">점수 대신 판정 네 줄 + 신호로 추정한 궤적</div></div>
+      <div class="step"><div class="dot"><svg width="40" height="40" viewBox="0 0 40 40"><path d="M7 33V20M16 33V12M25 33V24M34 33V8" stroke="#5B60A1" stroke-width="5"/></svg></div>
+        <div class="no">05</div><div class="t">리포트·진단서</div><div class="d">실신호 배지 · 공유 범위는 운전자가(예시)</div></div>
+      <div class="step"><div class="dot"><svg width="40" height="40" viewBox="0 0 40 40"><path d="M8 34V6M8 8h22l-5 6 5 6H8" fill="none" stroke="#5B60A1" stroke-width="3" stroke-linejoin="round"/></svg></div>
+        <div class="no">06</div><div class="t">제휴 시험장 모의시험</div><div class="d">구간 감점·합격선 · 시험장 신호는 시뮬레이션</div></div>
+    </div>
+    <div class="modebar">
+      <div style="flex:1;background:#070827">가이드<span>단계마다 안내</span></div>
+      <div style="flex:1;background:#5B60A1">힌트<span>필요할 때만</span></div>
+      <div style="flex:1;background:#8A9BB0">평가<span>조용히 채점</span></div>
+      <div style="flex:1.1;background:none;color:#52677F;font-weight:500;justify-content:flex-start;padding-left:18px">→ 회차가 쌓일수록 도움을 줄인다</div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sh"><span class="k">WHAT</span><h2>차량 신호로 과정을 본다</h2><span class="note">신호마다 실신호 · 시뮬레이션 · 미측정 표시</span></div>
+    <div class="lower">
+      <table class="sig">
+        <tr><td><svg width="34" height="28" viewBox="0 0 34 28"><path d="M3 25 A14 14 0 1 1 31 25" fill="none" stroke="#5B60A1" stroke-width="3"/><path d="M17 24 L25 11" stroke="#070827" stroke-width="3" stroke-linecap="round"/></svg></td>
+          <td><div class="n">속도</div><div class="p">Vehicle.Speed</div></td><td class="u">급가속·급제동 · 주행 중 잠금 · 정차 판정</td><td><span class="pill live">사내 실신호</span></td></tr>
+        <tr><td><svg width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="12" fill="none" stroke="#5B60A1" stroke-width="3"/><circle cx="15" cy="15" r="3" fill="#070827"/><path d="M3 15h9M18 15h9M15 18v9" stroke="#070827" stroke-width="2.5"/></svg></td>
+          <td><div class="n">조향</div><div class="p">SteeringWheel.Angle</div></td><td class="u">조향 도식 · 되돌림 · 추정 궤적</td><td><span class="pill live">사내 실신호</span></td></tr>
+        <tr><td><svg width="40" height="30" viewBox="0 0 40 30"><rect x="1.5" y="4" width="37" height="22" rx="4" fill="none" stroke="#5B60A1" stroke-width="2.5"/><text x="20" y="20" text-anchor="middle" font-family="Bahnschrift" font-weight="700" font-size="11" fill="#070827">PRND</text></svg></td>
+          <td><div class="n">기어</div><div class="p">Transmission.SelectedGear</div></td><td class="u">후진·전진 보정 · 주차 마무리(P)</td><td><span class="pill live">사내 실신호</span></td></tr>
+        <tr><td><svg width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="7" r="4" fill="#5B60A1"/><path d="M8 28V16a7 7 0 0 1 14 0v12" fill="none" stroke="#5B60A1" stroke-width="3"/><path d="M6 12 L24 27" stroke="#070827" stroke-width="3"/></svg></td>
+          <td><div class="n">안전벨트</div><div class="p">Seat…DriverSide.IsBelted</div></td><td class="u">출발 전 점검 · 벨트 먼저 조언</td><td><span class="pill live">사내 실신호</span></td></tr>
+        <tr><td><svg width="30" height="30" viewBox="0 0 30 30"><path d="M9 8 A10 10 0 1 0 21 8" fill="none" stroke="#5B60A1" stroke-width="3" stroke-linecap="round"/><path d="M15 3v11" stroke="#070827" stroke-width="3" stroke-linecap="round"/></svg></td>
+          <td><div class="n">시동</div><div class="p">LowVoltageSystemState</div></td><td class="u">시동 순서 점검</td><td><span class="pill live">사내 실신호</span></td></tr>
+        <tr><td><svg width="30" height="30" viewBox="0 0 30 30"><path d="M6 27V5h14l4 6v16z" fill="none" stroke="#5B60A1" stroke-width="3" stroke-linejoin="round"/><path d="M18 17h3" stroke="#070827" stroke-width="3"/></svg></td>
+          <td><div class="n">도어</div><div class="p">Door.Row1.DriverSide.IsOpen</div></td><td class="u">정차 후 문 열림 → 리포트</td><td><span class="pill live">사내 실신호</span></td></tr>
+        <tr><td><svg width="34" height="24" viewBox="0 0 34 24"><path d="M2 12 L12 3 V21z" fill="#5B60A1"/><path d="M32 12 L22 3 V21z" fill="#5B60A1"/></svg></td>
+          <td><div class="n">지시등</div><div class="p">DirectionIndicator.*.IsSignaling</div></td><td class="u">좌회전·차선 변경 채점 · 점검</td><td><span class="pill road">도로 과제</span></td></tr>
+        <tr><td><svg width="30" height="28" viewBox="0 0 30 28"><path d="M15 3 L28 25 H2z" fill="none" stroke="#F52D48" stroke-width="3" stroke-linejoin="round"/><path d="M15 11 L21 21 H9z" fill="none" stroke="#F52D48" stroke-width="2"/></svg></td>
+          <td><div class="n">비상등</div><div class="p">Lights.Hazard.IsSignaling</div></td><td class="u">도로 과제 · 점검</td><td><span class="pill road">도로 과제</span></td></tr>
+      </table>
+      <div class="shots">
+        <figure><div class="crop"><img src="../../screenshots/lesson/lesson-maneuver-guides.png" alt="주차 중 조향 도식"></div>
+          <figcaption><b>연습</b> — 저속 주차 중에만 조향 도식과 계기 값을 보인다</figcaption></figure>
+        <figure><div class="crop"><img class="rep" src="../../screenshots/lesson/lesson-report-session.png" alt="리포트"></div>
+          <figcaption><b>리포트</b> — 아래 ‘신호 출처’가 실신호·시뮬레이션·미측정을 센다</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <div class="proof">
+    <div><div class="v">18</div><div class="k2">구현한 연습 과제</div></div>
+    <div><div class="v"><span class="s">실신호 7</span> <small>· 시뮬 1 · 미측정 0</small></div><div class="k2">사내 차량 환경(Real VSS), 코드 수정 없이 실행 — 후면 주차</div></div>
+    <div><div class="v">1.2~1.5<small> s</small></div><div class="k2">사내 Copilot 응답</div></div>
+    <div><div class="v">350</div><div class="k2">단위 테스트(사외)</div></div>
+  </div>
+  <div class="limit"><b>한계</b><span>카메라가 없어 칸 안 최종 위치는 판정하지 않는다(과정을 본다) · 예약·진단서 공유·시험장 위치 신호는 시뮬레이션/예시 · 캡처는 외부 에뮬레이터 화면(신호 시뮬레이션) · 실제 도로 검증 전 · ‘사내 실신호’ 표시는 후면 주차 배지 기준(지시등·비상등은 주차 배지 밖)</span></div>
+
+  <footer>
+    ① 보험개발원·현대해상·동부화재·KB손해보험 공동 조사(2012~2014 보험금 지급 분석, 2017.1 발표) &nbsp;
+    ② 현대해상 교통기후환경연구소 「초보운전자 사고감소를 위한 정책방안 연구」(2009~2015 사고 317만 건, 2016.12) &nbsp;
+    ③ 2025년 언론 보도 기준(지역·학원별 상이) · 첫해 기간 막대(100/365일)는 비교용 산술 표시
+    <div class="end"><span>드라이브 코치 — 화내지 않는 조수석 · 팀 사고치조 · 발표 전준영</span><span>MOAH 2026 모비스 SW 해커톤 · 제안서 형식</span></div>
+  </footer>
+</body>
+</html>

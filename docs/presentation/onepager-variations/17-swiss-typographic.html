@@ -1,0 +1,136 @@
+<!-- meta: ⑤ 디자인 포스터 | 심사위원·전시 관람객 | 세로 A 1240×1754 | Bahnschrift Condensed + Noto Sans KR Black/Thin | 흰 바탕 · 검정 · Signal 빨강 | 스위스 국제 타이포그래피 — 12열 그리드, 거대한 41% 와 세로 제목의 대비, 작은 정보 블록 정렬 -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>드라이브 코치 — 스위스 포스터</title>
+<style>
+  html, body { margin: 0; padding: 0; }
+  body { word-break: keep-all; width: 1240px; height: 1754px; overflow: hidden; background: #FFFFFF; color: #000; font-family: 'Noto Sans KR', sans-serif; }
+  .page { position: relative; width: 1240px; height: 1754px; }
+  /* 12열 그리드: 바깥 여백 60, 거터 20, 열 75 → 열 n 시작 x = 60 + (n-1)*95 */
+  .abs { position: absolute; }
+  .num { font-family: 'Bahnschrift', sans-serif; font-stretch: condensed; font-weight: 700; }
+  .rule { position: absolute; left: 60px; width: 1120px; height: 0; border-top: 2px solid #000; }
+  .rule.thin { border-top-width: 1px; }
+  .lbl { font-family: 'Bahnschrift', sans-serif; font-stretch: condensed; font-weight: 400; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; }
+  .small { font-size: 15px; line-height: 1.45; font-weight: 400; }
+  .red { color: #F52D48; }
+  .blk { font-weight: 900; }
+  .thin { font-weight: 100; }
+
+  /* 머리띠 */
+  .head { top: 52px; left: 60px; width: 1120px; display: grid; grid-template-columns: repeat(12, 75px); column-gap: 20px; }
+  .head div { font-size: 14px; line-height: 1.35; }
+
+  /* 거대한 41% */
+  .giant { top: 148px; left: 46px; font-size: 600px; line-height: 0.74; letter-spacing: -0.035em; color: #F52D48; }
+  /* 세로 제목 — 열 11~12 */
+  .vtitle { top: 120px; left: 1010px; width: 170px; height: 1080px; white-space: nowrap; writing-mode: vertical-rl; font-weight: 900; font-size: 128px; line-height: 1; letter-spacing: -0.02em; }
+  .vsub { top: 128px; left: 925px; writing-mode: vertical-rl; font-family: 'Bahnschrift', sans-serif; font-stretch: condensed; font-size: 22px; letter-spacing: 0.32em; }
+
+  .stmt { top: 576px; left: 60px; width: 830px; font-size: 46px; line-height: 1.22; letter-spacing: -0.02em; }
+
+  .stats { top: 744px; left: 60px; width: 850px; display: grid; grid-template-columns: 255px 255px 300px; column-gap: 20px; }
+  .stats .n { font-size: 96px; line-height: 0.9; letter-spacing: -0.02em; }
+  .stats .t { margin-top: 12px; font-size: 17px; line-height: 1.45; }
+
+  /* 빨강 띠 — 해법 (열 1~9 + 왼쪽 블리드) */
+  .band { top: 960px; left: 0; width: 900px; height: 240px; background: #F52D48; color: #fff; }
+  .band .lbl { position: absolute; top: 26px; left: 60px; color: #fff; }
+  .band .flow { position: absolute; top: 52px; left: 56px; font-size: 94px; line-height: 1; font-weight: 900; letter-spacing: -0.04em; white-space: nowrap; }
+  .band .flow span.ar { font-family: 'Bahnschrift', sans-serif; font-weight: 300; font-stretch: condensed; padding: 0 8px; }
+  .band .under { position: absolute; top: 170px; left: 60px; width: 800px; font-size: 17px; line-height: 1.5; font-weight: 400; }
+
+  /* 여정 6열 */
+  .journey { top: 1252px; left: 60px; width: 1120px; display: grid; grid-template-columns: repeat(6, 170px); column-gap: 20px; }
+  .journey .n { font-size: 64px; line-height: 0.9; }
+  .journey .h { margin-top: 10px; font-size: 19px; font-weight: 900; line-height: 1.3; }
+  .journey .d { margin-top: 6px; font-size: 14px; line-height: 1.45; }
+
+  /* 아래 세 블록 */
+  .why { top: 1472px; left: 60px; width: 450px; }
+  .why .q { font-size: 30px; line-height: 1.3; letter-spacing: -0.02em; margin-top: 10px; }
+  .tasks { top: 1472px; left: 535px; width: 265px; }
+  .tasks .n { font-size: 112px; line-height: 0.85; margin-top: 6px; }
+  .tasks .d { font-size: 14px; line-height: 1.5; margin-top: 8px; }
+  .ver { top: 1472px; left: 820px; width: 360px; }
+  .ver .row { display: grid; grid-template-columns: 110px 110px 110px; column-gap: 15px; margin-top: 6px; }
+  .ver .row .n { font-size: 76px; line-height: 0.95; }
+  .ver .row .c { font-size: 14px; font-weight: 700; }
+  .ver .d { font-size: 14px; line-height: 1.5; margin-top: 8px; }
+
+  .foot { top: 1684px; left: 60px; width: 1120px; font-size: 11.5px; line-height: 1.5; color: #333; }
+  .foot b { font-weight: 700; color: #000; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="rule" style="top:40px"></div>
+  <div class="abs head">
+    <div style="grid-column:1/4"><b>MOAH 2026</b><br>모비스 SW 해커톤</div>
+    <div style="grid-column:4/7"><b>팀 사고치조</b><br>발표 전준영</div>
+    <div style="grid-column:7/10"><b>AAOS</b> 차량용 안드로이드<br>운전 연수 어시스턴트</div>
+    <div style="grid-column:10/13"><b>드라이브 코치</b><br>초보 · 장롱면허 운전자를 위해</div>
+  </div>
+  <div class="rule thin" style="top:100px"></div>
+
+  <div class="abs num giant">41%</div>
+  <div class="abs vsub">DRIVE COACH</div>
+  <div class="abs vtitle">화내지 않는 조수석</div>
+
+  <div class="abs stmt"><span class="thin">초보운전자 첫해 사고의 41%는</span><br><span class="blk">처음 100일 안에</span><span class="thin"> 일어난다.</span></div>
+
+  <div class="rule thin" style="top:726px;width:850px"></div>
+  <div class="abs stats">
+    <div><div class="num n">30.2<span style="font-size:56px">%</span></div><div class="t">물적 사고 10건 중 3건이 <b>주차 중</b></div></div>
+    <div><div class="num n red">53.8<span style="font-size:56px">%</span></div><div class="t">그 주차 사고 가운데 <b>후진</b>의 몫</div></div>
+    <div><div class="num n">50–60<span style="font-size:34px"> 만 원</span></div><div class="t">학원 도로연수 10시간 비용<br>(약, 2025년 보도 기준)</div></div>
+  </div>
+  <div class="abs small" style="top:912px;left:60px;width:850px;font-size:17px;"><b>가장 사고가 많은 순간</b>을 화내지 않고 반복해 줄 조수석이 없다.</div>
+
+  <div class="abs band">
+    <div class="lbl">Method — 해법</div>
+    <div class="flow">가이드<span class="ar">→</span>힌트<span class="ar">→</span>평가</div>
+    <div class="under">두려운 상황을 <b>과제</b>로 쪼개고 차량 신호로 <b>과정</b>을 측정해 도움을 줄여 간다.<br>정차하면 회차 판정 · 쌓이면 리포트와 진단서.</div>
+  </div>
+
+  <div class="abs lbl" style="top:1228px;left:60px;">Journey — 연습 여정 6단계</div>
+  <div class="abs journey">
+    <div><div class="num n">01</div><div class="h">대화로<br>과제 고르기</div><div class="d">말 카드 · AI 코치</div></div>
+    <div><div class="num n">02</div><div class="h">브리핑</div><div class="d">무엇을 볼지 미리 듣는다</div></div>
+    <div><div class="num n red">03</div><div class="h">연습</div><div class="d">틀린 순간엔 규칙이 바로 말함 · 5 km/h 넘으면 화면 잠금</div></div>
+    <div><div class="num n">04</div><div class="h">회차 판정</div><div class="d">점수 대신 판정 네 줄 + 신호로 추정한 궤적</div></div>
+    <div><div class="num n">05</div><div class="h">리포트 ·<br>진단서</div><div class="d">실신호 배지 · 공유 범위는 운전자가(예시)</div></div>
+    <div><div class="num n">06</div><div class="h">모의시험</div><div class="d">제휴 시험장 구간 감점 · 합격선(시뮬레이션)</div></div>
+  </div>
+
+  <div class="rule" style="top:1452px"></div>
+  <div class="abs why">
+    <div class="lbl">Why — 만든 이유</div>
+    <div class="q"><span class="blk">아이 때문에 다시 운전을 시작한 장롱면허 10년차 아내</span><span class="thin">를 위해. 옆에서 가르치면 둘 다 힘들다.</span></div>
+  </div>
+  <div class="abs tasks">
+    <div class="lbl">Tasks — 과제</div>
+    <div class="num n">18</div>
+    <div class="d">주차 4 · 도로 주행 6 · 점검 2 · 지식 6</div>
+  </div>
+  <div class="abs ver">
+    <div class="lbl">Verified — 사내 차량 환경 Real VSS</div>
+    <div class="row">
+      <div><div class="num n red">7</div><div class="c">실신호</div></div>
+      <div><div class="num n">1</div><div class="c">시뮬레이션</div></div>
+      <div><div class="num n">0</div><div class="c">미측정</div></div>
+    </div>
+    <div class="d">코드 수정 없이 빌드·실행 (후면 주차) · 사내 Copilot 응답 1.2–1.5 s · 단위 테스트 350(사외)</div>
+  </div>
+
+  <div class="rule thin" style="top:1672px"></div>
+  <div class="abs foot">
+    <b>한계</b> 카메라가 없어 칸 안 최종 위치는 판정하지 않는다(과정을 본다) · 예약·진단서 공유·시험장 위치 신호는 시뮬레이션/예시.<br>
+    <b>출처</b> 30.2%·53.8%: 보험개발원·현대해상·동부화재·KB손해보험 공동 조사(2012~2014 보험금 지급 분석, 2017.1) · 41%: 현대해상 교통기후환경연구소 「초보운전자 사고감소를 위한 정책방안 연구」(2009~2015 사고 317만 건, 2016.12) · 연수비: 2025년 언론 보도
+  </div>
+</div>
+</body>
+</html>

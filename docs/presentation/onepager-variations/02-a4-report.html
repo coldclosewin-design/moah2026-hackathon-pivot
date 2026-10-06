@@ -1,0 +1,143 @@
+<!-- meta: ① 사내 보고용 | 부서 내부 회람·결과 보고 | A4 세로 1240×1754 | Malgun Gothic(본문·표) + NanumGothic(캡션) | 흑백 + Periwinkle 포인트, 얇은 표 테두리 | 문서 머리 → 번호 목차 1.배경 2.현황(통계 표) 3.해결 방안 4.구현 현황(표) 5.검증 결과 6.한계·향후 계획, 그림 1·2 -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>드라이브 코치 개발 결과 보고</title>
+<style>
+  :root{--k:#111;--k7:#3A3A3A;--k5:#6B6B6B;--k3:#BDBDBD;--k1:#F3F3F3;--peri:#5B60A1;--lav:#E5E6F0;--ink:#070827}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1240px;height:1754px;overflow:hidden}
+  body{background:#fff;font-family:"Malgun Gothic","NanumGothic",sans-serif;color:var(--k);font-size:15px;line-height:1.55;letter-spacing:-0.02em}
+  .page{position:absolute;left:92px;right:92px;top:64px;bottom:52px}
+
+  .head{border-top:5px solid var(--k);border-bottom:1px solid var(--k);padding:18px 0 16px;display:grid;grid-template-columns:1fr 330px;gap:24px;align-items:end}
+  .head .kind{font-size:14px;color:var(--peri);font-weight:700;letter-spacing:.2em}
+  .head h1{font-size:34px;font-weight:700;letter-spacing:-0.03em;line-height:1.25;margin-top:6px}
+  .head h1 span{display:block;font-size:19px;font-weight:400;color:var(--k7);letter-spacing:-0.01em;margin-top:4px}
+  .head table{border-collapse:collapse;width:100%;font-size:14px}
+  .head td{border:1px solid var(--k3);padding:4px 10px;line-height:1.45}
+  .head td:first-child{background:var(--k1);width:84px;color:var(--k7)}
+
+  .summary{margin-top:16px;border-left:4px solid var(--peri);background:var(--lav);padding:10px 16px;font-size:15px;line-height:1.55}
+  .summary b{font-weight:700}
+
+  h2{font-size:19px;font-weight:700;margin-top:17px;margin-bottom:6px;display:flex;align-items:baseline;gap:10px;letter-spacing:-0.02em}
+  h2 i{font-style:normal;color:var(--peri);font-size:20px;width:22px}
+  p.body{padding-left:32px;font-size:15px;color:var(--k)}
+  ul.body{padding-left:32px;list-style:none}
+  ul.body li{padding-left:16px;position:relative;font-size:15px}
+  ul.body li::before{content:"-";position:absolute;left:0;color:var(--k5)}
+
+  table.t{margin-left:32px;width:calc(100% - 32px);border-collapse:collapse;font-size:13.5px;line-height:1.4}
+  table.t th,table.t td{border:1px solid var(--k3);padding:4px 9px;vertical-align:top}
+  table.t th{background:var(--k1);font-weight:700;text-align:left;color:var(--k7)}
+  table.t td.n{text-align:right;font-weight:700;white-space:nowrap}
+  table.t td.c{text-align:center;white-space:nowrap}
+  table.t tr.hl td{background:#F6F6FB}
+  .src{margin-left:32px;font-size:12.5px;color:var(--k5);margin-top:4px;line-height:1.5}
+
+  .flow{margin-left:32px;display:flex;align-items:stretch;gap:0;margin-top:6px}
+  .flow div{flex:1;border:1px solid var(--k3);padding:4px 9px;font-size:13px;line-height:1.4;position:relative;background:#fff}
+  .flow div + div{border-left:none}
+  .flow div b{display:block;font-size:12px;color:var(--peri);font-weight:700}
+
+  .figs{margin-left:32px;display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:10px}
+  .figs figure img{width:100%;display:block;border:1px solid var(--k3)}
+  .figs figcaption{font-family:"NanumGothic","Malgun Gothic",sans-serif;font-size:13px;color:var(--k7);margin-top:5px;line-height:1.45}
+  .figs figcaption b{color:var(--k)}
+
+  .kv{margin-left:32px;display:grid;grid-template-columns:1fr 1.5fr 1fr 1fr;border:1px solid var(--k3);margin-top:6px}
+  .kv div{padding:8px 12px;border-right:1px solid var(--k3)}
+  .kv div:last-child{border-right:none}
+  .kv small{display:block;font-size:12.5px;color:var(--k5)}
+  .kv strong{font-size:19px;font-weight:700;letter-spacing:-0.02em}
+  .kv strong em{font-style:normal;color:var(--peri)}
+
+  .foot{position:absolute;left:0;right:0;bottom:0;border-top:1px solid var(--k);padding-top:6px;display:flex;justify-content:space-between;font-size:12px;color:var(--k5)}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="head">
+    <div>
+      <div class="kind">사내 보고서 · 개발 결과</div>
+      <h1>드라이브 코치 개발 결과 보고<span>화내지 않는 조수석 — AAOS(차량용 안드로이드) 운전 연수 어시스턴트</span></h1>
+    </div>
+    <table>
+      <tr><td>작성 팀</td><td>사고치조 (작성 전준영)</td></tr>
+      <tr><td>작성 일자</td><td>2026-10-07</td></tr>
+      <tr><td>구분</td><td>MOAH 2026 출품</td></tr>
+    </table>
+  </div>
+
+  <div class="summary"><b>요약</b> — 초보·장롱면허 운전자가 두려운 상황을 과제로 연습하도록, 차량 신호(VSS)로 <b>과정</b>을 측정해 가이드 → 힌트 → 평가 순으로 도움을 줄여 가는 앱을 만들었다. 사내 차량 환경(Real VSS)에서 <b>코드 수정 없이</b> 빌드·실행되었고, 후면 주차 과제 신호는 <b>실신호 7 · 시뮬레이션 1 · 미측정 0</b>이었다.</div>
+
+  <h2><i>1.</i>배경</h2>
+  <p class="body">아이 때문에 다시 운전을 시작한 장롱면허 10년차 아내를 위해 시작했다. 옆에서 가르치면 둘 다 힘들다. 가장 사고가 많은 순간(주차·첫 100일)을 화내지 않고 반복해 줄 조수석이 없다는 것이 출발점이다.</p>
+
+  <h2><i>2.</i>현황</h2>
+  <table class="t">
+    <tr><th style="width:44%">항목</th><th style="width:16%">수치</th><th>출처</th></tr>
+    <tr><td>자동차보험 차량 물적 사고 중 주차 중 사고</td><td class="n">30.2%</td><td>①</td></tr>
+    <tr><td>그 주차 사고 중 후진 사고</td><td class="n">53.8%</td><td>①</td></tr>
+    <tr><td>초보운전자 첫해 사고 중 처음 100일 안</td><td class="n">41%</td><td>②</td></tr>
+    <tr><td>학원 도로연수 10시간 비용</td><td class="n">약 50~60만 원</td><td>③</td></tr>
+  </table>
+  <div class="src">① 보험개발원·현대해상·동부화재·KB손해보험 공동 조사(2012~2014 보험금 지급 분석, 2017.1 발표) ② 현대해상 교통기후환경연구소 「초보운전자 사고감소를 위한 정책방안 연구」(2009~2015 사고 317만 건, 2016.12) ③ 2025년 언론 보도 기준</div>
+
+  <h2><i>3.</i>해결 방안</h2>
+  <ul class="body">
+    <li>두려운 상황을 <b>과제</b>로 쪼개고, 차량 신호로 결과가 아닌 <b>과정</b>을 측정한다.</li>
+    <li>같은 과제를 <b>가이드 → 힌트 → 평가</b>로 반복하며 도움을 줄인다. 정차하면 회차 판정, 쌓이면 리포트·진단서.</li>
+    <li>틀린 순간 힌트는 규칙이 지연 0으로 말하고, 회차 멘트·총평·홈 대화는 사내 Copilot이 맡는다(실패하면 규칙 문장).</li>
+  </ul>
+  <div class="flow">
+    <div><b>01</b>대화로 과제 고르기</div>
+    <div><b>02</b>브리핑</div>
+    <div><b>03</b>연습 · 주행 중 잠금</div>
+    <div><b>04</b>회차 판정</div>
+    <div><b>05</b>리포트·진단서</div>
+    <div><b>06</b>제휴 시험장 모의시험</div>
+  </div>
+
+  <h2><i>4.</i>구현 현황</h2>
+  <table class="t">
+    <tr><th style="width:10%">구분</th><th style="width:5%">수</th><th style="width:33%">과제</th><th style="width:22%">진행 방식(모드)</th><th>측정 신호</th></tr>
+    <tr class="hl"><td>주차</td><td class="c">4</td><td>후면 직각 · 전면 직각 · 평행 · 사선</td><td>가이드 · 힌트 · 평가<br>(저속이라 화면 도식 허용)</td><td>조향 · 기어 · 속도 · 도어 · 뒤 거리(시뮬)</td></tr>
+    <tr><td>도로 주행</td><td class="c">6</td><td>직선 정지 · 좌회전 · 차선 변경 · 회전교차로 · 일반 도로 · 장내기능 모의시험</td><td>가이드 · 힌트 · 평가<br>(5 km/h 초과 시 잠금 · 음성)</td><td>속도 · 조향 · 지시등 · 시험장 신호(시뮬)</td></tr>
+    <tr><td>점검</td><td class="c">2</td><td>출발 전 점검 · 도로 표시 읽기</td><td>정차 중 단계 확인 · 문제</td><td>도어 · 벨트 · 기어 · 시동 · 지시등 · 비상등</td></tr>
+    <tr><td>지식</td><td class="c">6</td><td>정차 중 지식 문제</td><td>정차 중 문제 풀이</td><td>—</td></tr>
+    <tr><td><b>계</b></td><td class="c"><b>18</b></td><td colspan="3">신호마다 실신호 / 시뮬레이션 / 미측정을 화면·리포트에 배지로 표시한다.</td></tr>
+  </table>
+
+  <div class="figs">
+    <figure>
+      <img src="../../screenshots/lesson/lesson-maneuver-guides.png" alt="주차 중 가이드 화면">
+      <figcaption><b>그림 1.</b> 후면 직각 주차 — 가이드 단계 조향 도식(저속이라 도식 허용)</figcaption>
+    </figure>
+    <figure>
+      <img src="../../screenshots/lesson/lesson-report-session.png" alt="리포트 화면">
+      <figcaption><b>그림 2.</b> 리포트 — 판정 네 줄과 신호 출처 배지(외부 에뮬레이터라 전부 시뮬레이션으로 표시)</figcaption>
+    </figure>
+  </div>
+
+  <h2><i>5.</i>검증 결과</h2>
+  <div class="kv">
+    <div><small>사내 빌드·실행</small><strong>코드 수정 <em>없음</em></strong></div>
+    <div><small>후면 주차 신호 배지</small><strong>실신호 <em>7</em> · 시뮬 1 · 미측정 0</strong></div>
+    <div><small>사내 Copilot 응답</small><strong><em>1.2~1.5</em> s</strong></div>
+    <div><small>단위 테스트(사외)</small><strong><em>350</em></strong></div>
+  </div>
+
+  <h2><i>6.</i>한계 · 향후 계획</h2>
+  <ul class="body">
+    <li><b>한계</b> 카메라가 없어 칸 안 최종 위치는 판정하지 않는다(과정을 본다). 예약·진단서 공유·시험장 위치 신호는 시뮬레이션/예시다. 캡처는 외부 에뮬레이터 화면이며, 검증은 사내 차량 환경 기준으로 실제 도로 검증이 아니다.</li>
+    <li><b>계획</b> 10/9 제출(PPT · 소스 · APK · 시연 영상). 판정 네 줄이 실차 값으로 맞는지 사내 확인, 시뮬레이션 항목의 실제 연동처 검토.</li>
+  </ul>
+
+  <div class="foot"><span>드라이브 코치 1.0.0 · 사고치조</span><span>1 / 1</span></div>
+</div>
+</body>
+</html>

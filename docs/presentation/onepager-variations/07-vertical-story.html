@@ -1,0 +1,103 @@
+<!-- meta: ② 앱 홍보용 | 모바일 스토리·세로 배너 시청자 | 세로 배너 1080×1920 | Noto Sans KR + Bahnschrift Condensed 번호 | Periwinkle→Ink 세로 그라데이션 + Signal 포인트 + Paper 글자 | 맨 위 문제 한 줄 → 연습 여정 6단계(세로 레일 위 번호·한 줄·캡처 썸네일) → 맨 아래 제품명·팀 서명·출처 -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>드라이브 코치 — 세로 스토리</title>
+<style>
+  :root{--ink:#070827;--peri:#5B60A1;--lav:#E5E6F0;--signal:#F52D48;--paper:#FCFCFA}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1080px;height:1920px;overflow:hidden}
+  body{font-family:"Noto Sans KR",sans-serif;color:var(--paper);position:relative;
+    background:linear-gradient(180deg,#8A8ED0 0%, #5B60A1 26%, #2A2D66 62%, #070827 100%)}
+  .num{font-family:"Bahnschrift",sans-serif;font-stretch:condensed;font-weight:600}
+
+  .head{position:absolute;left:72px;right:72px;top:70px}
+  .kicker{display:flex;justify-content:space-between;font-size:22px;font-weight:700;letter-spacing:2px;color:rgba(252,252,250,0.85)}
+  .kicker span:last-child{letter-spacing:0;font-weight:500}
+  .problem{margin-top:34px;font-size:60px;font-weight:300;line-height:1.28;letter-spacing:-2px}
+  .problem b{font-weight:900}
+  .problem em{font-style:normal;font-weight:900;color:var(--ink);background:var(--paper);padding:0 12px;border-radius:8px}
+  .stat{margin-top:22px;font-size:22px;font-weight:400;color:rgba(252,252,250,0.85)}
+  .stat .num{font-size:28px;color:var(--paper)}
+
+  .rail{position:absolute;left:146px;top:440px;height:1040px;width:4px;background:linear-gradient(180deg,rgba(252,252,250,0.6),rgba(245,45,72,0.9));border-radius:2px}
+  .steps{position:absolute;left:72px;right:72px;top:400px}
+  .step{position:relative;height:196px;display:flex;align-items:center;gap:30px}
+  .dot{flex:none;width:152px;height:152px;display:flex;align-items:center;justify-content:center;position:relative}
+  .dot .ring{position:absolute;left:30px;top:32px;width:90px;height:90px;border-radius:50%;background:var(--paper);box-shadow:0 8px 24px rgba(7,8,39,0.25)}
+  .dot .num{position:relative;font-size:56px;color:var(--ink);letter-spacing:-1px;margin-top:6px}
+  .step.last .ring{background:var(--signal)}
+  .step.last .dot .num{color:var(--paper)}
+  .txt{flex:1}
+  .txt h3{font-size:40px;font-weight:900;letter-spacing:-1.2px;line-height:1.15}
+  .txt p{margin-top:10px;font-size:24px;font-weight:300;line-height:1.38;color:rgba(252,252,250,0.88);letter-spacing:-0.4px}
+  .txt p b{font-weight:700;color:var(--paper)}
+  .tag{display:inline-block;margin-left:10px;font-size:18px;font-weight:700;color:var(--ink);background:var(--lav);border-radius:999px;padding:3px 12px;vertical-align:6px;letter-spacing:0}
+  .txt p .tag{margin-left:4px;vertical-align:2px}
+  .tag.sim{background:rgba(252,252,250,0.18);color:var(--paper);border:1.5px solid rgba(252,252,250,0.5)}
+  .thumb{flex:none;width:326px;border-radius:14px;overflow:hidden;box-shadow:0 18px 36px rgba(7,8,39,0.35);border:3px solid rgba(252,252,250,0.9)}
+  .shot{width:100%;aspect-ratio:2560/1264;overflow:hidden}
+  .shot img{display:block;width:100%;margin-top:-3.05%}
+
+  .foot{position:absolute;left:72px;right:72px;bottom:62px}
+  .brand{display:flex;align-items:flex-end;justify-content:space-between}
+  .brand .name{font-size:68px;font-weight:900;letter-spacing:-3px;line-height:1}
+  .brand .name small{display:block;font-size:28px;font-weight:300;letter-spacing:-0.5px;margin-bottom:12px;color:rgba(252,252,250,0.85)}
+  .brand .team{text-align:right;font-size:22px;font-weight:400;color:rgba(252,252,250,0.8);line-height:1.5}
+  .brand .team b{font-family:"Bahnschrift",sans-serif;font-weight:700;font-size:30px;color:var(--signal);letter-spacing:1px}
+  .fine{margin-top:26px;padding-top:18px;border-top:1px solid rgba(252,252,250,0.2);font-size:15px;line-height:1.55;color:rgba(229,230,240,0.6)}
+</style>
+</head>
+<body>
+
+<div class="head">
+  <div class="kicker"><span>DRIVE COACH</span><span>연습 여정 6단계</span></div>
+  <div class="problem">사고가 가장 많은 순간을<br><b>화내지 않고 반복해 줄</b> <em>조수석</em>이 없다.</div>
+  <div class="stat">주차 중 사고의 <span class="num">53.8%</span>는 후진 · 초보 첫해 사고의 <span class="num">41%</span>는 처음 100일 안에</div>
+</div>
+
+<div class="rail"></div>
+<div class="steps">
+  <div class="step">
+    <div class="dot"><div class="ring"></div><span class="num">01</span></div>
+    <div class="txt"><h3>대화로 과제 고르기</h3><p>“오랜만이라 무서워요” 말 카드로 답하면<br><b>AI 코치</b>가 과제를 골라 줘요</p></div>
+    <div class="thumb"><div class="shot"><img src="../../screenshots/lesson/lesson-setup-coach-cards-follow.png" alt=""></div></div>
+  </div>
+  <div class="step">
+    <div class="dot"><div class="ring"></div><span class="num">02</span></div>
+    <div class="txt"><h3>브리핑</h3><p>무엇을 볼지 먼저 알려 줘요<br>핸들 방향 · 기어 전환 · 뒤 거리</p></div>
+    <div class="thumb"><div class="shot"><img src="../../screenshots/lesson/lesson-briefing.png" alt=""></div></div>
+  </div>
+  <div class="step">
+    <div class="dot"><div class="ring"></div><span class="num">03</span></div>
+    <div class="txt"><h3>연습 <span class="tag">가이드 → 힌트 → 평가</span></h3><p>틀린 순간엔 <b>규칙이 바로</b> 말해요<br>5 km/h를 넘으면 화면은 잠겨요</p></div>
+    <div class="thumb"><div class="shot"><img src="../../screenshots/lesson/lesson-maneuver-hint.png" alt=""></div></div>
+  </div>
+  <div class="step">
+    <div class="dot"><div class="ring"></div><span class="num">04</span></div>
+    <div class="txt"><h3>회차 판정</h3><p><b>점수 대신 판정 네 줄</b>과<br>신호로 추정한 궤적</p></div>
+    <div class="thumb"><div class="shot"><img src="../../screenshots/lesson/lesson-done-verdict-fix.png" alt=""></div></div>
+  </div>
+  <div class="step">
+    <div class="dot"><div class="ring"></div><span class="num">05</span></div>
+    <div class="txt"><h3>리포트 · 진단서</h3><p>무엇이 실신호인지 <b>배지로 정직하게</b><br>공유 범위는 운전자가 정해요 (예시)</p></div>
+    <div class="thumb"><div class="shot"><img src="../../screenshots/lesson/lesson-report-session.png" alt=""></div></div>
+  </div>
+  <div class="step last">
+    <div class="dot"><div class="ring"></div><span class="num">06</span></div>
+    <div class="txt"><h3>제휴 시험장 모의시험</h3><p>구간 감점과 합격선으로 연습해요<br>시험장 위치·신호는 <span class="tag sim">시뮬레이션</span></p></div>
+    <div class="thumb"><div class="shot"><img src="../../screenshots/lesson/lesson-drive-exam.png" alt=""></div></div>
+  </div>
+</div>
+
+<div class="foot">
+  <div class="brand">
+    <div class="name"><small>화내지 않는 조수석</small>드라이브 코치</div>
+    <div class="team"><b>MOAH 2026</b><br>팀 사고치조 · 전준영</div>
+  </div>
+  <div class="fine">출처 — 53.8%: 보험개발원·현대해상·동부화재·KB손해보험 공동 조사(2012~2014 보험금 지급 분석, 2017.1) · 41%: 현대해상 교통기후환경연구소 「초보운전자 사고감소를 위한 정책방안 연구」(2016.12)<br>캡처는 외부 에뮬레이터 화면 · 카메라가 없어 칸 안 최종 위치는 판정하지 않고 과정을 봅니다 · 시험장 위치 신호·진단서 공유는 시뮬레이션/예시</div>
+</div>
+
+</body>
+</html>

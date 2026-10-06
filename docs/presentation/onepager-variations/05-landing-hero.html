@@ -1,0 +1,140 @@
+<!-- meta: ② 앱 홍보용 | 처음 보는 사람(랜딩 방문자) | 16:9 1920×1080 | Noto Sans KR Black + Light 대비 | Paper·크림·살구 + Signal·Ink·Periwinkle | 왼쪽 거대한 카피·서브카피·기능 배지 3, 오른쪽 차량 대시보드 베젤 안 말 카드 대화 캡처 -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>드라이브 코치 — 랜딩 히어로</title>
+<style>
+  :root{
+    --ink:#070827; --peri:#5B60A1; --lav:#E5E6F0; --signal:#F52D48; --paper:#FCFCFA;
+    --cream:#FFF4E6; --apricot:#FFB98A; --apricot-soft:#FFDCC2;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1920px;height:1080px;overflow:hidden}
+  body{
+    font-family:"Noto Sans KR",sans-serif;color:var(--ink);
+    background:
+      radial-gradient(circle at 78% 30%, #FFE3CC 0, rgba(255,227,204,0) 46%),
+      linear-gradient(180deg, var(--paper) 0%, var(--cream) 100%);
+    position:relative;
+  }
+  /* 상단 바 */
+  .nav{position:absolute;left:120px;right:120px;top:56px;display:flex;align-items:center;justify-content:space-between}
+  .logo{display:flex;align-items:center;gap:16px;font-weight:900;font-size:28px;letter-spacing:-0.5px}
+  .logo .mark{width:44px;height:44px;border-radius:14px;background:var(--ink);display:grid;place-items:center}
+  .nav .tag{font-weight:300;font-size:22px;color:#6A5E55;letter-spacing:0.5px}
+
+  /* 왼쪽 카피 */
+  .copy{position:absolute;left:120px;top:170px;width:820px}
+  .eyebrow{display:inline-flex;align-items:center;gap:12px;font-size:24px;font-weight:500;color:var(--peri);
+    background:#fff;border:1.5px solid var(--lav);border-radius:999px;padding:10px 22px 10px 14px}
+  .eyebrow i{width:12px;height:12px;border-radius:50%;background:var(--signal);display:block}
+  h1{margin-top:36px;font-weight:900;font-size:142px;line-height:1.02;letter-spacing:-6px}
+  h1 .soft{font-weight:300;letter-spacing:-4px;color:var(--ink)}
+  h1 .sig{color:var(--signal)}
+  .sub{margin-top:34px;font-weight:300;font-size:33px;line-height:1.5;letter-spacing:-0.8px;color:#3A3550}
+  .sub b{font-weight:800;color:var(--ink);background:linear-gradient(transparent 62%, var(--apricot-soft) 62%)}
+
+  .badges{position:absolute;left:120px;top:806px;display:flex;gap:18px;z-index:5}
+  .badge{display:flex;align-items:center;gap:16px;background:#fff;border-radius:22px;padding:18px 26px 18px 18px;
+    box-shadow:0 10px 30px rgba(120,70,30,0.10);}
+  .badge .ic{width:56px;height:56px;border-radius:16px;display:grid;place-items:center}
+  .badge .t{font-size:24px;font-weight:800;letter-spacing:-0.6px;line-height:1.2}
+  .badge .d{font-size:18px;font-weight:300;color:#6A5E55;margin-top:3px}
+
+  .sign{position:absolute;left:120px;bottom:70px;font-size:20px;font-weight:300;color:#7A6E66;letter-spacing:0.4px}
+  .sign b{font-weight:900;color:var(--ink)}
+  .note{position:absolute;left:120px;bottom:40px;font-size:16px;font-weight:300;color:#9A8E86}
+
+  /* 오른쪽 대시보드 */
+  .dash{position:absolute;left:900px;top:170px;width:1020px;height:910px}
+  .dash svg.body{position:absolute;inset:0}
+  .bezel{position:absolute;left:110px;top:96px;width:860px;border-radius:36px;
+    background:linear-gradient(160deg,#25274A 0%, #0B0C24 60%);padding:22px;
+    box-shadow:0 40px 80px rgba(7,8,39,0.28), inset 0 2px 0 rgba(255,255,255,0.12);}
+  .screen{width:100%;border-radius:18px;overflow:hidden;background:#000;position:relative}
+  .shot{width:100%;aspect-ratio:2560/1264;overflow:hidden}
+  .shot img{display:block;width:100%;margin-top:-3.05%}
+  .glare{position:absolute;inset:0;background:linear-gradient(115deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 32%);pointer-events:none}
+  .bubble{position:absolute;left:40px;top:20px;background:var(--signal);color:#fff;font-weight:800;font-size:26px;
+    padding:16px 26px;border-radius:24px 24px 24px 6px;box-shadow:0 14px 30px rgba(245,45,72,0.30);letter-spacing:-0.5px}
+  .bubble2{position:absolute;right:50px;top:770px;background:#fff;color:var(--ink);font-weight:500;font-size:22px;
+    padding:14px 24px;border-radius:24px 24px 6px 24px;box-shadow:0 14px 30px rgba(120,70,30,0.14);letter-spacing:-0.4px}
+  .bubble2 span{color:var(--peri);font-weight:800}
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div class="logo">
+    <div class="mark">
+      <svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="none" stroke="#FCFCFA" stroke-width="3"/><circle cx="14" cy="14" r="3.2" fill="#F52D48"/><path d="M3.5 12.5 L11 14 M17 14 L24.5 12.5 M14 17 L14 25" stroke="#FCFCFA" stroke-width="3" stroke-linecap="round"/></svg>
+    </div>
+    드라이브 코치
+  </div>
+  <div class="tag">초보 · 장롱면허 운전자를 위한 차량용 운전 연수 어시스턴트</div>
+</div>
+
+<div class="copy">
+  <div class="eyebrow"><i></i>Android Automotive OS 앱</div>
+  <h1><span class="sig">화</span>내지 않는<br><span class="soft">조수석</span></h1>
+  <p class="sub"><b>아이 때문에 다시 운전을 시작한<br>장롱면허 10년차 아내</b>를 위해 만들었습니다.<br>옆에서 가르치면 둘 다 힘드니까요.</p>
+</div>
+
+<div class="badges">
+  <div class="badge">
+    <div class="ic" style="background:var(--lav)">
+      <svg width="34" height="34" viewBox="0 0 34 34"><path d="M5 8a4 4 0 0 1 4-4h16a4 4 0 0 1 4 4v11a4 4 0 0 1-4 4H14l-6 5v-5H9a4 4 0 0 1-4-4z" fill="#5B60A1"/><circle cx="12" cy="13.5" r="1.8" fill="#fff"/><circle cx="17" cy="13.5" r="1.8" fill="#fff"/><circle cx="22" cy="13.5" r="1.8" fill="#fff"/></svg>
+    </div>
+    <div><div class="t">말로 고르는 과제</div><div class="d">무서운 순간을 말하면 코치가 골라요</div></div>
+  </div>
+  <div class="badge">
+    <div class="ic" style="background:var(--apricot-soft)">
+      <svg width="36" height="34" viewBox="0 0 36 34"><rect x="2" y="20" width="8" height="12" rx="2" fill="#F52D48"/><rect x="14" y="12" width="8" height="20" rx="2" fill="#F5866A"/><rect x="26" y="4" width="8" height="28" rx="2" fill="#070827"/></svg>
+    </div>
+    <div><div class="t">가이드 → 힌트 → 평가</div><div class="d">익숙해질수록 도움을 줄여 가요</div></div>
+  </div>
+  <div class="badge">
+    <div class="ic" style="background:#070827">
+      <svg width="30" height="34" viewBox="0 0 30 34"><rect x="3" y="14" width="24" height="18" rx="4" fill="#FCFCFA"/><path d="M8 14V10a7 7 0 0 1 14 0v4" fill="none" stroke="#FCFCFA" stroke-width="3.4"/><circle cx="15" cy="23" r="2.6" fill="#F52D48"/></svg>
+    </div>
+    <div><div class="t">달릴 땐 화면 잠금</div><div class="d">주행 중엔 음성으로만 코칭해요</div></div>
+  </div>
+</div>
+
+<div class="dash">
+  <svg class="body" width="1020" height="910" viewBox="0 0 1020 910">
+    <defs>
+      <linearGradient id="dashg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#FFC9A0"/>
+        <stop offset="1" stop-color="#F49A66"/>
+      </linearGradient>
+      <linearGradient id="dashtop" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#5B60A1"/>
+        <stop offset="1" stop-color="#7A7FC0"/>
+      </linearGradient>
+    </defs>
+    <!-- 스탠드 -->
+    <path d="M470 600 L600 600 L620 520 L450 520 Z" fill="#14152E"/>
+    <!-- 대시보드 몸체 -->
+    <path d="M40 910 C 110 720, 260 596, 560 584 C 800 580, 930 594, 1020 612 L 1020 910 Z" fill="url(#dashg)"/>
+    <path d="M40 910 C 110 720, 260 596, 560 584 C 800 580, 930 594, 1020 612" fill="none" stroke="url(#dashtop)" stroke-width="20"/>
+    <!-- 송풍구 -->
+    <g fill="#E88552"><rect x="560" y="680" width="170" height="40" rx="20"/><rect x="800" y="680" width="170" height="40" rx="20"/></g>
+    <g stroke="#FFF4E6" stroke-width="4" stroke-linecap="round" opacity="0.85"><line x1="584" y1="700" x2="706" y2="700"/><line x1="824" y1="700" x2="946" y2="700"/></g>
+  </svg>
+  <div class="bezel">
+    <div class="screen">
+      <div class="shot"><img src="../../screenshots/lesson/lesson-setup-coach-cards-follow.png" alt="말 카드 대화 화면"></div>
+      <div class="glare"></div>
+    </div>
+  </div>
+  <div class="bubble">“오랜만이라 무서워요”</div>
+  <div class="bubble2">코치가 과제를 골라 줘요 · <span>주차 4 · 도로 6 · 점검 2 · 지식 6</span></div>
+</div>
+
+<div class="sign"><b>MOAH 2026</b> · 사고치조 · 전준영</div>
+<div class="note">캡처는 외부 에뮬레이터 화면 · 카메라가 없어 칸 안 최종 위치는 판정하지 않고 과정을 봅니다</div>
+
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!-- meta: ⑤ 디자인 포스터 | 거리·전시 벽 공익 포스터풍 | 세로 A 1240×1754 | KB(KB_Bold) 큰 카피 + WooriSinmoon 본문 | 도로 노랑·표지 파랑 + Ink 아스팔트·Signal·Paper | 레트로 교통 안전 포스터 — 마름모 경고 표지·노면 문자·지그재그·주차 칸 모티프, "천천히, 다시, 화내지 않고" -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>드라이브 코치 — 레트로 교통 포스터</title>
+<style>
+  @font-face { font-family: "KB Head"; src: local("KB_Bold"); }
+  html, body { margin: 0; padding: 0; }
+  body { width: 1240px; height: 1754px; overflow: hidden; background: #F2B51C; color: #070827; font-family: 'WooriSinmoon', 'Noto Serif KR', serif; word-break: keep-all; }
+  .page { position: relative; width: 1240px; height: 1754px;
+    background-image: radial-gradient(rgba(7,8,39,0.09) 1.4px, transparent 1.6px); background-size: 9px 9px; }
+  .abs { position: absolute; }
+  .kb { font-family: 'KB Head', 'KB', 'Noto Sans KR', sans-serif; }
+  .hazard { position: absolute; left: 0; width: 1240px; height: 26px;
+    background: repeating-linear-gradient(-45deg, #070827 0 22px, #F2B51C 22px 44px); }
+
+  .topbar { left: 0; top: 0; width: 1240px; height: 64px; background: #070827; color: #FCFCFA; }
+  .topbar .l { position: absolute; left: 60px; top: 19px; font-size: 22px; letter-spacing: 0.06em; }
+  .topbar .r { position: absolute; right: 60px; top: 19px; font-size: 22px; letter-spacing: 0.06em; color: #F2B51C; }
+
+  .copy { left: 52px; top: 146px; font-size: 176px; line-height: 1.04; letter-spacing: -0.02em; }
+  .copy .red { color: #F52D48; }
+  .copy .sh { text-shadow: 7px 7px 0 rgba(7,8,39,0.18); }
+  .sub { left: 60px; top: 724px; width: 1120px; }
+  .sub .a { font-size: 46px; letter-spacing: -0.01em; }
+  .sub .a b { font-family: 'KB Head', 'KB', sans-serif; font-weight: 400; }
+  .sub .b { font-size: 22px; margin-top: 8px; }
+
+  /* 파랑 안내 표지 */
+  .panel { left: 50px; top: 858px; width: 1140px; height: 290px; background: #1D4F9F; border-radius: 26px; color: #FCFCFA; }
+  .panel .in { position: absolute; inset: 12px; border: 5px solid #FCFCFA; border-radius: 18px; }
+  .panel .ttl { position: absolute; left: 48px; top: 34px; font-size: 30px; }
+  .panel .ttl small { font-family: 'WooriSinmoon', serif; font-size: 18px; margin-left: 14px; color: #DCE3F5; }
+  .panel .cols { position: absolute; left: 48px; top: 88px; width: 1044px; display: grid; grid-template-columns: 1fr 1fr 1fr; column-gap: 0; }
+  .panel .c { padding: 0 24px; border-left: 3px solid rgba(252,252,250,0.5); }
+  .panel .c:first-child { border-left: 0; padding-left: 0; }
+  .panel .n { font-size: 96px; line-height: 1; }
+  .panel .n small { font-size: 48px; }
+  .panel .t { font-size: 20px; line-height: 1.4; margin-top: 6px; }
+  .panel .foot { position: absolute; left: 48px; top: 242px; font-size: 18px; color: #DCE3F5; }
+
+  /* 아스팔트 */
+  .road { left: 0; top: 1178px; width: 1240px; height: 400px; background: #070827; color: #FCFCFA; }
+  .paint { position: absolute; top: 96px; left: 60px; font-size: 64px; line-height: 1; transform: scaleY(1.75); transform-origin: left top; white-space: nowrap; letter-spacing: 0.02em; }
+  .paint .ar { color: #F2B51C; }
+  .road .tk { position: absolute; left: 60px; top: 228px; font-size: 21px; }
+  .road .tk b { font-family: 'KB Head', 'KB', sans-serif; font-weight: 400; color: #F2B51C; font-size: 26px; }
+  .jr { position: absolute; left: 60px; top: 278px; width: 1120px; display: grid; grid-template-columns: repeat(6, 1fr); column-gap: 14px; }
+  .jr div { border-top: 3px dashed #FCFCFA; padding-top: 10px; font-size: 15px; line-height: 1.4; }
+  .jr span { font-family: 'KB Head', 'KB', sans-serif; color: #F2B51C; font-size: 24px; display: block; }
+
+  .why { left: 60px; top: 1614px; width: 560px; font-size: 22px; line-height: 1.5; }
+  .why b { font-family: 'KB Head', 'KB', sans-serif; font-weight: 400; }
+  .ver { left: 660px; top: 1610px; width: 520px; }
+  .ver .n { font-size: 28px; }
+  .ver .n em { font-style: normal; color: #F52D48; }
+  .ver .d { font-size: 15px; line-height: 1.45; margin-top: 4px; }
+  .fine { left: 60px; top: 1700px; width: 1120px; font-size: 11.5px; line-height: 1.45; font-family: 'Noto Sans KR', sans-serif; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="abs topbar"><div class="l kb">MOAH 2026 · 모비스 SW 해커톤 · 팀 사고치조</div><div class="r kb">드라이브 코치</div></div>
+  <div class="hazard" style="top:64px"></div>
+
+  <!-- 마름모 경고 표지 + 후진 주차 그림 -->
+  <svg class="abs" style="left:742px;top:118px" width="460" height="460" viewBox="0 0 460 460">
+    <g transform="translate(230 230) rotate(45)">
+      <rect x="-150" y="-150" width="300" height="300" rx="22" fill="#070827" transform="translate(10 10)" opacity="0.2"/>
+      <rect x="-150" y="-150" width="300" height="300" rx="22" fill="#FFD338"/>
+      <rect x="-136" y="-136" width="272" height="272" rx="14" fill="none" stroke="#070827" stroke-width="12"/>
+    </g>
+    <!-- 주차 칸 (아래가 열림) -->
+    <g stroke="#070827" stroke-width="8" fill="none" stroke-linecap="square">
+      <polyline points="166,246 166,132 294,132 294,246"/>
+    </g>
+    <!-- 차: 뒤부터 칸으로 들어가는 중 -->
+    <g transform="translate(232 214) rotate(-6)">
+      <rect x="-30" y="-56" width="60" height="108" rx="14" fill="#070827"/>
+      <rect x="-21" y="-40" width="42" height="12" fill="#FFD338"/>
+      <rect x="-21" y="20" width="42" height="18" fill="#FFD338"/>
+    </g>
+    <!-- 휘어 들어오는 후진 궤적 -->
+    <path d="M 346 356 C 290 356 244 338 240 300" fill="none" stroke="#F52D48" stroke-width="14"/>
+    <polygon points="240,272 222,304 258,304" fill="#F52D48"/>
+  </svg>
+
+  <div class="abs copy kb"><span class="sh">천천히,</span><br><span class="sh red">다시,</span><br><span class="sh">화내지 않고</span></div>
+
+  <div class="abs sub">
+    <div class="a"><b>드라이브 코치</b> — 화내지 않는 조수석</div>
+    <div class="b">초보 · 장롱면허 운전자를 위한 차량용 안드로이드(AAOS) 운전 연수 어시스턴트</div>
+  </div>
+
+  <div class="abs panel">
+    <div class="in"></div>
+    <div class="ttl kb">가장 사고가 많은 순간<small>주차할 때, 그리고 처음 100일</small></div>
+    <div class="cols">
+      <div class="c"><div class="n kb">30.2<small>%</small></div><div class="t">차량 물적 사고 10건 중 3건은 주차 중</div></div>
+      <div class="c"><div class="n kb">53.8<small>%</small></div><div class="t">그 주차 사고 가운데 후진</div></div>
+      <div class="c"><div class="n kb">41<small>%</small></div><div class="t">초보 첫해 사고 중 처음 100일 안</div></div>
+    </div>
+    <div class="foot">학원 도로연수 10시간은 약 50~60만 원(2025년 보도). 그 순간을 화내지 않고 반복해 줄 조수석이 없다.</div>
+  </div>
+
+  <div class="abs road">
+    <svg class="abs" style="left:0;top:0" width="1240" height="400" viewBox="0 0 1240 400">
+      <polyline points="40,34 80,60 120,34 160,60 200,34 240,60 280,34 320,60 360,34 400,60 440,34 480,60 520,34 560,60 600,34 640,60 680,34 720,60 760,34 800,60 840,34 880,60 920,34 960,60 1000,34 1040,60 1080,34 1120,60 1160,34 1200,60" fill="none" stroke="#FCFCFA" stroke-width="7" stroke-linejoin="miter"/>
+      <!-- 주차 칸 (오른쪽) -->
+      <g stroke="#FCFCFA" stroke-width="6" fill="none">
+        <line x1="860" y1="92" x2="1190" y2="92"/>
+        <line x1="870" y1="92" x2="870" y2="206"/>
+        <line x1="976" y1="92" x2="976" y2="206"/>
+        <line x1="1082" y1="92" x2="1082" y2="206"/>
+        <line x1="1188" y1="92" x2="1188" y2="206"/>
+      </g>
+      <g transform="translate(1029 150)">
+        <rect x="-30" y="-48" width="60" height="96" rx="12" fill="#F52D48"/>
+        <rect x="-20" y="-32" width="40" height="15" fill="#070827"/>
+      </g>
+      <rect x="896" y="114" width="52" height="52" rx="8" fill="#1D4F9F" stroke="#FCFCFA" stroke-width="3"/>
+      <text x="922" y="152" text-anchor="middle" font-family="Bahnschrift" font-weight="700" font-size="38" fill="#FCFCFA">P</text>
+    </svg>
+    <div class="paint kb">가이드 <span class="ar">▶</span> 힌트 <span class="ar">▶</span> 평가</div>
+    <div class="tk">두려운 상황을 <b>과제 18</b>개로 쪼개고(주차 4 · 도로 주행 6 · 점검 2 · 지식 6) 차량 신호로 <b>과정</b>을 잰다</div>
+    <div class="jr">
+      <div><span>01</span>대화로 과제 고르기 · 말 카드 · AI 코치</div>
+      <div><span>02</span>브리핑</div>
+      <div><span>03</span>연습 · 틀린 순간엔 규칙이 바로 말함 · 5 km/h 넘으면 화면 잠금</div>
+      <div><span>04</span>회차 판정 · 점수 대신 판정 네 줄 + 추정 궤적</div>
+      <div><span>05</span>리포트 · 진단서 · 실신호 배지 (공유는 예시)</div>
+      <div><span>06</span>제휴 시험장 모의시험 (시험장 신호는 시뮬레이션)</div>
+    </div>
+  </div>
+  <div class="hazard" style="top:1578px"></div>
+
+  <div class="abs why"><b>아이 때문에 다시 운전을 시작한 장롱면허 10년차 아내</b>를 위해 만들었다. 옆에서 가르치면 둘 다 힘들다.</div>
+  <div class="abs ver">
+    <div class="n kb">실신호 <em>7</em> · 시뮬레이션 1 · 미측정 0</div>
+    <div class="d">사내 차량 환경(Real VSS)에서 코드 수정 없이 빌드·실행(후면 주차) · 사내 Copilot 응답 1.2~1.5 s · 단위 테스트 350(사외)</div>
+  </div>
+  <div class="abs fine">한계: 카메라가 없어 칸 안 최종 위치는 판정하지 않는다(과정을 본다) · 예약·진단서 공유·시험장 위치 신호는 시뮬레이션/예시.
+    출처: 30.2%·53.8% 보험개발원·현대해상·동부화재·KB손해보험 공동 조사(2012~2014 보험금 지급 분석, 2017.1) · 41% 현대해상 교통기후환경연구소 「초보운전자 사고감소를 위한 정책방안 연구」(2009~2015 사고 317만 건, 2016.12) · 연수비 2025년 언론 보도</div>
+</div>
+</body>
+</html>
