@@ -149,7 +149,16 @@ if [ "${SKIP_COACH_TEXT:-0}" != "1" ]; then
       # 말 카드(카드가 없는 옛 태그면 건너뛰고 영어 두 줄만 — 그때 기대 intent 수는 둘)
       dump; if texts | grep -q "오랜만이라 무서워요"; then
         CARDS=2
-        press "오랜만이라 무서워요" && wait_intents 1 && sleep 2 && press "평행 주차 힌트로 할래요" && wait_intents 2
+        press "오랜만이라 무서워요" && wait_intents 1 && sleep 2
+        # 사외 피드백 #6(10/7): 첫 카드에 AI 가 곧바로 과제를 고르면 시트가 닫혀 둘째 카드(되물은 뒤에만 보임)가 없다.
+        # 그 경우 의도는 PASS 로 세고(앱 버그 아님) 둘째 카드 없이 영어 두 줄로 간다. #224 부터는 앱이 첫 감정 말에 한 번 되묻는다.
+        FIRST=$(adb logcat -d -s $TAG 2>/dev/null | grep -oE 'home coach: intent=[^ ]+' | tail -1 | sed 's/^.*intent=//')
+        dump; if texts | grep -q "평행 주차 힌트로 할래요"; then
+          press "평행 주차 힌트로 할래요" && wait_intents 2
+        else
+          CARDS=1; note "첫 카드에 바로 $FIRST — 시트가 닫혀 둘째 카드 없음(의도는 PASS 로 셈) · 영어 두 줄로 진행"
+          case "$FIRST" in OPEN_SHEET*) adb shell input keyevent 4 >/dev/null 2>&1; sleep 1;; esac   # 열린 과제 시트를 닫는다
+        fi
         sleep 3; press "코치와 대화" "코치에게 말하기"; sleep 2   # PIN_TASK 면 시트가 닫힌다 — 다시 연다
       else note "말 카드 없음(옛 태그) — 영어 두 줄만"; fi
       say_line "hi,%sI%sam%snervous%sabout%sdriving%sagain" $((CARDS + 1)) && say_line "I%swant%sto%spractice%sparallel%sparking%swith%shints" $((CARDS + 2))
