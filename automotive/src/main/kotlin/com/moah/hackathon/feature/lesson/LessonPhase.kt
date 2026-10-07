@@ -64,7 +64,9 @@ sealed interface LessonPhase {
      * 과제 시작 전 브리핑. [line] 을 TTS 가 읽는 동안 머문다 — 음성이 끝나면 1 초 뒤 넘어간다(최소 3 초 · 최대 12 초, 라운드 26 시안 2-B).
      * [expectedMillis] = 음성 길이 어림(글자 수) — 화면의 진행 막대·지금 문장 강조용. 정차 중이면 `건너뛰기`(`skipBriefing`).
      */
-    data class Briefing(val task: Task, val mode: LessonMode, val line: String, val expectedMillis: Long = 0L) : LessonPhase
+    data class Briefing(val task: Task, val mode: LessonMode, val line: String, val expectedMillis: Long = 0L,
+        /** 속도 > 5 km/h — 화면은 `건너뛰기` 를 숨긴다(절대 규칙 10). 브리핑 동안만 속도를 구독해 갱신한다. */
+        val locked: Boolean = false) : LessonPhase
 
     /** 주차(또는 주행) 중. 회차마다 새로 시작한다. */
     data class Maneuver(

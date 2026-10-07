@@ -14,6 +14,8 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
+import mobis.vss.VssConstants
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import kotlin.random.Random
@@ -22,21 +24,22 @@ import kotlin.random.Random
 @OptIn(ExperimentalCoroutinesApi::class)
 class BriefingWaitTest {
 
-    private class Harness(val tts: FakeTtsPort, val machine: LessonStateMachine, val scope: CoroutineScope)
+    private class Harness(val tts: FakeTtsPort, val vehicle: FakeVehiclePort, val machine: LessonStateMachine, val scope: CoroutineScope)
 
     private fun TestScope.harness(): Harness {
         val dispatcher = StandardTestDispatcher(testScheduler)
         val scope = CoroutineScope(dispatcher + SupervisorJob())
         val tts = FakeTtsPort()
+        val vehicle = FakeVehiclePort(simulate = false, dispatcher = dispatcher)
         val machine = LessonStateMachine(
-            vehicle = FakeVehiclePort(simulate = false, dispatcher = dispatcher), tts = tts,
+            vehicle = vehicle, tts = tts,
             coach = FakeCoachPort(RemarkPool(SeedCatalog.remarks, Random(3))),
             registry = SignalRegistry(ParkingRecorder.CHECKLIST_KEYS + CourseRecorder.KEYS, simulated = true), store = ProgressStore(),
             tasks = SeedCatalog.tasks, guideFor = SeedCatalog::guideFor, quizFor = SeedCatalog::quizFor, venues = SeedCatalog.venues,
             benefits = SeedCatalog.benefits, profile = SeedCatalog.demoProfile, scope = scope,
             clock = { testScheduler.currentTime }, briefingMillis = 3_000, briefingMaxMillis = 12_000,
         )
-        return Harness(tts, machine, scope)
+        return Harness(tts, vehicle, machine, scope)
     }
 
     private fun Harness.phase() = machine.phase.value
@@ -91,6 +94,27 @@ class BriefingWaitTest {
         assertTrue(h.phase() is LessonPhase.Maneuver)
         testScheduler.advanceTimeBy(15_000); testScheduler.runCurrent()
         assertTrue("the cancelled wait does not start a second attempt", (h.phase() as LessonPhase.Maneuver).attempt == 1)
+        h.scope.cancel()
+    }
+
+    /** 브리핑 중에 차가 움직이면 `locked` — 화면은 `건너뛰기` 를 숨기고, 눌러도(경합) 무시한다. 서면 풀린다. */
+    @Test
+    fun movingDuringTheBriefingLocksTheSkip() = runTest {
+        val h = harness()
+        h.tts.speakingFlow.value = true
+        h.machine.begin(SeedCatalog.TASK_PARKING_REAR, LessonMode.HINT)
+        testScheduler.advanceTimeBy(500); testScheduler.runCurrent()
+        assertFalse((h.phase() as LessonPhase.Briefing).locked)
+        h.vehicle.set(mapOf(VssConstants.VEHICLE_SPEED to "20"))
+        testScheduler.advanceTimeBy(100); testScheduler.runCurrent()
+        assertTrue("moving → locked", (h.phase() as LessonPhase.Briefing).locked)
+        h.machine.skipBriefing(); testScheduler.runCurrent()
+        assertTrue("skip ignored while moving", h.phase() is LessonPhase.Briefing)
+        h.vehicle.set(mapOf(VssConstants.VEHICLE_SPEED to "0"))
+        testScheduler.advanceTimeBy(100); testScheduler.runCurrent()
+        assertFalse("stopped → unlocked", (h.phase() as LessonPhase.Briefing).locked)
+        h.machine.skipBriefing(); testScheduler.runCurrent()
+        assertTrue(h.phase() is LessonPhase.Maneuver)
         h.scope.cancel()
     }
 }
