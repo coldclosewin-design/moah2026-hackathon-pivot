@@ -25,6 +25,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -66,7 +68,9 @@ class LessonStateMachine(
     profile: Profile,
     private val scope: CoroutineScope,
     private val clock: () -> Long = { System.currentTimeMillis() },
-    private val briefingMillis: Long = 2_500L,
+    /** 브리핑 최소 시간. 그 뒤 음성이 끝나면 [BRIEFING_AFTER_SPEECH_MILLIS] 더 머물고 넘어간다(최대 [briefingMaxMillis]). 0 이면 바로(테스트). */
+    private val briefingMillis: Long = 3_000L,
+    private val briefingMaxMillis: Long = 12_000L,
     private val rubric: ParkingRubric = ParkingRubric(),
     private val checklistRubric: ChecklistRubric = ChecklistRubric(),
     /** 프로필 저장소(라운드 22 결정 7, 10/5). 기본은 메모리 — 앱은 `FileProfileStore`. */
@@ -138,13 +142,41 @@ class LessonStateMachine(
         unverifiedSteps.clear()
         attempt = 0
         val line = briefingLine(task, mode)
-        _phase.value = LessonPhase.Briefing(task, mode, line)
+        _phase.value = LessonPhase.Briefing(task, mode, line, briefingExpectedMillis(line))
         tts.speak(line)
         Log.i(TAG, "begin ${task.id} ${mode}")
+        val gen = sessionGen
         briefingJob = scope.launch {
-            if (briefingMillis > 0) delay(briefingMillis)
-            if (mode == LessonMode.QUIZ) startQuiz(task) else startAttempt()
+            if (briefingMillis > 0) awaitBriefing()
+            if (gen == sessionGen) leaveBriefing(task, mode)
         }
+    }
+
+    /**
+     * 브리핑 머무는 시간(라운드 26 시안 2-B, 10/7): 최소 [briefingMillis] → 음성이 끝나면 [BRIEFING_AFTER_SPEECH_MILLIS] 뒤 → 최대 [briefingMaxMillis].
+     * 엔진이 "끝" 을 알려 주지 않으면(콜백 없음·자막만) 상한에서 넘어간다. 예전엔 2.5 초 고정이라 음성이 끝나기 전에 사라졌다.
+     */
+    private suspend fun awaitBriefing() {
+        val started = clock()
+        delay(briefingMillis)
+        val left = (briefingMaxMillis - briefingMillis).coerceAtLeast(0)
+        val ended = withTimeoutOrNull(left) { tts.speaking.first { !it }; delay(BRIEFING_AFTER_SPEECH_MILLIS); true }
+        Log.i(TAG, "briefing ${clock() - started} ms (${if (ended == true) "speech done" else "max"})")
+    }
+
+    private suspend fun leaveBriefing(task: Task, mode: LessonMode) {
+        briefingJob = null
+        if (mode == LessonMode.QUIZ) startQuiz(task) else startAttempt()
+    }
+
+    /** 브리핑 `건너뛰기`(정차 중만 — 화면이 숨긴다): 남은 음성을 끊고 바로 첫 회차(퀴즈면 첫 문제). 브리핑이 아니면 무시. */
+    fun skipBriefing() {
+        val p = _phase.value as? LessonPhase.Briefing ?: return
+        if (snapshot.locked) return
+        briefingJob?.cancel(); briefingJob = null
+        tts.stop()
+        Log.i(TAG, "briefing skipped")
+        scope.launch { leaveBriefing(p.task, p.mode) }
     }
 
     // ───────── 지식 테스트 ─────────
@@ -283,6 +315,20 @@ class LessonStateMachine(
     }
 
     // ───────── 제휴 시험장 예약 (§3.3, D3 = (나)) — Setup 에서만. 실제 연계 없음 ─────────
+
+    /**
+     * 홈에서 모드만 바꾸기(라운드 26 시안 1-6 — 제목 속 모드 낱말의 작은 팝업). 지금 제안 과제가 그 모드를 지원할 때만, 그 과제·모드로 고정한다.
+     * 과제를 아직 안 골랐으면(`picked = false`) 무시 — 그때는 과제부터 고른다. 로그 `home mode: …`.
+     */
+    fun chooseHomeMode(mode: LessonMode) {
+        val p = _phase.value as? LessonPhase.Setup ?: return
+        if (!p.picked || p.coach != null || p.onboarding != null) return
+        if (!p.suggestedTask.supports(mode)) { Log.w(TAG, "home mode: ${p.suggestedTask.id} does not support $mode"); return }
+        pinned = p.suggestedTask.id to mode
+        bookingChoice = null
+        Log.i(TAG, "home mode: ${p.suggestedTask.id} → $mode")
+        _phase.value = setup()
+    }
 
     /** 예약. 시험장·시간대·코스가 시드에 있고 시간대가 비어 있을 때만. 로그 `reservation: …`. 성공하면 Setup 을 다시 그린다(제안 과제가 바뀔 수 있다). */
     fun reserve(venueId: String, slotId: String, courseId: String) {
@@ -721,7 +767,8 @@ class LessonStateMachine(
         val reserved = reservedReadyTask()
         val fromReservation = booking != null && reserved?.id == task.id
         val reason = if (fromReservation) ModeAdvisor.reservedReason(s.mode, mockExam = bookingChoice == BookingOption.MOCK_EXAM) else s.reason
-        return LessonPhase.Setup(profile, tasks, task, s.mode, reason, venues = venues, booking = booking,
+        val picked = pin != null || booking != null || store.all().isNotEmpty() || store.quizzes().isNotEmpty()
+        return LessonPhase.Setup(profile, tasks, task, s.mode, reason, picked = picked, venues = venues, booking = booking,
             coach = if (coachOpen) CoachDialog(coachOpening ?: coachLine(), coachChoices(), coachTurns.toList(), coachWaiting, coachCards()) else null,
             bookingOptions = if (booking != null) bookingOptionsFor(reserved) else emptyList(),
             bookingChoice = bookingChoice, highlightBooking = highlightBooking, sheetRequest = sheetRequest,
@@ -1017,5 +1064,12 @@ class LessonStateMachine(
         const val FINISH_WAIT_STEPS = 160
         /** 운전자 글의 최대 길이 — 넘으면 자른다. */
         const val MAX_UTTERANCE = 120
+        /** 브리핑 음성이 끝난 뒤 한 박자(시안 2-B). */
+        const val BRIEFING_AFTER_SPEECH_MILLIS = 1_000L
+        /** 브리핑 진행 막대의 어림 — 한국어 TTS 약 8자/초(속도 1.05). 막대만 쓰고 넘어가는 시점은 음성 끝이 정한다. */
+        const val BRIEFING_MILLIS_PER_CHAR = 120L
     }
+
+    private fun briefingExpectedMillis(line: String): Long =
+        (line.length * BRIEFING_MILLIS_PER_CHAR).coerceIn(briefingMillis, briefingMaxMillis.coerceAtLeast(briefingMillis))
 }

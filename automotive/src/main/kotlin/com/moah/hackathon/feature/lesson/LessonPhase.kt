@@ -23,6 +23,11 @@ sealed interface LessonPhase {
         val suggestedTask: Task,
         val suggestedMode: LessonMode,
         val reason: String,
+        /**
+         * 홈이 과제를 "골라 둔" 상태인가(라운드 26 시안 1-6, 10/7). false = 이번 실행에서 아직 연습·퀴즈 기록이 없고 고정(프리셋·대화·홈 모드)도 예약도 없다
+         * → 화면은 [suggestedTask] 를 보이지 않고 "과제 고르기" 빈칸을 띄우며 `시작` 을 흐리게 둔다(임의로 정하지 않는다). 기록은 메모리라 앱을 새로 켜면 다시 false.
+         */
+        val picked: Boolean = true,
         /** 제휴 시험장 목록(D3, 9/28). 화면의 시험장 층이 그린다. */
         val venues: List<Venue> = emptyList(),
         /** 지금 예약. 없으면 null — Setup 배지 자리도 없다. */
@@ -55,7 +60,11 @@ sealed interface LessonPhase {
     ) : LessonPhase
 
     /** "후면 직각 주차, 가이드 모드. 오늘은 핸들 방향과 기어 전환을 봅니다." */
-    data class Briefing(val task: Task, val mode: LessonMode, val line: String) : LessonPhase
+    /**
+     * 과제 시작 전 브리핑. [line] 을 TTS 가 읽는 동안 머문다 — 음성이 끝나면 1 초 뒤 넘어간다(최소 3 초 · 최대 12 초, 라운드 26 시안 2-B).
+     * [expectedMillis] = 음성 길이 어림(글자 수) — 화면의 진행 막대·지금 문장 강조용. 정차 중이면 `건너뛰기`(`skipBriefing`).
+     */
+    data class Briefing(val task: Task, val mode: LessonMode, val line: String, val expectedMillis: Long = 0L) : LessonPhase
 
     /** 주차(또는 주행) 중. 회차마다 새로 시작한다. */
     data class Maneuver(
