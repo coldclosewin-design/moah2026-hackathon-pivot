@@ -13,9 +13,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.moah.hackathon.R
 import com.moah.hackathon.feature.lesson.LessonReport
 import com.moah.hackathon.feature.lesson.ProfileField
 import com.moah.hackathon.feature.lesson.TaskType
@@ -52,7 +50,7 @@ internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit, locked: B
                         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.Center) {
                             Eyebrow("오늘의 기록")
                             Spacer(Modifier.height(if (report.askOne != null) 12.dp else 28.dp))
-                            if (report.askOne != null) LessonText(driverReportSummary(report.summary), 48)
+                            if (report.askOne != null) LessonText(coachDisplayText(driverReportSummary(report.summary)), 48)
                             else ResultHeadline(driverReportSummary(report.summary), Modifier.fillMaxWidth().heightIn(max = 520.dp))
                             Spacer(Modifier.height(if (report.askOne != null) 16.dp else 32.dp))
                             LessonText("${report.task.title} · ${report.mode.label}", if (report.askOne != null) 32 else 40)
@@ -62,7 +60,7 @@ internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit, locked: B
                             }
                         }
                         report.askOne?.let { ProfileAskCard(it, onAnswerProfile, onSkipAsk) }
-                        PrimaryPill(stringResource(R.string.lesson_restart), onRestart)
+                        MainPill(onRestart, Modifier.align(Alignment.End))
                         Row(horizontalArrangement = Arrangement.spacedBy(64.dp)) {
                             TextAction("자세히 보기", { page = ReportPage.DETAILS })
                             TextAction("진단서", { page = ReportPage.CERTIFICATE })
@@ -80,7 +78,7 @@ internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit, locked: B
                             { page = ReportPage.SHARE_EXAMPLE }, Modifier.weight(1f))
                         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) { CompactProvenance(report) }
                         BottomActions(secondary = { BackPill { page = ReportPage.SUMMARY } },
-                            primary = { PrimaryPill(stringResource(R.string.lesson_restart), onRestart) })
+                            primary = { MainPill(onRestart) })
                     }
                     ReportPage.SHARE_EXAMPLE -> {
                         ShareExampleContent(report, shareLevel, Modifier.weight(1f))

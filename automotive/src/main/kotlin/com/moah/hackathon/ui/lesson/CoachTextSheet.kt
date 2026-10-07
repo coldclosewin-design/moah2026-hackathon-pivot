@@ -73,10 +73,12 @@ internal fun CoachTextSheet(coach: CoachDialog, onChoose: (CoachChoice) -> Unit,
                     listOf(CoachColors.Paper, CoachColors.Paper.copy(alpha = 0f)))))
         }
         Spacer(Modifier.height(33.dp))
-        CoachChoices(coach.choices, onChoose)
-        Spacer(Modifier.height(18.dp))
-        LessonText("고르면 바로 그 자리로 가요.", 32, CoachColors.Muted)
-        Spacer(Modifier.height(24.dp))
+        if (coach.cards.isEmpty()) {
+            CoachChoices(coach.choices, onChoose)
+            Spacer(Modifier.height(18.dp))
+            LessonText("고르면 바로 그 자리로 가요.", 32, CoachColors.Muted)
+            Spacer(Modifier.height(24.dp))
+        }
         if (coach.cards.isNotEmpty()) {
             SpeechCardsRow(coach.cards, coach.waiting, onSendCard)
             if (inputMode == CoachInputMode.CARDS_AND_TEXT) Spacer(Modifier.height(18.dp))
@@ -99,10 +101,6 @@ internal fun CoachTextSheet(coach: CoachDialog, onChoose: (CoachChoice) -> Unit,
                 })
             PrimaryPill("보내기", send, Modifier.width(260.dp), enabled = !coach.waiting && draft.text.isNotBlank())
         }
-        Spacer(Modifier.height(18.dp))
-        LessonText("음성 입력 · 시뮬레이션", 28, CoachColors.Periwinkle,
-            modifier = Modifier.background(CoachColors.Lavender, RoundedCornerShape(100))
-                .padding(horizontal = 24.dp, vertical = 8.dp))
         Spacer(Modifier.height(24.dp))
         BottomActions(secondary = { BackPill(onBack) })
     }
@@ -116,6 +114,6 @@ private fun CoachMessage(text: String, fromDriver: Boolean = false, modifier: Mo
                 bottomEnd = if (fromDriver) 9.dp else 36.dp, bottomStart = if (fromDriver) 36.dp else 9.dp))
         .padding(horizontal = 36.dp, vertical = 24.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         if (!fromDriver) Eyebrow("코치")
-        LessonText(text, 48, if (fromDriver) CoachColors.Paper else CoachColors.Ink)
+        LessonText(if (fromDriver) text else coachDisplayText(text), 48, if (fromDriver) CoachColors.Paper else CoachColors.Ink)
     }
 }

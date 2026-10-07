@@ -68,7 +68,7 @@ internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stoppe
                         }
                     }
                     Spacer(Modifier.height(24.dp))
-                    if (!locked) Eyebrow(if (checklist) "출발 전 점검 · 확인 상태" else "조향 방향 도식",
+                    if (!locked && !checklist) Eyebrow("조향 방향 도식",
                         color = CoachColors.Paper.copy(alpha = .7f))
                 }
                 Row(Modifier.weight(.47f).fillMaxHeight().padding(start = 64.dp, end = 64.dp, top = 96.dp, bottom = 52.dp),
@@ -93,13 +93,13 @@ internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stoppe
                                     if (guide != null) state.guideStep?.let { Eyebrow(it, Modifier.alignByBaseline(), color = CoachColors.Periwinkle) }
                                 }
                                 Spacer(Modifier.height(24.dp))
-                                Headline(main, Modifier.graphicsLayer {
+                                Headline(coachDisplayText(main), Modifier.graphicsLayer {
                                     alpha = if (guide == null && visibleHint != null) hintAlpha.value else 1f
                                 }, size = 72)
                             }
                             if (spoken != null && spoken != main) {
                                 Spacer(Modifier.height(24.dp))
-                                LessonText(spoken, 40)
+                                LessonText(coachDisplayText(spoken), 40)
                             }
                         }
                         if (!locked) {

@@ -64,11 +64,14 @@ internal fun VenueSheet(venues: List<Venue>, booking: Reservation?, onReserve: (
                     booking != null -> "예약한 시험장을 누르면 확인할 수 있어요."
                     else -> "연습할 시험장을 골라 주세요."
                 }, 48)
+                if (slot == null || course == null) LessonText("시간과 코스를 고르면 예약할 수 있어요.", 36, CoachColors.Muted)
             }
             BottomActions(secondary = { BackPill { if (venue != null) venueId = null else onBack() } },
-                primary = if (venue != null && slot != null && course != null) {
-                    { PrimaryPill(stringResource(R.string.lesson_reserve), { onReserve(venue.id, slot.id, course.id) }) }
-                } else null)
+                primary = {
+                    PrimaryPill(stringResource(R.string.lesson_reserve), {
+                        if (venue != null && slot != null && course != null) onReserve(venue.id, slot.id, course.id)
+                    }, enabled = venue != null && slot != null && course != null)
+                })
         }
     }
 }

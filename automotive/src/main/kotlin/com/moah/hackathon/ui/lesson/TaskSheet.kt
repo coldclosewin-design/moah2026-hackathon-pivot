@@ -1,5 +1,8 @@
 package com.moah.hackathon.ui.lesson
 
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -78,6 +81,13 @@ internal fun TaskSheet(tasks: List<Task>, category: TaskType, task: Task?, mode:
             else Spacer(Modifier.width(1.dp))
             TextAction("제휴 시험장", onVenues, size = 32)
         }
+        Spacer(Modifier.height(16.dp))
+        if (task != null) {
+            if (selectionMotionEnabled()) Crossfade(mode, animationSpec = tween(250,
+                easing = FastOutSlowInEasing), label = "mode-description") { selectedMode ->
+                LessonText(modeDescription(selectedMode), 36, CoachColors.Muted, maxLines = 1)
+            } else LessonText(modeDescription(mode), 36, CoachColors.Muted, maxLines = 1)
+        }
         Spacer(Modifier.weight(1f))
         BottomActions(secondary = { BackPill(onBack) }, primary = if (task != null) {
             { PrimaryPill(stringResource(R.string.lesson_start), onStart) }
@@ -93,7 +103,7 @@ private fun TaskBay(task: Task, chosen: Boolean, modifier: Modifier, onClick: ()
     val action = if (task.isReady) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier.semantics { disabled() }
     Box(modifier.then(action).semantics(mergeDescendants = true) { selected = chosen }) {
         Box(Modifier.matchParentSize().padding(bottom = 32.dp).then(
-            if (task.isReady) Modifier.surfaceTexture(background, if (chosen) CoachTexture.SelectedCard else CoachTexture.Card)
+            if (task.isReady && !chosen) Modifier.surfaceTexture(background, CoachTexture.Card)
             else Modifier.background(background)))
         Canvas(Modifier.fillMaxSize()) {
             val bottom = size.height - 32.dp.toPx()
@@ -116,6 +126,7 @@ private fun TaskBay(task: Task, chosen: Boolean, modifier: Modifier, onClick: ()
                     TaskType.PARKING -> ParkingTaskDiagram(task.id, ink,
                         if (chosen) CoachColors.Lavender else CoachColors.Periwinkle,
                         if (chosen) CoachColors.Periwinkle else CoachColors.Lavender, art)
+                    TaskType.KNOWLEDGE -> KnowledgeTaskDiagram(task.id, ink, art)
                     TaskType.CHECKLIST -> if (task.quizOnly) RoadSignsTaskDiagram(ink, art) else ChecklistTaskDiagram(ink, art)
                     else -> if (task.course != null) CourseMap(task.course, art, thumbnail = true, ink = ink)
                         else CategoryTaskDiagram(task.type, ink, art)
@@ -133,7 +144,7 @@ private fun TaskBay(task: Task, chosen: Boolean, modifier: Modifier, onClick: ()
     }
 }
 
-/** Measure before drawing so each title stays on one line and never drops below 36 sp. */
+/** Driving titles share one size; other categories retain their measured one-line titles. */
 @Composable
 private fun TaskTitleBand(task: Task, titleColor: Color, detailColor: Color, modifier: Modifier) {
     val measurer = rememberTextMeasurer()
@@ -143,7 +154,7 @@ private fun TaskTitleBand(task: Task, titleColor: Color, detailColor: Color, mod
     BoxWithConstraints(modifier, contentAlignment = Alignment.Center) {
         val detailWidth = measurer.measure(AnnotatedString(detail), style.copy(fontSize = 32.sp), softWrap = false).size.width
         val titleWidth = with(density) { (maxWidth - 8.dp).toPx() } - detailWidth
-        val titleSize = (40 downTo 36).firstOrNull { size ->
+        val titleSize = if (task.type == TaskType.DRIVING) 36 else (40 downTo 36).firstOrNull { size ->
             measurer.measure(AnnotatedString(task.title), style.copy(fontSize = size.sp), softWrap = false).size.width <= titleWidth
         } ?: 36
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {

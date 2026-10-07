@@ -51,7 +51,7 @@ internal fun DriveScreen(state: LessonPhase.Drive, subtitle: String?, onFinish: 
                     signalText?.let { LessonText(it, 40,
                         if (state.snapshot.signal == TrackSignal.RED) CoachColors.Signal else CoachColors.Muted) }
                     Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
-                        Headline(state.lastHint ?: state.zoneLine ?: subtitle ?: "안내를 들으며 코스를 따라가요.", size = 64)
+                        Headline(coachDisplayText(state.lastHint ?: state.zoneLine ?: subtitle ?: "안내를 들으며 코스를 따라가요."), size = 64)
                     }
                     if (!state.locked && state.snapshot.stopped) FinishButton(state.askedDone, onFinish)
                     else Spacer(Modifier.height(140.dp))
