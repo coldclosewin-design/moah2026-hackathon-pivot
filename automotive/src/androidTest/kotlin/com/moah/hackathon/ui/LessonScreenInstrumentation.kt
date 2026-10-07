@@ -639,7 +639,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             val seedCoach = FakeCoachPort(RemarkPool(SeedCatalog.remarks, kotlin.random.Random(3)))
             val record = AttemptRecord(1, task.id, LessonMode.HINT, score, null,
                 runBlocking { seedCoach.remark(task, score, null, SeedCatalog.demoProfile, 1, badRecorder.verdict()) }, 0)
-            check(record.remark.startsWith("한 번 다시 넣고 들어갔어요.\n"))
+            check(record.remark.startsWith("한 번 고쳐 넣었어요.\n"))
             var again = 0
             var ended = 0
             render(activity) { DoneScreen(task, 1, record, record.remark, { again++ }, { ended++ }, demo) }
@@ -867,7 +867,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         val manyScore = ParkingScorer.score(manyMetrics, badScore.badge, badScore.missingSignals)
         val manyVerdict = ParkingVerdicts.of(manyMetrics, bad.path(), 0f, true)
         val manyRemark = runBlocking { coach.remark(task, manyScore, null, SeedCatalog.demoProfile, 1, manyVerdict) }
-        check(manyRemark.startsWith("여러 번 오가며 들어갔어요.\n"))
+        check(manyRemark.startsWith("여러 번 오갔어요.\n"))
         val many = AttemptRecord(1, task.id, LessonMode.HINT, manyScore, null, manyRemark, 0, verdict = manyVerdict)
         render(activity) { DoneScreen(task, 1, many, null, {}, {}) }
         assertFullText(activity, manyRemark, "한 번 더")
@@ -1332,7 +1332,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         }
         check(real.admin == null)
         fun awaitPhase(test: (LessonPhase) -> Boolean) {
-            repeat(80) {
+            repeat(150) {   // 브리핑이 음성 끝까지 머문다(최대 12 s, 라운드 26 #230)
                 if (test(vm.phase.value)) return
                 Thread.sleep(100)
             }
