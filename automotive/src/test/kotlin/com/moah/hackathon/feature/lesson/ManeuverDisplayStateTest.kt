@@ -37,6 +37,17 @@ class ManeuverDisplayStateTest {
     }
 
     @Test
+    fun `checklist reveal follows the mode - guide all, hint mistakes, evaluate names only`() {
+        // 라운드 26 시안 4-3(10/7): 모드마다 점검 목록 공개 범위가 다르다. 미측정은 세 모드 모두 그대로(화면 규칙)
+        val p = phase(VehicleSnapshot(), emptyMap()).copy(task = SeedCatalog.tasks.first { it.id == SeedCatalog.TASK_PREDRIVE })
+        assertEquals(ChecklistReveal.ALL, p.copy(mode = LessonMode.GUIDE).toDisplayState().checklistReveal)
+        assertEquals(ChecklistReveal.MISTAKES, p.copy(mode = LessonMode.HINT).toDisplayState().checklistReveal)
+        val eval = p.copy(mode = LessonMode.EVALUATE).toDisplayState()
+        assertEquals(ChecklistReveal.NAMES_ONLY, eval.checklistReveal)
+        assertEquals(LessonMode.EVALUATE, eval.mode)
+    }
+
+    @Test
     fun `maps current values and progress - never a score`() {
         val snap = VehicleSnapshot().apply(mapOf(
             VssConstants.VEHICLE_SPEED to "2.6", VssConstants.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE to "-450",
