@@ -41,18 +41,24 @@ internal fun taskTypeLabel(type: TaskType): String = when (type) {
 internal fun categoryOrder(): List<TaskType> =
     listOf(TaskType.PARKING, TaskType.DRIVING, TaskType.CHECKLIST, TaskType.KNOWLEDGE)
 
+internal fun taskModeLine(task: Task, mode: LessonMode) = "${taskTypeLabel(task.type)} › ${task.title} · ${mode.label} 모드"
+
+internal fun briefingSentences(line: String): List<String> =
+    line.split(Regex("(?<=[.!?])\\s*|\\n+")).map(String::trim).filter(String::isNotEmpty)
+
+/** The speech port exposes duration, not word events; character weights are an estimate. */
+internal fun briefingSentenceIndex(sentences: List<String>, fraction: Float): Int {
+    if (sentences.isEmpty()) return -1
+    val position = fraction.coerceIn(0f, 1f) * sentences.sumOf(String::length)
+    var end = 0
+    return sentences.indexOfFirst { end += it.length; position < end }.takeIf { it >= 0 } ?: sentences.lastIndex
+}
+
 internal fun selectionReason(task: Task, mode: LessonMode, suggestedTask: Task, suggestedMode: LessonMode, reason: String) =
     if (task.id == suggestedTask.id && mode == suggestedMode) reason else task.summary
 
 internal fun supportedMode(task: Task, mode: LessonMode) =
     mode.takeIf(task::supports) ?: LessonMode.entries.first(task::supports)
-
-internal fun setupProposal(type: TaskType) = when (type) {
-    TaskType.CHECKLIST -> "시동 켜기 전,\n순서를 익혀 볼까요?"
-    TaskType.KNOWLEDGE -> "정차 중이니\n머리로 풀어 볼까요?"
-    TaskType.PARKING -> "오늘은 가볍게,\n주차부터 해 볼까요?"
-    TaskType.DRIVING -> "오늘은 천천히,\n함께 달려 볼까요?"
-}
 
 internal fun briefingHeadline(watch: List<String>): String = when (watch.size) {
     0 -> "오늘의 연습을\n함께 준비할게요."

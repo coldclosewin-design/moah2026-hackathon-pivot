@@ -24,6 +24,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.LocaleList
@@ -36,6 +39,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.TextUnit
 import com.moah.hackathon.ui.CoachColors
 import com.moah.hackathon.ui.CoachType
 import com.moah.hackathon.ui.CoachTexture
@@ -100,11 +104,29 @@ internal fun Headline(text: String, modifier: Modifier = Modifier, size: Int = C
 /** Results can contain explicit line breaks and the full Cloud response; keep every line. */
 @Composable
 internal fun ResultHeadline(text: String, modifier: Modifier = Modifier) {
+    CoachLines(text, modifier)
+}
+
+/** Keep one text node for speech/accessibility while drawing the title and advice at two sizes. */
+@Composable
+internal fun CoachLines(text: String, modifier: Modifier = Modifier, titleSize: Int = 88, adviceSize: Int = 48) {
     BoxWithConstraints(modifier) {
-        val sizes = listOf(72, 64, 56, 48, 40, 32)
+        val sizes = listOf(titleSize, 72, 64, 56, 48, 40, 32).distinct().filter { it <= titleSize }
         var step by remember(text, maxWidth, maxHeight) { mutableIntStateOf(0) }
         val size = sizes[step]
-        Text(coachDisplayText(text), color = CoachColors.Ink, fontSize = size.sp, lineHeight = (size * 1.18f).sp,
+        val display = coachDisplayText(text).trim()
+        val title = display.substringBefore('\n')
+        val advice = display.substringAfter('\n', "")
+        val styled = buildAnnotatedString {
+            append(title)
+            if (advice.isNotEmpty()) {
+                append('\n')
+                withStyle(SpanStyle(color = CoachColors.Muted, fontSize = (adviceSize * size.toFloat() / titleSize).sp)) {
+                    append(advice)
+                }
+            }
+        }
+        Text(styled, color = CoachColors.Ink, fontSize = size.sp, lineHeight = TextUnit.Unspecified,
             onTextLayout = { if (it.hasVisualOverflow && step < sizes.lastIndex) step++ },
             fontWeight = FontWeight.Normal, style = TextStyle(localeList = LocaleList("ko-KR"),
                 lineBreak = LineBreak.Paragraph.copy(wordBreak = LineBreak.WordBreak.Phrase)))
@@ -113,14 +135,14 @@ internal fun ResultHeadline(text: String, modifier: Modifier = Modifier) {
 
 /** Replace the result subtree so no score, scroll action or demo target survives the lock. */
 @Composable
-internal fun ResultLockedScreen(onDemoStop: (() -> Unit)? = null) {
+internal fun ResultLockedScreen(onDemoStop: (() -> Unit)? = null, message: String = "속도를 낮추면 결과가 다시 보여요.") {
     Column(Modifier.fillMaxSize().background(CoachColors.Ink)
         .padding(start = 180.dp, end = 100.dp, top = 64.dp, bottom = 52.dp)) {
         DemoBrandMark(onHold = onDemoStop, onInk = true)
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
             Headline("운전에 집중해 주세요", color = CoachColors.Paper)
             Spacer(Modifier.height(32.dp))
-            LessonText("속도를 낮추면 결과가 다시 보여요.", 40, CoachColors.Paper.copy(alpha = .7f))
+            LessonText(message, 40, CoachColors.Paper.copy(alpha = .7f))
         }
         if (onDemoStop != null) LessonText("시연 · 시나리오가 끝나면 차가 멈춰요 — 막히면 워드마크를 길게",
             28, CoachColors.Paper.copy(alpha = .4f))

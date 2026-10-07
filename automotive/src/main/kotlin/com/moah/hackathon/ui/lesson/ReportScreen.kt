@@ -44,19 +44,21 @@ internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit, locked: B
                     Modifier.align(Alignment.BottomStart).fillMaxWidth(), title = "마지막 회차의 판정")
             }
             Column(Modifier.weight(.62f).fillMaxHeight().padding(start = 120.dp, end = 180.dp, top = 96.dp, bottom = 64.dp),
-                verticalArrangement = Arrangement.spacedBy(28.dp)) {
+                verticalArrangement = Arrangement.spacedBy(if (page == ReportPage.SUMMARY && report.askOne != null) 16.dp else 28.dp)) {
                 when (page) {
                     ReportPage.SUMMARY -> {
-                        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.Center) {
-                            Eyebrow("오늘의 기록")
-                            Spacer(Modifier.height(if (report.askOne != null) 12.dp else 28.dp))
-                            if (report.askOne != null) LessonText(coachDisplayText(driverReportSummary(report.summary)), 48)
-                            else ResultHeadline(driverReportSummary(report.summary), Modifier.fillMaxWidth().heightIn(max = 520.dp))
-                            Spacer(Modifier.height(if (report.askOne != null) 16.dp else 32.dp))
-                            LessonText("${report.task.title} · ${report.mode.label}", if (report.askOne != null) 32 else 40)
-                            if (report.best.missingSignals.isNotEmpty() || report.unverifiedGuideSteps.isNotEmpty()) {
-                                Spacer(Modifier.height(32.dp))
-                                ReportLimitations(report)
+                        BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
+                            val summaryHeight = if (report.askOne != null) (maxHeight - 112.dp).coerceAtLeast(80.dp) else 520.dp
+                            Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.Center) {
+                                Eyebrow("오늘의 기록")
+                                Spacer(Modifier.height(if (report.askOne != null) 12.dp else 28.dp))
+                                ResultHeadline(driverReportSummary(report.summary), Modifier.fillMaxWidth().heightIn(max = summaryHeight))
+                                Spacer(Modifier.height(if (report.askOne != null) 16.dp else 32.dp))
+                                LessonText(taskModeLine(report.task, report.mode), if (report.askOne != null) 32 else 40)
+                                if (report.best.missingSignals.isNotEmpty() || report.unverifiedGuideSteps.isNotEmpty()) {
+                                    Spacer(Modifier.height(32.dp))
+                                    ReportLimitations(report)
+                                }
                             }
                         }
                         report.askOne?.let { ProfileAskCard(it, onAnswerProfile, onSkipAsk) }
