@@ -135,6 +135,8 @@ class LessonViewModel(
     }
 
     fun begin(taskId: String, mode: LessonMode) = machine.begin(taskId, mode)
+    /** 브리핑 `건너뛰기` — 정차 중에만 보인다. */
+    fun skipBriefing() = machine.skipBriefing()
     /** 지식 테스트 선택지(0-based). 정차 중에만 받는다. */
     fun answer(choice: Int) = machine.answer(choice)
     /** 지식 테스트 "다음 문제" / 마지막이면 "결과 보기". */

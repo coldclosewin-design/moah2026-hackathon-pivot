@@ -17,6 +17,11 @@ import java.util.concurrent.ConcurrentHashMap
 interface TtsPort {
     /** 자막. 실제 음성 엔진에서는 **지금 말하기 시작한 문장**이다(큐에 넣은 문장이 아니다) — 음성과 자막이 어긋나지 않게. */
     val lastSpoken: StateFlow<String?>
+    /**
+     * 지금 말하는 중인가(엔진 준비 전 대기열 포함). 브리핑이 "음성이 끝난 뒤" 넘어가는 데 쓴다(라운드 26, 10/7).
+     * 엔진이 없거나 실패한 구현은 늘 false — 그때 브리핑은 최소 시간만 머문다.
+     */
+    val speaking: StateFlow<Boolean> get() = NOT_SPEAKING
     fun speak(text: String, priority: SpeechPriority = SpeechPriority.NORMAL)
     /** 말하던 것과 대기열을 버리고 **자막도 지운다**(9/30 — 퀴즈 "그만하기" 뒤 Setup 에 지난 해설이 남던 것). */
     fun stop()
@@ -30,6 +35,8 @@ interface TtsPort {
  *  - [AMBIENT]: 스토리·힌트. 이미 밀려 있으면 버린다(낡은 이야기를 뒤늦게 읽지 않는다).
  */
 enum class SpeechPriority { AMBIENT, NORMAL, URGENT }
+
+private val NOT_SPEAKING: StateFlow<Boolean> = MutableStateFlow(false)
 
 /**
  * 긴 안내(도착 멘트는 메모 + 예약 + 산책 + 실내 안내 + 마지막 메시지로 열 문장이 넘는다)를 자막 한 장에 들어가는 토막으로 나눈다.
@@ -60,6 +67,9 @@ internal fun String.asCaption(): String = lines().map { it.trim() }.filter { it.
 class FakeTtsPort : TtsPort {
     private val _lastSpoken = MutableStateFlow<String?>(null)
     override val lastSpoken: StateFlow<String?> = _lastSpoken
+    /** 테스트가 "말하는 중" 을 직접 정한다(Fake 는 시간을 모른다). */
+    val speakingFlow = MutableStateFlow(false)
+    override val speaking: StateFlow<Boolean> = speakingFlow
     val spoken = mutableListOf<String>()
     /** [spoken] 과 같은 순서의 우선순위(테스트가 "끊고 말해야 하는 문장"을 확인한다). */
     val priorities = mutableListOf<SpeechPriority>()
@@ -95,6 +105,10 @@ class AndroidTtsPort(
     private val pending = ArrayDeque<Pair<String, SpeechPriority>>()
     private val texts = ConcurrentHashMap<String, String>()   // utteranceId("moah-<발화>-<토막>") → 토막 (아직 끝나지 않은 것)
     private var utteranceSeq = 0
+    private val _speaking = MutableStateFlow(false)
+    override val speaking: StateFlow<Boolean> = _speaking
+    /** 남은 토막(또는 준비 전 대기열)이 있으면 말하는 중. 콜백·큐 변경마다 다시 계산한다. */
+    private fun refreshSpeaking() { _speaking.value = texts.isNotEmpty() || synchronized(pending) { pending.isNotEmpty() } }
 
     private val tts: TextToSpeech = TextToSpeech(context.applicationContext) { status ->
         if (status == TextToSpeech.SUCCESS) {
@@ -103,8 +117,11 @@ class AndroidTtsPort(
             Log.i(TAG, "TTS ready, setLanguage($locale)=$result")
             ready = true
             synchronized(pending) { while (pending.isNotEmpty()) pending.removeFirst().let { enqueue(it.first, it.second) } }
+            refreshSpeaking()
         } else {
             failed = true
+            synchronized(pending) { pending.clear() }
+            refreshSpeaking()
             Log.w(TAG, "TTS init failed: $status (자막만 표시)")
         }
     }
@@ -113,12 +130,13 @@ class AndroidTtsPort(
         tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
             // start/done 로그의 시각으로 도착 멘트의 시간표(ui/…/ArrivalTiming)를 잰다 — 음성을 바꾸면 다시 잰다
             override fun onStart(utteranceId: String) { texts[utteranceId]?.let { _lastSpoken.value = it; Log.d(TAG, "start $utteranceId ${it.take(16)}") } }
-            override fun onDone(utteranceId: String) { Log.d(TAG, "done $utteranceId"); texts.remove(utteranceId) }
-            override fun onStop(utteranceId: String, interrupted: Boolean) { texts.remove(utteranceId) }
+            override fun onDone(utteranceId: String) { Log.d(TAG, "done $utteranceId"); texts.remove(utteranceId); refreshSpeaking() }
+            override fun onStop(utteranceId: String, interrupted: Boolean) { texts.remove(utteranceId); refreshSpeaking() }
             @Deprecated("platform callback")
             override fun onError(utteranceId: String) {
                 // 합성 실패(예: 네트워크 음성인데 오프라인): 음성은 못 냈어도 자막은 보여준다
                 texts.remove(utteranceId)?.let { _lastSpoken.value = it; Log.w(TAG, "utterance failed → subtitle only") }
+                refreshSpeaking()
                 if (tts.voice?.isNetworkConnectionRequired == true) {
                     Log.w(TAG, "network voice failed → back to the best local voice")
                     selectBestVoice(locale, localOnly = true)
@@ -178,6 +196,7 @@ class AndroidTtsPort(
             !ready -> { _lastSpoken.value = text.asCaption(); synchronized(pending) { pending.addLast(text to priority) } }
             else -> enqueue(text, priority)
         }
+        refreshSpeaking()
     }
 
     private fun enqueue(text: String, priority: SpeechPriority) {
@@ -212,6 +231,7 @@ class AndroidTtsPort(
         texts.clear()
         if (ready) tts.stop()
         _lastSpoken.value = null
+        refreshSpeaking()
     }
 
     override fun dispose() {
