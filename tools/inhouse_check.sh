@@ -127,7 +127,7 @@ if [ "${SKIP_COACH_TEXT:-0}" != "1" ]; then
   echo "== 홈 코치 대화: 다시 시작 → 준비실 음성 입력(카드 + 글) → 코치와 대화 → 말 카드 두 장 → 다시 열어 영어 두 줄"
   COACH_TEXT="fail"
   FAIL_BEFORE=$FAIL   # 이 단계에서 난 실패만 본다
-  press "다시 시작 →" "다시 시작"; sleep 3
+  press "메인으로 →" "메인으로" "다시 시작 →" "다시 시작"; sleep 3   # 라운드 26: 결과 화면 `다시 시작` → `메인으로`(옛 태그도 찾는다)
   dump; xy=$(center "DRIVE COACH")
   if [ -z "$xy" ]; then note "DRIVE COACH 못 찾음 — 건너뜀"; COACH_TEXT="skip"
   else

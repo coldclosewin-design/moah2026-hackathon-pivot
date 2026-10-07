@@ -143,7 +143,8 @@ R2=$(adb logcat -d -s "$TAG" | grep -oE "attempt 2: skill=[0-9]+ safety=[0-9]+ s
 
 echo "== report: 정차 + 운전석 도어 열림"
 open_demo_panel; tap_text "문 열기"; wait_log "report: attempts=2" 15 || exit 1; mark "report (= 시연 길이)"; sleep 3; shot 17_report
-now_texts | grep -q "다시 시작" || { echo "  !! report screen not reached: $(texts)"; FAIL=1; }
+# 라운드 26: 결과 화면 `다시 시작` → `메인으로`(둘 다 찾는다)
+now_texts | grep -qE "메인으로|다시 시작" || { echo "  !! report screen not reached: $(texts)"; FAIL=1; }
 now_texts | grep -qE "실신호|시뮬레이션|미측정" || { echo "  !! report has no availability badge"; FAIL=1; }
 echo "  texts: $(texts)"
 
