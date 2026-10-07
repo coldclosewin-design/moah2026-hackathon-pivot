@@ -199,6 +199,7 @@ object CoachPrompts {
         if (ctx.last != null) appendLine("- CONTINUE_LAST: 지난번 연습을 이어서 합니다")
         appendLine("- OPEN_PROFILE: 프로필(면허·목표·걱정)을 고치는 시트를 엽니다")
         appendLine("- ASK_MORE: 대화를 이어 갑니다")
+        appendLine("운전자의 첫 말이 감정·인사뿐이면(과제·상황을 말하지 않았으면) 과제를 고르지 말고 ASK_MORE 로 공감한 뒤 어떤 연습이 필요한지 한 번 되묻습니다.")
         appendLine("분류: PARKING=주차, DRIVING=도로 주행, CHECKLIST=출발 전 점검, KNOWLEDGE=지식(정차 중 문제).")
         appendLine("모드: GUIDE=가이드(단계마다 안내), HINT=힌트(필요할 때만), EVALUATE=평가(조용히 채점), QUIZ=지식 테스트.")
         val st = ctx.profile.statement

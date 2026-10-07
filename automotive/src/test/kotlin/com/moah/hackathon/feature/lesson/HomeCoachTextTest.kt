@@ -153,6 +153,38 @@ class HomeCoachTextTest {
         h.scope.cancel()
     }
 
+    /** 사외 피드백 #6(10/7): AI 가 첫 감정 카드에 곧바로 과제를 골라도 한 번은 되묻는다. 둘째 말부터는 AI 의도를 따른다. */
+    @Test
+    fun firstFeelingsAskBackEvenIfTheAiPicksATask() = runTest {
+        val coach = ScriptedCoach(FakeCoachPort(RemarkPool(SeedCatalog.remarks, Random(3))),
+            reply = CoachReply("가볍게 출발 전 점검부터 해 볼까요?", CoachIntent.PinTask(SeedCatalog.TASK_PREDRIVE, LessonMode.GUIDE), ReplySource.AI))
+        val h = harness(coach)
+        h.machine.setCoachTextInput(true)
+        h.machine.openCoach()
+        say(h, "오랜만이라 무서워요")
+        assertEquals(IntentRules.WORRY_LINE, h.setup.coach!!.turns.last().text)
+        assertFalse(h.setup.suggestedTask.id == SeedCatalog.TASK_PREDRIVE)
+
+        coach.reply = CoachReply("평행 주차를 힌트 모드로 홈에 올려 둘게요.", CoachIntent.PinTask(SeedCatalog.TASK_PARKING_PARALLEL, LessonMode.HINT), ReplySource.AI)
+        say(h, "평행 주차 힌트로 할래요")
+        assertNull("second words follow the AI", h.setup.coach)
+        assertEquals(SeedCatalog.TASK_PARKING_PARALLEL, h.setup.suggestedTask.id)
+        h.scope.cancel()
+    }
+
+    @Test
+    fun firstWordsNamingATaskStillGoStraightThere() = runTest {
+        val coach = ScriptedCoach(FakeCoachPort(RemarkPool(SeedCatalog.remarks, Random(3))),
+            reply = CoachReply("후면 주차를 힌트 모드로 홈에 올려 둘게요.", CoachIntent.PinTask(SeedCatalog.TASK_PARKING_REAR, LessonMode.HINT), ReplySource.AI))
+        val h = harness(coach)
+        h.machine.setCoachTextInput(true)
+        h.machine.openCoach()
+        say(h, "후면 주차 다시 해 볼래요")
+        assertNull(h.setup.coach)
+        assertEquals(SeedCatalog.TASK_PARKING_REAR, h.setup.suggestedTask.id)
+        h.scope.cancel()
+    }
+
     @Test
     fun movingCarGetsNoAnswer() = runTest {
         val coach = ScriptedCoach(FakeCoachPort(RemarkPool(SeedCatalog.remarks, Random(3))))
