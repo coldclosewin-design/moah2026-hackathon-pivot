@@ -1132,7 +1132,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         }
         fun setup() = vm.phase.value as LessonPhase.Setup
         fun awaitQuiz() {
-            repeat(80) {
+            repeat(150) {   // 브리핑이 음성 끝까지 머문다(최대 12 s, 라운드 26)
                 if (vm.phase.value is LessonPhase.Quiz) return
                 Thread.sleep(100)
             }
