@@ -114,6 +114,7 @@ private fun CoachMessage(text: String, fromDriver: Boolean = false, modifier: Mo
                 bottomEnd = if (fromDriver) 9.dp else 36.dp, bottomStart = if (fromDriver) 36.dp else 9.dp))
         .padding(horizontal = 36.dp, vertical = 24.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         if (!fromDriver) Eyebrow("코치")
-        LessonText(if (fromDriver) text else coachDisplayText(text), 48, if (fromDriver) CoachColors.Paper else CoachColors.Ink)
+        if (fromDriver) LessonText(text, 48, CoachColors.Paper)
+        else CoachLines(text, titleSize = 52, adviceSize = 44)
     }
 }

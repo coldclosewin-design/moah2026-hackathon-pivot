@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.sp
 import com.moah.hackathon.feature.lesson.QuizItem
 import com.moah.hackathon.feature.lesson.QuizResult
 import com.moah.hackathon.feature.lesson.Task
+import com.moah.hackathon.feature.lesson.LessonMode
 import com.moah.hackathon.ui.CoachColors
 
 @Composable
@@ -30,7 +31,7 @@ internal fun QuizDoneScreen(task: Task, results: List<QuizResult>, items: List<Q
             QuizNumber(correct.toString().padStart(2, '0'), "맞은 문제 / ${items.size}", Modifier.weight(.38f))
             Column(Modifier.weight(.62f).fillMaxHeight().padding(start = 100.dp, end = 120.dp, top = 64.dp, bottom = 52.dp),
                 verticalArrangement = Arrangement.spacedBy(32.dp)) {
-                Eyebrow("지식 테스트 · ${task.title}")
+                Eyebrow(taskModeLine(task, LessonMode.QUIZ))
                 Headline(coachDisplayText(remark), size = 72)
                 Column(Modifier.weight(1f).verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(28.dp)) {

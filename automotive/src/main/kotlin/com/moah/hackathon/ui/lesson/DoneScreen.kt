@@ -64,7 +64,10 @@ internal fun DoneScreen(task: Task, attempt: Int, record: AttemptRecord, subtitl
                 Column(Modifier.weight(1f).fillMaxHeight().padding(start = 120.dp, end = 100.dp, top = 96.dp, bottom = 52.dp),
                     verticalArrangement = Arrangement.spacedBy(48.dp)) {
                     BrandMark()
-                    Eyebrow("${task.title} · ${attempt}회차")
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Eyebrow(taskModeLine(task, record.mode))
+                        LessonText("${attempt}회차", 32, CoachColors.Muted)
+                    }
                     Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
                         ResultHeadline(record.remark)
                     }

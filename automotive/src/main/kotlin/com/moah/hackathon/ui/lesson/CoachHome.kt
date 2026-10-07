@@ -79,7 +79,7 @@ internal fun CoachSheet(coach: CoachDialog, onChoose: (CoachChoice) -> Unit, onB
                 shape = RoundedCornerShape(topStart = 36.dp, topEnd = 36.dp, bottomEnd = 36.dp, bottomStart = 9.dp))
             .padding(horizontal = 36.dp, vertical = 24.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Eyebrow("코치")
-            LessonText(coachDisplayText(coach.line), 48)
+            CoachLines(coach.line, titleSize = 52, adviceSize = 44)
         }
         Spacer(Modifier.height(33.dp))
         CoachChoices(coach.choices, onChoose)

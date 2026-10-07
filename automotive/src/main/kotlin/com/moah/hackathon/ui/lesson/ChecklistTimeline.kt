@@ -1,21 +1,25 @@
 package com.moah.hackathon.ui.lesson
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.runtime.Composable
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.compositeOver
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.*
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.moah.hackathon.feature.lesson.ChecklistReveal
+import com.moah.hackathon.feature.lesson.LessonMode
 import com.moah.hackathon.feature.lesson.ManeuverDisplayState
 import com.moah.hackathon.ui.CoachColors
-import com.moah.hackathon.ui.CoachTexture
 import com.moah.hackathon.vehicle.SignalAvailability
+import kotlin.math.abs
+import kotlin.math.roundToInt
 
 internal data class ChecklistStep(val label: String, val value: String?, val satisfied: Boolean,
     val signal: SignalAvailability, val source: String = signalLabel(signal), val failed: Boolean = false) {
@@ -42,52 +46,89 @@ internal fun checklistSteps(state: ManeuverDisplayState): List<ChecklistStep> {
 }
 
 @Composable
-internal fun ChecklistTimeline(state: ManeuverDisplayState, showSource: Boolean, modifier: Modifier) {
+internal fun ChecklistTimeline(state: ManeuverDisplayState, modifier: Modifier) {
     val steps = checklistSteps(state)
-    val current = steps.indexOfFirst { it.pending }
-    Column(modifier) {
-        Row(Modifier.fillMaxWidth().padding(bottom = 24.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            steps.forEach { step ->
-                Box(Modifier.weight(1f).height(12.dp).background(
-                    if (step.measured && step.satisfied) CoachColors.Periwinkle else CoachColors.Paper.copy(alpha = .14f),
-                    RoundedCornerShape(100)))
+    if (state.checklistReveal == ChecklistReveal.ALL) {
+        val current = checklistFocus(state, steps)
+        val position by animateFloatAsState(current.toFloat(), tween(if (selectionMotionEnabled()) 300 else 0), label = "checklist-wheel")
+        BoxWithConstraints(modifier.clipToBounds().testTag("checklist-wheel")) {
+            val available = maxHeight
+            steps.forEachIndexed { index, step ->
+                val distance = abs(index - position)
+                val emphasis = (1f - distance).coerceIn(0f, 1f)
+                val rowHeight = (96 + 72 * emphasis).dp
+                val offset = checklistWheelOffset(index - position) * available.value / 1040f
+                val size = (38 + 24 * emphasis - (distance - 1).coerceAtLeast(0f) * 2).roundToInt().coerceAtLeast(26)
+                val alpha = (1f - distance * .18f).coerceAtLeast(.24f)
+                Column(Modifier.fillMaxWidth().height(rowHeight)
+                    .offset { IntOffset(0, ((available - rowHeight) / 2 + offset.dp).roundToPx()) }
+                    .testTag("checklist-step-$index"), verticalArrangement = Arrangement.Center) {
+                    if (index == current) PosterRule(color = CoachColors.Paper.copy(alpha = .22f))
+                    Row(Modifier.fillMaxWidth().weight(1f), verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                        Box(Modifier.width(6.dp).height(48.dp).background(
+                            if (index == current) CoachColors.Signal else CoachColors.Ink))
+                        Column(Modifier.weight(1f)) {
+                            LessonText(step.label, size, CoachColors.Paper.copy(alpha = alpha))
+                            if (index == current && (step.measured || step.source != "미측정"))
+                                LessonText(step.source.replace('\n', ' '), 28, CoachColors.Paper.copy(alpha = .6f))
+                        }
+                        LessonText(checklistValue(step, state.checklistReveal), if (distance < .5f) 44 else 34,
+                            if (step.failed) CoachColors.Signal else CoachColors.Paper.copy(alpha = alpha))
+                    }
+                    if (index == current) PosterRule(color = CoachColors.Paper.copy(alpha = .22f))
+                }
             }
         }
-        steps.forEachIndexed { index, step ->
-            val active = index == current
-            val muted = CoachColors.Paper.copy(alpha = .6f)
-            Row(Modifier.fillMaxWidth().weight(1f), verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                Canvas(Modifier.width(56.dp).fillMaxHeight()) {
-                    val center = Offset(size.width / 2, size.height / 2)
-                    if (index > 0) drawLine(CoachColors.Paper.copy(alpha = .16f), Offset(center.x, 0f), center, 4.dp.toPx())
-                    if (index < steps.lastIndex) drawLine(CoachColors.Paper.copy(alpha = .16f), center,
-                        Offset(center.x, size.height), 4.dp.toPx())
-                    val radius = (if (active) 22 else 16).dp.toPx()
-                    if (active) drawCircle(CoachColors.Signal.copy(alpha = .18f), radius + 10.dp.toPx(), center)
-                    drawCircle(CoachColors.Ink, radius, center)
-                    when {
-                        !step.measured -> drawCircle(muted, radius, center, style = Stroke(4.dp.toPx(),
-                            pathEffect = PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 6.dp.toPx()))))
-                        step.satisfied -> drawCircle(CoachColors.Periwinkle, radius, center)
-                        step.failed -> drawCircle(CoachColors.Signal, radius, center)
-                        else -> drawCircle(CoachColors.Signal, radius, center, style = Stroke(4.dp.toPx()))
-                    }
-                }
-                Column(Modifier.weight(1f).then(if (active) Modifier.surfaceTexture(
-                    CoachColors.Paper.copy(alpha = .08f).compositeOver(CoachColors.Ink), CoachTexture.SelectedCard) else Modifier)
-                    .padding(horizontal = 32.dp, vertical = 12.dp)) {
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(24.dp),
-                        verticalAlignment = Alignment.CenterVertically) {
-                        LessonText(step.label, 38, if (step.satisfied) muted else CoachColors.Paper,
-                            modifier = Modifier.weight(1f))
-                        LessonText(if (step.measured) step.value!! else "미측정", if (active) 44 else 38,
-                            when { !step.measured -> muted; step.satisfied -> CoachColors.Paper; else -> CoachColors.Signal })
-                    }
-                    if (showSource && (step.measured || step.source != "미측정"))
-                        LessonText(step.source.replace('\n', ' '), 28, muted)
+    } else {
+        val paper = state.mode == LessonMode.EVALUATE
+        val foreground = if (paper) CoachColors.Ink else CoachColors.Paper
+        Column(modifier.then(if (paper) Modifier.border(2.dp, CoachColors.Ink).padding(24.dp) else Modifier)) {
+            steps.forEach { step ->
+                val mistake = state.checklistReveal == ChecklistReveal.MISTAKES && step.failed && step.measured
+                Row(Modifier.fillMaxWidth().weight(1f).then(if (mistake) Modifier.background(CoachColors.Ink) else Modifier)
+                    .padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                    if (state.checklistReveal == ChecklistReveal.NAMES_ONLY) Box(Modifier.size(30.dp).border(2.dp, foreground))
+                    LessonText(step.label, 38, foreground, modifier = Modifier.weight(1f))
+                    LessonText(checklistValue(step, state.checklistReveal), 38, foreground)
                 }
             }
+        }
+    }
+}
+
+internal fun checklistFocus(state: ManeuverDisplayState, steps: List<ChecklistStep> = checklistSteps(state)): Int =
+    state.guideStep?.substringBefore('/')?.toIntOrNull()?.minus(1)?.takeIf { it in steps.indices }
+        ?: steps.indexOfFirst { it.failed || it.pending }.takeIf { it >= 0 } ?: steps.lastIndex
+
+internal fun checklistValue(step: ChecklistStep, reveal: ChecklistReveal): String = when {
+    !step.measured -> "미측정"
+    reveal == ChecklistReveal.NAMES_ONLY -> ""
+    reveal == ChecklistReveal.ALL || step.failed -> step.value.orEmpty()
+    step.satisfied -> "✓"
+    else -> "—"
+}
+
+/** Compress distant rows while the selected row remains at the panel's vertical center. */
+internal fun checklistWheelOffset(distance: Float): Float {
+    val positions = listOf(0f, 156f, 252f, 332f, 396f, 450f, 494f)
+    val d = abs(distance).coerceAtMost(6f)
+    val index = d.toInt()
+    val value = positions[index] + (positions[(index + 1).coerceAtMost(6)] - positions[index]) * (d - index)
+    return if (distance < 0) -value else value
+}
+
+@Composable
+internal fun ChecklistModeLadder(mode: LessonMode) {
+    val foreground = if (mode == LessonMode.EVALUATE) CoachColors.Ink else CoachColors.Paper
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.testTag("checklist-mode-ladder")) {
+        listOf(LessonMode.GUIDE, LessonMode.HINT, LessonMode.EVALUATE).forEach { item ->
+            LessonText(item.label, 26, if (item == mode) {
+                if (mode == LessonMode.EVALUATE) CoachColors.Paper else CoachColors.Ink
+            } else foreground.copy(alpha = .6f), modifier = Modifier
+                .background(if (item == mode) foreground else androidx.compose.ui.graphics.Color.Transparent)
+                .padding(horizontal = 14.dp, vertical = 8.dp).semantics { selected = item == mode })
         }
     }
 }

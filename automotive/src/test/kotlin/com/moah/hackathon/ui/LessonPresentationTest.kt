@@ -9,6 +9,47 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class LessonPresentationTest {
+    @Test fun briefingWeightsSentencesByCharactersAndHoldsTheLastAtCompletion() {
+        val sentences = briefingSentences("첫 문장. 다음은 긴 문장입니다.\n마지막.")
+        assertEquals(listOf("첫 문장.", "다음은 긴 문장입니다.", "마지막."), sentences)
+        assertEquals(0, briefingSentenceIndex(sentences, 0f))
+        assertEquals(1, briefingSentenceIndex(sentences, .5f))
+        assertEquals(2, briefingSentenceIndex(sentences, 1f))
+        assertEquals(2, briefingSentenceIndex(sentences, 2f))
+        assertEquals(-1, briefingSentenceIndex(emptyList(), .5f))
+    }
+
+    @Test fun hiddenChecklistValuesNeverHideMissingSignalsOrDiscloseMeasuredEvaluationValues() {
+        val done = ChecklistStep("도어", "닫힘", true, SignalAvailability.SIMULATED)
+        val pending = done.copy(value = "열림", satisfied = false)
+        val failed = pending.copy(value = "브레이크 없이 켜짐", failed = true)
+        for (reveal in ChecklistReveal.entries) {
+            assertEquals("미측정", checklistValue(done.copy(signal = SignalAvailability.MISSING), reveal))
+            assertEquals("미측정", checklistValue(done.copy(value = null), reveal))
+        }
+        assertEquals("닫힘", checklistValue(done, ChecklistReveal.ALL))
+        assertEquals("✓", checklistValue(done, ChecklistReveal.MISTAKES))
+        assertEquals("—", checklistValue(pending, ChecklistReveal.MISTAKES))
+        assertEquals("브레이크 없이 켜짐", checklistValue(failed, ChecklistReveal.MISTAKES))
+        listOf(done, pending, failed).forEach { assertEquals("", checklistValue(it, ChecklistReveal.NAMES_ONLY)) }
+    }
+
+    @Test fun checklistFocusFollowsTheGuideIncludingMissingOrAlreadySatisfiedSteps() {
+        val state = display().copy(guideStep = "4/7", taskType = TaskType.CHECKLIST)
+        assertEquals(3, checklistFocus(state))
+        assertEquals(0f, checklistWheelOffset(0f))
+        assertEquals(-checklistWheelOffset(1.5f), checklistWheelOffset(-1.5f))
+    }
+
+    @Test fun resultTaskLabelsDistinguishAllFourCategoriesAndTheirModes() {
+        assertEquals("주차 › 후면 직각 주차 · 가이드 모드", taskModeLine(SeedCatalog.parkingTask, LessonMode.GUIDE))
+        assertEquals("점검 › 출발 전 점검 · 힌트 모드", taskModeLine(SeedCatalog.predriveTask, LessonMode.HINT))
+        assertEquals("주행 › 장내기능 모의시험 · 평가 모드",
+            taskModeLine(SeedCatalog.tasks.single { it.id == SeedCatalog.TASK_TRACK_EXAM }, LessonMode.EVALUATE))
+        assertEquals("지식 › 비상등·날씨별 행동 · 지식 테스트 모드",
+            taskModeLine(SeedCatalog.tasks.single { it.id == SeedCatalog.TASK_KNOWLEDGE }, LessonMode.QUIZ))
+    }
+
     @Test fun coachDisplayBreaksOnlySentencePunctuationAndPreservesTheSource() {
         val source = "천천히 가요. 괜찮나요? 좋아요! 계속해요."
         assertEquals("천천히 가요.\n괜찮나요?\n좋아요!\n계속해요.", coachDisplayText(source))

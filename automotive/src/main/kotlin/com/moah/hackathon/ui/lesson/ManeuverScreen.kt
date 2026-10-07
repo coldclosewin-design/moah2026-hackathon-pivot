@@ -2,6 +2,7 @@ package com.moah.hackathon.ui.lesson
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -11,6 +12,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.moah.hackathon.R
 import com.moah.hackathon.feature.lesson.ManeuverDisplayState
+import com.moah.hackathon.feature.lesson.LessonMode
 import com.moah.hackathon.feature.lesson.TaskType
 import com.moah.hackathon.ui.CoachColors
 import com.moah.hackathon.vehicle.SignalAvailability
@@ -34,12 +36,23 @@ internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stoppe
     }
     val commonSignal = state.commonSignal()
     val checklist = state.taskType == TaskType.CHECKLIST
+    val checklistPaper = checklist && !locked && state.mode == LessonMode.EVALUATE
+    val panelColor = when {
+        checklistPaper -> CoachColors.Paper
+        checklist && !locked && state.mode == LessonMode.HINT -> CoachColors.Periwinkle
+        else -> CoachColors.Ink
+    }
     PosterSurface(band = demo.takeUnless { locked }) {
         Box(Modifier.fillMaxSize()) {
             Row(Modifier.fillMaxSize()) {
-                Column(Modifier.weight(.53f).fillMaxHeight().background(CoachColors.Ink)
+                Column(Modifier.weight(.53f).fillMaxHeight().background(panelColor)
+                    .then(if (checklistPaper) Modifier.border(2.dp, CoachColors.Ink) else Modifier)
                     .padding(start = 180.dp, end = 100.dp, top = 64.dp, bottom = 52.dp)) {
-                    BrandMark(color = CoachColors.Paper)
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically) {
+                        BrandMark(color = if (checklistPaper) CoachColors.Ink else CoachColors.Paper)
+                        if (checklist && !locked) ChecklistModeLadder(state.mode)
+                    }
                     if (locked) {
                         Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
                             Headline("운전에 집중해 주세요", color = CoachColors.Paper)
@@ -48,7 +61,7 @@ internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stoppe
                                 40, CoachColors.Paper.copy(alpha = .7f))
                         }
                     } else if (checklist) {
-                        ChecklistTimeline(state, commonSignal == null,
+                        ChecklistTimeline(state,
                             Modifier.weight(1f).fillMaxWidth().padding(top = 32.dp))
                     } else {
                         Box(Modifier.weight(1f).fillMaxWidth()) {
@@ -87,7 +100,15 @@ internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stoppe
                             val spoken = maneuverText(subtitle)?.takeIf { it.isNotBlank() && it != state.hintText }
                             // Long subtitles have their own unbounded text block, separate from the three-line headline.
                             val main = guide ?: visibleHint ?: spoken?.takeIf { it.count { c -> c == '\n' } < 3 }
-                            if (main != null) {
+                            if (checklist && !locked && state.mode != LessonMode.GUIDE) {
+                                Eyebrow(if (state.mode == LessonMode.HINT) "틀릴 때만 말해요" else "조용히 지켜봐요")
+                                Spacer(Modifier.height(24.dp))
+                                Headline(if (state.mode == LessonMode.HINT) "순서대로 해 보세요." else "끝나면\n다 됐어요를 눌러 주세요.", size = 72)
+                                if (state.mode == LessonMode.HINT && visibleHint != null) {
+                                    Spacer(Modifier.height(32.dp))
+                                    LessonText(coachDisplayText(visibleHint!!), 40)
+                                }
+                            } else if (main != null) {
                                 Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                                     Eyebrow("코치", Modifier.alignByBaseline())
                                     if (guide != null) state.guideStep?.let { Eyebrow(it, Modifier.alignByBaseline(), color = CoachColors.Periwinkle) }
@@ -97,7 +118,7 @@ internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stoppe
                                     alpha = if (guide == null && visibleHint != null) hintAlpha.value else 1f
                                 }, size = 72)
                             }
-                            if (spoken != null && spoken != main) {
+                            if ((!checklist || state.mode == LessonMode.GUIDE || locked) && spoken != null && spoken != main) {
                                 Spacer(Modifier.height(24.dp))
                                 LessonText(coachDisplayText(spoken), 40)
                             }

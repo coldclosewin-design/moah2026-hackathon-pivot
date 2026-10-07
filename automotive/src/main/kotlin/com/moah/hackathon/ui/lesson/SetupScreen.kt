@@ -40,7 +40,8 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
     onFinishOnboarding: () -> Unit = {}, onAdmin: (() -> Unit)? = null,
     coachInput: CoachInputMode = CoachInputMode.OFF, onSendCoachText: (String) -> Unit = {},
     onSendCoachCard: (String) -> Unit = {},
-    profileRequest: Boolean = false, onConsumeProfileRequest: () -> Unit = {}) {
+    profileRequest: Boolean = false, onConsumeProfileRequest: () -> Unit = {},
+    picked: Boolean = true, onChooseHomeMode: (LessonMode) -> Unit = {}) {
     if (onboarding != null) {
         ProfileOnboardingScreen(profileRows, onboarding, onAnswerProfile, onFinishOnboarding, onAdmin)
         return
@@ -91,7 +92,7 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
     // Browsing a planned category clears its selection but retains the last ready choice on return.
     val selectedTask = task.takeIf { it.isReady && it.type.name == categoryName }
     val mode = supportedMode(task, LessonMode.valueOf(modeName))
-    val start = { if (task.isReady && (!sheet || selectedTask != null)) onBegin(task.id, mode) }
+    val start = { if (task.isReady && (if (sheet) selectedTask != null else picked)) onBegin(task.id, mode) }
     val fraction by animateFloatAsState(when { profileOpen -> .30f; sheet || coach != null -> .21f; else -> .53f },
         tween(400, easing = FastOutSlowInEasing), label = "poster")
     val slide = with(LocalDensity.current) { 40.dp.roundToPx() }
@@ -156,11 +157,13 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
                                 ProfilePill(profileLine(profile)) { profileOpen = true }
                                 Spacer(Modifier.height(27.dp))
-                                Headline(setupProposal(task.type), size = if (compactHome) 56 else 72)
-                                Spacer(Modifier.height(36.dp))
-                                LessonText("${task.title} · ${mode.label} 모드", 40)
+                                HomeTaskTitle(task, mode, picked, compactHome, {
+                                    categoryName = task.type.name
+                                    sheet = true
+                                }, { modeName = it.name; onChooseHomeMode(it) })
                                 Spacer(Modifier.height(12.dp))
-                                LessonText(selectionReason(task, mode, suggestedTask, suggestedMode, reason), if (compactHome) 32 else 36, CoachColors.Muted,
+                                LessonText(if (picked) selectionReason(task, mode, suggestedTask, suggestedMode, reason)
+                                    else "밑줄을 누르면 과제를 고를 수 있어요.", if (compactHome) 32 else 36, CoachColors.Muted,
                                     modifier = Modifier.testTag("home-reason"))
                                 bookingDetails(booking, venues)?.let { details ->
                                     Spacer(Modifier.height(33.dp))
@@ -170,13 +173,9 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
                                     }
                                 }
                                 Spacer(Modifier.height(33.dp))
-                                PrimaryPill(stringResource(R.string.lesson_start), start, Modifier.fillMaxWidth())
+                                PrimaryPill(stringResource(R.string.lesson_start), start, Modifier.fillMaxWidth(), enabled = picked)
                                 Spacer(Modifier.height(57.dp))
-                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                                    TextAction(stringResource(R.string.lesson_change_task_mode), {
-                                        categoryName = task.type.name
-                                        sheet = true
-                                    })
+                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
                                     CoachPill("코치와 대화", onOpenCoach)
                                 }
                             }

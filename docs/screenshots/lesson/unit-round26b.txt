@@ -1,0 +1,57 @@
+Calculating task graph as no cached configuration is available for tasks: testDebugUnitTest
+
+> Configure project :automotive
+mobis.vss: stub (:vss-stub) �� USE_FAKE_VSS=true
+w: Detected multiple Kotlin daemon sessions at
+
+> Task :automotive:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :automotive:preBuild UP-TO-DATE
+> Task :vss-stub:preBuild UP-TO-DATE
+> Task :vss-stub:preDebugBuild UP-TO-DATE
+> Task :automotive:preDebugBuild UP-TO-DATE
+> Task :automotive:preDebugUnitTestBuild UP-TO-DATE
+> Task :vss-stub:generateDebugResValues UP-TO-DATE
+> Task :vss-stub:preDebugUnitTestBuild UP-TO-DATE
+> Task :automotive:javaPreCompileDebug UP-TO-DATE
+> Task :automotive:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :vss-stub:javaPreCompileDebug UP-TO-DATE
+> Task :automotive:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :automotive:generateDebugResValues UP-TO-DATE
+> Task :automotive:generateDebugBuildConfig UP-TO-DATE
+> Task :vss-stub:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :vss-stub:processDebugJavaRes NO-SOURCE
+> Task :vss-stub:generateDebugResources UP-TO-DATE
+> Task :vss-stub:processDebugUnitTestJavaRes NO-SOURCE
+> Task :automotive:generateDebugResources UP-TO-DATE
+> Task :automotive:extractDeepLinksDebug UP-TO-DATE
+> Task :automotive:checkDebugAarMetadata UP-TO-DATE
+> Task :automotive:mapDebugSourceSetPaths UP-TO-DATE
+> Task :vss-stub:packageDebugResources UP-TO-DATE
+> Task :automotive:packageDebugResources UP-TO-DATE
+> Task :vss-stub:parseDebugLocalResources UP-TO-DATE
+> Task :automotive:mergeDebugResources UP-TO-DATE
+> Task :automotive:parseDebugLocalResources UP-TO-DATE
+> Task :vss-stub:generateDebugRFile UP-TO-DATE
+> Task :vss-stub:generateDebugUnitTestStubRFile UP-TO-DATE
+> Task :automotive:processDebugMainManifest UP-TO-DATE
+> Task :vss-stub:compileDebugJavaWithJavac UP-TO-DATE
+> Task :vss-stub:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :automotive:processDebugManifest UP-TO-DATE
+> Task :vss-stub:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :automotive:processDebugManifestForPackage UP-TO-DATE
+> Task :vss-stub:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :vss-stub:testDebugUnitTest NO-SOURCE
+> Task :automotive:processDebugResources UP-TO-DATE
+> Task :automotive:compileDebugKotlin UP-TO-DATE
+> Task :automotive:processDebugJavaRes UP-TO-DATE
+> Task :automotive:compileDebugJavaWithJavac UP-TO-DATE
+> Task :automotive:bundleDebugClassesToCompileJar UP-TO-DATE
+> Task :automotive:bundleDebugClassesToRuntimeJar UP-TO-DATE
+> Task :automotive:compileDebugUnitTestKotlin
+> Task :automotive:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :automotive:processDebugUnitTestJavaRes UP-TO-DATE
+> Task :automotive:testDebugUnitTest
+
+BUILD SUCCESSFUL in 6s
+35 actionable tasks: 2 executed, 33 up-to-date
+Configuration cache entry stored.

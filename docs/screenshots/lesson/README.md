@@ -1,5 +1,42 @@
 # 화면 검증 캡처
 
+## UI 라운드 26b — 제목 속 과제·브리핑 자막·점검 모드·코치 두 층 (2026-10-08)
+
+`codex/ui-round26b` · 새 워크트리 시작 기준 `origin/main=d2837fc`(#236), 브리핑 잠금 모델 #237 머지 뒤 `e9ed071`로 갱신. [발주서](../../handoffs/2026-10-07_codex_ui_round26b.md)의 선택 **1-6 · 2-B · 3-C · 4-3 · 5-B**를 구현했다. 모든 에뮬 검증은 `emulator-5556`에서 실행한다.
+
+| 항목 | 선택 시안 | 실제 앱 캡처 | 구현·검사 |
+|---|---|---|---|
+| ① 홈 제목 | [1-6](../../design/round26-proposals/1-home-task.html) | [홈](lesson-setup.png) · [첫 실행](lesson-setup-first.png) · [모드 팝업](lesson-setup-mode-popup.png) · [긴 제목](lesson-setup-long-task.png) · [예약 홈](lesson-setup-booking-mock.png) | 과제·모드 낱말의 Periwinkle 밑줄·▼, 분류 눈썹. 과제 접근성 이름 `과제·모드 바꾸기`와 최소 96 dp 높이 유지. `picked=false`는 과제 이름을 숨기며 시작은 비활성·실제 탭 무반응. 팝업은 지원 모드만 표시 |
+| ② 브리핑 | [2-B](../../design/round26-proposals/2-briefing.html) | [자막](lesson-briefing-captions.png) · [본편](lesson-briefing.png) · [점검](lesson-briefing-checklist.png) · [실제 라우팅 정차](lesson-briefing-route-stopped.png) · [속도 잠금](lesson-briefing-route-locked.png) | 마침표별 문장, 글자 수 비율로 현재 문장 강조. `expectedMillis` 동안 숫자 없는 막대가 차고 끝에서 유지. #237의 `locked`를 전달해 주행 중 `건너뛰기 ›`·터치 대상 0, 정차하면 복원. 실제 라우팅에서 건너뛰기로 Maneuver 진입 확인 |
+| ③ 점검 바퀴 | [3-C](../../design/round26-proposals/3-checklist-focus.html) | [0/150/300 ms](lesson-checklist-wheel-strip.png) · [가이드](lesson-maneuver-checklist-guide.png) | 현재 가이드 단계는 패널 중앙에 약 1.6배 크기, 먼 항목은 축소·흐림. 실제 Compose 프레임 시계로 이동 중간값·중앙 도착 검사. 7칸 진행 막대 제거, 신호 출처는 현재 줄만 |
+| ④ 점검 모드 | [4-3](../../design/round26-proposals/4-checklist-modes.html) | [세 모드](lesson-checklist-modes.png) · [힌트](lesson-maneuver-checklist-hint.png) · [평가](lesson-maneuver-checklist-evaluate.png) | Ink / Periwinkle / Paper 면, 클릭 없는 모드 사다리. 힌트는 ✓·—·오류 값, 평가는 이름·빈 네모. 세 모드 모두 미측정 유지, >5 km/h 잠금 터치 대상 0 |
+| ⑤ 코치 두 층 | [5-B](../../design/round26-proposals/5-coach-lines.html) | [판정](lesson-done.png) · [총평](lesson-report-session.png) · [추가 질문](lesson-report-ask-one-short.png) · [대화](lesson-setup-coach-text.png) | 판정·총평은 제목 88 / 한 마디 48, 말풍선은 52 / 44. 추가 질문 카드가 있어도 규격 문장은 88 / 48 유지. 제목 Ink·조언 Muted. 하나의 접근성 텍스트로 원문과 표시용 마침표 줄바꿈 유지 |
+| ⑥ 과제 표기 | [발주 ⑥](../../handoffs/2026-10-07_codex_ui_round26b.md) | [판정](lesson-done.png) · [리포트](lesson-report-session.png) · [브리핑](lesson-briefing.png) | `<분류> › <과제> · <모드> 모드` 공통 포맷 |
+
+차량·포트·채점·모델·데이터·build·tools·NEXT는 이 UI 변경에 포함하지 않는다. 새 색 토큰·FontWeight.Bold 0, 색 리터럴은 기존 CoachStyle만 유지한다. Claude가 추가한 브리핑 잠금 필드의 UI 연결은 [INTEGRATION C](../../INTEGRATION.md)에 기록했다.
+
+[PowerShell 빌드](build-round26b.txt): `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` 성공. [최종 단위 테스트](unit-round26b.txt) **368개(실패·오류·건너뜀 0)**. 아래는 #237의 잠금 필드를 연결한 같은 최종 앱·계측 APK로 원본 `tools/lesson_shots.sh`를 연속 실행한 결과다. 기본 제한 900초와 `ANDROID_SERIAL=emulator-5556`을 사용했으며, 세 실행에는 ADB/timeout 래퍼를 사용하지 않았다.
+
+| 실행 | 로그 | 결과 | 설치·캡처 가져오기 포함 경과 |
+|---|---|---|---|
+| 1 | [contract-round26b-1.txt](contract-round26b-1.txt) | Lesson contract passed | 426초 |
+| 2 | [contract-round26b-2.txt](contract-round26b-2.txt) | Lesson contract passed | 422초 |
+| 3 | [contract-round26b-3.txt](contract-round26b-3.txt) | Lesson contract passed | 420초 |
+
+[집중 계측](contract-round26b-focused.txt)은 첫 실행의 과제 숨김·비활성 시작 실제 탭, 제목 터치 높이·지원 모드 팝업·긴 제목, 자막 종료 유지, 실제 모델→라우팅의 속도 잠금·해제·건너뛰기, 세 점검 모드의 값 공개·미측정·비클릭 사다리, 바퀴의 중간 위치, 총평의 88/48 글자 크기(추가 질문 카드 포함)를 확인했다. 기존 Real·잠금·예약·한국어 조합·IME 전송·과제 전환 계약도 유지했다.
+
+`RESERVE=1 bash tools/emu_flow.sh` **PASS · clashes 0**([로그](flow-round26b-rear.txt), 200초): 예약→예약 홈→후면 주차 힌트 모드, **60/55·4구간 → 100/100·2구간**, 필수 힌트 세 종류·둘째 추가 힌트 없음·도어→Report·`실신호 0 · 시뮬레이션 8 · 미측정 0` 확인. [오늘의 기록](lesson-report-session.png)과 [첫 회차](lesson-done-seed-bad.png)·[둘째 회차](lesson-done-seed-good.png)는 이 실제 흐름에서 얻었다.
+
+최종 앱을 `adb -s emulator-5556 install -r`로 [재설치](install-round26b-course.txt)한 뒤 원본 `bash tools/course_flow.sh`도 **PASS · 종료 코드 0**([로그](flow-round26b-course.txt), 340초): **70 불합격·감점 3 → 100 합격·감점 0 → 도어→Report** 확인.
+
+`emu_flow.sh`와 `course_flow.sh`의 시작 검사에는 `-s emulator-5554`가 고정되어 있어, 이 두 도구만 기존 [INTEGRATION C 방식](../../INTEGRATION.md)의 ignored `build/adb-round26b.sh`를 `ADB`로 지정했다. 래퍼는 선두 serial 인수를 제거하고 모든 호출을 `-s emulator-5556`으로 실행한다. 도구의 판정·탭·대기·캡처 코드와 제한 시간은 수정하지 않았다.
+
+캡처 **79장 교체·17장 추가**. 홈·브리핑·점검 세 모드·회차·총평·대화의 글자 잘림과 정렬을 눈으로 확인했다. [추가 계측](contract-round26b-extra.txt)으로 시험·좌회전·평행주차·사선주차 결과와 예약 시험 홈도 갱신했다. 변경 전 재현용 `*-before`와 과거 문장 기록인 `lesson-done-seed-aligned.png`는 당시 캡처다.
+
+[IME 캡처](lesson-setup-coach-ime.png)는 Google Automotive Keyboard를 띄운 뒤 ADB로 `hello`를 넣어 말풍선·말 카드·입력줄·보내기·돌아가기가 키보드 위에 보이는지 확인한 것이다. 화면 키 직접 타이핑 검증으로 세지 않았다. 한국어 조합·버튼/IME 전송은 전체 계측에서 통과했다.
+
+최종 APK SHA-256: 앱 `90D1767ED7E8E88A3D46CE873225574698037E304D0C2D7E412058A5B5CB00BF`, 계측 `19D7F6FFBD384C4BAD45638CDB0A4D816141E670C231F716A58933BC9B66FFD2`.
+
 ## UI 라운드 26a — 평면 알약·선택 모핑·넓은 시트 (2026-10-07)
 
 `codex/ui-round26a` · 새 워크트리 기준 `origin/main=3ba4a5a`(#228). [발주서](../../handoffs/2026-10-07_codex_ui_round26a.md)의 12항목을 기존 모델로 구현했다. 에뮬레이터는 `emulator-5556`만 사용했다. 홈 배치·브리핑 구성·점검 강조/모드·문장 길이·다크 모드 등 26b 시안 항목은 포함하지 않는다.

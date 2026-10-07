@@ -1,0 +1,3 @@
+PASS Round26b Briefing route: live speed lock removes skip and all touch actions; stopped skip enters Maneuver
+PASS Round26b: unpicked home, title targets, supported modes, long title, captions/skip lock, three checklist reveals/missing values, fixed-center wheel and two-level typography
+Round26b contract passed
