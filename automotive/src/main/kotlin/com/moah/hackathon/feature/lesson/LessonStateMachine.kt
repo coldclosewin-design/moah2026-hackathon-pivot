@@ -99,6 +99,8 @@ class LessonStateMachine(
     private var guide: GuideRunner? = null
     private var snapshot = VehicleSnapshot()
     private var vehicleJob: Job? = null
+    /** 브리핑 동안만 속도를 본다(잠금 → `건너뛰기` 숨김). 회차 구독([vehicleJob])과 따로 — 그쪽은 한 번 켜지면 키를 바꾸지 않는다. */
+    private var briefingWatch: Job? = null
     private var briefingJob: Job? = null
     private var attempt = 0
     private var attemptStartMillis = 0L
@@ -146,9 +148,22 @@ class LessonStateMachine(
         tts.speak(line)
         Log.i(TAG, "begin ${task.id} ${mode}")
         val gen = sessionGen
+        watchBriefingSpeed(gen)
         briefingJob = scope.launch {
             if (briefingMillis > 0) awaitBriefing()
             if (gen == sessionGen) leaveBriefing(task, mode)
+        }
+    }
+
+    /** 브리핑의 [LessonPhase.Briefing.locked] — 지금 속도 한 번 + 속도 구독. 브리핑을 떠나면 끈다. */
+    private fun watchBriefingSpeed(gen: Int) {
+        briefingWatch?.cancel()
+        briefingWatch = scope.launch {
+            fun publish() {
+                _phase.update { cur -> if (cur is LessonPhase.Briefing && gen == sessionGen && cur.locked != snapshot.locked) cur.copy(locked = snapshot.locked) else cur }
+            }
+            runCatching { vehicle.get(listOf(VssConstants.VEHICLE_SPEED)) }.getOrNull()?.let { snapshot = snapshot.apply(it); publish() }
+            vehicle.observe(listOf(VssConstants.VEHICLE_SPEED)).collect { delta -> snapshot = snapshot.apply(delta); publish() }
         }
     }
 
@@ -166,13 +181,14 @@ class LessonStateMachine(
 
     private suspend fun leaveBriefing(task: Task, mode: LessonMode) {
         briefingJob = null
+        briefingWatch?.cancel(); briefingWatch = null
         if (mode == LessonMode.QUIZ) startQuiz(task) else startAttempt()
     }
 
     /** 브리핑 `건너뛰기`(정차 중만 — 화면이 숨긴다): 남은 음성을 끊고 바로 첫 회차(퀴즈면 첫 문제). 브리핑이 아니면 무시. */
     fun skipBriefing() {
         val p = _phase.value as? LessonPhase.Briefing ?: return
-        if (snapshot.locked) return
+        if (p.locked || snapshot.locked) return
         briefingJob?.cancel(); briefingJob = null
         tts.stop()
         Log.i(TAG, "briefing skipped")
@@ -366,6 +382,7 @@ class LessonStateMachine(
         sessionGen++
         finishing = false
         briefingJob?.cancel(); briefingJob = null
+        briefingWatch?.cancel(); briefingWatch = null
         vehicleJob?.cancel(); vehicleJob = null
         guide = null
         course = null
