@@ -90,7 +90,7 @@ class CourseLessonTest {
         assertTrue(spoken.none { it.endsWith("감점입니다.") || it.contains("실격") })
         assertTrue("다 되셨나요? 다 됐으면 버튼을 눌러 주세요." in spoken)
         assertEquals(CourseRemarks.remark(course), done.record.remark)
-        assertTrue(done.record.remark.startsWith("감점 없이 합격선을 넘었어요."))
+        assertTrue(done.record.remark.startsWith("감점 없이 합격이에요."))
         // 배지 분모 17 — 전부 시뮬레이션
         assertEquals(17, done.record.score.badge.total)
         assertEquals(17, done.record.score.badge.simulated)
@@ -106,7 +106,7 @@ class CourseLessonTest {
         assertTrue("뒤로 밀림, 감점입니다." in spoken)
         assertTrue("검지선 접촉, 감점입니다." in spoken)
         assertTrue("비상등 미점등, 감점입니다." in spoken)
-        assertTrue(done.record.remark.startsWith("이번엔 합격선에 조금 못 미쳤어요."))
+        assertTrue(done.record.remark.startsWith("합격선 조금 아래예요."))
         (spoken + done.record.remark).forEach { assertFalse(it, it.any(Char::isDigit)) }
         h.scope.cancel()
     }
@@ -131,7 +131,7 @@ class CourseLessonTest {
         assertTrue(spoken.any { it.startsWith("선에 닿았어요.") })
         assertTrue(spoken.any { it.startsWith("왼쪽 방향지시등을 켜지 않았어요.") })
         assertNull(done.record.course!!.passed)   // 연습 코스 — 합격 판정 없음
-        assertTrue(done.record.remark.startsWith("놓친 구간이 몇 군데 있었어요."))
+        assertTrue(done.record.remark.startsWith("놓친 구간이 있었어요."))
         h.scope.cancel()
     }
 

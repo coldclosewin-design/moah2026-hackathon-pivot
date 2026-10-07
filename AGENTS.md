@@ -55,7 +55,7 @@ Claude Code와 Codex가 공유하는 단일 지침. 세부 문서는 `docs/`.
 - Android Studio 없음. 에뮬은 16번과 같은 AVD `CSTDe_API_34`(`docs/03_environment.md`).
 - 완료 기준은 항상 "빌드+단위테스트 통과". 깨진 상태로 커밋하지 않는다.
 - 빌드 플래그 7개(`automotive/build.gradle.kts`): `USE_FAKE_VSS`(하드코딩), `FILL_MISSING_WITH_FAKE`(`-PfillMissing`, Real 일 때 실물에서 안 오는 키만 Fake 로 — 배지가 "실신호 N · 시뮬 N" 로 섞임), `USE_FAKE_LOCATION`(`-PfakeLocation`), `TTS_VOICE`(`-PttsVoice`), `DEMO_SPEED_FACTOR`(`-PdemoSpeed`, 기본 1.0), `SHOW_DEMO_PANEL`(`-PdemoPanel`, 기본 true — false 면 시연 조작 패널을 그리지 않는다), `CLOUD_COACH`(`-PcloudCoach`, 기본 true — false 면 Copilot 인증·전송 계층을 만들지 않고 패널 AI 줄도 없다).
-- **운전자에게 보이는·들리는 문장에는 숫자(횟수·초·점수)를 넣지 않는다**(2026-09-27). **경계(D1, 10/2)**: "문장" = TTS·회차 멘트·힌트·총평·가이드. 계기 값(속도·조향각·뒤 거리)·가이드 단계 `n/N`·퀴즈 문항 번호·교육 수치·회차/연차 메타·정차 선택 화면의 시간·거리·`자세히 보기`·진단서는 명시 예외(`docs/design/02_design_brief.md` 불변 표). 회차 멘트는 "서두.\n조언." 두 문장(`CoachPort` + `AdviceRules`). 숫자는 리포트 "자세히 보기"·진단서에만.
+- **운전자에게 보이는·들리는 문장에는 숫자(횟수·초·점수)를 넣지 않는다**(2026-09-27). **경계(D1, 10/2)**: "문장" = TTS·회차 멘트·힌트·총평·가이드. 계기 값(속도·조향각·뒤 거리)·가이드 단계 `n/N`·퀴즈 문항 번호·교육 수치·회차/연차 메타·정차 선택 화면의 시간·거리·`자세히 보기`·진단서는 명시 예외(`docs/design/02_design_brief.md` 불변 표). 회차 멘트는 "서두.\n조언." 두 문장(`CoachPort` + `AdviceRules`) — **라운드 26(10/7)부터 코치 문장 = 제목 12자 · 한 마디 24자(대화 28자) 이내**, AI 응답도 같은 규칙으로 거른다(`CoachPrompts.titleAndLine`). 숫자는 리포트 "자세히 보기"·진단서에만.
 
 ## 코드 스타일
 
