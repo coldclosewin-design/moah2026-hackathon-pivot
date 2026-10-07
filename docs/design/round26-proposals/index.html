@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>라운드 26 시안</title>
+<style>
+:root{--ink:#070827;--paper:#FCFCFA;--peri:#5B60A1;--lav:#E5E6F0;--signal:#F52D48;--muted:rgba(7,8,39,.6)}
+body{margin:0;background:var(--lav);font-family:"Noto Sans KR","Malgun Gothic",sans-serif;color:var(--ink)}
+.wrap{width:1440px;margin:0 auto;padding:40px 48px 56px}
+h1{font-size:34px;font-weight:500;margin:0}
+.sub{color:var(--muted);font-size:16px;margin:8px 0 28px;line-height:1.6}
+.row{display:grid;grid-template-columns:56px 1fr 330px 120px;gap:20px;align-items:start;background:var(--paper);border-radius:8px;padding:22px 26px;margin-bottom:14px;box-shadow:0 4px 10px rgba(7,8,39,.08)}
+.n{font-size:40px;color:var(--signal);line-height:1}
+.t{font-size:22px;font-weight:500}
+.t a{color:inherit;text-decoration:none;border-bottom:2px solid var(--peri)}
+.d{font-size:15px;color:var(--muted);margin-top:6px;line-height:1.6}
+.r{font-size:15px;line-height:1.6}
+.r b{font-weight:500;color:var(--peri)}
+.e{font-size:15px;text-align:right}
+.e span{display:inline-block;padding:4px 14px;border-radius:99px;background:var(--lav)}
+.e .big{background:var(--ink);color:var(--paper)}
+.note{margin-top:26px;font-size:15px;color:var(--muted);line-height:1.7}
+</style></head><body><div class="wrap">
+<h1>라운드 26 시안 — 앱 전반 피드백(10/7)</h1>
+<div class="sub">사용자 사내 에뮬 직접 사용 피드백 중 "시안을 보고 고르고 싶다" 여섯 주제. 시안 없이 정해진 열두 가지는 Codex 라운드 26a(#228)로 이미 진행 중.<br>
+각 페이지를 열어 보고 "1-1, 2-A, 3-A+D …" 처럼 고르면 26b(화면) · Claude 모델 PR 로 나눠 구현한다. 마감 10/9 — 공수 표시를 같이 본다.</div>
+
+<div class="row"><div class="n">1</div><div><div class="t"><a href="1-home-task.html">홈 — 과제 표시 · 바꾸기 · 시작</a> (10안)</div>
+<div class="d">과제 알약 · 과제 카드 + 바꾸기 · 분할 알약 · 두 줄 선택기 · 과제 칩 줄 · 제목 속 밑줄 링크 · 시작 알약 안에 과제 · 좌우 반전 · 과제 묶음 패널 · 코치 질문 + 두 답. 안마다 첫 실행(과제 미리 고르지 않음) 목업.</div></div>
+<div class="r"><b>추천 1안 과제 알약</b> — 주차 › 후면 직각 주차 · 힌트 모드 › 를 프로필 알약처럼, 누르면 과제 시트. 첫 실행은 빈 알약 + 과제 고르기 →. 여유 있으면 9안의 모드 세그먼트. 좌우 반전(8)은 마감 뒤.</div>
+<div class="e"><span>작음</span></div></div>
+
+<div class="row"><div class="n">2</div><div><div class="t"><a href="2-briefing.html">브리핑("운전대 화면") 정체성 · 시간</a> (5안)</div>
+<div class="d">A 준비 카드(출발 → 누를 때까지) · B 자막 + 진행 막대(음성 끝 + 1 초) · C 오늘 볼 것 미리보기 · D 브리핑 없애기 · E 과제 포스터.</div></div>
+<div class="r"><b>추천 A 준비 카드</b> — 운전자가 출발 → 을 누를 때까지 머문다(움직이기 시작하면 저절로 넘어감).</div>
+<div class="e"><span>작음</span></div></div>
+
+<div class="row"><div class="n">3</div><div><div class="t"><a href="3-checklist-focus.html">출발 전 점검 — 지금 할 항목 강조</a> (5안)</div>
+<div class="d">A 플레이리스트 확대 · B 튀어나오는 카드 · C 가운데 고정 바퀴 · D 아코디언(출처 배지) · E 지금 재생 중. 다섯 안 모두 위 단계 막대 · 아래 확인 상태 줄 없음.</div></div>
+<div class="r"><b>추천 A + D 의 출처 배지</b> — 지금 줄만 커지고 나머지는 작아짐, 지금 줄에만 실신호/시뮬레이션 배지.</div>
+<div class="e"><span>작음</span></div></div>
+
+<div class="row"><div class="n">4</div><div><div class="t"><a href="4-checklist-modes.html">점검 — 가이드 / 힌트 / 평가 차이</a> (5안)</div>
+<div class="d">1 물음표 가림 · 2 내 순서 기록지 · 3 면 색 + 모드 사다리 · 4 코치의 존재감 · 5 패널 폭. 안마다 모드별 보이는 것 · 들리는 것 표.</div></div>
+<div class="r"><b>추천 1 + 3 의 모드 사다리</b> — 힌트는 틀린 줄만 드러나고 평가는 끝까지 가림. "?" 와 "미측정" 을 구분하는 규칙이 같이 필요.</div>
+<div class="e"><span>작음</span></div></div>
+
+<div class="row"><div class="n">5</div><div><div class="t"><a href="5-coach-lines.html">코치 문장 — 짧게 · 마침표 줄바꿈</a> (5안)</div>
+<div class="d">A 짧은 두 줄(문장 ≤ 20자) · B 제목 + 한 마디 · C 세 박자(≤ 14자) · D 핵심어 표시 · E 줄바꿈만(지금 길이).</div></div>
+<div class="r"><b>추천 A</b> — 두 문장 이하 · 한 문장 20자 이하(검증 22자, 넘으면 규칙 문장) · 쉼표로 두 말 잇지 않기 · 높임 "-시-" 는 운전자가 주어일 때만 · 큰 글자 72 dp. 규칙 문장 다시 쓰기 포함(Claude).</div>
+<div class="e"><span>중간</span></div></div>
+
+<div class="row"><div class="n">6</div><div><div class="t"><a href="6-dark-mode.html">다크 모드 색</a> (5안 · 고민)</div>
+<div class="d">P1 잉크 밤 · P2 Periwinkle 면 · P3 완전 검정 · P4 저청색 밤 · P5 황혼 + Ink 패널. 야간 눈부심 기준(넓은 면 상대휘도 ≤ 0.05)과 대비 실계산 표.</div></div>
+<div class="r"><b>방향 P5</b> — 단, 색 토큰이 29개 파일 약 400곳에서 역할이 섞여 있어 리팩터가 먼저. 마감 전엔 구현하지 않고 발표에 "설계 완료, 구현 예정" 권장.</div>
+<div class="e"><span class="big">큼</span></div></div>
+
+<div class="note">추천만 다 고르면: 1·2·3·4 → Codex 26b(화면) + Claude(첫 실행 미리 고르지 않기 · 브리핑 머무름 · 점검 모드별 표시값) / 5 → Claude(프롬프트 · 규칙 문장) / 6 → 마감 뒤.</div>
+</div></body></html>

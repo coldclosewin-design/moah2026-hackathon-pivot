@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>출발 전 점검 — 지금 할 항목 강조 다섯 가지</title>
+<style>
+:root{
+  --ink:#070827; --paper:#FCFCFA; --peri:#5B60A1; --lav:#E5E6F0; --signal:#F52D48;
+  --muted:rgba(7,8,39,.60);
+  --font:"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-weight:400}
+h1,h2,h3,h4,b,strong,th{font-weight:500}
+body{background:var(--paper);color:var(--ink);font-family:var(--font);line-height:1.5}
+.page{max-width:1560px;margin:0 auto;padding:40px 32px 64px}
+
+.head h1{font-size:30px;letter-spacing:-.01em}
+.head .lead{font-size:16px;color:var(--muted);margin-top:4px;max-width:1200px}
+.quote{margin-top:18px;background:rgba(229,230,240,.6);border-left:4px solid var(--peri);padding:14px 18px;font-size:15px;max-width:1200px}
+.quote .who{display:block;font-size:12px;color:var(--peri);margin-bottom:4px}
+.scale{display:inline-flex;align-items:center;gap:8px;margin-top:16px;font-size:13px;color:var(--peri);background:rgba(91,96,161,.08);padding:6px 12px;border-radius:14px}
+.pre{margin-top:20px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:1400px}
+.pre div{background:var(--paper);border:1px solid rgba(7,8,39,.10);padding:12px 14px;font-size:13px}
+.pre div>b:first-child{display:block;color:var(--peri);font-size:12px;letter-spacing:.04em;margin-bottom:3px}
+
+.block{display:grid;grid-template-columns:853px 1fr;gap:36px;margin-top:44px;padding-top:28px;border-top:1px solid rgba(7,8,39,.10)}
+.tag-id{font-size:13px;color:var(--peri);letter-spacing:.08em}
+.notes h2{font-size:26px;margin-top:2px}
+.notes .one{font-size:15px;margin-top:6px}
+.notes h3{font-size:13px;color:var(--peri);margin-top:16px;letter-spacing:.04em}
+.notes ul{margin-top:6px;padding-left:18px;font-size:14px}
+.notes li{margin-top:4px}
+.notes .motion{margin-top:14px;font-size:13px;background:var(--ink);color:var(--paper);padding:12px 14px;border-radius:6px}
+.notes .motion b{display:block;color:rgba(229,230,240,.75);font-size:12px;letter-spacing:.06em;margin-bottom:4px}
+.notes .impl{margin-top:10px;font-size:13px;border-left:3px solid var(--signal);padding:4px 10px}
+.notes .impl b{color:var(--signal);margin-right:4px}
+.cur img{display:block;width:853px;height:auto;border-radius:6px;box-shadow:0 0 0 1px rgba(7,8,39,.14)}
+.state{font-size:12px;color:var(--peri);letter-spacing:.06em;margin:0 0 6px}
+
+/* 1/3 화면 */
+.screen{position:relative;width:853px;height:423px;background:var(--paper);overflow:hidden;border-radius:6px;box-shadow:0 0 0 1px rgba(7,8,39,.14),0 8px 24px rgba(7,8,39,.08)}
+.lp{position:absolute;left:0;top:0;width:452px;height:423px;background:var(--ink)}
+.brand{position:absolute;left:48px;top:28px;font-size:8px;letter-spacing:4px;color:var(--paper)}
+.rp{position:absolute;left:452px;top:0;width:401px;height:423px}
+.rp .a{position:absolute}
+.hd{font-size:12px;line-height:16px}
+.spd{font-size:16px;line-height:18px;text-align:right}
+.src{font-size:9px;color:var(--peri);text-align:right}
+.cn{font-size:11px;color:var(--ink)} .cn span{color:var(--peri);margin-left:4px}
+.ins{font-size:24px;line-height:32px;white-space:pre-line}
+.go{height:46px;border-radius:23px;background:var(--signal);color:var(--paper);font-size:13px;display:flex;align-items:center;justify-content:center;gap:12px}
+
+/* 목록 줄 (A · B · D 공통) */
+.rows{position:absolute;left:36px;top:62px;width:380px;display:flex;flex-direction:column}
+.r{position:relative;display:flex;align-items:center;justify-content:space-between;height:38px;padding:0 14px 0 30px;font-size:13px;color:rgba(252,252,250,.80);white-space:nowrap}
+.r::before{content:"";position:absolute;left:8px;top:50%;width:8px;height:8px;margin-top:-4px;border-radius:50%;border:1.5px solid var(--signal)}
+.r .st{font-size:12px;color:var(--signal)}
+.r.done{height:32px;font-size:11px;color:rgba(252,252,250,.42)}
+.r.done::before{background:var(--peri);border-color:var(--peri)}
+.r.done .st{font-size:10px;color:rgba(252,252,250,.50)}
+.r.up{color:rgba(252,252,250,.70)}
+.r.up .st{color:rgba(245,45,72,.75)}
+/* A 확대 줄 */
+.r.cur{height:84px;font-size:24px;color:var(--paper);background:rgba(252,252,250,.10);box-shadow:inset 3px 0 0 var(--signal)}
+.r.cur::before{width:14px;height:14px;margin-top:-7px;left:6px;border-width:2px}
+.r.cur .st{font-size:15px}
+.r.mid{height:58px;font-size:18px;color:rgba(252,252,250,.90);background:rgba(252,252,250,.05);box-shadow:inset 2px 0 0 rgba(245,45,72,.5)}
+.r.mid .st{font-size:13px}
+.r.mid::before{width:11px;height:11px;margin-top:-5.5px}
+.r.mid.was::before{background:var(--peri);border-color:var(--peri)}
+.r.mid.was .st{color:rgba(252,252,250,.75)}
+/* B 튀어나온 카드 */
+.r.card{height:76px;font-size:22px;color:var(--ink);background:var(--paper);width:456px;margin-left:-8px;padding-left:38px;border-radius:6px;box-shadow:0 10px 24px rgba(7,8,39,.55),0 2px 4px rgba(7,8,39,.35);z-index:2}
+.r.card::before{left:14px;width:14px;height:14px;margin-top:-7px;border-width:2px}
+.r.card .st{font-size:14px;margin-right:30px}
+.r.card.half{height:56px;font-size:17px;width:418px;margin-left:-4px;padding-left:34px;box-shadow:0 5px 12px rgba(7,8,39,.45)}
+.r.card.half .st{font-size:12px;margin-right:6px}
+.r.card.half.was{background:rgba(252,252,250,.55)}
+.r.card.half.was::before{background:var(--peri);border-color:var(--peri)}
+.r.card.half.was .st{color:var(--ink)}
+.dim .r:not(.card){opacity:.55}
+/* D 아코디언 */
+.r.cmp{height:30px;font-size:12px}
+.r.cmp .st{font-size:0}
+.r.cmp .st::after{font-size:10px}
+.acc{position:relative;height:132px;padding:12px 14px 0 30px;background:rgba(252,252,250,.10);box-shadow:inset 3px 0 0 var(--signal);color:var(--paper)}
+.acc::before{content:"";position:absolute;left:6px;top:21px;width:14px;height:14px;border-radius:50%;border:2px solid var(--signal)}
+.acc .t{display:flex;justify-content:space-between;align-items:baseline;font-size:22px;line-height:28px}
+.acc .t .st{font-size:14px;color:var(--signal)}
+.acc .w{margin-top:10px;font-size:11px;color:rgba(229,230,240,.70)}
+.acc .w span{color:var(--paper);margin-left:6px}
+.acc .s{margin-top:8px;display:flex;gap:6px}
+.acc .s i{font-style:normal;font-size:9px;height:18px;line-height:18px;padding:0 8px;border-radius:9px;background:rgba(252,252,250,.12);color:rgba(252,252,250,.85)}
+.acc.half{height:84px}
+.acc.half .w,.acc.half .s{opacity:.35}
+
+/* C 가운데 고정 */
+.wh{position:absolute;left:36px;width:380px;display:flex;justify-content:space-between;align-items:center;padding:0 14px 0 30px;color:var(--paper);white-space:nowrap}
+.wh .st{color:var(--signal)}
+.wh.d .st{color:var(--paper)}
+.wh::before{content:"";position:absolute;left:8px;top:50%;width:8px;height:8px;margin-top:-4px;border-radius:50%;border:1.5px solid var(--signal)}
+.wh.d::before{background:var(--peri);border-color:var(--peri)}
+.band{position:absolute;left:36px;width:380px;height:1px;background:rgba(252,252,250,.18)}
+
+/* E 지금 재생 */
+.np-prev{position:absolute;left:48px;top:62px;font-size:10px;color:rgba(252,252,250,.45);display:flex;gap:6px;align-items:center;white-space:nowrap}
+.np-prev i{font-style:normal;height:20px;line-height:20px;padding:0 9px;border-radius:10px;background:rgba(91,96,161,.35);color:rgba(252,252,250,.70)}
+.np-next{position:absolute;left:48px;top:360px;font-size:10px;color:rgba(252,252,250,.45);display:flex;gap:6px;align-items:center;white-space:nowrap}
+.np-next i{font-style:normal;height:20px;line-height:20px;padding:0 9px;border-radius:10px;border:1px solid rgba(252,252,250,.25);color:rgba(252,252,250,.60)}
+.np-card{position:absolute;top:104px;width:356px;height:236px}
+.np-card .art{width:140px;height:140px;background:var(--peri);position:relative}
+.np-card .nm{margin-top:14px;font-size:28px;line-height:34px;color:var(--paper);white-space:nowrap}
+.np-card .st{margin-top:2px;font-size:14px;color:var(--signal)}
+
+/* 시간 띠 */
+.strip{margin-top:14px;display:flex;align-items:flex-start;gap:12px}
+.fr{position:relative;width:240px;height:212px;overflow:hidden;border-radius:4px;background:var(--paper);box-shadow:0 0 0 1px rgba(7,8,39,.14)}
+.fr-in{position:absolute;left:0;top:0;width:452px;height:423px;transform:scale(.5);transform-origin:0 0}
+.fl{font-size:11px;color:var(--peri);letter-spacing:.06em;margin-top:4px}
+.arr{align-self:center;font-size:18px;color:var(--peri);margin-top:-14px}
+.strip-cap{font-size:11px;color:var(--peri);letter-spacing:.06em;margin-top:16px}
+
+.cmp-sec{margin-top:56px;padding-top:28px;border-top:1px solid rgba(7,8,39,.10)}
+.cmp-sec h2{font-size:24px}
+.cmp-sec p{font-size:14px;color:var(--muted);margin-top:4px}
+.cmp-sec table{width:100%;border-collapse:collapse;margin-top:16px;font-size:14px}
+.cmp-sec th{font-size:12px;color:var(--peri);letter-spacing:.04em;text-align:left;padding:8px 10px;border-bottom:1px solid rgba(7,8,39,.14)}
+.cmp-sec td{padding:9px 10px;border-bottom:1px solid rgba(7,8,39,.08);vertical-align:top}
+.cmp-sec td:first-child{white-space:nowrap}
+.cmp-sec tr.pick td{background:rgba(229,230,240,.45)}
+.lo{color:var(--peri)} .hi{color:var(--signal)}
+.reco{margin-top:40px;padding:24px 28px;background:var(--ink);color:var(--paper);border-radius:8px}
+.reco .k{font-size:13px;color:rgba(229,230,240,.75);letter-spacing:.06em}
+.reco h2{font-size:26px;margin-top:4px}
+.reco p{font-size:15px;margin-top:8px;color:rgba(252,252,250,.9)}
+.reco p em{font-style:normal;color:var(--signal)}
+.reco ol{margin-top:10px;padding-left:20px;font-size:14px;color:rgba(252,252,250,.85)}
+.reco li{margin-top:3px}
+.effort{display:inline-block;margin-left:10px;font-size:13px;padding:3px 12px;border-radius:12px;background:var(--signal);color:var(--paper);vertical-align:middle}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- 브레이크 / 시동 그림: 페달 + 전원 고리 -->
+    <symbol id="ic-start" viewBox="0 0 140 140">
+      <rect width="140" height="140" fill="#5B60A1"/>
+      <path d="M0 140 L140 70 V140 Z" fill="#070827" opacity=".35"/>
+      <path d="M22 96 L62 88 L66 118 L26 126 Z" fill="#FCFCFA"/>
+      <path d="M30 100 L58 95 M32 108 L60 103 M34 116 L62 111" stroke="#5B60A1" stroke-width="2.5"/>
+      <path d="M86 34 A28 28 0 1 0 118 34" fill="none" stroke="#FCFCFA" stroke-width="7" stroke-linecap="square" transform="translate(-6 10)"/>
+      <path d="M96 22 V54" stroke="#F52D48" stroke-width="7" stroke-linecap="square"/>
+    </symbol>
+    <!-- 기어 그림: P -->
+    <symbol id="ic-gear" viewBox="0 0 140 140">
+      <rect width="140" height="140" fill="#5B60A1"/>
+      <path d="M0 0 L140 0 L0 90 Z" fill="#070827" opacity=".25"/>
+      <rect x="42" y="30" width="56" height="80" fill="#FCFCFA"/>
+      <path d="M58 92 V48 H76 A12 12 0 0 1 76 72 H58" fill="none" stroke="#070827" stroke-width="8"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="page">
+
+  <header class="head">
+    <h1>출발 전 점검 — "지금 할 항목" 강조 다섯 가지</h1>
+    <p class="lead">가이드 모드에서 코치가 한 항목씩 말할 때, 왼쪽 목록의 그 줄이 음악 플레이리스트처럼 확실히 커지고(앞으로 나오고) 나머지는 작아지게 한다. 다섯 안 모두 <b>위 단계 막대(7칸)와 아래 흐린 줄 "출발 전 점검 · 확인 상태" 를 뺀 상태</b>로 그렸다. 움직임은 정적 그림이라 0 / 150 / 300 ms 세 장면으로 보여 준다.</p>
+    <blockquote class="quote">
+      <span class="who">사용자 피드백 (원문, 10/7) — #출발전점검</span>
+      - 음성 코치해주는 부분이 하이라이트 되어서 수행하라고 지시 되지만 하이라이트 되는 정도가 아쉬워서 음악 플레이리스트 처럼 하이라이트 되는 영역이 제대로 커지고 들어가는 느낌의 애니메이션 효과가 필요해 (앞에 디자인이 잘 구현되면 화면이 지저분하면 상단에 단계를 알려주는 상단바는 필요 없을 거 같아)<br>
+      - 짙은 영역 '출발 전 점검/확인 상태'는 흰 영역과 중복되기도 하고 전반적으로 헷갈리는 요소들이 없었으면 해
+    </blockquote>
+    <div class="scale">아래 화면은 모두 실제의 1/3 (853 × 423), 시간 띠의 작은 그림은 왼쪽 패널만 1/6 — 실제 화면은 약 3배</div>
+    <div class="pre">
+      <div><b>모든 안의 같은 순간</b>가이드 모드 · 1회차 · 도어·안전벨트·기어는 됨, <b>지금 = 브레이크 / 시동(코치 4/7)</b>, 남은 셋은 미수행. 오른쪽은 지금과 같고 `다 됐어요 →` 만 평면 알약. 시간 띠는 "기어 → 브레이크 / 시동" 으로 넘어가는 순간.</div>
+      <div><b>뺀 것 두 개</b>① 위 단계 막대 — 지금 줄의 위치와 크기가 진행을 대신한다(오른쪽 `코치 4/7` 은 남김). ② 아래 "출발 전 점검 · 확인 상태" — 오른쪽 머리 `출발 전 점검 · 1회차` 와 겹친다. 사진의 펜 표시 두 곳 그대로.</div>
+      <div><b>정직성 — 신호 출처</b>지금은 `-PfillMissing` 빌드에서 줄마다 "시뮬레이션" 작은 글이 붙는다(mixed 캡처). 줄이 작아지면 그 글이 안 읽히므로, 다섯 안 모두 <b>지금 줄에만 출처를 남기고</b> 나머지는 오른쪽 위 `시뮬레이션 신호` 가 대표한다.</div>
+    </div>
+  </header>
+
+  <!-- ===================== 지금 ===================== -->
+  <section class="block cur">
+    <div>
+      <div class="state">지금 · 가이드 4/7 이후 모습 (lesson-maneuver-checklist-pending.png)</div>
+      <img src="../../screenshots/lesson/lesson-maneuver-checklist-pending.png" alt="지금의 출발 전 점검 — 왼쪽 Ink 목록 일곱 줄, 지금 줄은 살짝 밝은 배경">
+    </div>
+    <div class="notes">
+      <div class="tag-id">지금</div>
+      <h2>모든 줄이 같은 크기</h2>
+      <p class="one">일곱 줄이 같은 높이(약 99 dp)·같은 글자 크기. 지금 줄만 배경이 살짝 밝고 점이 빨간 고리. 위에 단계 막대 일곱 칸, 아래 흐린 눈썹.</p>
+      <h3>문제</h3>
+      <ul>
+        <li><b>강조가 약하다</b> — 배경 차이가 Ink 위 약 6% 밝기. 차 안 빛에서는 거의 안 보인다(사진의 "선택된 항목은 확실히 더 크게")</li>
+        <li><b>나머지가 같은 크기</b> — 다 한 줄·아직 할 줄이 지금 줄과 같은 무게로 시선을 나눈다(사진의 "작게")</li>
+        <li><b>중복</b> — 단계 막대(진행) · 점(상태) · `코치 n/7`(진행)이 같은 정보를 세 번, 아래 눈썹은 오른쪽 머리와 같은 말</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== A ===================== -->
+  <section class="block">
+    <div>
+      <div class="state">A · 플레이리스트 확대 — 지금 줄만 커지고 나머지는 줄어든다</div>
+      <div class="screen">
+        <div class="lp">
+          <div class="brand">DRIVE COACH</div>
+          <div class="rows">
+            <div class="r done"><span>도어</span><span class="st">닫힘</span></div>
+            <div class="r done"><span>안전벨트</span><span class="st">채움</span></div>
+            <div class="r done"><span>기어</span><span class="st">P</span></div>
+            <div class="r cur"><span>브레이크 / 시동</span><span class="st">미수행</span></div>
+            <div class="r up"><span>좌 지시등</span><span class="st">미수행</span></div>
+            <div class="r up"><span>우 지시등</span><span class="st">미수행</span></div>
+            <div class="r up"><span>비상등</span><span class="st">미수행</span></div>
+          </div>
+        </div>
+        <div class="rp">
+          <div class="a hd" style="left:30px;top:32px">출발 전 점검 · 1회차</div>
+          <div class="a" style="right:30px;top:28px"><div class="spd">0 km/h</div><div class="src">시뮬레이션 신호</div></div>
+          <div class="a cn" style="left:30px;top:150px">코치<span>4/7</span></div>
+          <div class="a ins" style="left:30px;top:170px">브레이크를 밟고
+시동을 켜 주세요.</div>
+          <div class="a go" style="left:30px;top:346px;width:341px">다 됐어요 <span>→</span></div>
+        </div>
+      </div>
+      <div class="strip-cap">A 의 움직임 · 기어 → 브레이크 / 시동</div>
+      <div class="strip">
+        <div><div class="fr"><div class="fr-in"><div class="lp"><div class="brand">DRIVE COACH</div><div class="rows">
+          <div class="r done"><span>도어</span><span class="st">닫힘</span></div>
+          <div class="r done"><span>안전벨트</span><span class="st">채움</span></div>
+          <div class="r cur"><span>기어</span><span class="st">P</span></div>
+          <div class="r up"><span>브레이크 / 시동</span><span class="st">미수행</span></div>
+          <div class="r up"><span>좌 지시등</span><span class="st">미수행</span></div>
+          <div class="r up"><span>우 지시등</span><span class="st">미수행</span></div>
+          <div class="r up"><span>비상등</span><span class="st">미수행</span></div>
+        </div></div></div></div><div class="fl">0 ms · 기어가 P 가 됨</div></div>
+        <div class="arr">→</div>
+        <div><div class="fr"><div class="fr-in"><div class="lp"><div class="brand">DRIVE COACH</div><div class="rows">
+          <div class="r done"><span>도어</span><span class="st">닫힘</span></div>
+          <div class="r done"><span>안전벨트</span><span class="st">채움</span></div>
+          <div class="r mid was"><span>기어</span><span class="st">P</span></div>
+          <div class="r mid"><span>브레이크 / 시동</span><span class="st">미수행</span></div>
+          <div class="r up"><span>좌 지시등</span><span class="st">미수행</span></div>
+          <div class="r up"><span>우 지시등</span><span class="st">미수행</span></div>
+          <div class="r up"><span>비상등</span><span class="st">미수행</span></div>
+        </div></div></div></div><div class="fl">150 ms · 둘이 크기를 주고받음</div></div>
+        <div class="arr">→</div>
+        <div><div class="fr"><div class="fr-in"><div class="lp"><div class="brand">DRIVE COACH</div><div class="rows">
+          <div class="r done"><span>도어</span><span class="st">닫힘</span></div>
+          <div class="r done"><span>안전벨트</span><span class="st">채움</span></div>
+          <div class="r done"><span>기어</span><span class="st">P</span></div>
+          <div class="r cur"><span>브레이크 / 시동</span><span class="st">미수행</span></div>
+          <div class="r up"><span>좌 지시등</span><span class="st">미수행</span></div>
+          <div class="r up"><span>우 지시등</span><span class="st">미수행</span></div>
+          <div class="r up"><span>비상등</span><span class="st">미수행</span></div>
+        </div></div></div></div><div class="fl">300 ms · 다음 줄이 자리 잡음</div></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="tag-id">A</div>
+      <h2>플레이리스트 확대</h2>
+      <p class="one">지금 줄: 높이 약 250 dp · 이름 72 dp(제목 크기) · 왼쪽 빨간 세로 띠 + 밝은 면. 다 한 줄: 약 96 dp · 32 dp · 흐림. 남은 줄: 약 114 dp · 40 dp. 목록 전체 높이는 그대로라 화면이 흔들리지 않는다.</p>
+      <h3>장점</h3>
+      <ul>
+        <li>사용자 말 그대로 — "확실히 크게, 나머지 작게". 크기 대비만으로 강조(Bold 금지 규칙에 맞음)</li>
+        <li>목록의 순서·위치가 그대로라 "어디까지 왔나" 가 단계 막대 없이 읽힌다</li>
+        <li>구조를 거의 안 바꾼다 — 같은 줄 컴포넌트의 높이·글자 크기만 상태에 따라 바뀜</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>가독성</b> — 다 한 줄 32 dp 는 운전석에서 읽기 어렵다. 다 한 줄은 "읽을 것" 이 아니라 "지나간 것" 이라 의도된 흐림이지만, 회차 끝 판정 화면에서 다시 크게 보여 준다</li>
+        <li><b>정직성</b> — 지금 줄 오른쪽 아래에 출처(예: "브레이크 실신호 · 시동 시뮬레이션")를 11 dp 로 남긴다(위 그림에선 생략)</li>
+        <li>힌트·평가 모드에는 "지금 할 항목" 이 없다 — 4번 페이지 결정에 따라 확대를 끄거나 다르게 쓴다</li>
+      </ul>
+      <div class="motion"><b>움직임</b>300 ms · FastOutSlowIn · 이전 줄은 줄어들고 다음 줄은 커지는 것을 <b style="display:inline;color:var(--paper)">같은 시간에</b>(크기를 주고받음) · 빨간 띠는 다음 줄로 미끄러지지 않고 사라졌다 나타남</div>
+      <p class="impl"><b>구현</b>줄 높이·글자 크기 `animateDpAsState` / `animateFloatAsState` · 단계 막대·눈썹 삭제(Codex) · 상태기계 변경 없음(`guide.index` 이미 있음) · <b style="color:var(--ink)">작음</b></p>
+    </div>
+  </section>
+
+  <!-- ===================== B ===================== -->
+  <section class="block">
+    <div>
+      <div class="state">B · 튀어나오는 카드 — 지금 줄이 Paper 카드가 되어 패널 밖으로 나온다</div>
+      <div class="screen">
+        <div class="lp dim" style="z-index:2">
+          <div class="brand">DRIVE COACH</div>
+          <div class="rows">
+            <div class="r done"><span>도어</span><span class="st">닫힘</span></div>
+            <div class="r done"><span>안전벨트</span><span class="st">채움</span></div>
+            <div class="r done"><span>기어</span><span class="st">P</span></div>
+            <div class="r card"><span>브레이크 / 시동</span><span class="st">미수행</span></div>
+            <div class="r up"><span>좌 지시등</span><span class="st">미수행</span></div>
+            <div class="r up"><span>우 지시등</span><span class="st">미수행</span></div>
+            <div class="r up"><span>비상등</span><span class="st">미수행</span></div>
+          </div>
+        </div>
+        <div class="rp">
+          <div class="a hd" style="left:30px;top:32px">출발 전 점검 · 1회차</div>
+          <div class="a" style="right:30px;top:28px"><div class="spd">0 km/h</div><div class="src">시뮬레이션 신호</div></div>
+          <div class="a cn" style="left:40px;top:220px">코치<span>4/7</span></div>
+          <div class="a ins" style="left:40px;top:240px;font-size:20px;line-height:28px">브레이크를 밟고
+시동을 켜 주세요.</div>
+          <div class="a go" style="left:30px;top:346px;width:341px">다 됐어요 <span>→</span></div>
+        </div>
+      </div>
+      <div class="strip-cap">B 의 움직임 · 기어 → 브레이크 / 시동 (패널 오른쪽 Paper 띠까지 보이게 잘랐다)</div>
+      <div class="strip">
+        <div><div class="fr"><div class="fr-in"><div class="lp dim"><div class="brand">DRIVE COACH</div><div class="rows">
+          <div class="r done"><span>도어</span><span class="st">닫힘</span></div>
+          <div class="r done"><span>안전벨트</span><span class="st">채움</span></div>
+          <div class="r card"><span>기어</span><span class="st">P</span></div>
+          <div class="r up"><span>브레이크 / 시동</span><span class="st">미수행</span></div>
+          <div class="r up"><span>좌 지시등</span><span class="st">미수행</span></div>
+          <div class="r up"><span>우 지시등</span><span class="st">미수행</span></div>
+          <div class="r up"><span>비상등</span><span class="st">미수행</span></div>
+        </div></div></div></div><div class="fl">0 ms · 기어 카드가 나와 있음</div></div>
+        <div class="arr">→</div>
+        <div><div class="fr"><div class="fr-in"><div class="lp dim"><div class="brand">DRIVE COACH</div><div class="rows">
+          <div class="r done"><span>도어</span><span class="st">닫힘</span></div>
+          <div class="r done"><span>안전벨트</span><span class="st">채움</span></div>
+          <div class="r card half was"><span>기어</span><span class="st">P</span></div>
+          <div class="r card half"><span>브레이크 / 시동</span><span class="st">미수행</span></div>
+          <div class="r up"><span>좌 지시등</span><span class="st">미수행</span></div>
+          <div class="r up"><span>우 지시등</span><span class="st">미수행</span></div>
+          <div class="r up"><span>비상등</span><span class="st">미수행</span></div>
+        </div></div></div></div><div class="fl">150 ms · 기어는 들어가고 다음이 들림</div></div>
+        <div class="arr">→</div>
+        <div><div class="fr"><div class="fr-in"><div class="lp dim"><div class="brand">DRIVE COACH</div><div class="rows">
+          <div class="r done"><span>도어</span><span class="st">닫힘</span></div>
+          <div class="r done"><span>안전벨트</span><span class="st">채움</span></div>
+          <div class="r done"><span>기어</span><span class="st">P</span></div>
+          <div class="r card"><span>브레이크 / 시동</span><span class="st">미수행</span></div>
+          <div class="r up"><span>좌 지시등</span><span class="st">미수행</span></div>
+          <div class="r up"><span>우 지시등</span><span class="st">미수행</span></div>
+          <div class="r up"><span>비상등</span><span class="st">미수행</span></div>
+        </div></div></div></div><div class="fl">300 ms · 새 카드가 패널 밖까지</div></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="tag-id">B</div>
+      <h2>튀어나오는 카드</h2>
+      <p class="one">지금 줄이 Ink 목록에서 들려 나와 Paper 카드(먹 글자)가 되고, 오른쪽 끝이 패널 경계를 넘어 흰 영역까지 걸친다. 그림자로 "앞에 있다". 나머지 줄은 같은 크기로 흐려진다.</p>
+      <h3>장점</h3>
+      <ul>
+        <li>"앞으로 튀어나옴" 이 가장 문자 그대로 — Ink 위 흰 면이라 대비가 다섯 안 중 가장 크다(야간에도 바로 보임)</li>
+        <li>카드가 오른쪽 지시문과 맞닿아 "이 줄 = 저 지시" 가 이어져 읽힌다</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>그림자</b> — 이번 라운드 "평면" 방향(알약 질감 제거)과 부딪힌다. 그림자를 빼면 튀어나온 느낌이 약해진다 — 겹침(패널 밖으로 걸침)만으로 버틸지 사용자 판단 필요</li>
+        <li><b>구현</b> — 줄이 부모(왼쪽 패널) 밖으로 그려져야 해서 Compose 에서 `zIndex` + 잘림 해제가 필요. 오른쪽 지시문 자리를 카드만큼 비켜야 한다</li>
+        <li>야간에는 넓은 흰 면이 눈부심 — 다크 모드(6번 페이지)에서 카드 색을 따로 정해야 한다</li>
+      </ul>
+      <div class="motion"><b>움직임</b>300 ms · 앞 카드는 크기·그림자를 줄이며 목록으로 "들어가고", 다음 줄은 동시에 들려 나옴 · 카드 색은 Ink → Paper 로 150 ms 에 바뀜</div>
+      <p class="impl"><b>구현</b>줄 컴포넌트 두 상태 + 겹침 레이아웃 + 색 전환(Codex) · <b style="color:var(--ink)">중간</b></p>
+    </div>
+  </section>
+
+  <!-- ===================== C ===================== -->
+  <section class="block">
+    <div>
+      <div class="state">C · 가운데 고정 바퀴 — 지금 줄은 늘 가운데, 목록이 위로 흘러간다</div>
+      <div class="screen">
+        <div class="lp">
+          <div class="brand">DRIVE COACH</div>
+          <div class="wh d" style="top:66px;height:22px;font-size:10px;opacity:.20"><span>도어</span><span class="st">닫힘</span></div>
+          <div class="wh d" style="top:96px;height:26px;font-size:11px;opacity:.32"><span>안전벨트</span><span class="st">채움</span></div>
+          <div class="wh d" style="top:130px;height:30px;font-size:13px;opacity:.50"><span>기어</span><span class="st">P</span></div>
+          <div class="band" style="top:172px"></div>
+          <div class="wh" style="top:176px;height:72px;font-size:28px"><span>브레이크 / 시동</span><span class="st" style="font-size:15px">미수행</span></div>
+          <div class="band" style="top:252px"></div>
+          <div class="wh" style="top:262px;height:30px;font-size:14px;opacity:.68"><span>좌 지시등</span><span class="st" style="font-size:12px">미수행</span></div>
+          <div class="wh" style="top:300px;height:26px;font-size:12px;opacity:.42"><span>우 지시등</span><span class="st" style="font-size:11px">미수행</span></div>
+          <div class="wh" style="top:334px;height:22px;font-size:11px;opacity:.24"><span>비상등</span><span class="st" style="font-size:10px">미수행</span></div>
+          <div style="position:absolute;left:28px;top:204px;width:4px;height:16px;background:var(--signal)"></div>
+        </div>
+        <div class="rp">
+          <div class="a hd" style="left:30px;top:32px">출발 전 점검 · 1회차</div>
+          <div class="a" style="right:30px;top:28px"><div class="spd">0 km/h</div><div class="src">시뮬레이션 신호</div></div>
+          <div class="a cn" style="left:30px;top:166px">코치<span>4/7</span></div>
+          <div class="a ins" style="left:30px;top:186px">브레이크를 밟고
+시동을 켜 주세요.</div>
+          <div class="a go" style="left:30px;top:346px;width:341px">다 됐어요 <span>→</span></div>
+        </div>
+      </div>
+      <div class="strip-cap">C 의 움직임 · 기어 → 브레이크 / 시동 (목록이 한 칸 위로)</div>
+      <div class="strip">
+        <div><div class="fr"><div class="fr-in"><div class="lp"><div class="brand">DRIVE COACH</div>
+          <div class="wh d" style="top:96px;height:26px;font-size:11px;opacity:.32"><span>도어</span><span class="st">닫힘</span></div>
+          <div class="wh d" style="top:130px;height:30px;font-size:13px;opacity:.50"><span>안전벨트</span><span class="st">채움</span></div>
+          <div class="band" style="top:172px"></div>
+          <div class="wh d" style="top:176px;height:72px;font-size:28px"><span>기어</span><span class="st" style="font-size:15px">P</span></div>
+          <div class="band" style="top:252px"></div>
+          <div class="wh" style="top:262px;height:30px;font-size:14px;opacity:.68"><span>브레이크 / 시동</span><span class="st" style="font-size:12px">미수행</span></div>
+          <div class="wh" style="top:300px;height:26px;font-size:12px;opacity:.42"><span>좌 지시등</span><span class="st" style="font-size:11px">미수행</span></div>
+          <div class="wh" style="top:334px;height:22px;font-size:11px;opacity:.24"><span>우 지시등</span><span class="st" style="font-size:10px">미수행</span></div>
+        </div></div></div><div class="fl">0 ms · 기어가 가운데</div></div>
+        <div class="arr">→</div>
+        <div><div class="fr"><div class="fr-in"><div class="lp"><div class="brand">DRIVE COACH</div>
+          <div class="wh d" style="top:80px;height:24px;font-size:10px;opacity:.25"><span>도어</span><span class="st">닫힘</span></div>
+          <div class="wh d" style="top:112px;height:28px;font-size:12px;opacity:.40"><span>안전벨트</span><span class="st">채움</span></div>
+          <div class="band" style="top:172px"></div>
+          <div class="wh d" style="top:148px;height:52px;font-size:20px;opacity:.75"><span>기어</span><span class="st" style="font-size:13px">P</span></div>
+          <div class="band" style="top:252px"></div>
+          <div class="wh" style="top:212px;height:52px;font-size:20px;opacity:.85"><span>브레이크 / 시동</span><span class="st" style="font-size:13px">미수행</span></div>
+          <div class="wh" style="top:282px;height:28px;font-size:13px;opacity:.55"><span>좌 지시등</span><span class="st" style="font-size:11px">미수행</span></div>
+          <div class="wh" style="top:318px;height:24px;font-size:11px;opacity:.32"><span>우 지시등</span><span class="st" style="font-size:10px">미수행</span></div>
+        </div></div></div><div class="fl">150 ms · 반 칸 올라감</div></div>
+        <div class="arr">→</div>
+        <div><div class="fr"><div class="fr-in"><div class="lp"><div class="brand">DRIVE COACH</div>
+          <div class="wh d" style="top:66px;height:22px;font-size:10px;opacity:.20"><span>도어</span><span class="st">닫힘</span></div>
+          <div class="wh d" style="top:96px;height:26px;font-size:11px;opacity:.32"><span>안전벨트</span><span class="st">채움</span></div>
+          <div class="wh d" style="top:130px;height:30px;font-size:13px;opacity:.50"><span>기어</span><span class="st">P</span></div>
+          <div class="band" style="top:172px"></div>
+          <div class="wh" style="top:176px;height:72px;font-size:28px"><span>브레이크 / 시동</span><span class="st" style="font-size:15px">미수행</span></div>
+          <div class="band" style="top:252px"></div>
+          <div class="wh" style="top:262px;height:30px;font-size:14px;opacity:.68"><span>좌 지시등</span><span class="st" style="font-size:12px">미수행</span></div>
+          <div class="wh" style="top:300px;height:26px;font-size:12px;opacity:.42"><span>우 지시등</span><span class="st" style="font-size:11px">미수행</span></div>
+          <div class="wh" style="top:334px;height:22px;font-size:11px;opacity:.24"><span>비상등</span><span class="st" style="font-size:10px">미수행</span></div>
+        </div></div></div><div class="fl">300 ms · 브레이크 / 시동이 가운데</div></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="tag-id">C</div>
+      <h2>가운데 고정 바퀴</h2>
+      <p class="one">음악 앱의 가사 화면·시간 고르는 바퀴처럼, 지금 줄은 늘 패널 세로 가운데(두 가는 선 사이)에 가장 크게 있고, 위아래로 멀어질수록 작고 흐리다. 넘어가면 목록 전체가 한 칸 위로 흐른다.</p>
+      <h3>장점</h3>
+      <ul>
+        <li>"지금 할 것" 의 자리가 늘 같다 — 운전자가 시선을 한 곳에만 두면 된다. 오른쪽 지시문과 같은 높이에 맞출 수 있다</li>
+        <li>플레이리스트 "느낌" 이 다섯 안 중 가장 강하다(흐르는 움직임)</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>가독성</b> — 첫 항목·마지막 항목에서 위나 아래가 텅 빈다. 끝 줄들은 거의 안 보여 "전부 몇 개인지" 가 안 읽힌다</li>
+        <li><b>정직성</b> — 힌트처럼 순서가 틀린 항목(예: 브레이크 없이 시동)이 가운데 밖에서 일어나면 바퀴를 거꾸로 돌릴지 정해야 한다 — 흐름이 어지러워질 수 있다</li>
+        <li><b>구현</b> — 목록 스크롤 위치·거리별 크기 계산(`LazyColumn` + `animateScrollToItem` + 거리 기반 scale). 다섯 안 중 손이 가장 많이 간다</li>
+      </ul>
+      <div class="motion"><b>움직임</b>300 ms · 목록 전체가 한 줄 높이만큼 위로 · 줄마다 가운데와의 거리로 크기·투명도를 계속 계산(가사 화면 방식)</div>
+      <p class="impl"><b>구현</b>스크롤·거리 기반 크기(Codex) · <b style="color:var(--ink)">중간~큼</b></p>
+    </div>
+  </section>
+
+  <!-- ===================== D ===================== -->
+  <section class="block">
+    <div>
+      <div class="state">D · 아코디언 — 지금 줄이 펼쳐져 "무엇을 기다리는지" 까지</div>
+      <div class="screen">
+        <div class="lp">
+          <div class="brand">DRIVE COACH</div>
+          <div class="rows" style="top:58px">
+            <div class="r done cmp"><span>도어</span><span class="st">닫힘</span></div>
+            <div class="r done cmp"><span>안전벨트</span><span class="st">채움</span></div>
+            <div class="r done cmp"><span>기어</span><span class="st">P</span></div>
+            <div class="acc">
+              <div class="t"><span>브레이크 / 시동</span><span class="st">미수행</span></div>
+              <div class="w">기다리는 신호<span>브레이크 밟음 → 시동 켜짐</span></div>
+              <div class="s"><i>브레이크 · 실신호</i><i>시동 · 시뮬레이션</i></div>
+            </div>
+            <div class="r up cmp"><span>좌 지시등</span><span class="st">미수행</span></div>
+            <div class="r up cmp"><span>우 지시등</span><span class="st">미수행</span></div>
+            <div class="r up cmp"><span>비상등</span><span class="st">미수행</span></div>
+          </div>
+        </div>
+        <div class="rp">
+          <div class="a hd" style="left:30px;top:32px">출발 전 점검 · 1회차</div>
+          <div class="a" style="right:30px;top:28px"><div class="spd">0 km/h</div><div class="src">시뮬레이션 신호</div></div>
+          <div class="a cn" style="left:30px;top:150px">코치<span>4/7</span></div>
+          <div class="a ins" style="left:30px;top:170px">브레이크를 밟고
+시동을 켜 주세요.</div>
+          <div class="a go" style="left:30px;top:346px;width:341px">다 됐어요 <span>→</span></div>
+        </div>
+      </div>
+      <div class="strip-cap">D 의 움직임 · 기어 → 브레이크 / 시동 (접힘과 펼침이 겹침)</div>
+      <div class="strip">
+        <div><div class="fr"><div class="fr-in"><div class="lp"><div class="brand">DRIVE COACH</div><div class="rows" style="top:58px">
+          <div class="r done cmp"><span>도어</span><span class="st">닫힘</span></div>
+          <div class="r done cmp"><span>안전벨트</span><span class="st">채움</span></div>
+          <div class="acc"><div class="t"><span>기어</span><span class="st" style="color:var(--paper)">P</span></div><div class="w">기다리는 신호<span>기어 P</span></div><div class="s"><i>기어 · 시뮬레이션</i></div></div>
+          <div class="r up cmp"><span>브레이크 / 시동</span><span class="st">미수행</span></div>
+          <div class="r up cmp"><span>좌 지시등</span><span class="st">미수행</span></div>
+          <div class="r up cmp"><span>우 지시등</span><span class="st">미수행</span></div>
+          <div class="r up cmp"><span>비상등</span><span class="st">미수행</span></div>
+        </div></div></div></div><div class="fl">0 ms · 기어가 펼쳐져 있음</div></div>
+        <div class="arr">→</div>
+        <div><div class="fr"><div class="fr-in"><div class="lp"><div class="brand">DRIVE COACH</div><div class="rows" style="top:58px">
+          <div class="r done cmp"><span>도어</span><span class="st">닫힘</span></div>
+          <div class="r done cmp"><span>안전벨트</span><span class="st">채움</span></div>
+          <div class="acc half" style="background:rgba(252,252,250,.05);box-shadow:inset 2px 0 0 rgba(91,96,161,.8)"><div class="t" style="font-size:16px"><span>기어</span><span class="st" style="color:var(--paper);font-size:12px">P</span></div><div class="w">기다리는 신호<span>기어 P</span></div></div>
+          <div class="acc half"><div class="t" style="font-size:16px"><span>브레이크 / 시동</span><span class="st" style="font-size:12px">미수행</span></div><div class="w">기다리는 신호<span>브레이크 밟음 → 시동 켜짐</span></div></div>
+          <div class="r up cmp"><span>좌 지시등</span><span class="st">미수행</span></div>
+          <div class="r up cmp"><span>우 지시등</span><span class="st">미수행</span></div>
+        </div></div></div></div><div class="fl">150 ms · 하나 접히며 하나 펼침</div></div>
+        <div class="arr">→</div>
+        <div><div class="fr"><div class="fr-in"><div class="lp"><div class="brand">DRIVE COACH</div><div class="rows" style="top:58px">
+          <div class="r done cmp"><span>도어</span><span class="st">닫힘</span></div>
+          <div class="r done cmp"><span>안전벨트</span><span class="st">채움</span></div>
+          <div class="r done cmp"><span>기어</span><span class="st">P</span></div>
+          <div class="acc"><div class="t"><span>브레이크 / 시동</span><span class="st">미수행</span></div><div class="w">기다리는 신호<span>브레이크 밟음 → 시동 켜짐</span></div><div class="s"><i>브레이크 · 실신호</i><i>시동 · 시뮬레이션</i></div></div>
+          <div class="r up cmp"><span>좌 지시등</span><span class="st">미수행</span></div>
+          <div class="r up cmp"><span>우 지시등</span><span class="st">미수행</span></div>
+          <div class="r up cmp"><span>비상등</span><span class="st">미수행</span></div>
+        </div></div></div></div><div class="fl">300 ms · 다 펼쳐짐</div></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="tag-id">D</div>
+      <h2>아코디언 + 기다리는 신호</h2>
+      <p class="one">접힌 줄은 이름과 점만(상태 글자를 뺌 — 점 색이 됨/아직을 말함). 지금 줄만 펼쳐져 이름(66 dp) · 상태 · "기다리는 신호" · 신호 출처 배지까지 보인다.</p>
+      <h3>장점</h3>
+      <ul>
+        <li><b>정직성이 가장 좋다</b> — 실신호/시뮬레이션 출처가 지금 줄에서 크게 읽힌다(mixed 캡처의 줄마다 작은 글을 한 곳에 모음)</li>
+        <li>접힌 줄은 글자가 반으로 줄어 목록이 조용해진다. "앱이 무엇을 보고 판정하는지" 가 보여 시연 설명에 좋다</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>중복</b> — "기다리는 신호" 가 오른쪽 지시문과 비슷한 말을 한 번 더 한다. 사용자가 싫어한 "헷갈리는 요소" 가 될 수 있다 — 출처 배지만 남기는 변형도 가능</li>
+        <li>접힌 줄에서 상태 글자가 빠져 "닫힘·채움" 같은 실제 값은 지나가면 안 보인다(판정 화면에서 다시 보임)</li>
+        <li>"기다리는 신호" 문구가 항목마다 필요 — 지금 `GuideStepView.waitingFor` 가 있어 그대로 쓸 수 있다</li>
+      </ul>
+      <div class="motion"><b>움직임</b>300 ms · 앞 줄 접힘과 다음 줄 펼침이 같은 시간에(`AnimatedVisibility` expandVertically) · 배지는 펼침이 끝난 뒤 100 ms 에 나타남</div>
+      <p class="impl"><b>구현</b>`waitingFor` · 출처는 `availability` 에 이미 있음 · 줄 두 상태(Codex) · <b style="color:var(--ink)">작음~중간</b></p>
+    </div>
+  </section>
+
+  <!-- ===================== E ===================== -->
+  <section class="block">
+    <div>
+      <div class="state">E · 지금 재생 중 — 앨범 표지처럼 한 항목만 크게, 지난 것·다음 것은 위아래 띠</div>
+      <div class="screen">
+        <div class="lp">
+          <div class="brand">DRIVE COACH</div>
+          <div class="np-prev">지난 것 <i>● 도어</i><i>● 안전벨트</i><i>● 기어</i></div>
+          <div class="np-card" style="left:48px">
+            <div class="art"><svg width="140" height="140" viewBox="0 0 140 140"><use href="#ic-start"/></svg></div>
+            <div class="nm">브레이크 / 시동</div>
+            <div class="st">미수행 <span style="color:rgba(252,252,250,.60);font-size:11px;margin-left:6px">브레이크 · 실신호 / 시동 · 시뮬레이션</span></div>
+          </div>
+          <div class="np-next">다음 <i>좌 지시등</i><i>우 지시등</i><i>비상등</i></div>
+        </div>
+        <div class="rp">
+          <div class="a hd" style="left:30px;top:32px">출발 전 점검 · 1회차</div>
+          <div class="a" style="right:30px;top:28px"><div class="spd">0 km/h</div><div class="src">시뮬레이션 신호</div></div>
+          <div class="a cn" style="left:30px;top:150px">코치<span>4/7</span></div>
+          <div class="a ins" style="left:30px;top:170px">브레이크를 밟고
+시동을 켜 주세요.</div>
+          <div class="a go" style="left:30px;top:346px;width:341px">다 됐어요 <span>→</span></div>
+        </div>
+      </div>
+      <div class="strip-cap">E 의 움직임 · 기어 → 브레이크 / 시동 (옆으로 넘기기)</div>
+      <div class="strip">
+        <div><div class="fr"><div class="fr-in"><div class="lp" style="overflow:hidden"><div class="brand">DRIVE COACH</div>
+          <div class="np-prev">지난 것 <i>● 도어</i><i>● 안전벨트</i></div>
+          <div class="np-card" style="left:48px"><div class="art"><svg width="140" height="140" viewBox="0 0 140 140"><use href="#ic-gear"/></svg></div><div class="nm">기어</div><div class="st" style="color:var(--paper)">P</div></div>
+          <div class="np-next">다음 <i>브레이크 / 시동</i><i>좌 지시등</i><i>우 지시등</i></div>
+        </div></div></div><div class="fl">0 ms · 기어가 표지</div></div>
+        <div class="arr">→</div>
+        <div><div class="fr"><div class="fr-in"><div class="lp" style="overflow:hidden"><div class="brand">DRIVE COACH</div>
+          <div class="np-prev">지난 것 <i>● 도어</i><i>● 안전벨트</i></div>
+          <div class="np-card" style="left:-90px;opacity:.35;transform:scale(.8);transform-origin:0 40%"><div class="art"><svg width="140" height="140" viewBox="0 0 140 140"><use href="#ic-gear"/></svg></div><div class="nm">기어</div></div>
+          <div class="np-card" style="left:240px;opacity:.7;transform:scale(.9);transform-origin:0 40%"><div class="art"><svg width="140" height="140" viewBox="0 0 140 140"><use href="#ic-start"/></svg></div><div class="nm">브레이크 / 시동</div></div>
+          <div class="np-next">다음 <i>좌 지시등</i><i>우 지시등</i></div>
+        </div></div></div><div class="fl">150 ms · 기어는 왼쪽으로, 다음이 들어옴</div></div>
+        <div class="arr">→</div>
+        <div><div class="fr"><div class="fr-in"><div class="lp" style="overflow:hidden"><div class="brand">DRIVE COACH</div>
+          <div class="np-prev">지난 것 <i>● 도어</i><i>● 안전벨트</i><i>● 기어</i></div>
+          <div class="np-card" style="left:48px"><div class="art"><svg width="140" height="140" viewBox="0 0 140 140"><use href="#ic-start"/></svg></div><div class="nm">브레이크 / 시동</div><div class="st">미수행</div></div>
+          <div class="np-next">다음 <i>좌 지시등</i><i>우 지시등</i><i>비상등</i></div>
+        </div></div></div><div class="fl">300 ms · 새 표지 · 기어는 지난 것 띠로</div></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="tag-id">E</div>
+      <h2>지금 재생 중</h2>
+      <p class="one">왼쪽 패널을 음악 앱 "지금 재생 중" 화면처럼: 가운데 항목 그림(기하학 정사각형) + 큰 이름 + 상태·출처. 위에 "지난 것" 작은 알약 띠, 아래에 "다음" 띠. 목록이 아니라 한 장씩 넘긴다.</p>
+      <h3>장점</h3>
+      <ul>
+        <li>강조가 극단적으로 분명 — 패널 전체가 지금 항목. 기하학 일러스트 컨셉과 잘 맞고 시연 영상에서 가장 눈에 띈다</li>
+        <li>지난 것·다음 것 띠가 단계 막대 역할을 대신한다</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>그림 공수</b> — 항목 일곱 개마다 정사각 그림(도어·벨트·기어·브레이크/시동·좌/우 지시등·비상등). 마감 안에는 단순 도형으로만 가능</li>
+        <li><b>가독성</b> — 지난 것 띠의 알약이 작아(30 dp) 각각의 값(닫힘·채움·P)이 안 보인다. 한 화면에 "전체 상태" 가 없어 힌트·평가 모드에는 맞지 않는다(그 모드는 목록형으로 돌아가야 함)</li>
+        <li>다른 과제(주차 가이드)는 이미 오른쪽에 도식이 있어 같은 틀을 쓰기 어렵다 — 점검 전용 화면이 된다</li>
+      </ul>
+      <div class="motion"><b>움직임</b>300 ms · 표지가 왼쪽으로 밀려나며 작아지고 흐려짐 · 다음 표지가 오른쪽에서 들어옴(`AnimatedContent` slideInHorizontally) · 지난 것 띠에 알약 하나가 붙음</div>
+      <p class="impl"><b>구현</b>새 레이아웃 + 항목 그림 일곱(Codex) · <b style="color:var(--ink)">큼</b></p>
+    </div>
+  </section>
+
+  <!-- ===================== 비교 ===================== -->
+  <section class="cmp-sec">
+    <h2>다섯 안 비교</h2>
+    <p>"강조 세기" = 지금 줄과 나머지의 크기·밝기 대비. "힌트·평가" = 지금 할 항목이 없는 모드에 그대로 쓸 수 있나(4번 페이지와 연결).</p>
+    <table>
+      <thead><tr><th>안</th><th>강조 세기</th><th>전체가 한눈에</th><th>신호 출처(정직성)</th><th>평면 규칙</th><th>힌트·평가</th><th>공수</th></tr></thead>
+      <tbody>
+        <tr class="pick"><td>A 플레이리스트 확대</td><td>강함</td><td class="lo">예 — 일곱 줄 다 보임</td><td>지금 줄 아래 작은 글</td><td class="lo">맞음</td><td class="lo">확대만 끄면 됨</td><td class="lo">작음</td></tr>
+        <tr><td>B 튀어나오는 카드</td><td class="lo">가장 강함</td><td>예(나머지 흐림)</td><td>카드 안</td><td class="hi">그림자 필요</td><td>카드만 끄면 됨</td><td>중간</td></tr>
+        <tr><td>C 가운데 고정 바퀴</td><td>강함</td><td class="hi">아니오 — 끝 줄 거의 안 보임</td><td>가운데 줄</td><td class="lo">맞음</td><td class="hi">흐름이 어색</td><td>중간~큼</td></tr>
+        <tr><td>D 아코디언</td><td>강함</td><td>예(값 글자는 지금 줄만)</td><td class="lo">가장 분명 — 배지</td><td class="lo">맞음</td><td>펼침만 끄면 됨</td><td>작음~중간</td></tr>
+        <tr><td>E 지금 재생 중</td><td class="lo">가장 강함</td><td class="hi">아니오 — 띠로만</td><td>표지 아래</td><td class="lo">맞음</td><td class="hi">목록형으로 돌아가야</td><td class="hi">큼</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="reco">
+    <div class="k">추천 <span class="effort">공수 작음</span></div>
+    <h2>A 플레이리스트 확대 + D 의 출처 배지(지금 줄에만)</h2>
+    <p>사용자가 말한 "확실히 크게 · 나머지 작게 · 커지는 애니메이션" 을 <em>목록 구조를 그대로 둔 채</em> 줄 높이와 글자 크기만으로 해결한다. 일곱 줄이 늘 다 보여 단계 막대를 빼도 진행이 읽히고, 힌트·평가 모드에서는 확대만 끄면 된다(4번 페이지와 충돌 없음). 정직성은 D 처럼 지금 줄 아래에 `브레이크 · 실신호` `시동 · 시뮬레이션` 배지를 붙여 채운다.</p>
+    <ol>
+      <li>Codex: 위 단계 막대 · 아래 "출발 전 점검 · 확인 상태" 삭제 · 줄 세 상태(다 함 / 지금 / 남음)의 높이·글자 크기 · 300 ms 크기 주고받기 애니메이션 · 지금 줄 출처 배지 · 줄마다 붙던 "시뮬레이션" 작은 글은 지금 줄에만</li>
+      <li>Claude: 상태기계 변경 없음(`guide.index` · `availability` 그대로). 화면 계측 문구 계약에서 "출발 전 점검 · 확인 상태" 를 찾는 곳이 있으면 제거</li>
+      <li>시간이 남으면 B 의 "패널 밖으로 걸침" 만 그림자 없이 더해 본다 — 평면 규칙 안에서 앞으로 나온 느낌을 보탬</li>
+    </ol>
+  </section>
+
+</div>
+</body>
+</html>

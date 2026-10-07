@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>다크 모드 색 — 다섯 팔레트</title>
+<style>
+:root{
+  --ink:#070827; --paper:#FCFCFA; --peri:#5B60A1; --lav:#E5E6F0; --signal:#F52D48;
+  --muted:rgba(7,8,39,.60);
+  --tex-full:0 4px 10px rgba(7,8,39,.10),0 1px 2px rgba(7,8,39,.06),inset 0 1px 0 rgba(255,255,255,.9);
+  --font:"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-weight:400}
+h1,h2,h3,h4,b,strong,th{font-weight:500}
+body{background:var(--paper);color:var(--ink);font-family:var(--font);line-height:1.5;word-break:keep-all}
+.page{max-width:1560px;margin:0 auto;padding:40px 32px 64px}
+code{font-family:Consolas,monospace;font-size:.92em}
+
+/* 머리 */
+.head h1{font-size:30px;letter-spacing:-.01em}
+.head .lead{font-size:16px;color:var(--muted);margin-top:4px;max-width:1150px}
+.quote{margin-top:18px;background:rgba(229,230,240,.6);border-left:4px solid var(--peri);padding:14px 18px;font-size:15px;max-width:1150px}
+.quote .who{display:block;font-size:12px;color:var(--peri);margin-bottom:4px}
+.scale{display:inline-flex;align-items:center;gap:8px;margin-top:16px;font-size:13px;color:var(--peri);background:rgba(91,96,161,.08);padding:6px 12px;border-radius:14px}
+.pre{margin-top:20px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:1496px}
+.pre div{background:var(--paper);box-shadow:var(--tex-full);border:1px solid rgba(7,8,39,.05);padding:12px 14px;font-size:13px}
+.pre div b{display:block;color:var(--peri);font-size:12px;letter-spacing:.04em;margin-bottom:3px}
+.pre .glare{border-left:3px solid var(--signal)}
+.legend{margin-top:14px;font-size:12px;color:var(--muted);display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+
+/* 칸 */
+.block{display:grid;grid-template-columns:853px 1fr;gap:36px;margin-top:44px;padding-top:28px;border-top:1px solid rgba(7,8,39,.10)}
+.tag-id{font-size:13px;color:var(--peri);letter-spacing:.08em}
+.notes h2{font-size:26px;margin-top:2px}
+.notes .one{font-size:15px;margin-top:6px}
+.notes h3{font-size:13px;color:var(--peri);margin-top:16px;letter-spacing:.04em}
+.notes ul{margin-top:6px;padding-left:18px;font-size:14px}
+.notes li{margin-top:4px}
+.notes .impl{margin-top:12px;font-size:13px;border-left:3px solid var(--signal);padding:4px 10px}
+.notes .impl b{color:var(--signal);margin-right:4px}
+.notes .chk{margin-top:12px;font-size:13px;background:rgba(229,230,240,.55);padding:10px 12px;border-radius:6px}
+.notes .chk b{color:var(--peri)}
+.ok{color:var(--peri)} .ng{color:var(--signal)}
+.sw{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.sw span{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--muted);width:62px}
+.sw i{display:block;width:62px;height:30px;border-radius:4px;box-shadow:0 0 0 1px rgba(7,8,39,.14)}
+.cur img{display:block;width:853px;height:auto;border-radius:6px;box-shadow:0 0 0 1px rgba(7,8,39,.14)}
+.state{font-size:12px;color:var(--peri);letter-spacing:.06em;margin:0 0 6px}
+.state.mt{margin-top:18px}
+
+/* 팔레트 */
+.P1{--bg:#070827;--panel:#1A1D4D;--tx:#ECEDF4;--mu:rgba(236,237,244,.62);--ac:#9296DD;--fill:#252859;--sig:#F52D48;--on:#FFFFFF;--hl:#2C3070;--hi:#7D81C2;--mid:#2C3070;--lo:#02031A;--line:rgba(236,237,244,.14)}
+.P2{--bg:#070827;--panel:#2F3378;--tx:#EEEFF6;--mu:rgba(238,239,246,.62);--ac:#A9ACEB;--fill:#1E2150;--sig:#F2435A;--on:#FFFFFF;--hl:#454A99;--hi:#C3C5EC;--mid:#2F3378;--lo:#03041A;--line:rgba(238,239,246,.14)}
+.P3{--bg:#000000;--panel:#0A0B22;--tx:#D6D7E4;--mu:rgba(214,215,228,.55);--ac:#7C81C8;--fill:#17182F;--sig:#D42A40;--on:#F4F4F7;--hl:#1A1C40;--hi:#6E72B0;--mid:#22255A;--lo:#000000;--line:rgba(214,215,228,.12)}
+.P4{--bg:#0C0A1E;--panel:#18152F;--tx:#ECE5D6;--mu:rgba(236,229,214,.60);--ac:#A69DC8;--fill:#272340;--sig:#EE4B4B;--on:#FFF8EE;--hl:#2C2850;--hi:#8A82A6;--mid:#36315F;--lo:#05040F;--line:rgba(236,229,214,.13)}
+.P5{--bg:#22255A;--panel:#070827;--tx:#F1F1F6;--mu:rgba(241,241,246,.64);--ac:#A0A4E6;--fill:#353A80;--sig:#F52D48;--on:#FFFFFF;--hl:#1A1C45;--hi:#7C81C0;--mid:#32367A;--lo:#070827;--line:rgba(241,241,246,.14)}
+
+/* 1/3 화면 공통 */
+.scr{position:relative;width:853px;height:423px;background:var(--bg);overflow:hidden;border-radius:6px;box-shadow:0 0 0 1px rgba(7,8,39,.25),0 8px 24px rgba(7,8,39,.10);color:var(--tx)}
+.scr+.state{margin-top:16px}
+.a{position:absolute}
+.brand{font-size:8px;letter-spacing:4px;color:var(--tx)}
+
+/* 홈 */
+.hl{position:absolute;left:0;top:0;width:400px;height:423px}
+.pro{position:absolute;left:473px;top:58px;height:22px;line-height:22px;padding:0 11px;border-radius:11px;background:var(--fill);color:var(--ac);font-size:10px;white-space:nowrap}
+.ttl{position:absolute;left:473px;top:92px;font-size:24px;line-height:28px;white-space:pre-line;color:var(--tx)}
+.tm{position:absolute;left:473px;top:160px;font-size:13px;line-height:19px;color:var(--tx)}
+.tm .cat{color:var(--ac)}
+.why{position:absolute;left:473px;top:181px;font-size:12px;line-height:16px;color:var(--mu)}
+.go{position:absolute;height:46px;border-radius:23px;background:var(--sig);color:var(--on);font-size:13px;display:flex;align-items:center;justify-content:center;gap:12px}
+.row{position:absolute;left:473px;top:281px;width:358px;height:37px;display:flex;align-items:center;justify-content:space-between}
+.lk{font-size:13px;line-height:19px;text-decoration:underline;text-underline-offset:3px;white-space:nowrap;color:var(--tx)}
+.sub{height:37px;border-radius:19px;padding:0 15px 0 13px;background:var(--fill);color:var(--tx);font-size:12px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.sub svg{width:13px;height:13px;color:var(--ac)}
+
+/* 점검 */
+.cp{position:absolute;left:0;top:0;width:452px;height:423px;background:var(--panel)}
+.cp .brand{position:absolute;left:48px;top:30px}
+.rail{position:absolute;left:54px;top:86px;width:1px;height:262px;background:var(--line)}
+.ck{position:absolute;left:44px;width:368px;height:30px;display:flex;align-items:center;font-size:13px;color:var(--mu)}
+.ck .d{width:9px;height:9px;border-radius:50%;background:var(--ac);opacity:.75;margin-right:22px;flex:none}
+.ck .n{flex:1}
+.ck .s{font-size:12px}
+.ck.cur{left:36px;width:384px;height:46px;padding:0 14px 0 13px;border-radius:10px;background:var(--hl);font-size:18px;color:var(--tx)}
+.ck.cur .d{width:13px;height:13px;background:transparent;border:2px solid var(--sig);opacity:1;margin-right:16px}
+.ck.cur .s{font-size:14px;color:var(--sig)}
+.rt{position:absolute;left:474px;top:0;width:358px;height:423px}
+.rt .meta{position:absolute;left:0;top:44px;font-size:13px;color:var(--tx)}
+.rt .spd{position:absolute;right:0;top:36px;font-size:22px;line-height:26px;color:var(--tx);text-align:right}
+.rt .src{position:absolute;right:0;top:63px;font-size:10px;color:var(--ac)}
+.rt .step{position:absolute;left:0;top:190px;font-size:11px;color:var(--mu)}
+.rt .step em{font-style:normal;color:var(--ac);margin-left:6px}
+.rt .ins{position:absolute;left:0;top:210px;font-size:24px;line-height:28px;color:var(--tx)}
+
+/* 토큰 표 */
+.tok{margin-top:44px;padding-top:28px;border-top:1px solid rgba(7,8,39,.10)}
+.tok h2{font-size:24px}
+.tok>p{font-size:14px;color:var(--muted);margin-top:4px;max-width:1300px}
+.tt{width:100%;border-collapse:collapse;margin-top:16px;font-size:13px}
+.tt th{font-size:12px;color:var(--peri);letter-spacing:.04em;text-align:left;padding:8px 8px;border-bottom:1px solid rgba(7,8,39,.14);white-space:nowrap;vertical-align:bottom}
+.tt td{padding:6px 8px;border-bottom:1px solid rgba(7,8,39,.08);vertical-align:middle;white-space:nowrap}
+.tt td.role{white-space:normal;width:210px}
+.tt td.role small{display:block;font-size:11px;color:var(--muted)}
+.tt .c{display:inline-flex;align-items:center;gap:8px;font-family:Consolas,monospace;font-size:12px}
+.tt .c i{width:26px;height:18px;border-radius:3px;box-shadow:0 0 0 1px rgba(7,8,39,.18);display:inline-block}
+.tt tr.m td{background:rgba(229,230,240,.35)}
+.tt tr.sep td{border-top:2px solid rgba(7,8,39,.14)}
+.tt th.pk,.tt tr td.pk{background:rgba(245,45,72,.05)}
+
+/* 추천 */
+.reco{margin-top:40px;padding:24px 28px;background:var(--ink);color:var(--paper);border-radius:8px}
+.reco .k{font-size:13px;color:rgba(229,230,240,.75);letter-spacing:.06em}
+.reco h2{font-size:26px;margin-top:4px}
+.reco p{font-size:15px;margin-top:8px;color:rgba(252,252,250,.9)}
+.reco p em{font-style:normal;color:var(--signal)}
+.reco ol{margin-top:10px;padding-left:20px;font-size:14px;color:rgba(252,252,250,.85)}
+.reco li{margin-top:3px}
+.reco code{color:#C9CBF0}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="car" viewBox="0 0 400 423">
+      <rect width="400" height="423" style="fill:var(--bg)"/>
+      <path d="M130 110 L330 100 L400 120 V423 H0 V130 Z" style="fill:var(--mid)"/>
+      <path d="M0 340 C120 300 260 290 400 300 V423 H0 Z" style="fill:var(--lo)"/>
+      <path d="M0 160 C70 130 150 120 210 140 C270 160 320 200 360 250 C380 275 380 310 370 340 C300 360 160 360 60 345 L0 335 Z" style="fill:var(--hi)"/>
+      <path d="M20 178 C80 150 150 146 200 168 L240 215 L60 220 L10 205 Z" style="fill:var(--lo)"/>
+      <path d="M90 268 C180 252 280 262 350 280 L340 330 C250 318 150 318 90 332 Z" style="fill:var(--mid)" opacity=".7"/>
+      <path d="M0 222 L70 216 C76 230 68 248 56 256 L0 262 Z" style="fill:var(--sig)"/>
+      <circle cx="270" cy="345" r="48" style="fill:var(--lo)"/><circle cx="270" cy="345" r="32" style="fill:var(--hi)"/><circle cx="270" cy="345" r="24" style="fill:var(--mid)"/>
+    </symbol>
+    <symbol id="mic" viewBox="0 0 16 16"><rect x="5.6" y="1.4" width="4.8" height="8.4" rx="2.4" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M3.2 7.6a4.8 4.8 0 0 0 9.6 0M8 12.5v2.1M5.6 14.6h4.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+  </defs>
+</svg>
+
+<div class="page">
+
+  <header class="head">
+    <h1>다크 모드 색 — 다섯 팔레트</h1>
+    <p class="lead">밤 운전용 어두운 색 다섯 가지. 모두 앱의 정체성인 <b>Ink(먹 남색) · Periwinkle(보라빛 파랑) · Signal(빨강)</b> 계열 안에서 만들었고, 이 페이지만 새 색을 허용했다. 안마다 홈과 출발 전 점검을 그 팔레트로 그렸고, 맨 아래에 라이트 ↔ 다크 토큰 대응표와 대비 · 눈부심 수치를 모았다.</p>
+    <blockquote class="quote">
+      <span class="who">사용자 피드백 (원문, 10/7) — #고민</span>
+      - 다크모드 고려 색상 고민
+    </blockquote>
+    <div class="scale">아래 화면은 모두 실제의 1/3 (853 × 423) — 실제 화면은 약 3배</div>
+    <div class="pre">
+      <div class="glare"><b>야간 눈부심 기준 (모든 안에 적용해 검사)</b>넓은 면(바탕 · 패널 · 일러스트 바탕면)은 상대휘도 <b style="display:inline;color:var(--ink)">0.05 이하</b>. 일러스트의 밝은 면(차체)은 <b style="display:inline;color:var(--ink)">0.25 이하</b>. 그보다 밝은 것은 글자와 주 알약뿐이고 합쳐 화면의 약 10% 이하. 글자는 순백(1.0) 대신 휘도 0.7~0.9 의 옅은 색. 지금 라이트 홈은 바탕 휘도 0.97 이 화면의 절반 이상이다.</div>
+      <div><b>지금 색 구조 (코드)</b><code>CoachColors</code> 여섯 토큰을 29개 파일에서 약 400번 직접 쓴다(Paper 125 · Periwinkle 84 · Ink 65 · Muted 56 · Lavender 41 · Signal 29). <b style="display:inline;color:var(--ink)">Paper 가 "바탕" 과 "Ink 패널 위 글자" 두 역할</b>, Ink 도 "글자" 와 "패널" 두 역할이라 값만 바꾸면 패널이 하얘진다 → 역할 이름(바탕 · 패널 · 글자 · 패널 글자 …)으로 나누는 일이 먼저다. 홈 · 브리핑 일러스트는 비트맵(<code>poster_car.webp</code> · <code>poster_wheel_b.webp</code>)이라 야간판을 따로 그려야 한다.</div>
+      <div><b>전환 · 지켜야 할 것</b>앱 안 토글이 아니라 <b style="display:inline;color:var(--ink)">시스템 야간 모드를 따른다</b>(Compose <code>isSystemInDarkTheme()</code> — AAOS 는 차량 낮/밤 신호로 시스템 모드를 바꾼다). 사내 에뮬에서 전환이 되는지는 미확인 → INTEGRATION B절 한 줄. 주행 중 화면 규칙(점수 · 터치 없음) · 신호 출처 표시 · 숫자 없는 문장은 색과 무관하게 그대로. 빨강(Signal)은 "주 알약 · 틀림" 뜻을 다크에서도 유지.</div>
+    </div>
+    <div class="legend"><span>· 모든 안이 같은 데이터: 홈 = `주차 › 후면 직각 주차 · 가이드 모드`, 평면 `시작` 알약, 맨 아래 흐린 문장 없음(이번 라운드 확정) · 점검 = 가이드 모드 첫 단계(도어), 위 단계 막대와 아래 "확인 상태" 줄 없음(3번 페이지 방향)</span><span>· 관리자 띠는 생략</span></div>
+  </header>
+
+  <!-- ===================== 지금 ===================== -->
+  <section class="block cur">
+    <div>
+      <div class="state">지금 · 홈 라이트 (lesson-setup.png)</div>
+      <img src="../../screenshots/lesson/lesson-setup.png" alt="지금의 홈 — 라이트">
+      <div class="state mt">지금 · 출발 전 점검 라이트 (lesson-maneuver-checklist.png)</div>
+      <img src="../../screenshots/lesson/lesson-maneuver-checklist.png" alt="지금의 출발 전 점검 — 라이트">
+    </div>
+    <div class="notes">
+      <div class="tag-id">지금</div>
+      <h2>라이트 하나뿐</h2>
+      <p class="one">기하학 포스터 = 큰 면 두 개의 강한 대비(Paper 0.97 ↔ Ink 0.004, 대비 19:1). 밤에는 이 Paper 면이 그대로 눈부심이 된다.</p>
+      <h3>다크에서 지켜야 할 정체성</h3>
+      <ul>
+        <li><b>면 나눔</b> — 왼쪽 패널과 오른쪽 면이 다른 색으로 갈려야 포스터로 읽힌다. 다크에서는 둘 다 어두워 대비가 1~2:1 로 줄어든다 — 안마다 이 "면 대비" 를 어떻게 남기느냐가 다르다</li>
+        <li><b>Periwinkle</b> — 눈썹 · 링크 · 점 · 일러스트 중간 면. 어두운 바탕에서는 지금 값(#5B60A1)이 대비 3:1 남짓이라 밝혀야 한다</li>
+        <li><b>Signal</b> — 주 알약과 "틀림" 상태. 다크에서 가장 밝은 큰 요소가 되므로 밝기를 그대로 둘지 낮출지가 안마다 다르다</li>
+        <li><b>굵기 없음</b> — 다크에서 얇은 글자가 번져 보이므로 글자 색을 순백보다 낮춘다(모든 안)</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== P1 ===================== -->
+  <section class="block">
+    <div class="P1">
+      <div class="state">P1 · 잉크 밤 — 홈</div>
+      <div class="scr">
+        <svg class="hl" viewBox="0 0 400 423"><use href="#car"/></svg>
+        <div class="a brand" style="left:48px;top:22px">DRIVE COACH</div>
+        <div class="pro">연수생 · 장롱 10년차 · 목표: 아이 등하원 ›</div>
+        <div class="ttl">오늘은 가볍게,
+주차부터 해 볼까요?</div>
+        <div class="tm"><span class="cat">주차 ›</span> 후면 직각 주차 · 가이드 모드</div>
+        <div class="why">처음은 제가 순서대로 함께할게요.</div>
+        <div class="go" style="left:473px;top:215px;width:358px">시작 <span>→</span></div>
+        <div class="row"><span class="lk">과제·모드 바꾸기</span><span class="sub"><svg><use href="#mic"/></svg>코치와 대화</span></div>
+      </div>
+      <div class="state">P1 · 잉크 밤 — 출발 전 점검</div>
+      <div class="scr">
+        <div class="cp">
+          <div class="brand">DRIVE COACH</div>
+          <div class="rail"></div>
+          <div class="ck cur" style="top:72px"><span class="d"></span><span class="n">도어</span><span class="s">열림</span></div>
+          <div class="ck" style="top:134px"><span class="d"></span><span class="n">안전벨트</span><span class="s">풀림</span></div>
+          <div class="ck" style="top:172px"><span class="d"></span><span class="n">기어</span><span class="s">P</span></div>
+          <div class="ck" style="top:210px"><span class="d"></span><span class="n">브레이크 / 시동</span><span class="s">꺼짐</span></div>
+          <div class="ck" style="top:248px"><span class="d"></span><span class="n">좌 지시등</span><span class="s">꺼짐</span></div>
+          <div class="ck" style="top:286px"><span class="d"></span><span class="n">우 지시등</span><span class="s">꺼짐</span></div>
+          <div class="ck" style="top:324px"><span class="d"></span><span class="n">비상등</span><span class="s">꺼짐</span></div>
+        </div>
+        <div class="rt">
+          <div class="meta">출발 전 점검 · 1회차</div>
+          <div class="spd">0 km/h</div><div class="src">실신호</div>
+          <div class="step">코치<em>1/7</em></div>
+          <div class="ins">운전석 문을 닫아 주세요.</div>
+          <div class="go" style="left:0;top:345px;width:358px">다 됐어요 <span>→</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="tag-id">P1</div>
+      <h2>잉크 밤</h2>
+      <p class="one">바탕 = 지금 Ink 그대로, 패널은 한 단계 밝은 Ink. 가장 곧이곧대로인 "Ink 를 바탕으로" 전환.</p>
+      <div class="sw">
+        <span><i style="background:#070827"></i>바탕</span><span><i style="background:#1A1D4D"></i>패널</span><span><i style="background:#ECEDF4"></i>글자</span><span><i style="background:#9296DD"></i>강조</span><span><i style="background:#252859"></i>보조 채움</span><span><i style="background:#F52D48"></i>Signal</span><span><i style="background:#7D81C2"></i>차체</span>
+      </div>
+      <h3>장점</h3>
+      <ul>
+        <li>Ink · Signal 값이 라이트와 같다 — 앱을 아는 사람에게 "같은 앱의 밤" 으로 바로 읽힌다</li>
+        <li>강조 Periwinkle 을 밝혀(#9296DD) 바탕 대비 7.1:1 — 링크 · 눈썹이 잘 보인다</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>면 나눔이 약하다</b> — 패널/바탕 대비 1.24:1. 점검 화면의 왼쪽 패널이 "살짝 다른 남색" 정도로만 갈린다</li>
+        <li>차체를 Periwinkle 쪽으로 낮춰(휘도 0.24) 포스터의 "흰 차" 가 "보라 차" 가 된다</li>
+        <li><b>정직성</b> — 신호 출처 글자(Periwinkle)가 밝아져 오히려 더 잘 보인다(좋음)</li>
+      </ul>
+      <p class="chk"><b>눈부심 기준</b> · 넓은 면 최대 0.038 <span class="ok">✓</span> · 차체 0.24 <span class="ok">✓</span> · 글자 0.85 · 주 알약 0.22</p>
+    </div>
+  </section>
+
+  <!-- ===================== P2 ===================== -->
+  <section class="block">
+    <div class="P2">
+      <div class="state">P2 · Periwinkle 면 — 홈</div>
+      <div class="scr">
+        <svg class="hl" viewBox="0 0 400 423"><use href="#car"/></svg>
+        <div class="a brand" style="left:48px;top:22px">DRIVE COACH</div>
+        <div class="pro">연수생 · 장롱 10년차 · 목표: 아이 등하원 ›</div>
+        <div class="ttl">오늘은 가볍게,
+주차부터 해 볼까요?</div>
+        <div class="tm"><span class="cat">주차 ›</span> 후면 직각 주차 · 가이드 모드</div>
+        <div class="why">처음은 제가 순서대로 함께할게요.</div>
+        <div class="go" style="left:473px;top:215px;width:358px">시작 <span>→</span></div>
+        <div class="row"><span class="lk">과제·모드 바꾸기</span><span class="sub"><svg><use href="#mic"/></svg>코치와 대화</span></div>
+      </div>
+      <div class="state">P2 · Periwinkle 면 — 출발 전 점검</div>
+      <div class="scr">
+        <div class="cp">
+          <div class="brand">DRIVE COACH</div>
+          <div class="rail"></div>
+          <div class="ck cur" style="top:72px"><span class="d"></span><span class="n">도어</span><span class="s">열림</span></div>
+          <div class="ck" style="top:134px"><span class="d"></span><span class="n">안전벨트</span><span class="s">풀림</span></div>
+          <div class="ck" style="top:172px"><span class="d"></span><span class="n">기어</span><span class="s">P</span></div>
+          <div class="ck" style="top:210px"><span class="d"></span><span class="n">브레이크 / 시동</span><span class="s">꺼짐</span></div>
+          <div class="ck" style="top:248px"><span class="d"></span><span class="n">좌 지시등</span><span class="s">꺼짐</span></div>
+          <div class="ck" style="top:286px"><span class="d"></span><span class="n">우 지시등</span><span class="s">꺼짐</span></div>
+          <div class="ck" style="top:324px"><span class="d"></span><span class="n">비상등</span><span class="s">꺼짐</span></div>
+        </div>
+        <div class="rt">
+          <div class="meta">출발 전 점검 · 1회차</div>
+          <div class="spd">0 km/h</div><div class="src">실신호</div>
+          <div class="step">코치<em>1/7</em></div>
+          <div class="ins">운전석 문을 닫아 주세요.</div>
+          <div class="go" style="left:0;top:345px;width:358px">다 됐어요 <span>→</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="tag-id">P2</div>
+      <h2>Periwinkle 면</h2>
+      <p class="one">바탕은 Ink, 라이트에서 Ink 였던 패널을 짙은 Periwinkle 로. 포스터의 "두 면" 을 색으로 지킨다. 차체는 밝게 남긴다.</p>
+      <div class="sw">
+        <span><i style="background:#070827"></i>바탕</span><span><i style="background:#2F3378"></i>패널</span><span><i style="background:#EEEFF6"></i>글자</span><span><i style="background:#A9ACEB"></i>강조</span><span><i style="background:#1E2150"></i>보조 채움</span><span><i style="background:#F2435A"></i>Signal</span><span><i style="background:#C3C5EC"></i>차체</span>
+      </div>
+      <h3>장점</h3>
+      <ul>
+        <li>면 대비가 다섯 중 가장 크다(1.74:1) — 점검 화면이 "왼쪽 보라 면 / 오른쪽 먹 면" 의 포스터로 그대로 읽힌다</li>
+        <li>일러스트가 라이트와 가장 닮았다(흰 차 → 옅은 라벤더 차)</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b class="ng">눈부심 기준 미달</b> — 차체 휘도 0.58 이 홈 화면의 약 1/5. 밤에 홈을 열면 왼쪽이 번쩍인다</li>
+        <li>패널 위 흐린 글자 대비가 다섯 중 가장 낮다(글자/패널 9.8:1, 흐린 글자는 약 5:1)</li>
+        <li>Signal 을 조금 분홍 쪽(#F2435A)으로 — 보라 면 위에서 빨강이 탁해 보이지 않게</li>
+      </ul>
+      <p class="chk"><b>눈부심 기준</b> · 넓은 면 최대 0.043 <span class="ok">✓</span> · 차체 0.58 <span class="ng">✕</span> · 글자 0.87 · 주 알약 0.24</p>
+    </div>
+  </section>
+
+  <!-- ===================== P3 ===================== -->
+  <section class="block">
+    <div class="P3">
+      <div class="state">P3 · 완전 검정 — 홈</div>
+      <div class="scr">
+        <svg class="hl" viewBox="0 0 400 423"><use href="#car"/></svg>
+        <div class="a brand" style="left:48px;top:22px">DRIVE COACH</div>
+        <div class="pro">연수생 · 장롱 10년차 · 목표: 아이 등하원 ›</div>
+        <div class="ttl">오늘은 가볍게,
+주차부터 해 볼까요?</div>
+        <div class="tm"><span class="cat">주차 ›</span> 후면 직각 주차 · 가이드 모드</div>
+        <div class="why">처음은 제가 순서대로 함께할게요.</div>
+        <div class="go" style="left:473px;top:215px;width:358px">시작 <span>→</span></div>
+        <div class="row"><span class="lk">과제·모드 바꾸기</span><span class="sub"><svg><use href="#mic"/></svg>코치와 대화</span></div>
+      </div>
+      <div class="state">P3 · 완전 검정 — 출발 전 점검</div>
+      <div class="scr">
+        <div class="cp">
+          <div class="brand">DRIVE COACH</div>
+          <div class="rail"></div>
+          <div class="ck cur" style="top:72px"><span class="d"></span><span class="n">도어</span><span class="s">열림</span></div>
+          <div class="ck" style="top:134px"><span class="d"></span><span class="n">안전벨트</span><span class="s">풀림</span></div>
+          <div class="ck" style="top:172px"><span class="d"></span><span class="n">기어</span><span class="s">P</span></div>
+          <div class="ck" style="top:210px"><span class="d"></span><span class="n">브레이크 / 시동</span><span class="s">꺼짐</span></div>
+          <div class="ck" style="top:248px"><span class="d"></span><span class="n">좌 지시등</span><span class="s">꺼짐</span></div>
+          <div class="ck" style="top:286px"><span class="d"></span><span class="n">우 지시등</span><span class="s">꺼짐</span></div>
+          <div class="ck" style="top:324px"><span class="d"></span><span class="n">비상등</span><span class="s">꺼짐</span></div>
+        </div>
+        <div class="rt">
+          <div class="meta">출발 전 점검 · 1회차</div>
+          <div class="spd">0 km/h</div><div class="src">실신호</div>
+          <div class="step">코치<em>1/7</em></div>
+          <div class="ins">운전석 문을 닫아 주세요.</div>
+          <div class="go" style="left:0;top:345px;width:358px">다 됐어요 <span>→</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="tag-id">P3</div>
+      <h2>완전 검정</h2>
+      <p class="one">바탕 #000, 패널은 지금 Ink 에 가까운 먹. 글자 · Signal 까지 한 단계씩 낮춰 가장 어둡게. 계기판 · 내비 야간 화면에 가장 가깝다.</p>
+      <div class="sw">
+        <span><i style="background:#000000"></i>바탕</span><span><i style="background:#0A0B22"></i>패널</span><span><i style="background:#D6D7E4"></i>글자</span><span><i style="background:#7C81C8"></i>강조</span><span><i style="background:#17182F"></i>보조 채움</span><span><i style="background:#D42A40"></i>Signal</span><span><i style="background:#6E72B0"></i>차체</span>
+      </div>
+      <h3>장점</h3>
+      <ul>
+        <li>눈부심이 가장 적다 — 가장 밝은 큰 요소인 주 알약도 휘도 0.16(지금 Signal 0.22 보다 낮음). 흰 글자 대비 4.5:1 로 오히려 좋아진다</li>
+        <li>OLED 차량 화면에서 검정은 꺼진 화소라 화면 테두리가 사라져 보인다(실차 이점)</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>면 나눔이 거의 없다</b> — 패널/바탕 1.08:1. 점검 화면은 사실상 한 면이고, 포스터 구성이 사라진다</li>
+        <li>글자를 0.68 까지 낮춰 낮에 잘못 켜지면 흐리다(시스템 낮/밤 연동이 정확해야 함)</li>
+        <li>Signal 을 어둡게 바꿔 "같은 빨강" 이라는 정체성이 조금 약해진다</li>
+      </ul>
+      <p class="chk"><b>눈부심 기준</b> · 넓은 면 최대 0.024 <span class="ok">✓</span> · 차체 0.19 <span class="ok">✓</span> · 글자 0.68 · 주 알약 0.16</p>
+    </div>
+  </section>
+
+  <!-- ===================== P4 ===================== -->
+  <section class="block">
+    <div class="P4">
+      <div class="state">P4 · 저청색 밤 — 홈</div>
+      <div class="scr">
+        <svg class="hl" viewBox="0 0 400 423"><use href="#car"/></svg>
+        <div class="a brand" style="left:48px;top:22px">DRIVE COACH</div>
+        <div class="pro">연수생 · 장롱 10년차 · 목표: 아이 등하원 ›</div>
+        <div class="ttl">오늘은 가볍게,
+주차부터 해 볼까요?</div>
+        <div class="tm"><span class="cat">주차 ›</span> 후면 직각 주차 · 가이드 모드</div>
+        <div class="why">처음은 제가 순서대로 함께할게요.</div>
+        <div class="go" style="left:473px;top:215px;width:358px">시작 <span>→</span></div>
+        <div class="row"><span class="lk">과제·모드 바꾸기</span><span class="sub"><svg><use href="#mic"/></svg>코치와 대화</span></div>
+      </div>
+      <div class="state">P4 · 저청색 밤 — 출발 전 점검</div>
+      <div class="scr">
+        <div class="cp">
+          <div class="brand">DRIVE COACH</div>
+          <div class="rail"></div>
+          <div class="ck cur" style="top:72px"><span class="d"></span><span class="n">도어</span><span class="s">열림</span></div>
+          <div class="ck" style="top:134px"><span class="d"></span><span class="n">안전벨트</span><span class="s">풀림</span></div>
+          <div class="ck" style="top:172px"><span class="d"></span><span class="n">기어</span><span class="s">P</span></div>
+          <div class="ck" style="top:210px"><span class="d"></span><span class="n">브레이크 / 시동</span><span class="s">꺼짐</span></div>
+          <div class="ck" style="top:248px"><span class="d"></span><span class="n">좌 지시등</span><span class="s">꺼짐</span></div>
+          <div class="ck" style="top:286px"><span class="d"></span><span class="n">우 지시등</span><span class="s">꺼짐</span></div>
+          <div class="ck" style="top:324px"><span class="d"></span><span class="n">비상등</span><span class="s">꺼짐</span></div>
+        </div>
+        <div class="rt">
+          <div class="meta">출발 전 점검 · 1회차</div>
+          <div class="spd">0 km/h</div><div class="src">실신호</div>
+          <div class="step">코치<em>1/7</em></div>
+          <div class="ins">운전석 문을 닫아 주세요.</div>
+          <div class="go" style="left:0;top:345px;width:358px">다 됐어요 <span>→</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="tag-id">P4</div>
+      <h2>저청색 밤</h2>
+      <p class="one">Ink · Periwinkle 의 파랑을 덜어 보랏빛으로, 글자는 따뜻한 미색(종이 빛), Signal 은 주황 쪽 빨강. 밤눈(암순응)을 덜 깨는 색.</p>
+      <div class="sw">
+        <span><i style="background:#0C0A1E"></i>바탕</span><span><i style="background:#18152F"></i>패널</span><span><i style="background:#ECE5D6"></i>글자</span><span><i style="background:#A69DC8"></i>강조</span><span><i style="background:#272340"></i>보조 채움</span><span><i style="background:#EE4B4B"></i>Signal</span><span><i style="background:#8A82A6"></i>차체</span>
+      </div>
+      <h3>장점</h3>
+      <ul>
+        <li>파란빛이 적어 밤에 오래 보아도 편하다 — "화내지 않는 조수석" 의 부드러운 톤과 맞는다</li>
+        <li>미색 글자가 "Paper" 의 종이 느낌을 밤에도 남긴다</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>정체성</b> — 다섯 중 라이트와 가장 멀다. Periwinkle 이 회보라가 되어 "같은 앱" 느낌이 약하다</li>
+        <li>면 나눔 1.10:1 로 약하다. 주 알약 글자 대비 3.5:1(큰 글자 기준은 넘음)</li>
+        <li>신호 출처 색(강조)이 회보라라 "시뮬레이션 / 실신호" 구분 글자가 덜 튄다</li>
+      </ul>
+      <p class="chk"><b>눈부심 기준</b> · 넓은 면 최대 0.038 <span class="ok">✓</span> · 차체 0.24 <span class="ok">✓</span> · 글자 0.79 · 주 알약 0.24</p>
+    </div>
+  </section>
+
+  <!-- ===================== P5 ===================== -->
+  <section class="block">
+    <div class="P5">
+      <div class="state">P5 · 황혼 + Ink 패널 — 홈</div>
+      <div class="scr">
+        <svg class="hl" viewBox="0 0 400 423"><use href="#car"/></svg>
+        <div class="a brand" style="left:48px;top:22px">DRIVE COACH</div>
+        <div class="pro">연수생 · 장롱 10년차 · 목표: 아이 등하원 ›</div>
+        <div class="ttl">오늘은 가볍게,
+주차부터 해 볼까요?</div>
+        <div class="tm"><span class="cat">주차 ›</span> 후면 직각 주차 · 가이드 모드</div>
+        <div class="why">처음은 제가 순서대로 함께할게요.</div>
+        <div class="go" style="left:473px;top:215px;width:358px">시작 <span>→</span></div>
+        <div class="row"><span class="lk">과제·모드 바꾸기</span><span class="sub"><svg><use href="#mic"/></svg>코치와 대화</span></div>
+      </div>
+      <div class="state">P5 · 황혼 + Ink 패널 — 출발 전 점검</div>
+      <div class="scr">
+        <div class="cp">
+          <div class="brand">DRIVE COACH</div>
+          <div class="rail"></div>
+          <div class="ck cur" style="top:72px"><span class="d"></span><span class="n">도어</span><span class="s">열림</span></div>
+          <div class="ck" style="top:134px"><span class="d"></span><span class="n">안전벨트</span><span class="s">풀림</span></div>
+          <div class="ck" style="top:172px"><span class="d"></span><span class="n">기어</span><span class="s">P</span></div>
+          <div class="ck" style="top:210px"><span class="d"></span><span class="n">브레이크 / 시동</span><span class="s">꺼짐</span></div>
+          <div class="ck" style="top:248px"><span class="d"></span><span class="n">좌 지시등</span><span class="s">꺼짐</span></div>
+          <div class="ck" style="top:286px"><span class="d"></span><span class="n">우 지시등</span><span class="s">꺼짐</span></div>
+          <div class="ck" style="top:324px"><span class="d"></span><span class="n">비상등</span><span class="s">꺼짐</span></div>
+        </div>
+        <div class="rt">
+          <div class="meta">출발 전 점검 · 1회차</div>
+          <div class="spd">0 km/h</div><div class="src">실신호</div>
+          <div class="step">코치<em>1/7</em></div>
+          <div class="ins">운전석 문을 닫아 주세요.</div>
+          <div class="go" style="left:0;top:345px;width:358px">다 됐어요 <span>→</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="tag-id">P5 (추천 방향)</div>
+      <h2>황혼 + Ink 패널</h2>
+      <p class="one">Ink 패널은 <b>지금 값 그대로</b> 두고, Paper 면만 짙은 황혼 남색(#22255A)으로 내린다. 라이트에서 "가장 어두운 면 = Ink 패널" 이던 순서가 다크에서도 그대로다.</p>
+      <div class="sw">
+        <span><i style="background:#22255A"></i>바탕</span><span><i style="background:#070827"></i>패널</span><span><i style="background:#F1F1F6"></i>글자</span><span><i style="background:#A0A4E6"></i>강조</span><span><i style="background:#353A80"></i>보조 채움</span><span><i style="background:#F52D48"></i>Signal</span><span><i style="background:#7C81C0"></i>차체</span>
+      </div>
+      <h3>장점</h3>
+      <ul>
+        <li><b>정체성</b> — Ink 패널 · Signal 이 라이트와 같은 값. 점검 · 리포트 · 판정 · 브리핑의 Ink 면은 바뀌지 않고 오른쪽 면만 밤이 된다</li>
+        <li>면 나눔 1.38:1 — P2 다음으로 크고, 눈부심 기준을 모두 넘는다</li>
+        <li><b>구현</b> — Ink 패널 위 요소(약 1/3)는 손대지 않아도 된다. 바뀌는 것은 "Paper 바탕 · 그 위 Ink 글자 · Lavender 채움" 역할뿐</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li>바탕(0.024)이 다섯 중 가장 밝다 — 그래도 기준(0.05) 안. 차체는 0.24 로 낮춰 "흰 차" 가 "옅은 보라 차" 가 된다</li>
+        <li>보조 알약 채움(#353A80)과 바탕 대비가 1.4:1 이라 알약 테두리감이 약하다 — 필요하면 1 dp 옅은 선</li>
+        <li>야간판 일러스트 webp 두 장은 여전히 새로 그려야 한다</li>
+      </ul>
+      <p class="chk"><b>눈부심 기준</b> · 넓은 면 최대 0.047 <span class="ok">✓</span> · 차체 0.24 <span class="ok">✓</span> · 글자 0.88 · 주 알약 0.22</p>
+    </div>
+  </section>
+
+  <!-- ===================== 토큰 표 ===================== -->
+  <section class="tok">
+    <h2>토큰 대응표 — 라이트 ↔ 다크</h2>
+    <p>왼쪽 열은 다크를 위해 새로 나눠야 할 <b>역할 이름</b>(지금 코드는 왼쪽 괄호 속 토큰을 역할 구분 없이 쓴다). 대비 = WCAG 대비비, 휘도 = 상대휘도(0 검정 ~ 1 흰색). 붉은 바탕 열 = 추천.</p>
+    <table class="tt">
+      <thead><tr><th>역할 (지금 토큰)</th><th>라이트 (지금)</th><th>P1 잉크 밤</th><th>P2 Periwinkle 면</th><th>P3 완전 검정</th><th>P4 저청색 밤</th><th class="pk">P5 황혼 + Ink 패널</th></tr></thead>
+      <tbody>
+        <tr><td class="role">바탕 <small>Paper — 오른쪽 면 · 홈 전체</small></td><td><span class="c"><i style="background:#FCFCFA"></i>#FCFCFA</span></td><td><span class="c"><i style="background:#070827"></i>#070827</span></td><td><span class="c"><i style="background:#070827"></i>#070827</span></td><td><span class="c"><i style="background:#000000"></i>#000000</span></td><td><span class="c"><i style="background:#0C0A1E"></i>#0C0A1E</span></td><td class="pk"><span class="c"><i style="background:#22255A"></i>#22255A</span></td></tr>
+        <tr><td class="role">패널 <small>Ink — 왼쪽 면(점검 · 리포트 · 판정)</small></td><td><span class="c"><i style="background:#070827"></i>#070827</span></td><td><span class="c"><i style="background:#1A1D4D"></i>#1A1D4D</span></td><td><span class="c"><i style="background:#2F3378"></i>#2F3378</span></td><td><span class="c"><i style="background:#0A0B22"></i>#0A0B22</span></td><td><span class="c"><i style="background:#18152F"></i>#18152F</span></td><td class="pk"><span class="c"><i style="background:#070827"></i>#070827</span></td></tr>
+        <tr><td class="role">글자 <small>Ink — 바탕 위 글자</small></td><td><span class="c"><i style="background:#070827"></i>#070827</span></td><td><span class="c"><i style="background:#ECEDF4"></i>#ECEDF4</span></td><td><span class="c"><i style="background:#EEEFF6"></i>#EEEFF6</span></td><td><span class="c"><i style="background:#D6D7E4"></i>#D6D7E4</span></td><td><span class="c"><i style="background:#ECE5D6"></i>#ECE5D6</span></td><td class="pk"><span class="c"><i style="background:#F1F1F6"></i>#F1F1F6</span></td></tr>
+        <tr><td class="role">패널 글자 <small>Paper — Ink 면 위 글자</small></td><td><span class="c"><i style="background:#FCFCFA"></i>#FCFCFA</span></td><td><span class="c"><i style="background:#ECEDF4"></i>#ECEDF4</span></td><td><span class="c"><i style="background:#EEEFF6"></i>#EEEFF6</span></td><td><span class="c"><i style="background:#D6D7E4"></i>#D6D7E4</span></td><td><span class="c"><i style="background:#ECE5D6"></i>#ECE5D6</span></td><td class="pk"><span class="c"><i style="background:#F1F1F6"></i>#F1F1F6</span></td></tr>
+        <tr><td class="role">흐린 글자 <small>Muted</small></td><td><span class="c">Ink 60%</span></td><td><span class="c">글자 62%</span></td><td><span class="c">글자 62%</span></td><td><span class="c">글자 55%</span></td><td><span class="c">글자 60%</span></td><td class="pk"><span class="c">글자 64%</span></td></tr>
+        <tr><td class="role">강조 <small>Periwinkle — 눈썹 · 링크 · 점 · 신호 출처</small></td><td><span class="c"><i style="background:#5B60A1"></i>#5B60A1</span></td><td><span class="c"><i style="background:#9296DD"></i>#9296DD</span></td><td><span class="c"><i style="background:#A9ACEB"></i>#A9ACEB</span></td><td><span class="c"><i style="background:#7C81C8"></i>#7C81C8</span></td><td><span class="c"><i style="background:#A69DC8"></i>#A69DC8</span></td><td class="pk"><span class="c"><i style="background:#A0A4E6"></i>#A0A4E6</span></td></tr>
+        <tr><td class="role">보조 채움 <small>Lavender — 보조 알약 · 말풍선 · 프로필 알약</small></td><td><span class="c"><i style="background:#E5E6F0"></i>#E5E6F0</span></td><td><span class="c"><i style="background:#252859"></i>#252859</span></td><td><span class="c"><i style="background:#1E2150"></i>#1E2150</span></td><td><span class="c"><i style="background:#17182F"></i>#17182F</span></td><td><span class="c"><i style="background:#272340"></i>#272340</span></td><td class="pk"><span class="c"><i style="background:#353A80"></i>#353A80</span></td></tr>
+        <tr><td class="role">지금 할 줄 <small>(새 역할) 점검 현재 항목 면</small></td><td><span class="c">Paper 8%</span></td><td><span class="c"><i style="background:#2C3070"></i>#2C3070</span></td><td><span class="c"><i style="background:#454A99"></i>#454A99</span></td><td><span class="c"><i style="background:#1A1C40"></i>#1A1C40</span></td><td><span class="c"><i style="background:#2C2850"></i>#2C2850</span></td><td class="pk"><span class="c"><i style="background:#1A1C45"></i>#1A1C45</span></td></tr>
+        <tr><td class="role">주 알약 · 틀림 <small>Signal</small></td><td><span class="c"><i style="background:#F52D48"></i>#F52D48</span></td><td><span class="c"><i style="background:#F52D48"></i>#F52D48</span></td><td><span class="c"><i style="background:#F2435A"></i>#F2435A</span></td><td><span class="c"><i style="background:#D42A40"></i>#D42A40</span></td><td><span class="c"><i style="background:#EE4B4B"></i>#EE4B4B</span></td><td class="pk"><span class="c"><i style="background:#F52D48"></i>#F52D48</span></td></tr>
+        <tr><td class="role">주 알약 글자</td><td><span class="c"><i style="background:#FCFCFA"></i>#FCFCFA</span></td><td><span class="c"><i style="background:#FFFFFF"></i>#FFFFFF</span></td><td><span class="c"><i style="background:#FFFFFF"></i>#FFFFFF</span></td><td><span class="c"><i style="background:#F4F4F7"></i>#F4F4F7</span></td><td><span class="c"><i style="background:#FFF8EE"></i>#FFF8EE</span></td><td class="pk"><span class="c"><i style="background:#FFFFFF"></i>#FFFFFF</span></td></tr>
+        <tr><td class="role">일러스트 밝은 면 <small>차체 (지금 Paper)</small></td><td><span class="c"><i style="background:#FCFCFA"></i>#FCFCFA</span></td><td><span class="c"><i style="background:#7D81C2"></i>#7D81C2</span></td><td><span class="c"><i style="background:#C3C5EC"></i>#C3C5EC</span></td><td><span class="c"><i style="background:#6E72B0"></i>#6E72B0</span></td><td><span class="c"><i style="background:#8A82A6"></i>#8A82A6</span></td><td class="pk"><span class="c"><i style="background:#7C81C0"></i>#7C81C0</span></td></tr>
+        <tr><td class="role">일러스트 중간 면 <small>(지금 Periwinkle)</small></td><td><span class="c"><i style="background:#5B60A1"></i>#5B60A1</span></td><td><span class="c"><i style="background:#2C3070"></i>#2C3070</span></td><td><span class="c"><i style="background:#2F3378"></i>#2F3378</span></td><td><span class="c"><i style="background:#22255A"></i>#22255A</span></td><td><span class="c"><i style="background:#36315F"></i>#36315F</span></td><td class="pk"><span class="c"><i style="background:#32367A"></i>#32367A</span></td></tr>
+        <tr><td class="role">일러스트 어두운 면 <small>길 · 창 (지금 Ink)</small></td><td><span class="c"><i style="background:#070827"></i>#070827</span></td><td><span class="c"><i style="background:#02031A"></i>#02031A</span></td><td><span class="c"><i style="background:#03041A"></i>#03041A</span></td><td><span class="c"><i style="background:#000000"></i>#000000</span></td><td><span class="c"><i style="background:#05040F"></i>#05040F</span></td><td class="pk"><span class="c"><i style="background:#070827"></i>#070827</span></td></tr>
+        <tr class="m sep"><td class="role">글자 / 바탕 대비</td><td>19.1</td><td>16.8</td><td>17.1</td><td>14.7</td><td>15.5</td><td class="pk">12.6</td></tr>
+        <tr class="m"><td class="role">패널 글자 / 패널 대비</td><td>19.1</td><td>13.6</td><td>9.8</td><td>13.6</td><td>14.1</td><td class="pk">17.4</td></tr>
+        <tr class="m"><td class="role">강조 / 바탕 대비</td><td>5.6</td><td>7.1</td><td>9.1</td><td>5.8</td><td>7.7</td><td class="pk">6.0</td></tr>
+        <tr class="m"><td class="role">알약 글자 / 주 알약 대비 <small>큰 글자 기준 3.0 이상</small></td><td>3.8</td><td>3.9</td><td>3.7</td><td>4.5</td><td>3.5</td><td class="pk">3.9</td></tr>
+        <tr class="m"><td class="role">면 나눔 (패널 / 바탕 대비) <small>포스터의 두 면이 얼마나 갈리나</small></td><td>19.1</td><td>1.24</td><td class="ok">1.74</td><td class="ng">1.08</td><td>1.10</td><td class="pk">1.38</td></tr>
+        <tr class="m"><td class="role">넓은 면 최대 휘도 <small>기준 0.05 이하</small></td><td class="ng">0.97</td><td>0.038</td><td>0.043</td><td class="ok">0.024</td><td>0.038</td><td class="pk">0.047</td></tr>
+        <tr class="m"><td class="role">차체 휘도 <small>기준 0.25 이하</small></td><td class="ng">0.97</td><td>0.24</td><td class="ng">0.58</td><td class="ok">0.19</td><td>0.24</td><td class="pk">0.24</td></tr>
+        <tr class="m"><td class="role">야간 눈부심 기준</td><td class="ng">✕</td><td class="ok">✓</td><td class="ng">✕ 차체</td><td class="ok">✓ 가장 어두움</td><td class="ok">✓</td><td class="pk ok">✓</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="reco">
+    <div class="k">추천</div>
+    <h2>방향은 P5 황혼 + Ink 패널 — 단, 마감 전에는 구현하지 않는다</h2>
+    <p>Ink 패널 · Signal 을 라이트와 같은 값으로 남겨 <em>"같은 앱의 밤"</em> 이 가장 분명하고, 면 나눔(1.38:1)과 눈부심 기준을 함께 지킨다. Ink 패널 화면(점검 · 리포트 · 판정 · 브리핑의 왼쪽)은 손대지 않아도 돼 다섯 중 바뀌는 곳도 가장 적다. 더 어둡게 원하면 P3 완전 검정의 Signal · 글자 값만 빌려 온다.</p>
+    <ol>
+      <li><b>공수: 큼</b> — 색 값은 하루면 정하지만, 지금 <code>CoachColors</code> 여섯 토큰이 29개 파일 약 400곳에서 "바탕 / 글자 / 패널 / 패널 글자" 를 섞어 쓴다. 역할 이름으로 나누는 리팩터(Codex, 화면 전부) + 야간판 포스터 webp 두 장 + 전 화면 캡처 다시 확인이 필요하다</li>
+      <li>마감 10/9 · 녹화 10/7~8 에는 <b>넣지 않는다</b> — 녹화 화면이 바뀌고 회귀 위험이 크다. 이 페이지 PNG 를 발표 장표의 "야간 모드 설계(시스템 낮/밤 연동)" 한 칸으로 쓰는 것을 권한다(사실대로: "설계 완료, 구현 예정")</li>
+      <li>마감 뒤 순서: ① Claude — 역할 토큰 설계(<code>CoachColors</code> → 라이트/다크 두 세트, <code>isSystemInDarkTheme()</code>) · INTEGRATION B절에 "사내 에뮬 낮/밤 전환 미확인" ② Codex — 화면별 토큰 치환 · 포스터 야간판 ③ 낮/밤 두 벌 캡처</li>
+    </ol>
+  </section>
+
+</div>
+</body>
+</html>
