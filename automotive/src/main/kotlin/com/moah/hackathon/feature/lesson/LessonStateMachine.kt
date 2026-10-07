@@ -733,10 +733,10 @@ class LessonStateMachine(
     private fun briefingLine(task: Task, mode: LessonMode): String {
         val watch = task.watch.joinAsObjects()   // "핸들 방향과 기어 전환과 뒤 거리를"
         return when (mode) {
-            LessonMode.GUIDE -> "${task.title}, 가이드 모드. 제가 단계마다 말하고 확인할게요. 오늘은 $watch 봅니다."
-            LessonMode.HINT -> "${task.title}, 힌트 모드. 조용히 있다가 필요한 순간에만 말할게요. 오늘은 $watch 봅니다."
-            LessonMode.EVALUATE -> if (task.course?.isExam == true) "${task.title}, 시험 모드. 실제 시험처럼 구간 안내와 감점만 말할게요. 다 되면 버튼을 눌러 주세요."
-                else "${task.title}, 평가 모드. 끝까지 조용히 보고 있을게요. 다 되면 버튼을 눌러 주세요."
+            LessonMode.GUIDE -> "${task.title}, 가이드 모드. 오늘은 $watch 봅니다."
+            LessonMode.HINT -> "${task.title}, 힌트 모드. 오늘은 $watch 봅니다."
+            LessonMode.EVALUATE -> if (task.course?.isExam == true) "${task.title}, 시험 모드. 구간 안내와 감점만 말할게요."
+                else "${task.title}, 평가 모드. 다 되면 버튼을 눌러 주세요."
             LessonMode.QUIZ -> "${task.title}. 정차 중이니 편하게 답해 주세요."
         }
     }

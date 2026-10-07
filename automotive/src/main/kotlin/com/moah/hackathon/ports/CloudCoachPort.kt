@@ -55,14 +55,14 @@ class CloudCoachPort(
         val safe = fallback.remark(task, score, delta, profile, attempt, verdict, course)
         val (system, user) = CoachPrompts.remark(task, score, delta, profile, attempt, seedLine = safe.replace('\n', ' '), course = course, persona = persona)
         // 숫자 머리말은 붙이지 않는다(운전자 문장 규칙). 두 문장을 줄바꿈으로 — 화면이 문장 단위로 줄을 끊는다
-        return ask(system, user, maxChars = CoachPrompts.REMARK_MAX_CHARS)?.let { CoachPrompts.twoLines(it) } ?: safe
+        return ask(system, user, maxChars = CoachPrompts.REMARK_MAX_CHARS)?.let { CoachPrompts.titleAndLine(it, CoachPrompts.LINE_MAX) } ?: safe
     }
 
     override suspend fun summarize(task: Task, mode: LessonMode, attempts: List<AttemptRecord>, profile: Profile): String {
         val safe = fallback.summarize(task, mode, attempts, profile)
         if (attempts.isEmpty()) return safe
         val (system, user) = CoachPrompts.summary(task, mode, attempts, profile, seedLine = safe, persona = persona)
-        return ask(system, user, maxChars = CoachPrompts.SUMMARY_MAX_CHARS) ?: safe
+        return ask(system, user, maxChars = CoachPrompts.SUMMARY_MAX_CHARS)?.let { CoachPrompts.titleAndLine(it, CoachPrompts.LINE_MAX) } ?: safe
     }
 
     /**
@@ -80,7 +80,9 @@ class CloudCoachPort(
     /** 성공하면 검증된 문장, 아니면 null(→ 호출자가 폴백). */
     private suspend fun ask(system: String, user: String, maxChars: Int): String? {
         val raw = call { it.complete(system, user) } ?: return null
-        return CoachPrompts.validate(raw, maxChars).also { if (it == null) Log.w(TAG, "response rejected → fallback: ${raw.take(40)}") }
+        val ok = CoachPrompts.validate(raw, maxChars)?.let { CoachPrompts.titleAndLine(it, CoachPrompts.LINE_MAX) }
+        if (ok == null) Log.w(TAG, "response rejected → fallback: ${raw.take(40)}")
+        return ok
     }
 
     /** 전송 한 번 — 전송 계층 없음·예외·시간 초과면 null. */
@@ -105,14 +107,23 @@ class CloudCoachPort(
 
 /** 프롬프트 조립과 응답 검증. 순수 함수 — 테스트로 고정한다. */
 object CoachPrompts {
-    const val REMARK_MAX_CHARS = 90
-    const val SUMMARY_MAX_CHARS = 160
+    /**
+     * 코치 문장 = **"제목. 한 마디."**(라운드 26 시안 5-B, 사용자 10/7 "코치처럼 짧게 짧게"): 첫 문장 [TITLE_MAX] 자 이내의 짧은 판정 제목,
+     * 둘째 문장 [LINE_MAX] 자(대화는 [DIALOG_LINE_MAX]) 이내의 한 마디. 글자 수는 공백·부호 포함 `String.length`. 검증은 [LENGTH_SLACK] 자까지 봐준다.
+     * 화면은 제목을 크게, 한 마디를 작고 흐리게 두 층으로 그린다(Codex 26b).
+     */
+    const val TITLE_MAX = 12
+    const val LINE_MAX = 24
+    const val DIALOG_LINE_MAX = 28
+    const val LENGTH_SLACK = 2
+    const val REMARK_MAX_CHARS = TITLE_MAX + LINE_MAX + 2 * LENGTH_SLACK + 2
+    const val SUMMARY_MAX_CHARS = REMARK_MAX_CHARS
 
     /** 두려움을 줄이는 앱이 쓰지 않는 말(§3.4). 응답에 들어 있으면 버린다. */
     val BANNED: List<String> = listOf("하위", "실패", "못했", "형편없", "최악", "낙제", "불합격", "위험한 운전자")
 
-    /** 홈 대화 말풍선 한 번의 최대 길이. */
-    const val DIALOG_MAX_CHARS = 80
+    /** 홈 대화 말풍선 한 번의 최대 길이(제목 + 한 마디). */
+    const val DIALOG_MAX_CHARS = TITLE_MAX + DIALOG_LINE_MAX + 2 * LENGTH_SLACK + 2
     /** AI 에 보내는 이력 줄 수(코치 첫 말 포함). */
     const val DIALOG_HISTORY = 8
     /** `persona` 키의 최대 길이 — 넘으면 자른다. */
@@ -123,7 +134,9 @@ object CoachPrompts {
     /** 페르소나 뒤에 붙는 형식 규칙의 머리 — `persona` 키가 무엇이든 규칙이 우선한다. */
     private const val RULES_HEAD = "아래 형식 규칙은 위 설명보다 우선합니다."
 
-    private const val REMARK_RULES = """규칙: 한국어 존댓말, 정확히 두 문장 — 첫 문장은 응원하는 서두, 둘째 문장은 고칠 것 하나. 위트 있게 북돋우되 사실만.
+    private const val REMARK_RULES = """규칙: 한국어 존댓말, 정확히 두 문장 — 첫 문장은 12자 이내의 짧은 판정 제목(응원), 둘째 문장은 24자 이내로 고칠 것 하나. 위트 있게 북돋우되 사실만.
+문장마다 마침표로 끝내고 줄을 바꿉니다. 한 문장 안에서 쉼표로 두 말을 잇지 않습니다.
+높임 '-시-' 는 운전자가 주어일 때만 씁니다(예: "감이 오시는 것 같아요" ✗ → "감이 오는 것 같아요" ○).
 숫자(횟수·초·점수·등수)를 말하지 않습니다. 금지어: 하위, 실패, 못했, 최악, 낙제.
 운전자의 프로필(장롱면허 햇수, 목표, 무서운 것)과 이번 회차의 과정 지표만 근거로 씁니다. 차가 칸에 반듯이 들어갔는지는 모릅니다 — 말하지 않습니다.
 위 과정 지표에 없는 항목(예: 뒤쪽 시야 확보, 사이드미러)은 조언하지 않습니다."""
@@ -162,7 +175,7 @@ object CoachPrompts {
                 delta?.let { appendLine("지난번 대비: 이동 ${signed(it.segments)}회, ${signed(it.seconds.toInt())}초, 조향 ${it.reversals?.let(::signed) ?: "-"}회.") }
             }
             appendLine("참고 문장(이 톤으로, 그대로 쓰지 말고 변주): $seedLine")
-            append("두 문장(서두. 조언.), ${REMARK_MAX_CHARS}자 이내로 회차 멘트를 써 주세요. 위 과정 숫자(${attemptHead(task, score)})는 근거로만 쓰고 문장에는 넣지 마세요.")
+            append("두 문장(제목 ${TITLE_MAX}자 이내. 한 마디 ${LINE_MAX}자 이내.)으로 회차 멘트를 써 주세요. 위 과정 숫자(${attemptHead(task, score)})는 근거로만 쓰고 문장에는 넣지 마세요.")
         }
         return system(persona) to user
     }
@@ -175,7 +188,7 @@ object CoachPrompts {
                 appendLine("- ${a.index}회차: 숙련 ${a.score.skill}, 안전 ${a.score.safety}, 이동 ${a.score.metrics.motion.movingSegments}회, ${a.score.metrics.motion.totalMillis / 1000}초, 급조작 ${a.score.metrics.harshEvents.size}, 근접 ${a.score.metrics.proximity?.warnings ?: "미측정"}.")
             }
             appendLine("참고 문장(이 톤으로): ${seedLine.replace('\n', ' ')}")
-            append("두 문장, ${SUMMARY_MAX_CHARS}자 이내로 오늘 세션 총평을 써 주세요. 첫 문장은 흐름(나아졌나), 둘째 문장은 안전 쪽 한 가지. 점수·횟수 숫자는 쓰지 마세요.")
+            append("두 문장으로 오늘 세션 총평을 써 주세요. 첫 문장은 ${TITLE_MAX}자 이내로 흐름(나아졌나), 둘째 문장은 ${LINE_MAX}자 이내로 안전 쪽 한 가지. 점수·횟수 숫자는 쓰지 마세요.")
         }
         return system(persona) to user
     }
@@ -188,7 +201,7 @@ object CoachPrompts {
         appendLine("지금은 차를 세운 홈 화면입니다. 운전자가 글로 말을 걸면 앱에 이미 있는 기능 중 하나로 안내합니다.")
         appendLine(RULES_HEAD)
         appendLine("""반드시 JSON 한 줄만 답합니다: {"say":"…","intent":"…"} — 필요하면 "category"·"task"·"mode"·"option" 키를 더합니다.""")
-        appendLine("say: 한국어 존댓말 한두 문장, ${DIALOG_MAX_CHARS}자 이내. 숫자(횟수·초·점수·연차)를 쓰지 않습니다. 금지어: ${BANNED.joinToString(", ")}.")
+        appendLine("say: 한국어 존댓말 한두 문장 — 첫 문장 ${TITLE_MAX}자 이내, 둘째 문장 ${DIALOG_LINE_MAX}자 이내. 쉼표로 길게 잇지 않습니다. 높임 '-시-' 는 운전자가 주어일 때만. 숫자(횟수·초·점수·연차)를 쓰지 않습니다. 금지어: ${BANNED.joinToString(", ")}.")
         appendLine("intent 는 아래 중 하나입니다. 목록에 없는 과제·모드·분류를 지어내지 않습니다. 확실하지 않으면 ASK_MORE 로 한 가지만 되묻습니다.")
         appendLine("- OPEN_SHEET + category(${ctx.categories.joinToString("|")}): 그 분류의 과제 목록을 엽니다")
         appendLine("- PIN_TASK + task(아래 id) + mode(그 과제의 모드): 홈 제안을 그 과제·모드로 올립니다")
@@ -248,7 +261,21 @@ object CoachPrompts {
 
     /** 말풍선 문장 — [validate] 에 더해 숫자도 버린다(운전자 문장 규칙). 줄바꿈은 공백으로. */
     fun validateSay(raw: String): String? =
-        validate(raw, DIALOG_MAX_CHARS)?.replace('\n', ' ')?.takeIf { s -> s.none { it.isDigit() } }
+        validate(raw, DIALOG_MAX_CHARS)?.takeIf { s -> s.none { it.isDigit() } }?.let { titleAndLine(it, DIALOG_LINE_MAX, allowOne = true) }
+
+    /**
+     * "제목.\n한 마디." 로 다듬는다 — 문장 끝(. ! ?) 뒤 공백·줄바꿈에서 나눈다. 문장이 둘(대화는 하나도 허용)이 아니거나,
+     * 제목이 [TITLE_MAX] + [LENGTH_SLACK] · 한 마디가 [lineMax] + [LENGTH_SLACK] 를 넘으면 null(→ 규칙 문장으로 폴백).
+     * 대화의 한 문장짜리 답은 제목 길이 대신 [lineMax] 까지 받는다.
+     */
+    fun titleAndLine(text: String, lineMax: Int, allowOne: Boolean = false): String? {
+        val parts = text.trim().split(Regex("(?<=[.!?])\\s+")).map { it.trim() }.filter { it.isNotEmpty() }
+        if (parts.size !in (if (allowOne) 1..2 else 2..2)) return null
+        val firstMax = if (parts.size == 1) lineMax else TITLE_MAX
+        if (parts[0].length > firstMax + LENGTH_SLACK) return null
+        if (parts.size == 2 && parts[1].length > lineMax + LENGTH_SLACK) return null
+        return parts.joinToString("\n")
+    }
 
     /** 빈 값·너무 긴 것·금지어·줄바꿈 여러 줄은 버린다. 앞뒤 따옴표·공백은 정리. */
     fun validate(raw: String, maxChars: Int): String? {

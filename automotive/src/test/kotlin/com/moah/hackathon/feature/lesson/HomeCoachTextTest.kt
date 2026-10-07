@@ -83,7 +83,7 @@ class HomeCoachTextTest {
         assertEquals(listOf(CoachTurn(true, "안녕하세요"), CoachTurn(false, IntentRules.ASK_LINE)), coach.turns)
         assertFalse(coach.waiting)
         assertTrue("chips stay", coach.choices.isNotEmpty())
-        assertEquals(IntentRules.ASK_LINE, h.tts.lastSpoken.value)
+        assertEquals(IntentRules.ASK_LINE, h.tts.spoken.last())
         h.scope.cancel()
     }
 
@@ -97,7 +97,7 @@ class HomeCoachTextTest {
         assertEquals(SeedCatalog.TASK_PARKING_PARALLEL, h.setup.suggestedTask.id)
         assertEquals(LessonMode.HINT, h.setup.suggestedMode)
         val spoken = h.tts.lastSpoken.value!!
-        assertTrue(spoken, spoken.startsWith("평행 주차를") && spoken.none { it.isDigit() })
+        assertTrue(spoken, spoken.contains("평행 주차를") && spoken.none { it.isDigit() })
         h.scope.cancel()
     }
 

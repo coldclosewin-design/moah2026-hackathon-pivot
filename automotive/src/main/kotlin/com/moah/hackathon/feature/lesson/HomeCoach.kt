@@ -96,11 +96,11 @@ data class CoachContext(
  * 결과는 언제나 [CoachContext.allows] 를 통과한다. 문장에 숫자를 넣지 않는다.
  */
 object IntentRules {
-    const val ASK_LINE = "주차, 도로 주행, 출발 전 점검, 지식 중에 어느 쪽이 궁금하세요? 아래에서 바로 골라도 돼요."
-    const val WORRY_LINE = "어떤 순간이 가장 걱정되세요? 주차인지 도로인지 말해 주시면 골라 드릴게요."
-    const val MOVING_LINE = "차를 세운 뒤에 이야기해요."
-    const val NEAR_MISS_LINE = "많이 놀라셨겠어요. 주차할 때였나요, 달릴 때였나요?"
-    const val KID_LINE = "아이를 태우려면 주차가 편해야 해요. 주차부터 해 볼까요?"
+    const val ASK_LINE = "어느 쪽이 궁금하세요?\n주차·주행·점검·지식 중에 골라 주세요."
+    const val WORRY_LINE = "어디가 가장 걱정돼요?\n주차인지 도로인지 알려 주세요."
+    const val MOVING_LINE = "세운 뒤에 이야기해요."
+    const val NEAR_MISS_LINE = "많이 놀라셨죠.\n주차할 때였나요, 달릴 때였나요?"
+    const val KID_LINE = "주차부터 해 볼까요?\n아이를 태우려면 주차가 편해야 해요."
 
     /** 과제 제목 → 그 과제를 가리키는 말. 제목이 시드에 없으면 그 줄은 쓰이지 않는다. */
     private val TASK_WORDS: List<Pair<String, List<String>>> = listOf(
@@ -128,19 +128,19 @@ object IntentRules {
         val u = utterance.replace(" ", "")
         fun has(vararg words: String) = words.any { it.replace(" ", "") in u }
 
-        if (has("프로필", "내정보", "나에대해", "연차", "목표")) return CoachReply("프로필을 열어 둘게요. 바뀐 게 있으면 골라 주세요.", CoachIntent.OpenProfile)
+        if (has("프로필", "내정보", "나에대해", "연차", "목표")) return CoachReply("프로필을 열어 둘게요.\n바뀐 게 있으면 골라 주세요.", CoachIntent.OpenProfile)
 
         if (has("이어서", "지난번", "저번", "하던")) {
             val last = ctx.last
-            if (last != null && ctx.allows(CoachIntent.ContinueLast)) return CoachReply("지난번 ${last.title.withObjectParticle()} 이어서 할 수 있게 올려 둘게요.", CoachIntent.ContinueLast)
+            if (last != null && ctx.allows(CoachIntent.ContinueLast)) return CoachReply("좋아요.\n지난번 ${last.title.withObjectParticle()} 이어서 올려 둘게요.", CoachIntent.ContinueLast)
         }
 
         if (ctx.bookingVenue != null) {
             val mock = CoachIntent.Booking(BookingOption.MOCK_EXAM)
             val practice = CoachIntent.Booking(BookingOption.COURSE_PRACTICE)
-            if (has("모의시험", "시험보", "실전") && ctx.allows(mock)) return CoachReply("예약한 코스로 모의시험을 준비해 둘게요.", mock)
-            if (has("코스연습", "예약한코스", "시험장연습") && ctx.allows(practice)) return CoachReply("예약한 코스를 연습할 수 있게 올려 둘게요.", practice)
-            if (has("예약", "시험장")) return CoachReply("예약한 ${ctx.bookingVenue} 카드를 표시해 둘게요.", CoachIntent.ShowBooking)
+            if (has("모의시험", "시험보", "실전") && ctx.allows(mock)) return CoachReply("좋아요.\n예약한 코스로 모의시험을 준비할게요.", mock)
+            if (has("코스연습", "예약한코스", "시험장연습") && ctx.allows(practice)) return CoachReply("좋아요.\n예약한 코스 연습을 올려 둘게요.", practice)
+            if (has("예약", "시험장")) return CoachReply("예약을 띄워 둘게요.\n${ctx.bookingVenue} 카드를 확인해 주세요.", CoachIntent.ShowBooking)
         }
 
         val task = ctx.tasks.firstOrNull { it.title.replace(" ", "") in u }
@@ -150,8 +150,8 @@ object IntentRules {
             val mode = asked?.takeIf { it in task.modes } ?: task.suggested
             val pin = CoachIntent.PinTask(task.id, mode)
             if (ctx.allows(pin)) {
-                val say = if (mode == LessonMode.QUIZ) "${task.title.withObjectParticle()} 홈에 올려 둘게요. 정차 중에 풀어요."
-                    else "${task.title.withObjectParticle()} ${mode.label} 모드로 홈에 올려 둘게요."
+                val say = if (mode == LessonMode.QUIZ) "좋아요.\n${task.title.withObjectParticle()} 홈에 올려 둘게요."
+                    else "좋아요.\n${task.title.withObjectParticle()} ${mode.label} 모드로 올려 둘게요."
                 return CoachReply(say, pin)
             }
         }
@@ -161,7 +161,7 @@ object IntentRules {
             val first = ctx.tasks.firstOrNull { it.type == TaskType.PARKING } ?: ctx.tasks.firstOrNull()
             if (first != null) {
                 val pin = CoachIntent.PinTask(first.id, first.suggested)
-                if (ctx.allows(pin)) return CoachReply("${first.title.withObjectParticle()} ${first.suggested.label} 모드로 시작해 봐요. 홈에 올려 둘게요.", pin)
+                if (ctx.allows(pin)) return CoachReply("이것부터 해 봐요.\n${first.title.withObjectParticle()} ${first.suggested.label} 모드로 올려 둘게요.", pin)
             }
         }
         if (has("긁", "부딪", "뻔했")) return CoachReply(NEAR_MISS_LINE, CoachIntent.AskMore)
@@ -177,7 +177,7 @@ object IntentRules {
             val name = when (category) {
                 TaskType.PARKING -> "주차"; TaskType.DRIVING -> "도로 주행"; TaskType.KNOWLEDGE -> "지식"; TaskType.CHECKLIST -> "점검"
             }
-            return CoachReply("$name 과제를 펼쳐 둘게요. 마음에 드는 걸 골라 주세요.", CoachIntent.OpenSheet(category))
+            return CoachReply("과제를 펼쳐 둘게요.\n$name 중에 골라 주세요.", CoachIntent.OpenSheet(category))
         }
 
         if (has("무서", "걱정", "떨려", "긴장", "오랜만", "자신없", "모르겠")) return CoachReply(WORRY_LINE, CoachIntent.AskMore)

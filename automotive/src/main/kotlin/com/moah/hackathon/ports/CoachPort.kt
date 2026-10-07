@@ -63,20 +63,20 @@ object AdviceRules {
         BELT_MISSING("벨트를 매고 시작하는 것부터 몸에 붙여요."),
         DOOR_OPEN_AT_IGNITION("문을 닫고 시동을 켜요."),
         NO_BRAKE_AT_IGNITION("시동은 브레이크를 밟은 채로요."),
-        MOVED_DURING_CHECK("점검은 차를 세운 채로 끝내고 나서 움직여요."),
-        CHECK_PARK("시동을 켤 땐 기어가 주차에 있는지 한 번 더 봐요."),
-        LIGHTS_SKIPPED("지시등과 비상등도 출발 전에 한 번씩 켜 봐요."),
+        MOVED_DURING_CHECK("점검을 마친 뒤에 움직여요."),
+        CHECK_PARK("시동 전에 기어가 주차인지 봐요."),
+        LIGHTS_SKIPPED("지시등과 비상등도 한 번씩 켜 봐요."),
         KEEP_ORDER("이 순서 그대로 몸에 남겨 두세요."),
         // 주차
         BELT_FIRST("다음엔 벨트를 먼저 매고 출발해요."),
-        BRAKE("브레이크는 천천히, 멈추기 전에 미리 밟아 보세요."),
+        BRAKE("멈추기 전에 브레이크를 미리 밟아요."),
         PROXIMITY("뒤 거리를 조금 더 남겨 보세요."),
-        STEERING("핸들을 끝까지 꺾은 채 중립을 조금 늦게 잡아 보세요."),
-        SHIFT("전진으로 보정할 때는 핸들을 반대로 돌려 두세요."),
+        STEERING("핸들 푸는 때를 조금 늦춰 봐요."),
+        SHIFT("전진 보정 땐 핸들을 반대로 돌려요."),
         // 전면 직각 주차(10/2): 앞으로 들어가므로 보정은 후진, 가까운 쪽은 앞
         PROXIMITY_FRONT("앞 거리를 조금 더 남겨 보세요."),
-        SHIFT_FRONT("후진으로 보정할 때는 핸들을 반대로 돌려 두세요."),
-        SEGMENTS("멈추지 말고 한 번에 조금 더 깊이 들어가 봐요."),
+        SHIFT_FRONT("후진 보정 땐 핸들을 반대로 돌려요."),
+        SEGMENTS("한 번에 조금 더 깊이 들어가 봐요."),
         PARK("다 들어왔으면 주차 기어까지가 마무리예요."),
         KEEP("이 감각 그대로 한 번만 더 해 봐요."),
     }
@@ -118,14 +118,14 @@ object AdviceRules {
  */
 object CourseRemarks {
     fun opener(r: CourseResult): String = when {
-        !r.positionMeasured -> "구간을 확인할 수 없었지만 끝까지 달렸어요."
-        r.disqualified -> "실격 사유가 하나 있었어요."
-        r.passed == true && r.deductions.isEmpty() -> "감점 없이 합격선을 넘었어요."
+        !r.positionMeasured -> "끝까지 달렸어요."
+        r.disqualified -> "실격 사유가 있었어요."
+        r.passed == true && r.deductions.isEmpty() -> "감점 없이 합격이에요."
         r.passed == true -> "합격선을 넘었어요."
-        r.passed == false -> "이번엔 합격선에 조금 못 미쳤어요."
-        r.deductions.isEmpty() -> "구간마다 할 일을 다 챙겼어요."
+        r.passed == false -> "합격선 조금 아래예요."
+        r.deductions.isEmpty() -> "할 일을 다 챙겼어요."
         r.deductions.size == 1 -> "한 가지만 놓쳤어요."
-        else -> "놓친 구간이 몇 군데 있었어요."
+        else -> "놓친 구간이 있었어요."
     }
 
     /** 가장 큰 감점(실격 먼저) 하나의 다음 행동. */
@@ -133,19 +133,19 @@ object CourseRemarks {
         val d = r.deductions.sortedWith(compareByDescending<com.moah.hackathon.scoring.Deduction> { it.disqualify }.thenByDescending { it.points }).firstOrNull()
             ?: return "이 흐름 그대로 한 번 더 해 봐요."
         return when {
-            d.reason == "신호 위반" -> "다음엔 신호가 바뀔 때까지 정지선 앞에서 기다려요."
-            d.reason == "검지선 접촉" -> "다음엔 ${d.zoneTitle}에서 조금 더 천천히, 핸들을 늦게 돌려 봐요."
-            d.reason == "뒤로 밀림" -> "다음엔 경사로에서 가속 페달을 살짝 밟은 뒤 브레이크를 떼요."
+            d.reason == "신호 위반" -> "정지선 앞에서 신호를 기다려요."
+            d.reason == "검지선 접촉" -> "${d.zoneTitle}에선 핸들을 늦게 돌려요."
+            d.reason == "뒤로 밀림" -> "경사로에선 가속 뒤 브레이크를 떼요."
             d.reason == "출발 지연" -> "다음엔 멈춘 뒤 바로 출발 준비를 해요."
-            d.reason == "방향지시등 미점등" -> "다음엔 ${d.zoneTitle} 전에 방향지시등부터 켜요."
+            d.reason == "방향지시등 미점등" -> "${d.zoneTitle} 전엔 지시등부터 켜요."
             d.reason == "가속 부족" -> "다음엔 가속 구간에서 속도를 충분히 올려요."
-            d.reason == "속도 초과" -> "다음엔 ${d.zoneTitle}에서 속도를 먼저 줄이고 들어가요."
-            d.reason == "돌발 정지 지연" -> "다음엔 경보가 울리는 순간 바로 브레이크를 밟아요."
+            d.reason == "속도 초과" -> "${d.zoneTitle}에선 속도부터 줄여요."
+            d.reason == "돌발 정지 지연" -> "경보가 울리면 바로 멈춰요."
             d.reason == "비상등 미점등" -> "다음엔 돌발 정지 뒤 비상등까지 켜요."
             d.reason == "주차 칸 밖 정지" -> "다음엔 칸 끝까지 천천히 들어간 뒤 멈춰요."
             d.reason == "시간 초과" -> "다음엔 순서를 미리 떠올리고 들어가요."
             d.reason.endsWith("미조작") -> "다음엔 출발 전에 장치를 하나씩 켰다 꺼요."
-            d.reason.endsWith("미정지") -> "다음엔 ${d.zoneTitle}에서 완전히 멈췄다 가요."
+            d.reason.endsWith("미정지") -> "${d.zoneTitle}에선 완전히 멈췄다 가요."
             else -> "다음엔 ${d.zoneTitle.withObjectParticle()} 한 번 더 연습해 봐요."
         }
     }
@@ -179,28 +179,28 @@ class FakeCoachPort(
     }
 
     override suspend fun summarize(task: Task, mode: LessonMode, attempts: List<AttemptRecord>, profile: Profile): String {
-        if (attempts.isEmpty()) return "오늘은 움직이지 않았어요. 다음에 다시 해 봐요."
+        if (attempts.isEmpty()) return "오늘은 쉬어 갔어요.\n다음에 다시 해 봐요."
         val first = attempts.first().score
         val last = attempts.last().score
         val best = attempts.maxBy { it.score.skill }.score
         val trend = when {
-            attempts.size == 1 -> "한 번 해 봤어요. 감각이 어땠는지 기억해 두세요."
-            last.skill > first.skill -> "회차를 거듭할수록 좋아졌어요. 이게 연습의 맛이에요."
-            last.skill < first.skill -> "뒤로 갈수록 힘이 빠졌지만 첫 회차가 좋았어요. 쉬었다 하면 돌아와요."
-            else -> "회차마다 비슷했어요. 안정적이라는 뜻이에요."
+            attempts.size == 1 -> "한 번 해 봤어요."
+            last.skill > first.skill -> "갈수록 좋아졌어요."
+            last.skill < first.skill -> "첫 회차가 좋았어요."
+            else -> "고르게 해냈어요."
         }
         val lastCourse = attempts.last().course
         val safety = when {
             // 코스 과제(10/5): 근접 센서를 쓰지 않으니 "근접" 이라고 하지 않는다 — 급조작과 놓친 구간으로
             lastCourse != null -> when {
-                attempts.any { it.score.metrics.harshEvents.isNotEmpty() } -> "안전 쪽은 급하게 서거나 출발한 순간부터 줄여 봐요."
-                lastCourse.deductions.isNotEmpty() -> "놓친 구간은 다음에 그 구간만 천천히 다시 해 봐요."
+                attempts.any { it.score.metrics.harshEvents.isNotEmpty() } -> "급하게 서고 출발한 순간을 줄여요."
+                lastCourse.deductions.isNotEmpty() -> "놓친 구간만 천천히 다시 해 봐요."
                 else -> "구간마다 할 일을 다 챙겼어요."
             }
             best.safety >= 90 -> "안전 쪽은 걱정할 게 없어요."
-            best.safety >= 70 -> "안전 쪽은 한두 가지만 챙기면 돼요."
-            task.type == TaskType.CHECKLIST -> "안전 쪽을 먼저 봐야 해요. 문이나 벨트, 기어, 아니면 점검 중에 차가 움직였어요."
-            else -> "안전 쪽을 먼저 봐야 해요. 급조작이나 근접이 있었어요."
+            best.safety >= 70 -> "안전은 한두 가지만 챙기면 돼요."
+            task.type == TaskType.CHECKLIST -> "문·벨트·기어 순서부터 챙겨요."
+            else -> "급조작과 근접부터 줄여 봐요."
         }
         // 과제·모드·회차 수 머리말은 붙이지 않는다 — 화면이 과제·모드를 따로 쓰고, 회차 수는 리포트 그래픽·자세히 보기에 있다(9/27 라운드 3 리뷰).
         return "$trend\n$safety"

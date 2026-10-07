@@ -88,7 +88,7 @@ class AdviceRulesTest {
     fun `a rough predrive session names the door too in the safety sentence - seven steps since 9-28`() = runTest {
         val record = AttemptRecord(1, SeedCatalog.TASK_PREDRIVE, LessonMode.HINT, checklist(ChecklistScenarios.bad), null, "서두.\n조언.", 0)
         val summary = FakeCoachPort(RemarkPool(SeedCatalog.remarks)).summarize(SeedCatalog.predriveTask, LessonMode.HINT, listOf(record), SeedCatalog.demoProfile)
-        assertTrue(summary, summary.lines().last().contains("문이나 벨트"))
+        assertTrue(summary, summary.lines().last().contains("문·벨트"))
         assertFalse(summary, digits.containsMatchIn(summary))
     }
 

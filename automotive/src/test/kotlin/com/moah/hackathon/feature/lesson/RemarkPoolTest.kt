@@ -26,7 +26,7 @@ class RemarkPoolTest {
     fun `situation tags are preferred over generic lines`() {
         val pool = RemarkPool(SeedCatalog.remarks, Random(1))
         val text = pool.pick(ScoreBand.GOOD, setOf("rusty", "first"), mapOf("years" to "10"))
-        assertEquals("주차 과정을 대체로 잘 이어 갔어요.", text)
+        assertEquals("대체로 잘했어요.", text)
     }
 
     @Test
@@ -69,7 +69,7 @@ class RemarkPoolTest {
 
     @Test
     fun `every seed opener is one complete polite sentence without numbers or unguarded counts`() {
-        val measuredEntryPhrases = mapOf("한 번에 들어갔어요." to "one_go", "한 번 다시 넣고 들어갔어요." to "one_fix")
+        val measuredEntryPhrases = mapOf("한 번에 들어갔어요." to "one_go", "한 번 고쳐 넣었어요." to "one_fix")
         SeedCatalog.remarks.forEach { template ->
             val text = template.text
             assertEquals(text, 1, Regex("[.!?]").findAll(text).count())
@@ -107,14 +107,14 @@ class RemarkPoolTest {
         val verdict = recorder.verdict()!!
         assertEquals(ScoreBand.OK, ScoreBand.of(score.skill))
         val coach = FakeCoachPort(RemarkPool(SeedCatalog.remarks, Random(7)))
-        assertEquals("한 번 다시 넣고 들어갔어요.",
+        assertEquals("한 번 고쳐 넣었어요.",
             coach.remark(SeedCatalog.parkingTask, score, null, SeedCatalog.demoProfile, 1, verdict).substringBefore('\n'))
     }
 
     @Test
     fun `seed verdict claims remain truthful across every band and recent fallback`() {
-        val required = mapOf("한 번에 들어갔어요." to "one_go", "한 번 다시 넣고 들어갔어요." to "one_fix",
-            "여러 번 오가며 들어갔어요." to "many", "신호로 추정하면 방향도 맞게 섰어요." to "aligned")
+        val required = mapOf("한 번에 들어갔어요." to "one_go", "한 번 고쳐 넣었어요." to "one_fix",
+            "여러 번 오갔어요." to "many", "신호로 추정하면 방향도 맞게 섰어요." to "aligned")
         ScoreBand.entries.forEach { band ->
             val pool = RemarkPool(SeedCatalog.remarks, Random(1))
             listOf(emptySet(), setOf("one_go"), setOf("one_fix"), setOf("many"), setOf("one_go", "aligned")).forEach { tags ->
@@ -125,7 +125,7 @@ class RemarkPoolTest {
             }
         }
         listOf(ScoreBand.OK, ScoreBand.ROUGH).forEach { band ->
-            assertEquals("여러 번 오가며 들어갔어요.", RemarkPool(SeedCatalog.remarks).pick(band, setOf("many"), emptyMap()))
+            assertEquals("여러 번 오갔어요.", RemarkPool(SeedCatalog.remarks).pick(band, setOf("many"), emptyMap()))
         }
     }
 

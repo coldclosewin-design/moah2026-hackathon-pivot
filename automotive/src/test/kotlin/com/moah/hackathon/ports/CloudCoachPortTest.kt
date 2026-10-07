@@ -74,8 +74,8 @@ class CloudCoachPortTest {
         for (s in ChecklistScenarios.bad.steps) r.onDelta((s.atSeconds * 1000).toLong(), s.values)
         val s = r.scoreChecklist()!!
         var captured = ""
-        val coach = CloudCoachPort(fallback, transport { _, user -> captured = user; "벨트가 먼저, 시동은 그다음이에요." })
-        assertEquals("벨트가 먼저, 시동은 그다음이에요.", coach.remark(SeedCatalog.predriveTask, s, null, profile, 1))
+        val coach = CloudCoachPort(fallback, transport { _, user -> captured = user; "순서만 바꿔요. 벨트가 먼저, 시동은 그다음이에요." })
+        assertEquals("순서만 바꿔요.\n벨트가 먼저, 시동은 그다음이에요.", coach.remark(SeedCatalog.predriveTask, s, null, profile, 1))
         assertTrue(captured, captured.contains("과제: 출발 전 점검"))
         assertTrue(captured.contains("순서 시동 먼저(순서 바뀜)"))
         assertTrue(captured.contains("움직임 1회"))
@@ -98,9 +98,9 @@ class CloudCoachPortTest {
     fun `summary uses the cloud when it answers and the fallback when attempts are empty`() = runTest {
         val s = score()
         val record = AttemptRecord(1, SeedCatalog.TASK_PARKING_REAR, LessonMode.HINT, s, null, "…", 0L)
-        val coach = CloudCoachPort(fallback, transport { _, user -> assertTrue(user.contains("1회차: 숙련 60")); "오늘은 여기까지 잘 왔어요. 뒤 거리만 조금 더." })
-        assertEquals("오늘은 여기까지 잘 왔어요. 뒤 거리만 조금 더.", coach.summarize(SeedCatalog.parkingTask, LessonMode.HINT, listOf(record), profile))
-        assertTrue(coach.summarize(SeedCatalog.parkingTask, LessonMode.HINT, emptyList(), profile).contains("움직이지 않았어요"))
+        val coach = CloudCoachPort(fallback, transport { _, user -> assertTrue(user.contains("1회차: 숙련 60")); "잘 따라왔어요. 뒤 거리만 조금 더 남겨요." })
+        assertEquals("잘 따라왔어요.\n뒤 거리만 조금 더 남겨요.", coach.summarize(SeedCatalog.parkingTask, LessonMode.HINT, listOf(record), profile))
+        assertTrue(coach.summarize(SeedCatalog.parkingTask, LessonMode.HINT, emptyList(), profile).contains("쉬어 갔어요"))
     }
 
     @Test
