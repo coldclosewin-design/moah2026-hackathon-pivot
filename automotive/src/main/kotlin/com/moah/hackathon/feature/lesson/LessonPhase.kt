@@ -23,6 +23,11 @@ sealed interface LessonPhase {
         val suggestedTask: Task,
         val suggestedMode: LessonMode,
         val reason: String,
+        /**
+         * 홈이 과제를 "골라 둔" 상태인가(라운드 26 시안 1-6, 10/7). false = 이번 실행에서 아직 연습·퀴즈 기록이 없고 고정(프리셋·대화·홈 모드)도 예약도 없다
+         * → 화면은 [suggestedTask] 를 보이지 않고 "과제 고르기" 빈칸을 띄우며 `시작` 을 흐리게 둔다(임의로 정하지 않는다). 기록은 메모리라 앱을 새로 켜면 다시 false.
+         */
+        val picked: Boolean = true,
         /** 제휴 시험장 목록(D3, 9/28). 화면의 시험장 층이 그린다. */
         val venues: List<Venue> = emptyList(),
         /** 지금 예약. 없으면 null — Setup 배지 자리도 없다. */
