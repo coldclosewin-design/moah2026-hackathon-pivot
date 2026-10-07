@@ -284,6 +284,20 @@ class LessonStateMachine(
 
     // ───────── 제휴 시험장 예약 (§3.3, D3 = (나)) — Setup 에서만. 실제 연계 없음 ─────────
 
+    /**
+     * 홈에서 모드만 바꾸기(라운드 26 시안 1-6 — 제목 속 모드 낱말의 작은 팝업). 지금 제안 과제가 그 모드를 지원할 때만, 그 과제·모드로 고정한다.
+     * 과제를 아직 안 골랐으면(`picked = false`) 무시 — 그때는 과제부터 고른다. 로그 `home mode: …`.
+     */
+    fun chooseHomeMode(mode: LessonMode) {
+        val p = _phase.value as? LessonPhase.Setup ?: return
+        if (!p.picked || p.coach != null || p.onboarding != null) return
+        if (!p.suggestedTask.supports(mode)) { Log.w(TAG, "home mode: ${p.suggestedTask.id} does not support $mode"); return }
+        pinned = p.suggestedTask.id to mode
+        bookingChoice = null
+        Log.i(TAG, "home mode: ${p.suggestedTask.id} → $mode")
+        _phase.value = setup()
+    }
+
     /** 예약. 시험장·시간대·코스가 시드에 있고 시간대가 비어 있을 때만. 로그 `reservation: …`. 성공하면 Setup 을 다시 그린다(제안 과제가 바뀔 수 있다). */
     fun reserve(venueId: String, slotId: String, courseId: String) {
         if (_phase.value !is LessonPhase.Setup) return
@@ -721,7 +735,8 @@ class LessonStateMachine(
         val reserved = reservedReadyTask()
         val fromReservation = booking != null && reserved?.id == task.id
         val reason = if (fromReservation) ModeAdvisor.reservedReason(s.mode, mockExam = bookingChoice == BookingOption.MOCK_EXAM) else s.reason
-        return LessonPhase.Setup(profile, tasks, task, s.mode, reason, venues = venues, booking = booking,
+        val picked = pin != null || booking != null || store.all().isNotEmpty() || store.quizzes().isNotEmpty()
+        return LessonPhase.Setup(profile, tasks, task, s.mode, reason, picked = picked, venues = venues, booking = booking,
             coach = if (coachOpen) CoachDialog(coachOpening ?: coachLine(), coachChoices(), coachTurns.toList(), coachWaiting, coachCards()) else null,
             bookingOptions = if (booking != null) bookingOptionsFor(reserved) else emptyList(),
             bookingChoice = bookingChoice, highlightBooking = highlightBooking, sheetRequest = sheetRequest,

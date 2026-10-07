@@ -135,6 +135,8 @@ class LessonViewModel(
     }
 
     fun begin(taskId: String, mode: LessonMode) = machine.begin(taskId, mode)
+    /** 홈 제목 속 모드 낱말 → 작은 팝업에서 고른 모드. 과제를 골라 둔 홈에서만. */
+    fun chooseHomeMode(mode: LessonMode) = machine.chooseHomeMode(mode)
     /** 지식 테스트 선택지(0-based). 정차 중에만 받는다. */
     fun answer(choice: Int) = machine.answer(choice)
     /** 지식 테스트 "다음 문제" / 마지막이면 "결과 보기". */
