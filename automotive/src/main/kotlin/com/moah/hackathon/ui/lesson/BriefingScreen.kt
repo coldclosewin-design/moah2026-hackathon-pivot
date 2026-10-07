@@ -20,7 +20,7 @@ import com.moah.hackathon.ui.CoachColors
 
 @Composable
 internal fun BriefingScreen(task: Task, mode: LessonMode, line: String, subtitle: String?,
-    expectedMillis: Long = 6_000L, locked: Boolean, onSkip: () -> Unit = {}) {
+    expectedMillis: Long = 6_000L, locked: Boolean, onSkip: () -> Unit = {}, wheelReference: Boolean = false) {
     val progress = remember(task.id, mode, line) { Animatable(0f) }
     LaunchedEffect(progress, expectedMillis) {
         progress.snapTo(0f)
@@ -61,7 +61,11 @@ internal fun BriefingScreen(task: Task, mode: LessonMode, line: String, subtitle
                     Box(Modifier.fillMaxHeight().fillMaxWidth(progress.value).background(CoachColors.Periwinkle))
                 }
             }
-            Image(painterResource(R.drawable.poster_wheel_b), null, Modifier.weight(.43f).fillMaxHeight(), contentScale = ContentScale.Crop)
+            if (wheelReference) Image(painterResource(R.drawable.poster_wheel_b), null,
+                Modifier.weight(.43f).fillMaxHeight(), contentScale = ContentScale.Crop)
+            else Box(Modifier.weight(.43f).fillMaxHeight().background(CoachColors.Ink), contentAlignment = Alignment.Center) {
+                SymbolTile(CoachSymbol.Voice, Modifier.size(420.dp))
+            }
         }
     }
 }

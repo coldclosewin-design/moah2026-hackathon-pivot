@@ -64,7 +64,7 @@ internal fun QuizScreen(task: Task, index: Int, total: Int, item: QuizItem, lock
                             }
                             val action = if (chosen == null) Modifier.clickable(role = Role.Button) { onAnswer(choiceIndex) } else Modifier
                             Row(Modifier.fillMaxWidth().heightIn(min = 112.dp)
-                                .surfaceTexture(if (correct) CoachColors.Periwinkle else CoachColors.Lavender,
+                                .surfaceTexture(if (correct) CoachColors.Ink else CoachColors.Lavender,
                                     if (correct) CoachTexture.SelectedCard else CoachTexture.Card)
                                 .then(if (mine && !correct) Modifier.border(4.dp, CoachColors.Signal) else Modifier)
                                 .then(action).semantics { selected = mine }

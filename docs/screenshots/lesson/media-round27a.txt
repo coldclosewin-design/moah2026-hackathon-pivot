@@ -1,0 +1,6 @@
+PNG count=206
+Original PNG replaced=197
+New PNG=9
+Original MP4 replaced=3
+Unchanged original media=0
+All PNG files decode successfully

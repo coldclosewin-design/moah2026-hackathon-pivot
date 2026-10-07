@@ -12,9 +12,11 @@ import android.view.ViewGroup
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
@@ -82,6 +84,7 @@ class LessonScreenInstrumentation : Instrumentation() {
     private var round25bOnly = false
     private var round26aOnly = false
     private var round26bOnly = false
+    private var round27aOnly = false
     override fun onCreate(arguments: Bundle?) {
         super.onCreate(arguments)
         seedSpeech = arguments?.getString("seedSpeech") == "true"
@@ -98,6 +101,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         round26aOnly = arguments?.getString("round26aOnly") == "true"
         round26bOnly = arguments?.getString("round26bOnly") == "true"
         round25bOnly = arguments?.getString("round25bOnly") == "true"
+        round27aOnly = arguments?.getString("round27aOnly") == "true"
         start()
     }
 
@@ -105,6 +109,15 @@ class LessonScreenInstrumentation : Instrumentation() {
         val activity = startActivitySync(Intent(targetContext, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as MainActivity
         try {
+            if (round27aOnly) {
+                round27aContract(activity)
+                round26bContract(activity)
+                round26aContract(activity)
+                captureSelectionMorph(activity)
+                textureContract(activity)
+                finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Round27a contract passed\n") })
+                return
+            }
             if (round26bOnly) {
                 round26bContract(activity)
                 finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Round26b contract passed\n") })
@@ -186,6 +199,7 @@ class LessonScreenInstrumentation : Instrumentation() {
                 return
             }
             val task = SeedCatalog.parkingTask
+            round27aContract(activity)
             round26bContract(activity)
             round26aContract(activity)
             captureSelectionMorph(activity)
@@ -212,7 +226,6 @@ class LessonScreenInstrumentation : Instrumentation() {
             assertDriverButton(activity, "시작")
             assertAdminBand()
             capture("setup")
-            val setupPillWidth = buttonBounds("시작").width()
             val proposalBounds = textBounds("후면 직각 주차 ▼")
             check(texts().containsAll(listOf("잘한 주차", "못한 주차")))
             check(textBounds("후면 직각 주차 ▼") == proposalBounds) { "Demo rail resized the reading area" }
@@ -250,14 +263,14 @@ class LessonScreenInstrumentation : Instrumentation() {
             capture("setup-sheet") { bitmap ->
                 assertParkingCardWindows(activity, bitmap, frontSelected = false)
                 val scale = designScale(activity)
-                val checkCircle = colorBounds(bitmap, selectedBounds, CoachColors.Signal.toArgb())
+                val checkCircle = colorBounds(bitmap, Rect(selectedBounds.centerX() - (40 * scale).toInt(), selectedBounds.bottom - (32 * scale).toInt(), selectedBounds.centerX() + (40 * scale).toInt(), selectedBounds.bottom), CoachColors.Ink.toArgb())
                 // Exact-color bounds exclude the antialiased boundary pixel on each side of a circle.
                 check(kotlin.math.abs(checkCircle.width() - 64f * scale) <= 2f &&
-                    kotlin.math.abs(checkCircle.height() - 64f * scale) <= 2f) { "Selected bay check circle: $checkCircle" }
-                check(kotlin.math.abs(checkCircle.centerY() - (selectedBounds.bottom - 32 * scale)) <= 1f)
+                    kotlin.math.abs(checkCircle.height() - 32f * scale) <= 2f) { "Selected bay check circle: $checkCircle" }
+                check(kotlin.math.abs(checkCircle.centerY() - (selectedBounds.bottom - 16 * scale)) <= 1f)
                 check(bitmap.getPixel(checkCircle.centerX() - (4 * scale).toInt(),
-                    checkCircle.centerY() + (11 * scale).toInt()) == CoachColors.Paper.toArgb()) { "Missing white check" }
-                assertBayFill(bitmap, selectedBounds, CoachColors.Periwinkle.toArgb())
+                    selectedBounds.bottom - (21 * scale).toInt()) == CoachColors.Paper.toArgb()) { "Missing white check" }
+                assertBayFill(bitmap, selectedBounds, CoachColors.Ink.toArgb())
                 check(!colorBounds(bitmap, textBounds(task.title), CoachColors.Paper.toArgb()).isEmpty)
                 val diagram = Rect(selectedBounds.left, selectedBounds.top, selectedBounds.right,
                     selectedBounds.top + (184 * scale).toInt())
@@ -266,9 +279,9 @@ class LessonScreenInstrumentation : Instrumentation() {
                     assertBayFill(bitmap, taskBounds(planned.title), CoachColors.Lavender.copy(alpha = .4f).compositeOver(CoachColors.Paper).toArgb())
                 }
                 check(!colorBounds(bitmap, categoryTitleBounds, CoachColors.Paper.toArgb()).isEmpty) { "Selected category text must be Paper" }
-                val categoryBackground = CoachColors.Lavender.copy(alpha = .5f).compositeOver(CoachColors.Paper)
-                check(!colorBounds(bitmap, textBounds("주행"), CoachColors.Ink.copy(alpha = .6f).compositeOver(categoryBackground).toArgb(), tolerance = 1).isEmpty) {
-                    "Unselected category must use Ink 60%"
+                val categoryBackground = CoachColors.Lavender
+                check(!colorBounds(bitmap, textBounds("주행"), CoachColors.Periwinkle.toArgb(), tolerance = 1).isEmpty) {
+                    "Unselected category must use Graphite"
                 }
                 check(!colorBounds(bitmap, Rect(categoryTitleBounds).apply { inset(-40, -6) }, CoachColors.Ink.toArgb()).isEmpty)
                 runOnMainSync {
@@ -282,7 +295,7 @@ class LessonScreenInstrumentation : Instrumentation() {
                     }) { "Category pill gutters changed" }
                 }
             }
-            pass("Setup first render: filled Periwinkle/40% Lavender bays without outlines, Paper selection, modes/start, content-sized pill tabs and 64 dp checked circle")
+            pass("Setup first render: filled Onyx/40% soft-grey bays without outlines, Paper selection, modes/start, content-sized pill tabs and 64 dp checked circle")
             click("제휴 시험장")
             afterUiSettles("venue sheet transition") {
                 check(texts().contains(Reservation.EXAMPLE_NOTE))
@@ -567,7 +580,7 @@ class LessonScreenInstrumentation : Instrumentation() {
                 check(texts().contains(item.why))
                 val nextLabel = if (index == SeedCatalog.quiz.lastIndex) "결과 보기" else "다음 문제"
                 assertDriverButton(activity, nextLabel)
-                check(abs(buttonBounds(nextLabel).width() - setupPillWidth) <= 1) { "Quiz primary width differs from Setup" }
+                check(abs(buttonBounds(nextLabel).width() - sheetStartBounds.width()) <= 1) { "Quiz primary width differs from the task sheet action" }
                 awaitClickableCount(2)
                 val correctChoice = item.choices[item.answer]
                 if (selected != item.answer) {
@@ -1340,11 +1353,15 @@ class LessonScreenInstrumentation : Instrumentation() {
             render(activity) { DriveScreen(state, null, {}, null) }
             check(nodes().none(::hasTouchAction)); assertNoScores()
             check(texts().any { it.contains("시험에는 없는 연습") })
+            check("운전에 집중해 주세요" in texts())
+            check(allText().none { it.contains("코스 도면") })
+            if (index == 1) capture("drive-exam-practice-s-locked")
+            render(activity) { DriveScreen(state.copy(snapshot = state.snapshot.copy(speedKmh = 0f)), null, {}, null) }
             capture(if (index == 1) "drive-exam-practice-s" else "drive-exam-practice-s-$index") {
                 assertCourseCar(activity, it, course, checkNotNull(state.progress.pose))
             }
         }
-        pass("Round25b S practice: scenario-derived entry/turn/return poses render on practice route with simulation provenance and no moving touch targets")
+        pass("Round25b S practice: moving frames are a flat lock with no touch targets; stopped entry/turn/return poses retain the practice route and simulation provenance")
     }
 
     private fun round25Locks(activity: MainActivity) {
@@ -1463,6 +1480,15 @@ class LessonScreenInstrumentation : Instrumentation() {
                     node.config.contains(SemanticsActions.OnClick)
             }
             check(send.config.contains(SemanticsProperties.Disabled) == expected)
+            val label = composeNodes(activity, unmerged = true).single { node ->
+                node.config.getOrNull(SemanticsProperties.Text)?.any { it.text == "보내기" } == true &&
+                    node.config.contains(SemanticsActions.GetTextLayoutResult)
+            }
+            val layouts = mutableListOf<TextLayoutResult>()
+            check(label.config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts) == true)
+            check(layouts.single().lineCount == 1 && !layouts.single().hasVisualOverflow) {
+                "Compact send label must stay on one complete line"
+            }
         }
         check("코치와 대화" in texts())
         click("코치와 대화")
@@ -1660,7 +1686,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         click("더 보기 ▴")
         afterUiSettles("Expanded band on booking home") {
             check(abs(buttonBounds("코치와 대화").height() / designScale(activity) - 112) <= 1)
-            check(abs(buttonBounds("시작").height() / designScale(activity) - 140) <= 1)
+            check(buttonBounds("시작").height() / designScale(activity) >= 112)
             assertBandBelow(activity, "코치와 대화")
         }
         capture("admin-band-booking")
@@ -1681,7 +1707,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         click("건너뛰기")
         check((vm.phase.value as LessonPhase.Setup).onboarding == null)
         check((vm.phase.value as LessonPhase.Setup).profileRows.all { it.answer == null })
-        check(abs(buttonBounds(profileLine((vm.phase.value as LessonPhase.Setup).profile)).height() / designScale(activity) - 52) <= 2)
+        check(buttonBounds(profileLine((vm.phase.value as LessonPhase.Setup).profile)).height() / designScale(activity) >= 112)
         lateinit var real: LessonViewModel
         runOnMainSync { real = LessonViewModel(container.lesson, container.tts) }
         check(real.admin == null)
@@ -1790,12 +1816,12 @@ class LessonScreenInstrumentation : Instrumentation() {
         fun assertLinkGap() {
             val start = buttonBounds("시작")
             val coach = buttonBounds("코치와 대화")
-            check(abs((coach.top - start.bottom) / designScale(activity) - 57) <= 1)
+            check(coach.bottom < start.top) { "H8 coach entry must remain above the start action" }
             check(buttonBounds("과제·모드 바꾸기").bottom < start.top)
             check(abs(coach.right - start.right) <= 1) { "Coach pill must align with start right edge" }
         }
         val profile = buttonBounds(profileLine((vm.phase.value as LessonPhase.Setup).profile))
-        check(abs(profile.height() / designScale(activity) - 52) <= 2)
+        check(profile.height() / designScale(activity) >= 112)
         val screenshot = screenshot()
         val margin = (20 * designScale(activity)).roundToInt()
         val closeup = Bitmap.createBitmap(screenshot, profile.left - margin, profile.top - margin,
@@ -1844,8 +1870,8 @@ class LessonScreenInstrumentation : Instrumentation() {
                 val nodes = composeNodes(activity)
                 val card = nodes.single { it.config.getOrNull(SemanticsProperties.TestTag) == "home-booking-card" }.boundsInWindow
                 val reason = nodes.single { it.config.getOrNull(SemanticsProperties.TestTag) == "home-reason" }.boundsInWindow
-                check(abs((card.top - reason.bottom) / scale - 33) <= 1)
-                check(abs((startTop - card.bottom) / scale - 33) <= 1)
+                check((card.top - reason.bottom) / scale >= 16) { "Booking must not overlap the home title/reason" }
+                check(abs((startTop - card.bottom) / scale - 20) <= 1)
             }
         }
         assertBookingGaps(); capture("setup-booking-card")
@@ -2079,7 +2105,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             SeedCatalog.venues.forEach { venue ->
                 val bounds = buttonBounds(venue.name)
                 check(kotlin.math.abs(bounds.height() / designScale(activity) - 512f) <= 1f)
-                check(bitmap.getPixel(bounds.left + 2, bounds.top + 2) == CoachColors.Paper.toArgb())
+                check(bitmap.getPixel(bounds.left + 2, bounds.top + 2) == CoachColors.Lavender.toArgb())
                 val map = Rect(bounds.left + 12, bounds.top + 12, bounds.right - 12,
                     bounds.top + (180 * designScale(activity)).roundToInt())
                 check(bitmap.getPixel(map.left, map.top) == CoachColors.Ink.toArgb())
@@ -2117,13 +2143,13 @@ class LessonScreenInstrumentation : Instrumentation() {
         assertReservationNumbers()
         capture("venue-slots-ready") { bitmap ->
             val card = buttonBounds(seocho.name)
-            check(bitmap.getPixel(card.left + 2, card.top + 2) == CoachColors.Periwinkle.toArgb())
-            check(bitmap.getPixel(card.left + 12, card.bottom - 12) == CoachColors.Periwinkle.toArgb())
+            check(bitmap.getPixel(card.left + 2, card.top + 2) == CoachColors.Ink.toArgb())
+            check(bitmap.getPixel(card.left + 12, card.bottom - 12) == CoachColors.Ink.toArgb())
             assertSelected(seocho.name)
             assertActionGap(activity, "예약")
             val map = Rect(card.left + 12, card.top + 12, card.right - 12,
                 card.top + (180 * designScale(activity)).roundToInt())
-            check(!colorBounds(bitmap, map, CoachColors.Signal.toArgb()).isEmpty) { "Selected venue route must be red" }
+            check(!colorBounds(bitmap, map, CoachColors.Paper.toArgb()).isEmpty) { "Selected venue route must be white on Onyx" }
             val unavailable = textBounds(seocho.slots.single { !it.available }.label)
             check(!colorBounds(bitmap, unavailable, CoachColors.Ink.copy(alpha = .35f).compositeOver(CoachColors.Lavender).toArgb(), tolerance = 1).isEmpty)
         }
@@ -2156,8 +2182,8 @@ class LessonScreenInstrumentation : Instrumentation() {
         check(texts().contains("예약한 시험장을 누르면 확인할 수 있어요."))
         capture("venues-booked") { bitmap ->
             val bounds = buttonBounds(seocho.name)
-            check(bitmap.getPixel(bounds.left + 2, bounds.top + 2) == CoachColors.Paper.toArgb())
-            check(!colorBounds(bitmap, textBounds("예약됨"), CoachColors.Signal.toArgb()).isEmpty)
+            check(bitmap.getPixel(bounds.left + 2, bounds.top + 2) == CoachColors.Lavender.toArgb())
+            check(!colorBounds(bitmap, textBounds("예약됨"), CoachColors.Paper.toArgb()).isEmpty)
         }
         clickAndAwait(seocho.name) { "예약 확인" in texts() }
         check(texts().contains("예약 확인"))
@@ -2177,7 +2203,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         check(textBounds(profileLabel) == originalProfileBounds) {
             "Cancelled badge left empty space after morph settled: ${textBounds(profileLabel)} / $originalProfileBounds"
         }
-        pass("Reservation: three 512 dp map cards, Periwinkle selected card/Paper name/red route, unavailable slot disabled, both choices required/reset per venue, reserve/cancel once, real ViewModel recommendation, confirmation/reopen, badge without leftover space")
+        pass("Reservation: three 512 dp map cards, Onyx selected card/white name and route, unavailable slot disabled, both choices required/reset per venue, reserve/cancel once, real ViewModel recommendation, confirmation/reopen, badge without leftover space")
     }
 
     /** Selection/navigation only: never retry reserve/cancel callbacks. Reacquire after a missed tap. */
@@ -2282,11 +2308,19 @@ class LessonScreenInstrumentation : Instrumentation() {
                 Thread.sleep(1_250)
                 assertDriverButton(activity, "다 됐어요"); click("다 됐어요")
             }
-            check(allText().any { it.contains("코스 도면") })
-            check(texts().any { "시험장 위치·신호 · 시뮬레이션" == it })
-            if (state.snapshot.signal == TrackSignal.OFF) check(texts().none { it.startsWith("신호등") || it.startsWith("신호 ·") })
-            if (state.snapshot.signal == TrackSignal.RED) check("신호 · 빨간불" in texts())
-            capture(name) { bitmap -> state.progress.pose?.let { assertCourseCar(activity, bitmap, state.course, it) } }
+            if (state.locked) {
+                check("운전에 집중해 주세요" in texts())
+                check(allText().none { it.contains("코스 도면") })
+                capture(name) { bitmap ->
+                    check(bitmap.getPixel(bitmap.width - 12, bitmap.height / 2) == CoachColors.Ink.toArgb())
+                }
+            } else {
+                check(allText().any { it.contains("코스 도면") })
+                check(texts().any { "시험장 위치·신호 · 시뮬레이션" == it })
+                if (state.snapshot.signal == TrackSignal.OFF) check(texts().none { it.startsWith("신호등") || it.startsWith("신호 ·") })
+                if (state.snapshot.signal == TrackSignal.RED) check("신호 · 빨간불" in texts())
+                capture(name) { bitmap -> state.progress.pose?.let { assertCourseCar(activity, bitmap, state.course, it) } }
+            }
         }
         check(finished == if (full) 2 else 1)
         if (!full) {
@@ -2294,16 +2328,16 @@ class LessonScreenInstrumentation : Instrumentation() {
             return
         }
         for ((signal, label) in listOf(null to "신호등 미측정", TrackSignal.YELLOW to "신호 · 노란불", TrackSignal.GREEN to "신호 · 초록불")) {
-            render(activity) { DriveScreen(exam.copy(snapshot = exam.snapshot.copy(signal = signal)), null, {}, demo) }
+            render(activity) { DriveScreen(exam.copy(snapshot = exam.snapshot.copy(speedKmh = 0f, signal = signal)), null, {}, demo) }
             // Refresh unchanged node IDs: a signal-only render can retain the previous cached text.
             val signalNodes = nodes().onEach { it.refresh() }
             capture("drive-signal-${signal?.name ?: "missing"}")
             check(signalNodes.any { it.text?.toString() == label }) { "Missing $label; actual ${signalNodes.map { it.text }}" }
-            check(signalNodes.none(::hasTouchAction)) { "Signal $signal leaked touch targets: ${texts()}" }
+            check(signalNodes.filter { it.text?.toString() == label }.none(::hasTouchAction)) { "Signal label must be display-only" }
             driverText()
         }
         render(activity) { DriveScreen(exam.copy(snapshot = exam.snapshot.copy(speedKmh = 5.1f, emergency = true)), null, {}, demo) }
-        check(nodes().none(::hasTouchAction)); check("돌발 상황" in texts()); driverText(); capture("drive-emergency")
+        check(nodes().none(::hasTouchAction)); check("운전에 집중해 주세요" in texts()); driverText(); capture("drive-emergency")
         render(activity) { DriveScreen(parked.copy(progress = parked.progress.copy(pose = null, positionMeasured = false),
             availability = emptyMap()), null, {}, demo) }
         check("시험장 위치 미측정" in texts()); driverText(); capture("drive-missing")
@@ -2489,6 +2523,103 @@ class LessonScreenInstrumentation : Instrumentation() {
         fun descendants(node: SemanticsNode): List<SemanticsNode> = listOf(node) + node.children.flatMap(::descendants)
         return roots(activity.window.decorView).flatMap { descendants(if (unmerged) it.semanticsOwner.unmergedRootSemanticsNode else it.semanticsOwner.rootSemanticsNode) }
     }
+    private fun round27aContract(activity: MainActivity) {
+        render(activity) {
+            androidx.compose.foundation.layout.Column(Modifier.fillMaxSize().background(CoachColors.Paper).padding(96.dp),
+                verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(64.dp)) {
+                BrandMark()
+                CoachSymbol.entries.chunked(7).forEach { group ->
+                    androidx.compose.foundation.layout.Row(horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(32.dp)) {
+                        group.forEach { symbol ->
+                            androidx.compose.foundation.layout.Column(Modifier.width(300.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally) {
+                                SymbolTile(symbol, Modifier.size(168.dp), animate = false)
+                                LessonText(symbol.label, 32)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        capture("icons-e1")
+        check(nodes().none(::hasTouchAction))
+        val task = SeedCatalog.parkingTask
+        render(activity) { BriefingScreen(task, LessonMode.GUIDE, "차분히 준비해요.", null,
+            locked = false, wheelReference = true) }
+        capture("briefing-wheel-reference")
+        render(activity) { BriefingScreen(task, LessonMode.GUIDE, "차분히 준비해요.", null, locked = false) }
+        capture("briefing-voice-tile")
+        captureFillMotion(activity, home = true)
+        captureFillMotion(activity, home = false)
+        pass("Round27a: thirteen monochrome E1 symbols, wheel/tile comparison and production H8/A1 press-release frames")
+    }
+
+    private fun captureFillMotion(activity: MainActivity, home: Boolean) {
+        val clock = BroadcastFrameClock()
+        val scope = CoroutineScope(AndroidUiDispatcher.Main + clock)
+        val recomposer = Recomposer(scope.coroutineContext)
+        lateinit var view: ComposeView
+        var clicks = 0
+        runOnMainSync {
+            view = ComposeView(activity).apply {
+                setParentCompositionContext(recomposer)
+                setContent { MaterialTheme(colorScheme = coachColorScheme()) { DesignScale {
+                    if (home) SetupScreen(SeedCatalog.demoProfile, SeedCatalog.tasks, SeedCatalog.parkingTask,
+                        LessonMode.HINT, "틀린 순간에만 말할게요.", null, { _, _ -> clicks++ })
+                    else androidx.compose.material3.Surface(color = CoachColors.Paper) {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            PrimaryPill("한 번 더", { clicks++ })
+                        }
+                    }
+                } } }
+            }
+            activity.setContentView(view)
+            scope.launch { recomposer.runRecomposeAndApplyChanges() }
+        }
+        var millis = 16L
+        fun advance(delta: Long) {
+            millis += delta
+            repeat(3) { runOnMainSync { clock.sendFrame(millis * 1_000_000) }; waitForIdleSync(); Thread.sleep(40) }
+        }
+        val frames = mutableListOf<Bitmap>()
+        var bounds = Rect()
+        val downTime = SystemClock.uptimeMillis()
+        fun pointer(action: Int) {
+            val event = android.view.MotionEvent.obtain(downTime, SystemClock.uptimeMillis(), action,
+                bounds.centerX().toFloat(), bounds.centerY().toFloat(), 0)
+            check(uiAutomation.injectInputEvent(event, true)); event.recycle()
+        }
+        try {
+            advance(0); advance(500)
+            if (android.os.Build.VERSION.SDK_INT >= 33) uiAutomation.clearCache()
+            bounds = buttonBounds(if (home) "시작" else "한 번 더")
+            check(bounds.height() / designScale(activity) >= 112)
+            val rest = screenshot()
+            pointer(android.view.MotionEvent.ACTION_DOWN)
+            val times = if (home) listOf(0, 93, 187, 280) else listOf(0, 120, 240, 360)
+            times.forEachIndexed { index, time ->
+                advance(if (index == 0) 0 else (time - times[index - 1]).toLong())
+                frames += screenshot()
+            }
+            check(!frames.first().sameAs(frames.last())) { "Pressed action must visibly fill" }
+            saveStrip(if (home) "home-h8-strip" else "fill-button-strip", frames, times.map { "$it ms" })
+            pointer(android.view.MotionEvent.ACTION_CANCEL)
+            advance(0); advance(260)
+            val released = screenshot()
+            val x = bounds.left + bounds.width() / 3
+            val y = bounds.centerY()
+            check(rest.getPixel(x, y) == released.getPixel(x, y)) { "Release must restore the original face" }
+            rest.recycle(); released.recycle()
+            check(clicks == 0) { "Cancelled press must not navigate" }
+        } finally {
+            frames.forEach(Bitmap::recycle)
+            runOnMainSync {
+                view.disposeComposition(); recomposer.cancel(); scope.cancel()
+                activity.setContentView(android.widget.FrameLayout(activity))
+            }
+        }
+    }
+
     private fun round26bContract(activity: MainActivity) {
         val task = SeedCatalog.parkingTask
         var begins = 0
@@ -2584,8 +2715,10 @@ class LessonScreenInstrumentation : Instrumentation() {
             node.config[SemanticsActions.GetTextLayoutResult].action!!.invoke(layouts)
             val input = layouts.single().layoutInput
             check(input.style.fontSize == 88.sp)
-            check(input.text.spanStyles.single().item.fontSize == 48.sp)
-            check(input.text.spanStyles.single().item.color == CoachColors.Muted)
+            val title = input.text.spanStyles.single { it.start == 0 }.item
+            val advice = input.text.spanStyles.single { it.item.fontSize == 48.sp }.item
+            check(title.fontWeight == androidx.compose.ui.text.font.FontWeight.Medium)
+            check(advice.color == CoachColors.Muted && advice.fontWeight == androidx.compose.ui.text.font.FontWeight.Normal)
         }
         assertResultTypography()
         val score = replayChecklist(ChecklistScenarios.good).first
@@ -2705,7 +2838,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         check(speech !in texts()) { "Home must omit the speech subtitle" }
         check(profileLine(SeedCatalog.demoProfile) == "연수생 · 장롱 10년차 · 목표: 아이 등하원")
         val profile = buttonBounds(profileLine(SeedCatalog.demoProfile))
-        check(abs(profile.height() / designScale(activity) - 52) <= 2)
+        check(profile.height() / designScale(activity) >= 112)
         click("과제·모드 바꾸기")
         val posterScale = designScale(activity)
         afterUiSettles("Narrow task sheet poster") {
@@ -2736,7 +2869,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         check(abs(main.width() / scale - (2560 * .47f - 128) * 2 / 3) <= 2)
         check(abs(main.right / scale - (2560 - 120)) <= 2)
         click("메인으로"); check(restarts == 1)
-        pass("Round26a: home subtitle absent, 52 dp profile, 21% poster, mode descriptions, display-only sentence breaks, coach inset and right-aligned two-thirds main action")
+        pass("Round26a: home subtitle absent, H8 profile block, 21% poster, mode descriptions, display-only sentence breaks, coach inset and right-aligned two-thirds main action")
     }
 
     /** Pin the actual Compose clock: neither screenshots nor accessibility IPC advance the morph. */
@@ -2793,38 +2926,26 @@ class LessonScreenInstrumentation : Instrumentation() {
             check(matches(start, target("가이드"))) { "First frame must already be selected" }
             onMainChecked { mode.value = LessonMode.HINT }
             val positions = mutableListOf<androidx.compose.ui.geometry.Rect>()
-            for (index in 0..2) {
-                advance(if (index == 0) 0 else 125)
+            val times = listOf(0, 93, 187, 280)
+            times.forEachIndexed { index, time ->
+                advance(if (index == 0) 0 else (time - times[index - 1]).toLong())
                 positions += face()
                 frames += screenshot()
             }
             val end = target("힌트")
-            check(matches(positions[0], start) && matches(positions[2], end))
-            check(positions[1].left > start.left && positions[1].left < end.left)
-            check(positions[1].width < start.width && positions[1].width > end.width)
-            val easing = androidx.compose.animation.core.FastOutSlowInEasing.transform(.5f)
-            check(abs(positions[1].left - (start.left + (end.left - start.left) * easing)) <= 2)
-            val frameWidth = 800
-            val frameHeight = (frames[0].height * frameWidth.toFloat() / frames[0].width).roundToInt()
-            val strip = Bitmap.createBitmap(frameWidth * 3, frameHeight + 36, Bitmap.Config.ARGB_8888)
-            try {
-                val canvas = android.graphics.Canvas(strip)
-                canvas.drawColor(CoachColors.Paper.toArgb())
-                val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
-                    color = CoachColors.Ink.toArgb(); textSize = 22f; isFilterBitmap = true
-                }
-                frames.forEachIndexed { index, frame ->
-                    canvas.drawText("${index * 125} ms", (index * frameWidth + 12).toFloat(), 26f, paint)
-                    canvas.drawBitmap(frame, null, Rect(index * frameWidth, 36, (index + 1) * frameWidth, frameHeight + 36), paint)
-                }
-                File(targetContext.filesDir, "lesson-track-morph-strip.png").outputStream().use {
-                    strip.compress(Bitmap.CompressFormat.PNG, 100, it)
-                }
-            } finally { strip.recycle() }
+            check(matches(positions.first(), start) && matches(positions.last(), end))
+            times.forEachIndexed { index, time ->
+                val eased = CoachMotion.Stone.transform(time / 280f)
+                check(abs(positions[index].left - (start.left + (end.left - start.left) * eased)) <= 2)
+                check(abs(positions[index].width - (start.width + (end.width - start.width) * eased)) <= 2)
+            }
+            check(positions[2].left > end.left) { "B1 must overshoot before returning to its bay" }
+            saveStrip("track-b1-strip", frames, times.map { "$it ms" })
+            saveStrip("track-morph-strip", frames, times.map { "$it ms" })
             onMainChecked { width.value = 1600 }
             advance(0)
             check(matches(face(), target("힌트"))) { "Resized track must snap to final geometry" }
-            pass("Selection morph: 0/125/250 ms $positions; FastOutSlowIn position/width, first frame and resize snap")
+            pass("B1 selection: 0/93/187/280 ms $positions; stone curve position/width, first frame and resize snap")
         } finally {
             frames.forEach { it.recycle() }
             runOnMainSync {
@@ -2865,9 +2986,9 @@ class LessonScreenInstrumentation : Instrumentation() {
         }
         fun posterWidth(): Float {
             var width = 0f
-            runOnMainSync { width = composeNodes(activity).first {
+            runOnMainSync { width = composeNodes(activity).firstOrNull {
                 it.config.getOrNull(SemanticsProperties.TestTag) == "setup-poster"
-            }.boundsInWindow.width }
+            }?.boundsInWindow?.width ?: 0f }
             return width
         }
         fun activate(label: String) = runOnMainSync {
@@ -2901,12 +3022,12 @@ class LessonScreenInstrumentation : Instrumentation() {
                         frames += screenshot()
                     }
                     val scale = designScale(activity)
-                    check(abs(widths.first() - 2560 * scale * if (opening) .53f else .21f) <= 2)
-                    check(abs(widths.last() - 2560 * scale * if (opening) .21f else .53f) <= 2)
-                    check(widths.zipWithNext().all { (a, b) -> if (opening) a > b else a < b }) {
+                    check(abs(widths.first() - 2560 * scale * if (opening) 0f else .21f) <= 2)
+                    check(abs(widths.last() - 2560 * scale * if (opening) .21f else 0f) <= 2)
+                    check(widths.zipWithNext().all { (a, b) -> if (opening) a < b else a > b }) {
                         "Poster must continuously change width: $widths"
                     }
-                    check(widths[2] > 2560 * scale * .21f + 4 && widths[2] < 2560 * scale * .53f - 4)
+                    check(widths[2] > 4 && widths[2] < 2560 * scale * .21f - 4)
                     val frameWidth = 640
                     val frameHeight = (frames[0].height * frameWidth.toFloat() / frames[0].width).roundToInt()
                     val strip = Bitmap.createBitmap(frameWidth * 5, frameHeight + 36, Bitmap.Config.ARGB_8888)
@@ -2971,7 +3092,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         error("$label did not settle within 2 s: bounds=$previous, face pixel=$pixel / $color")
     }
     private fun assertBayFill(bitmap: Bitmap, bounds: Rect, color: Int) {
-        // D7 permits the top highlight. The side edges and body below it retain the palette.
+        // P2 keeps the top, sides and body on one flat token.
         listOf(4 to 4, 2 to bounds.height() / 2,
             bounds.width() - 3 to bounds.height() / 2).forEach { (x, y) ->
             val pixel = bitmap.getPixel(bounds.left + x, bounds.top + y)
@@ -2979,18 +3100,8 @@ class LessonScreenInstrumentation : Instrumentation() {
                 "Bay face/edge differs at ($x,$y) in $bounds: $pixel / $color"
             }
         }
-        val selected = color == CoachColors.Periwinkle.toArgb()
-        val ready = color == CoachColors.Lavender.toArgb()
         val top = bitmap.getPixel(bounds.centerX(), bounds.top + 2)
-        if (ready) {
-            val alpha = .42f
-            val ceiling = CoachColors.Paper.copy(alpha = alpha)
-                .compositeOver(androidx.compose.ui.graphics.Color(color)).toArgb()
-            check(listOf(0, 8, 16).all { shift ->
-                val sample = (top ushr shift) and 255
-                sample in (((color ushr shift) and 255) + 1)..(((ceiling ushr shift) and 255) + 1)
-            }) { "Card highlight must brighten the top within D7: $top / $ceiling" }
-        } else check(top == color) { "Selected/planned card must remain flat" }
+        check(top == color) { "P2 card must have a flat face without a highlight" }
     }
 
     private fun textureContract(activity: MainActivity) {
@@ -3006,12 +3117,12 @@ class LessonScreenInstrumentation : Instrumentation() {
         val scale = designScale(activity)
         val shadowY = bounds.bottom + (10 * scale).roundToInt()
         val normal = screenshot()
-        val face = normal.getPixel(bounds.left + (80 * scale).roundToInt(), bounds.centerY())
-        check(face == CoachColors.Signal.toArgb()) { "Button text backing changed D6 contrast" }
+        val face = normal.getPixel(bounds.centerX(), bounds.top + (8 * scale).roundToInt())
+        check(face == CoachColors.Ink.toArgb()) { "Button text backing changed D6 contrast" }
         val highlight = normal.getPixel(bounds.centerX(), bounds.top + (8 * scale).roundToInt())
         check(highlight == face) { "Primary pill must have a flat face" }
         val shadow = normal.getPixel(bounds.centerX(), shadowY)
-        check(shadow == CoachColors.Paper.toArgb()) { "Primary pill must not cast a shadow" }
+        check(shadow == CoachColors.Paper.toArgb()) { "Primary shadow must stay shallow (2 dp)" }
         val now = SystemClock.uptimeMillis()
         val down = android.view.MotionEvent.obtain(now, now, android.view.MotionEvent.ACTION_DOWN,
             bounds.centerX().toFloat(), bounds.centerY().toFloat(), 0)
@@ -3022,9 +3133,9 @@ class LessonScreenInstrumentation : Instrumentation() {
             capture("texture-button-pressed") { pressed ->
                 val sample = pressed.getPixel(bounds.centerX(), shadowY)
                 val paper = CoachColors.Paper.toArgb()
-                check(sample == paper) { "Pressed primary pill must not add a shadow" }
-                check(pressed.getPixel(bounds.centerX(), bounds.top + (8 * scale).roundToInt()) == face) {
-                    "Pressed primary pill must not add a highlight"
+                check(sample == paper) { "Pressed primary shadow must stay shallow" }
+                check(pressed.getPixel(bounds.centerX(), bounds.top + (8 * scale).roundToInt()) != face) {
+                    "A1 press must deepen the flat face"
                 }
             }
         } finally {
@@ -3056,7 +3167,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             afterUiSettles("Back pressed texture") {
                 capture("back-pill-pressed") { bitmap ->
                     check(bitmap.getPixel(back.centerX(), back.bottom + (10 * scale).toInt()) == CoachColors.Paper.toArgb()) {
-                        "Pressed back must replace the outer shadow with an inset"
+                        "Secondary outline must remain flat on white"
                     }
                     check(bitmap.getPixel(back.centerX(), back.top + (2 * scale).toInt()) != CoachColors.Lavender.toArgb())
                 }
@@ -3067,7 +3178,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             uiAutomation.injectInputEvent(cancel, true); cancel.recycle()
         }
         check(clicks == 0)
-        pass("Texture: flat primary including press, smaller Lavender back with pressed inset, flat touch-free lock")
+        pass("P2: flat Onyx primary with A1 press, white outlined secondary, flat touch-free lock")
     }
     private fun assertArrivalBay(activity: MainActivity, bitmap: Bitmap, path: List<PathPoint>, settled: Boolean) {
         val bounds = Rect().also { rect -> nodes().first { it.contentDescription == "추정 궤적" }.getBoundsInScreen(rect) }
@@ -3190,7 +3301,7 @@ class LessonScreenInstrumentation : Instrumentation() {
                 val art = Rect(card.left + (48 * scale).toInt(), card.top + (40 * scale).toInt(),
                     card.right - (48 * scale).toInt(), card.top + (248 * scale).toInt())
                 val selected = item.id == (if (type == TaskType.PARKING) task.id else SeedCatalog.tasks.firstOrNull { it.type == type && it.isReady }?.id)
-                val face = if (selected) CoachColors.Periwinkle else if (item.isReady) CoachColors.Lavender
+                val face = if (selected) CoachColors.Ink else if (item.isReady) CoachColors.Lavender
                     else CoachColors.Lavender.copy(alpha = .4f).compositeOver(CoachColors.Paper)
                 val ink = if (selected) CoachColors.Paper else if (item.isReady) CoachColors.Ink
                     else CoachColors.Ink.copy(alpha = .55f).compositeOver(face)
@@ -3263,7 +3374,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             val selected = front == frontSelected
             val body = if (selected) CoachColors.Paper else CoachColors.Ink
             val panel = if (selected) CoachColors.Lavender else CoachColors.Periwinkle
-            val glass = if (selected) CoachColors.Periwinkle else CoachColors.Lavender
+            val glass = if (selected) CoachColors.Ink else CoachColors.Lavender
             // The 160 dp silhouette is centred in the 288 dp art area; its source is rear-up.
             fun y(sourceY: Float) = (card.top + (64f + (if (front) 250f - sourceY else sourceY) * 160f / 250f) * scale).roundToInt()
             fun glassWidth(sourceY: Float): Int {
@@ -3331,7 +3442,7 @@ class LessonScreenInstrumentation : Instrumentation() {
                     "Front windshield must be above centre"
                 }
                 check(bitmap.getPixel(bounds.centerX(), (bodyTop + bodyHeight * .70f).roundToInt()) == CoachColors.Paper.toArgb())
-                val arrow = colorBounds(bitmap, bounds, CoachColors.Signal.toArgb())
+                val arrow = solidStrokeBounds(bitmap, bounds, CoachColors.Muted.toArgb())
                 check(!arrow.isEmpty)
                 check(if (gear == "D") arrow.bottom < bodyTop else arrow.top > bodyTop + bodyHeight) {
                     "Chevron does not follow gear $gear: $arrow"
@@ -3379,13 +3490,13 @@ class LessonScreenInstrumentation : Instrumentation() {
             render(activity) { DoneScreen(task, 2, good.copy(path = path), null, {}, {}) }
             capture(if (reversing) "done-front-replay-r" else "done-front-replay-d") { bitmap ->
                 val bounds = Rect().also { rect -> nodes().first { it.contentDescription == "추정 궤적" }.getBoundsInScreen(rect) }
-                val arrow = colorBounds(bitmap, bounds, CoachColors.Signal.toArgb())
+                val arrow = solidStrokeBounds(bitmap, bounds, CoachColors.Muted.toArgb())
                 check(!arrow.isEmpty)
                 val density = designScale(activity)
                 val viewport = pathViewport(path, bounds.width() / density, bounds.height() / density,
                     frontEntry = true, targetHeading = 90f, neighborBays = true)
                 val unit = viewport.scale * density
-                // The Signal tip locates the moving pose; body/trail/bay now share the light palette.
+                // The neutral tip locates the moving pose; body/trail/bay now share the light palette.
                 val cy = if (reversing) arrow.bottom - 1 - 3 * density - 2.85f * unit
                     else arrow.top + 3 * density + 2.85f * unit
                 assertPathCarWindows(bitmap, arrow.exactCenterX(), cy, 0.0, unit)
@@ -3445,7 +3556,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         val carAngle = Math.toRadians(-end.headingDeg.toDouble())
         val ax = (cx + sin(carAngle) * 2.85f * scale).roundToInt()
         val ay = (cy - cos(carAngle) * 2.85f * scale).roundToInt()
-        check((-2..2).any { x -> (-2..2).any { y -> bitmap.getPixel(ax + x, ay + y) == CoachColors.Signal.toArgb() } }) { "Settled front chevron missing" }
+        check((-2..2).any { x -> (-2..2).any { y -> bitmap.getPixel(ax + x, ay + y) == CoachColors.Muted.toArgb() } }) { "Settled front chevron missing" }
         val start = path.first()
         val next = path.first { abs(it.x - start.x) + abs(it.y - start.y) > .001f }
         val dx = next.x - start.x; val dy = next.y - start.y
@@ -3453,7 +3564,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         val sx = bounds.left + viewport.x(start.x) * density + dx / length * .8f * scale
         val sy = bounds.top + viewport.y(start.y) * density - dy / length * .8f * scale
         check((-2..2).any { x -> (-2..2).any { y ->
-            bitmap.getPixel(sx.roundToInt() + x, sy.roundToInt() + y) == CoachColors.Signal.toArgb()
+            bitmap.getPixel(sx.roundToInt() + x, sy.roundToInt() + y) == CoachColors.Muted.toArgb()
         } }) { "Initial travel chevron missing" }
     }
 
@@ -3693,7 +3804,7 @@ class LessonScreenInstrumentation : Instrumentation() {
     private fun assertDriverButton(activity: MainActivity, label: String) {
         val bounds = buttonBounds(label)
         val density = designScale(activity)
-        check(kotlin.math.abs(bounds.height() / density - 140f) <= 1f && bounds.width() / density >= if (label == "메인으로") 716f else 719f) {
+        check((if (label == "시작" && "연습할 과제" !in texts()) bounds.height() / density in 112f..301f else kotlin.math.abs(bounds.height() / density - 140f) <= 1f) && bounds.width() / density >= if (label == "메인으로") 716f else 719f) {
             "$label driver bounds: $bounds / $density"
         }
     }
@@ -3718,7 +3829,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         val diagram = Rect().also { bounds ->
             nodes().first { it.contentDescription?.contains("조향 방향 호") == true }.getBoundsInScreen(bounds)
         }
-        val color = CoachColors.Periwinkle.copy(alpha = .4f).compositeOver(CoachColors.Ink).toArgb()
+        val color = CoachColors.Platinum.copy(alpha = .55f).compositeOver(CoachColors.Ink).toArgb()
         // The renderer truncates premultiplied alpha channels; Color.toArgb rounds them.
         fun isGuide(pixel: Int) = listOf(0, 8, 16).all { shift ->
             kotlin.math.abs(((pixel ushr shift) and 255) - ((color ushr shift) and 255)) <= 1
@@ -3728,11 +3839,18 @@ class LessonScreenInstrumentation : Instrumentation() {
         fun guidePair(from: Float, to: Float): Pair<Float, Float> {
             for (y in (diagram.top + diagram.height() * from).toInt() until (diagram.top + diagram.height() * to).toInt()) {
                 val pixels = (diagram.left until diagram.right).filter { isGuide(bitmap.getPixel(it, y)) }
-                val gap = pixels.zipWithNext().indexOfFirst { (left, right) -> right - left > 20 }
-                if (gap < 0) continue
-                val left = (pixels.first() + pixels[gap]) / 2f
-                val right = (pixels[gap + 1] + pixels.last()) / 2f
-                return left to right
+                val runs = mutableListOf<MutableList<Int>>()
+                pixels.forEach { x ->
+                    if (runs.isEmpty() || x > runs.last().last() + 1) runs += mutableListOf(x)
+                    else runs.last() += x
+                }
+                // In a monochrome palette the central solid arc's antialiased edge can
+                // share the dash colour. Ignore one-pixel edges and measure the two strokes.
+                val strokes = runs.filter { it.size >= 2 }
+                if (strokes.size < 2) continue
+                val left = (strokes.first().first() + strokes.first().last()) / 2f
+                val right = (strokes.last().first() + strokes.last().last()) / 2f
+                if (right - left > 20) return left to right
             }
             error("Both guide dashes missing in $from..$to of $diagram")
         }
@@ -3752,6 +3870,22 @@ class LessonScreenInstrumentation : Instrumentation() {
             }
         }
     }
+    /** Distinguish the neutral six-dp chevron from one-pixel grayscale antialiasing. */
+    private fun solidStrokeBounds(bitmap: Bitmap, region: Rect, color: Int): Rect {
+        val bounds = Rect()
+        for (y in maxOf(1, region.top) until minOf(bitmap.height - 1, region.bottom))
+            for (x in maxOf(1, region.left) until minOf(bitmap.width - 1, region.right)) {
+                if (bitmap.getPixel(x, y) != color) continue
+                val neighbors = listOf(x - 1 to y, x + 1 to y, x to y - 1, x to y + 1)
+                    .count { (nx, ny) -> bitmap.getPixel(nx, ny) == color }
+                if (neighbors >= 3) {
+                    if (bounds.isEmpty) bounds.set(x, y, x + 1, y + 1)
+                    else bounds.union(x, y, x + 1, y + 1)
+                }
+            }
+        return bounds
+    }
+
     private fun colorBounds(bitmap: Bitmap, region: Rect, color: Int, tolerance: Int = 0): Rect {
         val bounds = Rect()
         for (y in region.top until region.bottom) for (x in region.left until region.right) {

@@ -66,8 +66,9 @@ internal fun ChecklistTimeline(state: ManeuverDisplayState, modifier: Modifier) 
                     if (index == current) PosterRule(color = CoachColors.Paper.copy(alpha = .22f))
                     Row(Modifier.fillMaxWidth().weight(1f), verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                        Box(Modifier.width(6.dp).height(48.dp).background(
-                            if (index == current) CoachColors.Signal else CoachColors.Ink))
+                        Box(Modifier.width(64.dp), contentAlignment = Alignment.Center) {
+                            ChecklistSymbol(step, Modifier.size(if (index == current) 64.dp else 44.dp))
+                        }
                         Column(Modifier.weight(1f)) {
                             LessonText(step.label, size, CoachColors.Paper.copy(alpha = alpha))
                             if (index == current && (step.measured || step.source != "미측정"))
@@ -86,9 +87,10 @@ internal fun ChecklistTimeline(state: ManeuverDisplayState, modifier: Modifier) 
         Column(modifier.then(if (paper) Modifier.border(2.dp, CoachColors.Ink).padding(24.dp) else Modifier)) {
             steps.forEach { step ->
                 val mistake = state.checklistReveal == ChecklistReveal.MISTAKES && step.failed && step.measured
-                Row(Modifier.fillMaxWidth().weight(1f).then(if (mistake) Modifier.background(CoachColors.Ink) else Modifier)
+                Row(Modifier.fillMaxWidth().weight(1f).then(if (mistake) Modifier.background(CoachColors.Signal) else Modifier)
                     .padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                    if (state.checklistReveal != ChecklistReveal.NAMES_ONLY) ChecklistSymbol(step, Modifier.size(52.dp))
                     if (state.checklistReveal == ChecklistReveal.NAMES_ONLY) Box(Modifier.size(30.dp).border(2.dp, foreground))
                     LessonText(step.label, 38, foreground, modifier = Modifier.weight(1f))
                     LessonText(checklistValue(step, state.checklistReveal), 38, foreground)
@@ -131,4 +133,23 @@ internal fun ChecklistModeLadder(mode: LessonMode) {
                 .padding(horizontal = 14.dp, vertical = 8.dp).semantics { selected = item == mode })
         }
     }
+}
+
+@Composable
+private fun ChecklistSymbol(step: ChecklistStep, modifier: Modifier) {
+    val symbol = when {
+        !step.measured -> CoachSymbol.Missing
+        step.label == "브레이크 / 시동" -> CoachSymbol.Power
+        step.label.contains("지시등") -> CoachSymbol.Turn
+        step.label == "비상등" -> CoachSymbol.Hazard
+        step.satisfied -> CoachSymbol.Check
+        else -> null
+    }
+    // A measured but unfinished check is not a missing signal.
+    if (symbol == null) { Spacer(modifier); return }
+    // LIVE lamps follow the incoming on/off state, never an invented blinking clock.
+    SymbolTile(symbol, modifier, active = symbol !in listOf(CoachSymbol.Turn, CoachSymbol.Hazard) || step.value == "켜짐",
+        animate = step.satisfied &&
+        (symbol == CoachSymbol.Check || symbol == CoachSymbol.Power ||
+            (step.signal == SignalAvailability.SIMULATED && step.value == "켜짐")))
 }

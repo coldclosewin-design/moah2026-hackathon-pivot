@@ -28,7 +28,10 @@ internal fun VerdictPanel(verdict: ParkingVerdict?, modifier: Modifier = Modifie
                         // A light backing keeps an unmeasured mark legible on Ink.
                         Box(Modifier.size(56.dp).then(if (line.mark == VerdictMark.MISSING)
                             Modifier.background(CoachColors.Lavender) else Modifier), contentAlignment = Alignment.Center) {
-                            LessonText(line.mark.symbol, 40, when (line.mark) {
+                            if (line.mark == VerdictMark.PASS) Box {
+                                SymbolTile(CoachSymbol.Check, Modifier.size(56.dp))
+                                LessonText(line.mark.symbol, 40, androidx.compose.ui.graphics.Color.Transparent)
+                            } else LessonText(line.mark.symbol, 40, when (line.mark) {
                                 VerdictMark.PASS -> CoachColors.Periwinkle
                                 VerdictMark.CAUTION -> CoachColors.Paper.copy(alpha = .6f)
                                 VerdictMark.FAIL -> CoachColors.Signal

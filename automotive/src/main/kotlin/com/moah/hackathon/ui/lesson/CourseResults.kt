@@ -31,7 +31,7 @@ internal fun CourseDonePanel(course: TrackCourse, result: CourseResult, modifier
             pose = trail.lastOrNull()?.let { Pose(Vec2(it.x, it.y), it.headingDeg) }.takeIf { result.positionMeasured },
             trail = trail, markers = result.deductions.filter { it.tMillis <= time.value }.mapNotNull { it.at })
         LessonText("시험장 위치·신호로 기록했어요.", 28, CoachColors.Paper.copy(alpha = .6f))
-        LessonText(courseVerdict(result), 56, if (result.passed == true) CoachColors.Periwinkle else CoachColors.Paper)
+        LessonText(courseVerdict(result), 56, CoachColors.Paper)
         result.deductions.distinctBy { it.zoneTitle to it.reason }.take(3).forEach {
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.Top) {
                 LessonText("●", 28, CoachColors.Signal)
@@ -52,14 +52,14 @@ internal fun CourseSummaryPanel(result: CourseResult, modifier: Modifier) {
         verticalArrangement = Arrangement.spacedBy(24.dp)) {
         BrandMark(color = CoachColors.Paper)
         Eyebrow("최고 회차의 코스", color = CoachColors.Paper.copy(alpha = .6f))
-        LessonText(courseVerdict(result), 56, if (result.passed == true) CoachColors.Periwinkle else CoachColors.Paper)
+        LessonText(courseVerdict(result), 56, CoachColors.Paper)
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             result.zones.forEach { zone ->
                 val status = courseZoneStatus(result, zone)
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                     LessonText(zone.title, 36, CoachColors.Paper, modifier = Modifier.weight(1f))
                     LessonText(status, 36, when (status) {
-                        "지남" -> CoachColors.Periwinkle
+                        "지남" -> CoachColors.Paper
                         "놓침" -> CoachColors.Signal
                         else -> CoachColors.Paper.copy(alpha = .6f)
                     })

@@ -4,32 +4,27 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
-/** Round 13 B: design-space surface effects, never applied to diagrams or driving locks. */
+/** P2: flat faces; only selected controls carry one shallow shadow. */
 internal object CoachTexture {
-    data class Surface(val shadow: Color, val y: Int, val blur: Int,
-        val highlight: Float, val highlightHeight: Float, val inset: Float)
-    val Button = Surface(CoachColors.Signal.copy(alpha = .28f), 10, 22, .42f, .46f, .18f)
-    val Chip = Surface(CoachColors.Ink.copy(alpha = .10f), 3, 8, .42f, .46f, .06f)
-    val SelectedChip = Chip.copy(shadow = CoachColors.Periwinkle.copy(alpha = .10f), highlight = .14f)
-    val Card = Surface(CoachColors.Ink.copy(alpha = .10f), 6, 16, .42f, .38f, .06f)
-    val SelectedCard = Card.copy(highlight = .14f)
-    val Panel = Surface(CoachColors.Ink.copy(alpha = .22f), 12, 28, .12f, 0f, 0f)
-    const val HighlightInset = .08f
-    // Leave the central text on the original colour (D6). Only the edge carries the droplet.
-    const val HighlightFade = .45f
-    const val PressedShadow = .5f
-    val InnerDepth = 8.dp
-    val PanelHighlight = 2.dp
+    data class Surface(val elevation: Int)
+    val Button = Surface(2)
+    val Chip = Surface(0)
+    val SelectedChip = Surface(2)
+    val Card = Surface(0)
+    val SelectedCard = Surface(2)
+    val Panel = Surface(0)
 }
 
 /** 세션의 모든 단계 화면이 같은 팔레트를 쓴다. 값은 Codex 가 화면을 만들며 바꿀 수 있다. */
 internal object CoachColors {
-    val Ink = Color(0xFF070827)
-    val Paper = Color(0xFFFCFCFA)
-    val Periwinkle = Color(0xFF5B60A1)
-    val Lavender = Color(0xFFE5E6F0)
+    val Ink = Color(0xFF222526)
+    val Paper = Color(0xFFFFFFFF)
+    val Periwinkle = Color(0xFF353A3E)
+    val Lavender = Color(0xFFF2F2F2)
     val Signal = Color(0xFFF52D48)
-    val Muted = Ink.copy(alpha = .60f)
+    val Muted = Color(0xFF6E7071)
+    val Platinum = Color(0xFFE0E0E0)
+    val Jet = Color(0xFF1A1A1A)
 
     // Semantic road paint: confined to the parked RoadFigure illustration, never UI controls.
     val RoadMarkingYellow = Color(0xFFF4CC42)

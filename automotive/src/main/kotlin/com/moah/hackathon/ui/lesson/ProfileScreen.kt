@@ -96,11 +96,11 @@ internal fun ProfileQuestion(row: ProfileRow, onAnswer: (String) -> Unit) {
             row.chips.forEach { chip ->
                 val chosen = row.answer?.id == chip.id
                 Box(Modifier.height(112.dp)
-                    .surfaceTexture(if (chosen) CoachColors.Periwinkle else CoachColors.Lavender,
+                    .surfaceTexture(if (chosen) CoachColors.Ink else CoachColors.Lavender,
                         if (chosen) CoachTexture.SelectedChip else CoachTexture.Chip, pill = true)
                     .clickable(role = Role.RadioButton) { onAnswer(chip.id) }.semantics { selected = chosen }
                     .padding(horizontal = 28.dp), contentAlignment = Alignment.Center) {
-                    LessonText(chip.label, 36, if (chosen) CoachColors.Paper else CoachColors.Ink)
+                    LessonText(chip.label, 36, if (chosen) CoachColors.Paper else CoachColors.Periwinkle)
                 }
             }
         }

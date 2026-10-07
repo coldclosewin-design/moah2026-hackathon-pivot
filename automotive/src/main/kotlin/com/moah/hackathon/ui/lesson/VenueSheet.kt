@@ -78,13 +78,13 @@ internal fun VenueSheet(venues: List<Venue>, booking: Reservation?, onReserve: (
 
 @Composable
 private fun VenueCard(venue: Venue, chosen: Boolean, booked: Boolean, modifier: Modifier, onClick: () -> Unit) {
-    Column(modifier.height(512.dp).surfaceTexture(if (chosen) CoachColors.Periwinkle else CoachColors.Paper,
+    Column(modifier.height(512.dp).surfaceTexture(if (chosen) CoachColors.Ink else CoachColors.Paper,
         if (chosen) CoachTexture.SelectedCard else CoachTexture.Card)
         .clickable(role = Role.Button, onClick = onClick).semantics(mergeDescendants = true) { selected = chosen }
         .padding(6.dp)) {
         Box(Modifier.fillMaxWidth().height(180.dp).background(CoachColors.Ink)) {
             CourseMap(TrackCourses.exam, Modifier.fillMaxSize().padding(16.dp), thumbnail = true,
-                ink = CoachColors.Lavender, previewRoute = if (chosen) CoachColors.Signal else CoachColors.Periwinkle)
+                ink = CoachColors.Lavender, previewRoute = if (chosen) CoachColors.Paper else CoachColors.Periwinkle)
             LessonText(venueAreaLine(venue), 36, CoachColors.Ink,
                 modifier = Modifier.align(Alignment.TopEnd).padding(12.dp)
                     .background(CoachColors.Paper.copy(alpha = .92f), RoundedCornerShape(100)).padding(horizontal = 20.dp, vertical = 4.dp))
@@ -94,7 +94,7 @@ private fun VenueCard(venue: Venue, chosen: Boolean, booked: Boolean, modifier: 
             LessonText(venue.name, 48, if (chosen) CoachColors.Paper else CoachColors.Ink)
             LessonText(venue.courses.joinToString(" · ") { it.title }, 34, if (chosen) CoachColors.Paper else CoachColors.Muted)
             LessonText(if (booked) "예약됨" else if (venue.slots.any { it.available }) "오늘 자리 있음" else "오늘 자리 없음", 36,
-                if (booked) CoachColors.Signal else if (chosen) CoachColors.Paper.copy(alpha = .8f) else CoachColors.Periwinkle)
+                if (booked) CoachColors.Paper else if (chosen) CoachColors.Paper.copy(alpha = .8f) else CoachColors.Periwinkle)
         }
     }
 }

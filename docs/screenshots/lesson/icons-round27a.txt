@@ -1,0 +1,2 @@
+PASS E1: 13 tiles; LIVE filled / SIMULATED half-filled / MISSING outline differ by pixels; proximity is the only Signal face
+Source: build\round27a-delivery-3\lesson-icons-e1.png

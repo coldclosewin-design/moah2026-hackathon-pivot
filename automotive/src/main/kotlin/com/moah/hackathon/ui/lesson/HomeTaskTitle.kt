@@ -28,7 +28,7 @@ import com.moah.hackathon.ui.CoachColors
 
 @Composable
 internal fun HomeTaskTitle(task: Task, mode: LessonMode, picked: Boolean, compact: Boolean,
-    onTask: () -> Unit, onMode: (LessonMode) -> Unit) {
+    onTask: () -> Unit, onMode: (LessonMode) -> Unit, titleSize: Int? = null) {
     var popup by remember(task.id, picked) { mutableStateOf(false) }
     val taskWord = if (picked) task.title else "과제 고르기"
     val suffix = if (picked) task.title.withObjectParticle().removePrefix(task.title) else "부터"
@@ -38,13 +38,13 @@ internal fun HomeTaskTitle(task: Task, mode: LessonMode, picked: Boolean, compac
         val measurer = rememberTextMeasurer()
         val width = with(LocalDensity.current) { maxWidth.toPx() }
         val lines = listOf("$taskWord ▼ $suffix", if (picked) "${mode.label} ▼ 모드로 해 볼까요?" else "해 볼까요?")
-        val size = listOf(if (compact) 64 else 72, 64, 56).distinct().firstOrNull { candidate ->
+        val size = listOf(titleSize ?: if (compact) 104 else 126, 112, 104, 88, 80, 72, 64, 56).distinct().filter { it <= (titleSize ?: if (compact) 104 else 126) }.firstOrNull { candidate ->
             lines.all { measurer.measure(AnnotatedString(it), TextStyle(fontSize = candidate.sp), softWrap = false).size.width <= width }
         } ?: 56
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 HomeTitleLink("$taskWord ▼", "과제·모드 바꾸기", size, !picked, onTask)
-                LessonText(suffix, size)
+                LessonText(suffix, size, bold = true)
             }
             if (picked) Row(verticalAlignment = Alignment.CenterVertically) {
                 Box {
@@ -52,16 +52,17 @@ internal fun HomeTaskTitle(task: Task, mode: LessonMode, picked: Boolean, compac
                     DropdownMenu(popup, { popup = false }, Modifier.width(340.dp).background(CoachColors.Paper)) {
                         LessonMode.entries.filter(task::supports).forEach { option ->
                             Box(Modifier.fillMaxWidth().heightIn(min = 96.dp)
-                                .background(if (option == mode) CoachColors.Lavender else CoachColors.Paper)
+                                .surfaceTexture(if (option == mode) CoachColors.Ink else CoachColors.Lavender,
+                                    if (option == mode) com.moah.hackathon.ui.CoachTexture.SelectedChip else com.moah.hackathon.ui.CoachTexture.Chip, pill = true)
                                 .clickable(role = Role.RadioButton) { popup = false; onMode(option) }
                                 .semantics { selected = option == mode }.padding(horizontal = 32.dp, vertical = 20.dp)) {
-                                LessonText(option.label, 40, CoachColors.Periwinkle)
+                                LessonText(option.label, 40, if (option == mode) CoachColors.Paper else CoachColors.Periwinkle)
                             }
                         }
                     }
                 }
-                LessonText("모드로 해 볼까요?", size)
-            } else LessonText("해 볼까요?", size)
+                LessonText("모드로 해 볼까요?", size, bold = true)
+            } else LessonText("해 볼까요?", size, bold = true)
         }
     }
 }
@@ -75,7 +76,7 @@ private fun HomeTitleLink(text: String, description: String, size: Int, dashed: 
             append(text.removeSuffix("▼"))
             withStyle(SpanStyle(fontSize = (size * .55f).sp)) { append("▼") }
         }
-        LessonText(label, size, CoachColors.Periwinkle, modifier = Modifier.drawBehind {
+        LessonText(label, size, CoachColors.Ink, bold = true, modifier = Modifier.drawBehind {
             drawLine(CoachColors.Periwinkle, Offset(0f, this.size.height), Offset(this.size.width, this.size.height),
                 2.dp.toPx(), pathEffect = if (dashed) PathEffect.dashPathEffect(floatArrayOf(8.dp.toPx(), 6.dp.toPx())) else null)
         })

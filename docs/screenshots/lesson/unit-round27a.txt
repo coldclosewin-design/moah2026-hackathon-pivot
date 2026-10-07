@@ -1,0 +1,8 @@
+testDebugUnitTest
+tests=368
+failures=0
+errors=0
+skipped=0
+suites=56
+SHA256 d01a2183dcd5b4140f79e7188586343ab64749c54939a1735051bfe74819b653 automotive/build/outputs/apk/debug/automotive-debug.apk
+SHA256 4d9009ad36c2785c0eb6e065ad702f0ea115abf9db23782dca077b48c52308d3 automotive/build/outputs/apk/androidTest/debug/automotive-debug-androidTest.apk

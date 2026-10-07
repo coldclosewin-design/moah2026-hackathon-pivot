@@ -93,7 +93,7 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
     val selectedTask = task.takeIf { it.isReady && it.type.name == categoryName }
     val mode = supportedMode(task, LessonMode.valueOf(modeName))
     val start = { if (task.isReady && (if (sheet) selectedTask != null else picked)) onBegin(task.id, mode) }
-    val fraction by animateFloatAsState(when { profileOpen -> .30f; sheet || coach != null -> .21f; else -> .53f },
+    val fraction by animateFloatAsState(when { profileOpen -> .30f; sheet || coach != null -> .21f; else -> 0f },
         tween(400, easing = FastOutSlowInEasing), label = "poster")
     val slide = with(LocalDensity.current) { 40.dp.roundToPx() }
     PosterSurface(band = demo.takeUnless { sheet || profileOpen || coach != null }) {
@@ -102,12 +102,13 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
             // A1 action/card gaps and full button heights; compact only the reading area.
             val compactHome = maxHeight < 1120.dp
             Row(Modifier.fillMaxSize().then(if (coachInput == CoachInputMode.CARDS_AND_TEXT && coach != null) Modifier.imePadding() else Modifier)) {
-                Box(Modifier.weight(fraction).fillMaxHeight().clipToBounds().testTag("setup-poster")) {
+                if (fraction > .001f) Box(Modifier.weight(fraction).fillMaxHeight().clipToBounds().testTag("setup-poster")) {
                     Image(painterResource(R.drawable.poster_car), null, Modifier.fillMaxSize().graphicsLayer {
                         scaleX = 1f + (.53f - fraction) * .35f
                         scaleY = scaleX
                         translationX = -(.53f - fraction) * 220.dp.toPx()
-                    }, contentScale = ContentScale.Crop, alignment = Alignment.CenterStart)
+                    }, contentScale = ContentScale.Crop, alignment = Alignment.CenterStart,
+                        colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(CoachColors.Periwinkle, androidx.compose.ui.graphics.BlendMode.Color))
                     SetupBrandMark(Modifier.padding(start = 180.dp, top = 64.dp), onAdmin)
                 }
                 AnimatedContent(if (profileOpen) "profile" else if (coach != null) "coach" else if (sheet) "tasks" else "home", Modifier.weight(1f - fraction).fillMaxHeight(),
@@ -115,7 +116,21 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
                         (fadeIn(tween(300)) + slideInHorizontally(tween(300)) { slide }) togetherWith fadeOut(tween(300))
                     }, label = "setup-content") { page ->
                     val showSheet = page != "home"
-                    Column(Modifier.fillMaxSize().padding(start = 64.dp, end = 64.dp,
+                    if (page == "home") {
+                        HomeGallery(profile, task, mode, picked, compactHome, onAdmin,
+                            { profileOpen = true }, onOpenCoach,
+                            { categoryName = task.type.name; sheet = true },
+                            { modeName = it.name; onChooseHomeMode(it) }, start, bookingDetails(booking, venues) != null,
+                            if (picked) selectionReason(task, mode, suggestedTask, suggestedMode, reason)
+                            else "밑줄을 누르면 과제를 고를 수 있어요.") {
+                            bookingDetails(booking, venues)?.let { details ->
+                                HomeBookingCard(details, tasks, bookingOptions, bookingChoice, highlightBooking) { option ->
+                                    awaitingRecommendation = true
+                                    onChooseBooking(option)
+                                }
+                            }
+                        }
+                    } else Column(Modifier.fillMaxSize().padding(start = 64.dp, end = 64.dp,
                         top = if (showSheet) 64.dp else if (compactHome) 48.dp else 96.dp,
                         bottom = if (compactHome) 24.dp else 52.dp),
                         verticalArrangement = Arrangement.spacedBy(24.dp)) {
@@ -153,33 +168,6 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
                                 },
                                 onMode = { modeName = it.name },
                                 onBack = { sheet = false }, onStart = start, onVenues = { venuesOpen = true })
-                        } else {
-                            Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
-                                ProfilePill(profileLine(profile)) { profileOpen = true }
-                                Spacer(Modifier.height(27.dp))
-                                HomeTaskTitle(task, mode, picked, compactHome, {
-                                    categoryName = task.type.name
-                                    sheet = true
-                                }, { modeName = it.name; onChooseHomeMode(it) })
-                                Spacer(Modifier.height(12.dp))
-                                LessonText(if (picked) selectionReason(task, mode, suggestedTask, suggestedMode, reason)
-                                    else "밑줄을 누르면 과제를 고를 수 있어요.", if (compactHome) 32 else 36, CoachColors.Muted,
-                                    modifier = Modifier.testTag("home-reason"))
-                                bookingDetails(booking, venues)?.let { details ->
-                                    Spacer(Modifier.height(33.dp))
-                                    HomeBookingCard(details, tasks, bookingOptions, bookingChoice, highlightBooking) { option ->
-                                        awaitingRecommendation = true
-                                        onChooseBooking(option)
-                                    }
-                                }
-                                Spacer(Modifier.height(33.dp))
-                                PrimaryPill(stringResource(R.string.lesson_start), start, Modifier.fillMaxWidth(), enabled = picked)
-                                Spacer(Modifier.height(57.dp))
-                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
-                                    CoachPill("코치와 대화", onOpenCoach)
-                                }
-                            }
-                            // Home omits the speech subtitle; the model still owns TTS.
                         }
                     }
                 }
