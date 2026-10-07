@@ -61,7 +61,30 @@ internal data class ManeuverDisplayState(
     val rightIndicatorChecked: Boolean? = null,
     val hazardChecked: Boolean? = null,
     val brakeAtIgnition: Boolean? = null,
+    /** 모드(라운드 26 시안 4-3) — 화면은 점검 왼쪽 패널의 면 색·모드 사다리를 이것으로 고른다. */
+    val mode: LessonMode = LessonMode.GUIDE,
+    /** 점검 목록을 어디까지 보일지([ChecklistReveal]) — 모드가 정한다. 주차 도식에는 쓰지 않는다. */
+    val checklistReveal: ChecklistReveal = ChecklistReveal.ALL,
 )
+
+/**
+ * 출발 전 점검 왼쪽 목록의 공개 범위(라운드 26 시안 4-3, 사용자 10/7 "가이드/힌트/평가 차이가 없는 듯").
+ * 세 모드 모두 **미측정 줄은 "미측정" 그대로**(정직성 — 가림과 섞지 않는다), 항목 이름은 늘 보인다.
+ */
+enum class ChecklistReveal {
+    /** 가이드: 이름 · 지금 값 · 지금 줄 확대(지금처럼). */
+    ALL,
+    /** 힌트: 된 줄은 ✓, 아직은 "—", **틀린 줄**(예: 브레이크 없이 시동)만 값까지 진하게. */
+    MISTAKES,
+    /** 평가: 이름 + 빈 칸만 — 값·됨/안 됨을 끝(판정 화면)까지 보이지 않는다. */
+    NAMES_ONLY,
+}
+
+internal fun LessonMode.checklistReveal(): ChecklistReveal = when (this) {
+    LessonMode.GUIDE, LessonMode.QUIZ -> ChecklistReveal.ALL
+    LessonMode.HINT -> ChecklistReveal.MISTAKES
+    LessonMode.EVALUATE -> ChecklistReveal.NAMES_ONLY
+}
 
 internal fun LessonPhase.Maneuver.toDisplayState() = ManeuverDisplayState(
     speed = if (snapshot.speedKmh.isFinite()) snapshot.speedKmh.coerceAtLeast(0f).roundToInt().toString() else "—",
@@ -101,6 +124,8 @@ internal fun LessonPhase.Maneuver.toDisplayState() = ManeuverDisplayState(
     rightIndicatorChecked = preDrive?.rightIndicatorChecked,
     hazardChecked = preDrive?.hazardChecked,
     brakeAtIgnition = preDrive?.brakeBeforeIgnition,
+    mode = mode,
+    checklistReveal = mode.checklistReveal(),
 )
 
 internal fun Gear.label(): String = when (this) {
