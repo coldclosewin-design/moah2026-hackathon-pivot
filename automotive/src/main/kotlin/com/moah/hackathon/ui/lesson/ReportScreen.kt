@@ -107,7 +107,7 @@ private fun RecordGraphic(attempts: Int, modifier: Modifier, compact: Boolean = 
                 quadraticTo(size.width * .4f, size.height * .82f, size.width * .16f, size.height)
                 lineTo(0f, size.height); close()
             }, CoachColors.Ink)
-            drawLine(CoachColors.Signal, Offset(size.width * .18f, size.height * .74f),
+            drawLine(CoachColors.Platinum, Offset(size.width * .18f, size.height * .74f),
                 Offset(size.width * .29f, size.height * .66f), strokeWidth = 14.dp.toPx())
         }
         BrandMark(Modifier.padding(start = 180.dp, top = 64.dp), CoachColors.Paper)
@@ -127,14 +127,14 @@ private fun ReportProvenance(report: LessonReport) {
         PosterRule()
         Eyebrow("신호 출처", color = CoachColors.Muted)
         if (report.task.isCourse) {
-            LessonText(badgeText(report.best.badge), 32, CoachColors.Periwinkle)
+            AvailabilitySummary(report.best.badge, 32)
             LessonText(when {
                 bestCourseAttempt(report.attempts)?.course?.positionMeasured != true -> "시험장 위치를 받지 못해 구간은 확인 못 했어요."
                 report.best.badge.live == 0 && report.best.badge.simulated > 0 -> "구간과 위치·신호등은 시험장 신호(시뮬레이션)로 측정했어요."
                 else -> "구간과 위치·신호등은 시험장 신호로 측정했어요."
             }, 32, CoachColors.Muted)
         } else Row(Modifier.fillMaxWidth().padding(top = 16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-            LessonText(badgeText(report.best.badge), 32, CoachColors.Periwinkle)
+            AvailabilitySummary(report.best.badge, 32)
             LessonText(if (report.task.type == TaskType.CHECKLIST) "출발 전 점검을 돌아봤어요." else "주차 과정만 측정했어요.", 32, CoachColors.Muted)
         }
     }
@@ -147,7 +147,7 @@ private fun CompactProvenance(report: LessonReport) {
         Row {
             LessonText("신호 출처 · ", 32, CoachColors.Periwinkle, maxLines = 1)
             // Keep the exact badge text as a separate accessibility node used by the flow contract.
-            LessonText(badgeText(report.best.badge), 32, CoachColors.Periwinkle, maxLines = 1)
+            AvailabilitySummary(report.best.badge, 32)
         }
         LessonText(when {
             report.task.isCourse && bestCourseAttempt(report.attempts)?.course?.positionMeasured != true -> "시험장 위치를 받지 못해 구간은 미측정이에요."

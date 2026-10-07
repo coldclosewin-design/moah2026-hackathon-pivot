@@ -7,6 +7,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -26,40 +30,19 @@ import com.moah.hackathon.ui.CoachTexture
 
 @Composable
 internal fun CoachPill(label: String, onClick: (() -> Unit)?, modifier: Modifier = Modifier) {
+    val interactions = remember { MutableInteractionSource() }
+    val pressed by interactions.collectIsPressedAsState()
     Row(modifier.height(112.dp)
         .then(if (onClick == null) Modifier.alpha(.55f).background(CoachColors.Lavender, RoundedCornerShape(100))
-            else Modifier.surfaceTexture(CoachColors.Lavender, CoachTexture.Chip, pill = true))
+            else Modifier.background(CoachColors.Paper, RoundedCornerShape(100))
+                .border(1.5.dp, CoachColors.Ink, RoundedCornerShape(100)))
         .clip(RoundedCornerShape(100))
         .then(if (onClick == null) Modifier.semantics(mergeDescendants = true) { disabled(); role = Role.Button }
-            else Modifier.clickable(role = Role.Button, onClick = onClick))
+            else Modifier.clickable(interactionSource = interactions, indication = null, role = Role.Button, onClick = onClick))
         .padding(horizontal = 40.dp), horizontalArrangement = Arrangement.spacedBy(20.dp),
         verticalAlignment = Alignment.CenterVertically) {
-        Canvas(Modifier.size(40.dp).testTag("coach-microphone")) {
-            val ink = CoachColors.Periwinkle
-            drawRoundRect(ink, Offset(size.width * .34f, 0f), Size(size.width * .32f, size.height * .6f), CornerRadius(size.width * .16f))
-            drawArc(ink, 0f, 180f, false, Offset(size.width * .12f, size.height * .2f),
-                Size(size.width * .76f, size.height * .6f), style = Stroke(3.dp.toPx(), cap = StrokeCap.Round))
-            drawLine(ink, Offset(size.width / 2, size.height * .8f), Offset(size.width / 2, size.height), 3.dp.toPx())
-            drawLine(ink, Offset(size.width * .3f, size.height), Offset(size.width * .7f, size.height), 3.dp.toPx())
-        }
+        SymbolTile(CoachSymbol.Listen, Modifier.size(56.dp).testTag("coach-microphone").clearAndSetSemantics {}, animate = pressed)
         LessonText(label, 36, maxLines = 1)
-    }
-}
-
-@Composable
-internal fun ProfilePill(label: String, onClick: () -> Unit) {
-    Row(Modifier.heightIn(min = 52.dp).testTag("profile-entry")
-        .surfaceTexture(CoachColors.Lavender, CoachTexture.Chip, pill = true)
-        .clip(RoundedCornerShape(100)).clickable(role = Role.Button, onClick = onClick)
-        .padding(horizontal = 24.dp, vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically) {
-        Canvas(Modifier.size(28.dp)) {
-            drawCircle(CoachColors.Periwinkle, size.width * .17f, Offset(size.width / 2, size.height * .23f))
-            drawArc(CoachColors.Periwinkle, 180f, 180f, true,
-                Offset(size.width * .12f, size.height * .50f), Size(size.width * .76f, size.height * .78f))
-        }
-        LessonText(label, 32, CoachColors.Periwinkle, maxLines = 1)
-        LessonText("›", 32, CoachColors.Periwinkle)
     }
 }
 
@@ -98,7 +81,7 @@ internal fun CoachChoices(choices: List<CoachChoice>, onChoose: (CoachChoice) ->
         choices.forEach { choice ->
             Box(Modifier.height(102.dp).surfaceTexture(CoachColors.Lavender, CoachTexture.Chip)
                 .clickable(role = Role.Button) { onChoose(choice) }.padding(horizontal = 24.dp),
-                contentAlignment = Alignment.Center) { LessonText(choice.label, 36, maxLines = 1) }
+                contentAlignment = Alignment.Center) { LessonText(choice.label, 36, CoachColors.Periwinkle, maxLines = 1) }
         }
     }
 }
@@ -108,7 +91,7 @@ internal fun HomeBookingCard(details: BookingDetails, tasks: List<Task>, options
     chosen: BookingOption?, highlighted: Boolean, onChoose: (BookingOption) -> Unit) {
     Row(Modifier.fillMaxWidth().height(198.dp).testTag("home-booking-card")
         .surfaceTexture(CoachColors.Paper, CoachTexture.Card)
-        .then(if (highlighted) Modifier.border(6.dp, CoachColors.Signal) else Modifier)
+        .then(if (highlighted) Modifier.border(6.dp, CoachColors.Ink) else Modifier)
         .padding(horizontal = 24.dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(24.dp), verticalAlignment = Alignment.CenterVertically) {
         val course = tasks.firstOrNull { it.id in details.course.taskIds && it.course != null }?.course ?: TrackCourses.exam
@@ -123,13 +106,51 @@ internal fun HomeBookingCard(details: BookingDetails, tasks: List<Task>, options
             options.forEach { option ->
                 val selected = option == chosen
                 Box(Modifier.width(200.dp).height(78.dp)
-                    .surfaceTexture(if (selected) CoachColors.Periwinkle else CoachColors.Lavender,
+                    .surfaceTexture(if (selected) CoachColors.Ink else CoachColors.Lavender,
                         if (selected) CoachTexture.SelectedChip else CoachTexture.Chip)
                     .clickable(role = Role.RadioButton) { onChoose(option) }.semantics { this.selected = selected },
                     contentAlignment = Alignment.Center) {
-                    LessonText(option.label, 32, if (selected) CoachColors.Paper else CoachColors.Ink, maxLines = 1)
+                    LessonText(option.label, 32, if (selected) CoachColors.Paper else CoachColors.Periwinkle, maxLines = 1)
                 }
             }
         }
+    }
+}
+
+/** H8: the start circle is the action; the title and profile sit on one white wall. */
+@Composable
+internal fun HomeGallery(profile: Profile, task: Task, mode: LessonMode, picked: Boolean, compact: Boolean,
+    onAdmin: (() -> Unit)?, onProfile: () -> Unit, onCoach: () -> Unit, onTask: () -> Unit,
+    onMode: (LessonMode) -> Unit, onStart: () -> Unit, hasBooking: Boolean, reason: String, booking: @Composable () -> Unit) {
+    Column(Modifier.fillMaxSize().padding(start = 120.dp, end = 120.dp, top = 52.dp, bottom = 36.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically) {
+            SetupBrandMark(onAdmin = onAdmin)
+            CoachPill("코치와 대화", onCoach)
+        }
+        BoxWithConstraints(Modifier.fillMaxWidth().weight(1f).padding(bottom = if (hasBooking) 32.dp else 0.dp)) {
+            val readingHeight = maxHeight
+            Column(Modifier.width(620.dp).align(Alignment.TopEnd).heightIn(min = 112.dp).testTag("profile-entry")
+                .clickable(role = Role.Button, onClick = onProfile).padding(top = 12.dp)) {
+                Eyebrow("프로필", color = CoachColors.Periwinkle)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    LessonText(profileLine(profile), 36, modifier = Modifier.weight(1f))
+                    LessonText("›", 36)
+                }
+            }
+            Column(Modifier.width(1630.dp).align(Alignment.CenterStart)) {
+                HomeTaskTitle(task, mode, picked, compact, onTask, onMode,
+                    titleSize = when { readingHeight < 400.dp -> 64; readingHeight < 520.dp -> 80; else -> null })
+                Spacer(Modifier.height(20.dp))
+                LessonText(reason, 36, CoachColors.Muted, modifier = Modifier.testTag("home-reason"))
+            }
+        }
+        booking()
+        Spacer(Modifier.height(20.dp))
+        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+            FillButton("시작", onStart, Modifier.width(1410.dp).height(if (hasBooking) { if (compact) 160.dp else 240.dp } else if (compact) 240.dp else 300.dp), picked, home = true)
+        }
+        Spacer(Modifier.height(36.dp))
+        PosterRule(color = CoachColors.Platinum)
     }
 }

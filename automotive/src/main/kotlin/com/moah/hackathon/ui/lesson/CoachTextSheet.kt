@@ -66,7 +66,11 @@ internal fun CoachTextSheet(coach: CoachDialog, onChoose: (CoachChoice) -> Unit,
                     CoachMessage(turn.text, turn.fromDriver,
                         Modifier.align(if (turn.fromDriver) Alignment.End else Alignment.Start))
                 }
-                if (coach.waiting) CoachMessage("…", modifier = Modifier.testTag("coach-waiting"))
+                if (coach.waiting) Row(verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                    SymbolTile(CoachSymbol.Thinking, Modifier.size(72.dp))
+                    CoachMessage("…", modifier = Modifier.weight(1f).testTag("coach-waiting"))
+                }
             }
             if (scroll.value > 0) Box(Modifier.fillMaxWidth().height(36.dp).align(Alignment.TopCenter)
                 .testTag("coach-transcript-fade").background(Brush.verticalGradient(
@@ -109,7 +113,7 @@ internal fun CoachTextSheet(coach: CoachDialog, onChoose: (CoachChoice) -> Unit,
 @Composable
 private fun CoachMessage(text: String, fromDriver: Boolean = false, modifier: Modifier = Modifier) {
     Column(modifier.fillMaxWidth(if (fromDriver) .88f else 1f)
-        .surfaceTexture(if (fromDriver) CoachColors.Periwinkle else CoachColors.Lavender, CoachTexture.Card,
+        .surfaceTexture(if (fromDriver) CoachColors.Ink else CoachColors.Lavender, CoachTexture.Card,
             shape = RoundedCornerShape(topStart = 36.dp, topEnd = 36.dp,
                 bottomEnd = if (fromDriver) 9.dp else 36.dp, bottomStart = if (fromDriver) 36.dp else 9.dp))
         .padding(horizontal = 36.dp, vertical = 24.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {

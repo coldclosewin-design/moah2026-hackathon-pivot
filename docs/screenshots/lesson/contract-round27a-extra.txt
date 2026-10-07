@@ -1,0 +1,4 @@
+PASS Round19: OFF signal row absent, null/yellow/green/red retained; empty deductions replace headers with 32 sp Muted line above back, missing rules retained
+PASS done-course-settle-strip: Done pill y at 0/500/1000 ms = [1152.0, 1152.0, 1152.0]
+PASS Round18: Drive lock/touch/numbers/provenance, real course replay markers, course Done/Report/certificate, parallel/angle arrival and exam venue chips
+Round18 contract passed

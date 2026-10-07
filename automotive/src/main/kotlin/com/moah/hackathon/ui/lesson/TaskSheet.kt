@@ -50,8 +50,8 @@ internal fun TaskSheet(tasks: List<Task>, category: TaskType, task: Task?, mode:
         Spacer(Modifier.height(40.dp))
         SelectionTrack(categoryOrder(), category, ::taskTypeLabel, onCategory,
             Modifier.fillMaxWidth(), height = 96.dp, textSize = 48, role = Role.Tab,
-            background = CoachColors.Lavender.copy(alpha = .5f), selectedBackground = CoachColors.Ink,
-            foreground = CoachColors.Ink.copy(alpha = .6f)) { type, color ->
+            background = CoachColors.Lavender, selectedBackground = CoachColors.Ink,
+            foreground = CoachColors.Periwinkle) { type, color ->
             val ready = groups[type].orEmpty().any { it.isReady }
             LessonText(taskTypeLabel(type), 48, color)
             if (!ready) LessonText(TaskStatus.PLANNED.label, 32, color)
@@ -98,7 +98,7 @@ internal fun TaskSheet(tasks: List<Task>, category: TaskType, task: Task?, mode:
 @Composable
 private fun TaskBay(task: Task, chosen: Boolean, modifier: Modifier, onClick: () -> Unit) {
     val foreground = when { chosen -> CoachColors.Paper; task.isReady -> CoachColors.Ink; else -> CoachColors.Muted }
-    val background = when { chosen -> CoachColors.Periwinkle; task.isReady -> CoachColors.Lavender; else -> CoachColors.Lavender.copy(alpha = .4f) }
+    val background = when { chosen -> CoachColors.Ink; task.isReady -> CoachColors.Lavender; else -> CoachColors.Lavender.copy(alpha = .4f) }
     // Planned bays have disabled semantics and no click action, including through their children.
     val action = if (task.isReady) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier.semantics { disabled() }
     Box(modifier.then(action).semantics(mergeDescendants = true) { selected = chosen }) {
@@ -110,7 +110,7 @@ private fun TaskBay(task: Task, chosen: Boolean, modifier: Modifier, onClick: ()
             if (chosen) {
                 val center = Offset(size.width / 2, bottom)
                 drawCircle(CoachColors.Paper, 40.dp.toPx(), center)
-                drawCircle(CoachColors.Signal, 32.dp.toPx(), center)
+                drawCircle(CoachColors.Ink, 32.dp.toPx(), center)
                 drawPath(Path().apply {
                     moveTo(center.x - 15.dp.toPx(), center.y)
                     lineTo(center.x - 4.dp.toPx(), center.y + 11.dp.toPx())
@@ -125,7 +125,7 @@ private fun TaskBay(task: Task, chosen: Boolean, modifier: Modifier, onClick: ()
                 when (task.type) {
                     TaskType.PARKING -> ParkingTaskDiagram(task.id, ink,
                         if (chosen) CoachColors.Lavender else CoachColors.Periwinkle,
-                        if (chosen) CoachColors.Periwinkle else CoachColors.Lavender, art)
+                        if (chosen) CoachColors.Ink else CoachColors.Lavender, art)
                     TaskType.KNOWLEDGE -> KnowledgeTaskDiagram(task.id, ink, art)
                     TaskType.CHECKLIST -> if (task.quizOnly) RoadSignsTaskDiagram(ink, art) else ChecklistTaskDiagram(ink, art)
                     else -> if (task.course != null) CourseMap(task.course, art, thumbnail = true, ink = ink)

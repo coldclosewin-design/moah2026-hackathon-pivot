@@ -153,5 +153,5 @@ private fun DrawScope.pathChevron(tip: Offset, width: Float, direction: Float) {
         moveTo(tip.x - width * .36f, tip.y - width * .16f * direction)
         lineTo(tip.x, tip.y)
         lineTo(tip.x + width * .36f, tip.y - width * .16f * direction)
-    }, CoachColors.Signal, style = Stroke(6.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
+    }, CoachColors.Muted, style = Stroke(6.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
 }

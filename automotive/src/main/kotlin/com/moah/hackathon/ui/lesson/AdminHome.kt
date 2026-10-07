@@ -79,7 +79,7 @@ internal fun AdminHome(admin: LessonViewModel.AdminControls, setup: LessonPhase.
                         admin.presets.forEach { preset ->
                             val chosen = selectedPreset == preset.id
                             Column(Modifier.weight(1f).height(230.dp)
-                                .surfaceTexture(if (chosen) CoachColors.Periwinkle else CoachColors.Lavender,
+                                .surfaceTexture(if (chosen) CoachColors.Ink else CoachColors.Lavender,
                                     if (chosen) CoachTexture.SelectedCard else CoachTexture.Card)
                                 .clickable(role = Role.RadioButton) { selectedPreset = preset.id; admin.applyPreset(preset.id) }
                                 .semantics { selected = chosen }.padding(24.dp), verticalArrangement = Arrangement.SpaceBetween) {

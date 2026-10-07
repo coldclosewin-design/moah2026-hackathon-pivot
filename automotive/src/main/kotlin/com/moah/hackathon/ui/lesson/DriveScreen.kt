@@ -14,6 +14,10 @@ import kotlin.math.roundToInt
 
 @Composable
 internal fun DriveScreen(state: LessonPhase.Drive, subtitle: String?, onFinish: () -> Unit, demo: (@Composable () -> Unit)?) {
+    if (state.locked) {
+        ResultLockedScreen(message = coachDisplayText(state.lastHint ?: state.zoneLine ?: subtitle ?: "안내를 들으며 코스를 따라가요."))
+        return
+    }
     val current = state.course.zone(state.progress.currentZoneId.orEmpty())
     val next = state.course.zone(state.progress.nextZoneId.orEmpty())
     PosterSurface(band = demo.takeUnless { state.locked }) {

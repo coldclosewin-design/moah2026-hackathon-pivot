@@ -40,7 +40,7 @@ internal fun CertificateContent(report: LessonReport, selected: ShareLevel?, onS
                 val ink = if (chosen) CoachColors.Paper else CoachColors.Ink
                 val muted = if (chosen) CoachColors.Paper.copy(alpha = .8f) else CoachColors.Muted
                 Row(Modifier.fillMaxWidth().height(148.dp).testTag("share-${level.name}")
-                    .surfaceTexture(if (chosen) CoachColors.Periwinkle else CoachColors.Lavender,
+                    .surfaceTexture(if (chosen) CoachColors.Ink else CoachColors.Lavender,
                         if (chosen) CoachTexture.SelectedCard else CoachTexture.Card)
                     .selectable(chosen, role = Role.RadioButton, onClick = { onSelect(level) })
                     .padding(horizontal = 24.dp, vertical = 12.dp),
@@ -99,7 +99,7 @@ internal fun ShareExampleContent(report: LessonReport, selected: ShareLevel?, mo
                     LessonText("발급일부터 석 달 · 예시", 32, CoachColors.Muted)
                     Eyebrow("제외")
                     LessonText(ShareLevel.EXCLUDED.joinToString(" · ") + " 없음", 32, CoachColors.Muted)
-                    LessonText(badgeText(report.best.badge), 28, CoachColors.Periwinkle)
+                    AvailabilitySummary(report.best.badge, 28)
                 }
                 Column(Modifier.weight(.58f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Eyebrow("포함 항목")

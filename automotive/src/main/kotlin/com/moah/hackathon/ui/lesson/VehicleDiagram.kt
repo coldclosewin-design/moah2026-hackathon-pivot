@@ -51,9 +51,9 @@ internal fun VehicleDiagram(state: ManeuverDisplayState, modifier: Modifier) {
                         pathEffect = PathEffect.dashPathEffect(floatArrayOf(12.dp.toPx(), 12.dp.toPx())))
                     // All five paths and wheel tangents share the ICR on the rear axle.
                     listOf(geometry.frontLeftX, geometry.frontRightX).forEach { x ->
-                        drawPath(track(x, geometry.frontY, 220.0), CoachColors.Periwinkle.copy(alpha = .4f), style = dashed)
+                        drawPath(track(x, geometry.frontY, 220.0), CoachColors.Platinum.copy(alpha = .55f), style = dashed)
                     }
-                    drawPath(track(50.0, geometry.frontY, 220.0), CoachColors.Periwinkle, style = Stroke(6.dp.toPx()))
+                    drawPath(track(50.0, geometry.frontY, 220.0), CoachColors.Platinum, style = Stroke(6.dp.toPx()))
                     listOf(7.0, 93.0).forEach { x ->
                         drawPath(track(x, geometry.rearY, -100.0), CoachColors.Lavender.copy(alpha = .4f), style = dashed)
                     }
@@ -65,7 +65,7 @@ internal fun VehicleDiagram(state: ManeuverDisplayState, modifier: Modifier) {
                         moveTo(cx - carWidth * .36f, y)
                         lineTo(cx, y + carWidth * .16f * if (forward) 1f else -1f)
                         lineTo(cx + carWidth * .36f, y)
-                    }, CoachColors.Signal, style = Stroke(6.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
+                    }, CoachColors.Muted, style = Stroke(6.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
                 }
                 withTransform({
                     translate(cx - carWidth / 2, top)

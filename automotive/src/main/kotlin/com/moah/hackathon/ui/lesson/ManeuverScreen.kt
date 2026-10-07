@@ -23,6 +23,11 @@ import kotlin.math.roundToInt
 @Composable
 internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stopped: Boolean, subtitle: String?,
     onFinish: () -> Unit, demo: (@Composable () -> Unit)? = null, taskTitle: String = "후면 직각 주차") {
+    if (locked) {
+        ResultLockedScreen(message = if (state.taskType == TaskType.CHECKLIST)
+            "정차하면 점검 상태가 다시 보여요." else "속도를 낮추면 주차 도식이 다시 보여요.")
+        return
+    }
     var visibleHint by remember(state.hintText) { mutableStateOf(maneuverText(state.hintText)) }
     val hintAlpha = remember { Animatable(1f) }
     LaunchedEffect(state.hintText) {
@@ -129,7 +134,8 @@ internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stoppe
                                     SignalValue("기어", state.gear ?: "미측정", state.gearSignal, commonSignal == null,
                                         Modifier.weight(.8f))
                                     if (state.rearDistanceApplies) {
-                                        Box(Modifier.width(2.dp).height(140.dp).background(CoachColors.Lavender))
+                                        Box(Modifier.width(2.dp).height(140.dp).background(CoachColors.Platinum))
+                                        if (state.proximityAlert()) SymbolTile(CoachSymbol.Proximity, Modifier.size(72.dp))
                                         SignalValue(if (state.proximityAlert()) "가까워요" else "뒤 거리",
                                             state.rearDistanceCm?.let { "${it.roundToInt()} cm" } ?: "미측정",
                                             state.distanceSignal, commonSignal == null, Modifier.weight(1.4f))

@@ -23,6 +23,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.*
@@ -44,7 +45,7 @@ internal fun selectionMotionEnabled() = LocalSelectionMotion.current && !LocalIn
 internal fun <T> SelectionTrack(items: List<T>, selected: T?, label: (T) -> String, onSelect: (T) -> Unit,
     modifier: Modifier = Modifier, height: Dp = 88.dp, textSize: Int = 40,
     enabled: (T) -> Boolean = { true }, role: Role = Role.RadioButton,
-    background: Color = CoachColors.Lavender, selectedBackground: Color = CoachColors.Periwinkle,
+    background: Color = CoachColors.Lavender, selectedBackground: Color = CoachColors.Ink,
     foreground: Color = CoachColors.Periwinkle, selectedForeground: Color = CoachColors.Paper,
     itemContent: (@Composable RowScope.(T, Color) -> Unit)? = null) {
     BoxWithConstraints(modifier.height(height)) {
@@ -63,22 +64,22 @@ internal fun <T> SelectionTrack(items: List<T>, selected: T?, label: (T) -> Stri
         val widths = natural.map { cellWidth + (it - average) }
         val starts = widths.indices.map { index -> 10.dp + widths.take(index).fold(0.dp) { a, b -> a + b } + 12.dp * index }
         val motion = selectionMotionEnabled()
-        val duration = if (motion) 250 else 0
+        val duration = if (motion) CoachMotion.SelectMillis else 0
         val selectedIndex = items.indexOf(selected).takeIf { it >= 0 && enabled(items[it]) }
         // Reset only animation state on resize, keeping the selectable semantics nodes alive.
         val geometry = key(layoutWidth, height, items) {
             val transition = updateTransition(selectedIndex, label = "selection-track")
             val left by transition.animateDp({ tween(if (initialState == null) 0 else duration,
-                easing = FastOutSlowInEasing) }, label = "left") { starts.getOrElse(it ?: 0) { 10.dp } }
+                easing = CoachMotion.Stone) }, label = "left") { starts.getOrElse(it ?: 0) { 10.dp } }
             val width by transition.animateDp({ tween(if (initialState == null) 0 else duration,
-                easing = FastOutSlowInEasing) }, label = "width") { widths.getOrElse(it ?: 0) { 0.dp } }
+                easing = CoachMotion.Stone) }, label = "width") { widths.getOrElse(it ?: 0) { 0.dp } }
             left to width
         }
         val left = if (motion) geometry.first else starts.getOrElse(selectedIndex ?: 0) { 10.dp }
         val width = if (motion) geometry.second else widths.getOrElse(selectedIndex ?: 0) { 0.dp }
         Box(Modifier.width(trackWidth).fillMaxHeight().background(background, RoundedCornerShape(100))) {
             if (selectedIndex != null) Box(Modifier.offset(x = left, y = 10.dp).width(width).height(height - 20.dp)
-                .background(selectedBackground, RoundedCornerShape(100)).testTag("selection-track-face"))
+                .shadow(2.dp, RoundedCornerShape(100)).background(selectedBackground, RoundedCornerShape(100)).testTag("selection-track-face"))
         }
         Row(Modifier.width(trackWidth).fillMaxHeight().selectableGroup()
             .padding(10.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -88,7 +89,7 @@ internal fun <T> SelectionTrack(items: List<T>, selected: T?, label: (T) -> Stri
                 val targetColor = when { !available -> CoachColors.Ink.copy(alpha = .35f); chosen -> selectedForeground; else -> foreground }
                 val color = key(layoutWidth, items) {
                     val animatedColor by animateColorAsState(targetColor,
-                        tween(duration, easing = FastOutSlowInEasing), label = "selection-label")
+                        tween(duration, easing = CoachMotion.Stone), label = "selection-label")
                     if (motion) animatedColor else targetColor
                 }
                 Row(Modifier.width(widths[index]).fillMaxHeight()
