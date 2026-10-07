@@ -1,0 +1,843 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>결과 화면 — 통계·종합 결과서 일곱 가지</title>
+<style>
+:root{
+  --onyx:#222526; --platinum:#E0E0E0; --graphite:#353A3E; --jet:#1A1A1A; --ash:#BFBFBF; --white:#FFFFFF;
+  --signal:#F52D48;
+  --kr:"Noto Sans KR","Malgun Gothic",system-ui,sans-serif;
+  --num:"Segoe UI Variable Display","Bahnschrift",Arial,sans-serif;
+  --noise-lt:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --noise:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .32 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#ECECEC;color:var(--onyx);font-family:var(--kr);line-height:1.5;font-weight:400}
+.page{max-width:1560px;margin:0 auto;padding:40px 24px 64px}
+.head h1{font-size:30px;font-weight:500;letter-spacing:-.01em}
+.head .lead{font-size:15px;color:#5a5e61;margin-top:6px;max-width:1300px}
+.chipline{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.chipline span{font-size:12px;padding:4px 12px;border-radius:14px;border:1px solid rgba(34,37,38,.25)}
+.chipline span.k{background:var(--onyx);color:var(--platinum);border-color:var(--onyx)}
+.rules{margin-top:18px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.rules div{background:#fff;border-radius:12px;padding:10px 14px;font-size:12.5px}
+.rules div>b:first-child{display:block;font-size:11px;letter-spacing:.08em;color:#6b6f72;font-weight:500;margin-bottom:2px}
+
+.prop{margin-top:52px;padding-top:26px;border-top:1px solid rgba(34,37,38,.15)}
+.ph{display:flex;align-items:baseline;gap:14px}
+.ph .no{font-family:var(--num);font-size:40px;line-height:1;font-weight:600}
+.ph h2{font-size:26px;font-weight:500}
+.ph .one{font-size:15px;color:#4a4e51;margin-top:4px}
+.row{display:grid;grid-template-columns:853px 1fr;gap:30px;margin-top:16px;align-items:start}
+.cap{font-size:12px;color:#6b6f72;letter-spacing:.04em;margin-bottom:6px}
+.cap b{color:var(--onyx);font-weight:500;margin-right:6px}
+.notes h3{font-size:12px;letter-spacing:.08em;color:#6b6f72;font-weight:500;margin-top:12px}
+.notes h3:first-child{margin-top:0}
+.notes ul{padding-left:18px;font-size:13.5px;margin-top:4px}
+.notes li{margin-top:3px}
+.notes .tok{margin-top:10px;width:100%;border-collapse:collapse;font-size:12px}
+.notes .tok td,.notes .tok th{padding:4px 6px;border-bottom:1px solid rgba(34,37,38,.12);text-align:left;white-space:nowrap}
+.notes .tok th{font-weight:500;color:#6b6f72;font-size:11px}
+.sw{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:4px;box-shadow:0 0 0 1px rgba(0,0,0,.15)}
+.eff{display:inline-block;margin-top:10px;font-size:12.5px;padding:3px 10px;border-radius:12px;background:var(--onyx);color:var(--platinum)}
+.weight{font-size:12.5px;margin-top:6px;color:#4a4e51}
+
+/* ===== 화면 목업 공통 (1/3) ===== */
+.scr{position:relative;width:853px;height:423px;overflow:hidden;border-radius:8px;box-shadow:0 0 0 1px rgba(0,0,0,.18);font-family:var(--kr)}
+.scr > *{position:absolute}
+.scr .f{position:static}
+.dk{background:var(--onyx);color:var(--platinum)}
+.wm{font-family:var(--num);font-size:9px;letter-spacing:.32em;font-weight:500}
+.ey{font-size:10px;letter-spacing:.14em;line-height:1.45;color:var(--ash)}
+.up{font-family:var(--num);text-transform:uppercase;letter-spacing:.14em}
+.big{font-family:var(--num);font-weight:500;letter-spacing:-.03em;line-height:1}
+/* 레퍼런스 4 알약 */
+.bp{border:1.5px solid currentColor;border-radius:999px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.bp *{position:static}
+.bp .n{font-family:var(--num);font-size:54px;line-height:1;letter-spacing:-.03em;font-weight:500}
+.bp .l{font-size:10.5px;letter-spacing:.1em;margin-top:5px;white-space:nowrap}
+.bp .l em{font-style:normal;opacity:.65;margin-left:6px}
+.bp.dim{color:rgba(224,224,224,.45)}
+.bp.fill{background:var(--platinum);color:var(--onyx);border-color:var(--platinum)}
+.rule{height:1px;background:rgba(224,224,224,.28)}
+/* 판정 줄 */
+.jl{display:flex;flex-direction:column}
+.jl *{position:static}
+.jl .h{font-size:10px;letter-spacing:.12em;color:var(--ash);margin-bottom:6px}
+.jl .r{display:flex;align-items:center;justify-content:space-between;height:26px;font-size:13.5px;border-bottom:1px solid rgba(224,224,224,.14)}
+.jl .r small{font-size:10px;color:var(--ash);margin-left:6px}
+.ck{width:15px;height:15px;flex:none}
+/* 핀 A 버튼 */
+.pa{display:inline-flex;align-items:center;gap:12px;height:42px;padding:0 22px 0 4px;border:1.5px solid currentColor;border-radius:21px;font-size:15px;white-space:nowrap}
+.pa *{position:static}
+.pa i{font-style:normal;width:34px;height:34px;border-radius:50%;background:currentColor;display:flex;align-items:center;justify-content:center}
+.pa i b{font-weight:400;font-size:17px;line-height:1}
+.pa.dkb i b{color:var(--onyx)}
+.pa.ltb i b{color:var(--platinum)}
+.pa.on{background:var(--platinum);color:var(--onyx);border-color:var(--platinum)}
+.pa.on i{background:var(--onyx)}
+.pa.on i b{color:var(--platinum)}
+.pa.onk{background:var(--onyx);color:var(--white);border-color:var(--onyx)}
+.pa.onk i{background:var(--white)}
+.pa.onk i b{color:var(--onyx)}
+.lk{font-size:13px;text-decoration:underline;text-underline-offset:3px}
+/* 정직성 배지: 모양으로 구분(색 없음) */
+.hon{display:flex;gap:12px;align-items:center;font-size:11.5px;white-space:nowrap}
+.hon *{position:static}
+.hon span{display:inline-flex;align-items:center;gap:5px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%}
+.dot.live{background:currentColor}
+.dot.sim{border:1.5px solid currentColor;background:linear-gradient(90deg,currentColor 50%,transparent 50%)}
+.dot.miss{border:1.5px dashed currentColor}
+/* 표 */
+.tb{border-collapse:collapse;font-size:11.5px}
+.tb *{position:static}
+.tb th{font-weight:400;font-size:9.5px;letter-spacing:.12em;color:var(--ash);text-align:left;padding:0 8px 5px 0;border-bottom:1px solid rgba(224,224,224,.35)}
+.tb td{padding:3px 8px 3px 0;border-bottom:1px solid rgba(224,224,224,.12);white-space:nowrap}
+.tb .rt{text-align:right}
+.tb .mu{color:var(--ash)}
+/* 밝은 면 */
+.lt{background:linear-gradient(160deg,#EAEAEA,#D6D6D6);color:var(--onyx)}
+.card{background:var(--white);border-radius:16px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.card *{position:static}
+.kcard{background:linear-gradient(180deg,#34383B,#1A1A1A);color:var(--white);border-radius:16px;box-shadow:0 10px 18px -8px rgba(0,0,0,.55)}
+.kcard *{position:static}
+.chips{display:flex;gap:6px;background:var(--white);border-radius:16px;padding:4px}
+.chips *{position:static}
+.chips span{height:24px;line-height:24px;padding:0 13px;border-radius:12px;font-size:11.5px;color:#6b6f72;background:#F1F1F1}
+.chips span.on{background:linear-gradient(180deg,#3a3d40,#111);color:#fff;box-shadow:0 6px 10px -4px rgba(0,0,0,.6)}
+.lt .tb th{color:#7a7e81;border-bottom-color:rgba(34,37,38,.18)}
+.lt .tb td{border-bottom-color:rgba(34,37,38,.08)}
+.lt .tb .mu{color:#7a7e81}
+.paper{background:var(--noise-lt),#EEECE7;color:var(--onyx)}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="head">
+  <h1>3 · 통계·종합 결과서 — 오늘의 기록 · 자세히 보기 · 진단서 · 모의시험 결과, 일곱 가지</h1>
+  <p class="lead">레퍼런스 4(검은 바탕 · 테두리만 있는 큰 알약 안의 거대한 숫자 + 작은 대문자 라벨 · 아래 촘촘한 작은 글자 단)를 줄기로, 레퍼런스 5(거대한 숫자 하나) · 레퍼런스 6(연회색 대시보드 · 흰 카드 · 검은 강조 카드 · 둥근 막대)를 섞었다. 모든 안이 <b>같은 실제 앱 데이터</b>를 쓴다 — 차이는 형태뿐이다.</p>
+  <div class="chipline">
+    <span class="k">화면 목업 = 2560×1268 dp 의 1/3 (853×423) · 실제 화면은 약 3배</span>
+    <span>숫자 글꼴 흉내: Segoe UI Variable Display / Bahnschrift — 앱 글꼴 후보: Roboto Flex 또는 OFL 그로테스크(Inter · Manrope)</span>
+    <span>한국어: Noto Sans KR</span>
+  </div>
+  <div class="rules">
+    <div><b>지키는 것 1 · 숫자</b>숫자는 이 결과 화면에만. 총평·판정 문장에는 숫자 0 — "갈수록 좋아졌어요." 그대로. 점수(숙련·안전)는 지금처럼 <u>자세히 보기·진단서</u>에, 오늘의 기록 첫 면엔 회차·신호 개수(메타)만.</div>
+    <div><b>지키는 것 2 · 정직성</b>실신호 · 시뮬레이션 · 미측정은 <b>색이 아니라 모양</b>으로: <span class="dot live" style="color:#222"></span> 꽉 찬 점 · <span class="dot sim" style="color:#222"></span> 반 찬 점 · <span class="dot miss" style="color:#222"></span> 점선 고리. 무채색 안에서도 구분된다.</div>
+    <div><b>지키는 것 3 · 버튼</b>메인으로 → · 자세히 보기 · 진단서 · ← 돌아가기 이름·흐름 그대로. 버튼 높이 126 dp(1/3 에서 42px), 핀 A 알약(왼쪽 화살표 원).</div>
+    <div><b>데이터 (모든 안 공통)</b>주차 › 후면 직각 주차 · 힌트 모드 · 2회차 · 숙련 60→100 · 안전 55→100 · 이동 4→2회 · 51→35초 · 출처 실신호 7 · 시뮬레이션 1 · 미측정 0 / 모의시험 70→100 · 합격선 80</div>
+  </div>
+</header>
+
+<!-- ============================ 1 ============================ -->
+<section class="prop">
+  <div class="ph"><span class="no">1</span><div><h2>2×2 숫자 알약</h2><p class="one">레퍼런스 4 를 거의 그대로 — 위 오른쪽에 알약 네 개, 아래 작은 글자 세 단. 오늘의 기록의 알약 넷 중 셋을 <b>신호 출처</b>로 써서 정직성이 첫눈에 보인다.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>오늘의 기록</b>Report · 운전석 도어 열림 뒤</p>
+      <div class="scr dk">
+        <div class="wm" style="left:28px;top:26px">DRIVE COACH</div>
+        <div class="ey" style="left:28px;top:48px">오늘의 기록<br>TODAY · 10.08</div>
+        <div class="ey" style="left:28px;top:96px;color:var(--platinum);font-size:11.5px;letter-spacing:0">주차 › 후면 직각 주차<br>힌트 모드</div>
+        <div style="left:300px;top:22px;width:525px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="bp" style="height:88px"><span class="n">02</span><span class="l">연습한 회차 <em>SESSIONS</em></span></div>
+          <div class="bp" style="height:88px"><span class="n">7</span><span class="l"><span class="dot live"></span> 실신호 <em>LIVE</em></span></div>
+          <div class="bp" style="height:88px"><span class="n">1</span><span class="l"><span class="dot sim"></span> 시뮬레이션 <em>SIMULATED</em></span></div>
+          <div class="bp dim" style="height:88px"><span class="n">0</span><span class="l"><span class="dot miss"></span> 미측정 <em>MISSING</em></span></div>
+        </div>
+        <div class="rule" style="left:28px;right:28px;top:226px"></div>
+        <div style="left:28px;top:240px;width:270px">
+          <p class="f ey" style="font-size:10px">총평 · COACH</p>
+          <p class="f" style="font-size:20px;line-height:28px;color:var(--white);margin-top:4px">갈수록 좋아졌어요.</p>
+          <p class="f" style="font-size:15px;line-height:22px;color:var(--ash)">안전은 한두 가지만<br>챙기면 돼요.</p>
+          <p class="f" style="font-size:10.5px;color:var(--ash);margin-top:12px">주차 과정만 측정했어요.</p>
+        </div>
+        <div class="jl" style="left:320px;top:240px;width:240px">
+          <p class="h">마지막 회차 판정 · LAST</p>
+          <div class="r"><span>한 번에 들어갔어요</span><svg class="ck" viewBox="0 0 16 16"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="r"><span>방향은 맞게 섰어요<small>신호로 추정</small></span><svg class="ck" viewBox="0 0 16 16"><path d="M8 3l5.5 10h-11z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
+          <div class="r"><span>마무리가 깔끔했어요</span><svg class="ck" viewBox="0 0 16 16"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="r"><span>안전했어요</span><svg class="ck" viewBox="0 0 16 16"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+        <div style="left:592px;top:240px;width:233px">
+          <p class="f ey">다음 · NEXT</p>
+          <div class="f pa on" style="margin-top:8px;width:233px"><i><b>→</b></i>메인으로</div>
+          <p class="f" style="margin-top:18px;display:flex;gap:20px"><span class="f lk">자세히 보기</span><span class="f lk">진단서</span></p>
+          <p class="f ey" style="margin-top:22px;font-size:9.5px">△ = 신호로 추정한 판정</p>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>레퍼런스 4 의 인상이 가장 또렷 — 사용자가 고른 그 그림.</li>
+        <li>신호 출처가 알약 셋이 되어 <b>정직성이 숫자만큼 크다</b>. "실신호 7" 이 발표에서 그대로 메시지가 된다.</li>
+        <li>점수는 첫 면에 없다 — 지금 규칙(점수는 자세히 보기·진단서) 그대로.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>공수 중간</b> — 결과 세 화면을 새 배치로(Codex). 데이터·상태기계 변경 없음.</li>
+        <li>아래 세 단의 라벨은 30 dp 대 — 정차·도어 열림 화면이라 허용하지만 40 dp 규칙 밖이다. 본문 줄(판정)은 40 dp.</li>
+        <li>정직성 알약이 결과보다 커 보일 수 있다. 실신호 0 인 사외 Fake 시연에선 "0" 이 크게 보인다 — 오히려 정직하지만 첫인상이 약하다.</li>
+      </ul>
+      <p class="weight"><b>굵기</b>: 숫자 Medium(500), 한국어 Regular, 라벨 Regular 대문자 자간 .1em.</p>
+      <table class="tok">
+        <tr><th>지금</th><th>→ 새 토큰</th><th>쓰임</th></tr>
+        <tr><td><span class="sw" style="background:#070827"></span>Ink</td><td><span class="sw" style="background:#222526"></span>Onyx</td><td>결과 화면 바탕 전체</td></tr>
+        <tr><td><span class="sw" style="background:#FCFCFA"></span>Paper</td><td><span class="sw" style="background:#E0E0E0"></span>Platinum</td><td>숫자·알약 테두리·주 버튼 면</td></tr>
+        <tr><td><span class="sw" style="background:#5B60A1"></span>Periwinkle</td><td><span class="sw" style="background:#BFBFBF"></span>Ash</td><td>라벨·보조 글자</td></tr>
+        <tr><td><span class="sw" style="background:#F52D48"></span>Signal</td><td>— (안 씀)</td><td>강조색 0 · 무채색만</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>자세히 보기</b>같은 문법 · 알약 = 2회차 값, 표 = 회차별</p>
+      <div class="scr dk">
+        <div class="wm" style="left:28px;top:26px">DRIVE COACH</div>
+        <div class="ey" style="left:28px;top:48px">자세히 보기<br>DETAILS · 2회차</div>
+        <div class="ey" style="left:28px;top:96px;font-size:11px;letter-spacing:0">1회차와 비교한 값이에요</div>
+        <div style="left:300px;top:22px;width:525px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="bp fill" style="height:88px"><span class="n">100</span><span class="l">숙련 <em>SKILL · +40</em></span></div>
+          <div class="bp fill" style="height:88px"><span class="n">100</span><span class="l">안전 <em>SAFETY · +45</em></span></div>
+          <div class="bp" style="height:88px"><span class="n">2</span><span class="l">이동 회 <em>MOVES · −2</em></span></div>
+          <div class="bp" style="height:88px"><span class="n">35</span><span class="l">시간 초 <em>SEC · −16</em></span></div>
+        </div>
+        <div class="rule" style="left:28px;right:28px;top:226px"></div>
+        <table class="tb" style="left:28px;top:240px;width:520px">
+          <tr><th>항목 · ITEM</th><th class="rt">1회차</th><th class="rt">2회차</th><th class="rt">변화</th></tr>
+          <tr><td>이동</td><td class="rt mu">4회</td><td class="rt">2회</td><td class="rt">−2회</td></tr>
+          <tr><td>시간</td><td class="rt mu">51초</td><td class="rt">35초</td><td class="rt">−16초</td></tr>
+          <tr><td>조향 왕복</td><td class="rt mu">3</td><td class="rt">1</td><td class="rt">−2</td></tr>
+          <tr><td>기어 전환</td><td class="rt mu">2</td><td class="rt">0</td><td class="rt">−2</td></tr>
+          <tr><td>근접 · 급정지</td><td class="rt mu">1 · 1</td><td class="rt">0 · 0</td><td class="rt">−1 · −1</td></tr>
+          <tr><td>방향 편차</td><td class="rt mu">16°</td><td class="rt">1°</td><td class="rt">−15°</td></tr>
+        </table>
+        <div style="left:592px;top:240px;width:233px">
+          <p class="f ey">다음엔 · NEXT</p>
+          <p class="f" style="font-size:13.5px;line-height:20px;margin-top:4px;color:var(--white)">후면 직각 주차 · 힌트 —<br>틀린 순간에만 말할게요.</p>
+          <div class="f hon" style="margin-top:12px;gap:9px;font-size:10.5px;color:var(--ash)"><span><i class="dot live"></i>실신호 7</span><span><i class="dot sim"></i>시뮬 1</span><span><i class="dot miss"></i>미측정 0</span></div>
+          <div class="f pa dkb" style="margin-top:14px"><i><b>←</b></i>돌아가기</div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>자세히 보기에서</h3>
+      <ul>
+        <li>알약 = "지금(2회차) 값", 채운 알약 = 점수 둘, 테두리 알약 = 횟수·시간. 변화량은 라벨 안 작은 글자.</li>
+        <li>표는 레퍼런스 4 의 "나라별 %" 단처럼 촘촘 — 1회차 값은 회색.</li>
+        <li>진단서·모의시험 결과도 같은 틀: 알약 넷 = 회차·합격 여부·점수·합격선, 표 = 과제별 / 감점 구간.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 2 ============================ -->
+<section class="prop">
+  <div class="ph"><span class="no">2</span><div><h2>거대한 숫자 한 장</h2><p class="one">레퍼런스 5 — 어두운 판 위에 잘린 거대한 숫자 하나, 숫자 속 빈 곳에 작은 대문자. 종이 질감 · 가는 둥근 테두리. 오른쪽 한 단에 나머지 전부.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>오늘의 기록</b>숫자 = 연습한 회차</p>
+      <div class="scr" style="background:var(--jet);color:var(--platinum)">
+        <div style="inset:8px;border-radius:14px;background:var(--noise),#2B2E30;box-shadow:inset 0 0 0 1px rgba(224,224,224,.28)"></div>
+        <div style="left:300px;top:-140px;width:520px;height:520px;border-radius:50%;border:1px dashed rgba(224,224,224,.18)"></div>
+        <div class="big" style="left:-14px;top:60px;font-size:430px;background:var(--noise),#D9D6CF;-webkit-background-clip:text;background-clip:text;color:transparent">02</div>
+        <div class="up" style="left:96px;top:236px;font-size:10px;line-height:1.5;color:var(--platinum)">연습한<br>회차<br>SESSIONS</div>
+        <div class="wm" style="left:28px;top:26px">DRIVE COACH</div>
+        <div class="up" style="right:28px;top:26px;font-size:9px;color:var(--ash)">TODAY'S RECORD · 10.08</div>
+        <div style="left:540px;top:64px;width:285px">
+          <p class="f ey">총평 · COACH</p>
+          <p class="f" style="font-size:22px;line-height:30px;color:var(--white);margin-top:4px">갈수록 좋아졌어요.</p>
+          <p class="f" style="font-size:15px;line-height:22px;color:var(--ash)">안전은 한두 가지만 챙기면 돼요.</p>
+          <p class="f" style="font-size:11.5px;margin-top:8px">주차 › 후면 직각 주차 · 힌트 모드</p>
+        </div>
+        <div class="jl" style="left:540px;top:180px;width:285px">
+          <div class="r"><span>한 번에 들어갔어요</span><svg class="ck" viewBox="0 0 16 16"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="r"><span>방향은 맞게 섰어요<small>신호로 추정</small></span><svg class="ck" viewBox="0 0 16 16"><path d="M8 3l5.5 10h-11z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
+          <div class="r"><span>마무리가 깔끔했어요</span><svg class="ck" viewBox="0 0 16 16"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="r"><span>안전했어요</span><svg class="ck" viewBox="0 0 16 16"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+        <div class="pa on" style="left:540px;top:308px;width:285px"><i><b>→</b></i>메인으로</div>
+        <div class="hon" style="left:540px;top:366px;font-size:10.5px;gap:9px;color:var(--ash)"><span><i class="dot live"></i>실신호 7</span><span><i class="dot sim"></i>시뮬레이션 1</span><span><i class="dot miss"></i>미측정 0</span></div>
+        <div style="left:540px;top:386px;display:flex;gap:18px"><span class="f lk" style="font-size:12px">자세히 보기</span><span class="f lk" style="font-size:12px">진단서</span></div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>지금 앱의 "왼쪽 거대한 02" 와 구성이 같아 <b>배치 변경이 적다</b> — 곡면 그림만 질감 판으로.</li>
+        <li>한 숫자만 크게 → 운전석 거리에서 "몇 번 했나" 가 한눈.</li>
+        <li>모의시험(아래)도 숫자만 바꾸면 같은 화면.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>공수 작음~중간</b> — 질감은 정적 PNG 한 장(9-patch 아님, 판 배경)으로. 글자 질감은 Compose ShaderBrush 로 가능하나 생략해도 된다.</li>
+        <li>잘린 숫자는 "02" · "100" 처럼 <b>자릿수가 바뀌면 크기를 다시 맞춰야</b> 한다(1·2·3자리 세 단계 고정 크기).</li>
+        <li>정직성은 오른쪽 아래 작은 줄 — 1안보다 약하다. 모양 점으로 최소한 지킨다.</li>
+      </ul>
+      <p class="weight"><b>굵기</b>: 거대 숫자 Medium, 나머지 Regular. 강조색 0.</p>
+      <table class="tok">
+        <tr><th>지금</th><th>→ 새 토큰</th><th>쓰임</th></tr>
+        <tr><td><span class="sw" style="background:#070827"></span>Ink</td><td><span class="sw" style="background:#1A1A1A"></span>Jet + <span class="sw" style="background:#2B2E30"></span>판</td><td>바깥 · 질감 판</td></tr>
+        <tr><td><span class="sw" style="background:#FCFCFA"></span>Paper</td><td><span class="sw" style="background:#D9D6CF"></span>종이 흰색</td><td>거대 숫자(질감)</td></tr>
+        <tr><td><span class="sw" style="background:#5B60A1"></span>Periwinkle 곡면</td><td>가는 점선 원</td><td>장식만</td></tr>
+        <tr><td><span class="sw" style="background:#F52D48"></span>Signal</td><td>—</td><td>쓰지 않음</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>장내 모의시험 결과</b>숫자 = 최고 회차 코스 점수</p>
+      <div class="scr" style="background:var(--jet);color:var(--platinum)">
+        <div style="inset:8px;border-radius:14px;background:var(--noise),#2B2E30;box-shadow:inset 0 0 0 1px rgba(224,224,224,.28)"></div>
+        <div class="big" style="left:-12px;top:84px;font-size:330px;background:var(--noise),#D9D6CF;-webkit-background-clip:text;background-clip:text;color:transparent">100</div>
+        <div class="up" style="left:184px;top:240px;font-size:10px;line-height:1.5">코스<br>점수<br>SCORE</div>
+        <div style="left:24px;top:60px;width:500px;height:22px;display:flex;align-items:center;gap:8px">
+          <span class="f" style="height:22px;line-height:20px;padding:0 10px;border:1px solid var(--platinum);border-radius:11px;font-size:11px">합격 · PASS</span>
+          <span class="f up" style="font-size:9.5px;color:var(--ash)">합격선 80 · 2회차</span>
+        </div>
+        <div class="wm" style="left:28px;top:26px">DRIVE COACH</div>
+        <div class="up" style="right:28px;top:26px;font-size:9px;color:var(--ash)">MOCK EXAM · 장내기능</div>
+        <div style="left:560px;top:64px;width:265px">
+          <p class="f" style="font-size:20px;line-height:28px;color:var(--white)">코스를 차분히 마쳤어요.</p>
+          <p class="f" style="font-size:14px;line-height:21px;color:var(--ash)">다음에도 흐름을 이어가요.</p>
+        </div>
+        <table class="tb" style="left:560px;top:138px;width:265px">
+          <tr><th>1회차 · 70 · 불합격</th><th class="rt">감점</th></tr>
+          <tr><td>경사로 <span class="mu">뒤로 밀림</span></td><td class="rt">−10</td></tr>
+          <tr><td>직각 주차 <span class="mu">검지선 접촉</span></td><td class="rt">−10</td></tr>
+          <tr><td>돌발 <span class="mu">비상등 미점등</span></td><td class="rt">−10</td></tr>
+          <tr><td>2회차 · 100 · 합격</td><td class="rt mu">감점 없음</td></tr>
+        </table>
+        <div class="pa on" style="left:560px;top:290px;width:265px"><i><b>→</b></i>메인으로</div>
+        <div class="hon" style="left:560px;top:344px;font-size:10.5px;gap:9px;color:var(--ash)"><span><i class="dot live"></i>실신호 0</span><span><i class="dot sim"></i>시뮬레이션 17</span><span><i class="dot miss"></i>미측정 0</span></div>
+        <div style="left:560px;top:362px;width:265px;font-size:9.5px;color:var(--ash)">구간·위치·신호등은 시험장 시뮬레이션이에요.</div>
+        <div style="left:560px;top:384px;display:flex;gap:18px"><span class="f lk" style="font-size:12px">자세히 보기</span><span class="f lk" style="font-size:12px">진단서</span></div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>모의시험에서</h3>
+      <ul>
+        <li>거대 숫자 = 최고 회차 점수(100), "합격 · PASS" 는 테두리 알약 — 합격선 80 은 옆 작은 대문자.</li>
+        <li>1회차 감점 표는 오른쪽 단에 촘촘히 — 지금 "자세히 보기" 의 표를 결과 첫 면으로 끌어올림(선택).</li>
+        <li>불합격 회차만 있을 땐 숫자를 Ash 로 낮추고 "불합격" 알약 — 색을 쓰지 않는다.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 3 ============================ -->
+<section class="prop">
+  <div class="ph"><span class="no">3</span><div><h2>흰 카드 대시보드</h2><p class="one">레퍼런스 6 — 연회색 바탕, 흰 둥근 카드, 첫 카드만 검은 강조 카드, 둥근 기간 칩, 검은 둥근 막대. 결과서를 "밝은 낮 화면" 으로.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>자세히 보기</b>검은 카드 = 숙련 · 막대 = 회차별 점수</p>
+      <div class="scr lt">
+        <div style="left:24px;top:18px;font-size:22px;font-weight:500">자세히 보기</div>
+        <div style="left:150px;top:28px;font-size:11px;color:#6b6f72">주차 › 후면 직각 주차 · 힌트 모드</div>
+        <div class="chips" style="right:24px;top:16px"><span class="on">회차별</span><span>오늘</span><span>이번 주</span><span>전체</span></div>
+        <div style="left:24px;top:62px;width:805px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+          <div class="kcard" style="height:84px;padding:12px 16px"><p style="font-size:11.5px;opacity:.8">숙련</p><p class="big" style="font-size:34px;margin-top:4px">100</p><p style="font-size:10px;opacity:.75;margin-top:2px">↗ +40 · 1회차 60</p></div>
+          <div class="card" style="height:84px;padding:12px 16px"><p style="font-size:11.5px;color:#6b6f72">안전</p><p class="big" style="font-size:34px;margin-top:4px">100</p><p style="font-size:10px;color:#6b6f72;margin-top:2px">↗ +45 · 1회차 55</p></div>
+          <div class="card" style="height:84px;padding:12px 16px"><p style="font-size:11.5px;color:#6b6f72">이동</p><p class="big" style="font-size:34px;margin-top:4px">2<span style="font-size:15px;font-family:var(--kr);margin-left:3px">회</span></p><p style="font-size:10px;color:#6b6f72;margin-top:2px">↘ −2 · 1회차 4회</p></div>
+          <div class="card" style="height:84px;padding:12px 16px"><p style="font-size:11.5px;color:#6b6f72">시간</p><p class="big" style="font-size:34px;margin-top:4px">35<span style="font-size:15px;font-family:var(--kr);margin-left:3px">초</span></p><p style="font-size:10px;color:#6b6f72;margin-top:2px">↘ −16초 · 1회차 51초</p></div>
+        </div>
+        <div class="card" style="position:absolute;left:24px;top:158px;width:470px;height:250px;padding:14px 18px">
+          <p style="font-size:13px;font-weight:500">회차별 점수</p>
+          <div style="position:relative;height:190px;margin-top:6px">
+            <div style="position:absolute;left:0;top:0;font-size:9.5px;color:#9a9ea1;line-height:1">100</div>
+            <div style="position:absolute;left:0;top:76px;font-size:9.5px;color:#9a9ea1;line-height:1">50</div>
+            <div style="position:absolute;left:0;top:150px;font-size:9.5px;color:#9a9ea1;line-height:1">0</div>
+            <div style="position:absolute;left:30px;right:0;top:5px;border-top:1px dashed #e2e2e2"></div>
+            <div style="position:absolute;left:30px;right:0;top:81px;border-top:1px dashed #e2e2e2"></div>
+            <div style="position:absolute;left:30px;right:0;top:155px;border-top:1px solid #e2e2e2"></div>
+            <div style="position:absolute;left:70px;bottom:35px;width:46px;height:90px;border-radius:12px;background:#9D9FA1"></div>
+            <div style="position:absolute;left:124px;bottom:35px;width:46px;height:83px;border-radius:12px;background:#C7C8C9"></div>
+            <div style="position:absolute;left:250px;bottom:35px;width:46px;height:150px;border-radius:12px;background:linear-gradient(180deg,#3a3d40,#111)"></div>
+            <div style="position:absolute;left:304px;bottom:35px;width:46px;height:150px;border-radius:12px;background:linear-gradient(180deg,#5a5d60,#2a2c2e)"></div>
+            <div style="position:absolute;left:70px;bottom:12px;width:100px;text-align:center;font-size:11px;color:#6b6f72">1회차</div>
+            <div style="position:absolute;left:250px;bottom:12px;width:100px;text-align:center;font-size:11px;font-weight:500">2회차</div>
+            <div style="position:absolute;right:0;top:0;font-size:10px;color:#6b6f72;line-height:1.7;text-align:right"><span class="sw" style="background:#222"></span>숙련<br><span class="sw" style="background:#5a5d60"></span>안전</div>
+          </div>
+        </div>
+        <div class="card" style="position:absolute;left:504px;top:158px;width:325px;height:250px;padding:14px 18px">
+          <p style="font-size:13px;font-weight:500">급조작 · 2회차</p>
+          <table class="tb" style="width:100%;margin-top:6px">
+            <tr><td>조향 왕복</td><td class="rt mu">−2</td><td class="rt">1</td></tr>
+            <tr><td>기어 전환</td><td class="rt mu">−2</td><td class="rt">0</td></tr>
+            <tr><td>근접</td><td class="rt mu">−1</td><td class="rt">0</td></tr>
+            <tr><td>급정지</td><td class="rt mu">−1</td><td class="rt">0</td></tr>
+            <tr><td>방향 편차</td><td class="rt mu">−15°</td><td class="rt">1°</td></tr>
+          </table>
+          <div class="hon" style="margin-top:12px;font-size:10.5px;gap:9px;color:#4a4e51"><span><i class="dot live"></i>실신호 7</span><span><i class="dot sim"></i>시뮬 1</span><span><i class="dot miss"></i>미측정 0</span></div>
+          <div class="pa onk" style="margin-top:10px;height:36px;font-size:13px;padding-right:16px"><i style="width:28px;height:28px"><b>←</b></i>돌아가기</div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>밝은 바탕 → <b>낮 시연 영상에서 가장 깨끗</b>, 발표 슬라이드 캡처에도 그대로.</li>
+        <li>막대 = 점수 변화가 숫자 없이도 보임(1회차 회색 → 2회차 검정).</li>
+        <li>검은 강조 카드 하나 = 레퍼런스 3 의 "선택된 것만 검은 입체" 문법과 이어짐.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>공수 큼</b> — 카드 네 개 + 막대 차트 + 기간 칩(오늘·이번 주·전체 는 지금 데이터에 없는 집계 → 칩은 "회차별" 하나만 살아 있게).</li>
+        <li>야간엔 흰 면이 눈부심 — 결과 화면은 정차 중이라 허용 범위지만, 다크 대응 토큰이 하나 더 필요.</li>
+        <li>카드 안 숫자 34px(102 dp) — 레퍼런스 4 의 압도감은 약하다.</li>
+      </ul>
+      <p class="weight"><b>굵기</b>: 제목 Medium, 숫자 Medium, 나머지 Regular. 강조 = 검은 입체 카드 하나.</p>
+      <table class="tok">
+        <tr><th>지금</th><th>→ 새 토큰</th><th>쓰임</th></tr>
+        <tr><td><span class="sw" style="background:#FCFCFA"></span>Paper</td><td><span class="sw" style="background:#E0E0E0"></span>Platinum 그라데이션</td><td>바탕</td></tr>
+        <tr><td><span class="sw" style="background:#E5E6F0"></span>Lavender</td><td><span class="sw" style="background:#fff"></span>White</td><td>카드</td></tr>
+        <tr><td><span class="sw" style="background:#070827"></span>Ink</td><td><span class="sw" style="background:#1A1A1A"></span>Jet(입체)</td><td>강조 카드·막대·선택 칩</td></tr>
+        <tr><td><span class="sw" style="background:#5B60A1"></span>Periwinkle</td><td><span class="sw" style="background:#9D9FA1"></span>중간 회색</td><td>지난 회차 막대</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>진단서</b>기간 칩 · 과제별 표 · 공유 범위 트랙</p>
+      <div class="scr lt">
+        <div style="left:24px;top:18px;font-size:22px;font-weight:500">진단서</div>
+        <div style="left:100px;top:27px;font-size:11px;color:#6b6f72">예시입니다 — 실제 전송·계약은 없습니다</div>
+        <div class="chips" style="right:24px;top:16px"><span class="on">10.01 – 10.08</span><span>지난달</span><span>전체</span></div>
+        <div style="left:24px;top:62px;width:805px;display:grid;grid-template-columns:1fr 1fr 1fr 1.4fr;gap:10px">
+          <div class="kcard" style="height:74px;padding:11px 16px"><p style="font-size:11px;opacity:.8">연습한 회차</p><p class="big" style="font-size:32px;margin-top:3px">14</p></div>
+          <div class="card" style="height:74px;padding:11px 16px"><p style="font-size:11px;color:#6b6f72">연습한 날</p><p class="big" style="font-size:32px;margin-top:3px">6<span style="font-size:14px;font-family:var(--kr);margin-left:3px">일</span></p></div>
+          <div class="card" style="height:74px;padding:11px 16px"><p style="font-size:11px;color:#6b6f72">과제</p><p class="big" style="font-size:32px;margin-top:3px">4</p></div>
+          <div class="card" style="height:74px;padding:11px 16px"><p style="font-size:11px;color:#6b6f72">신호 출처 · 전체 회차</p><div class="hon" style="margin-top:12px;font-size:12px;gap:12px"><span><i class="dot live"></i>실신호</span><span><i class="dot sim"></i>시뮬레이션</span><span><i class="dot miss"></i>미측정</span></div></div>
+        </div>
+        <div class="card" style="position:absolute;left:24px;top:146px;width:805px;height:150px;padding:10px 18px">
+          <table class="tb" style="width:100%">
+            <tr><th>과제</th><th class="rt">회차</th><th class="rt">숙련 첫 → 끝</th><th class="rt">안전 첫 → 끝</th><th class="rt">결과</th><th class="rt">출처 실 · 시 · 미</th></tr>
+            <tr><td>후면 직각 주차</td><td class="rt">6</td><td class="rt"><span class="mu">60 →</span> 100</td><td class="rt"><span class="mu">55 →</span> 100</td><td class="rt">—</td><td class="rt">7 · 1 · 0</td></tr>
+            <tr><td>평행 주차</td><td class="rt">3</td><td class="rt"><span class="mu">45 →</span> 80</td><td class="rt"><span class="mu">70 →</span> 90</td><td class="rt">—</td><td class="rt">7 · 1 · 0</td></tr>
+            <tr><td>출발 전 점검</td><td class="rt">3</td><td class="rt"><span class="mu">70 →</span> 100</td><td class="rt">—</td><td class="rt">—</td><td class="rt">5 · 2 · 1</td></tr>
+            <tr><td>장내기능 모의시험</td><td class="rt">2</td><td class="rt"><span class="mu">70 →</span> 100</td><td class="rt">—</td><td class="rt">합격</td><td class="rt">0 · 17 · 0</td></tr>
+          </table>
+        </div>
+        <div style="left:24px;top:306px;font-size:11px;color:#6b6f72">공유 범위 · 위로 갈수록 넓게</div>
+        <div class="chips" style="left:24px;top:324px;padding:5px"><span style="height:30px;line-height:30px;font-size:12.5px;padding:0 18px">원시 신호</span><span class="on" style="height:30px;line-height:30px;font-size:12.5px;padding:0 18px">항목별</span><span style="height:30px;line-height:30px;font-size:12.5px;padding:0 18px">총점만</span></div>
+        <div style="left:24px;top:368px;font-size:10.5px;color:#6b6f72">항목별 → 보험사 안전운전 특약 할인 심사 대상 · 예시</div>
+        <div class="pa" style="left:420px;top:350px;height:42px;font-size:14px;background:#fff;border-color:#fff"><i style="background:var(--onyx)"><b style="color:#fff">←</b></i>돌아가기</div>
+        <div class="pa onk" style="left:578px;top:350px;width:251px;font-size:14px"><i><b>→</b></i>메인으로</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>진단서에서</h3>
+      <ul>
+        <li>기간 칩(10.01–10.08) + 요약 카드 넷 + 과제별 표 + 공유 범위 트랙 — 지금 진단서의 "공유 범위 세 줄" 은 트랙 하나로 접힌다.</li>
+        <li>과제별 표의 출처 칸 "실 · 시 · 미" 개수 = 정직성이 과제마다.</li>
+        <li><b>표의 값은 예시</b> — 지금 진단서는 기간·과제별 집계가 없다. 집계 함수(Claude, feature/lesson)가 새로 필요.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 4 ============================ -->
+<section class="prop">
+  <div class="ph"><span class="no">4</span><div><h2>알약 띠 + 촘촘한 표</h2><p class="one">레퍼런스 4 의 알약을 가로 한 줄로 눕히고, 그 아래를 신문처럼 네 단의 작은 글자 표로 채운다. 표가 많은 모의시험 결과에 맞춤.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>장내 모의시험 결과</b>알약 한 줄 = 점수·합격선·감점·회차</p>
+      <div class="scr" style="background:var(--jet);color:var(--platinum)">
+        <div class="wm" style="left:28px;top:22px">DRIVE COACH</div>
+        <div class="up" style="left:200px;top:22px;font-size:9px;color:var(--ash)">MOCK EXAM · 주행 › 장내기능 모의시험 · 평가 모드</div>
+        <div style="left:28px;top:48px;width:797px;display:grid;grid-template-columns:1.25fr 1fr 1fr 1fr;gap:12px">
+          <div class="bp fill" style="height:84px"><span class="n" style="font-size:50px">100</span><span class="l">합격 · PASS <em>코스 점수</em></span></div>
+          <div class="bp" style="height:84px"><span class="n" style="font-size:50px">80</span><span class="l">합격선 <em>PASS LINE</em></span></div>
+          <div class="bp" style="height:84px"><span class="n" style="font-size:50px">0</span><span class="l">감점 구간 <em>2회차</em></span></div>
+          <div class="bp" style="height:84px"><span class="n" style="font-size:50px">02</span><span class="l">회차 <em>SESSIONS</em></span></div>
+        </div>
+        <div class="rule" style="left:28px;right:28px;top:150px"></div>
+        <div style="left:28px;top:162px;width:175px">
+          <p class="f ey" style="font-size:9.5px">코스 · COURSE 9</p>
+          <table class="f tb" style="width:175px;margin-top:4px;font-size:11px">
+            <tr><td>장치 조작</td><td class="rt mu">지남</td></tr><tr><td>경사로</td><td class="rt mu">지남</td></tr><tr><td>우회전</td><td class="rt mu">지남</td></tr>
+            <tr><td>직각 주차</td><td class="rt mu">지남</td></tr><tr><td>신호 교차로</td><td class="rt mu">지남</td></tr><tr><td>가속</td><td class="rt mu">지남</td></tr>
+            <tr><td>돌발</td><td class="rt mu">지남</td></tr><tr><td>좌회전</td><td class="rt mu">지남</td></tr><tr><td>종료</td><td class="rt mu">지남</td></tr>
+          </table>
+        </div>
+        <div style="left:228px;top:162px;width:220px">
+          <p class="f ey" style="font-size:9.5px">감점 · DEDUCTIONS</p>
+          <table class="f tb" style="width:220px;margin-top:4px;font-size:11px">
+            <tr><th>1회차 · 70 · 불합격</th><th class="rt"></th></tr>
+            <tr><td>경사로 <span class="mu">뒤로 밀림</span></td><td class="rt">−10</td></tr>
+            <tr><td>직각 주차 <span class="mu">검지선 접촉</span></td><td class="rt">−10</td></tr>
+            <tr><td>돌발 <span class="mu">비상등 미점등</span></td><td class="rt">−10</td></tr>
+          </table>
+          <table class="f tb" style="width:220px;margin-top:10px;font-size:11px">
+            <tr><th>2회차 · 100 · 합격</th><th class="rt">+30</th></tr>
+            <tr><td class="mu">감점 없음</td><td></td></tr>
+          </table>
+        </div>
+        <div style="left:474px;top:162px;width:150px">
+          <p class="f ey" style="font-size:9.5px">총평 · COACH</p>
+          <p class="f" style="font-size:15px;line-height:22px;color:var(--white);margin-top:4px">코스를 차분히<br>마쳤어요.</p>
+          <p class="f" style="font-size:12.5px;line-height:19px;color:var(--ash);margin-top:2px">다음에도 흐름을<br>이어가요.</p>
+        </div>
+        <div style="left:650px;top:162px;width:175px">
+          <p class="f ey" style="font-size:9.5px">신호 출처 · SOURCE</p>
+          <table class="f tb" style="width:175px;margin-top:4px;font-size:11px">
+            <tr><td><span class="dot live"></span> 실신호</td><td class="rt">0</td></tr>
+            <tr><td><span class="dot sim"></span> 시뮬레이션</td><td class="rt">17</td></tr>
+            <tr><td><span class="dot miss"></span> 미측정</td><td class="rt">0</td></tr>
+          </table>
+          <p class="f" style="font-size:9.5px;color:var(--ash);margin-top:6px;line-height:1.45">구간·위치·신호등은 시험장<br>신호(시뮬레이션)로 측정했어요.</p>
+        </div>
+        <div class="pa on" style="left:474px;top:356px;width:351px"><i><b>→</b></i>메인으로</div>
+        <div style="left:228px;top:372px;display:flex;gap:18px"><span class="f lk" style="font-size:12px">자세히 보기</span><span class="f lk" style="font-size:12px">진단서</span></div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>정보량이 가장 많다 — 모의시험 결과 + 자세히 보기의 감점 표가 <b>한 화면</b>. 한 번 덜 누른다.</li>
+        <li>레퍼런스 4 의 "아래 촘촘한 단" 을 가장 충실히. 출처가 별도 단이라 정직성 또렷.</li>
+        <li>오늘의 기록(주차)도 같은 틀: 알약 = 회차·실신호·시뮬·미측정, 단 = 판정·총평·출처.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>공수 중간</b> — 표 4단 레이아웃(Compose Row + 고정 폭), 데이터는 이미 있음.</li>
+        <li>11px(33 dp) 표 글자 — 운전석 거리에서 읽기 어렵다. 정차 화면이라 허용하나 <b>총평·버튼만 40 dp 이상</b> 유지.</li>
+        <li>감점 "−10" 이 결과 첫 면에 — 숫자 규칙상 결과 화면이라 허용, 다만 지금 앱은 이것을 자세히 보기에 두었다(위치 이동은 사용자 결정).</li>
+      </ul>
+      <p class="weight"><b>굵기</b>: 숫자 Medium, 나머지 Regular. 강조색 0(감점도 무채색).</p>
+      <table class="tok">
+        <tr><th>지금</th><th>→ 새 토큰</th><th>쓰임</th></tr>
+        <tr><td><span class="sw" style="background:#070827"></span>Ink</td><td><span class="sw" style="background:#1A1A1A"></span>Jet</td><td>바탕</td></tr>
+        <tr><td><span class="sw" style="background:#FCFCFA"></span>Paper</td><td><span class="sw" style="background:#E0E0E0"></span>Platinum</td><td>숫자·선·주 버튼</td></tr>
+        <tr><td><span class="sw" style="background:#5B60A1"></span>Periwinkle</td><td><span class="sw" style="background:#BFBFBF"></span>Ash</td><td>라벨·지남·사유</td></tr>
+        <tr><td><span class="sw" style="background:#F52D48"></span>Signal(−10점)</td><td><span class="sw" style="background:#fff"></span>White</td><td>감점 값(색 대신 밝기)</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 5 ============================ -->
+<section class="prop">
+  <div class="ph"><span class="no">5</span><div><h2>지금 두 칸 + 검은 숫자판</h2><p class="one">지금의 "왼쪽 어두운 판 · 오른쪽 종이" 배치를 그대로 두고, 곡면 그림 자리에 레퍼런스 4 알약을 세운다. 오른쪽은 레퍼런스 3 의 검은 입체 알약 버튼.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>오늘의 기록</b>배치는 지금과 같음 · 색·알약만</p>
+      <div class="scr" style="background:linear-gradient(160deg,#EFEFEF,#DCDCDC);color:var(--onyx)">
+        <div style="left:0;top:0;width:324px;height:423px;background:var(--onyx)"></div>
+        <div class="wm" style="left:28px;top:26px;color:var(--platinum)">DRIVE COACH</div>
+        <div class="bp" style="left:28px;top:56px;width:268px;height:124px;color:var(--platinum)"><span class="n" style="font-size:78px">02</span><span class="l">연습한 회차 <em>SESSIONS</em></span></div>
+        <div class="hon" style="left:30px;top:196px;color:var(--platinum);font-size:11px;gap:10px"><span><i class="dot live"></i>실신호 7</span><span><i class="dot sim"></i>시뮬레이션 1</span><span><i class="dot miss"></i>미측정 0</span></div>
+        <div class="jl" style="left:28px;top:240px;width:268px;color:var(--platinum)">
+          <p class="h">마지막 회차의 판정</p>
+          <div class="r"><span>한 번에 들어갔어요</span><svg class="ck" viewBox="0 0 16 16"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="r"><span>방향은 맞게 섰어요<small>신호로 추정</small></span><svg class="ck" viewBox="0 0 16 16"><path d="M8 3l5.5 10h-11z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
+          <div class="r"><span>마무리가 깔끔했어요</span><svg class="ck" viewBox="0 0 16 16"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="r"><span>안전했어요</span><svg class="ck" viewBox="0 0 16 16"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+        <div style="left:366px;top:92px;font-size:12px;color:#6b6f72">오늘의 기록</div>
+        <div style="left:366px;top:112px;font-size:30px;line-height:40px;color:var(--jet)">갈수록 좋아졌어요.</div>
+        <div style="left:366px;top:154px;font-size:18px;line-height:26px;color:#6b6f72">안전은 한두 가지만 챙기면 돼요.</div>
+        <div style="left:366px;top:196px;font-size:14px">주차 › 후면 직각 주차 · 힌트 모드</div>
+        <div class="pa" style="left:575px;top:254px;width:250px;height:46px;border:0;color:#fff;background:linear-gradient(180deg,#3d4043,#111);box-shadow:0 12px 18px -8px rgba(0,0,0,.6);font-size:16px"><i style="background:#fff"><b style="color:#111">→</b></i>메인으로</div>
+        <div style="left:366px;top:278px;display:flex;gap:22px"><span class="f lk" style="font-size:14px">자세히 보기</span><span class="f lk" style="font-size:14px">진단서</span></div>
+        <div style="left:366px;right:28px;top:330px;height:1px;background:rgba(34,37,38,.18)"></div>
+        <div style="left:366px;top:342px;font-size:11px;color:#6b6f72">신호 출처</div>
+        <div style="left:366px;top:362px;display:flex;gap:6px">
+          <span class="f" style="height:26px;line-height:26px;padding:0 12px;border-radius:13px;background:#fff;font-size:12px"><span class="dot live"></span>&nbsp; 실신호 7</span>
+          <span class="f" style="height:26px;line-height:26px;padding:0 12px;border-radius:13px;background:#fff;font-size:12px"><span class="dot sim"></span>&nbsp; 시뮬레이션 1</span>
+          <span class="f" style="height:26px;line-height:26px;padding:0 12px;border-radius:13px;background:#F1F1F1;color:#7a7e81;font-size:12px"><span class="dot miss"></span>&nbsp; 미측정 0</span>
+        </div>
+        <div style="right:28px;top:368px;font-size:11px;color:#6b6f72">주차 과정만 측정했어요.</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li><b>공수 가장 작음</b> — 레이아웃 그대로, 토큰 값 교체 + 왼쪽 숫자를 알약 테두리로 감싸기 + 주 버튼 모양 교체.</li>
+        <li>지금 캡처·대본·계측 테스트(버튼 이름 찾기)가 깨지지 않는다 — 10/9 녹화에 안전.</li>
+        <li>정직성 칩 세 개가 흰 납작 칩(레퍼런스 3 문법) — 미측정은 회색 칩으로 한 단계 낮춤.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li>레퍼런스 4 의 "검은 화면 전체" 느낌은 절반만 — 새 컨셉이 약하다는 인상을 줄 수 있다.</li>
+        <li>오른쪽 흰 면 야간 눈부심은 지금과 같음.</li>
+        <li>정직성이 두 번(왼쪽 작은 줄 · 오른쪽 칩) — 하나로 줄일 것(오른쪽 칩 권장).</li>
+      </ul>
+      <p class="weight"><b>굵기</b>: 지금 규칙(Regular 중심) 유지, 숫자만 Medium. 강조 = 검은 입체 알약.</p>
+      <table class="tok">
+        <tr><th>지금</th><th>→ 새 토큰</th><th>쓰임</th></tr>
+        <tr><td><span class="sw" style="background:#070827"></span>Ink</td><td><span class="sw" style="background:#222526"></span>Onyx</td><td>왼쪽 판·본문 글자</td></tr>
+        <tr><td><span class="sw" style="background:#FCFCFA"></span>Paper</td><td><span class="sw" style="background:#E6E6E6"></span>Platinum 그라데이션</td><td>오른쪽 면</td></tr>
+        <tr><td><span class="sw" style="background:#E5E6F0"></span>Lavender</td><td><span class="sw" style="background:#fff"></span>White 칩</td><td>출처 칩·돌아가기</td></tr>
+        <tr><td><span class="sw" style="background:#F52D48"></span>Signal 주 버튼</td><td><span class="sw" style="background:#1A1A1A"></span>Jet 입체</td><td>메인으로</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>장내 모의시험 결과</b>왼쪽 알약 = 합격 · 아래 = 구간 아홉</p>
+      <div class="scr" style="background:linear-gradient(160deg,#EFEFEF,#DCDCDC);color:var(--onyx)">
+        <div style="left:0;top:0;width:324px;height:423px;background:var(--onyx)"></div>
+        <div class="wm" style="left:28px;top:26px;color:var(--platinum)">DRIVE COACH</div>
+        <div class="ey" style="left:28px;top:46px">최고 회차의 코스</div>
+        <div class="bp fill" style="left:28px;top:70px;width:268px;height:96px"><span class="n" style="font-size:60px">100</span><span class="l">합격 · PASS <em>합격선 80</em></span></div>
+        <div style="left:28px;top:186px;width:268px;display:grid;grid-template-columns:1fr 1fr;column-gap:18px;color:var(--platinum)">
+          <div class="f jl"><div class="r" style="font-size:12.5px;height:24px"><span>장치 조작</span><small>지남</small></div><div class="r" style="font-size:12.5px;height:24px"><span>경사로</span><small>지남</small></div><div class="r" style="font-size:12.5px;height:24px"><span>우회전</span><small>지남</small></div><div class="r" style="font-size:12.5px;height:24px"><span>직각 주차</span><small>지남</small></div><div class="r" style="font-size:12.5px;height:24px"><span>신호 교차로</span><small>지남</small></div></div>
+          <div class="f jl"><div class="r" style="font-size:12.5px;height:24px"><span>가속</span><small>지남</small></div><div class="r" style="font-size:12.5px;height:24px"><span>돌발</span><small>지남</small></div><div class="r" style="font-size:12.5px;height:24px"><span>좌회전</span><small>지남</small></div><div class="r" style="font-size:12.5px;height:24px"><span>종료</span><small>지남</small></div></div>
+        </div>
+        <div style="left:366px;top:92px;font-size:12px;color:#6b6f72">오늘의 기록</div>
+        <div style="left:366px;top:112px;font-size:30px;line-height:40px;color:var(--jet)">코스를 차분히 마쳤어요.</div>
+        <div style="left:366px;top:154px;font-size:18px;line-height:26px;color:#6b6f72">다음에도 흐름을 이어가요.</div>
+        <div style="left:366px;top:196px;font-size:14px">주행 › 장내기능 모의시험 · 평가 모드</div>
+        <div class="pa" style="left:575px;top:254px;width:250px;height:46px;border:0;color:#fff;background:linear-gradient(180deg,#3d4043,#111);box-shadow:0 12px 18px -8px rgba(0,0,0,.6);font-size:16px"><i style="background:#fff"><b style="color:#111">→</b></i>메인으로</div>
+        <div style="left:366px;top:278px;display:flex;gap:22px"><span class="f lk" style="font-size:14px">자세히 보기</span><span class="f lk" style="font-size:14px">진단서</span></div>
+        <div style="left:366px;right:28px;top:330px;height:1px;background:rgba(34,37,38,.18)"></div>
+        <div style="left:366px;top:342px;font-size:11px;color:#6b6f72">신호 출처</div>
+        <div style="left:366px;top:362px;display:flex;gap:6px">
+          <span class="f" style="height:26px;line-height:26px;padding:0 12px;border-radius:13px;background:#F1F1F1;color:#7a7e81;font-size:12px"><span class="dot live"></span>&nbsp; 실신호 0</span>
+          <span class="f" style="height:26px;line-height:26px;padding:0 12px;border-radius:13px;background:#fff;font-size:12px"><span class="dot sim"></span>&nbsp; 시뮬레이션 17</span>
+          <span class="f" style="height:26px;line-height:26px;padding:0 12px;border-radius:13px;background:#F1F1F1;color:#7a7e81;font-size:12px"><span class="dot miss"></span>&nbsp; 미측정 0</span>
+        </div>
+        <div style="right:28px;top:362px;width:200px;text-align:right;font-size:10.5px;line-height:1.4;color:#6b6f72">구간·위치·신호등은 시험장<br>신호(시뮬레이션)로 측정했어요.</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>모의시험에서</h3>
+      <ul>
+        <li>왼쪽 "합격" 글자 → 채운 알약(100 · 합격 · 합격선 80). 불합격이면 테두리 알약 + Ash 숫자.</li>
+        <li>구간 아홉은 두 단 — 지금 한 단 아홉 줄보다 짧아 판이 덜 빽빽.</li>
+        <li>0 인 출처는 회색 칩(실신호 0 · 미측정 0), 0 이 아닌 것만 흰 칩 — "무엇으로 쟀나" 가 바로 보임.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 6 ============================ -->
+<section class="prop">
+  <div class="ph"><span class="no">6</span><div><h2>전 → 후 쌍 알약</h2><p class="one">회차 비교를 알약 두 개로 — 지난 값은 흐린 테두리 알약, 지금 값은 채운 알약, 사이 가는 선 위에 변화량 칩. "좋아졌다" 가 숫자를 읽기 전에 보인다.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>자세히 보기</b>1회차 → 2회차</p>
+      <div class="scr dk">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="up" style="left:28px;top:44px;font-size:9.5px;color:var(--ash)">자세히 보기 · 1회차 → 2회차</div>
+        <div class="up" style="left:120px;top:72px;font-size:9.5px;color:var(--ash)">1회차</div>
+        <div class="up" style="left:392px;top:72px;font-size:9.5px;color:var(--platinum)">2회차</div>
+        <!-- 숙련 -->
+        <div style="left:28px;top:118px;font-size:14px">숙련<br><span style="font-size:9.5px;color:var(--ash);letter-spacing:.12em">SKILL</span></div>
+        <div class="bp dim" style="left:90px;top:96px;width:150px;height:84px"><span class="n">60</span></div>
+        <div style="left:244px;top:137px;width:110px;height:1.5px;background:rgba(224,224,224,.5)"></div>
+        <div style="left:270px;top:126px;height:22px;line-height:22px;padding:0 10px;border-radius:11px;background:var(--graphite);font-size:11px">+40</div>
+        <div class="bp fill" style="left:358px;top:96px;width:180px;height:84px"><span class="n">100</span></div>
+        <!-- 안전 -->
+        <div style="left:28px;top:218px;font-size:14px">안전<br><span style="font-size:9.5px;color:var(--ash);letter-spacing:.12em">SAFETY</span></div>
+        <div class="bp dim" style="left:90px;top:196px;width:150px;height:84px"><span class="n">55</span></div>
+        <div style="left:244px;top:237px;width:110px;height:1.5px;background:rgba(224,224,224,.5)"></div>
+        <div style="left:270px;top:226px;height:22px;line-height:22px;padding:0 10px;border-radius:11px;background:var(--graphite);font-size:11px">+45</div>
+        <div class="bp fill" style="left:358px;top:196px;width:180px;height:84px"><span class="n">100</span></div>
+        <!-- 작은 쌍 -->
+        <table class="tb" style="left:575px;top:72px;width:250px;font-size:12px">
+          <tr><th>항목</th><th class="rt">1회차</th><th></th><th class="rt">2회차</th></tr>
+          <tr><td>이동</td><td class="rt mu">4회</td><td class="mu" style="text-align:center">→</td><td class="rt">2회</td></tr>
+          <tr><td>시간</td><td class="rt mu">51초</td><td class="mu" style="text-align:center">→</td><td class="rt">35초</td></tr>
+          <tr><td>조향 왕복</td><td class="rt mu">3</td><td class="mu" style="text-align:center">→</td><td class="rt">1</td></tr>
+          <tr><td>기어 전환</td><td class="rt mu">2</td><td class="mu" style="text-align:center">→</td><td class="rt">0</td></tr>
+          <tr><td>근접</td><td class="rt mu">1</td><td class="mu" style="text-align:center">→</td><td class="rt">0</td></tr>
+          <tr><td>급정지</td><td class="rt mu">1</td><td class="mu" style="text-align:center">→</td><td class="rt">0</td></tr>
+          <tr><td>방향 편차</td><td class="rt mu">16°</td><td class="mu" style="text-align:center">→</td><td class="rt">1°</td></tr>
+        </table>
+        <div class="rule" style="left:28px;right:28px;top:302px"></div>
+        <div style="left:28px;top:316px;font-size:13.5px;color:var(--white)">다음엔 후면 직각 주차 · 힌트 — 틀린 순간에만 말할게요.</div>
+        <div class="hon" style="left:28px;top:346px;font-size:10.5px;gap:10px;color:var(--ash)"><span><i class="dot live"></i>실신호 7</span><span><i class="dot sim"></i>시뮬레이션 1</span><span><i class="dot miss"></i>미측정 0</span><span>· 주차 과정만 측정했어요.</span></div>
+        <div class="pa dkb" style="left:28px;top:368px"><i><b>←</b></i>돌아가기</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>지금 자세히 보기의 "왼쪽 카드 → 오른쪽 카드" 구조를 <b>한 줄 한 쌍</b>으로 바꿔 비교가 시선 한 번.</li>
+        <li>점수 둘만 큰 알약, 나머지는 촘촘한 표 — 중요도와 크기가 맞다.</li>
+        <li>모의시험(아래)은 같은 문법을 가로 자 위에 — 합격선이 "선" 으로 보인다.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>공수 중간</b> — 알약 쌍 컴포넌트 하나 + 표. 회차가 셋 이상이면 "첫 회차 → 마지막 회차" 만 쌍(지금도 두 카드).</li>
+        <li>나빠진 경우(100 → 70)도 같은 모양이라 방향은 변화량 칩(−30)에만 — 칩 글자 40 dp 이상.</li>
+        <li>정직성 줄이 아래 작은 글자 — 1·4안보다 약하다.</li>
+      </ul>
+      <p class="weight"><b>굵기</b>: 숫자 Medium, 나머지 Regular. 강조 = 채운 Platinum 알약.</p>
+      <table class="tok">
+        <tr><th>지금</th><th>→ 새 토큰</th><th>쓰임</th></tr>
+        <tr><td><span class="sw" style="background:#070827"></span>Ink</td><td><span class="sw" style="background:#222526"></span>Onyx</td><td>바탕</td></tr>
+        <tr><td><span class="sw" style="background:#FCFCFA"></span>Paper 카드</td><td><span class="sw" style="background:#E0E0E0"></span>Platinum 채운 알약</td><td>지금 값</td></tr>
+        <tr><td><span class="sw" style="background:#E5E6F0"></span>Lavender 변화 칩</td><td><span class="sw" style="background:#353A3E"></span>Graphite 칩</td><td>+40 · −2회</td></tr>
+        <tr><td><span class="sw" style="background:#5B60A1"></span>Periwinkle 숫자</td><td>Platinum 45%</td><td>지난 값 알약</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>모의시험 · 자세히 보기</b>0–100 자 위의 두 알약 · 합격선 80</p>
+      <div class="scr dk">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="up" style="left:28px;top:44px;font-size:9.5px;color:var(--ash)">자세히 보기 · 장내기능 모의시험</div>
+        <div style="left:60px;top:170px;width:740px;height:8px;border-radius:4px;background:var(--graphite)"></div>
+        <div style="left:60px;top:170px;width:518px;height:8px;border-radius:4px;background:rgba(224,224,224,.35)"></div>
+        <div style="left:652px;top:118px;width:1.5px;height:116px;background:var(--platinum)"></div>
+        <div class="up" style="left:600px;top:240px;width:106px;text-align:center;font-size:10px">합격선 80</div>
+        <div class="up" style="left:56px;top:190px;font-size:9.5px;color:var(--ash)">0</div>
+        <div class="up" style="left:790px;top:190px;font-size:9.5px;color:var(--ash)">100</div>
+        <div class="bp dim" style="left:480px;top:82px;width:150px;height:72px"><span class="n" style="font-size:42px">70</span><span class="l" style="margin-top:2px">1회차 · 불합격</span></div>
+        <div class="bp fill" style="left:676px;top:82px;width:150px;height:72px"><span class="n" style="font-size:42px">100</span><span class="l" style="margin-top:2px">2회차 · 합격</span></div>
+        <div style="left:640px;top:58px;height:20px;line-height:20px;padding:0 10px;border-radius:10px;background:var(--graphite);font-size:11px">+30</div>
+        <table class="tb" style="left:28px;top:272px;width:420px;font-size:12px">
+          <tr><th>1회차 감점 · 구간</th><th>사유</th><th class="rt">감점</th></tr>
+          <tr><td>경사로</td><td>뒤로 밀림</td><td class="rt">−10</td></tr>
+          <tr><td>직각 주차</td><td>검지선 접촉</td><td class="rt">−10</td></tr>
+          <tr><td>돌발</td><td>비상등 미점등</td><td class="rt">−10</td></tr>
+          <tr><td class="mu">2회차</td><td class="mu">감점 없음</td><td></td></tr>
+        </table>
+        <div class="hon" style="left:480px;top:282px;font-size:10.5px;gap:10px;color:var(--ash)"><span><i class="dot live"></i>실신호 0</span><span><i class="dot sim"></i>시뮬레이션 17</span><span><i class="dot miss"></i>미측정 0</span></div>
+        <div style="left:480px;top:302px;font-size:10px;color:var(--ash)">구간·위치·신호등은 시험장 시뮬레이션이에요.</div>
+        <div class="pa dkb" style="left:480px;top:356px"><i><b>←</b></i>돌아가기</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>모의시험에서</h3>
+      <ul>
+        <li>0–100 가로 자, 합격선 80 = 세로 선 한 줄. 70 알약은 선 왼쪽(흐림), 100 은 오른쪽(채움).</li>
+        <li>감점 표는 아래 — 지금 자세히 보기의 표 그대로, 색만 무채색.</li>
+        <li>자의 위치는 점수 비례(정확), 알약은 겹치지 않게 위로 띄움.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 7 ============================ -->
+<section class="prop">
+  <div class="ph"><span class="no">7</span><div><h2>종이 결과서</h2><p class="one">레퍼런스 5 의 "오래된 종이 질감 + 가는 둥근 테두리" 를 밝은 쪽으로 — 진단서·성적표를 인쇄물처럼. 위 띠의 작은 대문자 머리줄, 가는 선 표, 큰 숫자 하나.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>진단서</b>인쇄물 문법 · 기간·과제별 표</p>
+      <div class="scr paper">
+        <div style="inset:10px;border-radius:14px;box-shadow:inset 0 0 0 1px rgba(34,37,38,.35)"></div>
+        <div style="left:28px;top:24px;right:28px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;font-family:var(--num);font-size:9px;letter-spacing:.16em;text-transform:uppercase;line-height:1.5">
+          <span class="f">DRIVE COACH<br>운전 연수 진단서</span><span class="f">기간<br>2026.10.01 — 10.08</span><span class="f">과제 4 · 6일<br>주차 · 점검 · 주행</span><span class="f" style="text-align:right">No. 01<br>예시 · SAMPLE</span>
+        </div>
+        <div style="left:28px;right:28px;top:62px;height:1px;background:rgba(34,37,38,.35)"></div>
+        <div class="big" style="left:20px;top:70px;font-size:200px;color:var(--onyx)">14</div>
+        <div class="up" style="left:32px;top:262px;font-size:10px;line-height:1.5">연습한 회차<br>SESSIONS</div>
+        <table class="tb" style="left:300px;top:78px;width:525px;font-size:12px">
+          <tr><th style="color:#555">과제</th><th class="rt" style="color:#555">회차</th><th class="rt" style="color:#555">숙련</th><th class="rt" style="color:#555">안전</th><th class="rt" style="color:#555">출처 실·시·미</th></tr>
+          <tr><td>후면 직각 주차</td><td class="rt">6</td><td class="rt">60 → 100</td><td class="rt">55 → 100</td><td class="rt">7 · 1 · 0</td></tr>
+          <tr><td>평행 주차</td><td class="rt">3</td><td class="rt">45 → 80</td><td class="rt">70 → 90</td><td class="rt">7 · 1 · 0</td></tr>
+          <tr><td>출발 전 점검</td><td class="rt">3</td><td class="rt">70 → 100</td><td class="rt">—</td><td class="rt">5 · 2 · 1</td></tr>
+          <tr><td>장내기능 모의시험</td><td class="rt">2</td><td class="rt">70 → 100 합격</td><td class="rt">—</td><td class="rt">0 · 17 · 0</td></tr>
+        </table>
+        <div style="left:300px;top:212px;font-size:10px;letter-spacing:.12em;color:#555">공유 범위 · 위로 갈수록 넓게</div>
+        <div style="left:300px;top:232px;width:525px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          <div class="f" style="border:1px solid rgba(34,37,38,.45);border-radius:20px;padding:6px 14px;font-size:12.5px">원시 신호<br><span style="font-size:10px;color:#555">적성검사 연계 · 예시</span></div>
+          <div class="f" style="background:var(--onyx);color:#F1EFEA;border-radius:20px;padding:6px 14px;font-size:12.5px">항목별<br><span style="font-size:10px;opacity:.75">보험 특약 심사 · 예시</span></div>
+          <div class="f" style="border:1px solid rgba(34,37,38,.45);border-radius:20px;padding:6px 14px;font-size:12.5px">총점만<br><span style="font-size:10px;color:#555">시험장 대여료 할인 · 예시</span></div>
+        </div>
+        <div style="left:300px;top:292px;font-size:11px;color:#555">예시입니다 — 실제 전송·계약은 없습니다</div>
+        <div class="hon" style="left:32px;top:312px;font-size:10.5px;gap:10px;color:#444"><span><i class="dot live"></i>실신호</span><span><i class="dot sim"></i>시뮬레이션</span><span><i class="dot miss"></i>미측정</span></div>
+        <div class="pa" style="left:300px;top:350px;color:var(--onyx);font-size:14px"><i style="background:var(--onyx)"><b style="color:#F1EFEA">←</b></i>돌아가기</div>
+        <div class="pa onk" style="left:575px;top:350px;width:250px;font-size:14px"><i><b>→</b></i>메인으로</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>"진단서" 라는 이름에 맞는 <b>문서다운 모양</b> — 기관에 보여 준다는 맥락(보험·적성검사 예시)이 산다.</li>
+        <li>발표 슬라이드에 그대로 오려 붙이기 좋다(밝은 종이 + 표).</li>
+        <li>머리줄 "예시 · SAMPLE" 이 문서 서식 안에 들어가 정직성이 자연스럽다.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>공수 중간</b> — 질감 PNG + 표 레이아웃. 과제별 집계는 3안과 같이 새로 필요(값은 예시).</li>
+        <li>다른 결과 화면(어두운 판)과 톤이 다르다 → <b>진단서·성적표에만</b> 쓰는 예외 톤으로 정의해야 한다.</li>
+        <li>질감이 영상 압축에서 노이즈처럼 보일 수 있음 — 불투명도 낮게.</li>
+      </ul>
+      <p class="weight"><b>굵기</b>: 큰 숫자 Medium, 머리줄 대문자 Regular 자간 .16em. 강조 = Onyx 채운 칩 하나.</p>
+      <table class="tok">
+        <tr><th>지금</th><th>→ 새 토큰</th><th>쓰임</th></tr>
+        <tr><td><span class="sw" style="background:#FCFCFA"></span>Paper</td><td><span class="sw" style="background:#EEECE7"></span>종이(+질감)</td><td>문서 바탕</td></tr>
+        <tr><td><span class="sw" style="background:#070827"></span>Ink</td><td><span class="sw" style="background:#222526"></span>Onyx</td><td>글자·선·선택 칩</td></tr>
+        <tr><td><span class="sw" style="background:#5B60A1"></span>Periwinkle 선택 줄</td><td>Onyx 채운 칩</td><td>공유 범위 선택</td></tr>
+        <tr><td><span class="sw" style="background:#F52D48"></span>Signal</td><td>—</td><td>쓰지 않음</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>모의시험 성적표</b>구간 × 회차 표 · 합계 줄</p>
+      <div class="scr paper">
+        <div style="inset:10px;border-radius:14px;box-shadow:inset 0 0 0 1px rgba(34,37,38,.35)"></div>
+        <div style="left:28px;top:24px;right:28px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;font-family:var(--num);font-size:9px;letter-spacing:.16em;text-transform:uppercase;line-height:1.5">
+          <span class="f">DRIVE COACH<br>모의시험 성적표</span><span class="f">장내기능<br>평가 모드</span><span class="f">합격선 80<br>2회차</span><span class="f" style="text-align:right">시험장 신호<br>시뮬레이션</span>
+        </div>
+        <div style="left:28px;right:28px;top:62px;height:1px;background:rgba(34,37,38,.35)"></div>
+        <div class="big" style="left:18px;top:72px;font-size:150px;color:var(--onyx)">100</div>
+        <div style="left:30px;top:228px;height:24px;line-height:22px;padding:0 12px;border:1px solid var(--onyx);border-radius:12px;font-size:12px">합격 · PASS</div>
+        <div style="left:30px;top:266px;width:240px;font-size:15px;line-height:22px">코스를 차분히 마쳤어요.<br><span style="color:#555;font-size:13px">다음에도 흐름을 이어가요.</span></div>
+        <table class="tb" style="left:330px;top:76px;width:495px;font-size:11.5px">
+          <tr><th style="color:#555">구간</th><th style="color:#555">1회차 사유</th><th class="rt" style="color:#555">1회차</th><th class="rt" style="color:#555">2회차</th></tr>
+          <tr><td>장치 조작</td><td></td><td class="rt">—</td><td class="rt">—</td></tr>
+          <tr><td>경사로</td><td>뒤로 밀림</td><td class="rt">−10</td><td class="rt">—</td></tr>
+          <tr><td>우회전 · 좌회전</td><td></td><td class="rt">—</td><td class="rt">—</td></tr>
+          <tr><td>직각 주차</td><td>검지선 접촉</td><td class="rt">−10</td><td class="rt">—</td></tr>
+          <tr><td>신호 교차로 · 가속</td><td></td><td class="rt">—</td><td class="rt">—</td></tr>
+          <tr><td>돌발</td><td>비상등 미점등</td><td class="rt">−10</td><td class="rt">—</td></tr>
+          <tr><td>종료</td><td></td><td class="rt">—</td><td class="rt">—</td></tr>
+          <tr><td style="border-top:1px solid #222;font-weight:500">합계</td><td style="border-top:1px solid #222"></td><td class="rt" style="border-top:1px solid #222">70 불합격</td><td class="rt" style="border-top:1px solid #222;font-weight:500">100 합격</td></tr>
+        </table>
+        <div class="hon" style="left:330px;top:322px;font-size:10.5px;gap:10px;color:#444"><span><i class="dot live"></i>실신호 0</span><span><i class="dot sim"></i>시뮬레이션 17</span><span><i class="dot miss"></i>미측정 0</span></div>
+        <div class="pa onk" style="left:575px;top:350px;width:250px;font-size:14px"><i><b>→</b></i>메인으로</div>
+        <div style="left:330px;top:362px;display:flex;gap:18px"><span class="f lk" style="font-size:12px">자세히 보기</span><span class="f lk" style="font-size:12px">진단서</span></div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>성적표에서</h3>
+      <ul>
+        <li>구간 아홉 × 회차 표 + 합계 줄 — 실제 시험 채점표를 닮아 "도로주행시험 채점표 항목" 이야기와 맞다.</li>
+        <li>감점 없는 구간은 "—" — 빈칸이 아닌 기호로 "측정했고 감점 없음" 을 표시(미측정과 구분).</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 비교 · 추천 ============================ -->
+<section class="prop">
+  <h2 style="font-size:24px;font-weight:500">일곱 안 비교</h2>
+  <table class="tb" style="margin-top:14px;width:100%;font-size:13.5px;border-collapse:collapse">
+    <tr style="background:#fff"><th style="color:#555;padding:8px;font-size:12px">안</th><th style="color:#555;padding:8px;font-size:12px">레퍼런스</th><th style="color:#555;padding:8px;font-size:12px">정직성 존재감</th><th style="color:#555;padding:8px;font-size:12px">운전석 거리 가독성</th><th style="color:#555;padding:8px;font-size:12px">배치 변경</th><th style="color:#555;padding:8px;font-size:12px">데이터 추가</th><th style="color:#555;padding:8px;font-size:12px">공수</th></tr>
+    <tr><td style="padding:7px 8px">1 2×2 숫자 알약</td><td>4</td><td><b>가장 큼</b>(알약 셋)</td><td>숫자 큼 · 라벨 작음</td><td>새 배치</td><td>없음</td><td>중간</td></tr>
+    <tr><td style="padding:7px 8px">2 거대한 숫자 한 장</td><td>5</td><td>작은 줄</td><td><b>가장 좋음</b>(숫자 하나)</td><td>작음(지금과 닮음)</td><td>없음</td><td>작음~중간</td></tr>
+    <tr><td style="padding:7px 8px">3 흰 카드 대시보드</td><td>6</td><td>카드 하나 · 표 칸</td><td>보통</td><td>새 배치</td><td>기간·과제 집계</td><td>큼</td></tr>
+    <tr><td style="padding:7px 8px">4 알약 띠 + 촘촘한 표</td><td>4</td><td>큼(별도 단)</td><td>표 글자 작음</td><td>새 배치</td><td>없음</td><td>중간</td></tr>
+    <tr style="background:#fff"><td style="padding:7px 8px"><b>5 지금 두 칸 + 검은 숫자판</b></td><td>4 + 3</td><td>칩 셋</td><td>지금과 같음</td><td><b>없음</b></td><td>없음</td><td><b>작음</b></td></tr>
+    <tr style="background:#fff"><td style="padding:7px 8px"><b>6 전 → 후 쌍 알약</b></td><td>4</td><td>작은 줄</td><td>좋음(쌍 하나)</td><td>자세히 보기만</td><td>없음</td><td>중간</td></tr>
+    <tr><td style="padding:7px 8px">7 종이 결과서</td><td>5(밝게)</td><td>문서 서식 안</td><td>보통</td><td>진단서만</td><td>과제 집계</td><td>중간</td></tr>
+  </table>
+
+  <div style="margin-top:26px;background:var(--onyx);color:var(--platinum);border-radius:20px;padding:24px 28px">
+    <p style="font-size:12px;letter-spacing:.14em;color:var(--ash)">추천 · RECOMMENDATION <span style="margin-left:10px;padding:2px 10px;border-radius:10px;background:var(--platinum);color:var(--onyx);letter-spacing:0">공수 작음 (+ 시간 남으면 중간)</span></p>
+    <h2 style="font-size:24px;font-weight:500;margin-top:8px;color:#fff">5 를 바탕으로, 오늘의 기록 왼쪽 판에 1 의 출처 알약 · 자세히 보기에 6 의 쌍 알약</h2>
+    <p style="font-size:14.5px;margin-top:8px;max-width:1300px">마감이 내일이라 <b>배치를 바꾸지 않는 5</b>가 기준선이다 — 토큰 값 교체(Ink→Onyx · Paper→Platinum · Lavender→White · Signal 주 버튼→Jet 입체 알약)와 왼쪽 숫자를 테두리 알약으로 감싸는 것만으로 레퍼런스 4 의 인상이 들어오고, 캡처·계측 테스트·시연 대본이 그대로 산다. 여유가 있으면 자세히 보기만 6 의 "흐린 알약 → 채운 알약" 으로 바꿔 점수 변화를 시각화한다(한 화면 · 컴포넌트 하나). 3 · 7 은 기간·과제별 집계가 새로 필요해 마감 뒤로, 2 는 시연 영상 첫 컷(발표용 정지 화면)으로만 쓰기 좋다.</p>
+    <ol style="font-size:13.5px;margin-top:10px;padding-left:20px">
+      <li>Claude: 색 토큰 표(이 페이지 5안) 확정 · 정직성 점 모양(꽉 찬 · 반 찬 · 점선) 을 docs/design/ 계약에 한 줄</li>
+      <li>Codex: 결과 세 화면 토큰 교체 + 왼쪽 숫자 알약 + 주 버튼 검은 입체 알약 + 출처 칩 셋 — 공수 작음</li>
+      <li>시간이 남으면 Codex: 자세히 보기 쌍 알약(6) — 공수 중간</li>
+    </ol>
+  </div>
+</section>
+
+</div>
+</body>
+</html>
