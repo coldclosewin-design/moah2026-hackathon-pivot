@@ -53,3 +53,4 @@
 - 카드 `data/SpeechCards.kt` 열한 장: 첫 화면(`OPENING`) 감정·인사 넷, 코치가 한 번 되물은 뒤(`FOLLOW_UP`) 과제·상황 일곱(예약 카드는 예약이 있을 때, "지난번 이어서요" 는 기록이 있을 때만). `CoachDialog.cards` · 진입점 `sendCoachCard(id)`(시트에 없는 카드는 무시) — 같은 `sendCoachText` 길이라 AI·폴백·로그(`home coach: card <id>`)가 같다.
 - Fake 키워드 규칙이 카드마다 같은 의도로 가는 것을 `SpeechCardsTest` 가 고정한다("뭐부터" → 첫 주차 과제 추천 · "긁/뻔했" · "등하원/아이" → 서로 다른 되물음 · "모의시험" → 예약 있으면 예약 모의시험, 없으면 장내기능 모의시험 과제 · "시험장 연습" → 예약 코스 연습).
 - 화면(Codex 25b): 시안 7 A — 입력 칸 위 가로 한 줄, `CARDS` 면 입력 칸을 접는다.
+- **첫 말은 한 번 되묻는다**(사외 피드백 #6, 10/7): 사내 Copilot 이 첫 감정 카드 "오랜만이라 무서워요" 에 곧바로 출발 전 점검(`OPEN_SHEET(CHECKLIST)`·`PIN_TASK(predrive-check,GUIDE)`)을 골라 시트가 닫혔다(2/2 — 대화로도 어색). 프롬프트에 "첫 말이 감정·인사뿐이면 ASK_MORE" 한 줄을 넣고, 코드도 막는다 — 첫 말이고 키워드 규칙이 되묻는 말(`ASK_MORE`)인데 AI 가 다른 의도를 고르면 규칙 되물음으로 바꾼다(로그 `home coach: first words ask back — <의도> (ai) → ASK_MORE`). 과제를 직접 말한 첫 말("후면 주차 다시 해 볼래요")과 둘째 말부터는 AI 의도 그대로.

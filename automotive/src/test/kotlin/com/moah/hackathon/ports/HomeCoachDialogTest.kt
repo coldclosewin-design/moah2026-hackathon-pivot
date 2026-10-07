@@ -70,6 +70,7 @@ class HomeCoachDialogTest {
         assertTrue(system.indexOf("형식 규칙은 위 설명보다 우선") > system.indexOf(persona))
         assertTrue(system.contains("숫자(횟수·초·점수·연차)를 쓰지 않습니다"))
         assertTrue(system.contains("${SeedCatalog.TASK_PARKING_PARALLEL} | 평행 주차 | PARKING"))
+        assertTrue("first feelings ask back", system.contains("첫 말이 감정·인사뿐이면"))
         assertTrue("no booking line without a booking", !system.contains("BOOKING +"))
         assertTrue(CoachPrompts.dialogSystem(booked).contains("BOOKING + option(COURSE_PRACTICE|MOCK_EXAM)"))
         assertTrue(CoachPrompts.system(persona).startsWith(persona))

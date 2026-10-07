@@ -581,6 +581,7 @@ class LessonStateMachine(
         if (utterance.isEmpty()) return
         val history = listOfNotNull(coachOpening?.let { CoachTurn(false, it) }) + coachTurns
         val context = coachContext()
+        val firstWords = coachTurns.none { !it.fromDriver }
         coachTurns += CoachTurn(true, utterance)
         coachWaiting = true
         val gen = coachGen
@@ -600,6 +601,7 @@ class LessonStateMachine(
                     IntentRules.reply(utterance, context).copy(source = ReplySource.FALLBACK)
                 }
             }.let { r -> if (context.allows(r.intent)) r else CoachReply(IntentRules.ASK_LINE, CoachIntent.AskMore, ReplySource.FALLBACK) }
+                .let { r -> if (firstWords) askBackFirst(r, utterance, context) else r }
             if (gen != coachGen || _phase.value !is LessonPhase.Setup || !coachOpen) {
                 Log.w(TAG, "home coach: reply after the sheet closed → dropped"); return@launch
             }
@@ -608,6 +610,18 @@ class LessonStateMachine(
             Log.i(TAG, "home coach: intent=${reply.intent.code} (${reply.source.log}) ${clock() - started} ms")
             applyCoachReply(reply)
         }
+    }
+
+    /**
+     * 첫 말이 감정·인사뿐이면(규칙이 되묻는 말이면) 과제로 바로 가지 않고 규칙 문장으로 한 번 되묻는다.
+     * 사외 피드백 #6(10/7): AI 가 "오랜만이라 무서워요" 에 곧바로 출발 전 점검을 골라 시트가 닫혔다(2/2) — 대화로도 어색했다.
+     */
+    private fun askBackFirst(reply: CoachReply, utterance: String, context: CoachContext): CoachReply {
+        if (reply.intent == CoachIntent.AskMore) return reply
+        val rule = IntentRules.reply(utterance, context)
+        if (rule.intent != CoachIntent.AskMore) return reply
+        Log.i(TAG, "home coach: first words ask back — ${reply.intent.code} (${reply.source.log}) → ASK_MORE")
+        return rule
     }
 
     private fun applyCoachReply(reply: CoachReply) {
