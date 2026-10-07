@@ -48,10 +48,10 @@ internal fun CoachPill(label: String, onClick: (() -> Unit)?, modifier: Modifier
 
 @Composable
 internal fun ProfilePill(label: String, onClick: () -> Unit) {
-    Row(Modifier.heightIn(min = 78.dp).testTag("profile-entry")
+    Row(Modifier.heightIn(min = 52.dp).testTag("profile-entry")
         .surfaceTexture(CoachColors.Lavender, CoachTexture.Chip, pill = true)
         .clip(RoundedCornerShape(100)).clickable(role = Role.Button, onClick = onClick)
-        .padding(horizontal = 24.dp, vertical = 12.dp),
+        .padding(horizontal = 24.dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically) {
         Canvas(Modifier.size(28.dp)) {
             drawCircle(CoachColors.Periwinkle, size.width * .17f, Offset(size.width / 2, size.height * .23f))
@@ -79,7 +79,7 @@ internal fun CoachSheet(coach: CoachDialog, onChoose: (CoachChoice) -> Unit, onB
                 shape = RoundedCornerShape(topStart = 36.dp, topEnd = 36.dp, bottomEnd = 36.dp, bottomStart = 9.dp))
             .padding(horizontal = 36.dp, vertical = 24.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Eyebrow("코치")
-            LessonText(coach.line, 48)
+            LessonText(coachDisplayText(coach.line), 48)
         }
         Spacer(Modifier.height(33.dp))
         CoachChoices(coach.choices, onChoose)
@@ -109,7 +109,7 @@ internal fun HomeBookingCard(details: BookingDetails, tasks: List<Task>, options
     Row(Modifier.fillMaxWidth().height(198.dp).testTag("home-booking-card")
         .surfaceTexture(CoachColors.Paper, CoachTexture.Card)
         .then(if (highlighted) Modifier.border(6.dp, CoachColors.Signal) else Modifier)
-        .padding(horizontal = 24.dp, vertical = 12.dp),
+        .padding(horizontal = 24.dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(24.dp), verticalAlignment = Alignment.CenterVertically) {
         val course = tasks.firstOrNull { it.id in details.course.taskIds && it.course != null }?.course ?: TrackCourses.exam
         CourseMap(course, Modifier.size(width = 162.dp, height = 144.dp).background(CoachColors.Ink).padding(12.dp),

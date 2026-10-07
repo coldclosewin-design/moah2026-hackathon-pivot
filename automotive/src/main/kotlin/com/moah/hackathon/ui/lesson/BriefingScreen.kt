@@ -27,7 +27,7 @@ internal fun BriefingScreen(task: Task, mode: LessonMode, line: String, subtitle
                 Column(Modifier.weight(1f).semantics { contentDescription = line }, verticalArrangement = Arrangement.Center) {
                     Eyebrow("연습 준비", color = CoachColors.Periwinkle)
                     Spacer(Modifier.height(32.dp))
-                    Headline(briefingHeadline(task.watch))
+                    Headline(coachDisplayText(briefingHeadline(task.watch)))
                     Spacer(Modifier.height(40.dp))
                     LessonText("${task.title} · ${mode.label} 모드", 40)
                     Spacer(Modifier.height(20.dp))

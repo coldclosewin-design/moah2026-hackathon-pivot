@@ -9,6 +9,16 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class LessonPresentationTest {
+    @Test fun coachDisplayBreaksOnlySentencePunctuationAndPreservesTheSource() {
+        val source = "천천히 가요. 괜찮나요? 좋아요! 계속해요."
+        assertEquals("천천히 가요.\n괜찮나요?\n좋아요!\n계속해요.", coachDisplayText(source))
+        assertEquals("천천히 가요. 괜찮나요? 좋아요! 계속해요.", source)
+        assertEquals("1.5 m, 2.0 km … 계속... 천천히\n기존 줄.",
+            coachDisplayText("1.5 m, 2.0 km … 계속... 천천히\n기존 줄."))
+        assertEquals("좋아요!\n다음.\n끝", coachDisplayText("좋아요!  다음.\t끝"))
+        assertEquals(coachDisplayText(source), coachDisplayText(coachDisplayText(source)))
+    }
+
     @Test fun frontDescriptionOmitsInapplicableDistanceAndKeepsGearDirection() {
         val front = display(null, true).copy(entryGear = Gear.DRIVE, rearDistanceApplies = false, gear = "D")
         assertTrue(front.diagramDescription().contains("앞쪽이 화면 위"))
@@ -101,7 +111,7 @@ class LessonPresentationTest {
         SteeringSummary(3, 450f), GearSummary(2, true, true), ProximitySummary(1, 35f), PreDriveSummary(false, true))
 
     @Test fun setupDoesNotInventMissingProfileFields() {
-        assertEquals("연수생 · 장롱 10년차 · 목표 아이 등하원", profileLine(SeedCatalog.demoProfile))
+        assertEquals("연수생 · 장롱 10년차 · 목표: 아이 등하원", profileLine(SeedCatalog.demoProfile))
         assertEquals("운전자", profileLine(Profile("운전자", ProfileStatement())))
     }
 

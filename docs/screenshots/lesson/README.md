@@ -1,5 +1,45 @@
 # 화면 검증 캡처
 
+## UI 라운드 26a — 평면 알약·선택 모핑·넓은 시트 (2026-10-07)
+
+`codex/ui-round26a` · 새 워크트리 기준 `origin/main=3ba4a5a`(#228). [발주서](../../handoffs/2026-10-07_codex_ui_round26a.md)의 12항목을 기존 모델로 구현했다. 에뮬레이터는 `emulator-5556`만 사용했다. 홈 배치·브리핑 구성·점검 강조/모드·문장 길이·다크 모드 등 26b 시안 항목은 포함하지 않는다.
+
+| 항목 | 실제 앱 캡처 | 구현·확인 |
+|---|---|---|
+| ① 평면 주 알약 | [홈](lesson-setup.png), [누른 상태](lesson-texture-button-pressed.png) | Signal 면에 광택·위 하이라이트·그림자·누름 질감 없음. 기존 라벨·140 dp 높이 유지 |
+| ② 홈 자막 제거 · ⑧ 프로필 | [홈](lesson-setup-coach.png), [프로필 확대](lesson-profile-pill.png) | 홈의 SpeechFooter를 제거하고 TTS는 유지. 프로필 78→52 dp, 32 sp 유지, `목표: 아이 등하원` |
+| ③ 메인으로 | [오늘의 기록](lesson-report-session.png), [퀴즈 결과](lesson-quiz-done-results.png) | `메인으로 →`는 기존 알약 폭의 2/3(716.8 dp), 오른쪽 정렬. restart 연결과 Done의 `한 번 더` 유지 |
+| ④ 선택 트랙 모핑 | [0/125/250 ms](lesson-track-morph-strip.png) | 공통 SelectionTrack의 선택 면 이동·폭과 글자색을 250 ms FastOutSlowIn으로 보간. 최초 표시·레이아웃 폭 변경은 최종 위치. Preview와 일반 캡처는 모션 없이 최종 상태, 모핑 전용 계측은 실제 Compose 프레임 시계로 중간 위치/폭 검사 |
+| ⑤ 모드 설명 | [가이드/힌트 모핑](lesson-track-morph-strip.png), [지식](lesson-setup-sheet-knowledge.png) | 발주 문장 네 개를 36 sp muted 한 줄로 표시하고 같은 250 ms에 교차 |
+| ⑥ 과제 시트 | [주차](lesson-setup-sheet.png), [주행](lesson-setup-sheet-driving.png), [지식 앞](lesson-setup-sheet-knowledge.png), [지식 끝](lesson-setup-sheet-knowledge-end.png) | 일러스트 폭 30%→21%(기존보다 30% 좁게), 기존 400 ms 모핑 유지. 선택 카드 광택 제거, 면+체크 유지. 주행 카드 제목 36 sp Normal 통일. 지식 여섯 과제에 비상등·노면·신호·교차로·합류·판단 기호 |
+| ⑦ 코치 대화 | [카드](lesson-setup-coach-cards-only.png), [카드+글](lesson-setup-coach-cards.png), [입력 끔](lesson-setup-coach-sheet.png) | 시트의 일러스트도 21%. 카드가 보일 때 선택 칩과 안내 숨김, 시뮬레이션 배지 제거. 입력 OFF의 칩과 준비실 설정 명칭 유지 |
+| ⑨ 점검 중복 눈썹 | [점검](lesson-maneuver-checklist.png) | Ink 패널 아래 `출발 전 점검 · 확인 상태` 제거. 단계 막대·강조 방식은 유지 |
+| ⑩ 예약 버튼 | [시험장 목록](lesson-venues.png), [시간·코스 선택 전](lesson-venue-slots.png), [선택 완료](lesson-venue-slots-ready.png) | 시트 첫 표시부터 같은 위치에 예약 알약. 두 선택 전에는 흐림·disabled·실제 탭 무반응, 안내 한 줄. 시험장 변경 시 다시 비활성 |
+| ⑪ 문장별 줄바꿈 · ⑫ 코치 눈썹 | [회차](lesson-done.png), [총평](lesson-report-session.png), [코치 대화](lesson-setup-coach-text.png), [점검 가이드](lesson-maneuver-checklist.png) | 표시 전용 포맷터 하나로 마침표/물음표/느낌표 뒤 공백만 줄바꿈. 소수점·줄임표·기존 줄바꿈 및 원문/TTS/저장 값 유지. Paper 영역 코치 눈썹을 4 dp 들여쓰기 |
+
+모델·vehicle·ports·scoring·data·build 파일·tools·NEXT 변경 없음. 새 색 토큰과 FontWeight.Bold 추가 0, Color(0x…)는 CoachStyle에만 있다.
+
+
+[PowerShell 빌드](build-round26a.txt): `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` 성공. 단위 테스트 **353개(실패·오류·건너뜀 0)**. 아래 세 실행은 같은 최종 앱·계측 APK로 원본 `tools/lesson_shots.sh`를 연속 실행한 결과다. 기본 제한 900초와 `ANDROID_SERIAL=emulator-5556`을 사용했고, 이 세 실행에는 ADB/timeout 래퍼를 사용하지 않았다.
+
+| 실행 | 로그 | 결과 | 설치·캡처 가져오기 포함 경과 |
+|---|---|---|---|
+| 1 | [contract-round26a-1.txt](contract-round26a-1.txt) | Lesson contract passed | 365초 |
+| 2 | [contract-round26a-2.txt](contract-round26a-2.txt) | Lesson contract passed | 367초 |
+| 3 | [contract-round26a-3.txt](contract-round26a-3.txt) | Lesson contract passed | 366초 |
+
+새 계약은 평면 주 알약의 눌린 픽셀, 52 dp 프로필, 21% 일러스트, 모드 설명, 표시 전용 줄바꿈, 선택 면의 실제 중간 위치·폭, 예약의 비활성 실제 탭, 짧은 메인 버튼의 위치·콜백을 검사한다. 기존 잠금·Real·관리자·입력·과제·예약 계약도 유지했다. 변경된 UI에 맞춰 이전 높이/선택 칩/문구 기대값을 갱신했고, 접근성 조회 시 캐시를 비워 스크롤 뒤의 낡은 하위 노드를 읽지 않게 했다. 명시적 프레임 시계 계측이 끝나면 별도 Compose 루트를 해제한다.
+
+`RESERVE=1 bash tools/emu_flow.sh` **PASS · clashes 0**([로그](flow-round26a-rear.txt), 188초): 예약→예약 홈→후면 주차 힌트 모드, **60/55·4구간 → 100/100·2구간**, 필수 힌트 세 종류·둘째 추가 힌트 없음·도어→Report·`실신호 0 · 시뮬레이션 8 · 미측정 0` 확인. [오늘의 기록](lesson-report-session.png)은 이 실제 흐름의 최종 리포트다.
+
+최종 앱을 `adb -s emulator-5556 install -r`로 [재설치](install-round26a-course.txt)한 뒤 원본 `bash tools/course_flow.sh`도 **PASS · 종료 코드 0**([로그](flow-round26a-course.txt), 333초): **70 불합격·감점 3 → 100 합격·감점 0 → 도어→Report** 확인.
+
+`emu_flow.sh`와 `course_flow.sh`의 시작 검사에는 `-s emulator-5554`가 고정되어 있어, 이 두 도구만 기존 [INTEGRATION C 방식](../../INTEGRATION.md)의 ignored `build/adb-round26a.sh`를 `ADB`로 지정했다. 래퍼는 선두 serial 인수를 제거하고 모든 호출을 `-s emulator-5556`으로 실행한다. 도구의 판정·탭·대기·캡처 코드와 제한 시간은 수정하지 않았다.
+
+캡처 97장 교체·2장 추가. 홈·과제 시트·지식 여섯 그림·말 카드·결과·점검·모핑의 글자 잘림과 정렬을 눈으로 확인했다. 주 알약을 공유하는 브리핑·퀴즈·회차 캡처도 함께 교체했다. 시험장 목록/선택 전/선택 완료 세 캡처는 최종 APK의 실제 화면에서 다시 저장했고, 예약 알약과 돌아가기의 위치를 확인했다. [IME 캡처](lesson-setup-coach-ime.png)는 Google Automotive Keyboard를 띄운 뒤 ADB로 `hello`를 넣어 말 카드·입력줄·보내기·돌아가기가 키보드 위에 보이는지 확인한 것이다. 화면 키 직접 타이핑 검증으로 세지 않았다. 한국어 조합·버튼/IME 전송은 전체 계측에서 통과했다.
+
+최종 APK SHA-256: 앱 `6F03DC6F36400592563DC445BCB5525C93A261F6785C0FD2AB2DC11128436034`, 계측 `24B6B7E6F5631AFBA40CC94BC2B583930E398CF1D7481794861C949834340C84`.
+
 ## UI 라운드 25b — 말 카드·S자 연습·도로 표시·과제 시트 (2026-10-06)
 
 `codex/ui-round25b` · 새 워크트리 시작 기준 `origin/main=5f6b9cc`(#218). [발주서](../../handoffs/2026-10-06_codex_ui_round25b.md)의 네 항목을 머지된 모델에 연결했다. 모델·데이터·ports·vehicle·scoring·Gradle·tools·NEXT 변경은 없다. 검증 기기는 `emulator-5556` 하나다.

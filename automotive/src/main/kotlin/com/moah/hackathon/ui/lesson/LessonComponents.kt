@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
@@ -78,7 +79,8 @@ internal fun BrandMark(modifier: Modifier = Modifier, color: Color = CoachColors
 
 @Composable
 internal fun Eyebrow(text: String, modifier: Modifier = Modifier, color: Color = CoachColors.Ink) =
-    LessonText(text, CoachType.Eyebrow, color, modifier = modifier)
+    LessonText(text, CoachType.Eyebrow, color, modifier = modifier
+        .then(if (text == "코치" || text.startsWith("코치 ")) Modifier.padding(start = 4.dp) else Modifier))
 
 @Composable
 internal fun Headline(text: String, modifier: Modifier = Modifier, size: Int = CoachType.Headline,
@@ -102,7 +104,7 @@ internal fun ResultHeadline(text: String, modifier: Modifier = Modifier) {
         val sizes = listOf(72, 64, 56, 48, 40, 32)
         var step by remember(text, maxWidth, maxHeight) { mutableIntStateOf(0) }
         val size = sizes[step]
-        Text(text, color = CoachColors.Ink, fontSize = size.sp, lineHeight = (size * 1.18f).sp,
+        Text(coachDisplayText(text), color = CoachColors.Ink, fontSize = size.sp, lineHeight = (size * 1.18f).sp,
             onTextLayout = { if (it.hasVisualOverflow && step < sizes.lastIndex) step++ },
             fontWeight = FontWeight.Normal, style = TextStyle(localeList = LocaleList("ko-KR"),
                 lineBreak = LineBreak.Paragraph.copy(wordBreak = LineBreak.WordBreak.Phrase)))
@@ -126,22 +128,29 @@ internal fun ResultLockedScreen(onDemoStop: (() -> Unit)? = null) {
 }
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 internal fun PrimaryPill(label: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) {
     // Setup summary: 47% of the 2560 dp canvas, minus its two 64 dp margins.
     val dimensions = Modifier.widthIn(min = (2560 * .47f - 128).dp).height(140.dp)
     val interactions = remember { MutableInteractionSource() }
-    val pressed = interactions.collectIsPressedAsState()
-    Button(onClick, modifier.then(dimensions).alpha(if (enabled) 1f else .55f).surfaceTexture(CoachColors.Signal, CoachTexture.Button,
-        pill = true, pressed = { pressed.value }), shape = RoundedCornerShape(100), interactionSource = interactions,
-        enabled = enabled,
-        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent, contentColor = CoachColors.Paper,
-            disabledContainerColor = Color.Transparent, disabledContentColor = CoachColors.Paper),
-        contentPadding = PaddingValues(horizontal = 48.dp, vertical = 24.dp)) {
-        LessonText(label, 40, CoachColors.Paper, bold = true)
-        Spacer(Modifier.width(32.dp))
-        LessonText("→", 40, CoachColors.Paper)
+    CompositionLocalProvider(LocalRippleConfiguration provides null) {
+        Button(onClick, modifier.then(dimensions).alpha(if (enabled) 1f else .55f),
+            shape = RoundedCornerShape(100), interactionSource = interactions, enabled = enabled, elevation = null,
+            colors = ButtonDefaults.buttonColors(containerColor = CoachColors.Signal, contentColor = CoachColors.Paper,
+                disabledContainerColor = CoachColors.Signal, disabledContentColor = CoachColors.Paper),
+            contentPadding = PaddingValues(horizontal = 48.dp, vertical = 24.dp)) {
+            LessonText(label, 40, CoachColors.Paper, bold = true)
+            Spacer(Modifier.width(32.dp))
+            LessonText("→", 40, CoachColors.Paper)
+        }
     }
 }
+
+/** Two thirds of the former result action, independent of the wider report column. */
+@Composable
+internal fun MainPill(onClick: () -> Unit, modifier: Modifier = Modifier) =
+    PrimaryPill(androidx.compose.ui.res.stringResource(com.moah.hackathon.R.string.lesson_restart), onClick,
+        modifier.width(((2560 * .47f - 128) * 2 / 3).dp))
 
 /** Measure the secondary first; a constrained primary yields its preferred minimum to the gap. */
 @Composable

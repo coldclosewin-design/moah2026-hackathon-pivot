@@ -52,8 +52,6 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
             onConsumeProfileRequest()
         }
     }
-    var lastCoachLine by rememberSaveable { mutableStateOf<String?>(null) }
-    LaunchedEffect(coach?.line) { coach?.line?.let { lastCoachLine = it } }
     var selectedTaskId by rememberSaveable(suggestedTask.id, booking) { mutableStateOf(suggestedTask.id) }
     var categoryName by rememberSaveable(suggestedTask.id, booking) { mutableStateOf(suggestedTask.type.name) }
     var modeName by rememberSaveable(suggestedMode, booking) { mutableStateOf(suggestedMode.name) }
@@ -94,7 +92,7 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
     val selectedTask = task.takeIf { it.isReady && it.type.name == categoryName }
     val mode = supportedMode(task, LessonMode.valueOf(modeName))
     val start = { if (task.isReady && (!sheet || selectedTask != null)) onBegin(task.id, mode) }
-    val fraction by animateFloatAsState(if (sheet || profileOpen) .30f else .53f,
+    val fraction by animateFloatAsState(when { profileOpen -> .30f; sheet || coach != null -> .21f; else -> .53f },
         tween(400, easing = FastOutSlowInEasing), label = "poster")
     val slide = with(LocalDensity.current) { 40.dp.roundToPx() }
     PosterSurface(band = demo.takeUnless { sheet || profileOpen || coach != null }) {
@@ -182,9 +180,7 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
                                     CoachPill("코치와 대화", onOpenCoach)
                                 }
                             }
-                            // The dialog already showed this speech; repeating it after return can
-                            // squeeze the booking home's action row above the admin band.
-                            SpeechFooter(subtitle?.takeUnless { it == lastCoachLine })
+                            // Home omits the speech subtitle; the model still owns TTS.
                         }
                     }
                 }

@@ -6,13 +6,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.moah.hackathon.R
 import com.moah.hackathon.feature.lesson.QuizItem
 import com.moah.hackathon.feature.lesson.QuizResult
 import com.moah.hackathon.feature.lesson.Task
@@ -33,7 +31,7 @@ internal fun QuizDoneScreen(task: Task, results: List<QuizResult>, items: List<Q
             Column(Modifier.weight(.62f).fillMaxHeight().padding(start = 100.dp, end = 120.dp, top = 64.dp, bottom = 52.dp),
                 verticalArrangement = Arrangement.spacedBy(32.dp)) {
                 Eyebrow("지식 테스트 · ${task.title}")
-                Headline(remark, size = 72)
+                Headline(coachDisplayText(remark), size = 72)
                 Column(Modifier.weight(1f).verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(28.dp)) {
                     items.forEachIndexed { index, item ->
@@ -54,7 +52,7 @@ internal fun QuizDoneScreen(task: Task, results: List<QuizResult>, items: List<Q
                         }
                     }
                 }
-                BottomActions(primary = { PrimaryPill(stringResource(R.string.lesson_restart), onRestart) })
+                BottomActions(primary = { MainPill(onRestart) })
             }
         }
     }

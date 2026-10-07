@@ -29,7 +29,7 @@ internal fun aiLine(state: CopilotAuth.State?): AiLine? = when (state) {
 }
 
 internal fun profileLine(profile: Profile): String = listOfNotNull(profile.name,
-    profile.rustyYears?.let { "장롱 ${it}년차" }, profile.statement.goal?.let { "목표 $it" }).joinToString(" · ")
+    profile.rustyYears?.let { "장롱 ${it}년차" }, profile.statement.goal?.let { "목표: $it" }).joinToString(" · ")
 
 internal fun taskTypeLabel(type: TaskType): String = when (type) {
     TaskType.CHECKLIST -> "점검"
@@ -177,3 +177,14 @@ internal fun distanceFraction(distanceCm: Float?) = ((distanceCm ?: 0f) / 250f).
 // Do not bring a prior result back onto the moving screen through free-form speech text.
 private val scoreText = Regex("점수|감점|\\d+\\s*점|이동\\s*\\d+회|\\d+\\s*초")
 internal fun maneuverText(text: String?): String? = text?.takeUnless { scoreText.containsMatchIn(it) }
+
+/** Display only: preserve decimals, ellipses and source speech/storage strings. */
+internal fun coachDisplayText(text: String): String =
+    text.replace(Regex("(?<![.\u2026])([.!?])[ \t]+"), "$1\n")
+
+internal fun modeDescription(mode: LessonMode): String = when (mode) {
+    LessonMode.GUIDE -> "단계마다 제가 말하고 확인해요."
+    LessonMode.HINT -> "틀린 순간에만 말할게요."
+    LessonMode.EVALUATE -> "조용히 지켜보고 끝에 판정해요."
+    LessonMode.QUIZ -> "차를 세운 채 문제를 풀어요."
+}
