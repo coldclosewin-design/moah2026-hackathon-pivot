@@ -1,0 +1,70 @@
+== start
+  tap '과제·모드 바꾸기'
+  tap '주행'
+  tap '장내기능 모의시험'
+  shot 20_sheet_driving
+  tap '평가'
+  tap '시작'
+  log 'begin track-exam EVALUATE' after 1s
+  log 'attempt 1 start' after 6s
+  shot 21_drive_start
+== attempt 1: 못한 시험 (감점 셋 · 불합격)
+  tap '못한 시험'
+  shot 22_drive_slope
+  log 'course zone: exam-parking' after 19s
+  shot 23_drive_parking
+  log 'course zone: exam-emergency' after 43s
+  shot 24_drive_emergency
+  log 'asked done \(attempt 1' after 19s
+  shot 25_drive_finish
+  tap '다 됐어요'
+  log 'attempt 1: skill=' after 1s
+  shot 26_done_1
+  course=70 passed=false deductions=3
+== attempt 2: 잘한 시험 (감점 없음 · 합격)
+  tap '한 번 더'
+  log 'attempt 2 start' after 1s
+  tap '잘한 시험'
+  log 'asked done \(attempt 2' after 98s
+  tap '다 됐어요'
+  log 'attempt 2: skill=' after 1s
+  shot 27_done_2
+  course=100 passed=true deductions=0
+== report
+  tap '문 열기'
+  log 'report: attempts=2' after 1s
+  shot 28_report
+== logcat
+21319 21319 I MOAH/LessonStateMachine: admin: preset exam-fail-pass task=track-exam mode=EVALUATE profile=ProfileStatement(licenseYear=2016, monthsSinceLastDrive=120, car=중형 SUV
+21319 21319 I MOAH/LessonStateMachine: begin track-exam EVALUATE
+21319 21345 I MOAH/LessonStateMachine: briefing 7803 ms (speech done)
+21319 21345 I MOAH/LessonStateMachine: attempt 1 start (EVALUATE) course=course-exam-track missing=[]
+21319 21344 I MOAH/LessonStateMachine: course zone: exam-device
+21319 21345 I MOAH/LessonStateMachine: course zone: exam-slope
+21319 21345 I MOAH/LessonStateMachine: course deduction: 뒤로 밀림 zone=exam-slope points=10 disqualify=false
+21319 21344 I MOAH/LessonStateMachine: course zone: exam-right
+21319 21345 I MOAH/LessonStateMachine: course zone: exam-parking
+21319 21344 I MOAH/LessonStateMachine: course deduction: 검지선 접촉 zone=exam-parking points=10 disqualify=false
+21319 21345 I MOAH/LessonStateMachine: course zone: exam-signal
+21319 21344 I MOAH/LessonStateMachine: course zone: exam-accel
+21319 21344 I MOAH/LessonStateMachine: course zone: exam-emergency
+21319 21345 I MOAH/LessonStateMachine: course deduction: 비상등 미점등 zone=exam-emergency points=10 disqualify=false
+21319 21344 I MOAH/LessonStateMachine: course zone: exam-left
+21319 21344 I MOAH/LessonStateMachine: course zone: exam-finish
+21319 21344 I MOAH/LessonStateMachine: asked done (attempt 1)
+21319 21344 I MOAH/LessonStateMachine: attempt 1: skill=70 safety=100 segments=7 badge=AvailabilityBadge(live=0, simulated=17, missing=0) course=70 passed=false deductions=3
+21319 21344 I MOAH/LessonStateMachine: attempt 2 start (EVALUATE) course=course-exam-track missing=[]
+21319 21345 I MOAH/LessonStateMachine: course zone: exam-device
+21319 21345 I MOAH/LessonStateMachine: course zone: exam-slope
+21319 21345 I MOAH/LessonStateMachine: course zone: exam-right
+21319 21345 I MOAH/LessonStateMachine: course zone: exam-parking
+21319 21345 I MOAH/LessonStateMachine: course zone: exam-signal
+21319 22366 I MOAH/LessonStateMachine: course zone: exam-accel
+21319 21345 I MOAH/LessonStateMachine: course zone: exam-emergency
+21319 21345 I MOAH/LessonStateMachine: course zone: exam-left
+21319 22366 I MOAH/LessonStateMachine: course zone: exam-finish
+21319 21345 I MOAH/LessonStateMachine: asked done (attempt 2)
+21319 21345 I MOAH/LessonStateMachine: attempt 2: skill=100 safety=100 segments=6 badge=AvailabilityBadge(live=0, simulated=17, missing=0) course=100 passed=true deductions=0
+21319 21345 I MOAH/LessonStateMachine: door opened → report
+21319 21345 I MOAH/LessonStateMachine: report: attempts=2 best=100/100 badge=AvailabilityBadge(live=0, simulated=17, missing=0)
+== result: PASS (장내기능 못함 70 불합격 → 잘함 100 합격)

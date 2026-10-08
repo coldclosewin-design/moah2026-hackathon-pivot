@@ -16,7 +16,7 @@ internal data class PathViewport(val scale: Float, val centerX: Float, val cente
 
 internal fun pathViewport(path: List<PathPoint>, width: Float, height: Float,
     frontEntry: Boolean = false, harshPoints: List<PathPoint> = emptyList(), targetHeading: Float? = null,
-    neighborBays: Boolean = false, parallel: Boolean = false): PathViewport {
+    neighborBays: Boolean = false, parallel: Boolean = false, padding: Float = 120f): PathViewport {
     require(path.isNotEmpty())
     val extent = path.map { it.x to it.y }.toMutableList()
     if (neighborBays) extent += parkingNeighborWorldPoints(path.last(), targetHeading ?: path.last().headingDeg, parallel)
@@ -29,8 +29,8 @@ internal fun pathViewport(path: List<PathPoint>, width: Float, height: Float,
     }
     val left = extent.minOf { it.first }; val right = extent.maxOf { it.first }
     val bottom = extent.minOf { it.second }; val top = extent.maxOf { it.second }
-    val scale = minOf((width - 240f) / (right - left).coerceAtLeast(.1f),
-        (height - 240f) / (top - bottom).coerceAtLeast(.1f)).coerceAtLeast(if (neighborBays) .1f else 36f)
+    val scale = minOf((width - padding * 2) / (right - left).coerceAtLeast(.1f),
+        (height - padding * 2) / (top - bottom).coerceAtLeast(.1f)).coerceAtLeast(if (neighborBays) .1f else 36f)
     // Retain the horizontal fit. Centre the final painted scene, including fixed-dp strokes,
     // so the bay stays anchored while the measured path is replayed.
     var (paintBottom, paintTop) = pathVerticalBounds(path, scale, frontEntry, harshPoints, targetHeading)

@@ -26,7 +26,7 @@ import com.moah.hackathon.ui.CoachColors
 /** One press/release implementation for every primary action, including the H8 start. */
 @Composable
 internal fun FillButton(label: String, onClick: () -> Unit, modifier: Modifier = Modifier,
-    enabled: Boolean = true, home: Boolean = false,
+    enabled: Boolean = true, home: Boolean = false, inverse: Boolean = false,
     interactions: MutableInteractionSource = remember { MutableInteractionSource() }) {
     val pressed by interactions.collectIsPressedAsState()
     val progress by animateFloatAsState(if (pressed && enabled) 1f else 0f,
@@ -35,12 +35,12 @@ internal fun FillButton(label: String, onClick: () -> Unit, modifier: Modifier =
     val shape = RoundedCornerShape(100)
     Box(modifier.alpha(if (enabled) 1f else .32f)
         .shadow(if (home || !enabled) 0.dp else 2.dp, shape).clip(shape)
-        .background(if (home) CoachColors.Paper else CoachColors.Ink)
+        .background(if (home) CoachColors.Paper else if (inverse) CoachColors.Platinum else CoachColors.Ink)
         .clickable(interactionSource = interactions, indication = null, enabled = enabled, role = Role.Button, onClick = onClick)
         .drawWithContent {
             if (!home) {
                 val width = size.height + (size.width - size.height) * progress
-                drawRoundRect(lerp(CoachColors.Periwinkle, CoachColors.Jet, progress),
+                drawRoundRect(if (inverse) lerp(CoachColors.Paper, CoachColors.Platinum, progress) else lerp(CoachColors.Periwinkle, CoachColors.Jet, progress),
                     size = Size(width, size.height), cornerRadius = CornerRadius(size.height / 2))
             }
             drawContent()
@@ -49,7 +49,7 @@ internal fun FillButton(label: String, onClick: () -> Unit, modifier: Modifier =
                 cornerRadius = CornerRadius(size.height / 2), style = Stroke(2.dp.toPx(),
                     pathEffect = PathEffect.dashPathEffect(floatArrayOf(14.dp.toPx(), 10.dp.toPx()))))
         }) {
-        ButtonFace(label, home, progress, if (home) CoachColors.Ink else CoachColors.Paper)
+        ButtonFace(label, home, progress, if (home || inverse) CoachColors.Ink else CoachColors.Paper)
         if (home) Box(Modifier.matchParentSize().clearAndSetSemantics {}.drawWithContent {
             val width = size.height + (size.width - size.height) * progress
             val radius = size.height / 2

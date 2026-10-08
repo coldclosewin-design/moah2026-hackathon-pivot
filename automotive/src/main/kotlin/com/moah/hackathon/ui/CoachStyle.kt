@@ -25,6 +25,7 @@ internal object CoachColors {
     val Muted = Color(0xFF6E7071)
     val Platinum = Color(0xFFE0E0E0)
     val Jet = Color(0xFF1A1A1A)
+    val Accent = Color(0xFFF2C230)
 
     // Semantic road paint: confined to the parked RoadFigure illustration, never UI controls.
     val RoadMarkingYellow = Color(0xFFF4CC42)

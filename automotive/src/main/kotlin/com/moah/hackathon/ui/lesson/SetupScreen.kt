@@ -9,6 +9,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -93,7 +95,7 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
     val selectedTask = task.takeIf { it.isReady && it.type.name == categoryName }
     val mode = supportedMode(task, LessonMode.valueOf(modeName))
     val start = { if (task.isReady && (if (sheet) selectedTask != null else picked)) onBegin(task.id, mode) }
-    val fraction by animateFloatAsState(when { profileOpen -> .30f; sheet || coach != null -> .21f; else -> 0f },
+    val fraction by animateFloatAsState(when { profileOpen -> .30f; else -> 0f },
         tween(400, easing = FastOutSlowInEasing), label = "poster")
     val slide = with(LocalDensity.current) { 40.dp.roundToPx() }
     PosterSurface(band = demo.takeUnless { sheet || profileOpen || coach != null }) {
@@ -130,13 +132,18 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
                                 }
                             }
                         }
-                    } else Column(Modifier.fillMaxSize().padding(start = 64.dp, end = 64.dp,
-                        top = if (showSheet) 64.dp else if (compactHome) 48.dp else 96.dp,
-                        bottom = if (compactHome) 24.dp else 52.dp),
+                    } else Column(Modifier.fillMaxSize().padding(if (page == "profile" || venuesOpen) 64.dp else 0.dp),
                         verticalArrangement = Arrangement.spacedBy(24.dp)) {
                         if (page == "profile") {
                             ProfileScreen(profileRows, onAnswerProfile, { profileOpen = false }, observedLines = observedLines)
                         } else if (page == "coach") {
+                            Box(Modifier.fillMaxSize()) {
+                            Box(Modifier.fillMaxSize().clearAndSetSemantics {}) {
+                                HomeGallery(profile, task, mode, picked, compactHome, null, {}, {}, {}, {}, {}, false, reason) {}
+                            }
+                            Box(Modifier.fillMaxSize().background(CoachColors.Ink.copy(alpha = .15f)))
+                            SheetCard(Modifier.fillMaxSize().padding(start = 72.dp, end = 72.dp, top = 180.dp, bottom = 36.dp)) {
+                            Box(Modifier.fillMaxSize().padding(52.dp)) {
                             coach?.let { dialog -> CoachSheet(dialog, { choice ->
                                 coachTextSubmitted = false
                                 awaitingRecommendation = choice == CoachChoice.CONTINUE_LAST
@@ -148,6 +155,9 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
                                 coachTextSubmitted = true
                                 onSendCoachCard(id)
                             }) }
+                            }
+                            }
+                            }
                         } else if (showSheet) {
                             if (venuesOpen) VenueSheet(venues, booking, onReserve, onCancelReservation,
                                 onBack = { venuesOpen = false }, onDone = { venuesOpen = false; sheet = false })

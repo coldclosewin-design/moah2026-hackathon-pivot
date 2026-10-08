@@ -1,53 +1,56 @@
-# 라운드 27a · Onyx 갤러리 화면 캡처
+# 라운드 28a · 선택한 시안 칸과 앱 비교
 
-2026-10-08. 기준 `5540d85`, 브랜치 `codex/ui-round27a`. [발주서](../../handoffs/2026-10-08_codex_ui_round27a.md)의 01 · H8 · P2 · A1 · B1 · E1을 적용했다. 모든 실행은 `emulator-5556`에서 진행했다.
+2026-10-08 · `codex/ui-round28a` · 시작 기준 `origin/main`의 `3b6b057` (#246). [발주서](../../handoffs/2026-10-08_codex_ui_round28a.md)의 화면 구성을 구현했다. 모든 앱 캡처와 도구 실행은 `emulator-5556`에서 얻었다.
 
-| 항목 | 실제 앱 캡처 | 적용 내용 |
-|---|---|---|
-| Onyx / P2 | [과제 선택](lesson-setup-sheet.png) · [예약](lesson-venue-slots-ready.png) · [프로필](lesson-profile-sheet.png) | White 벽, Onyx 글자·선택·주 행동, Graphite 링크, F2F2F2 면, Platinum 선. 입체 하이라이트·그라데이션 제거, 선택 알약과 주 행동에 얕은 그림자 한 겹 |
-| H8 홈 | [홈](lesson-setup.png) · [첫 실행](lesson-setup-first.png) · [긴 과제](lesson-setup-long-task.png) · [모드](lesson-setup-mode-popup.png) · [예약 홈](lesson-setup-booking-mock.png) | 차 포스터 없는 흰 벽, 작은 워드마크, 오른쪽 위 프로필·코치, 큰 밑줄 제목, 오른쪽 아래 ↗ 시작. 처음에는 점선·흐림·비활성. 시작과 코치 터치 높이 112 dp 이상 |
-| H8 움직임 | [0 / 93 / 187 / 280 ms](lesson-home-h8-strip.png) | 오른쪽 원이 왼쪽으로 번지면서 글자 반전, ↗가 →로 회전. 실제 Compose 프레임 시계와 터치 누름으로 캡처 |
-| A1 주 행동 | [0 / 120 / 240 / 360 ms](lesson-fill-button-strip.png) | 공용 FillButton. 왼쪽 화살표 원에서 깊은 무채색 면으로 채움, 누름 360 ms (.2,.8,.2,1), 놓음 260 ms (.4,0,.6,1). 취소 시 이동 없음·원래 면 복원 검사 |
-| B1 선택 | [0 / 93 / 187 / 280 ms](lesson-track-b1-strip.png) | 분류·모드·시험장 시간·코스의 공용 트랙. 280 ms (.3,1.25,.5,1), 지나친 뒤 복귀. 위치·너비 중간값, 첫 프레임, 크기 변경 검사 |
-| E1 기호 | [13개 타일](lesson-icons-e1.png) · [점검](lesson-maneuver-checklist.png) · [판정](lesson-done.png) · [정직성 배지](lesson-report.png) | 음성·생각·불러오기·실신호·시뮬레이션·미측정·체크·듣기·잠금·근접·지시등·비상등·시동. 현재 자리가 있는 화면에 연결. 불러오기는 공용 타일과 도감까지 구현 |
-| 브리핑 비교 | [기존 핸들 그림](lesson-briefing-wheel-reference.png) · [채택한 음성 타일](lesson-briefing-voice-tile.png) · [자막](lesson-briefing-captions.png) | 본편은 Onyx 한 면과 큰 음성 타일. 자막·진행 막대·건너뛰기의 동작은 유지 |
-| 주행 잠금 | [주차](lesson-locked.png) · [점검](lesson-maneuver-checklist-locked.png) · [코스](lesson-drive-exam.png) · [브리핑](lesson-briefing-route-locked.png) | 화면 전체 Onyx, 운전에 집중해 주세요, 정적인 잠금 기호. 터치·점수·장식 움직임 없음. 정차 시 원래 화면 복원 |
-| 결과서와 정보 시트 | [오늘의 기록](lesson-report-session.png) · [자세히 보기](lesson-details.png) · [진단서](lesson-certificate.png) · [시험 결과](lesson-done-exam-good.png) | 기존 배치를 유지하고 토큰·공용 버튼·배지와 기호만 적용. 결과서 6 · 정보 화면 2 · C1 · 새 차 그림은 27b |
+## 화면별 비교
 
-E1 정직성은 ● / ◐ / ○의 차이를 타일 안에서 유지한다. 배지의 접근성 텍스트는 기존 `실신호 N · 시뮬레이션 N · 미측정 N` 그대로다. 주행 잠금에서는 타일 애니메이션을 시작하지 않으며, 실제 지시등은 들어온 신호 상태를 따른다. 코치 버튼의 듣기 움직임은 누르는 동안만 표시한다.
+각 비교 이미지의 **왼쪽은 지정 시안의 칸**, **오른쪽은 실제 앱 캡처**다. 원본 앱 캡처 2560×1440에서 시스템 바만 제외한 `(0,76)–(2560,1344)` 영역을 시안과 같은 853×423으로 축소했다. 앱 요소를 옮기거나 합성하지 않았다. 웹 시안은 로컬 HTML 열기가 지원되지 않아 발주서가 허용한 같은 이름 PNG를 사용했다.
 
-Signal은 근접·오답·감점·잘못된 점검 같은 경고에만 사용한다. 교육 도식의 황색 중앙선·청색 버스전용차로는 기존 도로 표지 의미를 보존한다. 시트의 기존 차 포스터는 형상을 유지하고 무채색으로 표시한다. 글꼴 파일을 추가하지 않았으며 시스템 산세리프와 Regular 400 / 제목 Medium 500 / 워드마크 Bold를 사용한다.
+| 화면 | 선택한 시안 | 시안 칸 ↔ 앱 | 원본 앱 캡처 |
+|---|---|---|---|
+| ① 과제 시트 | round27 `4-dense` · 2 문장 시트 | [접힘](compare-28a-task.png) · [과제 펼침](compare-28a-task-expanded.png) | [접힘](lesson-28a-task.png) · [펼침](lesson-28a-task-expanded.png) · [모드 카드](lesson-28a-task-modes.png) |
+| ② 홈 모드 팝업 | round28 `1-home-popups` · A3 제자리 낱말 바퀴 | [비교](compare-28a-mode.png) | [캡처](lesson-28a-mode.png) |
+| ③ 코치와 대화 | round28 `1-home-popups` · C1 바닥 시트 + 말풍선 | [비교](compare-28a-coach.png) | [대화](lesson-28a-coach.png) · [기다림](lesson-28a-coach-waiting.png) |
+| ④ 브리핑 | round28 `2-session` · A5 H8 포스터 | [비교](compare-28a-briefing.png) | [캡처](lesson-28a-briefing.png) |
+| ⑤ 주차 중 | round28 `2-session` · B5 핸들 링 | [비교](compare-28a-parking.png) | [가이드](lesson-28a-parking-guide.png) · [힌트](lesson-28a-parking-hint.png) · [평가](lesson-28a-parking-evaluate.png) · [정차](lesson-28a-parking-stopped.png) · [미측정](lesson-28a-parking-missing.png) |
+| ⑥ 잠금 | round28 `2-session` · C1 Onyx 한 면 + 잠금 타일 | [비교](compare-28a-locked.png) | [캡처](lesson-28a-locked.png) |
+| ⑦ 회차 판정 | round28 `4-results` · A5 아래에서 올라오는 판정 카드 | [비교](compare-28a-done.png) | [주차](lesson-28a-done.png) · [점검](lesson-28a-done-checklist.png) · [모의시험 합격](lesson-28a-done-exam.png) · [모의시험 불합격](lesson-28a-done-exam-bad.png) |
+| ⑧ 오늘의 기록 | round28 `4-results` · B6 흰 카드 대시보드 | [비교](compare-28a-report.png) | [주차](lesson-28a-report.png) · [점검](lesson-28a-report-checklist.png) · [모의시험](lesson-28a-report-exam.png) · [추가 질문](lesson-28a-report-ask.png) |
+| ⑨ 자세히 보기 | round27 `3-results` · 6 전→후 쌍 알약 | [비교](compare-28a-details.png) | [주차](lesson-28a-details.png) · [시험 0–100 자 / 합격선 80](lesson-28a-details-exam.png) |
+| ⑩ V4 차 | round27 `6-vehicle` · V4 기하 | [홈 옆모습 비교](compare-28a-vehicle.png) | [홈](lesson-28a-vehicle.png) · [과제](lesson-28a-task-expanded.png) · [궤적](lesson-28a-done.png) · [지도](lesson-28a-vehicle-map.png) · [주차 도식](lesson-28a-parking-guide.png) |
+
+시안 PNG 크롭은 모두 `x=44, width=853, height=423`이다. 파일별 y 좌표는 `round27/4-dense.png` 1542(문장)·2005(펼침), `round28/1-home-popups.png` 1380(A3)·8553(C1), `round28/2-session.png` 3111(A5)·9264(B5)·13231(C1), `round28/4-results.png` 4076(A5)·10027(B6), `round27/3-results.png` 5394(6), `round27/6-vehicle.png` 4220(V4)이다. 원본은 `docs/design/round27-proposals/`와 `round28-proposals/`에 있다.
+
+## 구현과 기존 흐름
+
+과제 시트는 **열 때부터 과제 카드가 펼쳐져 있다**. 분류·과제·모드 글자와 `시작`을 바로 누를 수 있도록 과제 카드 아래에 작은 모드 트랙, 시트 아래에 기존 행동 줄을 함께 둔다. 자동 시연 도구가 `주차`·`주행`·`후면 직각 주차`·`장내기능 모의시험`·`힌트`·`평가`·`시작`을 누르는 흐름을 유지한다. 문장 접힘에서는 132dp, 편집에서는 90dp이며 C1 흰 카드와 뒤 카드 0.965 배율을 사용한다.
+
+홈 모드 바퀴는 고른 낱말을 가운데에 두고 280ms에 걸쳐 이동한다. 코치 대화는 홈 위의 C1 시트 안에 코치/운전자 말풍선·말 카드·기다림을 배치한다. 브리핑은 흰 벽의 큰 문장, 회색 끝말, 가는 가로 진행선과 세 자막 열로 구성한다. 주차는 실제 조향 값으로 그린 이중 링과 V4 주차 칸, 모드·속도·기어·뒤 거리·출처로 구성한다.
+
+Done은 위쪽 코치 문장과 아래쪽 Onyx 카드의 궤적/판정/행동 세 열이다. 기록은 회차·총평·판정·신호 출처의 네 카드다. 추가 프로필 질문은 별도 시트에 표시해 네 카드를 압축하지 않는다. 상세는 지난 값의 흐린 테두리와 현재 값의 Platinum 알약, 40dp 변화량, 비교 표를 쓴다. 시험에는 0–100 자와 합격선 80을 표시한다. 정직성 안내는 시안보다 크게 유지한다.
+
+모의시험 실패 회차는 감점 설명이 지도를 밀어내지 않도록 지도 아래 설명에 스크롤을 둔다. 시연 조작 띠와 감점 세 항목이 함께 있는 상태에서도 지도 높이와 마지막 감점 설명 접근을 계측한다.
+
+V4의 둥근 차체·실내 사각·앞 선을 과제·궤적·지도·주차 도식이 공유한다. 홈 옆모습은 900ms에 걸쳐 선 위에 들어와 멈춘다. 브리핑·과제 시트에서 포스터 webp를 제거했다. 프로필의 기존 포스터는 28b 범위다. 노란색은 `CoachColors.Accent = #F2C230` 한 토큰만 추가했으며 한 화면 한 원 아이콘에 사용한다. 궤적 방향 꺾쇠는 Onyx, Signal은 경고에만 사용한다.
 
 ## 검증
 
-[PowerShell 빌드](build-round27a.txt): `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest`. [단위 테스트](unit-round27a.txt) 368개, 실패·오류·건너뜀 0.
+동일한 최종 APK로 아래 검증을 모두 통과했다. 화면 계측 세 번을 연속 실행한 뒤 예약 포함 주차, APK 재설치, 모의시험 순으로 실행했다.
 
-같은 최종 앱·계측 APK로 원본 `tools/lesson_shots.sh`를 3회 연속 실행했다. 기본 제한 900초를 유지했다.
+| 확인 | 결과와 증거 |
+|---|---|
+| `assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest` | [빌드 PASS](build-round28a.txt) · [JVM 368개, 실패/오류/건너뜀 0 · APK SHA-256](unit-round28a.txt) |
+| `ANDROID_SERIAL=emulator-5556 bash tools/lesson_shots.sh` 3회 연속 | 모두 `Lesson contract passed` · [1회](contract-round28a-1.txt) · [2회](contract-round28a-2.txt) · [3회](contract-round28a-3.txt) |
+| `RESERVE=1 bash tools/emu_flow.sh` | [PASS · clashes 0](flow-round28a-rear.txt) · 예약, 필수 힌트 3종, 60/55 → 100/100, 도어 → Report · 세션 시작 후 Report까지 133초 |
+| `adb -s emulator-5556 install -r` 뒤 `bash tools/course_flow.sh` | [재설치 Success](install-round28a-course.txt) · [PASS](flow-round28a-course.txt) · 70 불합격/감점 3 → 100 합격/감점 0 · 도어 → Report |
+| 누름·선택 프레임 | [A1 누름](lesson-28a-fill-button-strip.png) · [H8 누름](lesson-28a-home-h8-strip.png) · [B1 선택](lesson-28a-track-b1-strip.png) |
 
-| 실행 | 로그 | 결과 | 설치·가져오기 포함 |
-|---|---|---|---|
-| 1 | [계약 1](contract-round27a-1.txt) | Lesson contract passed | 447초 |
-| 2 | [계약 2](contract-round27a-2.txt) | Lesson contract passed | 447초 |
-| 3 | [계약 3](contract-round27a-3.txt) | Lesson contract passed | 446초 |
+자동 시연에서 얻은 주차 캡처: [첫 회차](lesson-28a-flow-rear-done-bad.png) · [둘째 회차](lesson-28a-flow-rear-done-good.png) · [기록](lesson-28a-flow-rear-report.png).
 
-H8/A1 실제 누름·취소·복원, 좁은 보내기 버튼의 한 줄·잘림 없음, B1 중간 위치·너비·지나침·복귀, 첫 배치·크기 변경, 비활성 시작, 긴 과제, 잠금·Real 경계, 예약·프로필·대화·IME 계약을 확인했다. [E1 캡처 픽셀 확인](icons-round27a.txt)에서도 세 출처 모양과 근접 타일만 Signal인 것을 확인했다.
+자동 시연에서 얻은 모의시험 캡처: [불합격](lesson-28a-flow-course-done-bad.png) · [합격](lesson-28a-flow-course-done-good.png) · [기록](lesson-28a-flow-course-report.png).
 
-[추가 코스 계측](contract-round27a-extra.txt)도 통과했다. 신호 없음/노랑/초록/빨강, 주행 잠금, 실제 시드의 감점 위치, 시험 결과·진단서, 평행·사선 주차, 시험장 예약을 확인했다.
+`emu_flow.sh`·`course_flow.sh`의 시작 검사에는 아직 `emulator-5554`가 하드코딩돼 있어, 기존 [INTEGRATION C절의 serial 후속 요청](../../INTEGRATION.md#c-요청-codex--claude--claude--codex)과 같은 방식으로 ignored `build/adb-round28a.sh`를 `ADB` 환경 변수에 지정했다. 래퍼는 선두 `-s <기기>`가 있으면 제거한 뒤 모든 호출을 `adb.exe -s emulator-5556`으로 실행한다. 도구의 내용·대기·탭·판정은 수정하지 않았다.
 
-`RESERVE=1 bash tools/emu_flow.sh`는 **PASS · clashes 0**([로그](flow-round27a-rear.txt), 213초). 예약 → 후면 주차 힌트 모드 → **60/55·4구간 → 100/100·2구간**, 필수 힌트 세 종류·둘째 추가 힌트 없음·도어→Report·`실신호 0 · 시뮬레이션 8 · 미측정 0`을 확인했다. [오늘의 기록](lesson-report-session.png)과 [자세히 보기](lesson-details-session.png)는 이 실제 두 회차에서 얻었다.
+계측은 이전 포스터 폭·왼쪽 패널·예전 차의 보닛 픽셀처럼 폐기된 배치를 가정하던 검사를 새 28a 화면 계약으로 교체했다. 과제/모드 선택과 콜백, 브리핑 정차/잠금, 주차 세 모드와 미측정, 결과/리포트/시험, 회차 탐색, 출처의 기존 접근성 문장, 추가 질문 응답/건너뜀과 공유 예시를 확인한다. A1/H8 누름·취소·복원, B1 위치/너비/지나침/크기 변경, 실제 예약 흐름, 한국어 입력/IME/대화, Real·시연 잠금과 워드마크 길게 누르기, 퀴즈 종료 검사는 유지한다. B1은 전체 과제 시트 대신 공용 SelectionTrack 자체의 프레임 시계를 구동한다. V4 지도 검사는 보닛 면 대신 새 차체 앞뒤 외곽을 측정한다.
 
-최종 APK를 `adb -s emulator-5556 install -r`로 [재설치](install-round27a-course.txt)한 뒤 `bash tools/course_flow.sh`도 **PASS**([로그](flow-round27a-course.txt), 346초). **70 불합격·감점 3 → 100 합격·감점 0 → 도어→Report**를 확인했다.
-
-`emu_flow.sh`와 `course_flow.sh`의 준비 검사에는 `emulator-5554`가 고정되어 있어, 이 두 실행만 ignored `build/adb-round27a.sh`를 `ADB`로 지정했다. 이 3줄 래퍼는 선두 serial 인수를 제거하고 모든 호출에 `-s emulator-5556`을 붙인다. 도구의 판정·탭·대기·캡처 코드와 제한 시간은 그대로다. `lesson_shots.sh`에는 래퍼 없이 `ANDROID_SERIAL=emulator-5556`만 지정했다.
-
-## 캡처 범위
-
-기존 PNG 197장을 모두 교체하고 9장을 추가했다(총 206장). 기존 MP4 3개와 조향·Done 프레임 띠 3개도 최종 앱으로 갱신했다. [파일 대조 결과](media-round27a.txt).
-
-[S자 실제 주행](lesson-drive-exam-practice-s-live.png) · [진행 후](lesson-drive-exam-practice-s-live-turn.png)에서도 잠금과 앱 터치 대상 0개를 확인했다([로그](flow-round27a-s-practice.txt)). [키보드 화면](lesson-setup-coach-ime.png)은 ADB로 hello를 입력한 상태다. 말 카드·입력줄·한 줄 보내기·돌아가기가 키보드 위에 보인다. 실제 키 타이핑 검사로 세지 않았으며, 한국어 조합과 버튼/IME 전송은 전체 계측에서 확인했다.
-
-[조향 영상](lesson-round4-steering.mp4) · [전체 전환 띠](lesson-round7-steering-strip.png)는 0.0~3.5초를 0.5초 간격으로, [조향 보간 띠](lesson-steering-round12-strip.png)는 0.9~1.6초를 0.1초 간격으로 추출했다. [Done 영상](lesson-round4-done.mp4) · [도착 띠](lesson-round8-done-strip.png)는 0.5~4.0초를 0.5초 간격으로 추출했다. 세 띠 모두 영상의 왼쪽 패널이다. Done 영상의 인코딩 길이는 약 3.76초이며, 띠의 마지막 칸은 녹화의 마지막 프레임을 연장해 빈 칸을 채웠다.
-
-기존 문구·흐름을 유지한 계측 fixture 및 실제 Fake 시나리오 캡처다. 실차 측정 자료가 아니다. 새 H8/A1/B1 띠는 렌더링한 앱의 실제 프레임을 사용했다. 조향·Done 영상은 계측이 5초 제한으로 기록한 screenrecord이며, 기존 영상 링크도 같은 최종 앱의 새 영상으로 교체했다.
-
-기존 링크를 유지하기 위해 `lesson-report-all-missing-before.png`와 `lesson-report-all-missing-details-before.png`도 현재의 미측정 화면으로 교체했다. `lesson-done-seed-aligned.png`는 현재 선택되는 one-go 판정 화면의 호환 파일명이다. 이 세 파일은 이전/이후 비교 자료가 아니다. 과거 화면·설명은 Git 이력에 남아 있다. 이전 라운드의 검증 로그는 이 폴더에 보존했으며, 이번 검증은 위의 round27a 로그를 기준으로 한다.
+위 비교용 결과 값은 기존 Fake 주차/점검/시험 시드를 기록한 계측 fixture다. 실차 자료가 아니며 시안의 예시 숫자로 바꾸지 않았다. `lesson-28a-*`, `compare-28a-*`, `*-round28a-*`가 이번 라운드의 산출물이고, 기존 라운드 캡처·로그는 과거 자료로 보존한다.

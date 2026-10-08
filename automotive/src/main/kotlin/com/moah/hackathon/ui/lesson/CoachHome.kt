@@ -9,6 +9,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.ui.Alignment
@@ -54,8 +56,8 @@ internal fun CoachSheet(coach: CoachDialog, onChoose: (CoachChoice) -> Unit, onB
         return
     }
     Column(Modifier.fillMaxSize()) {
-        Spacer(Modifier.height(104.dp)) // The enclosing sheet starts at 64 dp; the eyebrow is at 168.
-        Eyebrow("코치와 대화")
+        Spacer(Modifier.height(16.dp)) // The enclosing sheet starts at 64 dp; the eyebrow is at 168.
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(20.dp)) { YellowModeIcon(conversation = true); Eyebrow("코치와 대화") }
         Spacer(Modifier.height(27.dp))
         Column(Modifier.fillMaxWidth()
             .surfaceTexture(CoachColors.Lavender, CoachTexture.Card,
@@ -122,15 +124,16 @@ internal fun HomeBookingCard(details: BookingDetails, tasks: List<Task>, options
 internal fun HomeGallery(profile: Profile, task: Task, mode: LessonMode, picked: Boolean, compact: Boolean,
     onAdmin: (() -> Unit)?, onProfile: () -> Unit, onCoach: () -> Unit, onTask: () -> Unit,
     onMode: (LessonMode) -> Unit, onStart: () -> Unit, hasBooking: Boolean, reason: String, booking: @Composable () -> Unit) {
+    var wheelOpen by remember { mutableStateOf(false) }
     Column(Modifier.fillMaxSize().padding(start = 120.dp, end = 120.dp, top = 52.dp, bottom = 36.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically) {
             SetupBrandMark(onAdmin = onAdmin)
-            CoachPill("코치와 대화", onCoach)
+            CoachPill("코치와 대화", onCoach, Modifier.alpha(if (wheelOpen) .18f else 1f))
         }
         BoxWithConstraints(Modifier.fillMaxWidth().weight(1f).padding(bottom = if (hasBooking) 32.dp else 0.dp)) {
             val readingHeight = maxHeight
-            Column(Modifier.width(620.dp).align(Alignment.TopEnd).heightIn(min = 112.dp).testTag("profile-entry")
+            Column(Modifier.alpha(if (wheelOpen) .18f else 1f).width(620.dp).align(Alignment.TopEnd).heightIn(min = 112.dp).testTag("profile-entry")
                 .clickable(role = Role.Button, onClick = onProfile).padding(top = 12.dp)) {
                 Eyebrow("프로필", color = CoachColors.Periwinkle)
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -138,19 +141,20 @@ internal fun HomeGallery(profile: Profile, task: Task, mode: LessonMode, picked:
                     LessonText("›", 36)
                 }
             }
-            Column(Modifier.width(1630.dp).align(Alignment.CenterStart)) {
+            Column(Modifier.width(if (wheelOpen) 2160.dp else 1630.dp).align(Alignment.CenterStart)) {
                 HomeTaskTitle(task, mode, picked, compact, onTask, onMode,
-                    titleSize = when { readingHeight < 400.dp -> 64; readingHeight < 520.dp -> 80; else -> null })
+                    titleSize = when { readingHeight < 400.dp -> 64; readingHeight < 520.dp -> 80; else -> null }, onWheelChanged = { wheelOpen = it })
                 Spacer(Modifier.height(20.dp))
-                LessonText(reason, 36, CoachColors.Muted, modifier = Modifier.testTag("home-reason"))
+                LessonText(reason, 36, CoachColors.Muted, modifier = Modifier.padding(start = if (wheelOpen) 500.dp else 0.dp).testTag("home-reason"))
             }
         }
         booking()
         Spacer(Modifier.height(20.dp))
         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-            FillButton("시작", onStart, Modifier.width(1410.dp).height(if (hasBooking) { if (compact) 160.dp else 240.dp } else if (compact) 240.dp else 300.dp), picked, home = true)
+            HomeVehicle(Modifier.alpha(if (wheelOpen) .18f else 1f).align(Alignment.BottomStart).width(780.dp).height(270.dp).offset(y = 26.dp))
+            FillButton("시작", onStart, Modifier.alpha(if (wheelOpen) .18f else 1f).width(1410.dp).height(if (hasBooking) { if (compact) 160.dp else 240.dp } else if (compact) 240.dp else 300.dp), picked, home = true)
         }
-        Spacer(Modifier.height(36.dp))
+        Spacer(Modifier.height(1.dp))
         PosterRule(color = CoachColors.Platinum)
     }
 }

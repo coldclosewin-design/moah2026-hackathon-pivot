@@ -23,7 +23,7 @@ internal enum class CoachSymbol(val label: String, val millis: Int) {
 /** Shape carries meaning even with motion disabled. Locks never start an animation clock. */
 @Composable
 internal fun SymbolTile(symbol: CoachSymbol, modifier: Modifier = Modifier, animate: Boolean = true,
-    locked: Boolean = false, active: Boolean = true) {
+    locked: Boolean = false, active: Boolean = true, tile: Boolean = true, onLight: Boolean = false) {
     val moving = animate && active && symbol.millis > 0 && (!locked || symbol == CoachSymbol.Voice) && selectionMotionEnabled()
     val once = symbol == CoachSymbol.Check || symbol == CoachSymbol.Power
     val progress = if (moving && once) {
@@ -37,17 +37,16 @@ internal fun SymbolTile(symbol: CoachSymbol, modifier: Modifier = Modifier, anim
         value
     } else 1f
     Canvas(modifier.alpha(if (active) 1f else .4f).semantics { contentDescription = symbol.label }) {
-        drawRoundRect(if (symbol == CoachSymbol.Proximity) CoachColors.Signal else CoachColors.Ink,
+        if (tile) drawRoundRect(if (symbol == CoachSymbol.Proximity) CoachColors.Signal else CoachColors.Ink,
             cornerRadius = CornerRadius(size.minDimension * .28f))
         val unit = size.minDimension / 64f
         withTransform({ translate(size.width / 2 - 20 * unit, size.height / 2 - 20 * unit); scale(unit, unit, Offset.Zero) }) {
-            drawSymbol(symbol, progress, moving)
+            drawSymbol(symbol, progress, moving, if (onLight) CoachColors.Ink else CoachColors.Paper)
         }
     }
 }
 
-private fun DrawScope.drawSymbol(symbol: CoachSymbol, t: Float, moving: Boolean) {
-    val white = CoachColors.Paper
+private fun DrawScope.drawSymbol(symbol: CoachSymbol, t: Float, moving: Boolean, white: Color) {
     val stroke = Stroke(2.6f, cap = StrokeCap.Round, join = StrokeJoin.Round)
     fun wave(offset: Float = 0f) = if (!moving) 1f else ((1 - cos(2 * PI * ((t - offset + 1) % 1))) / 2).toFloat()
     fun line(x: Float, y: Float, x2: Float, y2: Float, alpha: Float = 1f) =

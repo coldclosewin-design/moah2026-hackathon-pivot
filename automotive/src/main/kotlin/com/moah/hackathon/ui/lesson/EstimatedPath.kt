@@ -39,12 +39,13 @@ internal fun EstimatedPath(record: AttemptRecord, modifier: Modifier, entryGear:
         delay(500)
         time.animateTo(record.path.last().tMillis.toFloat(), tween(3_000, easing = LinearEasing))
     }
-    Column(modifier.padding(top = 64.dp, bottom = 52.dp)) {
+    Column(modifier.padding(top = 24.dp, bottom = 36.dp)) {
+        Eyebrow("궤적", color = CoachColors.Platinum)
         Canvas(Modifier.weight(1f).fillMaxWidth().clipToBounds().semantics { contentDescription = "추정 궤적" }) {
             val harshPoints = record.score.metrics.harshEvents.mapNotNull { nearestPathPoint(record.path, it.tMillis) }
             val viewport = pathViewport(record.path, size.width / density, size.height / density,
                 frontEntry = entryGear == Gear.DRIVE, harshPoints = harshPoints, targetHeading = targetHeading,
-                neighborBays = true, parallel = parallel)
+                neighborBays = true, parallel = parallel, padding = 32f)
             val elapsed = time.value.roundToLong()
             val revealed = pathThroughTime(record.path, elapsed)
             fun position(point: PathPoint) = Offset(viewport.x(point.x).dp.toPx(), viewport.y(point.y).dp.toPx())
@@ -147,11 +148,13 @@ private fun DrawScope.pathCar(center: Offset, heading: Float, scale: Float,
     }
 }
 
-/** The same small Signal chevron marks the replay car, front arrival and initial travel direction. */
+/** The same small monochrome chevron marks the replay car, front arrival and initial travel direction. */
 private fun DrawScope.pathChevron(tip: Offset, width: Float, direction: Float) {
+    // A light landing tile keeps the Onyx direction mark legible on the result card.
+    drawCircle(CoachColors.Platinum, width * .52f, tip - Offset(0f, width * .08f * direction))
     drawPath(Path().apply {
         moveTo(tip.x - width * .36f, tip.y - width * .16f * direction)
         lineTo(tip.x, tip.y)
         lineTo(tip.x + width * .36f, tip.y - width * .16f * direction)
-    }, CoachColors.Muted, style = Stroke(6.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
+    }, CoachColors.Ink, style = Stroke(6.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
 }

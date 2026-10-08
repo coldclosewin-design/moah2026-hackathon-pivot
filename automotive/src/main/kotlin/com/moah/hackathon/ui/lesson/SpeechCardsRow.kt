@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -32,15 +33,16 @@ import com.moah.hackathon.ui.CoachTexture
 internal fun SpeechCardsRow(cards: List<SpeechCard>, waiting: Boolean, onSend: (String) -> Unit) {
     val scroll = rememberScrollState()
     LaunchedEffect(cards.map { it.id }) { scroll.scrollTo(0) }
-    Box(Modifier.fillMaxWidth().height(112.dp).testTag("coach-speech-cards")) {
+    Box(Modifier.fillMaxWidth().height(144.dp).testTag("coach-speech-cards")) {
         Row(Modifier.fillMaxSize().horizontalScroll(scroll).testTag("speech-cards-scroll")
             .padding(top = 6.dp, bottom = 10.dp, end = 48.dp),
             horizontalArrangement = Arrangement.spacedBy(24.dp), verticalAlignment = Alignment.CenterVertically) {
             cards.forEach { card ->
-                Row(Modifier.height(96.dp).testTag("speech-card-${card.id}")
+                Row(Modifier.height(120.dp).testTag("speech-card-${card.id}")
                     .alpha(if (waiting) .45f else 1f)
+                    .shadow(3.dp, RoundedCornerShape(100))
                     .surfaceTexture(CoachColors.Paper, CoachTexture.Chip, pill = true)
-                    .border(1.5.dp, CoachColors.Periwinkle, RoundedCornerShape(100))
+
                     .clip(RoundedCornerShape(100))
                     .clickable(enabled = !waiting, role = Role.Button) { onSend(card.id) }
                     .padding(horizontal = 30.dp), horizontalArrangement = Arrangement.spacedBy(16.dp),

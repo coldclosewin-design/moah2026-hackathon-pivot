@@ -28,6 +28,10 @@ internal fun ManeuverScreen(state: ManeuverDisplayState, locked: Boolean, stoppe
             "정차하면 점검 상태가 다시 보여요." else "속도를 낮추면 주차 도식이 다시 보여요.")
         return
     }
+    if (state.taskType != TaskType.CHECKLIST) {
+        ParkingRingScreen(state, stopped, subtitle, onFinish, demo, taskTitle)
+        return
+    }
     var visibleHint by remember(state.hintText) { mutableStateOf(maneuverText(state.hintText)) }
     val hintAlpha = remember { Animatable(1f) }
     LaunchedEffect(state.hintText) {
