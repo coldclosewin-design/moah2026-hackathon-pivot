@@ -6,9 +6,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.ui.Alignment
@@ -160,31 +160,32 @@ internal fun HomeGallery(profile: Profile, task: Task, mode: LessonMode, picked:
     onAdmin: (() -> Unit)?, onProfile: () -> Unit, onCoach: () -> Unit, onTask: () -> Unit,
     onMode: (LessonMode) -> Unit, onStart: () -> Unit, hasBooking: Boolean, reason: String,
     showCoach: Boolean = true, booking: @Composable () -> Unit) {
-    var wheelOpen by remember { mutableStateOf(false) }
     Column(Modifier.fillMaxSize().padding(start = 120.dp, end = 120.dp, top = 52.dp, bottom = 36.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             SetupBrandMark(onAdmin = onAdmin)
-            if (showCoach) CoachPill("코치와 대화", onCoach, Modifier.homeShared("coach-surface").alpha(if (wheelOpen) .18f else 1f))
+            if (showCoach) CoachPill("코치와 대화", onCoach, Modifier.homeShared("coach-surface"))
         }
         Box(Modifier.fillMaxWidth().weight(1f)) {
-            ProfileTableEntry(profile, onProfile, Modifier.align(Alignment.TopEnd).alpha(if (wheelOpen) .18f else 1f))
-            Column(Modifier.width(if (wheelOpen) 2160.dp else 1700.dp).align(Alignment.CenterStart).padding(top = 100.dp)) {
-                HomeTaskTitle(task, mode, picked, compact, onTask, onMode, onWheelChanged = { wheelOpen = it })
+            ProfileTableEntry(profile, onProfile, Modifier.align(Alignment.TopEnd))
+            Column(Modifier.width(1700.dp).align(Alignment.CenterStart).padding(top = 100.dp)) {
+                HomeTaskTitle(task, mode, picked, compact, onTask, onMode)
                 Spacer(Modifier.height(20.dp))
-                LessonText(reason, 36, CoachColors.Muted, modifier = Modifier.padding(start = if (wheelOpen) 500.dp else 0.dp).testTag("home-reason"))
+                Crossfade(reason, animationSpec = tween(200, delayMillis = 360), label = "home-mode-reason") { line ->
+                    LessonText(line, 36, CoachColors.Muted, modifier = Modifier.testTag("home-reason"))
+                }
             }
         }
         Spacer(Modifier.height(20.dp))
         Row(Modifier.fillMaxWidth().height(if (compact) 280.dp else 348.dp),
             horizontalArrangement = Arrangement.spacedBy(36.dp), verticalAlignment = Alignment.CenterVertically) {
             if (hasBooking) {
-                Box(Modifier.weight(1f).alpha(if (wheelOpen) .18f else 1f)) { booking() }
+                Box(Modifier.weight(1f)) { booking() }
                 FillButton("시작", onStart, Modifier.width(610.dp).height(300.dp), picked, home = true)
             } else {
                 Box(Modifier.weight(1f)) {
-                    ProfileHomeVehicle(profile.statement.car, Modifier.alpha(if (wheelOpen) .18f else 1f).width(780.dp).height(if (compact) 250.dp else 300.dp).align(Alignment.CenterStart))
+                    ProfileHomeVehicle(profile.statement.car, Modifier.width(780.dp).height(if (compact) 250.dp else 300.dp).align(Alignment.CenterStart))
                 }
-                FillButton("시작", onStart, Modifier.alpha(if (wheelOpen) .18f else 1f).width(1410.dp).height(if (compact) 240.dp else 300.dp), picked, home = true)
+                FillButton("시작", onStart, Modifier.width(1410.dp).height(if (compact) 240.dp else 300.dp), picked, home = true)
             }
         }
         Spacer(Modifier.height(32.dp))
