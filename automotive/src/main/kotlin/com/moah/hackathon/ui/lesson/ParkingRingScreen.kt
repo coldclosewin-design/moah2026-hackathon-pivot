@@ -34,7 +34,6 @@ internal fun ParkingRingScreen(state: ManeuverDisplayState, stopped: Boolean, su
     onFinish: () -> Unit, demo: (@Composable () -> Unit)?, taskTitle: String) {
     var hint by remember(state.hintText) { mutableStateOf(maneuverText(state.hintText)) }
     LaunchedEffect(state.hintText) { if (hint != null) { delay(4_000); hint = null } }
-    val source = state.commonSignal()
     val ring = remember { Animatable(state.steeringDeg ?: 0f) }
     LaunchedEffect(state.steeringDeg) {
         if (state.steeringDeg == null) ring.snapTo(0f)
@@ -96,7 +95,6 @@ internal fun ParkingRingScreen(state: ManeuverDisplayState, stopped: Boolean, su
                             steeringControlLabel(it)
                         } ?: "미측정", 84, bold = true)
                         steeringTurnsLabel(state.steeringDeg?.let { -it })?.let { LessonText(it, 36, CoachColors.Muted) }
-                        if (source == null && state.steeringDeg != null) StateLabel(signalLabel(state.steeringSignal), state.steeringSignal)
                     }
                 }
                 Eyebrow("조향 방향 도식", Modifier.align(Alignment.BottomCenter).padding(bottom = 40.dp), CoachColors.Muted)
@@ -106,7 +104,6 @@ internal fun ParkingRingScreen(state: ManeuverDisplayState, stopped: Boolean, su
                     LessonText("$taskTitle · ${state.attempt}회차", 40, modifier = Modifier.weight(1f))
                     Column(horizontalAlignment = Alignment.End) {
                         LessonText("${state.speed} km/h", 64, bold = true)
-                        source?.let { StateLabel(collapsedSignalLabel(it), it) }
                     }
                 }
                 Row(Modifier.background(CoachColors.Paper, RoundedCornerShape(100)).padding(horizontal = 24.dp, vertical = 12.dp),
@@ -164,10 +161,6 @@ internal fun ParkingRingScreen(state: ManeuverDisplayState, stopped: Boolean, su
                             }
                         }
                     }
-                }
-                if (source == null) Row(horizontalArrangement = Arrangement.spacedBy(28.dp)) {
-                    if (state.gear != null) StateLabel(signalLabel(state.gearSignal), state.gearSignal)
-                    if (state.rearDistanceApplies && state.rearDistanceCm != null) StateLabel(signalLabel(state.distanceSignal), state.distanceSignal)
                 }
                 Spacer(Modifier.height(36.dp))
                 if (stopped) FinishButton(state.askedDone, onFinish) else Spacer(Modifier.height(140.dp))

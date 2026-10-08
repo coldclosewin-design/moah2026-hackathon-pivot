@@ -1,0 +1,7 @@
+Base: origin/main 524dd73
+Branch: codex/ui-round31a
+Device: emulator-5556
+Command: .\gradlew.bat assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest
+{"tests":368,"failures":0,"errors":0,"skipped":0}
+automotive/build/outputs/apk/debug/automotive-debug.apk SHA256=A7EFC6DB799E368E656F24DA219650644A04B953C9A08440635BF55470777F35
+automotive/build/outputs/apk/androidTest/debug/automotive-debug-androidTest.apk SHA256=A4AA5EC2BACE139107660E5C23E3CD122A9E17E29C44793B5BB841FA70F476A5

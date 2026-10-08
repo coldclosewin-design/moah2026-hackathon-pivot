@@ -1,12 +1,16 @@
 package com.moah.hackathon.ui.lesson
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
@@ -74,15 +78,19 @@ internal fun ColumnScope.ProfileScreen(rows: List<ProfileRow>, onAnswer: (Profil
     }
     BoxWithConstraints(Modifier.weight(1f).fillMaxWidth().padding(top = 32.dp)) {
         rows.firstOrNull { it.field.name == expanded && it.field in allowed }?.let { active ->
-            val columnStart = (maxWidth + 32.dp) / rows.size * rows.indexOf(active)
-            val chipStart = if (onboarding != null) 0.dp else columnStart.coerceAtMost((maxWidth - 1400.dp).coerceAtLeast(0.dp))
-            Column(Modifier.padding(start = chipStart), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                ProfileQuestion(active, showQuestion = onboarding != null) { id ->
+            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                ProfileQuestion(active) { id ->
                     onAnswer(active.field, id)
                     expanded = if (onboarding != null) rows.firstOrNull { it.field in allowed && it.field != active.field && it.answer == null }?.field?.name else null
                 }
                 if (onboarding != null) TextAction("닫기", { expanded = null }, size = 32)
             }
+        }
+        profileVehicleRes(rows.firstOrNull { it.field == ProfileField.CAR }?.answer?.label)?.let { res ->
+            Image(painterResource(res), contentDescription = "선택한 차 미리 보기",
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.align(Alignment.BottomEnd).width(680.dp).height(220.dp)
+                    .graphicsLayer { scaleX = -1f }.testTag("profile-vehicle-preview"))
         }
     }
     if (onboarding != null) {

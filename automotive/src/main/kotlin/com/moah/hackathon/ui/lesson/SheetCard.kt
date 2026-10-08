@@ -19,7 +19,6 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.unit.dp
@@ -27,7 +26,7 @@ import com.moah.hackathon.ui.CoachColors
 
 /** C1: a second sheet at .965 scale, then the foreground rises in 420 ms. */
 @Composable
-internal fun SheetCard(modifier: Modifier = Modifier, dark: Boolean = false,
+internal fun SheetCard(modifier: Modifier = Modifier, dark: Boolean = false, stacked: Boolean = true,
     content: @Composable BoxScope.() -> Unit) {
     val arrival = remember { Animatable(0f) }
     LaunchedEffect(Unit) { arrival.animateTo(1f, tween(420, easing = CoachMotion.Fill)) }
@@ -35,9 +34,9 @@ internal fun SheetCard(modifier: Modifier = Modifier, dark: Boolean = false,
         translationY = (1f - arrival.value) * 180.dp.toPx()
         alpha = arrival.value
     }) {
-        Box(Modifier.matchParentSize().graphicsLayer { scaleX = .965f; scaleY = .965f; translationY = -24.dp.toPx() }
+        if (stacked) Box(Modifier.matchParentSize().graphicsLayer { scaleX = .965f; scaleY = .965f; translationY = -24.dp.toPx() }
             .background(CoachColors.Paper.copy(alpha = .6f), RoundedCornerShape(48.dp)))
-        Box(Modifier.fillMaxSize().shadow(8.dp, RoundedCornerShape(48.dp))
+        Box(Modifier.fillMaxSize().shadow(2.dp, RoundedCornerShape(48.dp))
             .background(if (dark) CoachColors.Ink else CoachColors.Paper, RoundedCornerShape(48.dp))
             .clip(RoundedCornerShape(48.dp)), content = content)
     }
@@ -77,15 +76,20 @@ internal fun WordPill(label: String, description: String, size: Int, chosen: Boo
 
 @Composable
 internal fun ArrowPill(label: String, arrow: String, onClick: () -> Unit, modifier: Modifier = Modifier,
-    dark: Boolean = false) {
+    dark: Boolean = false, centerLabel: Boolean = false) {
     val foreground = if (dark) CoachColors.Paper else CoachColors.Ink
-    Row(modifier.height(120.dp).border(1.5.dp, foreground.copy(alpha = .4f), CircleShape)
+    Box(modifier.height(120.dp).border(1.5.dp, foreground.copy(alpha = .4f), CircleShape)
         .background(if (dark) CoachColors.Ink else CoachColors.Paper, CircleShape)
-        .clip(CircleShape).clickable(role = Role.Button, onClick = onClick)
-        .padding(start = 12.dp, end = 40.dp), verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-        Box(Modifier.size(88.dp).background(if (dark) CoachColors.Platinum else CoachColors.Lavender, CircleShape),
-            contentAlignment = Alignment.Center) { LessonText(arrow, 44, CoachColors.Ink) }
-        LessonText(label, 40, foreground, maxLines = 1)
+        .clip(CircleShape).clickable(role = Role.Button, onClick = onClick), contentAlignment = Alignment.Center) {
+        Row(Modifier.then(if (centerLabel) Modifier.fillMaxWidth() else Modifier)
+            .padding(start = 12.dp, end = 40.dp), verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+            Box(Modifier.size(88.dp).background(if (dark) CoachColors.Platinum else CoachColors.Lavender, CircleShape),
+                contentAlignment = Alignment.Center) { LessonText(arrow, 44, CoachColors.Ink) }
+            if (!centerLabel) LessonText(label, 40, foreground, maxLines = 1)
+        }
+        if (centerLabel) LessonText(label, 40, foreground, maxLines = 1,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 112.dp),
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center)
     }
 }

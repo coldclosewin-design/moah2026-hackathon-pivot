@@ -1,0 +1,24 @@
+PASS Round31a: production before/after fixtures, five onboarding questions, aligned profile answers/car preview, every quiz explanation and answer unclipped, report text, provenance in details and evaluate without hints
+PASS Round30: C3 height 1236 across closed/open/more/hidden; action auto-close; booking cancel; actual venue course availability; correct quiz answer; counted scopes and honest sharing
+PASS Round30 motion: A1 both directions, counted scope, S1 column, A5 venue, B1 card/course reflow, C3 drawer; explicit four-frame production-clock strips
+PASS Round28 sentence sheet: no poster, four task cards, all categories/modes dispatch, exam scroll and original tool labels
+PASS Round28 A3: selected mode remains in the centre; another selection rotates; selected row dismisses
+PASS Round28 briefing/ring/lock: captions, parked skip/finish only, all three modes, measured telemetry, missing values, exact speed lock
+PASS Round28 result cards: recorded parking/checklist/exam, four verdicts, path honesty, source bars, paired values/ruler/history, locked details/certificate and callbacks
+PASS Round28b A7: seven anchored non-overlapping labels, guide/hint/evaluate reveals, missing is never blank, stopped finish only
+PASS Round28b moving course: clickable/long-clickable/scrollable nodes = 0; map visible; scores = 0
+PASS Round28b moving road: clickable/long-clickable/scrollable nodes = 0; map visible; scores = 0
+PASS Round28b moving emergency: clickable/long-clickable/scrollable nodes = 0; map visible; scores = 0
+PASS Round28b certificate: one recorded task, selectable scope track and truthful example inclusions; source discs/half-discs/dashed rings have verified pixels
+PASS Round28b Q2/V1/C1/B1/D4: quiz answers and result, sentence profile and first run, demo dashboard/band, booking card and both task recommendations
+PASS Round28c: P3/S4, B2 same title size, C1 booking guards, A3/B5/C3 signal display, A4/A7 masks, nine steering steps, two-second escape and no admin-capability gestures
+PASS Round28c motion: shared title/ticket, category row, live numeric angle during .88/110 ring spring, guide-completion ripple; four explicit frames each
+PASS B1 selection: 0/93/187/280 ms [Rect.fromLTRB(74.0, 150.0, 717.0, 218.0), Rect.fromLTRB(654.0, 150.0, 1265.0, 218.0), Rect.fromLTRB(742.0, 150.0, 1348.0, 218.0), Rect.fromLTRB(729.0, 150.0, 1335.0, 218.0)]; stone curve position/width, first frame and resize snap
+PASS Round26b Briefing route: live speed lock removes skip and all touch actions; stopped skip enters Maneuver
+PASS Reservation: sentence words and rising cards, unavailable slot disabled, both choices required/reset per venue, reserve/cancel once, real ViewModel recommendation, confirmation/reopen, badge without leftover space
+PASS Round24: off/Real have no input; admin toggle; Korean SetText + button/IME send; Fake ask-more/parallel/profile; fresh draft; waiting disables input/send and cards hide legacy choices; transcript follows last turn; no digits
+PASS Round25b S practice: moving frames retain a map with no touch targets; stopped entry/turn/return poses retain the practice route
+PASS Round25b: OFF/Real unchanged; three input modes; 96 dp scrolling cards, follow-up/context/profile and waiting guard; six road figures/color boundary/locks; six knowledge and two checklist cards, quiz-only mode and two-choice task
+PASS Round25 locks: Done/Report/Quiz/QuizDone flat, no numbers or touch actions; Real has no hint or hold; demo short hold ignored, two-second hold stops at zero with band hidden
+PASS Quiz quit: real LessonRoute retains all three correct answers in QuizDone; restart returns to Setup
+Lesson contract passed

@@ -24,7 +24,7 @@ import com.moah.hackathon.R
 import com.moah.hackathon.ui.CoachColors
 
 /**
- * 홈의 차 — 프로필 차종에 맞는 원목 차(10/8 사용자 에셋, 원본·규칙은 `assets/profile/`), 차종이 없거나 모르는 값이면 선 그림 [HomeVehicle].
+ * 홈의 차 — 프로필 차종에 맞는 원목 차(10/8 사용자 에셋, 원본·규칙은 `assets/profile/`). 차종이 없으면 빈 자리로 둔다.
  * 네 장은 같은 틀로 잘라 차종 사이 크기 차이(경차 = 작고 둥금)를 그대로 둔다. 색을 입히지 않고 좌우를 뒤집지 않는다(파일이 오른쪽을 본다).
  */
 internal fun profileVehicleRes(car: String?): Int? = when (car) {
@@ -38,7 +38,7 @@ internal fun profileVehicleRes(car: String?): Int? = when (car) {
 @Composable
 internal fun ProfileHomeVehicle(car: String?, modifier: Modifier = Modifier) {
     val res = profileVehicleRes(car)
-    if (res == null) { HomeVehicle(modifier); return }
+    if (res == null) return
     val arrival = remember(res) { Animatable(0f) }
     LaunchedEffect(res) { arrival.animateTo(1f, tween(900, easing = CoachMotion.Fill)) }
     Image(painterResource(res), contentDescription = null, contentScale = ContentScale.Fit, alignment = Alignment.CenterStart,
