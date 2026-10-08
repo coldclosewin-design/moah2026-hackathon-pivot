@@ -1,5 +1,7 @@
 # Codex 오더 — 라운드 27b: 결과서 쌍 알약 · 문장 시트 + 카드 쌓기 · 차 그림 V4 (2026-10-08)
 
+> **대체됨(10/8)** — 이 27b 는 보내지 않았고 [28a](2026-10-08_codex_ui_round28a.md) · [28b](2026-10-08_codex_ui_round28b.md) 로 대체됐다(사용자: 시안 그대로 구성까지, 노란 포인트 포함).
+
 ```
 프로젝트: C:\Project\17_hackathon-pivot (AAOS 앱, Kotlin/Compose). 먼저 AGENTS.md, 이 발주서, 27a 발주서(2026-10-08_codex_ui_round27a.md — 디자인 규칙 표),
          고른 시안 페이지(docs/design/round27-proposals/ — 3-results.html 의 6 · 4-dense.html 의 2 · 5-motion.html 의 C1 · 6-vehicle.html 의 V4.
