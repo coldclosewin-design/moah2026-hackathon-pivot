@@ -1,52 +1,51 @@
 package com.moah.hackathon.ui.lesson
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.withTransform
+import com.moah.hackathon.ui.CoachColors
 
-/** Shared 100 x 250 silhouette, rear up. Callers set its size, palette and entry orientation. */
+/** V4: rear-up rounded body, one cabin and a front marker; shared by all four diagrams. */
 internal fun DrawScope.vehicleSilhouette(bodyColor: Color, panelColor: Color, glassColor: Color) {
-    // One shaped body, two separate bonnet/trunk panels, four glass faces and mirrors.
-    drawPath(silhouettePath(VehicleSilhouetteGeometry.body), bodyColor)
-    drawPath(Path().apply {
-        moveTo(19f, 3f); quadraticTo(50f, -1f, 81f, 3f)
-        quadraticTo(82f, 18f, 76f, 34f); lineTo(24f, 34f)
-        quadraticTo(18f, 18f, 19f, 3f); close()
-    }, panelColor)
-    drawPath(Path().apply {
-        moveTo(15f, 174f); quadraticTo(50f, 183f, 85f, 174f)
-        quadraticTo(85f, 212f, 72f, 244f)
-        quadraticTo(50f, 248f, 28f, 244f)
-        quadraticTo(15f, 212f, 15f, 174f); close()
-    }, panelColor)
-    drawPath(Path().apply {
-        moveTo(23f, 32f); quadraticTo(50f, 26f, 77f, 32f)
-        lineTo(74f, 49f); quadraticTo(50f, 52f, 26f, 49f); close()
-    }, glassColor)
-    drawPath(Path().apply {
-        moveTo(22f, 137f); quadraticTo(50f, 143f, 78f, 137f)
-        lineTo(86f, 170f); quadraticTo(50f, 190f, 14f, 170f); close()
-    }, glassColor)
-    listOf(false, true).forEach { right ->
-        withTransform({ if (right) { translate(100f, 0f); scale(-1f, 1f, Offset.Zero) } }) {
-            drawPath(Path().apply {
-                moveTo(17f, 52f); quadraticTo(24f, 90f, 19f, 126f)
-                lineTo(11f, 162f); lineTo(11f, 93f); close()
-            }, glassColor)
-            drawLine(bodyColor, Offset(10f, 103f), Offset(23f, 92f), 2f)
-            drawPath(silhouettePath(VehicleSilhouetteGeometry.mirror), bodyColor)
-        }
-    }
+    drawRoundRect(glassColor, Offset(5f, 0f), Size(90f, 250f), CornerRadius(40f, 40f))
+    drawRoundRect(bodyColor, Offset(5f, 0f), Size(90f, 250f), CornerRadius(40f, 40f), style = Stroke(8f))
+    drawRoundRect(bodyColor, Offset(23f, 55f), Size(54f, 110f), CornerRadius(16f, 16f), style = Stroke(8f))
+    drawLine(bodyColor, Offset(26f, 207f), Offset(74f, 207f), 8f, StrokeCap.Round)
 }
 
-private fun silhouettePath(segments: List<List<Float>>) = Path().apply {
-    moveTo(segments.first()[0], segments.first()[1])
-    for (p in segments.drop(1)) when (p.size) {
-        2 -> lineTo(p[0], p[1])
-        4 -> quadraticTo(p[0], p[1], p[2], p[3])
-        6 -> cubicTo(p[0], p[1], p[2], p[3], p[4], p[5])
+@Composable
+internal fun HomeVehicle(modifier: Modifier = Modifier) {
+    val arrival = remember { Animatable(0f) }
+    LaunchedEffect(Unit) { arrival.animateTo(1f, tween(900, easing = CoachMotion.Fill)) }
+    Canvas(modifier) {
+        withTransform({
+            translate((arrival.value - 1f) * size.width, 0f)
+            scale(size.width / 290f, size.height / 100f, Offset.Zero)
+        }) {
+            val ink = CoachColors.Ink
+            val stroke = Stroke(3.2f, cap = StrokeCap.Round)
+            drawRoundRect(ink, Offset(10f,40f), Size(262f,34f), CornerRadius(17f), style = stroke)
+            drawPath(Path().apply { moveTo(74f,40f); lineTo(98f,16f); lineTo(180f,16f); lineTo(206f,40f) }, ink, style = stroke)
+            drawLine(ink, Offset(140f,16f), Offset(140f,40f), 3.2f)
+            listOf(74f,210f).forEach { x ->
+                val center = Offset(x,74f)
+                drawCircle(CoachColors.Paper,16f,center)
+                drawCircle(ink,16f,center,style=stroke)
+                rotate(arrival.value * 360f,center) { drawLine(ink,center,Offset(x,65f),3.2f,StrokeCap.Round) }
+                drawCircle(ink,3f,center)
+            }
+        }
     }
-    close()
 }

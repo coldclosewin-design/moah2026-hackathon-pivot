@@ -2,8 +2,6 @@ package com.moah.hackathon.ui.lesson
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -18,7 +16,6 @@ import com.moah.hackathon.feature.lesson.LessonReport
 import com.moah.hackathon.feature.lesson.ProfileField
 import com.moah.hackathon.feature.lesson.TaskType
 import com.moah.hackathon.ui.CoachColors
-import com.moah.hackathon.ui.CoachTexture
 
 private enum class ReportPage { SUMMARY, DETAILS, CERTIFICATE, SHARE_EXAMPLE }
 
@@ -33,48 +30,23 @@ internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit, locked: B
         ResultLockedScreen(onDemoStop)
         return
     }
+    if (page == ReportPage.SUMMARY) {
+        ReportDashboard(report, onRestart, { page = ReportPage.DETAILS }, { page = ReportPage.CERTIFICATE }, onAnswerProfile, onSkipAsk)
+        return
+    }
+    if (page == ReportPage.DETAILS) {
+        PairedReportDetails(report) { page = ReportPage.SUMMARY }
+        return
+    }
     PosterSurface {
         Row(Modifier.fillMaxSize()) {
             Box(Modifier.weight(.38f).fillMaxHeight()) {
-                val course = bestCourseAttempt(report.attempts)?.course
-                val showVerdict = page == ReportPage.SUMMARY && report.task.type == TaskType.PARKING
-                if (page == ReportPage.SUMMARY && course != null) CourseSummaryPanel(course, Modifier.fillMaxSize())
-                else RecordGraphic(report.attempts.size, Modifier.fillMaxSize(), compact = showVerdict)
-                if (showVerdict) VerdictPanel(report.attempts.lastOrNull()?.verdict,
-                    Modifier.align(Alignment.BottomStart).fillMaxWidth(), title = "마지막 회차의 판정")
+                RecordGraphic(report.attempts.size, Modifier.fillMaxSize())
             }
             Column(Modifier.weight(.62f).fillMaxHeight().padding(start = 120.dp, end = 180.dp, top = 96.dp, bottom = 64.dp),
-                verticalArrangement = Arrangement.spacedBy(if (page == ReportPage.SUMMARY && report.askOne != null) 16.dp else 28.dp)) {
+                verticalArrangement = Arrangement.spacedBy(28.dp)) {
                 when (page) {
-                    ReportPage.SUMMARY -> {
-                        BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
-                            val summaryHeight = if (report.askOne != null) (maxHeight - 112.dp).coerceAtLeast(80.dp) else 520.dp
-                            Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.Center) {
-                                Eyebrow("오늘의 기록")
-                                Spacer(Modifier.height(if (report.askOne != null) 12.dp else 28.dp))
-                                ResultHeadline(driverReportSummary(report.summary), Modifier.fillMaxWidth().heightIn(max = summaryHeight))
-                                Spacer(Modifier.height(if (report.askOne != null) 16.dp else 32.dp))
-                                LessonText(taskModeLine(report.task, report.mode), if (report.askOne != null) 32 else 40)
-                                if (report.best.missingSignals.isNotEmpty() || report.unverifiedGuideSteps.isNotEmpty()) {
-                                    Spacer(Modifier.height(32.dp))
-                                    ReportLimitations(report)
-                                }
-                            }
-                        }
-                        report.askOne?.let { ProfileAskCard(it, onAnswerProfile, onSkipAsk) }
-                        MainPill(onRestart, Modifier.align(Alignment.End))
-                        Row(horizontalArrangement = Arrangement.spacedBy(64.dp)) {
-                            TextAction("자세히 보기", { page = ReportPage.DETAILS })
-                            TextAction("진단서", { page = ReportPage.CERTIFICATE })
-                        }
-                        ReportProvenance(report)
-                    }
-                    ReportPage.DETAILS -> {
-                        Eyebrow("자세히 보기")
-                        DetailsContent(report, Modifier.weight(1f))
-                        BottomActions(secondary = { BackPill { page = ReportPage.SUMMARY } },
-                            primary = { CompactProvenance(report) })
-                    }
+                    ReportPage.SUMMARY, ReportPage.DETAILS -> Unit
                     ReportPage.CERTIFICATE -> {
                         CertificateContent(report, shareLevel, { shareName = it.name },
                             { page = ReportPage.SHARE_EXAMPLE }, Modifier.weight(1f))
@@ -121,25 +93,6 @@ private fun RecordGraphic(attempts: Int, modifier: Modifier, compact: Boolean = 
     }
 }
 
-@Composable
-private fun ReportProvenance(report: LessonReport) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        PosterRule()
-        Eyebrow("신호 출처", color = CoachColors.Muted)
-        if (report.task.isCourse) {
-            AvailabilitySummary(report.best.badge, 32)
-            LessonText(when {
-                bestCourseAttempt(report.attempts)?.course?.positionMeasured != true -> "시험장 위치를 받지 못해 구간은 확인 못 했어요."
-                report.best.badge.live == 0 && report.best.badge.simulated > 0 -> "구간과 위치·신호등은 시험장 신호(시뮬레이션)로 측정했어요."
-                else -> "구간과 위치·신호등은 시험장 신호로 측정했어요."
-            }, 32, CoachColors.Muted)
-        } else Row(Modifier.fillMaxWidth().padding(top = 16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-            AvailabilitySummary(report.best.badge, 32)
-            LessonText(if (report.task.type == TaskType.CHECKLIST) "출발 전 점검을 돌아봤어요." else "주차 과정만 측정했어요.", 32, CoachColors.Muted)
-        }
-    }
-}
-
 /** Summary keeps its full disclosure; secondary pages share this compact footer. */
 @Composable
 private fun CompactProvenance(report: LessonReport) {
@@ -161,78 +114,20 @@ private fun CompactProvenance(report: LessonReport) {
 
 /** Long missing-signal/guide lists share the body scroll, leaving actions and provenance fixed. */
 @Composable
-internal fun ReportLimitations(report: LessonReport) {
+internal fun ReportLimitations(report: LessonReport, onInk: Boolean = false, compact: Boolean = false) {
+    val ink = if (onInk) CoachColors.Platinum else CoachColors.Muted
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         if (report.best.missingSignals.isNotEmpty()) {
-            LessonText("이 신호는 이 차에서 받지 못했어요", 32, CoachColors.Muted)
-            LessonText(report.best.missingSignals.map(::signalName).distinct().joinToString(" · "), 32, CoachColors.Muted)
-        }
-        if (report.unverifiedGuideSteps.isNotEmpty()) {
-            LessonText("이 단계는 확인할 수 없었어요", 32, CoachColors.Muted)
-            LessonText(report.unverifiedGuideSteps.joinToString(" · "), 32, CoachColors.Muted)
-        }
-    }
-}
-
-@Composable
-private fun DetailsContent(report: LessonReport, modifier: Modifier) {
-    if (report.task.isCourse) {
-        CourseDetails(report, modifier)
-        return
-    }
-    if (report.task.type == TaskType.PARKING) {
-        ParkingDetails(report, modifier)
-        return
-    }
-    Column(modifier.verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(if (report.task.type == TaskType.CHECKLIST) 16.dp else 32.dp)) {
-        Row(horizontalArrangement = Arrangement.spacedBy(160.dp)) {
-            Column { Eyebrow("숙련"); LessonText(report.best.skill.toString(), 96, bold = true) }
-            Column { Eyebrow("안전"); LessonText(report.best.safety.toString(), 96, bold = true) }
-        }
-        report.attempts.forEachIndexed { index, attempt ->
-            Column(Modifier.fillMaxWidth().surfaceTexture(CoachColors.Paper, CoachTexture.Card)
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(if (report.task.type == TaskType.CHECKLIST) 16.dp else 32.dp)) {
-                val previous = report.attempts.getOrNull(index - 1)?.score
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    LessonText("${attempt.index}회차 ·", 40)
-                    LessonText("숙련 ${attempt.score.skill}", 40, trendColor(attempt.score.skill, previous?.skill))
-                    LessonText("· 안전 ${attempt.score.safety}", 40, trendColor(attempt.score.safety, previous?.safety))
-                    if (report.task.type != TaskType.CHECKLIST) {
-                        LessonText("· 이동 ${attempt.score.metrics.motion.movingSegments}회", 40,
-                            trendColor(attempt.score.metrics.motion.movingSegments, previous?.metrics?.motion?.movingSegments, lowerBetter = true))
-                        LessonText("· ${attempt.score.metrics.motion.totalMillis / 1000}초", 40,
-                            trendColor(attempt.score.metrics.motion.totalMillis, previous?.metrics?.motion?.totalMillis, lowerBetter = true))
-                    }
-                }
-                if (report.task.type == TaskType.PARKING) {
-                    LessonText(parkingDetailLine(attempt.score.metrics, report.task.parkingSpec.usesRearDistance), 32, CoachColors.Muted)
-                    LessonText(headingDetailLine(attempt.verdict), 32, CoachColors.Muted)
-                } else if (report.task.type == TaskType.CHECKLIST) {
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        checklistResults(attempt.score).forEach { result ->
-                            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                                LessonText(result.label, 32, modifier = Modifier.width(280.dp))
-                                LessonText(result.mark, 32, when (result.passed) {
-                                    true -> CoachColors.Periwinkle; false -> CoachColors.Signal; null -> CoachColors.Muted
-                                }, modifier = Modifier.width(120.dp))
-                                LessonText(result.detail, 32, CoachColors.Muted, modifier = Modifier.weight(1f))
-                            }
-                        }
-                    }
-                }
+            val missing = report.best.missingSignals.map(::signalName).distinct().joinToString(" · ")
+            if (compact) LessonText("이 신호는 이 차에서 받지 못했어요 · $missing", 36, ink)
+            else {
+                LessonText("이 신호는 이 차에서 받지 못했어요", 32, ink)
+                LessonText(missing, 32, ink)
             }
         }
-        PosterRule()
-        LessonText("다음엔 ${report.nextTask.title} · ${report.nextMode.label} — ${report.nextReason}", 40)
-        ReportLimitations(report)
+        if (report.unverifiedGuideSteps.isNotEmpty()) {
+            LessonText("이 단계는 확인할 수 없었어요", 32, ink)
+            LessonText(report.unverifiedGuideSteps.joinToString(" · "), 32, ink)
+        }
     }
-}
-
-private fun trendColor(value: Number, previous: Number?, lowerBetter: Boolean = false) = when {
-    previous == null || value.toDouble() == previous.toDouble() -> CoachColors.Ink
-    (value.toDouble() > previous.toDouble()) != lowerBetter -> CoachColors.Periwinkle
-    else -> CoachColors.Muted
 }

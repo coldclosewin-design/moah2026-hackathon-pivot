@@ -1,0 +1,5 @@
+assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest
+JVM {'tests': 368, 'failures': 0, 'errors': 0, 'skipped': 0}
+Device: emulator-5556
+automotive-debug.apk SHA-256 b917757516b7410151cf56e26dc9b68ec7c0a93b356d67165ec51127770091cc
+automotive-debug-androidTest.apk SHA-256 e25d8bcbef5bfbf6179bcc39a75467c1d7a9689d4d115b4c861f458d801949b1

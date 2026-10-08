@@ -1,0 +1,80 @@
+install automotive-debug.apk: Success
+install automotive-debug-androidTest.apk: Success
+PASS Round28 sentence sheet: no poster, four task cards, all categories/modes dispatch, exam scroll and original tool labels
+PASS Round28 A3: selected mode remains in the centre; another selection rotates; selected row dismisses
+PASS Round28 briefing/ring/lock: captions, parked skip/finish only, all three modes, measured telemetry, missing values, exact speed lock
+PASS Round28 result cards: recorded parking/checklist/exam, four verdicts, path honesty, source bars, paired values/ruler/history, locked details/certificate and callbacks
+PASS B1 selection: 0/93/187/280 ms [Rect.fromLTRB(74.0, 150.0, 717.0, 218.0), Rect.fromLTRB(654.0, 150.0, 1265.0, 218.0), Rect.fromLTRB(742.0, 150.0, 1348.0, 218.0), Rect.fromLTRB(729.0, 150.0, 1335.0, 218.0)]; stone curve position/width, first frame and resize snap
+PASS Round26b Briefing route: live speed lock removes skip and all touch actions; stopped skip enters Maneuver
+PASS Reservation: three 512 dp map cards, Onyx selected card/white name and route, unavailable slot disabled, both choices required/reset per venue, reserve/cancel once, real ViewModel recommendation, confirmation/reopen, badge without leftover space
+PASS Round24: off/Real have no input; admin toggle; Korean SetText + button/IME send; Fake ask-more/parallel/profile; fresh draft; waiting disables input/send and cards hide legacy choices; transcript follows last turn; no digits
+PASS Round25b S practice: moving frames are a flat lock with no touch targets; stopped entry/turn/return poses retain the practice route and simulation provenance
+PASS Round25b: OFF/Real unchanged; three input modes; 96 dp scrolling cards, follow-up/context/profile and waiting guard; six road figures/color boundary/locks; six knowledge and two checklist cards, quiz-only mode and two-choice task
+PASS Round25 locks: Done/Report/Quiz/QuizDone flat, no numbers or touch actions; Real has no hint or hold; demo short hold ignored, two-second hold stops at zero with band hidden
+PASS Quiz quit: real LessonRoute retains all three correct answers in QuizDone; restart returns to Setup
+Lesson contract passed
+  pulled lesson-28a-briefing.png
+  pulled lesson-28a-coach-waiting.png
+  pulled lesson-28a-coach.png
+  pulled lesson-28a-details-exam.png
+  pulled lesson-28a-details.png
+  pulled lesson-28a-done-checklist.png
+  pulled lesson-28a-done-exam-bad.png
+  pulled lesson-28a-done-exam.png
+  pulled lesson-28a-done.png
+  pulled lesson-28a-locked.png
+  pulled lesson-28a-mode.png
+  pulled lesson-28a-parking-evaluate.png
+  pulled lesson-28a-parking-guide.png
+  pulled lesson-28a-parking-hint.png
+  pulled lesson-28a-parking-missing.png
+  pulled lesson-28a-parking-stopped.png
+  pulled lesson-28a-report-ask.png
+  pulled lesson-28a-report-checklist.png
+  pulled lesson-28a-report-exam.png
+  pulled lesson-28a-report.png
+  pulled lesson-28a-task-exam.png
+  pulled lesson-28a-task-expanded.png
+  pulled lesson-28a-task-modes.png
+  pulled lesson-28a-task.png
+  pulled lesson-28a-tasks-checklist.png
+  pulled lesson-28a-tasks-driving.png
+  pulled lesson-28a-tasks-knowledge.png
+  pulled lesson-28a-tasks-parking.png
+  pulled lesson-28a-vehicle.png
+  pulled lesson-admin-home.png
+  pulled lesson-briefing-route-locked.png
+  pulled lesson-briefing-route-stopped.png
+  pulled lesson-done-locked.png
+  pulled lesson-drive-exam-practice-s-0.png
+  pulled lesson-drive-exam-practice-s-2.png
+  pulled lesson-drive-exam-practice-s-locked.png
+  pulled lesson-drive-exam-practice-s.png
+  pulled lesson-fill-button-strip.png
+  pulled lesson-home-h8-strip.png
+  pulled lesson-quiz-done-quit-three.png
+  pulled lesson-quiz-road-blue_bus_lane.png
+  pulled lesson-quiz-road-left_arrow.png
+  pulled lesson-quiz-road-sign.png
+  pulled lesson-quiz-road-straight_left_arrow.png
+  pulled lesson-quiz-road-white_solid.png
+  pulled lesson-quiz-road-yellow_solid_center.png
+  pulled lesson-quiz-road-zigzag.png
+  pulled lesson-reservation.png
+  pulled lesson-setup-coach-cards-follow.png
+  pulled lesson-setup-coach-cards-only.png
+  pulled lesson-setup-coach-cards.png
+  pulled lesson-setup-coach-long.png
+  pulled lesson-setup-coach-text.png
+  pulled lesson-setup-coach-waiting.png
+  pulled lesson-setup-reserved.png
+  pulled lesson-setup-sheet-checklist.png
+  pulled lesson-setup-sheet-knowledge-end.png
+  pulled lesson-setup-sheet-knowledge.png
+  pulled lesson-track-b1-strip.png
+  pulled lesson-track-morph-strip.png
+  pulled lesson-venue-slots-ready.png
+  pulled lesson-venue-slots.png
+  pulled lesson-venues-booked.png
+  pulled lesson-venues.png
+== result: PASS

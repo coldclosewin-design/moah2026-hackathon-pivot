@@ -9,6 +9,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.moah.hackathon.feature.lesson.LessonReport
 import com.moah.hackathon.scoring.*
@@ -17,32 +18,37 @@ import com.moah.hackathon.ui.CoachTexture
 import kotlinx.coroutines.delay
 
 @Composable
-internal fun CourseDonePanel(course: TrackCourse, result: CourseResult, modifier: Modifier) {
+internal fun CourseDonePanel(course: TrackCourse, result: CourseResult, modifier: Modifier, compact: Boolean = false) {
     val time = remember(result) { Animatable(0f) }
     LaunchedEffect(result) {
         delay(500)
         time.animateTo((result.trail.lastOrNull()?.tMillis ?: 0L).toFloat(), tween(3_000, easing = LinearEasing))
     }
     val trail = courseTrailThroughTime(result.trail, time.value.toLong())
-    Column(modifier.surfaceTexture(CoachColors.Ink, CoachTexture.Panel).padding(start = 56.dp, end = 56.dp, top = 64.dp, bottom = 52.dp),
+    Column(modifier.surfaceTexture(CoachColors.Ink, CoachTexture.Panel).padding(
+        horizontal = if (compact) 24.dp else 56.dp, vertical = if (compact) 24.dp else 58.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)) {
         Eyebrow("지나간 자리", color = CoachColors.Paper.copy(alpha = .6f))
-        CourseMap(course, Modifier.weight(1f).fillMaxWidth(),
+        CourseMap(course, Modifier.weight(1f).fillMaxWidth().testTag("course-done-map"),
             pose = trail.lastOrNull()?.let { Pose(Vec2(it.x, it.y), it.headingDeg) }.takeIf { result.positionMeasured },
-            trail = trail, markers = result.deductions.filter { it.tMillis <= time.value }.mapNotNull { it.at })
-        LessonText("시험장 위치·신호로 기록했어요.", 28, CoachColors.Paper.copy(alpha = .6f))
-        LessonText(courseVerdict(result), 56, CoachColors.Paper)
-        result.deductions.distinctBy { it.zoneTitle to it.reason }.take(3).forEach {
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.Top) {
-                LessonText("●", 28, CoachColors.Signal)
-                Column {
-                    LessonText(it.reason, 36, CoachColors.Paper)
-                    LessonText(it.zoneTitle, 28, CoachColors.Paper.copy(alpha = .6f))
+            trail = trail, markers = result.deductions.filter { it.tMillis <= time.value }.mapNotNull { it.at }, showLabels = !compact)
+        // Three deduction descriptions must not consume the compact card's map space.
+        Column(if (compact) Modifier.heightIn(max = 240.dp).verticalScroll(rememberScrollState()) else Modifier,
+            verticalArrangement = Arrangement.spacedBy(if (compact) 12.dp else 24.dp)) {
+            LessonText("시험장 위치·신호로 기록했어요.", 28, CoachColors.Paper.copy(alpha = .6f))
+            LessonText(courseVerdict(result), 56, CoachColors.Paper)
+            result.deductions.distinctBy { it.zoneTitle to it.reason }.take(3).forEach {
+                Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.Top) {
+                    LessonText("●", 28, CoachColors.Signal)
+                    Column {
+                        LessonText(it.reason, 36, CoachColors.Paper)
+                        LessonText(it.zoneTitle, 28, CoachColors.Paper.copy(alpha = .6f))
+                    }
                 }
             }
+            if (result.positionMeasured && result.zones.any { it.unmeasured.isNotEmpty() || !it.visited })
+                LessonText("확인하지 못한 구간은 자세히 보기에서 확인해요.", 28, CoachColors.Paper.copy(alpha = .6f))
         }
-        if (result.positionMeasured && result.zones.any { it.unmeasured.isNotEmpty() || !it.visited })
-            LessonText("확인하지 못한 구간은 자세히 보기에서 확인해요.", 28, CoachColors.Paper.copy(alpha = .6f))
     }
 }
 

@@ -4,16 +4,12 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.moah.hackathon.R
 import com.moah.hackathon.feature.lesson.LessonMode
 import com.moah.hackathon.feature.lesson.Task
 import com.moah.hackathon.ui.CoachColors
@@ -33,38 +29,39 @@ internal fun BriefingScreen(task: Task, mode: LessonMode, line: String, subtitle
     val sentences = remember(line) { briefingSentences(line) }
     val current = briefingSentenceIndex(sentences, progress.value)
     PosterSurface {
-        Row(Modifier.fillMaxSize()) {
-            Column(Modifier.weight(.57f).fillMaxHeight().padding(start = 180.dp, end = 100.dp, top = 64.dp, bottom = 100.dp)) {
+        Column(Modifier.fillMaxSize().padding(start = 120.dp, end = 120.dp, top = 64.dp, bottom = 48.dp)) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 BrandMark()
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
-                    Eyebrow("연습 준비", color = CoachColors.Periwinkle)
-                    Spacer(Modifier.height(32.dp))
-                    Headline(coachDisplayText(briefingHeadline(task.watch)))
-                    Spacer(Modifier.height(40.dp))
-                    LessonText(taskModeLine(task, mode), 40)
-                    Spacer(Modifier.height(64.dp))
-                    Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
-                        Box(Modifier.width(4.dp).fillMaxHeight().background(CoachColors.Periwinkle))
-                        Column(Modifier.padding(start = 32.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                            sentences.forEachIndexed { index, sentence ->
-                                LessonText(sentence, 40, if (index == current) CoachColors.Ink else CoachColors.Muted,
-                                    modifier = Modifier.testTag(if (index == current) "briefing-current" else "briefing-sentence"))
-                            }
-                        }
+                Column(Modifier.width(760.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Eyebrow("연습 준비")
+                    LessonText("${taskTypeLabel(task.type)} › ${task.title}", 36)
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        YellowModeIcon(Modifier.size(44.dp))
+                        LessonText("${mode.label} 모드", 36)
                     }
                 }
-                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-                    TextAction("건너뛰기 ›", onSkip, Modifier.heightIn(min = 96.dp), size = 32)
-                }
-                Spacer(Modifier.height(16.dp))
-                Box(Modifier.fillMaxWidth().height(8.dp).background(CoachColors.Lavender).testTag("briefing-progress")) {
-                    Box(Modifier.fillMaxHeight().fillMaxWidth(progress.value).background(CoachColors.Periwinkle))
+            }
+            Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
+                Headline(coachDisplayText(briefingHeadline(task.watch)), Modifier.width(2180.dp), size = 150, weakTail = "볼게요.")
+            }
+            Box(Modifier.fillMaxWidth().height(8.dp).background(CoachColors.Platinum).testTag("briefing-progress")) {
+                Box(Modifier.fillMaxHeight().fillMaxWidth(progress.value).background(CoachColors.Ink))
+            }
+            Spacer(Modifier.height(48.dp))
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(64.dp)) {
+                sentences.forEachIndexed { index, sentence ->
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        LessonText((index + 1).toString().padStart(2, '0'), 32,
+                            if (index == current) CoachColors.Ink else CoachColors.Muted)
+                        LessonText(sentence, if (index == current) 48 else 40,
+                            if (index == current) CoachColors.Ink else CoachColors.Muted,
+                            modifier = Modifier.testTag(if (index == current) "briefing-current" else "briefing-sentence"))
+                    }
                 }
             }
-            if (wheelReference) Image(painterResource(R.drawable.poster_wheel_b), null,
-                Modifier.weight(.43f).fillMaxHeight(), contentScale = ContentScale.Crop)
-            else Box(Modifier.weight(.43f).fillMaxHeight().background(CoachColors.Ink), contentAlignment = Alignment.Center) {
-                SymbolTile(CoachSymbol.Voice, Modifier.size(420.dp))
+            Spacer(Modifier.height(32.dp))
+            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+                ArrowPill("건너뛰기 ›", "›", onSkip, Modifier.width(460.dp))
             }
         }
     }

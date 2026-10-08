@@ -35,10 +35,10 @@ import kotlin.math.min
 internal fun CourseMap(course: TrackCourse, modifier: Modifier, progress: CourseProgress? = null,
     pose: Pose? = null, signal: TrackSignal? = null, trail: List<TrackPoint> = emptyList(),
     markers: List<Vec2> = emptyList(), thumbnail: Boolean = false, ink: Color = CoachColors.Paper,
-    previewRoute: Color? = null) {
+    previewRoute: Color? = null, showLabels: Boolean = true) {
     val measurer = rememberTextMeasurer()
-    val labels = remember(course, thumbnail, ink, measurer) {
-        if (thumbnail) emptyList() else course.map.shapes.filterIsInstance<MapShape.Label>().map {
+    val labels = remember(course, thumbnail, ink, measurer, showLabels) {
+        if (thumbnail || !showLabels) emptyList() else course.map.shapes.filterIsInstance<MapShape.Label>().map {
             it to measurer.measure(AnnotatedString(it.text), TextStyle(fontSize = 26.sp, color = ink))
         }
     }

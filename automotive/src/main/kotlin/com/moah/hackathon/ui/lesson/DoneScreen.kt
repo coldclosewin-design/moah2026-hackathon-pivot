@@ -1,6 +1,7 @@
 package com.moah.hackathon.ui.lesson
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,59 +25,56 @@ internal fun DoneScreen(task: Task, attempt: Int, record: AttemptRecord, subtitl
     }
     val showPath = remember(record.path) { hasEstimatedPath(record.path) }
     PosterSurface(band = demo) {
-        Box(Modifier.fillMaxSize()) {
-            Row(Modifier.fillMaxSize()) {
-                if (task.course != null && record.course != null) {
-                    CourseDonePanel(task.course, record.course, Modifier.fillMaxHeight().fillMaxWidth(.38f))
-                } else if (task.type == TaskType.CHECKLIST) {
-                    Column(Modifier.fillMaxHeight().fillMaxWidth(.38f).surfaceTexture(CoachColors.Ink, CoachTexture.Panel)
-                        .padding(start = 120.dp, end = 72.dp, top = 96.dp, bottom = 52.dp)) {
-                        Eyebrow("출발 전 점검", color = CoachColors.Paper)
-                        Column(Modifier.weight(1f).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(40.dp, Alignment.CenterVertically)) {
-                            checklistResults(record.score).forEach { result ->
-                                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                                    LessonText(result.label, 40, CoachColors.Paper, modifier = Modifier.weight(1f))
-                                    LessonText(result.mark, 40, when (result.passed) {
-                                        true -> CoachColors.Periwinkle
-                                        false -> CoachColors.Signal
-                                        // Muted uses translucent Paper on the Ink panel, as in Maneuver.
-                                        null -> CoachColors.Paper.copy(alpha = .6f)
-                                    })
+        Column(Modifier.fillMaxSize().background(CoachColors.Lavender).padding(start = 60.dp, end = 60.dp, top = 60.dp)) {
+            Row(Modifier.fillMaxWidth().padding(horizontal = 24.dp), horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically) {
+                BrandMark()
+                Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                    LessonText(taskModeLine(task, record.mode), 36)
+                    LessonText("${attempt}회차", 32, CoachColors.Paper, modifier = Modifier.background(CoachColors.Ink,
+                        androidx.compose.foundation.shape.RoundedCornerShape(100)).padding(horizontal = 24.dp, vertical = 8.dp))
+                }
+            }
+            Spacer(Modifier.height(32.dp))
+            CoachLines(record.remark, Modifier.fillMaxWidth().heightIn(max = 290.dp).padding(horizontal = 24.dp), titleSize = 120, adviceSize = 56)
+            Spacer(Modifier.height(44.dp))
+            SheetCard(Modifier.fillMaxWidth().weight(1f), dark = true) {
+                Row(Modifier.fillMaxSize().padding(52.dp), horizontalArrangement = Arrangement.spacedBy(48.dp)) {
+                    Box(Modifier.weight(1f).fillMaxHeight()) {
+                        if (task.course != null && record.course != null) {
+                            CourseDonePanel(task.course, record.course, Modifier.fillMaxSize(), compact = true)
+                        } else if (task.type == TaskType.PARKING && showPath) {
+                            EstimatedPath(record, Modifier.fillMaxSize(), task.parkingSpec.entryGear,
+                                targetHeading = task.parkingSpec.targetHeadingDeg, parallel = task.id == "parking-parallel")
+                        } else Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            SymbolTile(CoachSymbol.Check, Modifier.size(220.dp), animate = false)
+                        }
+                    }
+                    Column(Modifier.weight(1.12f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                        Eyebrow("판정", color = CoachColors.Platinum)
+                        if (task.type == TaskType.PARKING) VerdictPanel(record.verdict, Modifier.weight(1f), compact = true, stagger = true)
+                        else Column(Modifier.weight(1f).verticalScroll(androidx.compose.foundation.rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                            if (task.type == TaskType.CHECKLIST) checklistResults(record.score).forEach { result ->
+                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                    LessonText(result.label, 40, CoachColors.Paper)
+                                    LessonText(result.mark, 40, if (result.passed == false) CoachColors.Signal else CoachColors.Platinum)
+                                }
+                            } else record.course?.let { course ->
+                                course.zones.forEach { zone ->
+                                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                        LessonText(zone.title, 36, CoachColors.Paper)
+                                        LessonText(courseZoneStatus(course, zone), 36, CoachColors.Platinum)
+                                    }
                                 }
                             }
                         }
+                        AvailabilitySummary(record.score.badge, 32, onInk = true)
                     }
-                } else if (task.type == TaskType.PARKING) {
-                    Column(Modifier.fillMaxHeight().fillMaxWidth(.5f).background(CoachColors.Ink)) {
-                        Box(Modifier.weight(1f).fillMaxWidth()) {
-                            if (showPath) EstimatedPath(record, Modifier.fillMaxSize(), task.parkingSpec.entryGear,
-                                targetHeading = task.parkingSpec.targetHeadingDeg, parallel = task.id == "parking-parallel")
-                        }
-                        VerdictPanel(record.verdict, Modifier.fillMaxWidth(), grid = true)
+                    Column(Modifier.weight(.9f).padding(top = 60.dp), verticalArrangement = Arrangement.spacedBy(28.dp)) {
+                        FillButton(stringResource(R.string.lesson_again), onAgain, Modifier.fillMaxWidth().height(140.dp), inverse = true)
+                        ArrowPill(stringResource(R.string.lesson_end), "→", onEnd, Modifier.fillMaxWidth(), dark = true)
                     }
-                } else if (showPath) {
-                    Box(Modifier.fillMaxHeight().fillMaxWidth(.38f)) {
-                        Box(Modifier.fillMaxHeight().fillMaxWidth(.06f / .38f).background(CoachColors.Ink))
-                        EstimatedPath(record, Modifier.fillMaxSize().padding(start = (2560 * .06f).dp), task.parkingSpec.entryGear)
-                    }
-                } else Box(Modifier.fillMaxHeight().fillMaxWidth(.12f).background(CoachColors.Ink))
-                Column(Modifier.weight(1f).fillMaxHeight().padding(start = 120.dp, end = 100.dp, top = 96.dp, bottom = 52.dp),
-                    verticalArrangement = Arrangement.spacedBy(48.dp)) {
-                    BrandMark()
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Eyebrow(taskModeLine(task, record.mode))
-                        LessonText("${attempt}회차", 32, CoachColors.Muted)
-                    }
-                    Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
-                        ResultHeadline(record.remark)
-                    }
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(48.dp)) {
-                        PrimaryPill(stringResource(R.string.lesson_again), onAgain, Modifier.weight(1f, fill = false))
-                        TextAction(stringResource(R.string.lesson_end), onEnd)
-                    }
-                    // The remark is already the Done speech. Never show the previous phase's subtitle:
-                    // removing that footer after TTS starts used to move the action row vertically.
                 }
             }
         }

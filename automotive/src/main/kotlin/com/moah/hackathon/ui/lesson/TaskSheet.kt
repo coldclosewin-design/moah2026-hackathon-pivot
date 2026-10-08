@@ -38,60 +38,109 @@ import com.moah.hackathon.R
 import com.moah.hackathon.feature.lesson.*
 import com.moah.hackathon.ui.CoachColors
 import com.moah.hackathon.ui.CoachTexture
+import com.moah.hackathon.ports.withObjectParticle
 
-/** Category navigation and the footer stay fixed; the reservation action opens a separate sheet layer. */
+/** Open directly on the task cards so the existing text-driven tools can select a task. */
 @Composable
 internal fun TaskSheet(tasks: List<Task>, category: TaskType, task: Task?, mode: LessonMode,
     onCategory: (TaskType) -> Unit, onTask: (Task) -> Unit,
     onMode: (LessonMode) -> Unit, onBack: () -> Unit, onStart: () -> Unit, onVenues: () -> Unit) {
+    var editor by remember { mutableStateOf<String?>("task") }
+    val sentenceSize by androidx.compose.animation.core.animateIntAsState(if (editor == null) 132 else 90,
+        tween(420, easing = CoachMotion.Fill), label = "sentence-size")
     val groups = tasks.groupBy { it.type }
-    Column(Modifier.fillMaxSize()) {
-        Eyebrow("연습할 과제", color = CoachColors.Periwinkle)
-        Spacer(Modifier.height(40.dp))
-        SelectionTrack(categoryOrder(), category, ::taskTypeLabel, onCategory,
-            Modifier.fillMaxWidth(), height = 96.dp, textSize = 48, role = Role.Tab,
-            background = CoachColors.Lavender, selectedBackground = CoachColors.Ink,
-            foreground = CoachColors.Periwinkle) { type, color ->
-            val ready = groups[type].orEmpty().any { it.isReady }
-            LessonText(taskTypeLabel(type), 48, color)
-            if (!ready) LessonText(TaskStatus.PLANNED.label, 32, color)
+    Column(Modifier.fillMaxSize().background(androidx.compose.ui.graphics.Brush.verticalGradient(
+        listOf(CoachColors.Lavender, CoachColors.Platinum))).padding(72.dp)) {
+        BrandMark()
+        Spacer(Modifier.height(if (editor == null) 120.dp else 36.dp))
+        if (editor == null) {
+            Eyebrow("연습할 과제")
+            Spacer(Modifier.height(32.dp))
         }
-        Spacer(Modifier.height(24.dp))
-        Eyebrow("${taskTypeLabel(category)} 세부 과제", color = CoachColors.Periwinkle)
-        Spacer(Modifier.height(24.dp))
-        // The face is 288 dp art + 144 dp band; reserve the existing 32 dp check overhang.
-        BoxWithConstraints(Modifier.fillMaxWidth().height(464.dp)) {
-            val items = groups[category].orEmpty()
-            // Four bays fit. Longer categories leave a visible preview of the next bay.
-            val width = (maxWidth - 72.dp - if (items.size > 4) 80.dp else 0.dp) / 4
-            key(category) {
-                LazyRow(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                    items(items, key = { it.id }) { item ->
-                        TaskBay(item, item.id == task?.id, Modifier.width(width).fillMaxHeight()) { onTask(item) }
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            LessonText("오늘은", sentenceSize, bold = true)
+            WordPill(task?.title ?: "과제 고르기", "과제 바꾸기", sentenceSize, editor == "task") { editor = "task" }
+            LessonText(task?.title?.let { it.withObjectParticle().removePrefix(it) } ?: "를", sentenceSize)
+            if (editor != null) {
+                YellowModeIcon()
+                WordPill(mode.label, "모드 바꾸기", sentenceSize) { editor = "mode" }
+                LessonText("로", sentenceSize)
+                LessonText("연습해요.", sentenceSize, CoachColors.Muted)
+            }
+        }
+        if (editor == null) {
+            Spacer(Modifier.height(16.dp))
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                YellowModeIcon(Modifier.size(100.dp))
+                WordPill(mode.label, "모드 바꾸기", sentenceSize) { editor = "mode" }
+                LessonText("로", sentenceSize)
+                LessonText("연습해요.", sentenceSize, CoachColors.Muted)
+            }
+            Spacer(Modifier.height(64.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                listOf("${taskTypeLabel(category)} › ${task?.title ?: "과제 고르기"}", modeDescription(mode)).forEach {
+                    LessonText(it, 36, modifier = Modifier.background(CoachColors.Paper,
+                        androidx.compose.foundation.shape.RoundedCornerShape(100)).padding(horizontal = 28.dp, vertical = 16.dp))
+                }
+            }
+            Spacer(Modifier.weight(1f))
+        } else {
+            Spacer(Modifier.height(40.dp))
+            key(editor) {
+                SheetCard(Modifier.weight(1f).fillMaxWidth()) {
+                    Column(Modifier.fillMaxSize().padding(40.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                        if (editor == "task") {
+                            SelectionTrack(categoryOrder(), category, ::taskTypeLabel, onCategory,
+                                Modifier.fillMaxWidth(.72f), height = 88.dp, textSize = 40, role = Role.Tab)
+                            BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
+                                val items = groups[category].orEmpty()
+                                val width = (maxWidth - 72.dp - if (items.size > 4) 80.dp else 0.dp) / 4
+                                key(category) {
+                                    LazyRow(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                                        items(items, key = { it.id }) { item ->
+                                            TaskBay(item, item.id == task?.id, Modifier.width(width).fillMaxHeight()) { onTask(item) }
+                                        }
+                                    }
+                                }
+                            }
+                            if (task != null) SelectionTrack(LessonMode.entries.filter(task::supports), mode, { it.label }, onMode,
+                                Modifier.fillMaxWidth(.6f), height = 80.dp, textSize = 36)
+                        } else {
+                            Eyebrow("모드 바꾸기")
+                            Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(28.dp)) {
+                                LessonMode.entries.filter { task?.supports(it) != false }.forEach { option ->
+                                    val chosen = option == mode
+                                    Column(Modifier.weight(1f).fillMaxHeight()
+                                        .background(if (chosen) CoachColors.Ink else CoachColors.Lavender,
+                                            androidx.compose.foundation.shape.RoundedCornerShape(40.dp))
+                                        .clickable(role = Role.RadioButton) { onMode(option) }
+                                        .semantics { selected = chosen }.padding(40.dp),
+                                        verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                                        SymbolTile(CoachSymbol.Voice, Modifier.size(88.dp), animate = false)
+                                        LessonText(option.label, 72, if (chosen) CoachColors.Paper else CoachColors.Ink)
+                                        LessonText(modeDescription(option), 40, if (chosen) CoachColors.Platinum else CoachColors.Muted)
+                                    }
+                                }
+                            }
+                        }
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End,
+                            verticalAlignment = Alignment.CenterVertically) {
+                            ArrowPill("닫기", "↓", { editor = null })
+                            Spacer(Modifier.width(32.dp))
+                            PrimaryPill(if (editor == "task") "이 과제로" else "이 모드로", { editor = null }, Modifier.width(660.dp))
+                        }
                     }
                 }
             }
+            Spacer(Modifier.height(24.dp))
         }
-        // The card row includes the check overhang; leave 24 dp before the mode track.
-        Spacer(Modifier.height(24.dp))
-        Row(Modifier.fillMaxWidth().height(88.dp), verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween) {
-            if (task != null) SelectionTrack(LessonMode.entries.filter(task::supports), mode, { it.label }, onMode,
-                Modifier.fillMaxWidth(.5f))
-            else Spacer(Modifier.width(1.dp))
-            TextAction("제휴 시험장", onVenues, size = 32)
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(32.dp)) {
+            ArrowPill("돌아가기", "←", onBack)
+            ArrowPill("제휴 시험장", "↗", onVenues)
+            Spacer(Modifier.weight(1f))
+            PrimaryPill(stringResource(R.string.lesson_start), onStart, Modifier.width(1125.dp), enabled = task != null)
         }
-        Spacer(Modifier.height(16.dp))
-        if (task != null) {
-            if (selectionMotionEnabled()) Crossfade(mode, animationSpec = tween(250,
-                easing = FastOutSlowInEasing), label = "mode-description") { selectedMode ->
-                LessonText(modeDescription(selectedMode), 36, CoachColors.Muted, maxLines = 1)
-            } else LessonText(modeDescription(mode), 36, CoachColors.Muted, maxLines = 1)
-        }
-        Spacer(Modifier.weight(1f))
-        BottomActions(secondary = { BackPill(onBack) }, primary = if (task != null) {
-            { PrimaryPill(stringResource(R.string.lesson_start), onStart) }
-        } else null)
     }
 }
 
@@ -101,25 +150,10 @@ private fun TaskBay(task: Task, chosen: Boolean, modifier: Modifier, onClick: ()
     val background = when { chosen -> CoachColors.Ink; task.isReady -> CoachColors.Lavender; else -> CoachColors.Lavender.copy(alpha = .4f) }
     // Planned bays have disabled semantics and no click action, including through their children.
     val action = if (task.isReady) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier.semantics { disabled() }
-    Box(modifier.then(action).semantics(mergeDescendants = true) { selected = chosen }) {
-        Box(Modifier.matchParentSize().padding(bottom = 32.dp).then(
-            if (task.isReady && !chosen) Modifier.surfaceTexture(background, CoachTexture.Card)
-            else Modifier.background(background)))
-        Canvas(Modifier.fillMaxSize()) {
-            val bottom = size.height - 32.dp.toPx()
-            if (chosen) {
-                val center = Offset(size.width / 2, bottom)
-                drawCircle(CoachColors.Paper, 40.dp.toPx(), center)
-                drawCircle(CoachColors.Ink, 32.dp.toPx(), center)
-                drawPath(Path().apply {
-                    moveTo(center.x - 15.dp.toPx(), center.y)
-                    lineTo(center.x - 4.dp.toPx(), center.y + 11.dp.toPx())
-                    lineTo(center.x + 17.dp.toPx(), center.y - 12.dp.toPx())
-                }, CoachColors.Paper, style = Stroke(6.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
-            }
-        }
-        Column(Modifier.fillMaxSize().padding(bottom = 32.dp)) {
-            Box(Modifier.fillMaxWidth().height(288.dp), contentAlignment = Alignment.Center) {
+    Box(modifier.background(background, androidx.compose.foundation.shape.RoundedCornerShape(32.dp))
+        .then(action).semantics(mergeDescendants = true) { selected = chosen }) {
+        Column(Modifier.fillMaxSize().padding(20.dp)) {
+            Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
                 val art = Modifier.size(240.dp, 176.dp).alpha(if (task.isReady) 1f else .55f)
                 val ink = if (chosen) CoachColors.Paper else CoachColors.Ink
                 when (task.type) {
@@ -132,15 +166,12 @@ private fun TaskBay(task: Task, chosen: Boolean, modifier: Modifier, onClick: ()
                         else CategoryTaskDiagram(task.type, ink, art)
                 }
                 if (task.course?.isExam == true) LessonText("모의시험", 28, foreground,
-                    modifier = Modifier.align(Alignment.TopStart).padding(start = 24.dp, top = 16.dp))
+                    modifier = Modifier.align(Alignment.TopStart))
             }
-            Box(Modifier.fillMaxWidth().height(144.dp)) {
-                Box(Modifier.fillMaxWidth().height(1.dp).background(
-                    if (chosen) CoachColors.Paper.copy(alpha = .18f) else CoachColors.Ink.copy(alpha = .08f)))
-                TaskTitleBand(task, foreground, if (chosen) CoachColors.Paper.copy(alpha = .7f) else CoachColors.Muted,
-                    Modifier.fillMaxSize().padding(horizontal = 28.dp))
-            }
+            TaskTitleBand(task, foreground, if (chosen) CoachColors.Paper.copy(alpha = .7f) else CoachColors.Muted,
+                Modifier.fillMaxWidth().height(88.dp))
         }
+        if (chosen) SymbolTile(CoachSymbol.Check, Modifier.align(Alignment.TopEnd).padding(12.dp).size(48.dp), animate = false)
     }
 }
 

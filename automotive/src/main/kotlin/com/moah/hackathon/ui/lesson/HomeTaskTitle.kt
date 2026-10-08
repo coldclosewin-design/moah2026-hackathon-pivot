@@ -3,7 +3,14 @@ package com.moah.hackathon.ui.lesson
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.DropdownMenu
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.alpha
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,8 +35,9 @@ import com.moah.hackathon.ui.CoachColors
 
 @Composable
 internal fun HomeTaskTitle(task: Task, mode: LessonMode, picked: Boolean, compact: Boolean,
-    onTask: () -> Unit, onMode: (LessonMode) -> Unit, titleSize: Int? = null) {
+    onTask: () -> Unit, onMode: (LessonMode) -> Unit, titleSize: Int? = null, onWheelChanged: (Boolean) -> Unit = {}) {
     var popup by remember(task.id, picked) { mutableStateOf(false) }
+    LaunchedEffect(popup) { onWheelChanged(popup) }
     val taskWord = if (picked) task.title else "과제 고르기"
     val suffix = if (picked) task.title.withObjectParticle().removePrefix(task.title) else "부터"
     Eyebrow(if (picked) "오늘의 과제 · ${taskTypeLabel(task.type)}" else "처음 오셨네요", color = CoachColors.Periwinkle)
@@ -42,21 +50,36 @@ internal fun HomeTaskTitle(task: Task, mode: LessonMode, picked: Boolean, compac
             lines.all { measurer.measure(AnnotatedString(it), TextStyle(fontSize = candidate.sp), softWrap = false).size.width <= width }
         } ?: 56
         Column {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.alpha(if (popup) .16f else 1f), verticalAlignment = Alignment.CenterVertically) {
                 HomeTitleLink("$taskWord ▼", "과제·모드 바꾸기", size, !picked, onTask)
-                LessonText(suffix, size, bold = true)
+                LessonText(suffix, size, if (popup) CoachColors.Platinum else CoachColors.Ink, bold = true)
             }
             if (picked) Row(verticalAlignment = Alignment.CenterVertically) {
-                Box {
-                    HomeTitleLink("${mode.label} ▼", "모드 바꾸기", size, false, { popup = true })
-                    DropdownMenu(popup, { popup = false }, Modifier.width(340.dp).background(CoachColors.Paper)) {
-                        LessonMode.entries.filter(task::supports).forEach { option ->
-                            Box(Modifier.fillMaxWidth().heightIn(min = 96.dp)
-                                .surfaceTexture(if (option == mode) CoachColors.Ink else CoachColors.Lavender,
-                                    if (option == mode) com.moah.hackathon.ui.CoachTexture.SelectedChip else com.moah.hackathon.ui.CoachTexture.Chip, pill = true)
-                                .clickable(role = Role.RadioButton) { popup = false; onMode(option) }
-                                .semantics { selected = option == mode }.padding(horizontal = 32.dp, vertical = 20.dp)) {
-                                LessonText(option.label, 40, if (option == mode) CoachColors.Paper else CoachColors.Periwinkle)
+                Box(if (popup) Modifier.width(500.dp) else Modifier) {
+                    Box(Modifier.alpha(if (popup) 0f else 1f)) { HomeTitleLink("${mode.label} ▼", "모드 바꾸기", size, false, { popup = true }) }
+                    if (popup) Popup(onDismissRequest = { popup = false },
+                        offset = IntOffset(0, with(LocalDensity.current) { -150.dp.roundToPx() }),
+                        properties = PopupProperties(focusable = true)) {
+                        val options = LessonMode.entries.filter(task::supports)
+                        Box(Modifier.width(500.dp).height(464.dp).shadow(12.dp, RoundedCornerShape(52.dp))
+                            .background(CoachColors.Paper, RoundedCornerShape(52.dp)).padding(16.dp)
+                            .semantics { contentDescription = "모드 바꾸기" }.testTag("home-mode-wheel")) {
+                            options.forEachIndexed { index, option ->
+                                val selectedIndex = options.indexOf(mode)
+                                val position = (index - selectedIndex + 1 + options.size) % options.size
+                                val y by animateDpAsState((position * 144).dp,
+                                    tween(280, easing = CoachMotion.Stone), label = "mode-wheel-position")
+                                val chosen = option == mode
+                                Row(Modifier.offset(y = y).fillMaxWidth().height(144.dp)
+                                    .background(if (chosen) CoachColors.Ink else CoachColors.Paper, RoundedCornerShape(36.dp))
+                                    .clickable(role = Role.RadioButton) { if (chosen) popup = false else onMode(option) }
+                                    .semantics { selected = chosen }.padding(horizontal = 24.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                                    if (chosen) YellowModeIcon(bars = 3 - index.coerceAtMost(2))
+                                    else SymbolTile(CoachSymbol.Voice, Modifier.size(64.dp).alpha(.35f), animate = false)
+                                    LessonText(option.label, 72, if (chosen) CoachColors.Paper else CoachColors.Muted)
+                                }
                             }
                         }
                     }

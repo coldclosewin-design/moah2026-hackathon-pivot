@@ -94,12 +94,18 @@ internal fun Eyebrow(text: String, modifier: Modifier = Modifier, color: Color =
 
 @Composable
 internal fun Headline(text: String, modifier: Modifier = Modifier, size: Int = CoachType.Headline,
-    color: Color = CoachColors.Ink) {
+    color: Color = CoachColors.Ink, weakTail: String? = null) {
     BoxWithConstraints(modifier) {
         val sizes = listOf(size, 64, 56).distinct().filter { it <= size }
         var step by remember(text, size, maxWidth, maxHeight) { mutableIntStateOf(0) }
         val fittedSize = sizes[step]
-        Text(text, color = color, fontSize = fittedSize.sp, lineHeight = (fittedSize * 1.18f).sp,
+        val sentence = buildAnnotatedString {
+            if (weakTail != null && text.endsWith(weakTail)) {
+                append(text.removeSuffix(weakTail))
+                withStyle(SpanStyle(color = CoachColors.Muted)) { append(weakTail) }
+            } else append(text)
+        }
+        Text(sentence, color = color, fontSize = fittedSize.sp, lineHeight = (fittedSize * 1.18f).sp,
             maxLines = 3, onTextLayout = { result ->
                 if (result.hasVisualOverflow && step < sizes.lastIndex) step++
             }, fontWeight = FontWeight.Medium, style = TextStyle(localeList = LocaleList("ko-KR"),
@@ -143,12 +149,13 @@ internal fun CoachLines(text: String, modifier: Modifier = Modifier, titleSize: 
 @Composable
 internal fun ResultLockedScreen(onDemoStop: (() -> Unit)? = null, message: String = "속도를 낮추면 결과가 다시 보여요.") {
     Column(Modifier.fillMaxSize().background(CoachColors.Ink)
-        .padding(start = 180.dp, end = 100.dp, top = 64.dp, bottom = 52.dp)) {
+        .padding(start = 120.dp, end = 100.dp, top = 64.dp, bottom = 52.dp)) {
         DemoBrandMark(onHold = onDemoStop, onInk = true)
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
-            SymbolTile(CoachSymbol.Lock, Modifier.size(112.dp), animate = false)
+            SymbolTile(CoachSymbol.Lock, Modifier.size(192.dp)
+                .background(CoachColors.Periwinkle, RoundedCornerShape(56.dp)), animate = false, tile = false)
             Spacer(Modifier.height(32.dp))
-            Headline("운전에 집중해 주세요", color = CoachColors.Paper)
+            Headline("운전에 집중해 주세요", size = 120, color = CoachColors.Paper)
             Spacer(Modifier.height(32.dp))
             LessonText(message, 40, CoachColors.Paper.copy(alpha = .7f))
         }
@@ -247,7 +254,7 @@ internal fun SpeechFooter(subtitle: String?) {
 
 /** Inline source shapes preserve the exact combined text used by accessibility and tools. */
 @Composable
-internal fun AvailabilitySummary(badge: com.moah.hackathon.vehicle.AvailabilityBadge, size: Int) {
+internal fun AvailabilitySummary(badge: com.moah.hackathon.vehicle.AvailabilityBadge, size: Int, onInk: Boolean = false) {
     val sources = listOf(CoachSymbol.Live to badge.live, CoachSymbol.Simulated to badge.simulated,
         CoachSymbol.Missing to badge.missing)
     val text = buildAnnotatedString {
@@ -262,9 +269,9 @@ internal fun AvailabilitySummary(badge: com.moah.hackathon.vehicle.AvailabilityB
         Row(Modifier.fillMaxSize().clearAndSetSemantics {}, verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy((size * .4f).dp)) {
             SymbolTile(symbol, Modifier.size(size.dp), animate = false)
-            LessonText(symbol.label, size, CoachColors.Periwinkle, maxLines = 1)
+            LessonText(symbol.label, size, if (onInk) CoachColors.Platinum else CoachColors.Periwinkle, maxLines = 1)
         }
     } }
-    Text(text, color = CoachColors.Periwinkle, fontSize = size.sp, lineHeight = (size * 1.3f).sp,
+    Text(text, color = if (onInk) CoachColors.Platinum else CoachColors.Periwinkle, fontSize = size.sp, lineHeight = (size * 1.3f).sp,
         inlineContent = contents, style = TextStyle(localeList = LocaleList("ko-KR")))
 }

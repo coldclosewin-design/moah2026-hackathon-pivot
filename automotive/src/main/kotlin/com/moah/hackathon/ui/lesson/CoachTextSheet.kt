@@ -56,7 +56,10 @@ internal fun CoachTextSheet(coach: CoachDialog, onChoose: (CoachChoice) -> Unit,
         onDispose { focus.clearFocus(); keyboard?.hide() }
     }
     Column(Modifier.fillMaxSize().testTag("coach-text-sheet")) {
-        Eyebrow("코치와 대화")
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+            YellowModeIcon(conversation = true)
+            Eyebrow("코치와 대화")
+        }
         Spacer(Modifier.height(27.dp))
         Box(Modifier.weight(1f).fillMaxWidth()) {
             Column(Modifier.fillMaxSize().testTag("coach-transcript").verticalScroll(scroll),
@@ -106,18 +109,17 @@ internal fun CoachTextSheet(coach: CoachDialog, onChoose: (CoachChoice) -> Unit,
             PrimaryPill("보내기", send, Modifier.width(260.dp), enabled = !coach.waiting && draft.text.isNotBlank())
         }
         Spacer(Modifier.height(24.dp))
-        BottomActions(secondary = { BackPill(onBack) })
+        BottomActions(secondary = { ArrowPill("돌아가기", "←", onBack) })
     }
 }
 
 @Composable
 private fun CoachMessage(text: String, fromDriver: Boolean = false, modifier: Modifier = Modifier) {
-    Column(modifier.fillMaxWidth(if (fromDriver) .88f else 1f)
+    Column(modifier.widthIn(max = 1800.dp)
         .surfaceTexture(if (fromDriver) CoachColors.Ink else CoachColors.Lavender, CoachTexture.Card,
             shape = RoundedCornerShape(topStart = 36.dp, topEnd = 36.dp,
                 bottomEnd = if (fromDriver) 9.dp else 36.dp, bottomStart = if (fromDriver) 36.dp else 9.dp))
         .padding(horizontal = 36.dp, vertical = 24.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        if (!fromDriver) Eyebrow("코치")
         if (fromDriver) LessonText(text, 48, CoachColors.Paper)
         else CoachLines(text, titleSize = 52, adviceSize = 44)
     }
