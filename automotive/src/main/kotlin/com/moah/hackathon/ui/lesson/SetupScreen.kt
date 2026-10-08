@@ -1,5 +1,8 @@
+@file:OptIn(androidx.compose.animation.ExperimentalSharedTransitionApi::class)
+
 package com.moah.hackathon.ui.lesson
 
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -49,6 +52,7 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
     var categoryName by rememberSaveable(suggestedTask.id, booking) { mutableStateOf(suggestedTask.type.name) }
     var modeName by rememberSaveable(suggestedMode, booking) { mutableStateOf(suggestedMode.name) }
     var sheet by rememberSaveable { mutableStateOf(false) }
+    var bookingOpen by rememberSaveable { mutableStateOf(false) }
     var venuesOpen by rememberSaveable { mutableStateOf(false) }
     var awaitingRecommendation by remember { mutableStateOf(false) }
     var coachTextSubmitted by remember { mutableStateOf(false) }
@@ -86,16 +90,25 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
     val mode = supportedMode(task, LessonMode.valueOf(modeName))
     val start = { if (task.isReady && (if (sheet) selectedTask != null else picked)) onBegin(task.id, mode) }
     val slide = with(LocalDensity.current) { 40.dp.roundToPx() }
-    PosterSurface(band = demo.takeUnless { sheet || profileOpen || coach != null }) {
+    val escape = LocalDemoEscape.current
+    CompositionLocalProvider(LocalDemoEscape provides escape?.let { {
+        profileOpen = false; bookingOpen = false; venuesOpen = false; sheet = false; onCloseCoach(); it()
+    } }) {
+    PosterSurface(band = demo.takeUnless { sheet || profileOpen || coach != null || bookingOpen }) {
         BoxWithConstraints(Modifier.fillMaxSize()) {
             // An expanded admin band needs room as well as a booking card. Keep the
             // A1 action/card gaps and full button heights; compact only the reading area.
             val compactHome = maxHeight < 1120.dp
             Row(Modifier.fillMaxSize().then(if (coachInput == CoachInputMode.CARDS_AND_TEXT && coach != null) Modifier.imePadding() else Modifier)) {
-                AnimatedContent(if (profileOpen) "profile" else if (coach != null) "coach" else if (sheet) "tasks" else "home", Modifier.weight(1f).fillMaxHeight(),
+                val sheetColor by androidx.compose.animation.animateColorAsState(
+                    if (sheet || bookingOpen) CoachColors.Lavender else CoachColors.Paper, tween(400), label = "home-paper")
+                SharedTransitionLayout(Modifier.background(sheetColor)) {
+                CompositionLocalProvider(LocalHomeShared provides this) {
+                AnimatedContent(if (bookingOpen) "booking" else if (profileOpen) "profile" else if (coach != null) "coach" else if (sheet) "tasks" else "home", Modifier.weight(1f).fillMaxHeight(),
                     transitionSpec = {
-                        (fadeIn(tween(300)) + slideInHorizontally(tween(300)) { slide }) togetherWith fadeOut(tween(300))
+                        fadeIn(tween(280, delayMillis = 280)) togetherWith fadeOut(tween(200))
                     }, label = "setup-content") { page ->
+                    CompositionLocalProvider(LocalHomeVisibility provides this) {
                     val showSheet = page != "home"
                     if (page == "home") {
                         HomeGallery(profile, task, mode, picked, compactHome, onAdmin,
@@ -105,17 +118,24 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
                             if (picked) selectionReason(task, mode, suggestedTask, suggestedMode, reason)
                             else "밑줄을 누르면 과제를 고를 수 있어요.") {
                             bookingDetails(booking, venues)?.let { details ->
-                                HomeBookingCard(details, tasks, bookingOptions, bookingChoice, highlightBooking) { option ->
+                                HomeBookingCard(details, tasks, bookingOptions, bookingChoice, onOpen = { bookingOpen = true }) { option ->
                                     awaitingRecommendation = true
                                     onChooseBooking(option)
                                 }
                             }
                         }
-                    } else Column(Modifier.fillMaxSize().background(if (page == "profile") CoachColors.Lavender else CoachColors.Paper).padding(if (page == "profile") 84.dp else 0.dp),
-                        verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                    } else Column(Modifier.fillMaxSize().background(CoachColors.Paper).padding(if (page == "profile") 84.dp else 0.dp),
+                        verticalArrangement = Arrangement.spacedBy(if (page == "profile") 0.dp else 24.dp)) {
                         if (page == "profile") {
                             BrandMark()
-                            ProfileScreen(profileRows, onAnswerProfile, { profileOpen = false }, observedLines = observedLines)
+                            ProfileScreen(profileRows, onAnswerProfile, { profileOpen = false }, observedLines = observedLines, profile = profile)
+                        } else if (page == "booking") {
+                            bookingDetails(booking, venues)?.let { details ->
+                                BookingTicketSheet(details, tasks, bookingOptions, bookingChoice, {
+                                    awaitingRecommendation = true; onChooseBooking(it)
+                                }, { bookingOpen = false }, { bookingOpen = false; venuesOpen = true; sheet = true },
+                                    { slotId -> onReserve(details.venue.id, slotId, details.course.id) })
+                            }
                         } else if (page == "coach") {
                             Box(Modifier.fillMaxSize()) {
                             Box(Modifier.fillMaxSize().clearAndSetSemantics {}) {
@@ -161,7 +181,11 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
                         }
                     }
                 }
+                }
+                }
+                }
             }
         }
+    }
     }
 }

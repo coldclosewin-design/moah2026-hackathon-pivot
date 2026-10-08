@@ -58,7 +58,11 @@ internal fun YellowModeIcon(modifier: Modifier = Modifier, bars: Int = 2, conver
 
 @Composable
 internal fun WordPill(label: String, description: String, size: Int, chosen: Boolean = false, placeholder: Boolean = false, onClick: () -> Unit) {
-    Box(Modifier.heightIn(min = 112.dp).shadow(if (placeholder) 0.dp else 3.dp, RoundedCornerShape(30.dp))
+    Box(Modifier.then(when (description) {
+        "과제 바꾸기" -> Modifier.homeShared("home-task")
+        "모드 바꾸기" -> Modifier.homeShared("home-mode")
+        else -> Modifier
+    }).heightIn(min = 112.dp).shadow(if (placeholder) 0.dp else 3.dp, RoundedCornerShape(30.dp))
         .background(if (chosen) CoachColors.Ink else CoachColors.Paper, RoundedCornerShape(30.dp))
         .drawWithContent {
             drawContent()

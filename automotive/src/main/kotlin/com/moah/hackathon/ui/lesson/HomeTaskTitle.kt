@@ -50,7 +50,7 @@ internal fun HomeTaskTitle(task: Task, mode: LessonMode, picked: Boolean, compac
         val width = with(LocalDensity.current) { maxWidth.toPx() }
         val parts = listOf("$taskWord ▼ $suffix", if (picked) "${mode.label} ▼ 모드로 해 볼까요?" else "해 볼까요?")
         val lines = if (singleLine) listOf(parts.joinToString(" ")) else parts
-        val size = listOf(titleSize ?: if (compact) 104 else 126, 112, 104, 88, 80, 72, 64, 56).distinct().filter { it <= (titleSize ?: if (compact) 104 else 126) }.firstOrNull { candidate ->
+        val size = listOf(titleSize ?: if (compact) 104 else 132, 112, 104, 88, 80, 72, 64, 56).distinct().filter { it <= (titleSize ?: if (compact) 104 else 132) }.firstOrNull { candidate ->
             lines.all { measurer.measure(AnnotatedString(it), TextStyle(fontSize = candidate.sp), softWrap = false).size.width <= width }
         } ?: 56
         val taskTitle: @Composable () -> Unit = {
@@ -101,7 +101,7 @@ internal fun HomeTaskTitle(task: Task, mode: LessonMode, picked: Boolean, compac
 
 @Composable
 private fun HomeTitleLink(text: String, description: String, size: Int, dashed: Boolean, onClick: () -> Unit) {
-    Box(Modifier.heightIn(min = 96.dp).clickable(role = Role.Button, onClick = onClick)
+    Box(Modifier.homeShared(if (description == "모드 바꾸기") "home-mode" else "home-task").heightIn(min = 96.dp).clickable(role = Role.Button, onClick = onClick)
         .semantics { contentDescription = description }.padding(end = 16.dp, bottom = 8.dp),
         contentAlignment = Alignment.CenterStart) {
         val label = buildAnnotatedString {

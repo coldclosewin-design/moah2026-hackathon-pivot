@@ -40,18 +40,18 @@ internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit, locked: B
         return
     }
     PosterSurface {
-        Column(Modifier.fillMaxSize().background(CoachColors.Lavender).padding(72.dp), verticalArrangement = Arrangement.spacedBy(32.dp)) {
+        Column(Modifier.fillMaxSize().background(CoachColors.Ink).padding(72.dp), verticalArrangement = Arrangement.spacedBy(32.dp)) {
             if (page == ReportPage.CERTIFICATE) {
                 CertificateContent(report, shareLevel, { shareName = it.name }, Modifier.weight(1f))
                 BottomActions(secondary = {
                     Row(horizontalArrangement = Arrangement.spacedBy(32.dp)) {
-                        BackPill { page = ReportPage.SUMMARY }
-                        ArrowPill("공유 예시 보기", "↗", { page = ReportPage.SHARE_EXAMPLE })
+                        ArrowPill("돌아가기", "←", { page = ReportPage.SUMMARY }, dark = true)
+                        ArrowPill("공유 예시 보기", "↗", { page = ReportPage.SHARE_EXAMPLE }, dark = true)
                     }
-                }, primary = { MainPill(onRestart) })
+                }, primary = { FillButton("메인으로", onRestart, Modifier.width(720.dp).height(140.dp), inverse = true) })
             } else {
                 ShareExampleContent(report, shareLevel, Modifier.weight(1f))
-                BottomActions(secondary = { BackPill { page = ReportPage.CERTIFICATE } })
+                BottomActions(secondary = { ArrowPill("돌아가기", "←", { page = ReportPage.CERTIFICATE }, dark = true) })
             }
         }
     }

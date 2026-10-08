@@ -47,7 +47,7 @@ internal fun <T> SelectionTrack(items: List<T>, selected: T?, label: (T) -> Stri
     enabled: (T) -> Boolean = { true }, role: Role = Role.RadioButton,
     background: Color = CoachColors.Lavender, selectedBackground: Color = CoachColors.Ink,
     foreground: Color = CoachColors.Periwinkle, selectedForeground: Color = CoachColors.Paper,
-    itemContent: (@Composable RowScope.(T, Color) -> Unit)? = null) {
+    itemContent: (@Composable RowScope.(T, Color) -> Unit)? = null, smoothCategory: Boolean = false) {
     BoxWithConstraints(modifier.height(height)) {
         // Short tracks retain the cell width of a three-choice track, including its gutters.
         val layoutWidth = maxWidth
@@ -64,15 +64,16 @@ internal fun <T> SelectionTrack(items: List<T>, selected: T?, label: (T) -> Stri
         val widths = natural.map { cellWidth + (it - average) }
         val starts = widths.indices.map { index -> 10.dp + widths.take(index).fold(0.dp) { a, b -> a + b } + 12.dp * index }
         val motion = selectionMotionEnabled()
-        val duration = if (motion) CoachMotion.SelectMillis else 0
+        val duration = if (!motion) 0 else if (smoothCategory) 340 else CoachMotion.SelectMillis
+        val easing = if (smoothCategory) CoachMotion.Category else CoachMotion.Stone
         val selectedIndex = items.indexOf(selected).takeIf { it >= 0 && enabled(items[it]) }
         // Reset only animation state on resize, keeping the selectable semantics nodes alive.
         val geometry = key(layoutWidth, height, items) {
             val transition = updateTransition(selectedIndex, label = "selection-track")
             val left by transition.animateDp({ tween(if (initialState == null) 0 else duration,
-                easing = CoachMotion.Stone) }, label = "left") { starts.getOrElse(it ?: 0) { 10.dp } }
+                easing = easing) }, label = "left") { starts.getOrElse(it ?: 0) { 10.dp } }
             val width by transition.animateDp({ tween(if (initialState == null) 0 else duration,
-                easing = CoachMotion.Stone) }, label = "width") { widths.getOrElse(it ?: 0) { 0.dp } }
+                easing = easing) }, label = "width") { widths.getOrElse(it ?: 0) { 0.dp } }
             left to width
         }
         val left = if (motion) geometry.first else starts.getOrElse(selectedIndex ?: 0) { 10.dp }
@@ -89,7 +90,7 @@ internal fun <T> SelectionTrack(items: List<T>, selected: T?, label: (T) -> Stri
                 val targetColor = when { !available -> CoachColors.Ink.copy(alpha = .35f); chosen -> selectedForeground; else -> foreground }
                 val color = key(layoutWidth, items) {
                     val animatedColor by animateColorAsState(targetColor,
-                        tween(duration, easing = CoachMotion.Stone), label = "selection-label")
+                        tween(if (smoothCategory && motion) 140 else duration, easing = easing), label = "selection-label")
                     if (motion) animatedColor else targetColor
                 }
                 Row(Modifier.width(widths[index]).fillMaxHeight()

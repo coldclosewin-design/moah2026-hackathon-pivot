@@ -10,12 +10,12 @@ internal fun LessonRoute(vm: LessonViewModel) {
     val phase by vm.phase.collectAsStateWithLifecycle()
     val subtitle by vm.subtitle.collectAsStateWithLifecycle()
     val admin = vm.admin
+    var adminOpen by rememberSaveable { mutableStateOf(false) }
     val controls = admin?.demo
     val stopDemo: (() -> Unit)? = remember(controls) {
-        controls?.let { { it.stopScenario(); it.stopCar() } }
+        controls?.let { { adminOpen = false; it.escapeHome() } }
     }
     val bandVisible = admin?.bandVisible?.collectAsStateWithLifecycle()?.value == true
-    var adminOpen by rememberSaveable { mutableStateOf(false) }
     // The inherited Fake port defaults to road speeds. Park it for the lesson setup;
     // Real has no DemoControls and receives no synthetic commands.
     LaunchedEffect(controls, phase is LessonPhase.Setup) {
@@ -31,9 +31,11 @@ internal fun LessonRoute(vm: LessonViewModel) {
             }, controls::stopScenario,
                 controls::stopCar, controls::resumeCar, controls::setDoor,
                 aiState = controls.aiState, onConnectAi = controls::connectAi,
-                onResetRecords = admin::resetRecords, onHide = { admin.setBand(false) }, signalSource = admin.signalSource)
+                onResetRecords = admin::resetRecords, onHide = { admin.setBand(false) }, signalSource = admin.signalSource,
+                steeringSteps = controls.steeringSteps, onSteering = controls::setSteering)
         }
     }
+    CompositionLocalProvider(LocalDemoEscape provides stopDemo) {
     when (val state = phase) {
         is LessonPhase.Setup -> if (adminOpen && admin != null) AdminHome(admin, state, { adminOpen = false })
         else SetupScreen(state.profile, state.tasks, state.suggestedTask, state.suggestedMode,
@@ -57,4 +59,6 @@ internal fun LessonRoute(vm: LessonViewModel) {
             state.chosen, state.correctSoFar, vm::answer, vm::nextQuestion, vm::endSession, stopDemo)
         is LessonPhase.QuizDone -> QuizDoneScreen(state.task, state.results, state.items, state.remark, vm::restart, state.locked, stopDemo)
     }
+}
+
 }

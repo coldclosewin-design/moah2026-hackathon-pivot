@@ -40,7 +40,9 @@ internal fun ReportDashboard(report: LessonReport, onRestart: () -> Unit, onDeta
                 }
                 Column(Modifier.weight(1f).fillMaxHeight().background(CoachColors.Paper, RoundedCornerShape(44.dp)).padding(64.dp),
                     verticalArrangement = Arrangement.spacedBy(24.dp)) {
-                    Eyebrow("오늘의 기록", color = CoachColors.Muted)
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        BrandMark(); Eyebrow("오늘의 기록", color = CoachColors.Muted)
+                    }
                     Box(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
                         CoachLines(driverReportSummary(report.summary), titleSize = 108, adviceSize = 52)
                     }

@@ -45,6 +45,7 @@ internal fun DriveScreen(state: LessonPhase.Drive, subtitle: String?, onFinish: 
             Column(Modifier.align(Alignment.BottomStart).padding(84.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 if (!state.progress.positionMeasured) LessonText("시험장 위치 미측정", 36, CoachColors.Muted)
                 LessonText("시험장 위치·신호 · ${trackSource(state.availability)}", 32, CoachColors.Muted)
+                if (state.locked && LocalDemoEscape.current != null) LessonText("시연 · 막히면 워드마크를 길게", 28, CoachColors.Muted.copy(alpha = .6f))
             }
             Column(Modifier.align(Alignment.BottomEnd).padding(80.dp).width(1060.dp), verticalArrangement = Arrangement.spacedBy(28.dp)) {
                 if (state.locked) LessonText("운전에 집중해 주세요", 32, CoachColors.Muted, modifier = Modifier.align(Alignment.End))

@@ -1,5 +1,12 @@
 package com.moah.hackathon.ui.lesson
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.clickable
@@ -26,6 +33,8 @@ import com.moah.hackathon.feature.lesson.LessonViewModel
 import com.moah.hackathon.ui.CoachColors
 import com.moah.hackathon.ui.CoachTexture
 
+internal val LocalDemoEscape = staticCompositionLocalOf<(() -> Unit)?> { null }
+
 /** Only Setup supplies this action, and only when the model exposes admin controls. */
 @Composable
 internal fun SetupBrandMark(modifier: Modifier = Modifier, onAdmin: (() -> Unit)? = null, onInk: Boolean = false) {
@@ -36,12 +45,32 @@ internal fun SetupBrandMark(modifier: Modifier = Modifier, onAdmin: (() -> Unit)
 @Composable
 internal fun DemoBrandMark(modifier: Modifier = Modifier, onHold: (() -> Unit)? = null,
     onInk: Boolean = false, actionLabel: String? = null) {
+    val progress = remember { Animatable(0f) }
+    val scope = rememberCoroutineScope()
     val config = LocalViewConfiguration.current
     val adminConfig = remember(config) { object : ViewConfiguration by config { override val longPressTimeoutMillis = 2_000L } }
     CompositionLocalProvider(LocalViewConfiguration provides adminConfig) {
-        BrandMark(modifier.then(if (onHold == null) Modifier else Modifier
+        PlainBrandMark(modifier.then(if (onHold == null) Modifier else Modifier
+            .drawBehind {
+                if (progress.value > 0f) {
+                    val perimeter = 2 * (size.width + size.height)
+                    var remaining = perimeter * progress.value
+                    val points = listOf(Offset.Zero, Offset(size.width, 0f), Offset(size.width, size.height), Offset(0f, size.height), Offset.Zero)
+                    points.zipWithNext().forEach { (a, b) ->
+                        val length = (b - a).getDistance()
+                        val fraction = (remaining / length).coerceIn(0f, 1f)
+                        if (fraction > 0f) drawLine(if (onInk) CoachColors.Platinum else CoachColors.Ink, a, a + (b - a) * fraction, 2.dp.toPx())
+                        remaining -= length
+                    }
+                }
+            }
             .then(if (actionLabel == null) Modifier else Modifier.semantics { onLongClick(actionLabel) { onHold(); true } })
-            .pointerInput(onHold) { detectTapGestures(onLongPress = { onHold() }) }),
+            .pointerInput(onHold) { detectTapGestures(onLongPress = { onHold() }, onPress = {
+                val job = scope.launch { delay(300); progress.animateTo(1f, tween(1700, easing = LinearEasing)) }
+                tryAwaitRelease()
+                job.cancel()
+                scope.launch { progress.animateTo(0f, tween(120)) }
+            }) }),
             if (onInk) CoachColors.Paper else CoachColors.Ink)
     }
 }

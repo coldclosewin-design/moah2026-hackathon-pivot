@@ -11,5 +11,7 @@ internal object CoachMotion {
     val HomeFill = CubicBezierEasing(.4f, 0f, .2f, 1f)
     val Fill = CubicBezierEasing(.2f, .8f, .2f, 1f)
     val Release = CubicBezierEasing(.4f, 0f, .6f, 1f)
+    val Shared = CubicBezierEasing(.2f, 0f, 0f, 1f)
+    val Category = androidx.compose.animation.core.Easing { 1f - (1f - it).let { x -> x * x * x * x * x } }
     val Stone = CubicBezierEasing(.3f, 1.25f, .5f, 1f)
 }

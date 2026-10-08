@@ -1,5 +1,6 @@
 package com.moah.hackathon.ui.lesson
 
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -14,7 +15,12 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import kotlin.math.cos
+import kotlin.math.sin
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.moah.hackathon.feature.lesson.*
@@ -29,48 +35,67 @@ internal fun ParkingRingScreen(state: ManeuverDisplayState, stopped: Boolean, su
     var hint by remember(state.hintText) { mutableStateOf(maneuverText(state.hintText)) }
     LaunchedEffect(state.hintText) { if (hint != null) { delay(4_000); hint = null } }
     val source = state.commonSignal()
+    val ring = remember { Animatable(state.steeringDeg ?: 0f) }
+    LaunchedEffect(state.steeringDeg) {
+        if (state.steeringDeg == null) ring.snapTo(0f)
+        else ring.animateTo(state.steeringDeg, spring(dampingRatio = .88f, stiffness = 110f))
+    }
+    val angle = ring.value
+    val stretch by animateFloatAsState(1f + .8f * (abs(ring.velocity) / 900f).coerceIn(0f, 1f),
+        spring(dampingRatio = .35f, stiffness = 420f), label = "ring-droplet")
+    val ripple = remember { Animatable(1f) }
+    var previousStep by remember(state.attempt) { mutableStateOf(state.guideStep) }
+    LaunchedEffect(state.mode, state.guideStep) {
+        val before = previousStep?.substringBefore('/')?.toIntOrNull()
+        val after = state.guideStep?.substringBefore('/')?.toIntOrNull()
+        previousStep = state.guideStep
+        if (state.mode == LessonMode.GUIDE && before != null && after != null && after > before) {
+            ripple.snapTo(0f)
+            ripple.animateTo(1f, tween(700, easing = LinearOutSlowInEasing))
+        }
+    }
     PosterSurface(band = demo) {
         Row(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(CoachColors.Lavender, CoachColors.Platinum)))
             .padding(42.dp), horizontalArrangement = Arrangement.spacedBy(64.dp)) {
             Box(Modifier.weight(1f).fillMaxHeight().background(CoachColors.Paper, RoundedCornerShape(48.dp))
                 .testTag("parking-ring-card")) {
                 BrandMark(Modifier.padding(60.dp))
-                Box(Modifier.align(Alignment.TopEnd).padding(32.dp).size(272.dp, 216.dp)
-                    .background(CoachColors.Lavender, RoundedCornerShape(32.dp))) {
-                    Canvas(Modifier.fillMaxSize().padding(24.dp)) {
-                        drawPath(Path().apply {
-                            moveTo(size.width * .2f, size.height * .15f)
-                            lineTo(size.width * .2f, size.height * .9f)
-                            lineTo(size.width * .8f, size.height * .9f)
-                            lineTo(size.width * .8f, size.height * .15f)
-                        }, CoachColors.Muted, style = Stroke(3.dp.toPx()))
-                        withTransform({
-                            translate(size.width * .36f, size.height * .18f)
-                            scale(size.width * .28f / 100f, size.height * .6f / 250f, Offset.Zero)
-                        }) { vehicleSilhouette(CoachColors.Ink, CoachColors.Lavender, CoachColors.Lavender) }
-                    }
-                }
                 Box(Modifier.align(Alignment.Center).size(900.dp).testTag("steering-ring"), contentAlignment = Alignment.Center) {
                     Canvas(Modifier.fillMaxSize()) {
                         val r = size.minDimension
-                        val angle = abs(state.steeringDeg ?: 0f)
-                        val direction = if ((state.steeringDeg ?: 0f) > 0) -1 else 1
-                        for ((radius, sweep) in listOf(.36f to angle.coerceAtMost(360f), .45f to (angle - 360).coerceIn(0f,360f))) {
+                        val magnitude = abs(angle)
+                        val direction = if (angle < 0f) -1 else 1
+                        val stroke = 28.dp.toPx()
+                        for ((radius, sweep) in listOf(.36f to magnitude.coerceAtMost(360f), .45f to (magnitude - 360).coerceIn(0f, 360f))) {
                             val p = Offset(r * (.5f - radius), r * (.5f - radius))
                             val bounds = Size(r * radius * 2, r * radius * 2)
-                            drawArc(CoachColors.Lavender, -90f, 360f, false, p, bounds, style = Stroke(28.dp.toPx()))
+                            drawArc(CoachColors.Lavender, -90f, 360f, false, p, bounds, style = Stroke(stroke))
                             if (state.steeringDeg != null) drawArc(CoachColors.Ink, -90f, sweep * direction, false, p, bounds,
-                                style = Stroke(28.dp.toPx(), cap = StrokeCap.Round))
+                                style = Stroke(stroke, cap = StrokeCap.Butt))
                         }
+                        if (state.steeringDeg != null) {
+                            val radius = if (magnitude > 360f) .45f else .36f
+                            val degrees = -90f + (if (magnitude > 360f) magnitude - 360f else magnitude) * direction
+                            val rad = Math.toRadians(degrees.toDouble())
+                            val head = Offset(r * .5f + r * radius * cos(rad).toFloat(), r * .5f + r * radius * sin(rad).toFloat())
+                            val diameter = stroke * 1.4f
+                            val length = diameter * stretch
+                            // The leading edge stays at the ring endpoint; only the trailing edge stretches.
+                            rotate(degrees + direction * 90f, head) {
+                                drawOval(CoachColors.Ink, Offset(head.x + diameter / 2 - length, head.y - diameter / 2), Size(length, diameter))
+                            }
+                        }
+                        if (ripple.value < 1f) drawCircle(CoachColors.Ink.copy(alpha = .6f * (1f - ripple.value)),
+                            r * .45f * (1f + .075f * ripple.value), style = Stroke(4.dp.toPx()))
                         drawLine(CoachColors.Muted, Offset(r / 2, r * .9f), Offset(r / 2, r), 3.dp.toPx(),
                             pathEffect = PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 8.dp.toPx())))
                     }
                     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Eyebrow("조향각", color = CoachColors.Muted)
                         LessonText(state.steeringDeg?.let {
-                            "${if (it > 0) "왼쪽" else if (it < 0) "오른쪽" else "중립"} ${abs(it).roundToInt()}°"
+                            steeringControlLabel(it)
                         } ?: "미측정", 84, bold = true)
-                        steeringTurnsLabel(state.steeringDeg)?.let { LessonText(it, 36, CoachColors.Muted) }
+                        steeringTurnsLabel(state.steeringDeg?.let { -it })?.let { LessonText(it, 36, CoachColors.Muted) }
                         if (source == null && state.steeringDeg != null) StateLabel(signalLabel(state.steeringSignal), state.steeringSignal)
                     }
                 }
@@ -102,30 +127,71 @@ internal fun ParkingRingScreen(state: ManeuverDisplayState, stopped: Boolean, su
                             }
                         }
                         Spacer(Modifier.height(24.dp))
-                        Headline(coachDisplayText(main), size = 90,
-                            color = if (hint != null && guide == null) CoachColors.Signal else CoachColors.Ink)
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(28.dp)) {
+                            Headline(coachDisplayText(main), size = 86, modifier = Modifier.weight(1f),
+                                color = if (hint != null && guide == null) CoachColors.Signal else CoachColors.Ink)
+                            if (guide != null && state.mode == LessonMode.GUIDE && state.guideStep != null)
+                                ParkingStageTile(state.guideStep, state.entryGear == com.moah.hackathon.vehicle.Gear.DRIVE)
+                        }
                     }
                     if (spoken != null && spoken != main) {
                         Spacer(Modifier.height(32.dp)); LessonText(coachDisplayText(spoken), 40, CoachColors.Muted)
                     }
                 }
-                Row(Modifier.fillMaxWidth().background(CoachColors.Paper, RoundedCornerShape(100)).padding(28.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Eyebrow("기어", color = CoachColors.Muted)
-                        LessonText(state.gear ?: "미측정", 76)
-                        if (source == null && state.gear != null) StateLabel(signalLabel(state.gearSignal), state.gearSignal)
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(42.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.size(240.dp).background(CoachColors.Ink, RoundedCornerShape(100)),
+                        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                        Eyebrow("기어", color = CoachColors.Platinum)
+                        LessonText(state.gear ?: "미측정", if (state.gear == null) 46 else 112, CoachColors.Paper)
                     }
-                    if (state.rearDistanceApplies) Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Eyebrow(if (state.proximityAlert()) "가까워요" else "뒤 거리", color = CoachColors.Muted)
-                        LessonText(state.rearDistanceCm?.let { "${it.roundToInt()} cm" } ?: "미측정", 76,
-                            if (state.proximityAlert()) CoachColors.Signal else CoachColors.Ink)
-                        if (source == null && state.rearDistanceCm != null) StateLabel(signalLabel(state.distanceSignal), state.distanceSignal)
+                    if (state.rearDistanceApplies) Row(Modifier.weight(1f).height(240.dp)
+                        .background(CoachColors.Paper, RoundedCornerShape(100)).padding(42.dp),
+                        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(28.dp)) {
+                        Column(Modifier.weight(1f)) {
+                            Eyebrow(if (state.proximityAlert()) "가까워요" else "뒤 거리", color = CoachColors.Muted)
+                            LessonText(state.rearDistanceCm?.let { "${it.roundToInt()} cm" } ?: "미측정", 64,
+                                if (state.proximityAlert()) CoachColors.Signal else CoachColors.Ink)
+                        }
+                        Column(Modifier.width(360.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                            Box(Modifier.fillMaxWidth().height(28.dp).background(CoachColors.Lavender, RoundedCornerShape(100))) {
+                                state.rearDistanceCm?.let { distance ->
+                                    Box(Modifier.align(Alignment.CenterEnd).fillMaxWidth((1f - distance / 150f).coerceIn(0f, 1f)).fillMaxHeight()
+                                        .background(if (state.proximityAlert()) CoachColors.Signal else CoachColors.Ink, RoundedCornerShape(100)))
+                                }
+                            }
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                LessonText("150", 24, CoachColors.Muted); LessonText("벽 0", 24, CoachColors.Muted)
+                            }
+                        }
                     }
+                }
+                if (source == null) Row(horizontalArrangement = Arrangement.spacedBy(28.dp)) {
+                    if (state.gear != null) StateLabel(signalLabel(state.gearSignal), state.gearSignal)
+                    if (state.rearDistanceApplies && state.rearDistanceCm != null) StateLabel(signalLabel(state.distanceSignal), state.distanceSignal)
                 }
                 Spacer(Modifier.height(36.dp))
                 if (stopped) FinishButton(state.askedDone, onFinish) else Spacer(Modifier.height(140.dp))
             }
         }
+    }
+}
+
+/** B5 is the current guide's illustrative pose, never a vehicle position reading. */
+@Composable
+private fun ParkingStageTile(step: String, front: Boolean) {
+    val index = step.substringBefore('/').toIntOrNull() ?: 1
+    Column(Modifier.width(216.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Canvas(Modifier.size(200.dp).background(CoachColors.Ink, RoundedCornerShape(48.dp))
+            .semantics { contentDescription = "가이드 $step 단계 자세 · 위치 측정 아님" }) {
+            val w = size.width
+            drawPath(Path().apply { moveTo(w * .18f, w * .43f); lineTo(w * .18f, w * .87f); lineTo(w * .83f, w * .87f); lineTo(w * .83f, w * .43f) },
+                CoachColors.Muted, style = Stroke(3.dp.toPx()))
+            rotate((if (front) 180f else 0f) + when (index) { 1, 2 -> 90f; 3, 4 -> 35f; else -> 0f }) {
+                withTransform({ translate(w * .39f, w * .16f); scale(w * .24f / 100f, w * .6f / 250f, Offset.Zero) }) {
+                    vehicleSilhouette(CoachColors.Paper, CoachColors.Ink, CoachColors.Ink)
+                }
+            }
+        }
+        LessonText("위치 측정 아님", 27, CoachColors.Muted)
     }
 }

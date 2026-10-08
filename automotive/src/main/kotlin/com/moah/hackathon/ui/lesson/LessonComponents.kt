@@ -83,6 +83,11 @@ internal fun LessonText(text: AnnotatedString, size: Int = 36, color: Color = Co
 
 @Composable
 internal fun BrandMark(modifier: Modifier = Modifier, color: Color = CoachColors.Ink) {
+    DemoBrandMark(modifier, LocalDemoEscape.current, onInk = color == CoachColors.Paper)
+}
+
+@Composable
+internal fun PlainBrandMark(modifier: Modifier = Modifier, color: Color = CoachColors.Ink) {
     Text("DRIVE COACH", modifier, color = color, fontSize = 32.sp,
         letterSpacing = 2.sp, fontWeight = FontWeight.Bold)
 }
@@ -150,7 +155,7 @@ internal fun CoachLines(text: String, modifier: Modifier = Modifier, titleSize: 
 internal fun ResultLockedScreen(onDemoStop: (() -> Unit)? = null, message: String = "속도를 낮추면 결과가 다시 보여요.") {
     Column(Modifier.fillMaxSize().background(CoachColors.Ink)
         .padding(start = 120.dp, end = 100.dp, top = 64.dp, bottom = 52.dp)) {
-        DemoBrandMark(onHold = onDemoStop, onInk = true)
+        DemoBrandMark(onHold = onDemoStop ?: LocalDemoEscape.current, onInk = true)
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
             SymbolTile(CoachSymbol.Lock, Modifier.size(192.dp)
                 .background(CoachColors.Periwinkle, RoundedCornerShape(56.dp)), animate = false, tile = false)
@@ -159,7 +164,7 @@ internal fun ResultLockedScreen(onDemoStop: (() -> Unit)? = null, message: Strin
             Spacer(Modifier.height(32.dp))
             LessonText(message, 40, CoachColors.Paper.copy(alpha = .7f))
         }
-        if (onDemoStop != null) LessonText("시연 · 시나리오가 끝나면 차가 멈춰요 — 막히면 워드마크를 길게",
+        if (onDemoStop != null || LocalDemoEscape.current != null) LessonText("시연 · 막히면 워드마크를 길게",
             28, CoachColors.Paper.copy(alpha = .4f))
     }
 }
