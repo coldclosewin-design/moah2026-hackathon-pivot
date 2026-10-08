@@ -1,0 +1,6 @@
+Base: 3cb9f23 (origin/main, PR 258 and 259 merged)
+Branch: codex/ui-round30
+Emulator: emulator-5556 only
+APK SHA-256: 9d6179af3ea88d9a5047b11f1a65b702d794199a2a21bf2ba247e969a3a902f0
+JVM: {"tests":368,"failures":0,"errors":0,"skipped":0}
+Instrumentation APK SHA-256: 42c0200e84899c59d265fb29551552377ae103fa1c44c2d0d6987f24f974a5ac

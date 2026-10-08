@@ -60,7 +60,7 @@ internal fun ParkingRingScreen(state: ManeuverDisplayState, stopped: Boolean, su
             Box(Modifier.weight(1f).fillMaxHeight().background(CoachColors.Paper, RoundedCornerShape(48.dp))
                 .testTag("parking-ring-card")) {
                 BrandMark(Modifier.padding(60.dp))
-                Box(Modifier.align(Alignment.Center).size(900.dp).testTag("steering-ring"), contentAlignment = Alignment.Center) {
+                Box(Modifier.align(Alignment.Center).offset(y = (-36).dp).size(860.dp).testTag("steering-ring"), contentAlignment = Alignment.Center) {
                     Canvas(Modifier.fillMaxSize()) {
                         val r = size.minDimension
                         val magnitude = abs(angle)

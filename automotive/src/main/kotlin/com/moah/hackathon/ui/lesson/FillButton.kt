@@ -74,7 +74,7 @@ private fun ButtonFace(label: String, home: Boolean, progress: Float, ink: Color
             LessonText("→", 40, ink, modifier = Modifier.width(84.dp).clearAndSetSemantics {})
             Spacer(Modifier.weight(1f))
         }
-        LessonText(label, if (home) 120 else 40, ink, bold = true, maxLines = 1)
+        LessonText(label, if (home) 120 else 40, if (home && ink == CoachColors.Ink) CoachColors.Paper else ink, bold = true, maxLines = 1)
         if (!home) Spacer(Modifier.weight(1f))
         if (home) {
             val leaving = LocalHomeVisibility.current?.transition?.targetState == androidx.compose.animation.EnterExitState.PostExit

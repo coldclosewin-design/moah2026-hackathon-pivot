@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clipToBounds
@@ -25,6 +26,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -58,13 +60,20 @@ internal fun PosterSurface(band: (@Composable () -> Unit)? = null, content: @Com
     LaunchedEffect(Unit) { offset.animateTo(0f, tween(260)) }
     // Only the incoming composition moves. Never retain outgoing score text or touch targets.
     Box(Modifier.fillMaxSize().background(CoachColors.Paper).clipToBounds()) {
-        Column(Modifier.fillMaxSize()) {
-            Surface(Modifier.weight(1f).fillMaxWidth().graphicsLayer { translationX = offset.value * density },
+        Box(Modifier.fillMaxSize()) {
+            Surface(Modifier.fillMaxSize().padding(bottom = if (LocalAdminReservation.current || band != null) 32.dp else 0.dp)
+                .testTag("poster-content")
+                .graphicsLayer { translationX = offset.value * density },
                 color = CoachColors.Paper, content = content)
-            band?.invoke()
+            if (LocalAdminReservation.current || band != null) Box(Modifier.align(Alignment.BottomCenter)
+                .fillMaxWidth().height(32.dp).background(CoachColors.Lavender).testTag("admin-reserved-slot"))
+            Box(Modifier.align(Alignment.BottomCenter)) { band?.invoke() }
         }
     }
 }
+
+/** Capability reserves space even while the preparation room hides the controls. */
+internal val LocalAdminReservation = staticCompositionLocalOf { false }
 
 @Composable
 internal fun LessonText(text: String, size: Int = 36, color: Color = CoachColors.Ink,
@@ -153,7 +162,7 @@ internal fun CoachLines(text: String, modifier: Modifier = Modifier, titleSize: 
 /** Replace the result subtree so no score, scroll action or demo target survives the lock. */
 @Composable
 internal fun ResultLockedScreen(onDemoStop: (() -> Unit)? = null, message: String = "속도를 낮추면 결과가 다시 보여요.") {
-    Column(Modifier.fillMaxSize().background(CoachColors.Ink)
+    Column(Modifier.fillMaxSize().padding(bottom = if (LocalAdminReservation.current) 32.dp else 0.dp).background(CoachColors.Ink)
         .padding(start = 120.dp, end = 100.dp, top = 64.dp, bottom = 52.dp)) {
         DemoBrandMark(onHold = onDemoStop ?: LocalDemoEscape.current, onInk = true)
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {

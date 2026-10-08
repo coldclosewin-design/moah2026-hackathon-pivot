@@ -75,8 +75,8 @@ internal fun ReportDashboard(report: LessonReport, onRestart: () -> Unit, onDeta
                         }
                     }
                 }
-                Column(Modifier.weight(1f).fillMaxHeight().background(CoachColors.Paper, RoundedCornerShape(44.dp)).padding(44.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Column(Modifier.weight(1f).fillMaxHeight().background(CoachColors.Paper, RoundedCornerShape(44.dp)).padding(horizontal = 44.dp, vertical = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Eyebrow("신호 출처", color = CoachColors.Muted)
                     SourceBars(report)
                     Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
@@ -122,7 +122,7 @@ private fun SourceBars(report: LessonReport) {
     val total = values.sum().coerceAtLeast(1)
     Row(Modifier.fillMaxWidth().testTag("report-source-bars")
         .clearAndSetSemantics { text = AnnotatedString(badgeText(badge)) }, horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             listOf("실신호", "시뮬레이션", "미측정").forEachIndexed { index, label ->
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                     Row(Modifier.width(340.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
