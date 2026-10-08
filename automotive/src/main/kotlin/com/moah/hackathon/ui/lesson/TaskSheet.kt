@@ -2,10 +2,7 @@ package com.moah.hackathon.ui.lesson
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.Animatable
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.clearAndSetSemantics
-import kotlinx.coroutines.delay
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -41,7 +38,6 @@ import androidx.compose.ui.unit.dp
 import com.moah.hackathon.R
 import com.moah.hackathon.feature.lesson.*
 import com.moah.hackathon.ui.CoachColors
-import com.moah.hackathon.ui.CoachTexture
 import com.moah.hackathon.ports.withObjectParticle
 
 /** Open directly on the task cards so the existing text-driven tools can select a task. */
@@ -68,7 +64,7 @@ internal fun TaskSheet(tasks: List<Task>, category: TaskType, task: Task?, mode:
             WordPill(task?.title ?: "과제 고르기", "과제 바꾸기", sentenceSize, editor == "task") { editor = "task" }
             LessonText(task?.title?.let { it.withObjectParticle().removePrefix(it) } ?: "를", sentenceSize)
             if (editor != null) {
-                YellowModeIcon()
+                YellowModeIcon(bars = modeIconBars(mode))
                 WordPill(mode.label, "모드 바꾸기", sentenceSize) { editor = "mode" }
                 LessonText("로", sentenceSize)
                 LessonText("연습해요.", sentenceSize, CoachColors.Muted)
@@ -77,7 +73,7 @@ internal fun TaskSheet(tasks: List<Task>, category: TaskType, task: Task?, mode:
         if (editor == null) {
             Spacer(Modifier.height(16.dp))
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                YellowModeIcon(Modifier.size(100.dp))
+                YellowModeIcon(Modifier.size(100.dp), bars = modeIconBars(mode))
                 WordPill(mode.label, "모드 바꾸기", sentenceSize) { editor = "mode" }
                 LessonText("로", sentenceSize)
                 LessonText("연습해요.", sentenceSize, CoachColors.Muted)
@@ -93,7 +89,7 @@ internal fun TaskSheet(tasks: List<Task>, category: TaskType, task: Task?, mode:
         } else {
             Spacer(Modifier.height(40.dp))
             key(editor) {
-                SheetCard(Modifier.weight(1f).fillMaxWidth().homeShared("venue-paper")) {
+                SheetCard(Modifier.weight(1f).fillMaxWidth().homeShared("venue-paper"), stacked = false) {
                     Column(Modifier.fillMaxSize().padding(40.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
                         if (editor == "task") {
                             SelectionTrack(categoryOrder(), category, ::taskTypeLabel, onCategory,
@@ -189,7 +185,7 @@ private fun TaskBay(task: Task, chosen: Boolean, modifier: Modifier, onClick: ()
                     modifier = Modifier.align(Alignment.TopStart))
             }
             TaskTitleBand(task, foreground, if (chosen) CoachColors.Paper.copy(alpha = .7f) else CoachColors.Muted,
-                Modifier.fillMaxWidth().height(64.dp))
+                Modifier.fillMaxWidth().height(80.dp).padding(horizontal = 28.dp))
         }
         if (chosen) SymbolTile(CoachSymbol.Check, Modifier.align(Alignment.TopEnd).padding(12.dp).size(48.dp), animate = false)
     }
@@ -203,11 +199,11 @@ private fun TaskTitleBand(task: Task, titleColor: Color, detailColor: Color, mod
     val detail = if (task.isReady) task.difficulty.label else task.status.label
     val style = TextStyle(localeList = LocaleList("ko-KR"))
     BoxWithConstraints(modifier, contentAlignment = Alignment.Center) {
-        val detailWidth = measurer.measure(AnnotatedString(detail), style.copy(fontSize = 32.sp), softWrap = false).size.width
+        val detailWidth = measurer.measure(AnnotatedString(detail), style.copy(fontSize = 28.sp), softWrap = false).size.width + with(density) { 24.dp.toPx() }
         val titleWidth = with(density) { (maxWidth - 8.dp).toPx() } - detailWidth
-        val titleSize = if (task.type == TaskType.DRIVING) 36 else (40 downTo 36).firstOrNull { size ->
+        val titleSize = ((if (task.type == TaskType.DRIVING) 36 else 40) downTo 30).firstOrNull { size ->
             measurer.measure(AnnotatedString(task.title), style.copy(fontSize = size.sp), softWrap = false).size.width <= titleWidth
-        } ?: 36
+        } ?: 30
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             LessonText(task.title, titleSize, titleColor, modifier = Modifier.weight(1f).alignByBaseline(), maxLines = 1)
             Spacer(Modifier.width(8.dp))

@@ -95,7 +95,10 @@ internal fun PairedReportDetails(report: LessonReport, onBack: () -> Unit) {
         LessonText("다음엔 ${report.nextTask.title} · ${report.nextMode.label} — ${report.nextReason}", 40, CoachColors.Paper)
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(32.dp), verticalAlignment = Alignment.CenterVertically) {
             AvailabilitySummary(report.best.badge, 40, onInk = true)
-            LessonText(reportDisclosure(report), 40, CoachColors.Platinum, modifier = Modifier.weight(1f))
+            LessonText(if (report.task.isCourse && bestCourseAttempt(report.attempts)?.course?.positionMeasured == true &&
+                report.best.badge.live == 0 && report.best.badge.simulated > 0)
+                "구간과 위치·신호등은 시험장 신호(시뮬레이션)로 측정했어요." else reportDisclosure(report),
+                40, CoachColors.Platinum, modifier = Modifier.weight(1f))
         }
         if (report.best.missingSignals.isNotEmpty() || report.unverifiedGuideSteps.isNotEmpty()) {
             Column(Modifier.heightIn(max = 82.dp).verticalScroll(rememberScrollState())) { ReportLimitations(report, onInk = true, compact = true) }

@@ -1,16 +1,13 @@
 package com.moah.hackathon.ui.lesson
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -19,11 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.unit.dp
@@ -38,8 +30,8 @@ internal fun CoachPill(label: String, onClick: (() -> Unit)?, modifier: Modifier
     val pressed by interactions.collectIsPressedAsState()
     Row(modifier.height(112.dp)
         .then(if (onClick == null) Modifier.alpha(.55f).background(CoachColors.Lavender, RoundedCornerShape(56.dp))
-            else Modifier.background(CoachColors.Paper, RoundedCornerShape(56.dp))
-                .border(1.5.dp, CoachColors.Ink, RoundedCornerShape(56.dp)))
+            else Modifier.shadow(2.dp, RoundedCornerShape(56.dp))
+                .background(CoachColors.Paper, RoundedCornerShape(56.dp)))
         .clip(RoundedCornerShape(56.dp))
         .then(if (onClick == null) Modifier.semantics(mergeDescendants = true) { disabled(); role = Role.Button }
             else Modifier.clickable(interactionSource = interactions, indication = null, role = Role.Button, onClick = onClick))
@@ -141,9 +133,9 @@ internal fun BookingTicketSheet(details: BookingDetails, tasks: List<Task>, opti
         BrandMark()
         Column(Modifier.weight(1f).fillMaxWidth().homeShared("booking-ticket")
             .shadow(16.dp, RoundedCornerShape(66.dp)).background(CoachColors.Paper, RoundedCornerShape(66.dp))
-            .padding(48.dp), verticalArrangement = Arrangement.spacedBy(32.dp)) {
+            .padding(48.dp), verticalArrangement = Arrangement.spacedBy(24.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(48.dp), verticalAlignment = Alignment.CenterVertically) {
-                BookingMap(details, tasks, Modifier.size(300.dp))
+                BookingMap(details, tasks, Modifier.size(264.dp))
                 Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
                     Eyebrow("제휴 시험장 · 오늘", color = CoachColors.Muted)
                     Headline(details.venue.name, size = 88)
@@ -154,7 +146,7 @@ internal fun BookingTicketSheet(details: BookingDetails, tasks: List<Task>, opti
             SelectionTrack(details.venue.slots, details.slot, { it.label }, { onSlot(it.id) },
                 Modifier.fillMaxWidth(), height = 104.dp, textSize = 40, enabled = { it.available })
             BookingOptions(options, chosen, onChoose)
-            TextAction("시간·코스 바꾸기", onEdit)
+            ArrowPill("시간·코스 바꾸기", "↗", onEdit, Modifier.width(640.dp))
         }
         BottomActions(secondary = {
             Row(horizontalArrangement = Arrangement.spacedBy(36.dp)) { BackPill(onBack); ArrowPill("예약 취소", "×", onCancel) }

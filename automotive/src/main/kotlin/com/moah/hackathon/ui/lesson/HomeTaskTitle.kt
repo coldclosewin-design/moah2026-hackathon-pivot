@@ -67,8 +67,7 @@ internal fun HomeTaskTitle(task: Task, mode: LessonMode, picked: Boolean, compac
                         offset = IntOffset(0, with(LocalDensity.current) { -150.dp.roundToPx() }),
                         properties = PopupProperties(focusable = true)) {
                         val options = LessonMode.entries.filter(task::supports)
-                        Box(Modifier.width(500.dp).height(464.dp).shadow(12.dp, RoundedCornerShape(52.dp))
-                            .background(CoachColors.Paper, RoundedCornerShape(52.dp)).padding(16.dp)
+                        Box(Modifier.width(500.dp).height(464.dp).padding(16.dp)
                             .semantics { contentDescription = "모드 바꾸기" }.testTag("home-mode-wheel")) {
                             options.forEachIndexed { index, option ->
                                 val selectedIndex = options.indexOf(mode)
@@ -77,6 +76,7 @@ internal fun HomeTaskTitle(task: Task, mode: LessonMode, picked: Boolean, compac
                                     tween(280, easing = CoachMotion.Stone), label = "mode-wheel-position")
                                 val chosen = option == mode
                                 Row(Modifier.offset(y = y).fillMaxWidth().height(144.dp)
+                                    .shadow(2.dp, RoundedCornerShape(36.dp))
                                     .background(if (chosen) CoachColors.Ink else CoachColors.Paper, RoundedCornerShape(36.dp))
                                     .clickable(role = Role.RadioButton) { if (chosen) popup = false else onMode(option) }
                                     .semantics { selected = chosen }.padding(horizontal = 24.dp),

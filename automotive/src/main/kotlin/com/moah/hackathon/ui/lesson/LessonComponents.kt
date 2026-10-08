@@ -3,20 +3,16 @@ package com.moah.hackathon.ui.lesson
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.text.InlineTextContent
-import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
@@ -32,8 +28,6 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.Placeholder
-import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.LineBreak
@@ -266,30 +260,20 @@ internal fun SpeechFooter(subtitle: String?) {
     }
 }
 
-/** Inline source shapes preserve the exact combined text used by accessibility and tools. */
+/** Fixed shape/count columns; the combined source line remains one accessibility node. */
 @Composable
 internal fun AvailabilitySummary(badge: com.moah.hackathon.vehicle.AvailabilityBadge, size: Int, onInk: Boolean = false) {
-    val sources = listOf(CoachSymbol.Live to badge.live, CoachSymbol.Simulated to badge.simulated,
-        CoachSymbol.Missing to badge.missing)
-    val text = buildAnnotatedString {
-        sources.forEachIndexed { index, (symbol, count) ->
-            if (index > 0) append(" · ")
-            appendInlineContent(symbol.name, symbol.label)
-            append(" $count")
+    val ink = if (onInk) CoachColors.Platinum else CoachColors.Periwinkle
+    Row(Modifier.clearAndSetSemantics { text = AnnotatedString(badgeText(badge)) },
+        horizontalArrangement = Arrangement.spacedBy((size * .6f).dp), verticalAlignment = Alignment.CenterVertically) {
+        listOf(SignalAvailability.LIVE to badge.live, SignalAvailability.SIMULATED to badge.simulated,
+            SignalAvailability.MISSING to badge.missing).forEach { (source, count) ->
+            Row(horizontalArrangement = Arrangement.spacedBy((size * .3f).dp), verticalAlignment = Alignment.CenterVertically) {
+                SignalShape(source, Modifier.size(size.dp), ink)
+                LessonText(signalLabel(source), size, ink, maxLines = 1)
+                LessonText(count.toString(), size, ink, modifier = Modifier.width((size * 1.4f).dp),
+                    maxLines = 1, textAlign = TextAlign.End)
+            }
         }
     }
-    val contents = sources.associate { (symbol, _) -> symbol.name to InlineTextContent(
-        Placeholder(((symbol.label.length + 1.4f) * size).sp, (size * 1.3f).sp, PlaceholderVerticalAlign.Center)) {
-        Row(Modifier.fillMaxSize().clearAndSetSemantics {}, verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy((size * .4f).dp)) {
-            SignalShape(when (symbol) {
-                CoachSymbol.Live -> SignalAvailability.LIVE
-                CoachSymbol.Simulated -> SignalAvailability.SIMULATED
-                else -> SignalAvailability.MISSING
-            }, Modifier.size(size.dp), if (onInk) CoachColors.Platinum else CoachColors.Ink)
-            LessonText(symbol.label, size, if (onInk) CoachColors.Platinum else CoachColors.Periwinkle, maxLines = 1)
-        }
-    } }
-    Text(text, color = if (onInk) CoachColors.Platinum else CoachColors.Periwinkle, fontSize = size.sp, lineHeight = (size * 1.3f).sp,
-        inlineContent = contents, style = TextStyle(localeList = LocaleList("ko-KR")))
 }

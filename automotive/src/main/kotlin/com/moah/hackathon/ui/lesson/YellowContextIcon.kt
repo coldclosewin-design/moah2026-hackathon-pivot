@@ -21,6 +21,12 @@ internal val LocalContextAccent = staticCompositionLocalOf { true }
 
 internal enum class ContextIcon { Eye, Pin, Document, Calendar }
 
+internal fun modeIconBars(mode: com.moah.hackathon.feature.lesson.LessonMode): Int = when (mode) {
+    com.moah.hackathon.feature.lesson.LessonMode.GUIDE -> 3
+    com.moah.hackathon.feature.lesson.LessonMode.HINT -> 2
+    else -> 1
+}
+
 @Composable
 internal fun YellowContextIcon(kind: ContextIcon, modifier: Modifier = Modifier) {
     Canvas(modifier.size(64.dp).background(if (LocalContextAccent.current) CoachColors.Accent else CoachColors.Lavender, CircleShape).clearAndSetSemantics {}) {

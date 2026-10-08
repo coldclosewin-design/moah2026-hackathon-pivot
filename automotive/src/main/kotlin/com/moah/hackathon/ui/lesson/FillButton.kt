@@ -67,11 +67,14 @@ internal fun FillButton(label: String, onClick: () -> Unit, modifier: Modifier =
 
 @Composable
 private fun ButtonFace(label: String, home: Boolean, progress: Float, ink: Color) = BoxWithConstraints(Modifier.fillMaxSize()) {
-    Row(Modifier.fillMaxSize().padding(start = if (home) { if (maxWidth < 800.dp) 48.dp else 112.dp } else 28.dp,
+    val faceHeight = maxHeight
+    Row(Modifier.fillMaxSize().padding(start = if (home) { if (maxWidth < 800.dp) 48.dp else 112.dp } else 0.dp,
         end = if (home) 0.dp else if (maxWidth < 360.dp) 20.dp else 48.dp), verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = if (home) Arrangement.SpaceBetween else Arrangement.Start) {
         if (!home) {
-            LessonText("→", 40, ink, modifier = Modifier.width(84.dp).clearAndSetSemantics {})
+            Box(Modifier.size(faceHeight).clearAndSetSemantics {}, contentAlignment = Alignment.Center) {
+                LessonText("→", 40, ink)
+            }
             Spacer(Modifier.weight(1f))
         }
         LessonText(label, if (home) 120 else 40, if (home && ink == CoachColors.Ink) CoachColors.Paper else ink, bold = true, maxLines = 1)

@@ -1,10 +1,8 @@
 package com.moah.hackathon.ui.lesson
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.*
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -14,7 +12,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.unit.dp
@@ -22,7 +19,6 @@ import com.moah.hackathon.feature.lesson.*
 import com.moah.hackathon.scoring.HarshKind
 import com.moah.hackathon.ui.CoachColors
 import kotlin.math.roundToInt
-import com.moah.hackathon.vehicle.SignalAvailability
 
 /** C1: paired scores and two metric columns beside three counted scope pills. */
 @Composable
@@ -76,7 +72,6 @@ internal fun CertificateContent(report: LessonReport, selected: ShareLevel?, onS
                         LessonText(reportDisclosure(report), 27, CoachColors.Platinum)
                         LessonText("출처는 회차 기준 · 원시 시계열은 저장하지 않음", 24, CoachColors.Muted)
                     }
-                    AvailabilitySummary(report.best.badge, 24, onInk = true)
                 }
             }
             Column(Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(36.dp)) {
@@ -147,62 +142,6 @@ internal fun certificateValue(attempt: AttemptRecord?, item: String): String {
     }
 }
 
-@Composable
-private fun CertificateTable(report: LessonReport, selected: ShareLevel?, mask: Boolean, modifier: Modifier, compact: Boolean = false) {
-    val before = report.attempts.firstOrNull()
-    val after = report.attempts.lastOrNull()
-    val size = if (compact) 23 else 36
-    Column(modifier) {
-        Row(Modifier.fillMaxWidth().height(if (compact) 64.dp else 72.dp), verticalAlignment = Alignment.CenterVertically) {
-            LessonText("항목", size, CoachColors.Platinum, modifier = Modifier.weight(1.7f))
-            LessonText(before?.let { "${it.index}회차" } ?: "—", size, CoachColors.Platinum, modifier = Modifier.weight(1f))
-            LessonText(after?.let { "${it.index}회차" } ?: "—", size, CoachColors.Platinum, modifier = Modifier.weight(1f))
-            if (!compact) LessonText("변화", size, CoachColors.Platinum, modifier = Modifier.weight(.8f))
-            LessonText("출처", size, CoachColors.Platinum, modifier = Modifier.weight(.9f))
-        }
-        ShareLevel.RAW.includes.forEachIndexed { index, item ->
-            val included = item in selected?.includes.orEmpty()
-            val color = if (included) CoachColors.Platinum else CoachColors.Platinum.copy(alpha = .38f)
-            PosterRule(color = CoachColors.Platinum.copy(alpha = .18f))
-            Row(Modifier.weight(1f).fillMaxWidth().semantics(mergeDescendants = true) { stateDescription = if (included) "포함" else "범위 밖" }
-                .then(if (!compact) Modifier.testTag("share-item-$item") else Modifier), verticalAlignment = Alignment.CenterVertically) {
-                LessonText(item.removeSuffix(" 점수"), size, color, modifier = Modifier.weight(1.7f))
-                if (mask && !included) {
-                    Row(Modifier.weight(if (compact) 2.9f else 3.7f), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                        Box(Modifier.weight(1f).height(18.dp).background(CoachColors.Jet, RoundedCornerShape(4.dp)))
-                        LessonText("범위 밖", if (compact) 20 else 28, CoachColors.Platinum.copy(alpha = .55f))
-                    }
-                } else {
-                    val first = certificateValue(before, item)
-                    val last = certificateValue(after, item)
-                    listOf(first, last).forEachIndexed { column, value ->
-                        Box(Modifier.weight(1f)) {
-                            LessonText(value, size, if (index < 2 && column == 1) CoachColors.Ink else color,
-                                modifier = if (index < 2) Modifier.border(1.dp, color.copy(alpha = .6f), RoundedCornerShape(100))
-                                    .background(if (column == 1) color else CoachColors.Ink, RoundedCornerShape(100)).padding(horizontal = if (compact) 12.dp else 24.dp) else Modifier)
-                        }
-                    }
-                    if (!compact) {
-                        val delta = first.removeSuffix("°").toIntOrNull()?.let { a -> last.removeSuffix("°").toIntOrNull()?.minus(a) }
-                        LessonText(delta?.let { if (it > 0) "+$it" else it.toString() } ?: "—", size, color, modifier = Modifier.weight(.8f))
-                    }
-                    val sources = if (last in listOf("미측정", "기록 없음", "—")) listOf(SignalAvailability.MISSING) else buildList {
-                        if ((after?.score?.badge?.live ?: 0) > 0) add(SignalAvailability.LIVE)
-                        if ((after?.score?.badge?.simulated ?: 0) > 0) add(SignalAvailability.SIMULATED)
-                    }.ifEmpty { listOf(SignalAvailability.MISSING) }
-                    Row(Modifier.weight(.9f).semantics { contentDescription = sources.joinToString(" · ") {
-                        when (it) { SignalAvailability.LIVE -> "실신호"; SignalAvailability.SIMULATED -> "시뮬레이션"; SignalAvailability.MISSING -> "미측정" }
-                    } }, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        sources.forEach { SignalShape(it, Modifier.size(size.dp), color) }
-                    }
-                }
-            }
-        }
-        PosterRule(color = CoachColors.Platinum.copy(alpha = .18f))
-        LessonText("출처는 회차 기준 · 원시 시계열은 저장하지 않음", if (compact) 20 else 28, CoachColors.Platinum.copy(alpha = .65f), modifier = Modifier.padding(top = 10.dp))
-    }
-}
-
 /** A2: the selected scope becomes the recipient column; absent raw samples stay absent. */
 @Composable
 internal fun ShareExampleContent(report: LessonReport, selected: ShareLevel?, modifier: Modifier) {
@@ -247,7 +186,6 @@ internal fun ShareExampleContent(report: LessonReport, selected: ShareLevel?, mo
                 LessonText("과제   ${report.task.title}", 32, CoachColors.Platinum)
                 LessonText("유효   발급일부터 석 달 · 예시", 32, CoachColors.Platinum)
                 LessonText("${ShareLevel.EXCLUDED.joinToString(" · ")} 없음", 30, CoachColors.Platinum)
-                AvailabilitySummary(report.best.badge, 26, onInk = true)
                 LessonText("채운 기둥 = 받는 쪽이 보는 값 · 시계열은 기록 없음", 26, CoachColors.Muted)
             }
             Column(Modifier.weight(.75f).fillMaxHeight().border(12.dp, CoachColors.Jet, RoundedCornerShape(72.dp))

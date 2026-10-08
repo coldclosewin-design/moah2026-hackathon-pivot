@@ -30,6 +30,7 @@ internal fun ChecklistCarScreen(state: ManeuverDisplayState, stopped: Boolean, s
     onFinish: () -> Unit, demo: (@Composable () -> Unit)?, taskTitle: String) {
     val steps = checklistSteps(state)
     val focus = checklistFocus(state, steps)
+    val showChecklist = state.mode != LessonMode.EVALUATE
     PosterSurface(band = demo) {
         Row(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(CoachColors.Lavender, CoachColors.Platinum)))
             .padding(72.dp), horizontalArrangement = Arrangement.spacedBy(52.dp)) {
@@ -68,7 +69,7 @@ internal fun ChecklistCarScreen(state: ManeuverDisplayState, stopped: Boolean, s
                                 for (y in listOf(12f,80f)) drawRoundRect(CoachColors.Platinum,Offset(244f,y),Size(9f,20f),CornerRadius(4f))
                                 for (y in listOf(14f,82f)) drawRoundRect(CoachColors.Periwinkle,Offset(9f,y),Size(6f,16f),CornerRadius(3f))
                             }
-                            anchors.forEachIndexed { index, (x,y) ->
+                            if (showChecklist) anchors.forEachIndexed { index, (x,y) ->
                                 val (ex,ey) = ends[index]
                                 drawLine(CoachColors.Muted,Offset(x,y),Offset(ex,ey),1.2f)
                                 drawCircle(CoachColors.Paper,5.8f,Offset(x,y))
@@ -77,7 +78,7 @@ internal fun ChecklistCarScreen(state: ManeuverDisplayState, stopped: Boolean, s
                         }
                     }
                     Box(Modifier.offset(w * 120, h * 100).size(w * 262, h * 132).testTag("checklist-vehicle-bounds"))
-                    steps.forEachIndexed { index, step ->
+                    if (showChecklist) steps.forEachIndexed { index, step ->
                         val (x,y) = positions[index]
                         val active = state.checklistReveal == ChecklistReveal.ALL && focus == index
                         val visible = state.checklistReveal != ChecklistReveal.NAMES_ONLY
@@ -106,14 +107,6 @@ internal fun ChecklistCarScreen(state: ManeuverDisplayState, stopped: Boolean, s
                             }
                         }
                     }
-                    Row(Modifier.align(Alignment.BottomStart),horizontalArrangement=Arrangement.spacedBy(18.dp)) {
-                        SignalAvailability.entries.forEach { source ->
-                            Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(8.dp)) {
-                                SignalShape(source,Modifier.size(24.dp),CoachColors.Muted)
-                                LessonText(signalLabel(source),24,CoachColors.Muted)
-                            }
-                        }
-                    }
                 }
             }
             SheetCard(Modifier.width(680.dp).fillMaxHeight()) {
@@ -138,7 +131,6 @@ internal fun ChecklistCarScreen(state: ManeuverDisplayState, stopped: Boolean, s
                         }), size = 72)
                         if (state.mode != LessonMode.GUIDE) LessonText(if (state.mode == LessonMode.HINT) "틀릴 때만 말해요" else "조용히 지켜봐요", 36, CoachColors.Muted)
                     }
-                    LessonText(steps.map { if (it.measured) it.source.replace('\n', ' ') else "미측정" }.distinct().joinToString(" · "), 32, CoachColors.Muted)
                     if (stopped) FinishButton(state.askedDone, onFinish)
                 }
             }

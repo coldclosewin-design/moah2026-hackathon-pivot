@@ -7,14 +7,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.moah.hackathon.feature.lesson.QuizItem
 import com.moah.hackathon.feature.lesson.QuizResult
 import com.moah.hackathon.feature.lesson.Task
@@ -66,9 +61,7 @@ internal fun QuizDoneScreen(task: Task, results: List<QuizResult>, items: List<Q
                                 AnswerPill(if (result.correct) "내 답 · 정답" else "정답", true)
                                 LessonText(item.choices[item.answer], 34, modifier = Modifier.weight(1.2f))
                             }
-                            Box(Modifier.fillMaxWidth().background(CoachColors.Lavender, RoundedCornerShape(18.dp)).padding(horizontal = 20.dp, vertical = if (compact) 8.dp else 12.dp)) {
-                                LessonText("❝ ${item.why}", 30, CoachColors.Muted, maxLines = if (items.size >= 4 && result?.correct == true) 1 else 3)
-                            }
+                            LessonText("❝ ${item.why}", 30, CoachColors.Muted, maxLines = 2)
                         }
                     }
                 }

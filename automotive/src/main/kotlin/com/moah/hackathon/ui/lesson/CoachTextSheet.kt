@@ -106,7 +106,7 @@ internal fun CoachTextSheet(coach: CoachDialog, onChoose: (CoachChoice) -> Unit,
                         field()
                     }
                 })
-            PrimaryPill("보내기", send, Modifier.width(260.dp), enabled = !coach.waiting && draft.text.isNotBlank())
+            PrimaryPill("보내기", send, Modifier.width(320.dp), enabled = !coach.waiting && draft.text.isNotBlank())
         }
         Spacer(Modifier.height(24.dp))
         BottomActions(secondary = { ArrowPill("돌아가기", "←", onBack) })

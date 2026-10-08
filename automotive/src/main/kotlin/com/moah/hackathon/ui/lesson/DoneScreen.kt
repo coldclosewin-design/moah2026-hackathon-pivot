@@ -13,7 +13,6 @@ import com.moah.hackathon.feature.lesson.AttemptRecord
 import com.moah.hackathon.feature.lesson.Task
 import com.moah.hackathon.feature.lesson.TaskType
 import com.moah.hackathon.ui.CoachColors
-import com.moah.hackathon.ui.CoachTexture
 
 @Composable
 internal fun DoneScreen(task: Task, attempt: Int, record: AttemptRecord, subtitle: String?,
@@ -69,11 +68,10 @@ internal fun DoneScreen(task: Task, attempt: Int, record: AttemptRecord, subtitl
                                 }
                             }
                         }
-                        AvailabilitySummary(record.score.badge, 32, onInk = true)
                     }
                     Column(Modifier.weight(.9f).padding(top = 60.dp), verticalArrangement = Arrangement.spacedBy(28.dp)) {
                         FillButton(stringResource(R.string.lesson_again), onAgain, Modifier.fillMaxWidth().height(140.dp), inverse = true)
-                        ArrowPill(stringResource(R.string.lesson_end), "→", onEnd, Modifier.fillMaxWidth(), dark = true)
+                        ArrowPill(stringResource(R.string.lesson_end), "→", onEnd, Modifier.fillMaxWidth(), dark = true, centerLabel = true)
                     }
                 }
             }

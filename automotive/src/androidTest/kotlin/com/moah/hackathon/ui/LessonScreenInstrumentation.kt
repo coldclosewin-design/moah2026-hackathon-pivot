@@ -90,6 +90,8 @@ class LessonScreenInstrumentation : Instrumentation() {
     private var round28cOnly = false
     private var round28cMotionOnly = false
     private var round30Only = false
+    private var round31aOnly = false
+    private var captureBefore31a = false
     override fun onCreate(arguments: Bundle?) {
         super.onCreate(arguments)
         seedSpeech = arguments?.getString("seedSpeech") == "true"
@@ -112,6 +114,8 @@ class LessonScreenInstrumentation : Instrumentation() {
         round28bOnly = arguments?.getString("round28bOnly") == "true"
         round28aOnly = arguments?.getString("round28aOnly") == "true"
         round30Only = arguments?.getString("round30Only") == "true"
+        round31aOnly = arguments?.getString("round31aOnly") == "true"
+        captureBefore31a = arguments?.getString("captureBefore31a") == "true"
         start()
     }
 
@@ -119,6 +123,11 @@ class LessonScreenInstrumentation : Instrumentation() {
         val activity = startActivitySync(Intent(targetContext, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as MainActivity
         try {
+            if (round31aOnly) {
+                round31aContract(activity)
+                finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Round31a contract passed\n") })
+                return
+            }
             if (round30Only) {
                 round30Contract(activity); captureRound30Motion(activity)
                 finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Round30 contract passed\n") })
@@ -237,6 +246,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             }
             // Round 28 replaces the prior poster/column geometry. Keep production interaction
             // and safety suites, and assert the selected layouts in round28aContract.
+            round31aContract(activity)
             round30Contract(activity)
             captureRound30Motion(activity)
             round28aContract(activity)
@@ -258,6 +268,116 @@ class LessonScreenInstrumentation : Instrumentation() {
             runCatching { capture("failure") }
             finish(Activity.RESULT_CANCELED, Bundle().apply { putString("stream", failure.stackTraceToString()) })
         }
+    }
+
+    /** The same production fixtures also capture the unmodified APK for before/after review. */
+    private fun round31aContract(activity: MainActivity) {
+        val verify = !captureBefore31a
+        val task = SeedCatalog.parkingTask
+        fun full(text: String) { if (verify) assertFullText(activity, text) }
+        fun noBadge() { if (verify) check(allText().none { "실신호" in it || "시뮬레이션" in it }) }
+        render(activity) { SetupScreen(SeedCatalog.demoProfile, SeedCatalog.tasks, task, LessonMode.GUIDE, "함께 연습해요.", null, { _, _ -> }) }
+        capture("31a-home")
+        click("모드 바꾸기"); capture("31a-mode-popup")
+        val selectedMode = textBounds("가이드")
+        tap(selectedMode.centerX(), selectedMode.centerY())
+        click("과제·모드 바꾸기")
+        afterUiSettles("31a task cards") { check("이 과제로" in texts()) }
+        for (mode in listOf(LessonMode.GUIDE, LessonMode.HINT, LessonMode.EVALUATE)) {
+            if (!isSelected(mode.label)) click(mode.label)
+            SeedCatalog.tasks.filter { it.type == TaskType.PARKING }.forEach { full(it.title) }
+            full("이 과제로"); full("시작"); capture("31a-task-${mode.name.lowercase()}")
+        }
+        val base = round30Report()
+        val longTask = SeedCatalog.tasks.maxBy { it.title.length }
+        val report = base.copy(task = longTask, summary = "연습을 잘 마쳤어요.\n주변을 살피며 천천히 움직여요.")
+        render(activity) { ReportScreen(report, {}) }
+        full("회 · ${longTask.title}"); full(coachDisplayText(driverReportSummary(report.summary)))
+        full(taskModeLine(report.task, report.mode)); full(reportDisclosure(report)); noBadge()
+        capture("31a-report-long")
+        render(activity) { ReportScreen(base, {}) }
+        noBadge(); capture("31a-report")
+        click("자세히 보기")
+        check(badgeText(base.best.badge) in texts())
+        if (verify) onMainChecked {
+            val shapes = composeNodes(activity, true).filter { it.config.getOrNull(SemanticsProperties.TestTag)?.startsWith("signal-shape-") == true }
+            check(shapes.size == 3)
+            check(shapes.map { it.boundsInWindow.center.y }.max() - shapes.map { it.boundsInWindow.center.y }.min() < 1f)
+        }
+        capture("31a-details"); click("돌아가기"); click("진단서")
+        noBadge(); capture("31a-certificate"); click("공유 예시 보기"); noBadge(); capture("31a-share")
+        val (score, checklist) = replayChecklist(ChecklistScenarios.bad)
+        for (mode in listOf(LessonMode.GUIDE, LessonMode.HINT, LessonMode.EVALUATE)) {
+            val state = checklist.copy(speed = "0", mode = mode, checklistReveal = when(mode) {
+                LessonMode.GUIDE -> ChecklistReveal.ALL
+                LessonMode.HINT -> ChecklistReveal.MISTAKES
+                else -> ChecklistReveal.NAMES_ONLY
+            })
+            render(activity) { ManeuverScreen(state, false, true, null, {}, taskTitle = SeedCatalog.predriveTask.title) }
+            if (verify && mode == LessonMode.EVALUATE) check(checklistSteps(state).none { it.label in texts() })
+            capture("31a-checklist-${mode.name.lowercase()}")
+        }
+        val attempt = base.attempts.last().copy(taskId = SeedCatalog.predriveTask.id, score = score, path = emptyList(), verdict = null,
+            remark = "출발 준비를 마쳤어요.\n이 순서대로 시작해요.")
+        render(activity) { DoneScreen(SeedCatalog.predriveTask, 1, attempt, null, {}, {}) }
+        noBadge(); full("오늘은 여기까지"); capture("31a-checklist-done")
+        render(activity) { DoneScreen(task, 2, base.attempts.last(), null, {}, {}) }
+        noBadge(); capture("31a-done")
+        val moving = ManeuverDisplayState("3", 450f, "R", 85f, false, "천천히 움직여요.", "4/6", null, 1, 2, 18, false,
+            SignalAvailability.SIMULATED, SignalAvailability.SIMULATED, SignalAvailability.SIMULATED)
+        render(activity) { ManeuverScreen(moving, false, false, null, {}) }
+        noBadge(); capture("31a-parking")
+        val container = (activity.application as App).container
+        lateinit var vm: LessonViewModel
+        onMainChecked { vm = ViewModelProvider(activity, LessonViewModel.factory(container))[LessonViewModel::class.java]
+            vm.admin!!.resetProfile(); vm.cancelReservation() }
+        render(activity) { LessonRoute(vm) }
+        val answers = listOf("주차", "십 년 넘게", "아이 등하원", "십 년쯤 전", "중형 SUV")
+        ProfileField.ONBOARDING.forEachIndexed { index, field ->
+            afterUiSettles("31a onboarding ${field.name}") { check(field.question in texts()) }
+            full(field.question)
+            if (verify) check(textBounds(field.question).bottom < buttonBounds(answers[index]).top)
+            capture("31a-onboarding-${field.name.lowercase()}")
+            click(answers[index])
+        }
+        capture("31a-onboarding-complete"); click("시작하기")
+        click("프로필 열기")
+        for (field in listOf(ProfileField.LICENSE, ProfileField.CAR)) {
+            val row = (vm.phase.value as LessonPhase.Setup).profileRows.single { it.field == field }
+            click("${field.title}, ${row.answer!!.label}, 바꾸기")
+            if (verify) {
+                full(field.question)
+                check(textBounds(field.question).bottom < buttonBounds(row.chips.first().label).top)
+                check(abs(textBounds(field.question).left - buttonBounds(row.chips.first().label).left) <= 1)
+            }
+            capture("31a-profile-${field.name.lowercase()}")
+            click(row.chips.first().label)
+        }
+        capture("31a-profile-car-selected"); click("돌아가기")
+        onMainChecked { vm.admin!!.resetProfile(); vm.finishOnboarding() }
+        render(activity) { LessonRoute(vm) }; capture("31a-home-no-car")
+        onMainChecked { vm.admin!!.applyPreset("rear-two"); vm.restart() }
+        val venue = SeedCatalog.venues.first()
+        onMainChecked { vm.reserve(venue.id, venue.slots.first { it.available }.id, venue.courses.first().id) }
+        render(activity) { LessonRoute(vm) }
+        capture("31a-booking-home"); click("예약 카드 열기")
+        full("시간·코스 바꾸기"); capture("31a-booking-edit")
+        // Every shipped question, longest answer and explanation is measured in the 1236 dp body.
+        for (quizTask in SeedCatalog.tasks.filter { it.quizOnly }) {
+            val items = SeedCatalog.quizFor(quizTask)
+            items.forEachIndexed { index, item ->
+                render(activity) { QuizScreen(quizTask, index, items.size, item, false, item.answer, index + 1, {}, {}, {}) }
+                full(item.question); item.choices.forEach(::full); full(item.why)
+                if (item.id == "parking-shift-stop" || item.why.contains("정지선 앞에서") || item.choices.any { it.contains("초록불에 마주") })
+                    capture("31a-quiz-${item.id}")
+            }
+            if (quizTask.id == "knowledge-turn-signal") {
+                render(activity) { QuizDoneScreen(quizTask, items.map { QuizResult(it.id, it.answer, true) }, items, "이유까지 기억하면 충분해요.", {}) }
+                capture("31a-quiz-result")
+            }
+        }
+        if (verify) check(targetContext.applicationInfo.loadLabel(targetContext.packageManager).toString() == "Drive Coach")
+        pass("Round31a: production before/after fixtures, five onboarding questions, aligned profile answers/car preview, every quiz explanation and answer unclipped, report text, provenance in details and evaluate without hints")
     }
 
     private fun round30Report(): LessonReport {
@@ -321,7 +441,10 @@ class LessonScreenInstrumentation : Instrumentation() {
                 check(textBounds(marker).right <= buttonBounds("메인으로").right) { "Question marker leaves the score panel: $marker" }
             }
             capture("30-quiz-${task.id}")
-            if (quiz.size == 4) assertFullText(activity, "❝ ${quiz.last().why}")
+            if (quiz.size == 4) {
+                scrollTo("❝ ${quiz.last().why}")
+                assertFullText(activity, "❝ ${quiz.last().why}")
+            }
         }
         val report = round30Report()
         render(activity) { ReportScreen(report,{}) }
@@ -642,11 +765,13 @@ class LessonScreenInstrumentation : Instrumentation() {
             val state = base.copy(mode = mode, checklistReveal = reveal)
             render(activity) { ManeuverScreen(state, false, true, null, { finishes++ }, taskTitle = SeedCatalog.predriveTask.title) }
             check(nodes().count(::hasTouchAction) == 1); assertNoScores()
-            checklistSteps(state).forEach { assertFullText(activity, it.label) }
+            if (mode != LessonMode.EVALUATE) checklistSteps(state).forEach { assertFullText(activity, it.label) }
+            else check(checklistSteps(state).none { it.label in texts() })
             if (mode == LessonMode.EVALUATE) check(texts().none { it in listOf("닫힘", "채움", "P", "브레이크 없이 켜짐", "✓", "—") })
             if (mode == LessonMode.HINT) check(texts().count { it == "✓" } >= 3 && texts().count { it == "—" } == 3 && "브레이크 없이 켜짐" in texts())
             onMainChecked {
-                val labels = (0..6).map { tag("checklist-step-$it").boundsInWindow }
+                val labels = if (mode == LessonMode.EVALUATE) emptyList() else (0..6).map { tag("checklist-step-$it").boundsInWindow }
+                if (mode == LessonMode.EVALUATE) check(composeNodes(activity, true).none { it.config.getOrNull(SemanticsProperties.TestTag)?.startsWith("checklist-step-") == true })
                 check(labels.all { it.width > 0 && it.height > 0 })
                 val car = tag("checklist-vehicle-bounds").boundsInWindow
                 check(labels.none { it.overlaps(car) }) { "Checklist card covers the car" }
@@ -654,7 +779,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             }
             capture("28b-checklist-${mode.name.lowercase()}"); click("다 됐어요")
             render(activity) { ManeuverScreen(state.copy(doorSignal = SignalAvailability.MISSING), false, true, null, {}, taskTitle = SeedCatalog.predriveTask.title) }
-            check("미측정" in texts()); capture("28b-checklist-${mode.name.lowercase()}-missing")
+            check(("미측정" in texts()) == (mode != LessonMode.EVALUATE)); capture("28b-checklist-${mode.name.lowercase()}-missing")
             render(activity) { ManeuverScreen(state.copy(speed = "6"), true, false, null, {}) }
             check(nodes().none(::hasTouchAction))
         }
@@ -681,7 +806,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             render(activity) { DriveScreen(state, null, {}, demo) }
             check(nodes().none(::hasTouchAction)); assertNoScores()
             check(allText().any { it.contains("코스 도면") })
-            check(texts().contains("시험장 위치·신호 · 시뮬레이션"))
+            check(texts().none { "시뮬레이션" in it })
             onMainChecked { check(tag("drive-map").boundsInWindow.width / scale > 2000) }
             capture("28b-drive-$name")
             pass("Round28b moving $name: clickable/long-clickable/scrollable nodes = 0; map visible; scores = 0")
@@ -936,8 +1061,8 @@ class LessonScreenInstrumentation : Instrumentation() {
             ShareLevel.entries, emptyList(), emptyList())
         var restarted = 0
         render(activity) { ReportScreen(report, { restarted++ }) }
-        check(texts().containsAll(listOf("오늘의 기록", "신호 출처", "주차 과정만 측정했어요.")))
-        check(badgeText(good.score.badge) in texts())
+        check(texts().containsAll(listOf("오늘의 기록", "측정 안내", "주차 과정만 측정했어요.")))
+        check(badgeText(good.score.badge) !in texts())
         assertFullText(activity, reportDisclosure(report), "메인으로")
         capture("28a-report")
         click("자세히 보기")
@@ -1180,8 +1305,10 @@ class LessonScreenInstrumentation : Instrumentation() {
             val sourceScore = report.best.copy(badge = availability,
                 missingSignals = if (availability.missing == 0) emptyList() else listOf(ParkingRecorder.KEYS.last()))
             render(activity) { ReportScreen(report.copy(best = sourceScore), {}) }
+            check(badgeText(availability) !in texts())
+            click("자세히 보기")
             check(badgeText(availability) in texts())
-            capture("report-$name")
+            capture("details-$name")
         }
         val longQuestion = SeedCatalog.quiz.first { it.id == "night-highbeam" }.copy(
             question = "비가 내리는 어두운 도로에서 앞차를 따라 천천히 달리고 있어요. 마주 오는 차가 있을 때 주변 운전자의 시야를 방해하지 않으려면 상향등은 어떻게 해야 할까요?")
@@ -1193,14 +1320,14 @@ class LessonScreenInstrumentation : Instrumentation() {
 
     private fun assertFullText(activity: MainActivity, text: String, action: String? = null, minLines: Int = 1) {
         var height = 0
-        runOnMainSync {
+        onMainChecked {
             val node = composeNodes(activity, true).first { it.config.getOrNull(SemanticsProperties.Text)?.singleOrNull()?.text == text && it.config.contains(SemanticsActions.GetTextLayoutResult) }
             val layouts = mutableListOf<TextLayoutResult>()
             check(node.config.getOrNull(SemanticsActions.GetTextLayoutResult)?.action?.invoke(layouts) == true)
             val layout = layouts.single()
             height = layout.size.height
             check(!layout.hasVisualOverflow && layout.lineCount >= minLines && layout.getLineEnd(layout.lineCount - 1) == text.length) {
-                "Text clipped: ${layout.lineCount} lines, ${layout.layoutInput.style.fontSize}, size=${layout.size}, paragraph=${layout.multiParagraph.height}, end=${layout.getLineEnd(layout.lineCount - 1)}/${text.length}, $text"
+                "Text clipped: ${layout.lineCount} lines, ${layout.layoutInput.style.fontSize}, size=${layout.size}, paragraph=${layout.multiParagraph.height}, width=${layout.didOverflowWidth}, height=${layout.didOverflowHeight}, end=${layout.getLineEnd(layout.lineCount - 1)}/${text.length}, $text"
             }
             if (action != null) check(layout.layoutInput.style.fontSize.value >= 32)
         }
@@ -1512,7 +1639,7 @@ class LessonScreenInstrumentation : Instrumentation() {
                 check(allText().any { text -> text.contains("코스 도면") })
             }
         }
-        pass("Round25b S practice: moving frames retain a map with no touch targets; stopped entry/turn/return poses retain the practice route and simulation provenance")
+        pass("Round25b S practice: moving frames retain a map with no touch targets; stopped entry/turn/return poses retain the practice route")
     }
 
     private fun round25Locks(activity: MainActivity) {
@@ -2129,13 +2256,8 @@ class LessonScreenInstrumentation : Instrumentation() {
 
     private fun assertCompactProvenance(activity: MainActivity, report: LessonReport, aboveActions: Boolean = false) {
         val badge = badgeText(report.best.badge)
-        if (aboveActions) check(textBounds(badge).bottom < buttonBounds("돌아가기").top)
-        else {
-            check(textBounds(badge).left > buttonBounds("돌아가기").right)
-            check(abs(textBounds(badge).centerY() - buttonBounds("돌아가기").centerY()) < 40 * designScale(activity))
-        }
-        assertFullText(activity, badge)
-        assertFullText(activity, "신호 출처 · ")
+        check(textBounds(badge).bottom < buttonBounds("돌아가기").top)
+        SignalAvailability.entries.forEach { assertFullText(activity, signalLabel(it)) }
     }
 
     /** Explicit animation timestamps also capture the first composed Done frame before TTS catches up. */
@@ -2447,7 +2569,7 @@ class LessonScreenInstrumentation : Instrumentation() {
                 }
             } else {
                 check(allText().any { it.contains("코스 도면") })
-                check(texts().any { "시험장 위치·신호 · 시뮬레이션" == it })
+                check(texts().none { "시뮬레이션" in it })
                 if (state.snapshot.signal == TrackSignal.OFF) check(texts().none { it.startsWith("신호등") || it.startsWith("신호 ·") })
                 if (state.snapshot.signal == TrackSignal.RED) check("신호 · 빨간불" in texts())
                 capture(name) { bitmap -> state.progress.pose?.let { assertCourseCar(activity, bitmap, state.course, it) } }
@@ -2474,7 +2596,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         check("시험장 위치 미측정" in texts()); driverText(); capture("drive-missing")
         val hybrid = parked.copy(availability = parked.availability + (SimOnlySignals.TRACK_POSITION_X_M to SignalAvailability.LIVE))
         render(activity) { DriveScreen(hybrid, null, {}, demo) }
-        check(texts().any { "실신호" in it && "시뮬레이션" in it }); capture("drive-hybrid")
+        check(texts().none { "실신호" in it || "시뮬레이션" in it }); capture("drive-hybrid")
         fun record(course: TrackCourse, scenario: Scenario, index: Int): AttemptRecord {
             val registry = SignalRegistry(CourseRecorder.KEYS, simulated = true)
             val parking = ParkingRecorder(registry, CourseRecorder.KEYS)
@@ -2518,9 +2640,10 @@ class LessonScreenInstrumentation : Instrumentation() {
         render(activity) { ReportScreen(report, {}) }
         check("합격" in texts() && "최고 회차의 코스" in texts())
         check(texts().none { Regex("\\d+점").containsMatchIn(it) })
-        check("구간과 위치·신호등은 시험장 신호(시뮬레이션)로 측정했어요." in texts())
+        check(texts().none { "시뮬레이션" in it })
         capture("report-exam")
         click("자세히 보기")
+        check("구간과 위치·신호등은 시험장 신호(시뮬레이션)로 측정했어요." in texts())
         check(texts().any { "코스 70점 · 합격선 80점" in it })
         bad.course!!.deductions.forEach { check(it.reason in texts()) }
         capture("report-exam-details")
@@ -3638,9 +3761,10 @@ class LessonScreenInstrumentation : Instrumentation() {
             "차분히 연습을 마쳤어요.", task, LessonMode.HINT, "같은 감각을 이어 가요.",
             emptyList(), emptyList(), emptyList())
         render(activity) { ReportScreen(report, {}) }
-        check("실신호 0 · 시뮬레이션 7 · 미측정 0" in texts())
+        check("실신호 0 · 시뮬레이션 7 · 미측정 0" !in texts())
         capture("report-front")
         click("자세히 보기")
+        check("실신호 0 · 시뮬레이션 7 · 미측정 0" in texts())
         assertMetricRow(activity, "앞 근접", "1"); assertMetricRow(activity, "앞 근접", "0")
         check(allText().none { "뒤 거리" in it || "뒤 최소" in it })
         capture("details-front")

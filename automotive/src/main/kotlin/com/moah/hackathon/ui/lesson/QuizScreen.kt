@@ -14,8 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
@@ -25,7 +23,6 @@ import com.moah.hackathon.R
 import com.moah.hackathon.feature.lesson.QuizItem
 import com.moah.hackathon.feature.lesson.Task
 import com.moah.hackathon.ui.CoachColors
-import com.moah.hackathon.ui.CoachTexture
 
 @Composable
 internal fun QuizScreen(task: Task, index: Int, total: Int, item: QuizItem, locked: Boolean,
@@ -49,10 +46,10 @@ internal fun QuizScreen(task: Task, index: Int, total: Int, item: QuizItem, lock
                 else Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) { SymbolTile(CoachSymbol.Thinking, Modifier.size(240.dp), animate = false) }
             }
             Column(Modifier.weight(.70f).fillMaxHeight().background(CoachColors.Lavender).padding(start = 80.dp, end = 80.dp, top = 64.dp, bottom = 52.dp),
-                verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                verticalArrangement = Arrangement.spacedBy(20.dp)) {
                 Eyebrow("지식 테스트 · ${task.title}")
-                Headline(item.question, Modifier.fillMaxWidth(.92f), size = 88)
-                Column(Modifier.weight(1f).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically)) {
+                Headline(item.question, Modifier.fillMaxWidth(.92f).heightIn(max = 240.dp), size = 80)
+                Column(Modifier.weight(1f).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)) {
                     if (locked) {
                         LessonText(stringResource(R.string.lesson_quiz_locked), 40, CoachColors.Muted)
                     } else {
@@ -78,7 +75,7 @@ internal fun QuizScreen(task: Task, index: Int, total: Int, item: QuizItem, lock
                                 .padding(horizontal = 28.dp, vertical = 16.dp),
                                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                                 LessonText("${choiceIndex + 1}", 32, foreground, modifier = Modifier.background(if (correct) CoachColors.Periwinkle else CoachColors.Lavender, RoundedCornerShape(100)).padding(horizontal = 20.dp, vertical = 10.dp))
-                                LessonText(choice, 42, foreground, modifier = Modifier.weight(1f))
+                                LessonText(choice, 40, foreground, modifier = Modifier.weight(1f), maxLines = 2)
                                 if (badge != null) LessonText(badge, 32,
                                     if (correct) CoachColors.Periwinkle else CoachColors.Paper,
                                     modifier = Modifier.background(if (correct) CoachColors.Paper else CoachColors.Signal,
@@ -86,8 +83,7 @@ internal fun QuizScreen(task: Task, index: Int, total: Int, item: QuizItem, lock
                             }
                         }
                         if (chosen != null) {
-                            Spacer(Modifier.height(8.dp))
-                            SheetCard(Modifier.fillMaxWidth().heightIn(min = 180.dp)) { QuizExplanation(item.why) }
+                            QuizExplanation(item.why, size = 36)
                         }
                     }
                 }
@@ -140,6 +136,6 @@ internal fun QuizExplanation(text: String, size: Int = 40) {
     Row(Modifier.fillMaxWidth().background(CoachColors.Paper, RoundedCornerShape(40.dp)).padding(32.dp),
         horizontalArrangement = Arrangement.spacedBy(24.dp), verticalAlignment = Alignment.Top) {
         LessonText("“", 88, CoachColors.Periwinkle, modifier = Modifier.width(56.dp))
-        LessonText(text, size, modifier = Modifier.weight(1f))
+        LessonText(text, size, modifier = Modifier.weight(1f), maxLines = 2)
     }
 }
