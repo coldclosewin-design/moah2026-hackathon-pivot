@@ -11,6 +11,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.semantics.*
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
@@ -18,7 +24,7 @@ import com.moah.hackathon.feature.lesson.*
 import com.moah.hackathon.ui.CoachColors
 import com.moah.hackathon.vehicle.SignalAvailability
 
-/** A7: seven labels remain anchored to the physical controls in all three reveal modes. */
+/** A4: the labels surround the white car; their leaders never cross another control. */
 @Composable
 internal fun ChecklistCarScreen(state: ManeuverDisplayState, stopped: Boolean, subtitle: String?,
     onFinish: () -> Unit, demo: (@Composable () -> Unit)?, taskTitle: String) {
@@ -32,46 +38,80 @@ internal fun ChecklistCarScreen(state: ManeuverDisplayState, stopped: Boolean, s
                 Spacer(Modifier.height(48.dp))
                 LessonText("$taskTitle · ${state.attempt}회차", 36, CoachColors.Muted)
                 BoxWithConstraints(Modifier.weight(1f).fillMaxWidth().testTag("checklist-car")) {
-                    val w = maxWidth
-                    val h = maxHeight
-                    // V4 faces right. Each leader terminates at a control location on the vehicle.
+                    val w = maxWidth / 561
+                    val h = maxHeight / 333
+                    val positions = listOf(100 to 14, 244 to 14, 220 to 272, 388 to 14,
+                        424 to 82, 424 to 220, 424 to 150)
+                    val anchors = listOf(232f to 115f, 251f to 142f, 258f to 166f,
+                        292f to 142f, 369f to 130f, 369f to 202f, 302f to 166f)
+                    val ends = listOf(180f to 60f, 262f to 60f, 278f to 272f,
+                        410f to 60f, 424f to 105f, 424f to 243f, 424f to 173f)
                     Canvas(Modifier.fillMaxSize()) {
-                        val carScale = size.width * .62f / 250f
-                        withTransform({ translate(size.width * .09f, size.height * .67f); scale(carScale, carScale, Offset.Zero); rotate(-90f, Offset.Zero) }) {
-                            vehicleSilhouette(CoachColors.Ink, CoachColors.Platinum, CoachColors.Paper, outlineWidth = 2.4f)
-                        }
-                        listOf(
-                            .43f to .38f to (.43f to .21f), .44f to .48f to (.19f to .25f),
-                            .54f to .48f to (.63f to .17f), .69f to .37f to (.80f to .37f),
-                            .69f to .66f to (.80f to .76f), .60f to .51f to (.80f to .55f),
-                        ).forEach { (start, end) ->
-                            val a = Offset(start.first * size.width, start.second * size.height)
-                            val b = Offset(end.first * size.width, end.second * size.height)
-                            drawLine(CoachColors.Ink, a, b, 2.dp.toPx()); drawCircle(CoachColors.Ink, 9.dp.toPx(), a)
+                        val sx = size.width / 561f
+                        val sy = size.height / 333f
+                        withTransform({ scale(sx, sy, Offset.Zero) }) {
+                            withTransform({ translate(120f, 110f) }) {
+                                // A4: soft layered floor shadow, four tires, mirrors and two glass faces.
+                                for (i in 8 downTo 1) drawRoundRect(CoachColors.Ink.copy(alpha = .012f), Offset(-i.toFloat(), 8f-i),
+                                    Size(262f+i*2,112f+i*2), CornerRadius(34f+i))
+                                for (x in listOf(32f,192f)) for (y in listOf(-7f,103f))
+                                    drawRoundRect(CoachColors.Ink, Offset(x,y), Size(40f,16f), CornerRadius(6f))
+                                for (y in listOf(-10f,109f)) drawRoundRect(CoachColors.Periwinkle, Offset(168f,y), Size(10f,13f), CornerRadius(3f))
+                                drawRoundRect(CoachColors.Paper, size = Size(262f,112f), cornerRadius = CornerRadius(34f))
+                                drawRoundRect(CoachColors.Platinum, size = Size(262f,112f), cornerRadius = CornerRadius(34f), style = Stroke(1f))
+                                val glass = Path().apply { addRoundRect(androidx.compose.ui.geometry.RoundRect(58f,14f,186f,98f,22f,22f)) }
+                                drawPath(glass, CoachColors.Lavender)
+                                clipPath(glass) {
+                                    drawPath(Path().apply { moveTo(190f,0f); lineTo(156f,0f); quadraticBezierTo(144f,56f,156f,112f); lineTo(190f,112f); close() },CoachColors.Periwinkle)
+                                    drawPath(Path().apply { moveTo(54f,0f); lineTo(73f,0f); quadraticBezierTo(66f,56f,73f,112f); lineTo(54f,112f); close() },CoachColors.Periwinkle)
+                                }
+                                for (y in listOf(12f,80f)) drawRoundRect(CoachColors.Platinum,Offset(244f,y),Size(9f,20f),CornerRadius(4f))
+                                for (y in listOf(14f,82f)) drawRoundRect(CoachColors.Periwinkle,Offset(9f,y),Size(6f,16f),CornerRadius(3f))
+                            }
+                            anchors.forEachIndexed { index, (x,y) ->
+                                val (ex,ey) = ends[index]
+                                drawLine(CoachColors.Muted,Offset(x,y),Offset(ex,ey),1.2f)
+                                drawCircle(CoachColors.Paper,5.8f,Offset(x,y))
+                                drawCircle(CoachColors.Ink,4.2f,Offset(x,y))
+                            }
                         }
                     }
-                    val positions = listOf(.34f to .20f, .015f to .20f, .25f to .49f,
-                        .56f to .00f, .77f to .31f, .77f to .74f, .77f to .53f)
+                    Box(Modifier.offset(w * 120, h * 100).size(w * 262, h * 132).testTag("checklist-vehicle-bounds"))
                     steps.forEachIndexed { index, step ->
-                        val (x, y) = positions[index]
+                        val (x,y) = positions[index]
                         val active = state.checklistReveal == ChecklistReveal.ALL && focus == index
-                        val mistake = state.checklistReveal == ChecklistReveal.MISTAKES && step.failed && step.measured
-                        val filled = state.checklistReveal != ChecklistReveal.NAMES_ONLY && step.satisfied && !active
-                        val ink = if (filled) CoachColors.Paper else if (mistake) CoachColors.Signal else CoachColors.Ink
-                        val width = when { index == 3 -> w * .43f; index >= 4 -> w * .23f; else -> w * .30f }
-                        Column(Modifier.offset(w * x, h * y).width(width).testTag("checklist-step-$index")
-                            .shadow(if (active || filled) 5.dp else 0.dp, RoundedCornerShape(44.dp))
-                            .background(if (filled) CoachColors.Ink else CoachColors.Paper, RoundedCornerShape(44.dp))
-                            .then(if (state.checklistReveal == ChecklistReveal.NAMES_ONLY) Modifier.border(2.dp, CoachColors.Platinum, RoundedCornerShape(44.dp)) else Modifier)
-                            .padding(horizontal = 22.dp, vertical = if (active) 24.dp else 14.dp)) {
-                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                LessonText(step.label, if (active) 44 else 36, ink, modifier = Modifier.weight(1f))
-                                if (state.checklistReveal != ChecklistReveal.NAMES_ONLY)
-                                    SignalShape(if (step.measured) step.signal else SignalAvailability.MISSING, Modifier.size(28.dp), ink)
+                        val visible = state.checklistReveal != ChecklistReveal.NAMES_ONLY
+                        val filled = visible && step.satisfied && !active
+                        val ink = if (filled) CoachColors.Paper else CoachColors.Ink
+                        Row(Modifier.offset(w*x,h*y).size(if (index == 3) 456.dp else 396.dp,138.dp)
+                            .testTag("checklist-step-$index").shadow(if (filled || active) 5.dp else 0.dp, RoundedCornerShape(42.dp))
+                            .background(if (filled) CoachColors.Ink else CoachColors.Paper,RoundedCornerShape(42.dp))
+                            .border(if (active) 4.dp else 1.5.dp,if (active) CoachColors.Ink else CoachColors.Platinum,RoundedCornerShape(42.dp))
+                            .padding(horizontal=30.dp,vertical=20.dp), horizontalArrangement=Arrangement.spacedBy(16.dp)) {
+                            Column(Modifier.weight(1f),verticalArrangement=Arrangement.SpaceBetween) {
+                                LessonText(step.label,32,ink,maxLines=1)
+                                Spacer(Modifier.weight(1f))
+                                LessonText(checklistValue(step,state.checklistReveal),if(index==3) 30 else 32,
+                                    if(visible && step.failed) CoachColors.Signal else ink,maxLines=1)
                             }
-                            val value = checklistValue(step, state.checklistReveal)
-                            if (value.isNotEmpty()) LessonText(value, if (active) 44 else 36, if (step.failed) CoachColors.Signal else ink)
-                            else Box(Modifier.padding(top = 12.dp).size(30.dp).border(2.dp, CoachColors.Platinum))
+                            Column(Modifier.width(48.dp).fillMaxHeight(),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.SpaceBetween) {
+                                if(visible) SignalShape(if(step.measured) step.signal else SignalAvailability.MISSING,Modifier.size(28.dp),ink)
+                                else Spacer(Modifier.size(28.dp))
+                                if(visible && step.measured && (filled || step.failed)) LessonText(if(step.failed) "✗" else "✓",30,if(step.failed) CoachColors.Signal else ink)
+                                else if (visible && !step.measured) SignalShape(SignalAvailability.MISSING, Modifier.size(30.dp), CoachColors.Muted)
+                                else Canvas(Modifier.size(30.dp)) {
+                                    drawCircle(if (active) CoachColors.Ink else CoachColors.Muted,
+                                        radius = size.minDimension / 2 - 2.dp.toPx(), style = Stroke(2.dp.toPx()))
+                                }
+                            }
+                        }
+                    }
+                    Row(Modifier.align(Alignment.BottomStart),horizontalArrangement=Arrangement.spacedBy(18.dp)) {
+                        SignalAvailability.entries.forEach { source ->
+                            Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                                SignalShape(source,Modifier.size(24.dp),CoachColors.Muted)
+                                LessonText(signalLabel(source),24,CoachColors.Muted)
+                            }
                         }
                     }
                 }

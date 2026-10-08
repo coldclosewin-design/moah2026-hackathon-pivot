@@ -37,16 +37,17 @@ internal fun CoachPill(label: String, onClick: (() -> Unit)?, modifier: Modifier
     val interactions = remember { MutableInteractionSource() }
     val pressed by interactions.collectIsPressedAsState()
     Row(modifier.height(112.dp)
-        .then(if (onClick == null) Modifier.alpha(.55f).background(CoachColors.Lavender, RoundedCornerShape(100))
-            else Modifier.background(CoachColors.Paper, RoundedCornerShape(100))
-                .border(1.5.dp, CoachColors.Ink, RoundedCornerShape(100)))
-        .clip(RoundedCornerShape(100))
+        .then(if (onClick == null) Modifier.alpha(.55f).background(CoachColors.Lavender, RoundedCornerShape(56.dp))
+            else Modifier.background(CoachColors.Paper, RoundedCornerShape(56.dp))
+                .border(1.5.dp, CoachColors.Ink, RoundedCornerShape(56.dp)))
+        .clip(RoundedCornerShape(56.dp))
         .then(if (onClick == null) Modifier.semantics(mergeDescendants = true) { disabled(); role = Role.Button }
             else Modifier.clickable(interactionSource = interactions, indication = null, role = Role.Button, onClick = onClick))
         .padding(horizontal = 40.dp), horizontalArrangement = Arrangement.spacedBy(20.dp),
         verticalAlignment = Alignment.CenterVertically) {
-        SymbolTile(CoachSymbol.Listen, Modifier.size(56.dp).testTag("coach-microphone").clearAndSetSemantics {}, animate = pressed)
-        LessonText(label, 36, maxLines = 1)
+        val words = if (label == "코치와 대화") Modifier.coachTextArrival() else Modifier
+        SymbolTile(CoachSymbol.Listen, words.size(56.dp).testTag("coach-microphone").clearAndSetSemantics {}, animate = pressed)
+        LessonText(label, 36, maxLines = 1, modifier = words)
     }
 }
 
@@ -134,14 +135,15 @@ private fun BookingOptions(options: List<BookingOption>, chosen: BookingOption?,
 
 @Composable
 internal fun BookingTicketSheet(details: BookingDetails, tasks: List<Task>, options: List<BookingOption>,
-    chosen: BookingOption?, onChoose: (BookingOption) -> Unit, onBack: () -> Unit, onEdit: () -> Unit, onSlot: (String) -> Unit) {
-    Column(Modifier.fillMaxSize().background(CoachColors.Lavender).padding(120.dp), verticalArrangement = Arrangement.spacedBy(40.dp)) {
+    chosen: BookingOption?, onChoose: (BookingOption) -> Unit, onBack: () -> Unit, onEdit: () -> Unit, onSlot: (String) -> Unit,
+    onCancel: () -> Unit = {}) {
+    Column(Modifier.fillMaxSize().background(CoachColors.Lavender).padding(80.dp), verticalArrangement = Arrangement.spacedBy(32.dp)) {
         BrandMark()
         Column(Modifier.weight(1f).fillMaxWidth().homeShared("booking-ticket")
             .shadow(16.dp, RoundedCornerShape(66.dp)).background(CoachColors.Paper, RoundedCornerShape(66.dp))
-            .padding(64.dp), verticalArrangement = Arrangement.spacedBy(40.dp)) {
+            .padding(48.dp), verticalArrangement = Arrangement.spacedBy(32.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(48.dp), verticalAlignment = Alignment.CenterVertically) {
-                BookingMap(details, tasks, Modifier.size(340.dp))
+                BookingMap(details, tasks, Modifier.size(300.dp))
                 Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
                     Eyebrow("제휴 시험장 · 오늘", color = CoachColors.Muted)
                     Headline(details.venue.name, size = 88)
@@ -154,7 +156,9 @@ internal fun BookingTicketSheet(details: BookingDetails, tasks: List<Task>, opti
             BookingOptions(options, chosen, onChoose)
             TextAction("시간·코스 바꾸기", onEdit)
         }
-        BottomActions(secondary = { BackPill(onBack) }, primary = { PrimaryPill("이 코스로", onBack) })
+        BottomActions(secondary = {
+            Row(horizontalArrangement = Arrangement.spacedBy(36.dp)) { BackPill(onBack); ArrowPill("예약 취소", "×", onCancel) }
+        }, primary = { PrimaryPill("이 코스로", onBack) })
     }
 }
 
@@ -162,12 +166,13 @@ internal fun BookingTicketSheet(details: BookingDetails, tasks: List<Task>, opti
 @Composable
 internal fun HomeGallery(profile: Profile, task: Task, mode: LessonMode, picked: Boolean, compact: Boolean,
     onAdmin: (() -> Unit)?, onProfile: () -> Unit, onCoach: () -> Unit, onTask: () -> Unit,
-    onMode: (LessonMode) -> Unit, onStart: () -> Unit, hasBooking: Boolean, reason: String, booking: @Composable () -> Unit) {
+    onMode: (LessonMode) -> Unit, onStart: () -> Unit, hasBooking: Boolean, reason: String,
+    showCoach: Boolean = true, booking: @Composable () -> Unit) {
     var wheelOpen by remember { mutableStateOf(false) }
     Column(Modifier.fillMaxSize().padding(start = 120.dp, end = 120.dp, top = 52.dp, bottom = 36.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             SetupBrandMark(onAdmin = onAdmin)
-            CoachPill("코치와 대화", onCoach, Modifier.alpha(if (wheelOpen) .18f else 1f))
+            if (showCoach) CoachPill("코치와 대화", onCoach, Modifier.homeShared("coach-surface").alpha(if (wheelOpen) .18f else 1f))
         }
         Box(Modifier.fillMaxWidth().weight(1f)) {
             ProfileTableEntry(profile, onProfile, Modifier.align(Alignment.TopEnd).alpha(if (wheelOpen) .18f else 1f))

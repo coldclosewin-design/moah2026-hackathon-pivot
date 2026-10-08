@@ -4,12 +4,17 @@ package com.moah.hackathon.ui.lesson
 
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
@@ -56,6 +61,8 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
     var venuesOpen by rememberSaveable { mutableStateOf(false) }
     var awaitingRecommendation by remember { mutableStateOf(false) }
     var coachTextSubmitted by remember { mutableStateOf(false) }
+    var lastCoach by remember { mutableStateOf(coach) }
+    if (coach != null) lastCoach = coach
     LaunchedEffect(coach, profileRequest, sheetRequest) {
         if (coach == null && coachTextSubmitted) {
             // A text intent can pin the same model recommendation after manual browsing.
@@ -103,10 +110,13 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
                 val sheetColor by androidx.compose.animation.animateColorAsState(
                     if (sheet || bookingOpen) CoachColors.Lavender else CoachColors.Paper, tween(400), label = "home-paper")
                 SharedTransitionLayout(Modifier.background(sheetColor)) {
-                CompositionLocalProvider(LocalHomeShared provides this) {
-                AnimatedContent(if (bookingOpen) "booking" else if (profileOpen) "profile" else if (coach != null) "coach" else if (sheet) "tasks" else "home", Modifier.weight(1f).fillMaxHeight(),
+                CompositionLocalProvider(LocalHomeShared provides this, LocalCoachOpening provides (coach != null)) {
+                AnimatedContent(if (bookingOpen) "booking" else if (profileOpen) "profile" else if (coach != null) "coach" else if (sheet && venuesOpen) "venues" else if (sheet) "tasks" else "home", Modifier.weight(1f).fillMaxHeight(),
                     transitionSpec = {
-                        fadeIn(tween(280, delayMillis = 280)) togetherWith fadeOut(tween(200))
+                        if (initialState == "coach" || targetState == "coach" ||
+                            setOf(initialState, targetState) == setOf("tasks", "venues")) {
+                            (EnterTransition.None togetherWith ExitTransition.None).apply { targetContentZIndex = 1f }
+                        } else fadeIn(tween(280, delayMillis = 280)) togetherWith fadeOut(tween(200))
                     }, label = "setup-content") { page ->
                     CompositionLocalProvider(LocalHomeVisibility provides this) {
                     val showSheet = page != "home"
@@ -134,17 +144,22 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
                                 BookingTicketSheet(details, tasks, bookingOptions, bookingChoice, {
                                     awaitingRecommendation = true; onChooseBooking(it)
                                 }, { bookingOpen = false }, { bookingOpen = false; venuesOpen = true; sheet = true },
-                                    { slotId -> onReserve(details.venue.id, slotId, details.course.id) })
+                                    { slotId -> onReserve(details.venue.id, slotId, details.course.id) },
+                                    { onCancelReservation(); bookingOpen = false })
                             }
                         } else if (page == "coach") {
                             Box(Modifier.fillMaxSize()) {
-                            Box(Modifier.fillMaxSize().clearAndSetSemantics {}) {
-                                HomeGallery(profile, task, mode, picked, compactHome, null, {}, {}, {}, {}, {}, false, reason) {}
+                            if (coach != null) Box(Modifier.fillMaxSize().clearAndSetSemantics {}) {
+                                CompositionLocalProvider(LocalHomeShared provides null) {
+                                HomeGallery(profile, task, mode, picked, compactHome, null, {}, {}, {}, {}, {}, false, reason, showCoach = false) {}
+                                }
                             }
-                            Box(Modifier.fillMaxSize().background(CoachColors.Ink.copy(alpha = .15f)))
-                            SheetCard(Modifier.fillMaxSize().padding(start = 72.dp, end = 72.dp, top = 180.dp, bottom = 36.dp)) {
-                            Box(Modifier.fillMaxSize().padding(52.dp)) {
-                            coach?.let { dialog -> CoachSheet(dialog, { choice ->
+                            if (coach != null) Box(Modifier.fillMaxSize().background(CoachColors.Ink.copy(alpha = .15f)))
+                            Box(Modifier.fillMaxSize().padding(start = 72.dp, end = 72.dp, top = 180.dp, bottom = 36.dp)
+                                .homeShared("coach-surface").background(CoachColors.Paper, RoundedCornerShape(56.dp))
+                                .border(1.5.dp, CoachColors.Ink, RoundedCornerShape(56.dp)).clip(RoundedCornerShape(56.dp))) {
+                            Box(Modifier.fillMaxSize().coachTextArrival().padding(52.dp)) {
+                            (coach ?: lastCoach)?.let { dialog -> CoachSheet(dialog, { choice ->
                                 coachTextSubmitted = false
                                 awaitingRecommendation = choice == CoachChoice.CONTINUE_LAST
                                 onChooseCoach(choice)
@@ -159,7 +174,7 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
                             }
                             }
                         } else if (showSheet) {
-                            if (venuesOpen) VenueSheet(venues, booking, onReserve, onCancelReservation,
+                            if (page == "venues") VenueSheet(venues, booking, onReserve, onCancelReservation,
                                 onBack = { venuesOpen = false }, onDone = { venuesOpen = false; sheet = false })
                             else TaskSheet(tasks, TaskType.valueOf(categoryName), selectedTask, mode,
                                 onCategory = { category ->

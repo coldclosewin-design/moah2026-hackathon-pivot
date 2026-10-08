@@ -1,0 +1,74 @@
+== start
+  tap '과제·모드 바꾸기'
+  tap '주행'
+  tap '장내기능 모의시험'
+  shot 20_sheet_driving
+  tap '평가'
+  tap '시작'
+  log 'begin track-exam EVALUATE' after 1s
+  log 'attempt 1 start' after 7s
+  shot 21_drive_start
+== attempt 1: 못한 시험 (감점 셋 · 불합격)
+  tap '시연'
+  tap '못한 시험'
+  shot 22_drive_slope
+  log 'course zone: exam-parking' after 20s
+  shot 23_drive_parking
+  log 'course zone: exam-emergency' after 47s
+  shot 24_drive_emergency
+  log 'asked done \(attempt 1' after 21s
+  shot 25_drive_finish
+  tap '다 됐어요'
+  log 'attempt 1: skill=' after 1s
+  shot 26_done_1
+  course=70 passed=false deductions=3
+== attempt 2: 잘한 시험 (감점 없음 · 합격)
+  tap '한 번 더'
+  log 'attempt 2 start' after 1s
+  tap '시연'
+  tap '잘한 시험'
+  log 'asked done \(attempt 2' after 105s
+  tap '다 됐어요'
+  log 'attempt 2: skill=' after 1s
+  shot 27_done_2
+  course=100 passed=true deductions=0
+== report
+  tap '시연'
+  tap '문 열기'
+  log 'report: attempts=2' after 1s
+  shot 28_report
+== logcat
+10346 10346 I MOAH/LessonStateMachine: admin: coach input CARDS
+10346 10346 I MOAH/LessonStateMachine: admin: preset exam-fail-pass task=track-exam mode=EVALUATE profile=ProfileStatement(licenseYear=2016, monthsSinceLastDrive=120, car=중형 SUV
+10346 10346 I MOAH/LessonStateMachine: begin track-exam EVALUATE
+10346 10376 I MOAH/LessonStateMachine: briefing 8330 ms (speech done)
+10346 10376 I MOAH/LessonStateMachine: attempt 1 start (EVALUATE) course=course-exam-track missing=[]
+10346 10375 I MOAH/LessonStateMachine: course zone: exam-device
+10346 10376 I MOAH/LessonStateMachine: course zone: exam-slope
+10346 10375 I MOAH/LessonStateMachine: course deduction: 뒤로 밀림 zone=exam-slope points=10 disqualify=false
+10346 10375 I MOAH/LessonStateMachine: course zone: exam-right
+10346 10375 I MOAH/LessonStateMachine: course zone: exam-parking
+10346 10376 I MOAH/LessonStateMachine: course deduction: 검지선 접촉 zone=exam-parking points=10 disqualify=false
+10346 10375 I MOAH/LessonStateMachine: course zone: exam-signal
+10346 10375 I MOAH/LessonStateMachine: course zone: exam-accel
+10346 10376 I MOAH/LessonStateMachine: course zone: exam-emergency
+10346 10376 I MOAH/LessonStateMachine: course deduction: 비상등 미점등 zone=exam-emergency points=10 disqualify=false
+10346 10376 I MOAH/LessonStateMachine: course zone: exam-left
+10346 10376 I MOAH/LessonStateMachine: course zone: exam-finish
+10346 10376 I MOAH/LessonStateMachine: asked done (attempt 1)
+10346 10375 I MOAH/LessonStateMachine: attempt 1: skill=70 safety=100 segments=7 badge=AvailabilityBadge(live=0, simulated=17, missing=0) course=70 passed=false deductions=3
+10346 10375 I MOAH/LessonStateMachine: attempt 2 start (EVALUATE) course=course-exam-track missing=[]
+10346 10375 I MOAH/LessonStateMachine: course zone: exam-device
+10346 10376 I MOAH/LessonStateMachine: course zone: exam-slope
+10346 10375 I MOAH/LessonStateMachine: course zone: exam-right
+10346 10375 I MOAH/LessonStateMachine: course zone: exam-parking
+10346 10375 I MOAH/LessonStateMachine: course zone: exam-signal
+10346 10375 I MOAH/LessonStateMachine: course zone: exam-accel
+10346 10376 I MOAH/LessonStateMachine: course zone: exam-emergency
+10346 10375 I MOAH/LessonStateMachine: course zone: exam-left
+10346 10376 I MOAH/LessonStateMachine: course zone: exam-finish
+10346 10375 I MOAH/LessonStateMachine: asked done (attempt 2)
+10346 10375 I MOAH/LessonStateMachine: attempt 2: skill=100 safety=100 segments=6 badge=AvailabilityBadge(live=0, simulated=17, missing=0) course=100 passed=true deductions=0
+10346 10375 I MOAH/LessonStateMachine: door opened → report
+10346 10375 I MOAH/LessonStateMachine: report: attempts=2 best=100/100 badge=AvailabilityBadge(live=0, simulated=17, missing=0)
+== result: PASS (장내기능 못함 70 불합격 → 잘함 100 합격)

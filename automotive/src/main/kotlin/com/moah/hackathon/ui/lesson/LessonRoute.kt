@@ -35,7 +35,7 @@ internal fun LessonRoute(vm: LessonViewModel) {
                 steeringSteps = controls.steeringSteps, onSteering = controls::setSteering)
         }
     }
-    CompositionLocalProvider(LocalDemoEscape provides stopDemo) {
+    CompositionLocalProvider(LocalDemoEscape provides stopDemo, LocalAdminReservation provides (admin != null)) {
     when (val state = phase) {
         is LessonPhase.Setup -> if (adminOpen && admin != null) AdminHome(admin, state, { adminOpen = false })
         else SetupScreen(state.profile, state.tasks, state.suggestedTask, state.suggestedMode,

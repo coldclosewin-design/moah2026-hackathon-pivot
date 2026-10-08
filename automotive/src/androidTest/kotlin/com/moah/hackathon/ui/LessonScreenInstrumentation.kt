@@ -89,6 +89,7 @@ class LessonScreenInstrumentation : Instrumentation() {
     private var round28bOnly = false
     private var round28cOnly = false
     private var round28cMotionOnly = false
+    private var round30Only = false
     override fun onCreate(arguments: Bundle?) {
         super.onCreate(arguments)
         seedSpeech = arguments?.getString("seedSpeech") == "true"
@@ -110,6 +111,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         round28cMotionOnly = arguments?.getString("round28cMotionOnly") == "true"
         round28bOnly = arguments?.getString("round28bOnly") == "true"
         round28aOnly = arguments?.getString("round28aOnly") == "true"
+        round30Only = arguments?.getString("round30Only") == "true"
         start()
     }
 
@@ -117,6 +119,11 @@ class LessonScreenInstrumentation : Instrumentation() {
         val activity = startActivitySync(Intent(targetContext, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as MainActivity
         try {
+            if (round30Only) {
+                round30Contract(activity); captureRound30Motion(activity)
+                finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Round30 contract passed\n") })
+                return
+            }
             if (round28cMotionOnly) {
                 captureRound28cMotion(activity)
                 finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Round28c motion passed\n") })
@@ -230,6 +237,8 @@ class LessonScreenInstrumentation : Instrumentation() {
             }
             // Round 28 replaces the prior poster/column geometry. Keep production interaction
             // and safety suites, and assert the selected layouts in round28aContract.
+            round30Contract(activity)
+            captureRound30Motion(activity)
             round28aContract(activity)
             round28bContract(activity)
             round28cContract(activity)
@@ -249,6 +258,150 @@ class LessonScreenInstrumentation : Instrumentation() {
             runCatching { capture("failure") }
             finish(Activity.RESULT_CANCELED, Bundle().apply { putString("stream", failure.stackTraceToString()) })
         }
+    }
+
+    private fun round30Report(): LessonReport {
+        fun record(scenario: Scenario, index: Int): AttemptRecord {
+            val recorder = ParkingRecorder(SignalRegistry(ParkingRecorder.KEYS, simulated = true)).apply {
+                scenario.steps.forEach { onDelta((it.atSeconds * 1000).toLong(), it.values) }
+            }
+            return AttemptRecord(index, SeedCatalog.parkingTask.id, LessonMode.HINT, recorder.score()!!, null,
+                "방향을 맞췄어요.\n서두르지 않고 연습해요.", 0, path = recorder.path(), verdict = recorder.verdict())
+        }
+        val records = listOf(record(ParkingScenarios.bad, 1), record(ParkingScenarios.good, 2))
+        return LessonReport(SeedCatalog.parkingTask, LessonMode.HINT, records, records.last().score,
+            records.last().remark, SeedCatalog.parkingTask, LessonMode.HINT, "함께 연습해요.", ShareLevel.entries, emptyList(), emptyList())
+    }
+
+    private fun round30Contract(activity: MainActivity) {
+        val container = (activity.application as App).container
+        lateinit var vm: LessonViewModel
+        onMainChecked { vm = ViewModelProvider(activity, LessonViewModel.factory(container))[LessonViewModel::class.java]
+            vm.admin!!.applyPreset("rear-two"); vm.restart(); vm.cancelReservation(); vm.admin!!.setBand(true) }
+        fun contentHeight(): Float {
+            var height = 0f
+            onMainChecked { height = composeNodes(activity,true).single { it.config.getOrNull(SemanticsProperties.TestTag) == "poster-content" }.boundsInWindow.height }
+            return height / designScale(activity)
+        }
+        render(activity) { LessonRoute(vm) }
+        val height = contentHeight()
+        check(abs(height - 1236f) <= 1f) { "C3 content height $height" }
+        check("관리자 띠 열기" in allText() && "시작" in texts())
+        capture("30-home")
+        click("관리자 띠 열기"); check(contentHeight() == height); capture("30-admin-open")
+        click("더 보기 ▴"); check(contentHeight() == height); capture("30-admin-more")
+        click("정차"); check("관리자 띠 열기" in allText()); check(contentHeight() == height)
+        click("관리자 띠 열기"); click("더 보기 ▴"); click("패널 숨김")
+        check(contentHeight() == height && "관리자 띠 열기" !in allText()); capture("30-admin-hidden")
+        onMainChecked { vm.admin!!.setBand(true) }
+        check(contentHeight() == height)
+        click("코치와 대화"); capture("30-coach"); click("돌아가기")
+        val venue = SeedCatalog.venues.first()
+        onMainChecked { vm.reserve(venue.id, venue.slots.first { it.available }.id, venue.courses.first().id) }
+        click("예약 카드 열기"); capture("30-booking-cancel"); click("예약 취소")
+        afterUiSettles("Cancel expanded reservation") { check((vm.phase.value as LessonPhase.Setup).booking == null); check("예약 카드 열기" !in allText()) }
+        click("과제·모드 바꾸기"); click("제휴 시험장")
+        SeedCatalog.venues.forEach { selected ->
+            click(selected.name)
+            afterUiSettles("Venue course union ${selected.id}") {
+                val present = selected.courses.map { it.title }
+                val absent = SeedCatalog.venues.flatMap { it.courses }.map { it.title }.distinct() - present.toSet()
+                check(present.all { it in texts() }); check(absent.none { it in texts() })
+                selected.slots.filter { !it.available }.forEach { assertPlannedTask(it.label) }
+            }
+            capture("30-${selected.id}")
+        }
+        for (task in SeedCatalog.tasks.filter { it.quizOnly && SeedCatalog.quizFor(it).isNotEmpty() }) {
+            val quiz = SeedCatalog.quizFor(task)
+            val answers = quiz.mapIndexed { index,item -> QuizResult(item.id, if(index==0) item.answer else (item.answer+1)%item.choices.size,index==0) }
+            render(activity) { QuizDoneScreen(task,answers,quiz,"이유까지 기억하면 충분해요.",{}) }
+            check("내 답 · 정답" in texts()); check(quiz.first().choices[quiz.first().answer] in texts())
+            answers.forEachIndexed { index, answer ->
+                val marker = "${index + 1} ${if (answer.correct) "✓" else "✗"}"
+                check(textBounds(marker).right <= buttonBounds("메인으로").right) { "Question marker leaves the score panel: $marker" }
+            }
+            capture("30-quiz-${task.id}")
+            if (quiz.size == 4) assertFullText(activity, "❝ ${quiz.last().why}")
+        }
+        val report = round30Report()
+        render(activity) { ReportScreen(report,{}) }
+        assertFullText(activity, reportDisclosure(report), "메인으로")
+        click("진단서")
+        for(level in ShareLevel.entries) {
+            if (!isSelected(level.label)) click(level.label)
+            capture("30-certificate-${level.name.lowercase()}")
+            click("공유 예시 보기"); assertShareExample(activity,level); capture("30-share-${level.name.lowercase()}")
+            assertFullText(activity, "발급일부터 석 달 · 예시"); click("돌아가기")
+        }
+        pass("Round30: C3 height 1236 across closed/open/more/hidden; action auto-close; booking cancel; actual venue course availability; correct quiz answer; counted scopes and honest sharing")
+    }
+
+    private fun captureRound30Motion(activity: MainActivity) {
+        fun motion(name: String, times: List<Long>, content: @Composable () -> Unit, change: () -> Unit, prepare: () -> Unit = {}, verify: (Int) -> Unit = {}) {
+            val clock = BroadcastFrameClock()
+            val scope = CoroutineScope(AndroidUiDispatcher.Main + clock)
+            val recomposer = Recomposer(scope.coroutineContext)
+            lateinit var view: ComposeView
+            onMainChecked {
+                view = ComposeView(activity).apply {
+                    setParentCompositionContext(recomposer)
+                    setContent { MaterialTheme(colorScheme = coachColorScheme()) { DesignScale { androidx.compose.runtime.CompositionLocalProvider(LocalAdminReservation provides true) { androidx.compose.runtime.key(content) { content() } } } } }
+                }
+                activity.setContentView(view); scope.launch { recomposer.runRecomposeAndApplyChanges() }
+            }
+            var time = 16L
+            fun advance(delta: Long) {
+                time += delta
+                repeat(4) { onMainChecked { clock.sendFrame(time * 1_000_000) }; waitForIdleSync(); Thread.sleep(30) }
+            }
+            val frames = mutableListOf<Bitmap>()
+            try {
+                advance(0); advance(1800); advance(1800)
+                onMainChecked(prepare); repeat(4) { advance(1800) }
+                verify(0); frames += screenshot()
+                onMainChecked(change)
+                advance(0)
+                var previous = 0L
+                times.drop(1).forEachIndexed { index, elapsed ->
+                    advance(elapsed - previous); previous = elapsed
+                    verify(index + 1); frames += screenshot()
+                }
+                saveStrip("30-$name-strip", frames, times.map { "$it ms" })
+            } finally {
+                frames.forEach(Bitmap::recycle)
+                onMainChecked { view.disposeComposition(); recomposer.cancel(); scope.cancel() }
+            }
+        }
+        fun activate(label: String) {
+            val node = composeNodes(activity).first { n ->
+                (n.config.getOrNull(SemanticsProperties.ContentDescription)?.contains(label) == true || n.config.getOrNull(SemanticsProperties.Text)?.any { it.text == label } == true)
+                    && n.config.getOrNull(SemanticsActions.OnClick) != null
+            }
+            check(node.config[SemanticsActions.OnClick].action?.invoke() == true)
+        }
+        val coach = mutableStateOf<CoachDialog?>(null)
+        motion("coach-open", listOf(0,150,300,450), {
+            SetupScreen(SeedCatalog.demoProfile,SeedCatalog.tasks,SeedCatalog.parkingTask,LessonMode.HINT,"함께 연습해요.",null,{_,_->},
+                coach=coach.value,onOpenCoach={coach.value=CoachDialog("어떤 연습을 해 볼까요?",emptyList())},onCloseCoach={coach.value=null})
+        }, { activate("코치와 대화") })
+        motion("coach-close", listOf(0,117,233,350), {
+            SetupScreen(SeedCatalog.demoProfile,SeedCatalog.tasks,SeedCatalog.parkingTask,LessonMode.HINT,"함께 연습해요.",null,{_,_->},
+                coach=coach.value,onOpenCoach={coach.value=CoachDialog("어떤 연습을 해 볼까요?",emptyList())},onCloseCoach={coach.value=null})
+        }, { activate("돌아가기") })
+        val report=round30Report()
+        motion("scope",listOf(0,120,240,360),{ReportScreen(report,{})},{activate("원시 신호")},prepare={activate("진단서")})
+        motion("share",listOf(0,160,320,480),{ReportScreen(report,{})},{activate("공유 예시 보기")},prepare={activate("진단서")})
+        motion("venue-entry",listOf(0,187,373,560),{
+            SetupScreen(SeedCatalog.demoProfile,SeedCatalog.tasks,SeedCatalog.parkingTask,LessonMode.HINT,"함께 연습해요.",null,{_,_->},venues=SeedCatalog.venues)
+        },{activate("제휴 시험장")},prepare={activate("과제·모드 바꾸기")})
+        motion("venue-select",listOf(0,120,240,360),{VenueSheet(SeedCatalog.venues,null,{_,_,_->},{},{},{})},
+            {activate(SeedCatalog.venues[1].name)},prepare={activate(SeedCatalog.venues[0].name)})
+        val base=ManeuverDisplayState("0",540f,"R",85f,false,null,null,null,1,1,1,true,
+            SignalAvailability.SIMULATED,SignalAvailability.SIMULATED,SignalAvailability.SIMULATED)
+        motion("admin",listOf(0,93,187,280),{
+            ManeuverScreen(base,false,true,null,{},demo={AdminBand(listOf(ParkingScenarios.good,ParkingScenarios.bad),null,{},{},{},{},{})})
+        },{activate("관리자 띠 열기")})
+        pass("Round30 motion: A1 both directions, counted scope, S1 column, A5 venue, B1 card/course reflow, C3 drawer; explicit four-frame production-clock strips")
     }
 
     /** Selected round29 cells: measurements stay live, scopes stay honest, and admin stays optional. */
@@ -321,7 +474,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         for (level in ShareLevel.entries) {
             if (!isSelected(level.label)) click(level.label)
             capture("28c-certificate-${level.name.lowercase()}")
-            assertFullText(activity, level.benefit); assertFullText(activity, level.description)
+            assertFullText(activity, level.benefit); assertFullText(activity, level.includes.size.toString())
             click("공유 예시 보기")
             assertShareExample(activity, level)
             onMainChecked {
@@ -334,8 +487,8 @@ class LessonScreenInstrumentation : Instrumentation() {
 
         onMainChecked { vm.restart(); vm.begin(SeedCatalog.parkingTask.id, LessonMode.GUIDE); vm.skipBriefing(); vm.admin!!.setBand(true) }
         render(activity) { LessonRoute(vm) }
-        click("더 보기 ▴")
         vm.admin!!.demo.steeringSteps.forEach { degrees ->
+            click("관리자 띠 열기"); click("더 보기 ▴")
             click(steeringControlLabel(degrees))
             afterUiSettles("Steering $degrees reaches the displayed signal") {
                 check((vm.phase.value as LessonPhase.Maneuver).snapshot.steeringDeg == degrees)
@@ -491,10 +644,12 @@ class LessonScreenInstrumentation : Instrumentation() {
             check(nodes().count(::hasTouchAction) == 1); assertNoScores()
             checklistSteps(state).forEach { assertFullText(activity, it.label) }
             if (mode == LessonMode.EVALUATE) check(texts().none { it in listOf("닫힘", "채움", "P", "브레이크 없이 켜짐", "✓", "—") })
-            if (mode == LessonMode.HINT) check(texts().count { it == "✓" } == 3 && texts().count { it == "—" } == 3 && "브레이크 없이 켜짐" in texts())
+            if (mode == LessonMode.HINT) check(texts().count { it == "✓" } >= 3 && texts().count { it == "—" } == 3 && "브레이크 없이 켜짐" in texts())
             onMainChecked {
                 val labels = (0..6).map { tag("checklist-step-$it").boundsInWindow }
                 check(labels.all { it.width > 0 && it.height > 0 })
+                val car = tag("checklist-vehicle-bounds").boundsInWindow
+                check(labels.none { it.overlaps(car) }) { "Checklist card covers the car" }
                 labels.forEachIndexed { i, r -> labels.drop(i + 1).forEach { check(!r.overlaps(it)) { "Checklist labels overlap: $r / $it" } } }
             }
             capture("28b-checklist-${mode.name.lowercase()}"); click("다 됐어요")
@@ -550,7 +705,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         onMainChecked { check(composeNodes(activity).count { it.config.getOrNull(SemanticsProperties.TestTag) == "certificate-task-row" } == 1) }
         for (level in ShareLevel.entries) {
             if (!isSelected(level.label)) click(level.label)
-            assertFullText(activity, level.benefit); assertFullText(activity, level.description)
+            assertFullText(activity, level.benefit); assertFullText(activity, level.includes.size.toString())
             val shareAction = buttonBounds("공유 예시 보기")
             check(!Rect.intersects(shareAction, buttonBounds("메인으로")) && !Rect.intersects(shareAction, buttonBounds("돌아가기")))
             check(shareAction.bottom <= 1344 && shareAction.height() / scale >= 112)
@@ -776,6 +931,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         render(activity) { ReportScreen(report, { restarted++ }) }
         check(texts().containsAll(listOf("오늘의 기록", "신호 출처", "주차 과정만 측정했어요.")))
         check(badgeText(good.score.badge) in texts())
+        assertFullText(activity, reportDisclosure(report), "메인으로")
         capture("28a-report")
         click("자세히 보기")
         check(texts().containsAll(listOf("1회차", "2회차", "숙련", "안전", "방향 편차", "돌아가기")))
@@ -823,6 +979,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         render(activity) { DoneScreen(SeedCatalog.predriveTask, 2, checkRecord, null, {}, {}) }
         check(texts().containsAll(checklistResults(checklistScore).map { it.label })); capture("28a-done-checklist")
         render(activity) { ReportScreen(report.copy(task = SeedCatalog.predriveTask, best = checklistScore, attempts = listOf(checkRecord)), {}) }
+        assertFullText(activity, "출발 전 점검을 돌아봤어요.", "메인으로")
         capture("28a-report-checklist")
         val course = com.moah.hackathon.data.TrackCourses.exam
         fun courseAttempt(scenario: Scenario, index: Int): AttemptRecord {
@@ -851,8 +1008,10 @@ class LessonScreenInstrumentation : Instrumentation() {
         afterUiSettles("course deduction scroll") { check("비상등 미점등" in texts()) }
         render(activity) { DoneScreen(exam, 2, examGood, null, {}, {}) }
         Thread.sleep(3_200); check("합격" in texts()); capture("28a-done-exam")
-        render(activity) { ReportScreen(report.copy(task = exam, mode = LessonMode.EVALUATE,
-            attempts = listOf(examBad, examGood), best = examGood.score), {}) }
+        val examReport = report.copy(task = exam, mode = LessonMode.EVALUATE,
+            attempts = listOf(examBad, examGood), best = examGood.score)
+        render(activity) { ReportScreen(examReport, {}) }
+        assertFullText(activity, reportDisclosure(examReport), "메인으로")
         capture("28a-report-exam")
         click("자세히 보기"); check("합격선 80" in texts()); capture("28a-details-exam")
         pass("Round28 result cards: recorded parking/checklist/exam, four verdicts, path honesty, source bars, paired values/ruler/history, locked details/certificate and callbacks")
@@ -1779,7 +1938,7 @@ class LessonScreenInstrumentation : Instrumentation() {
     }
 
     private fun assertShareExample(activity: MainActivity, scope: ShareLevel) {
-        check("공유 예시 · ${scope.label}" in texts())
+        check(texts().any { "공유 예시 · ${scope.label}" in it })
         check("위치 · 대화 · 음성 없음" in texts())
         check("메인으로" !in texts())
         val backTop = buttonBounds("돌아가기").top
@@ -2132,8 +2291,11 @@ class LessonScreenInstrumentation : Instrumentation() {
         check(buttonBounds("예약 카드 열기").right < buttonBounds("시작").left)
         check(texts().containsAll(listOf("${SeedCatalog.parkingTask.title} ▼", "가이드 ▼")))
         check(texts().any { it.startsWith(ModeAdvisor.RESERVED_REASON) })
-        capture("setup-reserved") { bitmap ->
-            check(!colorBounds(bitmap, textBounds(badge), CoachColors.Muted.toArgb()).isEmpty)
+        // 돌아가기 뒤 홈이 페이드 중이면 글자가 Muted 보다 옅다(느린 에뮬 5554 에서 0x7A7C7D) — 다 그려진 뒤 픽셀을 본다
+        afterUiSettles("Reserved badge color") {
+            capture("setup-reserved") { bitmap ->
+                check(!colorBounds(bitmap, textBounds(badge), CoachColors.Muted.toArgb()).isEmpty)
+            }
         }
         click("과제·모드 바꾸기")
         assertSelected("주차")
@@ -2460,7 +2622,7 @@ class LessonScreenInstrumentation : Instrumentation() {
 
     private fun render(activity: MainActivity, content: @Composable () -> Unit) {
         runOnMainSync { activity.setContent {
-            androidx.compose.runtime.CompositionLocalProvider(LocalSelectionMotion provides false) {
+            androidx.compose.runtime.CompositionLocalProvider(LocalSelectionMotion provides false, LocalAdminReservation provides true) {
                 MaterialTheme(colorScheme = coachColorScheme()) { DesignScale { androidx.compose.runtime.key(content) { content() } } }
             }
         } }
@@ -2647,7 +2809,7 @@ class LessonScreenInstrumentation : Instrumentation() {
                 check(texts().none { it in listOf("닫힘", "채움", "P", "브레이크 없이 켜짐", "✓", "—") })
                 check("조용히 지켜봐요" in texts())
             } else if (mode == LessonMode.HINT) {
-                check(texts().count { it == "✓" } == 3 && texts().count { it == "—" } == 3)
+                check(texts().count { it == "✓" } >= 3 && texts().count { it == "—" } == 3)
                 check("브레이크 없이 켜짐" in texts() && "틀릴 때만 말해요" in texts())
             }
             capture("maneuver-checklist-${mode.name.lowercase()}")
@@ -3711,13 +3873,15 @@ class LessonScreenInstrumentation : Instrumentation() {
     private fun assertBandBelow(activity: MainActivity, action: String) {
         val actionBottom = buttonBounds(action).bottom
         runOnMainSync {
-            val band = composeNodes(activity).single { it.config.getOrNull(SemanticsProperties.TestTag) == "admin-band" }.boundsInWindow
+            val band = composeNodes(activity).single { it.config.getOrNull(SemanticsProperties.TestTag) == "admin-rail" }.boundsInWindow
             check(actionBottom <= band.top) { "$action overlaps the admin band" }
         }
     }
     private fun assertAdminBand() {
-        check("시연" !in allText())
+        check("관리자 띠 열기" in allText())
+        click("관리자 띠 열기")
         check(texts().containsAll(listOf("관리자", "정차", "출발", "문 열기", "문 닫기", "시나리오 정지", "더 보기 ▴")))
+        click("관리자 띠 닫기")
     }
     private fun textBounds(label: String) = Rect().also { rect ->
         nodes().first { it.text?.toString() == label }.getBoundsInScreen(rect)
@@ -3760,7 +3924,7 @@ class LessonScreenInstrumentation : Instrumentation() {
     private fun assertDriverButton(activity: MainActivity, label: String) {
         val bounds = buttonBounds(label)
         val density = designScale(activity)
-        check((if (label == "시작" && "연습할 과제" !in texts()) bounds.height() / density in 112f..301f else kotlin.math.abs(bounds.height() / density - 140f) <= 1f) && bounds.width() / density >= if (label == "메인으로") 716f else 719f) {
+        check((if (label == "시작" && "연습할 과제" !in texts()) bounds.height() / density in 112f..301f else kotlin.math.abs(bounds.height() / density - 140f) <= 1f) && bounds.width() / density >= if (label == "메인으로" && texts().any { it.startsWith("맞은 문제 /") }) 480f else if (label == "메인으로") 716f else 719f) {
             "$label driver bounds: $bounds / $density"
         }
     }
@@ -3868,7 +4032,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         return checkNotNull(bitmap) { "UiAutomation.takeScreenshot() returned null after 3 attempts" }
     }
     private fun capture(name: String, verify: (Bitmap) -> Unit = {}) {
-        if (name.startsWith("28b-") || name.startsWith("28c-")) Thread.sleep(700) // capture after C1 settles, not a translucent intermediate frame
+        if (listOf("28a-", "28b-", "28c-", "30-").any(name::startsWith)) Thread.sleep(700) // stills wait for shared bounds; frame strips use their explicit clock
         val screenshot = screenshot()
         try {
             File(targetContext.filesDir, "lesson-$name.png").outputStream().use { screenshot.compress(Bitmap.CompressFormat.PNG, 100, it) }

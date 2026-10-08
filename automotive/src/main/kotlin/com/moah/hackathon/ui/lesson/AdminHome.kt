@@ -83,7 +83,7 @@ internal fun AdminHome(admin: LessonViewModel.AdminControls, setup: LessonPhase.
     val auth = admin.demo.aiState?.collectAsStateWithLifecycle()?.value
     var selectedPreset by remember { mutableStateOf<String?>(null) }
     PosterSurface {
-        Row(Modifier.fillMaxSize().background(CoachColors.Lavender).padding(72.dp).testTag("admin-home")) {
+        Row(Modifier.fillMaxSize().background(CoachColors.Lavender).padding(horizontal = 72.dp, vertical = 56.dp).testTag("admin-home")) {
             Column(Modifier.weight(.32f).fillMaxHeight().background(CoachColors.Paper, RoundedCornerShape(56.dp))
                 .padding(56.dp)) {
                 BrandMark(color = CoachColors.Ink)

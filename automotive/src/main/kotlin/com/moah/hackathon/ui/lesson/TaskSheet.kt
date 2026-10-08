@@ -93,7 +93,7 @@ internal fun TaskSheet(tasks: List<Task>, category: TaskType, task: Task?, mode:
         } else {
             Spacer(Modifier.height(40.dp))
             key(editor) {
-                SheetCard(Modifier.weight(1f).fillMaxWidth()) {
+                SheetCard(Modifier.weight(1f).fillMaxWidth().homeShared("venue-paper")) {
                     Column(Modifier.fillMaxSize().padding(40.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
                         if (editor == "task") {
                             SelectionTrack(categoryOrder(), category, ::taskTypeLabel, onCategory,
@@ -154,10 +154,10 @@ internal fun TaskSheet(tasks: List<Task>, category: TaskType, task: Task?, mode:
         }
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(32.dp)) {
-            ArrowPill("돌아가기", "←", onBack)
-            ArrowPill("제휴 시험장", "↗", onVenues)
+            ArrowPill("돌아가기", "←", onBack, Modifier.homeShared("venue-back"))
+            ArrowPill("제휴 시험장", "↗", onVenues, Modifier.homeShared("venue-title"))
             Spacer(Modifier.weight(1f))
-            PrimaryPill(stringResource(R.string.lesson_start), onStart, Modifier.width(1125.dp), enabled = task != null)
+            PrimaryPill(stringResource(R.string.lesson_start), onStart, Modifier.width(1125.dp).homeShared("venue-action"), enabled = task != null)
         }
     }
 }
@@ -170,9 +170,9 @@ private fun TaskBay(task: Task, chosen: Boolean, modifier: Modifier, onClick: ()
     val action = if (task.isReady) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier.semantics { disabled() }
     Box(modifier.background(background, androidx.compose.foundation.shape.RoundedCornerShape(32.dp))
         .then(action).semantics(mergeDescendants = true) { selected = chosen }) {
-        Column(Modifier.fillMaxSize().padding(20.dp)) {
-            BoxWithConstraints(Modifier.fillMaxWidth().weight(1f).padding(top = 36.dp, bottom = 16.dp), contentAlignment = Alignment.Center) {
-                val artHeight = minOf(176.dp, maxHeight * .72f)
+        Column(Modifier.fillMaxSize().padding(12.dp)) {
+            BoxWithConstraints(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
+                val artHeight = minOf(maxHeight, maxWidth / (240f / 176f))
                 val art = Modifier.size(artHeight * (240f / 176f), artHeight).alpha(if (task.isReady) 1f else .55f)
                 val ink = if (chosen) CoachColors.Paper else CoachColors.Ink
                 when (task.type) {
@@ -188,7 +188,7 @@ private fun TaskBay(task: Task, chosen: Boolean, modifier: Modifier, onClick: ()
                     modifier = Modifier.align(Alignment.TopStart))
             }
             TaskTitleBand(task, foreground, if (chosen) CoachColors.Paper.copy(alpha = .7f) else CoachColors.Muted,
-                Modifier.fillMaxWidth().height(72.dp))
+                Modifier.fillMaxWidth().height(64.dp))
         }
         if (chosen) SymbolTile(CoachSymbol.Check, Modifier.align(Alignment.TopEnd).padding(12.dp).size(48.dp), animate = false)
     }
@@ -265,7 +265,7 @@ private fun ChecklistTaskDiagram(color: Color, modifier: Modifier) {
 @Composable
 private fun ParkingTaskDiagram(id: String, color: Color, panel: Color, glass: Color, modifier: Modifier) {
     Canvas(modifier) {
-        val nominalHeight = size.height * .90f
+        val nominalHeight = size.height * .98f
         // The diagonal bay also fits the 176 dp art box, including its rotated line ends.
         val fit = if (id == "parking-angle") minOf(1f,
             (size.height - 6.dp.toPx()) / (nominalHeight * .8660254f + (nominalHeight * .43f + 40.dp.toPx()) * .5f)) else 1f

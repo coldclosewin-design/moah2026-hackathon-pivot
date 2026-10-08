@@ -1,4 +1,9 @@
+@file:OptIn(androidx.compose.animation.ExperimentalSharedTransitionApi::class)
+
 package com.moah.hackathon.ui.lesson
+
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -40,8 +45,15 @@ internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit, locked: B
         return
     }
     PosterSurface {
+        SharedTransitionLayout(Modifier.background(CoachColors.Ink)) {
+        CompositionLocalProvider(LocalHomeShared provides this) {
+        AnimatedContent(page, transitionSpec = {
+            (fadeIn(tween(220, delayMillis = 260)) + slideInHorizontally(tween(480, easing = CoachMotion.Shared)) { it / 8 }) togetherWith
+                (fadeOut(tween(220)) + slideOutHorizontally(tween(480, easing = CoachMotion.Shared)) { -it / 5 })
+        }, label = "certificate-share") { shown ->
+        CompositionLocalProvider(LocalHomeVisibility provides this) {
         Column(Modifier.fillMaxSize().background(CoachColors.Ink).padding(72.dp), verticalArrangement = Arrangement.spacedBy(32.dp)) {
-            if (page == ReportPage.CERTIFICATE) {
+            if (shown == ReportPage.CERTIFICATE) {
                 CertificateContent(report, shareLevel, { shareName = it.name }, Modifier.weight(1f))
                 BottomActions(secondary = {
                     Row(horizontalArrangement = Arrangement.spacedBy(32.dp)) {
@@ -53,6 +65,10 @@ internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit, locked: B
                 ShareExampleContent(report, shareLevel, Modifier.weight(1f))
                 BottomActions(secondary = { ArrowPill("돌아가기", "←", { page = ReportPage.CERTIFICATE }, dark = true) })
             }
+        }
+        }
+        }
+        }
         }
     }
 }
