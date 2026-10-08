@@ -17,11 +17,22 @@ object SpeechCards {
         SpeechCard("near-miss", "어제 긁을 뻔했어요", CardStage.OPENING),
         SpeechCard("what-first", "뭐부터 하면 좋을까요?", CardStage.OPENING),
         SpeechCard("kid-school", "아이 등하원 때문에 배워요", CardStage.OPENING),
+        // 10/8 사용자 "카드가 화면에 비해 적다 · 몇 마디 주고받는 시연" — 타깃(장롱 · 다시 시작하는 사람)의 말로 넷 더
+        SpeechCard("fought", "남편이 가르치다 싸웠어요", CardStage.OPENING),
+        SpeechCard("shaky", "핸들 잡으면 손이 떨려요", CardStage.OPENING),
+        SpeechCard("first-alone", "혼자 타는 건 처음이에요", CardStage.OPENING),
+        SpeechCard("short-today", "오늘은 짧게만 할래요", CardStage.OPENING),
         SpeechCard("parallel-hint", "평행 주차 힌트로 할래요", CardStage.FOLLOW_UP),
         SpeechCard("rear-again", "후면 주차 다시 해 볼래요", CardStage.FOLLOW_UP),
         SpeechCard("mock-exam", "모의시험 볼래요", CardStage.FOLLOW_UP),
         SpeechCard("venue-practice", "예약한 시험장 연습할래요", CardStage.FOLLOW_UP, CardNeed.BOOKING),
         SpeechCard("continue-last", "지난번 이어서요", CardStage.FOLLOW_UP, CardNeed.LAST),
+        // 되물음에 답하는 카드(몇 마디 대화 — 감정 → 되물음 → 답 → 다시 묻거나 과제)
+        SpeechCard("start-confused", "시동 켜는 것부터 헷갈려요", CardStage.FOLLOW_UP),
+        SpeechCard("guide-check", "네, 가이드로 점검부터요", CardStage.FOLLOW_UP),
+        SpeechCard("parking-hard", "주차할 때가 제일 어려워요", CardStage.FOLLOW_UP),
+        SpeechCard("lane-scary", "차선 바꿀 때가 무서워요", CardStage.FOLLOW_UP),
+        SpeechCard("hint-only", "힌트만 주세요", CardStage.FOLLOW_UP),
         SpeechCard("road", "도로 주행이 궁금해요", CardStage.FOLLOW_UP),
         SpeechCard("profile", "내 프로필 고칠래요", CardStage.FOLLOW_UP),
     )

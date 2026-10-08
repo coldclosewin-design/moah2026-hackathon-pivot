@@ -18,7 +18,8 @@ class ShortCoachLinesTest {
 
     @Test
     fun `dialog rule lines are a title and a line`() {
-        listOf(IntentRules.ASK_LINE, IntentRules.WORRY_LINE, IntentRules.NEAR_MISS_LINE, IntentRules.KID_LINE, IntentRules.MOVING_LINE).forEach {
+        listOf(IntentRules.ASK_LINE, IntentRules.WORRY_LINE, IntentRules.NEAR_MISS_LINE, IntentRules.KID_LINE, IntentRules.MOVING_LINE,
+            IntentRules.TEACH_LINE, IntentRules.FIRST_LINE, IntentRules.START_LINE, IntentRules.SHAKY_LINE, IntentRules.SHORT_LINE).forEach {
             assertEquals(it, CoachPrompts.titleAndLine(it, CoachPrompts.DIALOG_LINE_MAX, allowOne = true))
         }
     }
