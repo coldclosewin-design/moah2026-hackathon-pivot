@@ -4,7 +4,7 @@ Claude Code와 Codex가 공유하는 단일 지침. 세부 문서는 `docs/`.
 
 ## 프로젝트가 무엇인가
 
-- MOAH 2026 (MOBIS SW Hackathon) 출품용 **Android Automotive OS(AAOS) 앱**. 1인 팀. 마감 **2026-10-09(금)**(10-07 아님, 9/30 사내 확인). 제출 4종: PPT 1장(주최 양식) · 팀 Bitbucket `submission` 브랜치 · MarketUploader APK(카테고리 VEHICLE, 재업로드마다 versionCode +1) · 에뮬 시연 영상 → PPT·영상은 MOAH@mobis.com. 제품명 **"드라이브 코치"** 1.0.0.
+- MOAH 2026 (MOBIS SW Hackathon) 출품용 **Android Automotive OS(AAOS) 앱**. 1인 팀. 마감 **2026-10-09(금)**(10-07 아님, 9/30 사내 확인). 제출 4종: PPT 1장(주최 양식) · 팀 Bitbucket `submission` 브랜치 · MarketUploader APK(카테고리 VEHICLE, 재업로드마다 versionCode +1) · 에뮬 시연 영상 → PPT·영상은 MOAH@mobis.com. 제품명 **"Drive Coach"** 1.0.0(10/9 사용자 결정 — 그 전 "드라이브 코치", 런처 라벨 `app_name` 은 라운드 31a 에서 바뀐다). 로고 = 핸들 속 새싹(라운드 31 로고 3차 20번, `docs/design/round31-proposals/5-app-logo-sprout-sizes.html` E4).
 - **주제 (확정, 2026-09-25 피벗 · 9/26 v2): 운전 연수 어시스턴트 — "화내지 않는 조수석".** 초보·장롱면허 운전자가 두려운 상황을 **과제 단위**로 연습할 때,
   차량 신호로 **과정**을 측정해 **가이드 → 힌트 → 평가** 순으로 손을 떼 가며 코칭하고, 세션이 쌓이면 본인·동승자·(동의 시) 기관이 보는 진단 리포트가 된다.
   **시연 본편은 후면 직각 주차 과제.** 단계: `Setup(대화·제안) → Briefing → Maneuver(주차 중, 저속이라 화면 도식 허용) → Done("다 됐어요"·회차 멘트) → Report(운전석 도어 열림)`.
