@@ -1,0 +1,1847 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>퀴즈 · 시험장 · 준비실 시안</title>
+<style>
+:root{
+  --onyx:#222526; --platinum:#E0E0E0; --graphite:#353A3E; --jet:#1A1A1A; --ash:#BFBFBF; --white:#FFFFFF;
+  --signal:#F52D48; --yellow:#F2C230; --chip:#F1F1F1; --gw:#B3B5B7; --mu:#7a7e81;
+  --kr:"Noto Sans KR","Malgun Gothic",system-ui,sans-serif;
+  --num:"Segoe UI Variable Display","Bahnschrift",Arial,sans-serif;
+  --mono:"Cascadia Mono","Consolas",monospace;
+  --kgrad:linear-gradient(180deg,#43474a 0%,#141516 55%,#0d0e0f 100%);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#ECECEC;color:var(--onyx);font-family:var(--kr);line-height:1.5}
+.page{max-width:1560px;margin:0 auto;padding:40px 24px 64px}
+.head h1{font-size:30px;font-weight:500;letter-spacing:-.01em}
+.head .lead{font-size:15px;color:#5a5e61;margin-top:6px;max-width:1340px}
+.chipline{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.chipline span{font-size:12px;padding:4px 12px;border-radius:14px;border:1px solid rgba(34,37,38,.25)}
+.chipline span.k{background:var(--onyx);color:var(--platinum);border-color:var(--onyx)}
+.rules{margin-top:18px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.rules div{background:#fff;border-radius:14px;padding:10px 14px;font-size:12.5px}
+.rules div>b:first-child{display:block;font-size:11px;letter-spacing:.08em;color:#6b6f72;font-weight:500;margin-bottom:2px}
+
+/* 화면 구역 머리 */
+.sec{margin-top:70px}
+.sec>.sh{display:flex;align-items:flex-end;gap:18px;padding-bottom:14px;border-bottom:2px solid var(--onyx)}
+.sec>.sh .L{font-family:var(--num);font-size:64px;line-height:.9;font-weight:600;letter-spacing:-.03em}
+.sec>.sh h2{font-size:30px;font-weight:500;letter-spacing:-.01em}
+.sec>.sh p{font-size:14px;color:#4a4e51;max-width:1100px}
+.data{margin-top:12px;background:#fff;border-radius:14px;padding:10px 16px;font-size:12.5px;color:#3a3e41}
+.data b{font-weight:500;font-size:11px;letter-spacing:.08em;color:#6b6f72;margin-right:8px}
+
+.prop{margin-top:34px;padding-top:20px;border-top:1px solid rgba(34,37,38,.15)}
+.ph{display:flex;align-items:baseline;gap:14px}
+.ph .no{font-family:var(--num);font-size:34px;line-height:1;font-weight:600;min-width:52px}
+.ph h3{font-size:22px;font-weight:500}
+.ph .one{font-size:14.5px;color:#4a4e51;margin-top:2px}
+.row{display:grid;grid-template-columns:853px 400px 1fr;gap:16px;margin-top:12px;align-items:start}
+.row>div:nth-child(2){display:contents}
+.cap{font-size:12px;color:#6b6f72;letter-spacing:.03em;margin-bottom:5px}
+.cap b{color:var(--onyx);font-weight:500;margin-right:6px}
+.smalls{display:grid;grid-template-columns:400px;gap:10px}
+.notes{margin-top:0;font-size:12.5px}
+.notes h4{font-size:11.5px;letter-spacing:.08em;color:#6b6f72;font-weight:500;margin-top:8px}
+.notes h4:first-child{margin-top:0}
+.notes ul{padding-left:15px;font-size:12.5px;margin-top:2px;line-height:1.45}
+.notes li{margin-top:2px}
+.eff{display:inline-block;font-size:11.5px;padding:2px 10px;border-radius:11px;background:var(--onyx);color:var(--platinum);margin-left:6px;vertical-align:1px}
+.eff.s{background:#fff;color:var(--onyx);box-shadow:inset 0 0 0 1px rgba(34,37,38,.4)}
+.reco{margin-top:30px;background:var(--onyx);color:var(--platinum);border-radius:24px;padding:22px 28px}
+.reco .k{font-size:11px;letter-spacing:.14em;color:var(--ash)}
+.reco h3{font-size:24px;font-weight:500;color:#fff;margin-top:4px;letter-spacing:-.01em}
+.reco ul{padding-left:18px;font-size:13.5px;margin-top:8px}
+.reco li{margin-top:3px}
+.reco b{color:#fff;font-weight:500}
+
+/* 프레임 띠 */
+.strip{display:grid;grid-template-columns:repeat(4,358px);gap:16px;margin-top:16px}
+.fl{font-size:12px;color:#6b6f72;margin-bottom:5px}
+.fl b{display:inline-block;min-width:34px;height:20px;line-height:20px;padding:0 8px;margin-right:6px;border-radius:10px;background:var(--onyx);color:var(--platinum);font-weight:400;font-size:11px;text-align:center}
+
+/* ===== 화면 목업 (1/3) ===== */
+.scr{position:relative;width:853px;height:423px;overflow:hidden;border-radius:8px;box-shadow:0 0 0 1px rgba(0,0,0,.16);font-family:var(--kr);background:linear-gradient(165deg,#EEEEEE 0%,#D8D8D8 100%);color:var(--onyx)}
+.scr > *{position:absolute}
+.scr.dk{background:var(--onyx);color:var(--platinum)}
+.scr.wt{background:#fff}
+.sm{position:relative;width:400px;height:198px;overflow:hidden;border-radius:6px}
+.sm > .scr{transform:scale(.46893);transform-origin:0 0}
+.mini{position:relative;width:358px;height:178px;overflow:hidden;border-radius:6px}
+.mini > .scr{transform:scale(.4197);transform-origin:0 0}
+.wm{font-family:var(--num);font-size:9px;letter-spacing:.32em;font-weight:500}
+.eb{font-size:11.5px;color:var(--mu)}
+.up{font-family:var(--num);font-size:10px;letter-spacing:.16em;text-transform:uppercase}
+.sent{font-weight:500;letter-spacing:-.02em;color:var(--jet)}
+.dk .sent{color:#fff}
+.gw{color:var(--gw)}
+.dk .gw{color:#6f7376}
+.num{font-family:var(--num);font-weight:500;letter-spacing:-.03em;line-height:1}
+/* 낱말 칩 */
+.wp{background:#fff;border-radius:999px;padding:0 .34em;box-shadow:0 2px 0 #222,0 8px 12px -6px rgba(0,0,0,.25);white-space:nowrap}
+.kp{background:var(--kgrad);color:#fff;border-radius:999px;padding:0 .34em;box-shadow:0 8px 12px -6px rgba(0,0,0,.6);white-space:nowrap}
+.hp{border:2px dashed #9a9da0;color:#9a9da0;border-radius:999px;padding:0 .3em;white-space:nowrap}
+.ip{display:inline-flex;align-items:center;justify-content:center;height:1em;width:1em;border-radius:50%;vertical-align:-.12em}
+.ip svg{width:1em;height:1em}
+/* 카드 · 트랙 · 칩 */
+.wc{background:#fff;border-radius:22px;box-shadow:0 -8px 22px -6px rgba(0,0,0,.14),0 1px 0 rgba(0,0,0,.04)}
+.wc.back{background:#FAFAFA}
+.wc *{position:static}
+.trk{display:flex;gap:4px;background:var(--chip);border-radius:999px;padding:3px}
+.trk span{flex:1;text-align:center;height:34px;line-height:34px;border-radius:17px;font-size:13.5px;color:#8a8d90;white-space:nowrap}
+.trk span.on{background:var(--kgrad);color:#fff;box-shadow:0 9px 14px -7px rgba(0,0,0,.65)}
+.trk span.off{text-decoration:line-through;color:#b0b3b5}
+.chipf{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:38px;padding:0 14px;border-radius:19px;background:var(--chip);color:#5f6366;font-size:13.5px;white-space:nowrap}
+.chipf.on{background:var(--kgrad);color:#fff;box-shadow:0 9px 14px -7px rgba(0,0,0,.65)}
+.chipf.w{background:#fff;color:var(--onyx);box-shadow:0 2px 0 #222,0 8px 12px -6px rgba(0,0,0,.2)}
+.chipf.off{color:#a8abad;background:#ECECEC}
+.chipf.off s{color:#a8abad}
+.chipf i.mk{font-style:normal;font-size:10.5px;padding:0 7px;border-radius:9px;background:#fff;color:#6b6f72;height:18px;line-height:18px;text-decoration:none}
+.btnk{display:flex;align-items:center;justify-content:center;gap:12px;height:42px;border-radius:21px;font-size:15px;color:#fff;background:var(--kgrad);box-shadow:0 12px 18px -8px rgba(0,0,0,.6);white-space:nowrap}
+.btnk.dim{background:linear-gradient(180deg,#d4d4d4,#c4c4c4);color:#f4f4f4;box-shadow:none}
+.btng{display:flex;align-items:center;gap:10px;height:42px;padding:0 20px 0 5px;border-radius:21px;font-size:14px;background:#fff;color:var(--onyx);box-shadow:0 1px 2px rgba(0,0,0,.08);white-space:nowrap}
+.btng i{font-style:normal;width:32px;height:32px;border-radius:50%;background:var(--chip);display:flex;align-items:center;justify-content:center}
+.btno{display:flex;align-items:center;gap:10px;height:42px;padding:0 20px 0 4px;border-radius:21px;font-size:14px;border:1.5px solid currentColor;white-space:nowrap}
+.btno i{font-style:normal;width:32px;height:32px;border-radius:50%;background:currentColor;display:flex;align-items:center;justify-content:center}
+.btno i b{font-weight:400;color:var(--onyx)}
+.lkp{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:14px;background:var(--chip);font-size:12px;white-space:nowrap}
+.lkp.w{background:#fff}
+.opt{display:flex;align-items:center;gap:12px;height:56px;padding:0 16px;border-radius:18px;background:#fff;font-size:17px;box-shadow:0 1px 2px rgba(0,0,0,.06);white-space:nowrap}
+.opt b{font-weight:400;width:28px;height:28px;border-radius:50%;background:var(--chip);display:flex;align-items:center;justify-content:center;font-size:13px;color:#6b6f72;font-family:var(--num);flex:none}
+.opt.on{background:var(--kgrad);color:#fff;box-shadow:0 12px 18px -8px rgba(0,0,0,.6)}
+.opt.on b{background:#fff;color:var(--onyx)}
+.opt.x{background:#E9E9E9;color:#8a8d90}
+.opt.x span{text-decoration:line-through}
+.opt.x b{background:#fff}
+.opt.dim{opacity:.4}
+.opt .r{margin-left:auto;display:flex}
+.tile{position:relative;border-radius:16px;background:#fff;color:var(--onyx);padding:10px 12px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.tile.on{background:var(--kgrad);color:#fff;box-shadow:0 12px 18px -8px rgba(0,0,0,.6)}
+.ck{position:absolute;right:9px;top:9px;width:20px;height:20px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;color:#111}
+.et{width:46px;height:46px;border-radius:14px;background:var(--onyx);color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+.et svg{width:28px;height:28px}
+.fig{border-radius:22px;background:var(--graphite);overflow:hidden}
+.fig svg{display:block;width:100%;height:100%}
+/* 결과 알약 */
+.bp{border:1.5px solid currentColor;border-radius:999px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.bp .n{font-family:var(--num);font-size:50px;line-height:1;letter-spacing:-.03em;font-weight:500}
+.bp .l{font-size:10px;letter-spacing:.12em;margin-top:4px;white-space:nowrap}
+.bp.dim{color:rgba(224,224,224,.45)}
+.bp.fill{background:var(--platinum);color:var(--onyx);border-color:var(--platinum)}
+.dchip{font-size:11px;padding:2px 9px;border-radius:10px;background:var(--graphite);color:var(--platinum);white-space:nowrap}
+.rule{height:1px;background:rgba(224,224,224,.25)}
+.tb{border-collapse:collapse;font-size:11.5px}
+.tb *{position:static}
+.tb th{font-weight:400;font-size:9.5px;letter-spacing:.12em;color:var(--ash);text-align:left;padding:0 8px 4px 0;border-bottom:1px solid rgba(224,224,224,.35)}
+.tb td{padding:3px 8px 3px 0;border-bottom:1px solid rgba(224,224,224,.12);white-space:nowrap}
+.lt .tb th,.scr:not(.dk) .tb th{color:#7a7e81;border-bottom-color:rgba(34,37,38,.18)}
+.scr:not(.dk) .tb td{border-bottom-color:rgba(34,37,38,.08)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;flex:none}
+.dot.live{background:currentColor}
+.dot.sim{border:1.5px solid currentColor;background:linear-gradient(90deg,currentColor 50%,transparent 50%)}
+.dot.miss{border:1.5px dashed currentColor}
+/* 관리자(시연 전용) */
+.demo{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;padding:2px 8px;border-radius:6px;border:1px dashed currentColor;white-space:nowrap}
+.dsh{border:1.5px dashed #9a9da0;border-radius:14px}
+.ach{display:inline-flex;align-items:center;justify-content:center;height:28px;padding:0 11px;border-radius:14px;font-size:11.5px;white-space:nowrap;border:1px solid rgba(34,37,38,.3);color:#3a3e41}
+.ach.on{background:var(--onyx);color:#fff;border-color:var(--onyx)}
+.dk .ach{border-color:rgba(224,224,224,.35);color:var(--platinum)}
+.dk .ach.on{background:var(--platinum);color:var(--onyx);border-color:var(--platinum)}
+.band{display:flex;align-items:center;gap:6px}
+.band *{position:static}
+
+/* ===== 움직임 ===== */
+@keyframes riseEx{0%,30%{transform:translateY(110%)}46%,90%{transform:translateY(0)}100%{transform:translateY(110%)}}
+@keyframes pickX{0%,18%{background:#fff;color:#222526}24%,90%{background:#E9E9E9;color:#8a8d90}100%{background:#fff;color:#222526}}
+@keyframes pickOk{0%,24%{background:#fff;color:#222526;box-shadow:none}30%,90%{background:#141516;color:#fff;box-shadow:0 12px 18px -8px rgba(0,0,0,.6)}100%{background:#fff;color:#222526}}
+@keyframes shrinkQ{0%,24%{transform:scale(1)}40%,90%{transform:scale(.72) translateY(-40px)}100%{transform:scale(1)}}
+.liveQ .ex{animation:riseEx 5s cubic-bezier(.2,.8,.2,1) infinite}
+.liveQ .px{animation:pickX 5s ease infinite}
+.liveQ .pk{animation:pickOk 5s ease infinite}
+.liveQ .sq{animation:shrinkQ 5s cubic-bezier(.2,.8,.2,1) infinite;transform-origin:0 0}
+@keyframes riseV{0%,20%{transform:translateY(110%)}36%,92%{transform:translateY(0)}100%{transform:translateY(110%)}}
+@keyframes litV{0%,60%{background:linear-gradient(180deg,#d4d4d4,#c4c4c4);box-shadow:none}68%,92%{background:linear-gradient(180deg,#43474a,#0d0e0f);box-shadow:0 12px 18px -8px rgba(0,0,0,.6)}100%{background:linear-gradient(180deg,#d4d4d4,#c4c4c4)}}
+.liveV .cd{animation:riseV 6s cubic-bezier(.2,.8,.2,1) infinite}
+.liveV .go{animation:litV 6s ease infinite}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="tick" viewBox="0 0 16 16"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="cross" viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <!-- 노란 원 아이콘 알약: 갈라지는 화살표 -->
+    <symbol id="y-arrow" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#F2C230"/><path d="M11.5 16V7.5M11.5 7.5l-2.4 2.4M11.5 7.5l2.4 2.4M11.5 12Q11.5 9.5 7.5 9.5H5.6M5.6 9.5l1.8-1.8M5.6 9.5l1.8 1.8" fill="none" stroke="#1A1A1A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="y-pin" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#F2C230"/><path d="M10 15.5s-4-4-4-7a4 4 0 0 1 8 0c0 3-4 7-4 7z" fill="none" stroke="#1A1A1A" stroke-width="1.7" stroke-linejoin="round"/><circle cx="10" cy="8.4" r="1.4" fill="#1A1A1A"/></symbol>
+    <!-- 도로 표시 그림(차로 위 노면 화살표) -->
+    <symbol id="fig-sl" viewBox="0 0 100 100"><rect width="100" height="100" fill="#353A3E"/><path d="M14 0v100M86 0v100" stroke="#E0E0E0" stroke-width="2.2"/><path d="M50 0v14M50 28v14M50 56v14M50 84v16" stroke="#E0E0E0" stroke-width="2" opacity=".0"/><path d="M58 90V30" stroke="#fff" stroke-width="7" stroke-linecap="butt"/><path d="M58 14L47 32h22z" fill="#fff"/><path d="M58 62Q58 48 40 48H33" fill="none" stroke="#fff" stroke-width="7"/><path d="M22 48l13-10v20z" fill="#fff"/></symbol>
+    <symbol id="fig-l" viewBox="0 0 100 100"><rect width="100" height="100" fill="#353A3E"/><path d="M14 0v100M86 0v100" stroke="#E0E0E0" stroke-width="2.2"/><path d="M60 90V56Q60 42 42 42H35" fill="none" stroke="#fff" stroke-width="7"/><path d="M22 42l13-10v20z" fill="#fff"/></symbol>
+    <symbol id="fig-ws" viewBox="0 0 100 100"><rect width="100" height="100" fill="#353A3E"/><path d="M50 0v100" stroke="#fff" stroke-width="4"/><path d="M14 0v100M86 0v100" stroke="#E0E0E0" stroke-width="2"/></symbol>
+    <symbol id="fig-yc" viewBox="0 0 100 100"><rect width="100" height="100" fill="#353A3E"/><path d="M46 0v100M54 0v100" stroke="#E8B83A" stroke-width="3.4"/><path d="M14 0v100M86 0v100" stroke="#E0E0E0" stroke-width="2"/></symbol>
+    <symbol id="fig-zz" viewBox="0 0 100 100"><rect width="100" height="100" fill="#353A3E"/><path d="M20 0l-8 10 8 10-8 10 8 10-8 10 8 10-8 10 8 10-8 10 8 10M80 0l8 10-8 10 8 10-8 10 8 10-8 10 8 10-8 10 8 10-8 10" fill="none" stroke="#fff" stroke-width="2.6"/></symbol>
+    <symbol id="fig-bl" viewBox="0 0 100 100"><rect width="100" height="100" fill="#353A3E"/><path d="M30 0v100M70 0v100" stroke="#5E8FD8" stroke-width="4"/><path d="M8 0v100M92 0v100" stroke="#E0E0E0" stroke-width="2"/></symbol>
+    <!-- 선 기호(보기용) -->
+    <symbol id="ar-l" viewBox="0 0 24 24"><path d="M15 20v-8a3 3 0 0 0-3-3H6M9 6L6 9l3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="ar-s" viewBox="0 0 24 24"><path d="M12 20V5M8.5 8.5L12 5l3.5 3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="ar-r" viewBox="0 0 24 24"><path d="M9 20v-8a3 3 0 0 1 3-3h6M15 6l3 3-3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="ar-sl" viewBox="0 0 24 24"><path d="M14 20V5M10.5 8.5L14 5l3.5 3.5M14 15a4 4 0 0 0-4-4H6M8.5 8.5L6 11l2.5 2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <!-- 코스 지도 -->
+    <symbol id="course" viewBox="0 0 150 104"><path d="M28 86V30h34v18h50v38H62" fill="none" stroke="#E0E0E0" stroke-width="3.4" stroke-linejoin="round"/><path d="M40 30v-9M48 30v-9M56 30v-9" stroke="#E0E0E0" stroke-width="1.6"/><circle cx="62" cy="86" r="5" fill="#F2C230"/></symbol>
+    <symbol id="course-n" viewBox="0 0 150 104"><path d="M28 86V30h34v18h50v38H62" fill="none" stroke="#E0E0E0" stroke-width="3.4" stroke-linejoin="round"/><path d="M40 30v-9M48 30v-9M56 30v-9" stroke="#E0E0E0" stroke-width="1.6"/><circle cx="62" cy="86" r="4.4" fill="none" stroke="#E0E0E0" stroke-width="1.6"/></symbol>
+    <!-- V4 차(위에서) -->
+    <symbol id="car4" viewBox="0 0 44 76"><g fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"><rect x="6" y="3" width="32" height="70" rx="12"/><path d="M11 24L15 16H29L33 24Z"/><path d="M12 58L15 63H29L32 58Z"/></g><g fill="currentColor"><rect x="1.5" y="14" width="5" height="11" rx="2.5"/><rect x="37.5" y="14" width="5" height="11" rx="2.5"/><rect x="1.5" y="52" width="5" height="11" rx="2.5"/><rect x="37.5" y="52" width="5" height="11" rx="2.5"/></g></symbol>
+    <symbol id="gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  </defs>
+</svg>
+<div class="page">
+
+<header class="head">
+  <h1>5 · 지식 퀴즈 · 제휴 시험장 · 준비실과 관리자 띠 — 새 컨셉으로 처음부터 다시 짓기</h1>
+  <p class="lead">라운드 27 에서 고른 세 화면(<b>2 문장 시트</b> · <b>6 전 → 후 쌍 알약</b> · <b>H8 흰 벽 홈</b>)의 말투만으로, 남은 정차 화면 셋을 화면마다 일곱 가지로 다시 그렸다. 색만 바꾼 게 아니라 <b>배치 · 구성 요소 · 정보 위계 · 움직임</b>이 안마다 다르다. 퀴즈·시험장은 운전자가 보는 정차 화면이라 기준 문법을 그대로 쓰고, 준비실·관리자 띠는 <b>시연 전용</b>이라 일부러 한 단계 낮은 목소리(작은 글자 · 테두리만 · 그림자 없음 · DEMO 표식)로 그렸다.</p>
+  <div class="chipline">
+    <span class="k">큰 목업 = 2560×1268 dp 의 1/3 (853×423) · 오른쪽 작은 목업 = 같은 화면의 다른 상태(약 1/8) · 실제 화면은 큰 목업의 약 3배</span>
+    <span>프레임 띠 = 0 · 1/3 · 2/3 · 끝 · 같은 움직임의 실시간 판은 @keyframes</span>
+    <span>숫자·영문: Segoe UI Variable Display / Bahnschrift 흉내 — 앱 글꼴 후보 Roboto Flex 또는 OFL 그로테스크</span>
+  </div>
+  <div class="rules">
+    <div><b>말투 (기준 세 화면에서)</b>연회색 그라데이션 바탕 · 흰 둥근 카드 · 누를 수 있는 낱말 = <span class="wp" style="font-size:12px">흰 알약</span> · 고른 것 = <span class="kp" style="font-size:12px">검은 알약</span> · 노란 원 아이콘 알약은 <b>화면마다 한 곳</b> · 결과 판은 Onyx + 테두리/채운 큰 숫자 알약.</div>
+    <div><b>숫자</b>퀴즈 문항 번호(02 / 06)·결과의 맞힌 수, 시험장의 거리·시간은 명시 예외(D1). 해설·총평 <b>문장</b>에는 숫자 0 — "이유까지 기억하면 충분해요."</div>
+    <div><b>정직성</b>시험장은 모든 안에서 <span class="dot sim"></span> "예시입니다 — 실제 예약 연계 없음" 을 <b>예약 버튼과 같은 눈높이</b>에 둔다. 준비실은 신호 출처 · AI 코치 상태를 첫 화면에 그대로.</div>
+    <div><b>움직임</b>낱말·보기 누름 = 원 번짐(A1 360 ms) · 고름 = 미끄러지는 돌(B1 280 ms) · 해설·선택지 카드 = 아래에서 올라와 겹침(C1 420 ms). 모두 0 km/h 화면 — 5 km/h 를 넘으면 지금처럼 잠금(카드 모두 닫힘).</div>
+  </div>
+</header>
+
+<style>
+.opt.pill{border-radius:28px;box-shadow:0 2px 0 #222,0 8px 12px -6px rgba(0,0,0,.2)}
+.opt.pill.on{box-shadow:0 12px 18px -8px rgba(0,0,0,.6)}
+.opt.pill.x{box-shadow:none}
+.opt .ic{width:26px;height:26px;flex:none}
+.rv *{position:static}
+.rv .r{display:flex;align-items:center;gap:10px;height:33px;border-bottom:1px solid rgba(34,37,38,.08);font-size:14px;white-space:nowrap}
+.rv .t{width:24px;height:24px;border-radius:7px;overflow:hidden;flex:none}
+.rv .t svg{width:24px;height:24px;display:block}
+.rv .no{font-family:var(--num);font-size:12px;color:var(--mu);width:18px}
+.rv .a{color:var(--mu)}
+.rv .ok{margin-left:auto;width:22px;height:22px;border-radius:50%;background:var(--chip);display:flex;align-items:center;justify-content:center}
+.rv .ng{margin-left:auto;width:22px;height:22px;border-radius:50%;background:var(--onyx);color:#fff;display:flex;align-items:center;justify-content:center}
+.rv .ex{font-size:12.5px;color:#4a4e51;padding:4px 0 6px 52px;border-bottom:1px solid rgba(34,37,38,.08);white-space:normal}
+.dk .rv .r,.dk .rv .ex{border-bottom-color:rgba(224,224,224,.12)}
+.dk .rv .a,.dk .rv .no{color:var(--ash)}
+.dk .rv .ex{color:var(--ash)}
+.dk .rv .ok{background:var(--graphite);color:var(--platinum)}
+.dk .rv .ng{background:var(--platinum);color:var(--onyx)}
+.m5{position:relative;width:290px;height:144px;overflow:hidden;border-radius:6px}
+.m5 > .scr{transform:scale(.33998);transform-origin:0 0}
+.strip5{display:grid;grid-template-columns:repeat(5,290px);gap:14px;margin-top:14px}
+.oo{border:1.5px solid rgba(224,224,224,.55);color:var(--platinum);border-radius:28px;height:52px;display:flex;align-items:center;gap:12px;padding:0 18px;font-size:17px;white-space:nowrap}
+.oo b{font-weight:400;font-family:var(--num);font-size:13px;color:var(--ash);width:16px}
+.oo.f{background:var(--platinum);color:var(--onyx);border-color:var(--platinum)}
+.oo.f b{color:var(--onyx)}
+.oo.x{color:#6f7376;border-color:rgba(224,224,224,.2)}
+.oo.x span{text-decoration:line-through}
+.hcol{display:grid;grid-template-columns:repeat(4,1fr)}
+.hcol *{position:static}
+.hcol>div{border-left:1px solid rgba(34,37,38,.18);padding:10px 14px;height:96px;position:relative;font-size:19px;white-space:nowrap}
+.hcol>div:first-child{border-left:none;padding-left:0}
+.hcol .n{font-family:var(--num);font-size:12px;color:var(--mu);display:block;margin-bottom:4px}
+.hcol .go{position:absolute;right:12px;bottom:10px;width:30px;height:30px;border-radius:50%;border:1.5px solid var(--onyx);display:flex;align-items:center;justify-content:center;font-size:14px}
+</style>
+
+<section class="sec">
+  <div class="sh"><span class="L">A</span><div><h2>지식 퀴즈 — 문항 · 해설 · 결과</h2><p>점검 분류의 "도로 표시 읽기"(문항마다 바닥 그림) · 지식 분류의 퀴즈 둘 다 같은 화면을 쓴다. 문항 번호는 숫자 허용(02 / 06), 해설 문장은 숫자 없이. 해설 카드는 <b>아래에서 올라와 보기 아랫줄을 덮는다</b>(C1).</p></div></div>
+  <div class="data"><b>모든 안 같은 데이터</b>점검 › 도로 표시 읽기 · 2번째 문항 / 6 · "이 화살표가 그려진 차로에서 갈 수 있는 방향은?" · 그림 = 직진·좌회전 갈라진 화살표 · 보기 좌회전만 / 직진과 좌회전 / 우회전만 / 직진만 · 고른 답 <u>좌회전만</u>(틀림) · 정답 직진과 좌회전 · 해설 "화살표가 둘로 갈라지면 두 방향 다 갈 수 있어요. 직진도 좌회전도 이 차로에서 해요." · 결과 6 중 5 · 그만하기 · 다음 문제 → · 메인으로 → <span style="color:#6b6f72">(시드는 지금 3지선다 — 4번째 보기는 문구 작업(Codex). 모든 안이 3개일 때도 같은 배치로 선다.)</span></div>
+
+<!-- ================= Q1 ================= -->
+<section class="prop">
+  <div class="ph"><span class="no">Q1</span><div><h3>문장 시트 문항 <span class="eff">공수 중간</span></h3><p class="one">문항이 곧 큰 문장(노란 원 화살표 알약 하나), 보기는 문장 속 낱말과 같은 <b>흰 알약 + 아래 그림자</b> 넷. 고르면 문장이 위로 줄고 해설 흰 카드가 올라온다 — 과제 시트와 같은 손맛.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>문항</b>고르기 전</p>
+      <div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="eb" style="left:200px;top:22px">점검 › 도로 표시 읽기</div>
+        <div class="num" style="right:28px;top:18px;font-size:30px">02<span style="font-size:15px;color:var(--mu);margin-left:5px;letter-spacing:0">/ 06</span></div>
+        <div class="fig" style="left:28px;top:62px;width:150px;height:196px"><svg><use href="#fig-sl"/></svg></div>
+        <div class="eb" style="left:28px;top:264px">도로 표시 그림</div>
+        <div class="sent" style="left:200px;top:56px;width:630px;font-size:36px;line-height:50px">이 <span class="ip"><svg><use href="#y-arrow"/></svg></span> 화살표가 그려진 차로에서<br><span class="gw">갈 수 있는 방향은?</span></div>
+        <div style="left:200px;top:178px;width:625px;display:grid;grid-template-columns:1fr 1fr;gap:12px 14px">
+          <div class="opt pill"><b>1</b>좌회전만</div>
+          <div class="opt pill"><b>2</b>직진과 좌회전</div>
+          <div class="opt pill"><b>3</b>우회전만</div>
+          <div class="opt pill"><b>4</b>직진만</div>
+        </div>
+        <div style="left:28px;top:358px"><div class="btng"><i>✕</i>그만하기</div></div>
+        <div style="left:200px;top:366px;display:flex;gap:8px"><span class="lkp w">맞은 문제 1</span><span class="lkp">답을 누르면 해설이 올라와요</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="smalls">
+        <div><p class="cap"><b>해설</b>좌회전만 고름 → 카드 올라옴</p><div class="sm"><div class="scr">
+          <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+          <div class="num" style="right:28px;top:18px;font-size:30px">02<span style="font-size:15px;color:var(--mu);margin-left:5px">/ 06</span></div>
+          <div class="fig" style="left:28px;top:56px;width:84px;height:110px"><svg><use href="#fig-sl"/></svg></div>
+          <div class="sent" style="left:132px;top:52px;width:560px;font-size:26px;line-height:36px">이 <span class="ip"><svg><use href="#y-arrow"/></svg></span> 화살표가 그려진 차로에서 <span class="gw">갈 수 있는 방향은?</span></div>
+          <div style="left:132px;top:130px;width:690px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+            <div class="opt pill x" style="height:46px;font-size:15px"><b>1</b><span>좌회전만</span></div>
+            <div class="opt pill on" style="height:46px;font-size:15px"><b>2</b>직진과 좌회전</div>
+            <div class="opt pill dim" style="height:46px;font-size:15px"><b>3</b>우회전만</div>
+            <div class="opt pill dim" style="height:46px;font-size:15px"><b>4</b>직진만</div>
+          </div>
+          <div class="wc" style="left:16px;top:196px;width:821px;height:240px;padding:20px 26px">
+            <div style="display:flex;align-items:center;gap:10px"><span class="chipf on" style="height:30px;font-size:13px">정답 · 직진과 좌회전</span><span class="eb">해설</span></div>
+            <p style="font-size:26px;font-weight:500;margin-top:12px;letter-spacing:-.01em">화살표가 둘로 갈라지면 <span class="gw">두 방향 다 갈 수 있어요.</span></p>
+            <p style="font-size:17px;color:#4a4e51;margin-top:6px">직진도 좌회전도 이 차로에서 해요.</p>
+            <div class="btnk" style="width:240px;margin:20px 0 0 auto">다음 문제 →</div>
+          </div>
+        </div></div></div>
+        <div><p class="cap"><b>결과</b>문장 + 흰 카드 복습</p><div class="sm"><div class="scr">
+          <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+          <div class="eb" style="left:28px;top:70px">점검 › 도로 표시 읽기 · 지식 테스트</div>
+          <div class="sent" style="left:28px;top:96px;width:330px;font-size:40px;line-height:54px">이유까지<br>기억하면<br><span class="gw">충분해요.</span></div>
+          <div style="left:28px;top:274px;display:flex;align-items:center;gap:10px"><span class="kp" style="font-size:22px;padding:6px 18px;font-family:var(--num)">05 / 06</span><span class="eb">맞힌 문제</span></div>
+          <div class="wc rv" style="left:384px;top:24px;width:446px;height:326px;padding:10px 20px">
+            <div class="r"><span class="no">01</span><span class="t"><svg><use href="#fig-l"/></svg></span>좌회전 화살표 <span class="a">· 좌회전만</span><span class="ok"><svg width="12" height="12"><use href="#tick"/></svg></span></div>
+            <div class="r"><span class="no">02</span><span class="t"><svg><use href="#fig-sl"/></svg></span><s class="a">좌회전만</s> → 직진과 좌회전<span class="ng"><svg width="11" height="11"><use href="#cross"/></svg></span></div>
+            <div class="ex">화살표가 둘로 갈라지면 두 방향 다 갈 수 있어요.</div>
+            <div class="r"><span class="no">03</span><span class="t"><svg><use href="#fig-ws"/></svg></span>흰색 실선 <span class="a">· 바꾸지 않아요</span><span class="ok"><svg width="12" height="12"><use href="#tick"/></svg></span></div>
+            <div class="r"><span class="no">04</span><span class="t"><svg><use href="#fig-yc"/></svg></span>노란 실선 <span class="a">· 중앙선</span><span class="ok"><svg width="12" height="12"><use href="#tick"/></svg></span></div>
+            <div class="r"><span class="no">05</span><span class="t"><svg><use href="#fig-zz"/></svg></span>지그재그 선 <span class="a">· 서행</span><span class="ok"><svg width="12" height="12"><use href="#tick"/></svg></span></div>
+            <div class="r" style="border:none"><span class="no">06</span><span class="t"><svg><use href="#fig-bl"/></svg></span>파란 선 <span class="a">· 버스전용</span><span class="ok"><svg width="12" height="12"><use href="#tick"/></svg></span></div>
+          </div>
+          <div class="btnk" style="left:584px;top:362px;width:246px">메인으로 →</div>
+        </div></div></div>
+      </div>
+      <div class="notes">
+        <h4>장점</h4>
+        <ul><li>과제 시트(문장 시트)와 <b>같은 부품</b> — 흰 알약 · 검은 알약 · 노란 원 하나 · 올라오는 흰 카드. 새로 배울 게 없다.</li><li>해설 카드가 보기 아랫줄을 덮어 "다음으로" 가 자연스럽고, 정답(검은 알약)은 덮이지 않는다.</li></ul>
+        <h4>주의점</h4>
+        <ul><li>공수 중간 — 문장 줄어듦 + 카드 올라옴 두 움직임. 계측 테스트는 "다음 문제" 를 카드가 다 선 뒤 찾는다.</li><li>문항이 길면(노란 실선 문항) 36 px 두 줄 넘침 → 30 px 한 단계.</li><li>틀림은 빨강 없이 줄 긋기 + 회색. 정직성 대상 없음.</li></ul>
+      </div>
+    </div>
+  </div>
+  <div class="strip5">
+    <div><p class="fl"><b>0</b>고르기 전</p><div class="m5"><div class="scr">
+      <div class="fig" style="left:28px;top:62px;width:150px;height:196px"><svg><use href="#fig-sl"/></svg></div>
+      <div class="sent" style="left:200px;top:56px;width:630px;font-size:36px;line-height:50px">이 화살표가 그려진 차로에서<br><span class="gw">갈 수 있는 방향은?</span></div>
+      <div style="left:200px;top:178px;width:625px;display:grid;grid-template-columns:1fr 1fr;gap:12px 14px"><div class="opt pill"><b>1</b>좌회전만</div><div class="opt pill"><b>2</b>직진과 좌회전</div><div class="opt pill"><b>3</b>우회전만</div><div class="opt pill"><b>4</b>직진만</div></div>
+    </div></div></div>
+    <div><p class="fl"><b>1/3</b>누름 — 원 번짐(A1)</p><div class="m5"><div class="scr">
+      <div class="fig" style="left:28px;top:62px;width:150px;height:196px"><svg><use href="#fig-sl"/></svg></div>
+      <div class="sent" style="left:200px;top:56px;width:630px;font-size:36px;line-height:50px">이 화살표가 그려진 차로에서<br><span class="gw">갈 수 있는 방향은?</span></div>
+      <div style="left:200px;top:178px;width:625px;display:grid;grid-template-columns:1fr 1fr;gap:12px 14px"><div class="opt pill" style="background:radial-gradient(circle at 30px 28px,#d9d9d9 0 60px,#fff 61px)"><b>1</b>좌회전만</div><div class="opt pill"><b>2</b>직진과 좌회전</div><div class="opt pill"><b>3</b>우회전만</div><div class="opt pill"><b>4</b>직진만</div></div>
+    </div></div></div>
+    <div><p class="fl"><b>2/3</b>정답 검게 · 문장 줄며 카드 반쯤</p><div class="m5"><div class="scr">
+      <div class="fig" style="left:28px;top:58px;width:110px;height:150px"><svg><use href="#fig-sl"/></svg></div>
+      <div class="sent" style="left:160px;top:52px;width:630px;font-size:30px;line-height:42px">이 화살표가 그려진 차로에서<br><span class="gw">갈 수 있는 방향은?</span></div>
+      <div style="left:160px;top:150px;width:665px;display:grid;grid-template-columns:1fr 1fr;gap:12px 14px"><div class="opt pill x"><b>1</b><span>좌회전만</span></div><div class="opt pill on"><b>2</b>직진과 좌회전</div><div class="opt pill dim"><b>3</b>우회전만</div><div class="opt pill dim"><b>4</b>직진만</div></div>
+      <div class="wc" style="left:16px;top:300px;width:821px;height:240px"></div>
+    </div></div></div>
+    <div><p class="fl"><b>끝</b>해설 카드 다 섬(420 ms)</p><div class="m5"><div class="scr">
+      <div class="fig" style="left:28px;top:56px;width:84px;height:110px"><svg><use href="#fig-sl"/></svg></div>
+      <div class="sent" style="left:132px;top:52px;width:560px;font-size:26px;line-height:36px">이 화살표가 그려진 차로에서 <span class="gw">갈 수 있는 방향은?</span></div>
+      <div style="left:132px;top:130px;width:690px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px"><div class="opt pill x" style="height:46px;font-size:15px"><b>1</b><span>좌회전만</span></div><div class="opt pill on" style="height:46px;font-size:15px"><b>2</b>직진과 좌회전</div><div class="opt pill dim" style="height:46px;font-size:15px"><b>3</b>우회전만</div><div class="opt pill dim" style="height:46px;font-size:15px"><b>4</b>직진만</div></div>
+      <div class="wc" style="left:16px;top:196px;width:821px;height:240px;padding:20px 26px"><p style="font-size:26px;font-weight:500">화살표가 둘로 갈라지면 <span class="gw">두 방향 다 갈 수 있어요.</span></p><div class="btnk" style="width:240px;margin:60px 0 0 auto">다음 문제 →</div></div>
+    </div></div></div>
+    <div><p class="fl"><b>live</b>실시간(@keyframes · 5초 반복)</p><div class="m5 liveQ"><div class="scr">
+      <div class="fig" style="left:28px;top:62px;width:150px;height:196px"><svg><use href="#fig-sl"/></svg></div>
+      <div class="sq" style="left:200px;top:56px;width:630px"><div class="sent" style="font-size:36px;line-height:50px">이 화살표가 그려진 차로에서<br><span class="gw">갈 수 있는 방향은?</span></div></div>
+      <div style="left:200px;top:178px;width:625px;display:grid;grid-template-columns:1fr 1fr;gap:12px 14px"><div class="opt pill px"><b>1</b>좌회전만</div><div class="opt pill pk"><b>2</b>직진과 좌회전</div><div class="opt pill"><b>3</b>우회전만</div><div class="opt pill"><b>4</b>직진만</div></div>
+      <div class="wc ex" style="left:16px;top:230px;width:821px;height:240px;padding:20px 26px"><p style="font-size:26px;font-weight:500">화살표가 둘로 갈라지면 <span class="gw">두 방향 다 갈 수 있어요.</span></p><div class="btnk" style="width:240px;margin:40px 0 0 auto">다음 문제 →</div></div>
+    </div></div></div>
+  </div>
+</section>
+
+<!-- ================= Q2 ================= -->
+<section class="prop">
+  <div class="ph"><span class="no">Q2</span><div><h3>왼쪽 큰 번호 판 + 흰 보기 목록 <span class="eff s">공수 작음</span></h3><p class="one">지금 퀴즈의 뼈대(왼쪽 어두운 판 · 오른쪽 문항)를 그대로 두고 왼쪽 판에 거대한 02 와 그림을, 오른쪽 보기를 흰 둥근 줄 넷으로. 해설은 오른쪽 단만 덮는 카드.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>문항</b>고르기 전</p>
+      <div class="scr">
+        <div style="left:0;top:0;width:250px;height:423px;background:var(--onyx);color:var(--platinum)"></div>
+        <div class="wm" style="left:28px;top:24px;color:var(--platinum)">DRIVE COACH</div>
+        <div class="up" style="left:28px;top:62px;color:var(--ash)">QUESTION</div>
+        <div class="num" style="left:24px;top:78px;font-size:104px;color:#fff">02</div>
+        <div class="num" style="left:150px;top:150px;font-size:20px;color:var(--ash);letter-spacing:0">/ 06</div>
+        <div class="fig" style="left:28px;top:204px;width:194px;height:190px;box-shadow:0 0 0 1px rgba(224,224,224,.18)"><svg><use href="#fig-sl"/></svg></div>
+        <div class="eb" style="left:282px;top:30px">점검 › 도로 표시 읽기</div>
+        <div class="sent" style="left:282px;top:52px;width:550px;font-size:30px;line-height:42px">이 화살표가 그려진 차로에서<br><span class="gw">갈 수 있는 방향은?</span></div>
+        <div style="left:282px;top:146px;width:548px;display:flex;flex-direction:column;gap:8px">
+          <div class="opt" style="height:46px"><b>1</b>좌회전만</div>
+          <div class="opt" style="height:46px"><b>2</b>직진과 좌회전</div>
+          <div class="opt" style="height:46px"><b>3</b>우회전만</div>
+          <div class="opt" style="height:46px"><b>4</b>직진만</div>
+        </div>
+        <div style="left:282px;top:366px"><div class="btng"><i>✕</i>그만하기</div></div>
+        <div style="left:744px;top:376px" class="eb">맞은 문제 1</div>
+      </div>
+    </div>
+    <div>
+      <div class="smalls">
+        <div><p class="cap"><b>해설</b>오른쪽 단만 덮는 카드</p><div class="sm"><div class="scr">
+          <div style="left:0;top:0;width:250px;height:423px;background:var(--onyx)"></div>
+          <div class="num" style="left:24px;top:78px;font-size:104px;color:#fff">02</div>
+          <div class="fig" style="left:28px;top:204px;width:194px;height:190px"><svg><use href="#fig-sl"/></svg></div>
+          <div class="sent" style="left:282px;top:52px;width:550px;font-size:30px;line-height:42px">이 화살표가 그려진 차로에서<br><span class="gw">갈 수 있는 방향은?</span></div>
+          <div style="left:282px;top:146px;width:548px;display:flex;flex-direction:column;gap:8px">
+            <div class="opt x" style="height:46px"><b>1</b><span>좌회전만</span><span class="r"><svg width="16" height="16"><use href="#cross"/></svg></span></div>
+            <div class="opt on" style="height:46px"><b>2</b>직진과 좌회전<span class="r"><svg width="16" height="16"><use href="#tick"/></svg></span></div>
+          </div>
+          <div class="wc" style="left:266px;top:254px;width:580px;height:190px;padding:18px 22px">
+            <p style="font-size:22px;font-weight:500">화살표가 둘로 갈라지면 <span class="gw">두 방향 다 갈 수 있어요.</span></p>
+            <p style="font-size:16px;color:#4a4e51;margin-top:4px">직진도 좌회전도 이 차로에서 해요.</p>
+            <div class="btnk" style="width:220px;margin:14px 0 0 auto">다음 문제 →</div>
+          </div>
+        </div></div></div>
+        <div><p class="cap"><b>결과</b>왼쪽 판에 맞힌 수</p><div class="sm"><div class="scr">
+          <div style="left:0;top:0;width:250px;height:423px;background:var(--onyx)"></div>
+          <div class="up" style="left:28px;top:62px;color:var(--ash)">CORRECT</div>
+          <div class="num" style="left:24px;top:80px;font-size:104px;color:#fff">05</div>
+          <div class="num" style="left:150px;top:152px;font-size:20px;color:var(--ash);letter-spacing:0">/ 06</div>
+          <div class="eb" style="left:282px;top:30px">점검 › 도로 표시 읽기 · 지식 테스트</div>
+          <div class="sent" style="left:282px;top:52px;width:550px;font-size:30px;line-height:42px">이유까지 기억하면 <span class="gw">충분해요.</span></div>
+          <div class="wc rv" style="left:282px;top:110px;width:548px;height:236px;padding:6px 18px">
+            <div class="r"><span class="no">01</span><span class="t"><svg><use href="#fig-l"/></svg></span>좌회전 화살표<span class="ok"><svg width="12" height="12"><use href="#tick"/></svg></span></div>
+            <div class="r"><span class="no">02</span><span class="t"><svg><use href="#fig-sl"/></svg></span><s class="a">좌회전만</s> → 직진과 좌회전<span class="ng"><svg width="11" height="11"><use href="#cross"/></svg></span></div>
+            <div class="r"><span class="no">03</span><span class="t"><svg><use href="#fig-ws"/></svg></span>흰색 실선<span class="ok"><svg width="12" height="12"><use href="#tick"/></svg></span></div>
+            <div class="r"><span class="no">04</span><span class="t"><svg><use href="#fig-yc"/></svg></span>노란 실선<span class="ok"><svg width="12" height="12"><use href="#tick"/></svg></span></div>
+            <div class="r"><span class="no">05</span><span class="t"><svg><use href="#fig-zz"/></svg></span>지그재그 선<span class="ok"><svg width="12" height="12"><use href="#tick"/></svg></span></div>
+            <div class="r" style="border:none"><span class="no">06</span><span class="t"><svg><use href="#fig-bl"/></svg></span>파란 선<span class="ok"><svg width="12" height="12"><use href="#tick"/></svg></span></div>
+          </div>
+          <div class="btnk" style="left:600px;top:362px;width:230px">메인으로 →</div>
+        </div></div></div>
+      </div>
+      <div class="notes">
+        <h4>장점</h4>
+        <ul><li><b>가장 싸다</b> — 지금 QuizScreen 배치 그대로, 왼쪽 판의 호(arc)를 그림 칸으로 · 보기 줄을 흰 카드로 바꾸는 정도.</li><li>그림이 어두운 판 안에서 크게 서서 "도로 표시" 가 잘 읽힌다.</li></ul>
+        <h4>주의점</h4>
+        <ul><li>새 컨셉의 "올라오는 카드 · 흰 알약" 느낌은 약하다 — 사용자가 아쉬워한 "색만 바뀜" 에 가장 가깝다.</li><li>지식 분류(그림 없음) 문항에선 왼쪽 판 아래가 빈다 → 노란 원 기호 하나로 채움.</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Q3 ================= -->
+<section class="prop">
+  <div class="ph"><span class="no">Q3</span><div><h3>그림이 주인공 <span class="eff">공수 중간</span></h3><p class="one">도로 표시 그림을 화면 왼쪽 반의 큰 카드로. 보기 넷은 어두운 둥근 타일 속 흰 선 기호(E1) + 이름 — 글을 읽기 전에 모양으로 고른다. 결과는 여섯 그림의 격자.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>문항</b>고르기 전</p>
+      <div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="wc" style="left:28px;top:50px;width:356px;height:350px;padding:12px">
+          <div class="fig" style="width:332px;height:326px"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><use href="#fig-sl"/></svg></div>
+        </div>
+        <span class="lkp w" style="left:42px;top:64px;font-family:var(--num)">02 / 06</span>
+        <div class="eb" style="left:412px;top:50px">점검 › 도로 표시 읽기</div>
+        <div class="sent" style="left:412px;top:70px;width:420px;font-size:30px;line-height:42px">이 화살표가 그려진<br>차로에서 <span class="gw">갈 수 있는<br>방향은?</span></div>
+        <div style="left:412px;top:206px;width:418px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="tile" style="display:flex;align-items:center;gap:10px;height:64px"><span class="et"><svg><use href="#ar-l"/></svg></span><span style="font-size:16px">좌회전만</span></div>
+          <div class="tile" style="display:flex;align-items:center;gap:10px;height:64px"><span class="et"><svg><use href="#ar-sl"/></svg></span><span style="font-size:16px">직진과<br>좌회전</span></div>
+          <div class="tile" style="display:flex;align-items:center;gap:10px;height:64px"><span class="et"><svg><use href="#ar-r"/></svg></span><span style="font-size:16px">우회전만</span></div>
+          <div class="tile" style="display:flex;align-items:center;gap:10px;height:64px"><span class="et"><svg><use href="#ar-s"/></svg></span><span style="font-size:16px">직진만</span></div>
+        </div>
+        <div style="left:412px;top:358px"><div class="btng"><i>✕</i>그만하기</div></div>
+        <div style="left:580px;top:368px" class="eb">맞은 문제 1</div>
+      </div>
+    </div>
+    <div>
+      <div class="smalls">
+        <div><p class="cap"><b>해설</b>정답 기호가 그림 위에 겹쳐 그려짐</p><div class="sm"><div class="scr">
+          <div class="wc" style="left:28px;top:50px;width:356px;height:350px;padding:12px"><div class="fig" style="width:332px;height:326px;position:relative"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><use href="#fig-sl"/></svg></div></div>
+          <svg style="left:120px;top:100px" width="180" height="220" viewBox="0 0 24 24"><path d="M14 20V5M14 15a4 4 0 0 0-4-4H6" fill="none" stroke="#F2C230" stroke-width=".8" stroke-dasharray="1.4 1"/></svg>
+          <div style="left:412px;top:40px;width:418px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="tile" style="display:flex;align-items:center;gap:10px;height:64px;background:#E9E9E9;color:#8a8d90"><span class="et" style="background:#bdbdbd"><svg><use href="#ar-l"/></svg></span><s style="font-size:16px">좌회전만</s></div>
+            <div class="tile on" style="display:flex;align-items:center;gap:10px;height:64px"><span class="et" style="background:#fff;color:#111"><svg><use href="#ar-sl"/></svg></span><span style="font-size:16px">직진과 좌회전</span></div>
+          </div>
+          <div class="wc" style="left:398px;top:124px;width:446px;height:320px;padding:18px 22px">
+            <span class="eb">해설</span>
+            <p style="font-size:22px;font-weight:500;margin-top:4px;line-height:1.35">화살표가 둘로 갈라지면<br><span class="gw">두 방향 다 갈 수 있어요.</span></p>
+            <p style="font-size:15px;color:#4a4e51;margin-top:6px">직진도 좌회전도 이 차로에서 해요.</p>
+            <div class="btnk" style="width:220px;margin:20px 0 0 auto">다음 문제 →</div>
+          </div>
+        </div></div></div>
+        <div><p class="cap"><b>결과</b>여섯 그림 격자 · 틀린 칸만 검게</p><div class="sm"><div class="scr">
+          <div class="eb" style="left:28px;top:40px">점검 › 도로 표시 읽기</div>
+          <div class="sent" style="left:28px;top:62px;width:270px;font-size:36px;line-height:48px">이유까지<br>기억하면<br><span class="gw">충분해요.</span></div>
+          <div style="left:28px;top:232px;display:flex;align-items:baseline;gap:8px"><span class="num" style="font-size:64px">05</span><span class="num" style="font-size:20px;color:var(--mu)">/ 06 맞힘</span></div>
+          <div style="left:312px;top:24px;width:518px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+            <div class="tile" style="height:150px;padding:8px"><div class="fig" style="height:100px;border-radius:12px"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><use href="#fig-l"/></svg></div><p style="font-size:13px;margin-top:6px">좌회전 화살표 ✓</p></div>
+            <div class="tile on" style="height:150px;padding:8px"><div class="fig" style="height:100px;border-radius:12px"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><use href="#fig-sl"/></svg></div><p style="font-size:13px;margin-top:6px">직진과 좌회전 — 다시 보기</p></div>
+            <div class="tile" style="height:150px;padding:8px"><div class="fig" style="height:100px;border-radius:12px"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><use href="#fig-ws"/></svg></div><p style="font-size:13px;margin-top:6px">흰색 실선 ✓</p></div>
+            <div class="tile" style="height:150px;padding:8px"><div class="fig" style="height:100px;border-radius:12px"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><use href="#fig-yc"/></svg></div><p style="font-size:13px;margin-top:6px">노란 실선 ✓</p></div>
+            <div class="tile" style="height:150px;padding:8px"><div class="fig" style="height:100px;border-radius:12px"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><use href="#fig-zz"/></svg></div><p style="font-size:13px;margin-top:6px">지그재그 선 ✓</p></div>
+            <div class="tile" style="height:150px;padding:8px"><div class="fig" style="height:100px;border-radius:12px"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><use href="#fig-bl"/></svg></div><p style="font-size:13px;margin-top:6px">파란 선 ✓</p></div>
+          </div>
+          <div class="btnk" style="left:600px;top:362px;width:230px">메인으로 →</div>
+        </div></div></div>
+      </div>
+      <div class="notes">
+        <h4>장점</h4>
+        <ul><li>"도로 표시 읽기" 의 본질 = 그림. 그림이 1/2 화면 크기라 운전석에서도 선 굵기·색이 읽힌다.</li><li>보기 기호(E1 타일)는 과제 타일과 같은 문법 — 결과 격자도 과제 시트의 네 칸과 한 가족.</li></ul>
+        <h4>주의점</h4>
+        <ul><li>공수 중간 — 보기마다 기호가 필요(방향 넷은 있음). 지식 분류(비상등·날씨) 문항은 기호가 없어 이름만 → 타일이 비어 보임.</li><li>해설 때 정답 경로를 그림 위에 노란 점선으로 — 노란색 두 곳이 되지 않게 문장 속 알약은 뺀다.</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Q4 ================= -->
+<section class="prop">
+  <div class="ph"><span class="no">Q4</span><div><h3>겹친 문항 덱 + 보기 트랙 <span class="eff">공수 중간</span></h3><p class="one">문항 여섯 = 카드 여섯 장의 더미. 남은 문항은 뒤 카드 가장자리로 보여 진행이 숫자 없이도 보인다. 보기는 흰 트랙 하나의 네 칸 — 고르면 검은 돌이 미끄러져 와 선다(B1).</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>문항</b>고르기 전 · 뒤에 남은 네 장</p>
+      <div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="eb" style="left:28px;top:60px">점검 ›<br>도로 표시 읽기</div>
+        <div class="num" style="left:28px;top:120px;font-size:56px">02</div>
+        <div class="num" style="left:28px;top:178px;font-size:18px;color:var(--mu);letter-spacing:0">/ 06</div>
+        <div style="left:28px;top:358px"><div class="btng"><i>✕</i>그만하기</div></div>
+        <div class="wc back" style="left:250px;top:20px;width:520px;height:330px;transform:translate(48px,-2px)"></div>
+        <div class="wc back" style="left:220px;top:28px;width:560px;height:330px;transform:translate(36px,0)"></div>
+        <div class="wc back" style="left:200px;top:36px;width:590px;height:330px;transform:translate(24px,0)"></div>
+        <div class="wc back" style="left:186px;top:44px;width:610px;height:330px;transform:translate(12px,0)"></div>
+        <div class="wc" style="left:176px;top:54px;width:620px;height:350px;padding:20px 22px;box-shadow:0 18px 30px -12px rgba(0,0,0,.3)">
+          <div style="display:flex;gap:18px">
+            <div class="fig" style="width:136px;height:170px;flex:none"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><use href="#fig-sl"/></svg></div>
+            <p class="sent" style="font-size:30px;line-height:42px;margin-top:8px">이 <span class="ip"><svg><use href="#y-arrow"/></svg></span> 화살표가 그려진 차로에서<br><span class="gw">갈 수 있는 방향은?</span></p>
+          </div>
+          <div class="trk" style="margin-top:22px;padding:5px"><span style="height:66px;line-height:66px;font-size:16px;color:var(--onyx)">좌회전만</span><span style="height:66px;line-height:66px;font-size:16px;color:var(--onyx)">직진과 좌회전</span><span style="height:66px;line-height:66px;font-size:16px;color:var(--onyx)">우회전만</span><span style="height:66px;line-height:66px;font-size:16px;color:var(--onyx)">직진만</span></div>
+        </div>
+        <div class="eb" style="left:826px;top:150px;writing-mode:vertical-rl">남은 문항</div>
+      </div>
+    </div>
+    <div>
+      <div class="smalls">
+        <div><p class="cap"><b>해설</b>해설 카드가 덱 맨 위에 한 장 더</p><div class="sm"><div class="scr">
+          <div class="num" style="left:28px;top:120px;font-size:56px">02</div>
+          <div class="wc back" style="left:186px;top:44px;width:610px;height:330px;transform:translate(12px,0)"></div>
+          <div class="wc" style="left:176px;top:30px;width:620px;height:350px;padding:20px 22px;transform:scale(.96);transform-origin:50% 0">
+            <div style="display:flex;gap:18px"><div class="fig" style="width:100px;height:120px;flex:none"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><use href="#fig-sl"/></svg></div><p class="sent" style="font-size:26px;line-height:38px">이 화살표가 그려진 차로에서 <span class="gw">갈 수 있는 방향은?</span></p></div>
+            <div class="trk" style="margin-top:14px;padding:5px"><span class="off" style="height:56px;line-height:56px;font-size:16px">좌회전만</span><span class="on" style="height:56px;line-height:56px;font-size:16px">직진과 좌회전</span><span style="height:56px;line-height:56px;font-size:16px">우회전만</span><span style="height:56px;line-height:56px;font-size:16px">직진만</span></div>
+          </div>
+          <div class="wc" style="left:160px;top:236px;width:652px;height:210px;padding:18px 24px;box-shadow:0 -14px 30px -8px rgba(0,0,0,.25)">
+            <p style="font-size:22px;font-weight:500">화살표가 둘로 갈라지면 <span class="gw">두 방향 다 갈 수 있어요.</span></p>
+            <p style="font-size:16px;color:#4a4e51;margin-top:4px">직진도 좌회전도 이 차로에서 해요.</p>
+            <div class="btnk" style="width:220px;margin:14px 0 0 auto">다음 문제 →</div>
+          </div>
+        </div></div></div>
+        <div><p class="cap"><b>결과</b>덱이 펼쳐져 여섯 장 한 줄</p><div class="sm"><div class="scr">
+          <div class="eb" style="left:28px;top:30px">점검 › 도로 표시 읽기 · 지식 테스트</div>
+          <div class="sent" style="left:28px;top:52px;width:600px;font-size:36px;line-height:48px">이유까지 기억하면 <span class="gw">충분해요.</span></div>
+          <span class="kp" style="left:680px;top:52px;font-size:22px;padding:6px 18px;font-family:var(--num)">05 / 06</span>
+          <div style="left:28px;top:130px;width:800px;display:flex;gap:10px;align-items:flex-start">
+            <div class="wc" style="flex:1;height:150px;padding:8px;box-shadow:0 1px 2px rgba(0,0,0,.08)"><div class="fig" style="height:90px;border-radius:12px"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><use href="#fig-l"/></svg></div><p style="font-size:13px;margin-top:6px">01 ✓</p></div>
+            <div class="wc" style="flex:1.8;height:210px;padding:8px;margin-top:-20px;background:var(--onyx);color:#fff"><div class="fig" style="height:90px;border-radius:12px"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><use href="#fig-sl"/></svg></div><p style="font-size:13px;margin-top:6px;line-height:1.45">02 <s style="color:#8a8d90">좌회전만</s> → 직진과 좌회전<br><span style="color:var(--ash)">두 방향 다 갈 수 있어요.</span></p></div>
+            <div class="wc" style="flex:1;height:150px;padding:8px;box-shadow:0 1px 2px rgba(0,0,0,.08)"><div class="fig" style="height:90px;border-radius:12px"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><use href="#fig-ws"/></svg></div><p style="font-size:13px;margin-top:6px">03 ✓</p></div>
+            <div class="wc" style="flex:1;height:150px;padding:8px;box-shadow:0 1px 2px rgba(0,0,0,.08)"><div class="fig" style="height:90px;border-radius:12px"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><use href="#fig-yc"/></svg></div><p style="font-size:13px;margin-top:6px">04 ✓</p></div>
+            <div class="wc" style="flex:1;height:150px;padding:8px;box-shadow:0 1px 2px rgba(0,0,0,.08)"><div class="fig" style="height:90px;border-radius:12px"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><use href="#fig-zz"/></svg></div><p style="font-size:13px;margin-top:6px">05 ✓</p></div>
+            <div class="wc" style="flex:1;height:150px;padding:8px;box-shadow:0 1px 2px rgba(0,0,0,.08)"><div class="fig" style="height:90px;border-radius:12px"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><use href="#fig-bl"/></svg></div><p style="font-size:13px;margin-top:6px">06 ✓</p></div>
+          </div>
+          <div class="btnk" style="left:600px;top:362px;width:230px">메인으로 →</div>
+        </div></div></div>
+      </div>
+      <div class="notes">
+        <h4>장점</h4>
+        <ul><li>진행이 <b>모양</b>으로 보인다(뒤 카드가 한 장씩 줄어듦) — 번호를 안 읽어도 "얼마나 남았나" 가 보임.</li><li>보기 트랙 = 모드 트랙(가이드·힌트·평가)과 같은 부품. 결과에서 덱이 펼쳐지는 것도 핀 B 그대로.</li></ul>
+        <h4>주의점</h4>
+        <ul><li>트랙 한 칸 폭이 좁다 — "반대 방향과 나누는 중앙선 — 넘지 않아요" 같은 긴 보기는 두 줄. 긴 문항 세트는 2×2 로 바뀌는 규칙 필요.</li><li>뒤 카드 넷의 그림자 겹침이 1/3 축소에선 촘촘 — 실제 화면에선 문제 없음.</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Q5 ================= -->
+<section class="prop">
+  <div class="ph"><span class="no">Q5</span><div><h3>진행 알약 띠 <span class="eff">공수 중간</span></h3><p class="one">맨 위 알약 여섯 = 문항 여섯(지난 것 검은 알약 ✓ · 지금 흰 알약 · 남은 것 연회색). 보기 넷은 아래 한 줄의 큰 흰 알약. 결과에선 그 띠가 그대로 복습 목록이 된다.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>문항</b>고르기 전</p>
+      <div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div style="left:200px;top:16px;display:flex;gap:6px;align-items:center">
+          <span class="chipf on" style="width:84px;height:30px;font-family:var(--num)">01 <svg width="12" height="12"><use href="#tick"/></svg></span>
+          <span class="chipf w" style="width:120px;height:30px;font-family:var(--num)">02 지금</span>
+          <span class="chipf" style="width:84px;height:30px;font-family:var(--num);color:#a8abad">03</span>
+          <span class="chipf" style="width:84px;height:30px;font-family:var(--num);color:#a8abad">04</span>
+          <span class="chipf" style="width:84px;height:30px;font-family:var(--num);color:#a8abad">05</span>
+          <span class="chipf" style="width:84px;height:30px;font-family:var(--num);color:#a8abad">06</span>
+        </div>
+        <div class="fig" style="left:28px;top:66px;width:190px;height:200px"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><use href="#fig-sl"/></svg></div>
+        <div class="eb" style="left:244px;top:72px">점검 › 도로 표시 읽기</div>
+        <div class="sent" style="left:244px;top:96px;width:590px;font-size:40px;line-height:56px">이 화살표가 그려진 차로에서<br><span class="gw">갈 수 있는 방향은?</span></div>
+        <div style="left:28px;top:290px;width:800px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+          <div class="opt pill" style="justify-content:center"><svg class="ic"><use href="#ar-l"/></svg>좌회전만</div>
+          <div class="opt pill" style="justify-content:center"><svg class="ic"><use href="#ar-sl"/></svg>직진과 좌회전</div>
+          <div class="opt pill" style="justify-content:center"><svg class="ic"><use href="#ar-r"/></svg>우회전만</div>
+          <div class="opt pill" style="justify-content:center"><svg class="ic"><use href="#ar-s"/></svg>직진만</div>
+        </div>
+        <div style="left:28px;top:366px;font-size:13px;text-decoration:underline;text-underline-offset:3px">그만하기</div>
+        <div class="eb" style="left:130px;top:366px">맞은 문제 1</div>
+      </div>
+    </div>
+    <div>
+      <div class="smalls">
+        <div><p class="cap"><b>해설</b>띠의 02 가 ✕ 로 · 해설 카드가 그림 옆을 덮음</p><div class="sm"><div class="scr">
+          <div style="left:200px;top:16px;display:flex;gap:6px;align-items:center">
+            <span class="chipf on" style="width:84px;height:30px">01 ✓</span><span class="chipf" style="width:120px;height:30px;background:#fff;border:2px solid #222">02 ✕</span><span class="chipf" style="width:84px;height:30px">03</span><span class="chipf" style="width:84px;height:30px">04</span><span class="chipf" style="width:84px;height:30px">05</span><span class="chipf" style="width:84px;height:30px">06</span>
+          </div>
+          <div class="fig" style="left:28px;top:66px;width:190px;height:200px"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><use href="#fig-sl"/></svg></div>
+          <div class="wc" style="left:234px;top:62px;width:600px;height:212px;padding:18px 24px">
+            <span class="chipf on" style="height:28px;font-size:13px">정답 · 직진과 좌회전</span>
+            <p style="font-size:24px;font-weight:500;margin-top:10px">화살표가 둘로 갈라지면 <span class="gw">두 방향 다 갈 수 있어요.</span></p>
+            <p style="font-size:16px;color:#4a4e51;margin-top:4px">직진도 좌회전도 이 차로에서 해요.</p>
+          </div>
+          <div style="left:28px;top:290px;width:800px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+            <div class="opt pill x" style="justify-content:center"><span>좌회전만</span></div><div class="opt pill on" style="justify-content:center">직진과 좌회전</div><div class="opt pill dim" style="justify-content:center">우회전만</div><div class="opt pill dim" style="justify-content:center">직진만</div>
+          </div>
+          <div class="btnk" style="left:600px;top:362px;width:228px">다음 문제 →</div>
+        </div></div></div>
+        <div><p class="cap"><b>결과</b>띠가 복습 목록으로 커짐</p><div class="sm"><div class="scr">
+          <div class="sent" style="left:28px;top:30px;width:560px;font-size:36px;line-height:48px">이유까지 기억하면 <span class="gw">충분해요.</span></div>
+          <div style="left:640px;top:28px;display:flex;align-items:baseline;gap:6px"><span class="num" style="font-size:48px">05</span><span class="num" style="font-size:18px;color:var(--mu)">/ 06</span></div>
+          <div style="left:28px;top:100px;width:800px;display:flex;flex-direction:column;gap:8px">
+            <div class="chipf on" style="height:36px;justify-content:flex-start;padding-left:16px">01 · 좌회전 화살표 · 좌회전만 <svg width="12" height="12" style="margin-left:auto"><use href="#tick"/></svg></div>
+            <div class="wc" style="padding:12px 16px;border:2px solid #222;box-shadow:none"><p style="font-size:15px">02 · 갈라진 화살표 · <s style="color:#8a8d90">좌회전만</s> → <b style="font-weight:500">직진과 좌회전</b></p><p style="font-size:13px;color:#4a4e51">화살표가 둘로 갈라지면 두 방향 다 갈 수 있어요.</p></div>
+            <div class="chipf on" style="height:36px;justify-content:flex-start;padding-left:16px">03 · 흰색 실선 · 바꾸지 않아요 <svg width="12" height="12" style="margin-left:auto"><use href="#tick"/></svg></div>
+            <div class="chipf on" style="height:36px;justify-content:flex-start;padding-left:16px">04 · 노란 실선 · 중앙선 <svg width="12" height="12" style="margin-left:auto"><use href="#tick"/></svg></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div class="chipf on" style="height:36px;justify-content:flex-start;padding-left:16px">05 · 지그재그 선 · 서행 ✓</div><div class="chipf on" style="height:36px;justify-content:flex-start;padding-left:16px">06 · 파란 선 · 버스전용 ✓</div></div>
+          </div>
+          <div class="btnk" style="left:600px;top:362px;width:228px">메인으로 →</div>
+        </div></div></div>
+      </div>
+      <div class="notes">
+        <h4>장점</h4>
+        <ul><li>숫자 "02 / 06" 대신 <b>알약 여섯</b> — 진행·지난 정오가 한 줄에. 결과 화면이 그 띠의 연장이라 두 화면이 하나로 이어진다.</li><li>보기가 아래 한 줄 = 손이 가장 가까운 곳. 112 dp 이상 높이 확보 쉬움.</li></ul>
+        <h4>주의점</h4>
+        <ul><li>공수 중간 — 진행 띠 + 결과 목록. 한 줄 네 보기는 긴 보기 문항에서 넘침 → 2×2 전환.</li><li>검은 알약이 맨 위에 여럿 → 정작 "고른 답" 의 검은 알약과 섞여 보일 수 있다(지난 것은 Graphite 로 한 단계 연하게).</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Q6 ================= -->
+<section class="prop">
+  <div class="ph"><span class="no">Q6</span><div><h3>어두운 시험지 — 결과서 가족 <span class="eff">공수 중간</span></h3><p class="one">퀴즈 전체를 Onyx 판 위에. 보기 = 테두리 알약, 정답 = Platinum 채운 알약, 고른 답 → 정답은 6 쌍 알약처럼 가는 선으로 잇는다. 결과는 쌍 알약 "06 문항 → 05 맞힘" + 촘촘한 표.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>문항</b>고르기 전</p>
+      <div class="scr dk">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="up" style="left:28px;top:56px;color:var(--ash)">KNOWLEDGE · 도로 표시 읽기</div>
+        <div class="bp" style="right:28px;top:20px;width:120px;height:56px;flex-direction:row;gap:6px;color:var(--platinum)"><span class="num" style="font-size:24px">02</span><span class="num" style="font-size:13px;color:var(--ash)">/ 06</span></div>
+        <div style="left:28px;top:90px;width:180px;height:200px;border-radius:24px;border:1.5px solid rgba(224,224,224,.4);padding:10px"><div class="fig" style="width:100%;height:100%;border-radius:16px"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><use href="#fig-sl"/></svg></div></div>
+        <div class="sent" style="left:236px;top:92px;width:590px;font-size:34px;line-height:48px">이 화살표가 그려진 차로에서<br><span class="gw">갈 수 있는 방향은?</span></div>
+        <div style="left:236px;top:204px;width:592px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="oo"><b>1</b>좌회전만</div><div class="oo"><b>2</b>직진과 좌회전</div><div class="oo"><b>3</b>우회전만</div><div class="oo"><b>4</b>직진만</div>
+        </div>
+        <div style="left:28px;top:358px;color:var(--platinum)"><div class="btno"><i><b>✕</b></i>그만하기</div></div>
+        <div class="eb" style="left:236px;top:370px;color:var(--ash)">맞은 문제 1</div>
+      </div>
+    </div>
+    <div>
+      <div class="smalls">
+        <div><p class="cap"><b>해설</b>고른 답 → 정답, 쌍 알약 문법</p><div class="sm"><div class="scr dk">
+          <div class="up" style="left:28px;top:30px;color:var(--ash)">ANSWER · 02 / 06</div>
+          <div class="sent" style="left:28px;top:52px;width:800px;font-size:26px;line-height:36px">이 화살표가 그려진 차로에서 <span class="gw">갈 수 있는 방향은?</span></div>
+          <div class="bp dim" style="left:28px;top:118px;width:300px;height:110px"><span style="font-size:24px;text-decoration:line-through">좌회전만</span><span class="l">고른 답</span></div>
+          <div style="left:328px;top:172px;width:200px;height:1px;background:rgba(224,224,224,.4)"></div>
+          <span class="dchip" style="left:390px;top:160px">정답은</span>
+          <div class="bp fill" style="left:528px;top:118px;width:300px;height:110px"><span style="font-size:24px">직진과 좌회전</span><span class="l">정답</span></div>
+          <div style="left:28px;top:250px;width:800px;border-radius:22px;background:var(--graphite);padding:18px 22px">
+            <p style="font-size:22px;color:#fff">화살표가 둘로 갈라지면 <span style="color:#8a8d90">두 방향 다 갈 수 있어요.</span></p>
+            <p style="font-size:15px;color:var(--ash);margin-top:4px">직진도 좌회전도 이 차로에서 해요.</p>
+          </div>
+          <div class="btno" style="left:600px;top:368px;width:228px;color:var(--platinum);background:var(--platinum);color:var(--onyx);border-color:var(--platinum)"><i style="background:var(--onyx);color:#fff">→</i>다음 문제</div>
+        </div></div></div>
+        <div><p class="cap"><b>결과</b>6 쌍 알약 + 촘촘한 표</p><div class="sm"><div class="scr dk">
+          <div class="up" style="left:28px;top:24px;color:var(--ash)">KNOWLEDGE · 도로 표시 읽기</div>
+          <div class="sent" style="left:28px;top:44px;width:420px;font-size:28px;line-height:38px">이유까지 기억하면 <span class="gw">충분해요.</span></div>
+          <div class="bp dim" style="left:28px;top:132px;width:170px;height:120px"><span class="n">06</span><span class="l">QUESTIONS 문항</span></div>
+          <div style="left:198px;top:192px;width:60px;height:1px;background:rgba(224,224,224,.4)"></div>
+          <span class="dchip" style="left:206px;top:180px">−1</span>
+          <div class="bp fill" style="left:258px;top:132px;width:170px;height:120px"><span class="n">05</span><span class="l">CORRECT 맞힘</span></div>
+          <table class="tb" style="left:464px;top:40px;width:364px">
+            <tr><th>#</th><th>표시</th><th>고른 답</th><th></th></tr>
+            <tr><td>01</td><td>좌회전 화살표</td><td>좌회전만</td><td>✓</td></tr>
+            <tr><td>02</td><td>갈라진 화살표</td><td><s style="color:#8a8d90">좌회전만</s> → 직진과 좌회전</td><td>✕</td></tr>
+            <tr><td>03</td><td>흰색 실선</td><td>바꾸지 않아요</td><td>✓</td></tr>
+            <tr><td>04</td><td>노란 실선</td><td>중앙선</td><td>✓</td></tr>
+            <tr><td>05</td><td>지그재그 선</td><td>서행 표시</td><td>✓</td></tr>
+            <tr><td>06</td><td>파란 선</td><td>버스전용차로</td><td>✓</td></tr>
+          </table>
+          <div style="left:464px;top:250px;width:364px;font-size:12.5px;color:var(--ash);line-height:1.5">02 · 화살표가 둘로 갈라지면 두 방향 다 갈 수 있어요.</div>
+          <div class="btno" style="left:600px;top:362px;width:228px;background:var(--platinum);color:var(--onyx);border-color:var(--platinum)"><i style="background:var(--onyx);color:#fff">→</i>메인으로</div>
+        </div></div></div>
+      </div>
+      <div class="notes">
+        <h4>장점</h4>
+        <ul><li>결과가 <b>자세히 보기(6 쌍 알약)와 한 가족</b> — 4 결과 페이지 판정·기록·진단서와 같은 판.</li><li>해설의 "고른 답 → 정답" 이 쌍 알약 한 줄로 즉시 읽힌다(빨강 없이).</li></ul>
+        <h4>주의점</h4>
+        <ul><li>문항까지 어두우면 정차 화면 중 퀴즈만 어두워 홈과 끊긴다 → <b>결과만</b> 이 판으로 쓰는 게 자연스럽다(추천에서 Q1 과 섞음).</li><li>테두리 알약의 눌림 상태(A1 번짐)는 어두운 판에서 Platinum 으로 채움.</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Q7 ================= -->
+<section class="prop">
+  <div class="ph"><span class="no">Q7</span><div><h3>흰 벽 문항 — H8 말투 <span class="eff">공수 중간</span></h3><p class="one">홈 H8 처럼 흰 벽 · 왼쪽 위 워드마크 · 오른쪽 위 정보 블록 · 거대한 문항 한 줄 · 가는 가로선. 보기 넷은 선 아래 네 칸(세로 가는 선으로 나눔), 칸마다 작은 ↗ 원. 결과는 거대한 05 와 큰 ↗ = 메인으로.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>문항</b>고르기 전</p>
+      <div class="scr wt">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div style="right:28px;top:20px;text-align:right;font-size:12px;line-height:1.55;color:#4a4e51">점검 › 도로 표시 읽기<br><span class="num" style="font-size:12px">02 / 06</span> · 맞은 문제 1</div>
+        <div class="fig" style="left:28px;top:72px;width:118px;height:150px;border-radius:18px"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><use href="#fig-sl"/></svg></div>
+        <div class="sent" style="left:168px;top:70px;width:670px;font-size:46px;line-height:60px;letter-spacing:-.03em">이 화살표가 그려진 차로에서<br><span class="gw">갈 수 있는</span> 방향은?</div>
+        <div style="left:28px;top:246px;width:797px;height:1px;background:var(--onyx)"></div>
+        <div class="hcol" style="left:28px;top:256px;width:797px">
+          <div><span class="n">1</span>좌회전만<span class="go">↗</span></div>
+          <div><span class="n">2</span>직진과 좌회전<span class="go">↗</span></div>
+          <div><span class="n">3</span>우회전만<span class="go">↗</span></div>
+          <div><span class="n">4</span>직진만<span class="go">↗</span></div>
+        </div>
+        <div style="left:28px;top:378px;font-size:13px;text-decoration:underline;text-underline-offset:3px">그만하기</div>
+      </div>
+    </div>
+    <div>
+      <div class="smalls">
+        <div><p class="cap"><b>해설</b>정답 칸이 검게 채워지고 카드가 위로</p><div class="sm"><div class="scr wt">
+          <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+          <div class="sent" style="left:28px;top:52px;width:800px;font-size:30px;line-height:40px">이 화살표가 그려진 차로에서 <span class="gw">갈 수 있는</span> 방향은?</div>
+          <div style="left:28px;top:246px;width:797px;height:1px;background:var(--onyx)"></div>
+          <div class="hcol" style="left:28px;top:256px;width:797px">
+            <div style="color:#a8abad"><span class="n">1</span><s>좌회전만</s></div>
+            <div style="background:var(--kgrad);color:#fff;border-radius:18px;padding-left:14px"><span class="n" style="color:#aaa">2</span>직진과 좌회전<span class="go" style="border-color:#fff;background:#fff;color:#111">✓</span></div>
+            <div style="color:#a8abad"><span class="n">3</span>우회전만</div>
+            <div style="color:#a8abad"><span class="n">4</span>직진만</div>
+          </div>
+          <div class="wc" style="left:28px;top:104px;width:797px;height:132px;padding:16px 22px;background:#F4F4F4;box-shadow:none">
+            <p style="font-size:22px;font-weight:500">화살표가 둘로 갈라지면 <span class="gw">두 방향 다 갈 수 있어요.</span></p>
+            <p style="font-size:15px;color:#4a4e51;margin-top:2px">직진도 좌회전도 이 차로에서 해요.</p>
+          </div>
+          <div style="left:620px;top:364px;display:flex;align-items:center;gap:10px;font-size:15px">다음 문제<span style="width:46px;height:46px;border-radius:50%;background:var(--onyx);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px">↗</span></div>
+        </div></div></div>
+        <div><p class="cap"><b>결과</b>거대한 05 · 선 아래 여섯 칸 · 큰 ↗</p><div class="sm"><div class="scr wt">
+          <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+          <div style="right:28px;top:20px;text-align:right;font-size:12px;line-height:1.55;color:#4a4e51">점검 › 도로 표시 읽기<br>지식 테스트 · 맞힌 문제</div>
+          <div class="num" style="left:20px;top:54px;font-size:150px;letter-spacing:-.05em">05<span style="font-size:40px;color:var(--gw);letter-spacing:0">/06</span></div>
+          <div class="sent" style="left:420px;top:110px;width:400px;font-size:30px;line-height:42px">이유까지 기억하면 <span class="gw">충분해요.</span></div>
+          <div style="left:28px;top:226px;width:797px;height:1px;background:var(--onyx)"></div>
+          <div style="left:28px;top:236px;width:640px;display:grid;grid-template-columns:repeat(6,1fr);font-size:13px">
+            <div style="padding:6px 8px 0 0">01 좌회전 화살표 ✓</div><div style="padding:6px 8px;border-left:1px solid rgba(34,37,38,.18);background:#F1F1F1;border-radius:10px">02 <s style="color:#8a8d90">좌회전만</s><br>→ 직진과 좌회전</div><div style="padding:6px 8px;border-left:1px solid rgba(34,37,38,.18)">03 흰색 실선 ✓</div><div style="padding:6px 8px;border-left:1px solid rgba(34,37,38,.18)">04 노란 실선 ✓</div><div style="padding:6px 8px;border-left:1px solid rgba(34,37,38,.18)">05 지그재그 ✓</div><div style="padding:6px 8px;border-left:1px solid rgba(34,37,38,.18)">06 파란 선 ✓</div>
+          </div>
+          <div style="left:706px;top:290px;width:120px;height:120px;border-radius:50%;background:var(--onyx);color:#fff;display:flex;align-items:center;justify-content:center;font-size:48px">↗</div>
+          <div style="left:560px;top:376px;font-size:15px">메인으로</div>
+        </div></div></div>
+      </div>
+      <div class="notes">
+        <h4>장점</h4>
+        <ul><li>홈 H8 과 같은 벽 — 퀴즈가 "홈에서 이어진 화면" 으로 보인다. 글자가 가장 크다(46 px = 138 dp 문항).</li><li>결과의 큰 ↗ = 홈의 시작 ↗ 과 짝(메인으로).</li></ul>
+        <h4>주의점</h4>
+        <ul><li>칸 테두리 없이 세로 가는 선뿐 — "누를 수 있다" 신호가 약하다(↗ 원이 대신). 칸 높이 96 px(288 dp)라 손은 쉽게 닿는다.</li><li>그림이 작다(118 px) — 도로 표시 문항엔 불리, 지식 분류 문항엔 유리.</li><li>메인으로 의 접근성 이름은 큰 ↗ 원에 그대로 단다.</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="reco">
+  <p class="k">A 추천 · 지식 퀴즈</p>
+  <h3>문항·해설 = Q1 문장 시트 문항 · 결과 = Q6 의 어두운 결과판(06 → 05 쌍 알약 + 표)</h3>
+  <ul>
+    <li><b>왜</b>: 문항은 사용자가 "딱 저렇게" 라고 한 문장 시트의 부품 그대로(흰 알약 보기 · 노란 원 하나 · 해설 흰 카드 C1). 결과는 판정·기록·자세히 보기와 같은 Onyx 쌍 알약 가족 — 결과 화면끼리 한 문법.</li>
+    <li><b>공수</b>: 중간 — 문항 화면(보기 2×2 알약 + 올라오는 카드 하나) + 결과판(쌍 알약·표 컴포넌트를 4 결과 페이지와 공유).</li>
+    <li><b>시간이 모자라면</b>: Q2(지금 뼈대 + 흰 줄 보기, 작음)로 문항만 바꾸고 결과는 Q6.</li>
+  </ul>
+</div>
+</section>
+
+<style>
+.hat{background:repeating-linear-gradient(135deg,#EFEFEF 0 6px,#E3E3E3 6px 12px)!important;color:#a3a6a8!important;box-shadow:none!important}
+.hat s{color:#a3a6a8}
+.slot{border-radius:18px;background:#fff;padding:12px 16px;position:relative;box-shadow:0 2px 0 #222,0 8px 12px -6px rgba(0,0,0,.2)}
+.slot *{position:static}
+.slot .t{font-family:var(--num);font-size:22px;font-weight:500;letter-spacing:-.01em}
+.slot .s{font-size:12px;color:var(--mu);margin-top:2px}
+.slot.on{background:var(--kgrad);color:#fff;box-shadow:0 12px 18px -8px rgba(0,0,0,.6)}
+.slot.on .s{color:#bbb}
+.slot .ck{position:absolute}
+.mk2{display:inline-block;font-size:11px;padding:0 8px;height:20px;line-height:20px;border-radius:10px;background:#fff;color:#6b6f72;margin-left:6px;text-decoration:none;vertical-align:2px}
+.vlab{font-size:11.5px;color:var(--mu);width:56px;flex:none}
+.vrow{display:flex;align-items:center;gap:10px}
+.vrow .trk{flex:1}
+.vrow .trk span{height:40px;line-height:40px}
+.vt{display:flex;align-items:center;gap:10px}
+.vt *{position:static}
+.ctile{width:58px;height:42px;border-radius:12px;background:var(--onyx);flex:none;display:flex;align-items:center;justify-content:center}
+.ctile svg{width:50px;height:34px}
+.tt td,.tt th{padding:0}
+</style>
+
+<section class="sec">
+  <div class="sh"><span class="L">B</span><div><h2>제휴 시험장 — 목록 · 시간·코스 · 예약</h2><p>과제 시트의 <b>문장 문법</b>을 그대로 — "[서초 시험장]에서 [14:00–15:00]에 [주차 3종]을 연습해요." 문장이 곧 지금 고른 것. 마감 시간은 빗금 + 줄 긋기 + "마감" 칩으로 누를 수 없음이 세 겹으로 보인다. <b>예약 →</b> 은 늘 같은 자리에 있고, 시간·코스를 다 고르기 전엔 흐리다.</p></div></div>
+  <div class="data"><b>모든 안 같은 데이터</b>서초 시험장 3 km(주차 3종 · 도로 A · 도로 B · 장내기능 모의시험 · 16:00–17:00 마감) · 강남 시험장 6 km(주차 3종 · 도로 A · 장내기능 모의시험 · 14:00–15:00 마감) · 분당 시험장 14 km(주차 3종 · 도로 B · 장내기능 모의시험 · 18:00–19:00 마감) · 오늘 자리 있음 · "예시입니다 — 실제 예약 연계 없음" · "시간과 코스를 고르면 예약할 수 있어요." · ← 돌아가기 · 예약 → · 큰 목업 상태 = 서초 · 14:00–15:00 고름, 코스 아직</div>
+
+<!-- ================= V1 ================= -->
+<section class="prop">
+  <div class="ph"><span class="no">V1</span><div><h3>문장 예약 시트 <span class="eff">공수 중간</span></h3><p class="one">과제 시트와 똑같이 — 문장 속 세 낱말(시험장 · 시간 · 코스). 아직 안 고른 낱말은 점선 알약. 낱말을 누르면 그 선택지 카드가 문장과 하단 줄 <b>사이로</b> 올라온다 → 예약 → 은 가려지지 않는다.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>시간·코스</b>"14:00–15:00" 낱말을 눌러 시간 카드가 올라온 상태</p>
+      <div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="eb" style="left:28px;top:48px">제휴 시험장</div>
+        <div class="sent" style="left:28px;top:70px;width:800px;font-size:30px;line-height:46px"><span class="wp"><span class="ip"><svg><use href="#y-pin"/></svg></span> 서초 시험장</span>에서 <span class="kp">14:00–15:00</span>에 <span class="hp">코스</span>를 <span class="gw">연습해요.</span></div>
+        <div class="wc back" style="left:44px;top:132px;width:765px;height:220px"></div>
+        <div class="wc" style="left:24px;top:142px;width:805px;height:200px;padding:14px 18px">
+          <div style="display:flex;align-items:center;justify-content:space-between"><span class="eb">시간 · 오늘 · 서초 시험장</span><span class="lkp">↓ 닫기</span></div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px">
+            <div class="slot on" style="height:96px"><p class="t">14:00–15:00</p><p class="s">자리 있음</p><span class="ck" style="right:12px;top:12px"><svg width="12" height="12"><use href="#tick"/></svg></span></div>
+            <div class="slot hat" style="height:96px"><p class="t"><s>16:00–17:00</s></p><p class="s" style="color:#8a8d90">마감 <span class="mk2">누를 수 없음</span></p></div>
+            <div class="slot" style="height:96px"><p class="t">18:00–19:00</p><p class="s">자리 있음</p></div>
+          </div>
+          <p class="eb" style="margin-top:12px">고르면 카드가 내려가고 코스 낱말이 깜박여요.</p>
+        </div>
+        <div style="left:28px;top:358px"><div class="btng"><i>←</i>돌아가기</div></div>
+        <span class="lkp w" style="left:196px;top:365px"><span class="dot sim"></span>예시입니다 — 실제 예약 연계 없음</span>
+        <div class="btnk dim" style="left:560px;top:358px;width:265px">예약 →</div>
+      </div>
+    </div>
+    <div>
+      <div class="smalls">
+        <div><p class="cap"><b>목록</b>처음 — 가까운 서초가 이미 문장에</p><div class="sm"><div class="scr">
+          <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+          <div class="eb" style="left:28px;top:70px">제휴 시험장</div>
+          <div class="sent" style="left:28px;top:92px;width:800px;font-size:44px;line-height:64px"><span class="wp"><span class="ip"><svg><use href="#y-pin"/></svg></span> 서초 시험장</span>에서 <span class="hp">시간</span>에<br><span class="hp">코스</span>를 <span class="gw">연습해요.</span></div>
+          <div style="left:28px;top:240px;display:flex;gap:8px"><span class="lkp">서초 · 3 km · 오늘 자리 있음</span><span class="lkp">강남 6 km · 분당 14 km 는 낱말을 눌러요</span></div>
+          <div class="eb" style="left:560px;top:330px">시간과 코스를 고르면 예약할 수 있어요.</div>
+          <div style="left:28px;top:358px"><div class="btng"><i>←</i>돌아가기</div></div>
+          <span class="lkp w" style="left:196px;top:365px"><span class="dot sim"></span>예시입니다 — 실제 예약 연계 없음</span>
+          <div class="btnk dim" style="left:560px;top:358px;width:265px">예약 →</div>
+        </div></div></div>
+        <div><p class="cap"><b>예약 가능</b>세 낱말 다 고름 → 예약 → 켜짐</p><div class="sm"><div class="scr">
+          <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+          <div class="eb" style="left:28px;top:70px">제휴 시험장</div>
+          <div class="sent" style="left:28px;top:92px;width:800px;font-size:44px;line-height:64px"><span class="wp"><span class="ip"><svg><use href="#y-pin"/></svg></span> 서초 시험장</span>에서 <span class="wp">14:00–15:00</span>에<br><span class="wp">주차 3종</span>을 <span class="gw">연습해요.</span></div>
+          <div style="left:28px;top:240px;display:flex;gap:8px"><span class="lkp">서초 · 3 km</span><span class="lkp">주차 › 후면 직각 · 평행 · 전면 직각</span></div>
+          <div style="left:28px;top:358px"><div class="btng"><i>←</i>돌아가기</div></div>
+          <span class="lkp w" style="left:196px;top:365px"><span class="dot sim"></span>예시입니다 — 실제 예약 연계 없음</span>
+          <div class="btnk" style="left:560px;top:358px;width:265px">예약 →</div>
+        </div></div></div>
+      </div>
+      <div class="notes">
+        <h4>장점</h4>
+        <ul><li>과제 시트(사용자가 고른 2 문장 시트)와 <b>같은 문법 · 같은 부품</b> — 시험장 화면이 따로 놀지 않는다.</li><li>문장이 곧 예약 요약 → 예약 확인 화면이 필요 없다.</li><li>카드가 문장과 하단 줄 사이에만 올라와 <b>예약 → 이 늘 보인다</b>.</li></ul>
+        <h4>주의점</h4>
+        <ul><li>공수 중간 — 낱말 셋 × 카드 셋(시험장 카드는 V3 덱 · V5 타일 중 하나를 재사용).</li><li>점선 알약 "시간 · 코스" 가 처음 쓰는 사람에게 "눌러요" 로 읽히는지 — 첫 진입 때 시간 낱말이 한 번 숨쉬기(A1).</li><li>노란 원 = 시험장 핀 하나뿐.</li></ul>
+      </div>
+    </div>
+  </div>
+  <div class="strip5">
+    <div><p class="fl"><b>0</b>문장 · 시간 비어 있음</p><div class="m5"><div class="scr">
+      <div class="sent" style="left:28px;top:92px;width:800px;font-size:44px;line-height:64px"><span class="wp">서초 시험장</span>에서 <span class="hp">시간</span>에<br><span class="hp">코스</span>를 <span class="gw">연습해요.</span></div>
+      <div class="btnk dim" style="left:560px;top:358px;width:265px">예약 →</div>
+    </div></div></div>
+    <div><p class="fl"><b>1/3</b>시간 낱말 누름 · 문장 줄어듦</p><div class="m5"><div class="scr">
+      <div class="sent" style="left:28px;top:76px;width:800px;font-size:36px;line-height:54px"><span class="wp">서초 시험장</span>에서 <span class="kp">시간</span>에 <span class="hp">코스</span>를 <span class="gw">연습해요.</span></div>
+      <div class="wc" style="left:24px;top:300px;width:805px;height:200px"></div>
+      <div class="btnk dim" style="left:560px;top:358px;width:265px">예약 →</div>
+    </div></div></div>
+    <div><p class="fl"><b>2/3</b>시간 카드 섬 · 14:00 고름</p><div class="m5"><div class="scr">
+      <div class="sent" style="left:28px;top:70px;width:800px;font-size:30px;line-height:46px"><span class="wp">서초 시험장</span>에서 <span class="kp">14:00–15:00</span>에 <span class="hp">코스</span>를 <span class="gw">연습해요.</span></div>
+      <div class="wc" style="left:24px;top:142px;width:805px;height:200px;padding:14px 18px"><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px"><div class="slot on" style="height:96px"><p class="t">14:00–15:00</p></div><div class="slot hat" style="height:96px"><p class="t"><s>16:00–17:00</s></p></div><div class="slot" style="height:96px"><p class="t">18:00–19:00</p></div></div></div>
+      <div class="btnk dim" style="left:560px;top:358px;width:265px">예약 →</div>
+    </div></div></div>
+    <div><p class="fl"><b>끝</b>코스까지 고름 · 예약 → 켜짐</p><div class="m5"><div class="scr">
+      <div class="sent" style="left:28px;top:92px;width:800px;font-size:44px;line-height:64px"><span class="wp">서초 시험장</span>에서 <span class="wp">14:00–15:00</span>에<br><span class="wp">주차 3종</span>을 <span class="gw">연습해요.</span></div>
+      <div class="btnk" style="left:560px;top:358px;width:265px">예약 →</div>
+    </div></div></div>
+    <div><p class="fl"><b>live</b>실시간(@keyframes · 6초 반복)</p><div class="m5 liveV"><div class="scr">
+      <div class="sent" style="left:28px;top:70px;width:800px;font-size:30px;line-height:46px"><span class="wp">서초 시험장</span>에서 <span class="kp">14:00–15:00</span>에 <span class="wp">주차 3종</span>을 <span class="gw">연습해요.</span></div>
+      <div class="wc cd" style="left:24px;top:142px;width:805px;height:200px;padding:14px 18px"><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px"><div class="slot on" style="height:96px"><p class="t">14:00–15:00</p></div><div class="slot hat" style="height:96px"><p class="t"><s>16:00–17:00</s></p></div><div class="slot" style="height:96px"><p class="t">18:00–19:00</p></div></div></div>
+      <div style="left:28px;top:358px"><div class="btng"><i>←</i>돌아가기</div></div>
+      <div class="btnk go" style="left:560px;top:358px;width:265px">예약 →</div>
+    </div></div></div>
+  </div>
+</section>
+
+<!-- ================= V2 ================= -->
+<section class="prop">
+  <div class="ph"><span class="no">V2</span><div><h3>문장 머리 + 세 줄 트랙 <span class="eff s">공수 작음</span></h3><p class="one">문장은 맨 위 한 줄(요약), 아래 흰 카드 하나에 시험장 · 시간 · 코스 트랙 세 줄이 늘 펼쳐져 있다. 고르면 검은 돌이 미끄러지고(B1) 문장 낱말이 같이 바뀐다. 숨은 것 0.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>시간·코스</b>서초 · 14:00 고름, 코스 아직</p>
+      <div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="sent" style="left:28px;top:48px;width:800px;font-size:28px;line-height:40px"><span class="ip"><svg><use href="#y-pin"/></svg></span> 서초 시험장에서 14:00–15:00에 <span class="hp">코스</span>를 <span class="gw">연습해요.</span></div>
+        <div class="wc" style="left:24px;top:104px;width:805px;height:238px;padding:16px 18px;display:flex;flex-direction:column;gap:14px">
+          <div class="vrow"><span class="vlab">시험장</span><div class="trk"><span class="on">서초 · 3 km</span><span>강남 · 6 km</span><span>분당 · 14 km</span></div></div>
+          <div class="vrow"><span class="vlab">시간</span><div class="trk"><span class="on" style="font-family:var(--num)">14:00–15:00</span><span class="hat" style="border-radius:20px"><s>16:00–17:00</s><i class="mk2" style="font-style:normal">마감</i></span><span style="font-family:var(--num)">18:00–19:00</span></div></div>
+          <div class="vrow"><span class="vlab">코스</span><div class="trk"><span>주차 3종</span><span>도로 A</span><span>도로 B</span><span style="flex:1.5">장내기능 모의시험</span></div></div>
+          <p class="eb" style="padding-left:66px">시간과 코스를 고르면 예약할 수 있어요.</p>
+        </div>
+        <div style="left:28px;top:358px"><div class="btng"><i>←</i>돌아가기</div></div>
+        <span class="lkp w" style="left:196px;top:365px"><span class="dot sim"></span>예시입니다 — 실제 예약 연계 없음</span>
+        <div class="btnk dim" style="left:560px;top:358px;width:265px">예약 →</div>
+      </div>
+    </div>
+    <div>
+      <div class="smalls">
+        <div><p class="cap"><b>목록</b>강남으로 바꿈 → 그 시험장의 마감·코스로</p><div class="sm"><div class="scr">
+          <div class="sent" style="left:28px;top:48px;width:800px;font-size:28px;line-height:40px">강남 시험장에서 <span class="hp">시간</span>에 <span class="hp">코스</span>를 <span class="gw">연습해요.</span></div>
+          <div class="wc" style="left:24px;top:104px;width:805px;height:238px;padding:16px 18px;display:flex;flex-direction:column;gap:14px">
+            <div class="vrow"><span class="vlab">시험장</span><div class="trk"><span>서초 · 3 km</span><span class="on">강남 · 6 km</span><span>분당 · 14 km</span></div></div>
+            <div class="vrow"><span class="vlab">시간</span><div class="trk"><span class="hat" style="border-radius:20px"><s>14:00–15:00</s><i class="mk2" style="font-style:normal">마감</i></span><span>16:00–17:00</span><span>18:00–19:00</span></div></div>
+            <div class="vrow"><span class="vlab">코스</span><div class="trk"><span>주차 3종</span><span>도로 A</span><span class="off">도로 B</span><span style="flex:1.5">장내기능 모의시험</span></div></div>
+          </div>
+          <div style="left:28px;top:358px"><div class="btng"><i>←</i>돌아가기</div></div>
+          <div class="btnk dim" style="left:560px;top:358px;width:265px">예약 →</div>
+        </div></div></div>
+        <div><p class="cap"><b>예약 가능</b>세 줄 다 고름</p><div class="sm"><div class="scr">
+          <div class="sent" style="left:28px;top:48px;width:800px;font-size:28px;line-height:40px">서초 시험장에서 14:00–15:00에 주차 3종을 <span class="gw">연습해요.</span></div>
+          <div class="wc" style="left:24px;top:104px;width:805px;height:238px;padding:16px 18px;display:flex;flex-direction:column;gap:14px">
+            <div class="vrow"><span class="vlab">시험장</span><div class="trk"><span class="on">서초 · 3 km</span><span>강남 · 6 km</span><span>분당 · 14 km</span></div></div>
+            <div class="vrow"><span class="vlab">시간</span><div class="trk"><span class="on">14:00–15:00</span><span class="hat" style="border-radius:20px"><s>16:00–17:00</s></span><span>18:00–19:00</span></div></div>
+            <div class="vrow"><span class="vlab">코스</span><div class="trk"><span class="on">주차 3종</span><span>도로 A</span><span>도로 B</span><span style="flex:1.5">장내기능 모의시험</span></div></div>
+          </div>
+          <div style="left:28px;top:358px"><div class="btng"><i>←</i>돌아가기</div></div>
+          <span class="lkp w" style="left:196px;top:365px"><span class="dot sim"></span>예시입니다 — 실제 예약 연계 없음</span>
+          <div class="btnk" style="left:560px;top:358px;width:265px">예약 →</div>
+        </div></div></div>
+      </div>
+      <div class="notes">
+        <h4>장점</h4>
+        <ul><li><b>가장 싸다</b> — 지금 시험장 화면의 시간·코스 트랙(SelectionTrack)을 그대로 쓰고, 시험장 카드 셋을 트랙 한 줄로 · 맨 위에 문장 한 줄.</li><li>한눈에 모든 선택지 — 탭 수가 가장 적다(세 번).</li></ul>
+        <h4>주의점</h4>
+        <ul><li>코스 그림(작은 코스 지도)이 빠진다 → 시험장 트랙 칸 왼쪽에 작은 지도 기호로 둘 수 있으나 칸이 좁아짐.</li><li>문장이 요약 한 줄이라 "문장 시트" 의 손맛(낱말을 눌러 바꿈)은 약하다.</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= V3 ================= -->
+<section class="prop">
+  <div class="ph"><span class="no">V3</span><div><h3>겹친 시험장 덱 <span class="eff">공수 중간</span></h3><p class="one">시험장 셋을 한 무더기 — 맨 앞 서초만 다 보이고 강남·분당은 위 띠(이름 · 거리)만. 띠를 누르면 그 장이 앞으로. 시간·코스 카드가 덱 아래로 올라와 겹친다. 왼쪽 단은 세로로 쌓인 문장.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>시간·코스</b>덱(서초 앞) + 시간·코스 카드</p>
+      <div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="sent" style="left:28px;top:62px;width:214px;font-size:26px;line-height:42px"><span class="wp" style="font-size:22px">서초 시험장</span>에서<br><span class="kp" style="font-size:22px">14:00–15:00</span>에<br><span class="hp" style="font-size:22px">코스</span>를<br><span class="gw">연습해요.</span></div>
+        <div class="wc back" style="left:296px;top:6px;width:494px;height:150px;padding:6px 18px;font-size:12.5px;color:var(--mu);display:flex;justify-content:space-between"><span>분당 시험장</span><span>14 km</span></div>
+        <div class="wc back" style="left:274px;top:30px;width:538px;height:150px;padding:6px 18px;font-size:12.5px;color:var(--mu);display:flex;justify-content:space-between"><span>강남 시험장</span><span>6 km</span></div>
+        <div class="wc" style="left:252px;top:56px;width:582px;height:120px;padding:12px">
+          <div style="display:flex;gap:14px">
+            <div style="width:130px;height:92px;border-radius:14px;background:var(--onyx);flex:none;display:flex;align-items:center;justify-content:center"><svg width="120" height="84"><use href="#course"/></svg></div>
+            <div><div style="display:flex;align-items:center;gap:8px"><p style="font-size:22px;font-weight:500">서초 시험장</p><span class="chipf" style="height:24px;font-family:var(--num)">3 km</span></div><p style="font-size:12.5px;color:var(--mu);margin-top:2px">주차 3종 · 도로 A · 도로 B · 장내기능 모의시험</p><p style="font-size:13.5px;margin-top:6px;display:flex;align-items:center;gap:6px"><svg width="13" height="13"><use href="#tick"/></svg>오늘 자리 있음</p></div>
+          </div>
+        </div>
+        <div class="wc" style="left:252px;top:188px;width:582px;height:160px;padding:12px 16px">
+          <div class="vrow"><span class="vlab" style="width:36px">시간</span><div style="display:flex;gap:6px;flex:1"><span class="chipf on" style="flex:1;font-family:var(--num)">14:00–15:00</span><span class="chipf hat" style="flex:1"><s>16:00–17:00</s><i class="mk" style="font-style:normal;font-size:10.5px;padding:0 7px;border-radius:9px;background:#fff;height:18px;line-height:18px">마감</i></span><span class="chipf w" style="flex:1;font-family:var(--num)">18:00–19:00</span></div></div>
+          <div class="vrow" style="margin-top:12px"><span class="vlab" style="width:36px">코스</span><div style="display:flex;gap:6px;flex:1"><span class="chipf w">주차 3종</span><span class="chipf w">도로 A</span><span class="chipf w">도로 B</span><span class="chipf w" style="flex:1">장내기능 모의시험</span></div></div>
+        </div>
+        <div style="left:28px;top:358px"><div class="btng"><i>←</i>돌아가기</div></div>
+        <span class="lkp w" style="left:252px;top:365px"><span class="dot sim"></span>예시입니다 — 실제 예약 연계 없음</span>
+        <div class="btnk dim" style="left:569px;top:358px;width:265px">예약 →</div>
+      </div>
+    </div>
+    <div>
+      <div class="smalls">
+        <div><p class="cap"><b>목록</b>덱만 — 띠를 눌러 앞으로</p><div class="sm"><div class="scr">
+          <div class="sent" style="left:28px;top:70px;width:214px;font-size:30px;line-height:42px"><span class="gw">가까운</span><br>시험장에<br>오늘 자리<br>있어요.</div>
+          <div class="wc back" style="left:296px;top:24px;width:494px;height:300px;padding:8px 18px;font-size:14px;color:var(--mu);display:flex;justify-content:space-between"><span>분당 시험장</span><span>14 km</span></div>
+          <div class="wc back" style="left:274px;top:58px;width:538px;height:300px;padding:8px 18px;font-size:14px;color:var(--mu);display:flex;justify-content:space-between"><span>강남 시험장</span><span>6 km</span></div>
+          <div class="wc" style="left:252px;top:94px;width:582px;height:250px;padding:16px">
+            <div style="height:130px;border-radius:16px;background:var(--onyx);display:flex;align-items:center;justify-content:center"><svg width="180" height="124"><use href="#course"/></svg></div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:10px"><p style="font-size:24px;font-weight:500">서초 시험장</p><span class="chipf" style="height:26px">3 km</span></div>
+            <p style="font-size:13px;color:var(--mu)">주차 3종 · 도로 A · 도로 B · 장내기능 모의시험 · 오늘 자리 있음</p>
+          </div>
+          <div style="left:28px;top:358px"><div class="btng"><i>←</i>돌아가기</div></div>
+          <div class="btnk dim" style="left:569px;top:358px;width:265px">예약 →</div>
+        </div></div></div>
+        <div><p class="cap"><b>바꿈</b>강남 띠 누름 → 강남이 앞으로(마감 14:00)</p><div class="sm"><div class="scr">
+          <div class="sent" style="left:28px;top:62px;width:214px;font-size:26px;line-height:42px"><span class="wp" style="font-size:22px">강남 시험장</span>에서<br><span class="hp" style="font-size:22px">시간</span>에<br><span class="hp" style="font-size:22px">코스</span>를<br><span class="gw">연습해요.</span></div>
+          <div class="wc back" style="left:296px;top:6px;width:494px;height:150px;padding:6px 18px;font-size:12.5px;color:var(--mu);display:flex;justify-content:space-between"><span>분당 시험장</span><span>14 km</span></div>
+          <div class="wc back" style="left:274px;top:30px;width:538px;height:150px;padding:6px 18px;font-size:12.5px;color:var(--mu);display:flex;justify-content:space-between"><span>서초 시험장</span><span>3 km</span></div>
+          <div class="wc" style="left:252px;top:56px;width:582px;height:120px;padding:12px"><div style="display:flex;gap:14px"><div style="width:130px;height:92px;border-radius:14px;background:var(--onyx);flex:none;display:flex;align-items:center;justify-content:center"><svg width="120" height="84"><use href="#course"/></svg></div><div><p style="font-size:22px;font-weight:500">강남 시험장 <span class="chipf" style="height:24px">6 km</span></p><p style="font-size:12.5px;color:var(--mu)">주차 3종 · 도로 A · 장내기능 모의시험</p></div></div></div>
+          <div class="wc" style="left:252px;top:188px;width:582px;height:160px;padding:12px 16px"><div style="display:flex;gap:6px"><span class="chipf hat" style="flex:1"><s>14:00–15:00</s></span><span class="chipf w" style="flex:1">16:00–17:00</span><span class="chipf w" style="flex:1">18:00–19:00</span></div><div style="display:flex;gap:6px;margin-top:12px"><span class="chipf w">주차 3종</span><span class="chipf w">도로 A</span><span class="chipf w" style="flex:1">장내기능 모의시험</span></div></div>
+          <div style="left:28px;top:358px"><div class="btng"><i>←</i>돌아가기</div></div>
+          <div class="btnk dim" style="left:569px;top:358px;width:265px">예약 →</div>
+        </div></div></div>
+      </div>
+      <div class="notes">
+        <h4>장점</h4>
+        <ul><li>한 시험장만 크게 — 지금은 같은 크기 카드 셋이라 정보가 세 배. 덱은 고른 것만 크고 나머지는 이름·거리.</li><li>코스 지도(노란 점 = 출발점)가 어두운 칸 안에 살아 있다.</li></ul>
+        <h4>주의점</h4>
+        <ul><li>공수 중간 — 덱 순서 바꿈 애니메이션 + 시간·코스 카드.</li><li>세로 문장이 좁은 단(214 px)이라 낱말 알약이 22 px 로 작아짐 — 문장 시트보다 덜 크다.</li><li>뒤 띠의 터치 높이 24 px(72 dp) — 띠를 40 px 로 키워야 112 dp 근처.</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= V4 ================= -->
+<section class="prop">
+  <div class="ph"><span class="no">V4</span><div><h3>거리 자 위의 알약 <span class="eff">공수 중간</span></h3><p class="one">결과판의 "0–100 자 + 합격선 위 알약" 을 거리로 — 0–15 km 가로 자 위에 시험장 알약 셋이 거리만큼 떨어져 선다. 왼쪽 끝 = 지금 여기(V4 차). 아래는 고른 시험장의 시간 · 코스.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>시간·코스</b>서초 · 14:00 고름</p>
+      <div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="sent" style="left:200px;top:18px;width:630px;font-size:24px;line-height:36px"><span class="wp">서초 시험장</span>에서 <span class="wp">14:00–15:00</span>에 <span class="hp">코스</span>를 <span class="gw">연습해요.</span></div>
+        <div class="wc" style="left:24px;top:66px;width:805px;height:112px;padding:0">
+          <div style="position:absolute;left:70px;right:30px;top:70px;height:2px;background:var(--onyx)"></div>
+          <div style="position:absolute;left:24px;top:52px;width:40px;height:40px;color:var(--onyx)"><svg width="22" height="38" style="transform:rotate(90deg);margin:1px 0 0 9px"><use href="#car4"/></svg></div>
+          <span style="position:absolute;left:70px;top:80px;font-family:var(--num);font-size:11px;color:var(--mu)">0</span>
+          <span style="position:absolute;left:298px;top:80px;font-family:var(--num);font-size:11px;color:var(--mu)">5</span>
+          <span style="position:absolute;left:526px;top:80px;font-family:var(--num);font-size:11px;color:var(--mu)">10</span>
+          <span style="position:absolute;left:746px;top:80px;font-family:var(--num);font-size:11px;color:var(--mu)">15 km</span>
+          <span class="kp" style="position:absolute;left:150px;top:22px;font-size:16px;padding:8px 16px">서초 · 3 km</span>
+          <span class="wp" style="position:absolute;left:290px;top:24px;font-size:15px;padding:6px 14px">강남 · 6 km</span>
+          <span class="wp" style="position:absolute;left:640px;top:24px;font-size:15px;padding:6px 14px">분당 · 14 km</span>
+          <span style="position:absolute;left:205px;top:58px;width:2px;height:14px;background:var(--onyx)"></span>
+          <span style="position:absolute;left:342px;top:58px;width:2px;height:14px;background:#aaa"></span>
+          <span style="position:absolute;left:707px;top:58px;width:2px;height:14px;background:#aaa"></span>
+        </div>
+        <div class="wc" style="left:24px;top:190px;width:805px;height:154px;padding:14px 18px;display:flex;gap:16px">
+          <div style="width:150px;flex:none"><div style="height:96px;border-radius:14px;background:var(--onyx);display:flex;align-items:center;justify-content:center"><svg width="130" height="90"><use href="#course"/></svg></div><p style="font-size:12px;color:var(--mu);margin-top:6px">서초 시험장 · 오늘 자리 있음</p></div>
+          <div style="flex:1">
+            <div style="display:flex;gap:6px"><span class="chipf on" style="flex:1">14:00–15:00</span><span class="chipf hat" style="flex:1"><s>16:00–17:00</s><i class="mk" style="font-style:normal;font-size:10.5px;padding:0 7px;border-radius:9px;background:#fff;height:18px;line-height:18px">마감</i></span><span class="chipf w" style="flex:1">18:00–19:00</span></div>
+            <div style="display:flex;gap:6px;margin-top:12px"><span class="chipf w">주차 3종</span><span class="chipf w">도로 A</span><span class="chipf w">도로 B</span><span class="chipf w" style="flex:1">장내기능 모의시험</span></div>
+            <p class="eb" style="margin-top:10px">시간과 코스를 고르면 예약할 수 있어요.</p>
+          </div>
+        </div>
+        <div style="left:28px;top:358px"><div class="btng"><i>←</i>돌아가기</div></div>
+        <span class="lkp w" style="left:196px;top:365px"><span class="dot sim"></span>예시입니다 — 실제 예약 연계 없음</span>
+        <div class="btnk dim" style="left:560px;top:358px;width:265px">예약 →</div>
+      </div>
+    </div>
+    <div>
+      <div class="smalls">
+        <div><p class="cap"><b>목록</b>자만 — 가까운 순이 위치로 보임</p><div class="sm"><div class="scr">
+          <div class="sent" style="left:28px;top:40px;width:800px;font-size:40px;line-height:56px"><span class="gw">어디서</span> 연습할까요?</div>
+          <div class="wc" style="left:24px;top:130px;width:805px;height:180px">
+            <div style="position:absolute;left:70px;right:30px;top:110px;height:2px;background:var(--onyx)"></div>
+            <span class="wp" style="position:absolute;left:140px;top:50px;font-size:20px;padding:8px 18px">서초 · 3 km</span>
+            <span class="wp" style="position:absolute;left:300px;top:50px;font-size:20px;padding:8px 18px">강남 · 6 km</span>
+            <span class="wp" style="position:absolute;left:620px;top:50px;font-size:20px;padding:8px 18px">분당 · 14 km</span>
+            <span style="position:absolute;left:70px;top:122px;font-family:var(--num);font-size:13px;color:var(--mu)">지금 여기 0</span>
+            <span style="position:absolute;left:730px;top:122px;font-family:var(--num);font-size:13px;color:var(--mu)">15 km</span>
+          </div>
+          <div style="left:28px;top:358px"><div class="btng"><i>←</i>돌아가기</div></div>
+          <span class="lkp w" style="left:196px;top:365px"><span class="dot sim"></span>예시입니다 — 실제 예약 연계 없음</span>
+          <div class="btnk dim" style="left:560px;top:358px;width:265px">예약 →</div>
+        </div></div></div>
+        <div><p class="cap"><b>예약 가능</b>분당 · 16:00 · 도로 B</p><div class="sm"><div class="scr">
+          <div class="sent" style="left:200px;top:18px;width:630px;font-size:24px;line-height:36px"><span class="wp">분당 시험장</span>에서 <span class="wp">16:00–17:00</span>에 <span class="wp">도로 B</span>를 <span class="gw">연습해요.</span></div>
+          <div class="wc" style="left:24px;top:66px;width:805px;height:112px"><div style="position:absolute;left:70px;right:30px;top:70px;height:2px;background:var(--onyx)"></div><span class="wp" style="position:absolute;left:150px;top:24px;font-size:15px;padding:6px 14px">서초 · 3 km</span><span class="wp" style="position:absolute;left:290px;top:24px;font-size:15px;padding:6px 14px">강남 · 6 km</span><span class="kp" style="position:absolute;left:640px;top:22px;font-size:16px;padding:8px 16px">분당 · 14 km</span></div>
+          <div class="wc" style="left:24px;top:190px;width:805px;height:154px;padding:14px 18px"><div style="display:flex;gap:6px"><span class="chipf w" style="flex:1">14:00–15:00</span><span class="chipf on" style="flex:1">16:00–17:00</span><span class="chipf hat" style="flex:1"><s>18:00–19:00</s></span></div><div style="display:flex;gap:6px;margin-top:12px"><span class="chipf w">주차 3종</span><span class="chipf on">도로 B</span><span class="chipf w" style="flex:1">장내기능 모의시험</span></div></div>
+          <div style="left:28px;top:358px"><div class="btng"><i>←</i>돌아가기</div></div>
+          <div class="btnk" style="left:560px;top:358px;width:265px">예약 →</div>
+        </div></div></div>
+      </div>
+      <div class="notes">
+        <h4>장점</h4>
+        <ul><li>"얼마나 먼가" 가 숫자를 읽기 전에 보인다 — 14 km 분당이 오른쪽 끝에 홀로.</li><li>결과판(모의시험 자 + 합격선)과 같은 그림 문법이라 앱 전체가 한 말투.</li></ul>
+        <h4>주의점</h4>
+        <ul><li>공수 중간 — 자 위 위치 계산(거리 → x) 하나뿐이지만, 시험장 이름이 가까우면(3 · 6 km) 알약이 겹칠 수 있어 최소 간격 규칙 필요.</li><li>거리는 예시(지명·거리 U3 미결) — 자에 "예시" 표식이 같이 있어야 정직.</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= V5 ================= -->
+<section class="prop">
+  <div class="ph"><span class="no">V5</span><div><h3>시험장 타일 셋 — 과제 카드 문법 <span class="eff">공수 중간</span></h3><p class="one">과제 시트의 "과제 카드 넷(고른 것 = 검은 카드 + 흰 체크)" 을 시험장 셋에. 카드마다 어두운 코스 지도 칸 · 이름 · 거리. 아래 시간·코스는 흰 알약 줄 — 마감은 빗금.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>시간·코스</b>서초 · 14:00 고름</p>
+      <div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="sent" style="left:200px;top:16px;width:630px;font-size:24px;line-height:36px">서초 시험장에서 14:00–15:00에 <span class="hp">코스</span>를 <span class="gw">연습해요.</span></div>
+        <div style="left:28px;top:62px;width:797px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+          <div class="tile on" style="height:130px"><div style="height:68px;border-radius:12px;background:#2b2e30;display:flex;align-items:center;justify-content:center"><svg width="90" height="62"><use href="#course"/></svg></div><p style="font-size:17px;margin-top:6px">서초 시험장 <span style="font-family:var(--num);font-size:13px;color:#bbb">3 km</span></p><p style="font-size:11px;color:#bbb">주차 3종 · 도로 A · 도로 B · 장내기능</p><span class="ck"><svg width="12" height="12"><use href="#tick"/></svg></span></div>
+          <div class="tile" style="height:130px"><div style="height:68px;border-radius:12px;background:var(--onyx);display:flex;align-items:center;justify-content:center"><svg width="90" height="62"><use href="#course-n"/></svg></div><p style="font-size:17px;margin-top:6px">강남 시험장 <span style="font-family:var(--num);font-size:13px;color:var(--mu)">6 km</span></p><p style="font-size:11px;color:var(--mu)">주차 3종 · 도로 A · 장내기능</p></div>
+          <div class="tile" style="height:130px"><div style="height:68px;border-radius:12px;background:var(--onyx);display:flex;align-items:center;justify-content:center"><svg width="90" height="62"><use href="#course-n"/></svg></div><p style="font-size:17px;margin-top:6px">분당 시험장 <span style="font-family:var(--num);font-size:13px;color:var(--mu)">14 km</span></p><p style="font-size:11px;color:var(--mu)">주차 3종 · 도로 B · 장내기능</p></div>
+        </div>
+        <div class="vrow" style="left:28px;top:208px;width:797px"><span class="vlab" style="width:40px">시간</span><div style="display:flex;gap:8px;flex:1"><span class="chipf on" style="flex:1">14:00–15:00</span><span class="chipf hat" style="flex:1"><s>16:00–17:00</s><i class="mk" style="font-style:normal;font-size:10.5px;padding:0 7px;border-radius:9px;background:#fff;height:18px;line-height:18px">마감</i></span><span class="chipf w" style="flex:1">18:00–19:00</span></div></div>
+        <div class="vrow" style="left:28px;top:258px;width:797px"><span class="vlab" style="width:40px">코스</span><div style="display:flex;gap:8px;flex:1"><span class="chipf w" style="flex:1">주차 3종</span><span class="chipf w" style="flex:1">도로 A</span><span class="chipf w" style="flex:1">도로 B</span><span class="chipf w" style="flex:1.4">장내기능 모의시험</span></div></div>
+        <div class="eb" style="left:78px;top:312px">시간과 코스를 고르면 예약할 수 있어요.</div>
+        <div style="left:28px;top:358px"><div class="btng"><i>←</i>돌아가기</div></div>
+        <span class="lkp w" style="left:196px;top:365px"><span class="dot sim"></span>예시입니다 — 실제 예약 연계 없음</span>
+        <div class="btnk dim" style="left:560px;top:358px;width:265px">예약 →</div>
+      </div>
+    </div>
+    <div>
+      <div class="smalls">
+        <div><p class="cap"><b>목록</b>처음 — 타일만, 아래 줄은 흐림</p><div class="sm"><div class="scr">
+          <div class="sent" style="left:28px;top:24px;width:800px;font-size:30px;line-height:42px"><span class="gw">가까운</span> 시험장에 오늘 자리 있어요.</div>
+          <div style="left:28px;top:84px;width:797px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+            <div class="tile" style="height:180px"><div style="height:100px;border-radius:12px;background:var(--onyx);display:flex;align-items:center;justify-content:center"><svg width="130" height="90"><use href="#course"/></svg></div><p style="font-size:20px;margin-top:8px">서초 시험장 · 3 km</p></div>
+            <div class="tile" style="height:180px"><div style="height:100px;border-radius:12px;background:var(--onyx);display:flex;align-items:center;justify-content:center"><svg width="130" height="90"><use href="#course-n"/></svg></div><p style="font-size:20px;margin-top:8px">강남 시험장 · 6 km</p></div>
+            <div class="tile" style="height:180px"><div style="height:100px;border-radius:12px;background:var(--onyx);display:flex;align-items:center;justify-content:center"><svg width="130" height="90"><use href="#course-n"/></svg></div><p style="font-size:20px;margin-top:8px">분당 시험장 · 14 km</p></div>
+          </div>
+          <div style="left:28px;top:284px;width:797px;height:40px;border-radius:20px;background:rgba(255,255,255,.4)"></div>
+          <div style="left:28px;top:358px"><div class="btng"><i>←</i>돌아가기</div></div>
+          <div class="btnk dim" style="left:560px;top:358px;width:265px">예약 →</div>
+        </div></div></div>
+        <div><p class="cap"><b>예약 가능</b>코스까지 고름</p><div class="sm"><div class="scr">
+          <div class="sent" style="left:200px;top:16px;width:630px;font-size:24px;line-height:36px">서초 시험장에서 14:00–15:00에 주차 3종을 <span class="gw">연습해요.</span></div>
+          <div style="left:28px;top:62px;width:797px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+            <div class="tile on" style="height:130px"><p style="font-size:17px;margin-top:80px">서초 시험장 3 km</p><span class="ck"><svg width="12" height="12"><use href="#tick"/></svg></span></div><div class="tile" style="height:130px"><p style="font-size:17px;margin-top:80px">강남 시험장 6 km</p></div><div class="tile" style="height:130px"><p style="font-size:17px;margin-top:80px">분당 시험장 14 km</p></div>
+          </div>
+          <div class="vrow" style="left:28px;top:208px;width:797px"><span class="vlab" style="width:40px">시간</span><div style="display:flex;gap:8px;flex:1"><span class="chipf on" style="flex:1">14:00–15:00</span><span class="chipf hat" style="flex:1"><s>16:00–17:00</s></span><span class="chipf w" style="flex:1">18:00–19:00</span></div></div>
+          <div class="vrow" style="left:28px;top:258px;width:797px"><span class="vlab" style="width:40px">코스</span><div style="display:flex;gap:8px;flex:1"><span class="chipf on" style="flex:1">주차 3종</span><span class="chipf w" style="flex:1">도로 A</span><span class="chipf w" style="flex:1">도로 B</span><span class="chipf w" style="flex:1.4">장내기능 모의시험</span></div></div>
+          <div style="left:28px;top:358px"><div class="btng"><i>←</i>돌아가기</div></div>
+          <span class="lkp w" style="left:196px;top:365px"><span class="dot sim"></span>예시입니다 — 실제 예약 연계 없음</span>
+          <div class="btnk" style="left:560px;top:358px;width:265px">예약 →</div>
+        </div></div></div>
+      </div>
+      <div class="notes">
+        <h4>장점</h4>
+        <ul><li>과제 시트의 과제 카드와 <b>같은 컴포넌트</b>(검은 카드 + 흰 체크) — 지금 시험장 카드 셋 배치를 살리면서 새 문법.</li><li>모든 정보가 한 면, 탭 셋.</li></ul>
+        <h4>주의점</h4>
+        <ul><li>공수 중간(작음에 가까움) — 지금 화면 구조와 같아 바꾸기 쉽지만 "색만 바뀜" 이라는 인상이 남을 위험.</li><li>고른 카드의 코스 지도만 노란 출발점 — 노란색 한 곳 규칙 때문에 문장 핀은 뺄 것.</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= V6 ================= -->
+<section class="prop">
+  <div class="ph"><span class="no">V6</span><div><h3>단계 카드가 쌓인다 <span class="eff">공수 중간~큼</span></h3><p class="one">시험장 → 시간 → 코스 를 카드 셋으로. 고를 때마다 다음 카드가 아래에서 올라와 앞 카드를 덮고, 앞 카드는 고른 값 한 줄 띠로 남는다(띠를 누르면 그 단계로). 왼쪽 단에서 문장이 한 줄씩 완성된다.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>시간·코스</b>③ 코스 카드가 서 있음</p>
+      <div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="sent" style="left:28px;top:66px;width:230px;font-size:26px;line-height:44px">서초 시험장에서<br>14:00–15:00에<br><span class="hp">코스</span>를<br><span class="gw">연습해요.</span></div>
+        <div class="wc back" style="left:276px;top:14px;width:552px;height:60px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;font-size:14px"><span><span class="eb" style="margin-right:10px">① 시험장</span>서초 시험장 · 3 km</span><span class="lkp">바꾸기</span></div>
+        <div class="wc back" style="left:268px;top:62px;width:568px;height:60px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;font-size:14px"><span><span class="eb" style="margin-right:10px">② 시간</span>14:00–15:00</span><span class="lkp">바꾸기</span></div>
+        <div class="wc" style="left:260px;top:112px;width:584px;height:236px;padding:14px 18px">
+          <p class="eb">③ 코스 — 서초 시험장에서 할 수 있는 코스</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+            <div class="tile" style="display:flex;align-items:center;gap:10px;height:76px;background:var(--chip);box-shadow:none"><span class="et">P</span><span style="font-size:16px">주차 3종</span></div>
+            <div class="tile" style="display:flex;align-items:center;gap:10px;height:76px;background:var(--chip);box-shadow:none"><span class="et">A</span><span style="font-size:16px">도로 A</span></div>
+            <div class="tile" style="display:flex;align-items:center;gap:10px;height:76px;background:var(--chip);box-shadow:none"><span class="et">B</span><span style="font-size:16px">도로 B</span></div>
+            <div class="tile" style="display:flex;align-items:center;gap:10px;height:76px;background:var(--chip);box-shadow:none"><span class="et"><svg><use href="#course-n"/></svg></span><span style="font-size:16px">장내기능 모의시험</span></div>
+          </div>
+        </div>
+        <div style="left:28px;top:358px"><div class="btng"><i>←</i>돌아가기</div></div>
+        <span class="lkp w" style="left:276px;top:365px"><span class="dot sim"></span>예시입니다 — 실제 예약 연계 없음</span>
+        <div class="btnk dim" style="left:579px;top:358px;width:265px">예약 →</div>
+      </div>
+    </div>
+    <div>
+      <div class="smalls">
+        <div><p class="cap"><b>목록</b>① 시험장 카드만</p><div class="sm"><div class="scr">
+          <div class="sent" style="left:28px;top:66px;width:230px;font-size:26px;line-height:44px"><span class="hp">시험장</span>에서<br><span class="gw">시간에</span><br><span class="gw">코스를</span><br><span class="gw">연습해요.</span></div>
+          <div class="wc" style="left:260px;top:30px;width:584px;height:318px;padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+            <p class="eb">① 시험장 — 가까운 순</p>
+            <div class="opt" style="background:var(--chip);box-shadow:none;height:70px"><span class="ctile"><svg><use href="#course"/></svg></span>서초 시험장<span class="r" style="font-family:var(--num);color:var(--mu)">3 km</span></div>
+            <div class="opt" style="background:var(--chip);box-shadow:none;height:70px"><span class="ctile"><svg><use href="#course-n"/></svg></span>강남 시험장<span class="r" style="font-family:var(--num);color:var(--mu)">6 km</span></div>
+            <div class="opt" style="background:var(--chip);box-shadow:none;height:70px"><span class="ctile"><svg><use href="#course-n"/></svg></span>분당 시험장<span class="r" style="font-family:var(--num);color:var(--mu)">14 km</span></div>
+          </div>
+          <div style="left:28px;top:358px"><div class="btng"><i>←</i>돌아가기</div></div>
+          <div class="btnk dim" style="left:579px;top:358px;width:265px">예약 →</div>
+        </div></div></div>
+        <div><p class="cap"><b>시간</b>② 시간 카드 — 마감 칸 빗금</p><div class="sm"><div class="scr">
+          <div class="sent" style="left:28px;top:66px;width:230px;font-size:26px;line-height:44px">서초 시험장에서<br><span class="hp">시간</span>에<br><span class="gw">코스를</span><br><span class="gw">연습해요.</span></div>
+          <div class="wc back" style="left:276px;top:14px;width:552px;height:60px;padding:0 18px;display:flex;align-items:center;font-size:14px"><span class="eb" style="margin-right:10px">① 시험장</span>서초 시험장 · 3 km</div>
+          <div class="wc" style="left:260px;top:64px;width:584px;height:284px;padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+            <p class="eb">② 시간 · 오늘</p>
+            <div class="slot" style="height:62px"><p class="t">14:00–15:00</p></div>
+            <div class="slot hat" style="height:62px"><p class="t"><s>16:00–17:00</s> <span class="mk2">마감</span></p></div>
+            <div class="slot" style="height:62px"><p class="t">18:00–19:00</p></div>
+          </div>
+          <div style="left:28px;top:358px"><div class="btng"><i>←</i>돌아가기</div></div>
+          <div class="btnk dim" style="left:579px;top:358px;width:265px">예약 →</div>
+        </div></div></div>
+      </div>
+      <div class="notes">
+        <h4>장점</h4>
+        <ul><li>핀 B 의 "올라와 겹쳐 쌓임" 을 가장 그대로 — 단계마다 한 가지만 묻는다.</li><li>강남·분당을 고르면 그 시험장 코스만 ③ 에 나와 "도로 B 없음" 같은 예외가 저절로 사라진다.</li></ul>
+        <h4>주의점</h4>
+        <ul><li>공수 중간~큼 — 단계 상태 + 카드 세 장 애니메이션. 계측 도구가 "예약" 을 찾기 전에 단계를 다 넘어야 함.</li><li>위 띠 60 px(180 dp) — 누르기 충분. 단, 셋째 카드가 다 서기 전엔 예약 → 이 흐린 채라 대기 시간이 생김.</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= V7 ================= -->
+<section class="prop">
+  <div class="ph"><span class="no">V7</span><div><h3>시간표 판 <span class="eff">공수 중간</span></h3><p class="one">시험장 셋 × 시간 셋을 한 장의 표로 — 칸 하나를 누르면 시험장과 시간이 한 번에 정해진다. 마감 칸은 빗금. 아래 한 줄은 고른 시험장의 코스. 탭 두 번이면 예약.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>시간·코스</b>서초 14:00 칸 고름</p>
+      <div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="sent" style="left:200px;top:16px;width:630px;font-size:24px;line-height:36px"><span class="wp">서초 시험장</span>에서 <span class="wp">14:00–15:00</span>에 <span class="hp">코스</span>를 <span class="gw">연습해요.</span></div>
+        <div class="wc" style="left:24px;top:62px;width:805px;height:216px;padding:12px 16px">
+          <div style="display:grid;grid-template-columns:170px repeat(3,1fr);gap:8px;align-items:center">
+            <span></span><span class="eb" style="text-align:center;font-family:var(--num)">14:00–15:00</span><span class="eb" style="text-align:center;font-family:var(--num)">16:00–17:00</span><span class="eb" style="text-align:center;font-family:var(--num)">18:00–19:00</span>
+            <span class="vt"><span class="ctile" style="width:44px;height:34px"><svg width="40" height="28"><use href="#course"/></svg></span><span style="font-size:15px">서초 <span style="font-family:var(--num);color:var(--mu);font-size:12px">3 km</span></span></span>
+            <span class="chipf on" style="height:46px">자리 있음 <svg width="12" height="12"><use href="#tick"/></svg></span><span class="chipf hat" style="height:46px"><s>마감</s></span><span class="chipf w" style="height:46px">자리 있음</span>
+            <span class="vt"><span class="ctile" style="width:44px;height:34px"><svg width="40" height="28"><use href="#course-n"/></svg></span><span style="font-size:15px">강남 <span style="font-family:var(--num);color:var(--mu);font-size:12px">6 km</span></span></span>
+            <span class="chipf hat" style="height:46px"><s>마감</s></span><span class="chipf w" style="height:46px">자리 있음</span><span class="chipf w" style="height:46px">자리 있음</span>
+            <span class="vt"><span class="ctile" style="width:44px;height:34px"><svg width="40" height="28"><use href="#course-n"/></svg></span><span style="font-size:15px">분당 <span style="font-family:var(--num);color:var(--mu);font-size:12px">14 km</span></span></span>
+            <span class="chipf w" style="height:46px">자리 있음</span><span class="chipf w" style="height:46px">자리 있음</span><span class="chipf hat" style="height:46px"><s>마감</s></span>
+          </div>
+        </div>
+        <div class="vrow" style="left:28px;top:292px;width:797px"><span class="vlab" style="width:110px">서초 시험장 코스</span><div style="display:flex;gap:8px;flex:1"><span class="chipf w" style="flex:1">주차 3종</span><span class="chipf w" style="flex:1">도로 A</span><span class="chipf w" style="flex:1">도로 B</span><span class="chipf w" style="flex:1.5">장내기능 모의시험</span></div></div>
+        <div style="left:28px;top:358px"><div class="btng"><i>←</i>돌아가기</div></div>
+        <span class="lkp w" style="left:196px;top:365px"><span class="dot sim"></span>예시입니다 — 실제 예약 연계 없음</span>
+        <div class="btnk dim" style="left:560px;top:358px;width:265px">예약 →</div>
+      </div>
+    </div>
+    <div>
+      <div class="smalls">
+        <div><p class="cap"><b>목록</b>처음 — 표만, 코스 줄 흐림</p><div class="sm"><div class="scr">
+          <div class="sent" style="left:28px;top:14px;width:800px;font-size:30px;line-height:42px">오늘 <span class="gw">언제 · 어디서</span> 연습할까요?</div>
+          <div class="wc" style="left:24px;top:68px;width:805px;height:220px;padding:14px 16px">
+            <div style="display:grid;grid-template-columns:170px repeat(3,1fr);gap:10px;align-items:center;font-size:16px">
+              <span></span><span class="eb" style="text-align:center">14:00–15:00</span><span class="eb" style="text-align:center">16:00–17:00</span><span class="eb" style="text-align:center">18:00–19:00</span>
+              <span>서초 · 3 km</span><span class="chipf w" style="height:46px">자리 있음</span><span class="chipf hat" style="height:46px"><s>마감</s></span><span class="chipf w" style="height:46px">자리 있음</span>
+              <span>강남 · 6 km</span><span class="chipf hat" style="height:46px"><s>마감</s></span><span class="chipf w" style="height:46px">자리 있음</span><span class="chipf w" style="height:46px">자리 있음</span>
+              <span>분당 · 14 km</span><span class="chipf w" style="height:46px">자리 있음</span><span class="chipf w" style="height:46px">자리 있음</span><span class="chipf hat" style="height:46px"><s>마감</s></span>
+            </div>
+          </div>
+          <div style="left:28px;top:300px;width:797px;height:40px;border-radius:20px;background:rgba(255,255,255,.4)"></div>
+          <div style="left:28px;top:358px"><div class="btng"><i>←</i>돌아가기</div></div>
+          <div class="btnk dim" style="left:560px;top:358px;width:265px">예약 →</div>
+        </div></div></div>
+        <div><p class="cap"><b>예약 가능</b>강남 16:00 · 도로 A</p><div class="sm"><div class="scr">
+          <div class="sent" style="left:200px;top:16px;width:630px;font-size:24px;line-height:36px">강남 시험장에서 16:00–17:00에 도로 A를 <span class="gw">연습해요.</span></div>
+          <div class="wc" style="left:24px;top:62px;width:805px;height:216px;padding:12px 16px">
+            <div style="display:grid;grid-template-columns:170px repeat(3,1fr);gap:8px;align-items:center;font-size:15px">
+              <span></span><span class="eb" style="text-align:center">14:00–15:00</span><span class="eb" style="text-align:center">16:00–17:00</span><span class="eb" style="text-align:center">18:00–19:00</span>
+              <span>서초 · 3 km</span><span class="chipf w" style="height:46px">자리 있음</span><span class="chipf hat" style="height:46px"><s>마감</s></span><span class="chipf w" style="height:46px">자리 있음</span>
+              <span>강남 · 6 km</span><span class="chipf hat" style="height:46px"><s>마감</s></span><span class="chipf on" style="height:46px">자리 있음 ✓</span><span class="chipf w" style="height:46px">자리 있음</span>
+              <span>분당 · 14 km</span><span class="chipf w" style="height:46px">자리 있음</span><span class="chipf w" style="height:46px">자리 있음</span><span class="chipf hat" style="height:46px"><s>마감</s></span>
+            </div>
+          </div>
+          <div class="vrow" style="left:28px;top:292px;width:797px"><span class="vlab" style="width:110px">강남 시험장 코스</span><div style="display:flex;gap:8px;flex:1"><span class="chipf w" style="flex:1">주차 3종</span><span class="chipf on" style="flex:1">도로 A</span><span class="chipf w" style="flex:1.5">장내기능 모의시험</span></div></div>
+          <div style="left:28px;top:358px"><div class="btng"><i>←</i>돌아가기</div></div>
+          <span class="lkp w" style="left:196px;top:365px"><span class="dot sim"></span>예시입니다 — 실제 예약 연계 없음</span>
+          <div class="btnk" style="left:560px;top:358px;width:265px">예약 →</div>
+        </div></div></div>
+      </div>
+      <div class="notes">
+        <h4>장점</h4>
+        <ul><li>"언제 되나" 를 시험장 셋 모두 한 번에 비교 — 다른 안은 시험장을 바꿔야 마감이 보인다.</li><li>탭 수 최소(칸 하나 + 코스 하나).</li></ul>
+        <h4>주의점</h4>
+        <ul><li>표는 운전석에서 읽기 가장 무겁다(9칸) — 칸 글자를 "자리 있음 / 마감" 두 말로만 줄인 이유.</li><li>문장 문법은 머리 한 줄로만 남는다.</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="reco">
+  <p class="k">B 추천 · 제휴 시험장</p>
+  <h3>V1 문장 예약 시트 — 과제 시트와 같은 문법 · 같은 부품. 마감이 급하면 V2 로 먼저, 카드는 나중에</h3>
+  <ul>
+    <li><b>왜</b>: 사용자가 "딱 저렇게" 라고 한 문장 시트를 시험장에 그대로 옮긴 유일한 안. 문장이 곧 예약 요약이고, 카드가 문장과 하단 줄 사이에만 올라와 <b>예약 → 이 늘 같은 자리</b>에 보인다. 마감 = 빗금 + 줄 긋기 + "마감" 칩 세 겹.</li>
+    <li><b>공수</b>: 중간 — 과제 시트 문장 시트를 먼저 만들면 낱말 칩 · 올라오는 카드를 그대로 재사용(시험장 카드 = V5 타일 셋).</li>
+    <li><b>시간이 모자라면</b>: V2(문장 머리 한 줄 + 지금 SelectionTrack 세 줄, 작음). 두 안의 하단 줄(← 돌아가기 · 예시 표식 · 예약 →)은 같다.</li>
+  </ul>
+</div>
+</section>
+
+<style>
+.trk.s span{height:28px;line-height:28px;font-size:12px}
+.pc{background:#fff;border-radius:14px;padding:8px 10px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.pc *{position:static}
+.pc p{font-size:13px;line-height:1.3}
+.pc small{display:block;font-size:10.5px;color:var(--mu);margin-top:4px;line-height:1.3}
+.pc.on{background:var(--kgrad);color:#fff}
+.pc.on small{color:#bbb}
+.kv *{position:static}
+.kv p{font-size:12px;line-height:1.75;display:flex;gap:6px;align-items:center;white-space:nowrap}
+.kv p b{font-weight:400;color:var(--mu);width:62px;flex:none}
+.dk .kv p b{color:var(--ash)}
+.mono{font-family:var(--mono);font-size:10px;letter-spacing:.04em;color:#7a7e81}
+.dbx{border:1.5px dashed #a3a6a8;border-radius:14px;padding:10px 12px}
+.dbx *{position:static}
+.rad{display:flex;align-items:center;gap:8px;font-size:12.5px;height:26px;white-space:nowrap}
+.rad i{width:13px;height:13px;border-radius:50%;border:1.5px solid #6b6f72;flex:none}
+.rad i.on{background:#353A3E;border-color:#353A3E;box-shadow:inset 0 0 0 2.5px #F3F3F3}
+.ach.d{border-style:dashed}
+.lnk{font-size:12px;text-decoration:underline;text-underline-offset:3px;color:#4a4e51;white-space:nowrap}
+.dk .lnk{color:var(--ash)}
+.bo{display:flex;align-items:center;gap:10px;height:38px;padding:0 18px 0 4px;border-radius:19px;border:1.5px solid var(--graphite);color:var(--graphite);font-size:13.5px;white-space:nowrap}
+.bo i{font-style:normal;width:30px;height:30px;border-radius:50%;background:var(--graphite);color:#fff;display:flex;align-items:center;justify-content:center}
+.bo.d{border-style:dashed}
+.dk .bo{border-color:var(--platinum);color:var(--platinum)}
+.dk .bo i{background:var(--platinum);color:var(--onyx)}
+.srow{display:grid;grid-template-columns:150px 1fr;align-items:center;min-height:34px;border-bottom:1px solid rgba(34,37,38,.08)}
+.srow *{position:static}
+.srow .k{font-size:12.5px}
+.srow .k .mono{display:block;font-size:8.5px}
+.srow .v{display:flex;gap:6px;align-items:center;flex-wrap:nowrap;font-size:12px}
+.drw *{position:static}
+</style>
+
+<section class="sec">
+  <div class="sh"><span class="L">C</span><div><h2>준비실 + 세션 중 관리자 띠 — 시연 전용 면</h2><p>Fake/Hybrid 시연 빌드에만 있는 면(Real 빌드엔 진입점 없음). 운전자 화면과 <b>한눈에 다른 층</b>이어야 한다 — 그래서 이 구역의 안들은 일부러 큰 문장 · 검은 입체 알약 · 노란 원을 거의 쓰지 않는다(운전자 문법을 빌리지 않음). 띠는 지금처럼 <b>내용 아래에 재서</b> 놓이고 운전자 버튼을 덮지 않는다. 도구(tools/)가 띠의 라벨로 조작하므로 라벨 문자열은 모든 안에서 그대로.</p></div></div>
+  <div class="data"><b>모든 안 같은 데이터</b>시연 프리셋 다섯 — 후면 주차 두 회차(못한 주차 → 잘한 주차) · 장내 모의시험(불합격 → 합격) · 출발 전 점검(일곱 단계) · 지식 테스트(정차 중 문항) · 예약 → 시험장(서초 장내기능 모의시험 예약) / 프로필 장롱 10년차 · 초보 · 숙련 · 비움 / 세션 중 패널 아래 띠 · 숨김 / 시뮬레이션 음성 입력 끔 · 카드 · 카드 + 글 / 지금: AI 코치 · 설정 없음 · 신호 출처 Fake 전부 · 시뮬레이션 · 기록 0회 · 연수생 장롱 10년차 · 목표: 아이 등하원 · 음성 입력 카드 + 글 / 기록 초기화 · 프로필 초기화 · "copilot_config.json 없음 — 시드 문장으로 말해요" · 이 설정으로 홈 → / 띠: 관리자 · 잘한 주차 · 못한 주차 · 시나리오 정지 · 정차 · 출발 · 문 열기 · 문 닫기 · 더 보기 ▴(펼치면 기록 초기화 · 패널 숨김 · 신호 출처 · 재생 중 · AI 코치)</div>
+
+<!-- ================= C1 ================= -->
+<section class="prop">
+  <div class="ph"><span class="no">C1</span><div><h3>흰 카드 대시보드 <span class="eff s">공수 작음</span></h3><p class="one">레퍼런스 6(연회색 대시보드 · 흰 둥근 카드)를 낮은 목소리로 — 왼쪽 흰 카드 = "지금" 상태, 오른쪽 = 프리셋 다섯 작은 카드 · 트랙 셋. 큰 문장 없음, 주 버튼도 검은 입체가 아닌 테두리 알약. 띠 = Graphite 한 줄.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>준비실</b>워드마크 길게 누르기로 들어옴</p>
+      <div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <span class="demo" style="left:150px;top:19px;color:#6b6f72">DEMO ONLY · 시연 빌드</span>
+        <div class="wc" style="left:24px;top:50px;width:250px;height:354px;padding:16px 18px;box-shadow:0 1px 2px rgba(0,0,0,.06)">
+          <p class="eb">관리자 모드</p>
+          <p style="font-size:26px;font-weight:500;letter-spacing:-.02em;margin-top:2px">시연 준비</p>
+          <p style="font-size:12.5px;color:#4a4e51;margin-top:4px;line-height:1.5">프리셋을 고르고<br>홈에서 연습을 시작해요.</p>
+          <div class="kv" style="margin-top:22px;border-top:1px solid rgba(34,37,38,.1);padding-top:10px">
+            <p class="eb" style="margin-bottom:2px">지금</p>
+            <p><b>AI 코치</b>설정 없음</p>
+            <p><b>신호 출처</b><span class="dot sim"></span>Fake 전부 · 시뮬레이션</p>
+            <p><b>기록</b>0회</p>
+            <p><b>연수생</b>장롱 10년차</p>
+            <p><b>목표</b>아이 등하원</p>
+            <p><b>음성 입력</b>카드 + 글</p>
+          </div>
+        </div>
+        <div class="eb" style="left:292px;top:48px">시연 프리셋 — 누르면 기록을 비우고 홈 제안을 고정</div>
+        <div style="left:292px;top:68px;width:538px;display:grid;grid-template-columns:repeat(5,1fr);gap:6px">
+          <div class="pc" style="height:78px"><p>후면 주차<br>두 회차</p><small>못한 주차 → 잘한 주차</small></div>
+          <div class="pc" style="height:78px"><p>장내<br>모의시험</p><small>불합격 → 합격</small></div>
+          <div class="pc" style="height:78px"><p>출발 전<br>점검</p><small>일곱 단계</small></div>
+          <div class="pc" style="height:78px"><p>지식<br>테스트</p><small>정차 중 문항</small></div>
+          <div class="pc" style="height:78px"><p>예약 →<br>시험장</p><small>서초 장내기능 모의시험 예약</small></div>
+        </div>
+        <div class="eb" style="left:292px;top:158px">프로필</div>
+        <div class="trk s" style="left:292px;top:176px;width:538px"><span class="on">장롱 10년차</span><span>초보</span><span>숙련</span><span>비움</span></div>
+        <div class="eb" style="left:292px;top:222px">세션 중 패널</div>
+        <div class="trk s" style="left:292px;top:240px;width:220px"><span class="on">아래 띠</span><span>숨김</span></div>
+        <div class="eb" style="left:530px;top:222px">시뮬레이션 음성 입력</div>
+        <div class="trk s" style="left:530px;top:240px;width:300px"><span>끔</span><span>카드</span><span class="on">카드 + 글</span></div>
+        <div style="left:292px;top:290px;display:flex;gap:18px"><span class="lnk">기록 초기화</span><span class="lnk">프로필 초기화</span></div>
+        <div class="eb" style="left:292px;top:314px">copilot_config.json 없음 — 시드 문장으로 말해요</div>
+        <div class="bo" style="left:610px;top:362px;width:220px"><i>→</i>이 설정으로 홈</div>
+      </div>
+    </div>
+    <div>
+      <div class="smalls">
+        <div><p class="cap"><b>띠</b>세션 중 — Graphite 한 줄</p><div class="sm"><div class="scr">
+          <div style="left:0;top:0;width:380px;height:383px;background:var(--onyx)"></div>
+          <div class="wm" style="left:28px;top:24px;color:var(--platinum)">DRIVE COACH</div>
+          <svg style="left:40px;top:50px" width="300" height="240" viewBox="0 0 300 240"><path d="M60 236 Q140 200 150 140M250 236 Q190 200 186 140" fill="none" stroke="#6f7376" stroke-width="2" stroke-dasharray="6 6"/><path d="M110 236 Q150 200 168 160" fill="none" stroke="#E0E0E0" stroke-width="2.4"/></svg>
+          <svg style="left:144px;top:60px;color:#E0E0E0" width="56" height="97" viewBox="0 0 44 76"><use href="#car4"/></svg>
+          <div class="eb" style="left:28px;top:300px;color:var(--ash)">조향각</div>
+          <div class="num" style="left:28px;top:318px;font-size:30px;color:#fff">오른쪽 450°</div>
+          <div class="eb" style="left:404px;top:28px">후면 직각 주차 · 1회차</div>
+          <div class="num" style="left:700px;top:22px;font-size:28px;width:125px;text-align:right">3 km/h</div>
+          <div style="left:690px;top:56px;width:135px;justify-content:flex-end;font-size:11.5px;display:flex;align-items:center;gap:5px"><span class="dot sim"></span>시뮬레이션 신호</div>
+          <div class="eb" style="left:404px;top:104px">코치 · 4/6</div>
+          <div class="sent" style="left:404px;top:124px;width:430px;font-size:32px;line-height:44px">핸들을 오른쪽 끝까지<br><span class="gw">돌려 주세요.</span></div>
+          <div style="left:404px;top:250px;display:flex;gap:44px"><div><p class="eb">기어</p><p class="num" style="font-size:40px">R</p></div><div><p class="eb">뒤 거리</p><p class="num" style="font-size:40px">85 cm</p></div></div>
+          <div class="band dk" style="left:0;top:383px;width:853px;height:40px;background:var(--graphite);padding:0 12px">
+            <span class="demo" style="color:var(--ash)">관리자</span><span class="ach">잘한 주차</span><span class="ach">못한 주차</span><span style="flex:1"></span><span class="ach">시나리오 정지</span><span class="ach">정차</span><span class="ach">출발</span><span class="ach">문 열기</span><span class="ach">문 닫기</span><span class="ach">더 보기 ▴</span>
+          </div>
+        </div></div></div>
+        <div><p class="cap"><b>띠 · 더 보기</b>둘째 줄이 아래에서 펼침 — 내용은 그만큼 위로</p><div class="sm"><div class="scr">
+          <div style="left:0;top:0;width:380px;height:343px;background:var(--onyx)"></div>
+          <svg style="left:144px;top:50px;color:#E0E0E0" width="56" height="97" viewBox="0 0 44 76"><use href="#car4"/></svg>
+          <div class="eb" style="left:404px;top:28px">후면 직각 주차 · 1회차</div>
+          <div class="sent" style="left:404px;top:100px;width:430px;font-size:32px;line-height:44px">핸들을 오른쪽 끝까지<br><span class="gw">돌려 주세요.</span></div>
+          <div class="band dk" style="left:0;top:343px;width:853px;height:40px;background:var(--graphite);padding:0 12px">
+            <span class="demo" style="color:var(--ash)">관리자</span><span class="ach">잘한 주차</span><span class="ach">못한 주차</span><span style="flex:1"></span><span class="ach">시나리오 정지</span><span class="ach">정차</span><span class="ach">출발</span><span class="ach">문 열기</span><span class="ach">문 닫기</span><span class="ach on">접기 ▾</span>
+          </div>
+          <div class="band dk" style="left:0;top:383px;width:853px;height:40px;background:#2c3033;padding:0 12px;font-size:11.5px;color:var(--ash)">
+            <span class="ach">기록 초기화</span><span class="ach">패널 숨김</span><span style="margin-left:10px;display:flex;align-items:center;gap:5px"><span class="dot sim"></span>신호 출처 · Fake 전부 · 재생 중 · 3/7</span><span style="flex:1"></span><span>AI 코치 · 설정 없음</span>
+          </div>
+        </div></div></div>
+      </div>
+      <div class="notes">
+        <h4>장점</h4>
+        <ul><li><b>가장 싸다</b> — 지금 준비실의 두 단(어두운 왼쪽 · 흰 오른쪽)을 흰 카드 둘로 바꾸고 트랙만 작은 크기로. 정보·라벨 전부 그대로.</li><li>운전자 화면과 다른 층: 큰 문장 없음 · 테두리 주 버튼 · DEMO 표식.</li></ul>
+        <h4>주의점</h4>
+        <ul><li>흰 카드 + 트랙 문법은 운전자 과제 시트와 비슷해 보여 "운전자용인가?" 로 오해될 여지 — DEMO 표식이 꼭 필요.</li><li>띠는 지금과 같은 위치·라벨 → 도구 수정 0.</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= C2 ================= -->
+<section class="prop">
+  <div class="ph"><span class="no">C2</span><div><h3>점선 작업대 <span class="eff s">공수 작음</span></h3><p class="one">무대 뒤처럼 — 평평한 회색 바탕, 그림자 0, 모든 칸이 <b>점선 테두리</b>, 머리말은 고정폭 대문자(PRESET · PROFILE · PANEL · VOICE · NOW). 선택은 라디오 점. 운전자 화면(입체 · 흰 카드)과 재료가 아예 달라 섞일 일이 없다.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>준비실</b>세 단 작업대</p>
+      <div class="scr" style="background:#F3F3F3">
+        <div class="mono" style="left:28px;top:22px;color:var(--onyx);font-size:11px">BACKSTAGE · 시연 준비실</div>
+        <span class="demo" style="left:230px;top:19px;color:#6b6f72">DEMO ONLY</span>
+        <div class="eb" style="left:28px;top:42px">프리셋을 고르고 홈에서 연습을 시작해요.</div>
+        <div class="dbx" style="left:24px;top:70px;width:262px;height:282px">
+          <p class="mono">PRESET 시연 프리셋</p>
+          <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px">
+            <div class="dbx" style="padding:5px 10px;border-radius:10px"><p style="font-size:12.5px">후면 주차 두 회차</p><p style="font-size:10.5px;color:var(--mu)">못한 주차 → 잘한 주차</p></div>
+            <div class="dbx" style="padding:5px 10px;border-radius:10px"><p style="font-size:12.5px">장내 모의시험</p><p style="font-size:10.5px;color:var(--mu)">불합격 → 합격</p></div>
+            <div class="dbx" style="padding:5px 10px;border-radius:10px"><p style="font-size:12.5px">출발 전 점검 <span style="font-size:10.5px;color:var(--mu)">· 일곱 단계</span></p></div>
+            <div class="dbx" style="padding:5px 10px;border-radius:10px"><p style="font-size:12.5px">지식 테스트 <span style="font-size:10.5px;color:var(--mu)">· 정차 중 문항</span></p></div>
+            <div class="dbx" style="padding:5px 10px;border-radius:10px"><p style="font-size:12.5px">예약 → 시험장</p><p style="font-size:10.5px;color:var(--mu)">서초 장내기능 모의시험 예약</p></div>
+          </div>
+        </div>
+        <div class="dbx" style="left:298px;top:70px;width:250px;height:282px">
+          <p class="mono">PROFILE 프로필</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;margin-top:4px"><p class="rad"><i class="on"></i>장롱 10년차</p><p class="rad"><i></i>초보</p><p class="rad"><i></i>숙련</p><p class="rad"><i></i>비움</p></div>
+          <p class="mono" style="margin-top:14px">PANEL 세션 중 패널</p>
+          <div style="display:flex;gap:18px;margin-top:2px"><p class="rad"><i class="on"></i>아래 띠</p><p class="rad"><i></i>숨김</p></div>
+          <p class="mono" style="margin-top:14px">VOICE 시뮬레이션 음성 입력</p>
+          <div style="display:flex;gap:14px;margin-top:2px"><p class="rad"><i></i>끔</p><p class="rad"><i></i>카드</p><p class="rad"><i class="on"></i>카드 + 글</p></div>
+          <div style="display:flex;gap:8px;margin-top:20px"><span class="ach d">기록 초기화</span><span class="ach d">프로필 초기화</span></div>
+        </div>
+        <div class="dbx" style="left:560px;top:70px;width:270px;height:282px">
+          <p class="mono">NOW 지금</p>
+          <div class="kv" style="margin-top:4px">
+            <p><b>AI 코치</b>설정 없음</p>
+            <p><b>신호 출처</b><span class="dot sim"></span>Fake 전부 · 시뮬레이션</p>
+            <p><b>기록</b>0회</p>
+            <p><b>연수생</b>장롱 10년차</p>
+            <p><b>목표</b>아이 등하원</p>
+            <p><b>음성 입력</b>카드 + 글</p>
+          </div>
+          <p class="mono" style="margin-top:10px">AI COACH</p>
+          <p style="font-size:11.5px;color:#4a4e51;line-height:1.45;margin-top:2px">copilot_config.json 없음 —<br>시드 문장으로 말해요</p>
+        </div>
+        <div class="bo d" style="left:610px;top:364px;width:220px"><i>→</i>이 설정으로 홈</div>
+      </div>
+    </div>
+    <div>
+      <div class="smalls">
+        <div><p class="cap"><b>띠</b>점선 캡슐 — 무대 뒤 재료 그대로</p><div class="sm"><div class="scr">
+          <div style="left:0;top:0;width:380px;height:378px;background:var(--onyx)"></div>
+          <div class="wm" style="left:28px;top:24px;color:var(--platinum)">DRIVE COACH</div>
+          <svg style="left:144px;top:60px;color:#E0E0E0" width="56" height="97" viewBox="0 0 44 76"><use href="#car4"/></svg>
+          <div class="num" style="left:28px;top:318px;font-size:30px;color:#fff">오른쪽 450°</div>
+          <div class="eb" style="left:404px;top:28px">후면 직각 주차 · 1회차</div>
+          <div class="num" style="left:700px;top:22px;font-size:28px;width:125px;text-align:right">3 km/h</div>
+          <div style="left:690px;top:56px;width:135px;justify-content:flex-end;font-size:11.5px;display:flex;align-items:center;gap:5px"><span class="dot sim"></span>시뮬레이션 신호</div>
+          <div class="sent" style="left:404px;top:124px;width:430px;font-size:32px;line-height:44px">핸들을 오른쪽 끝까지<br><span class="gw">돌려 주세요.</span></div>
+          <div style="left:404px;top:250px;display:flex;gap:44px"><div><p class="eb">기어</p><p class="num" style="font-size:40px">R</p></div><div><p class="eb">뒤 거리</p><p class="num" style="font-size:40px">85 cm</p></div></div>
+          <div style="left:0;top:378px;width:853px;height:45px;background:#F3F3F3"></div>
+          <div class="band" style="left:10px;top:384px;width:833px;height:33px;border:1.5px dashed #9a9da0;border-radius:17px;padding:0 6px 0 12px">
+            <span class="mono" style="color:var(--onyx)">ADMIN</span><span class="ach d">잘한 주차</span><span class="ach d">못한 주차</span><span style="flex:1"></span><span class="ach d">시나리오 정지</span><span class="ach d">정차</span><span class="ach d">출발</span><span class="ach d">문 열기</span><span class="ach d">문 닫기</span><span class="ach d">더 보기 ▴</span>
+          </div>
+        </div></div></div>
+        <div><p class="cap"><b>띠 · 더 보기</b>점선 칸 하나가 위로 열림</p><div class="sm"><div class="scr">
+          <div style="left:0;top:0;width:380px;height:300px;background:var(--onyx)"></div>
+          <svg style="left:144px;top:40px;color:#E0E0E0" width="56" height="97" viewBox="0 0 44 76"><use href="#car4"/></svg>
+          <div class="sent" style="left:404px;top:80px;width:430px;font-size:32px;line-height:44px">핸들을 오른쪽 끝까지<br><span class="gw">돌려 주세요.</span></div>
+          <div style="left:0;top:300px;width:853px;height:123px;background:#F3F3F3"></div>
+          <div class="dbx" style="left:10px;top:306px;width:833px;height:70px;padding:8px 12px">
+            <div style="display:flex;gap:8px;align-items:center"><span class="ach d">기록 초기화</span><span class="ach d">패널 숨김</span><span class="mono" style="margin-left:12px">SOURCE</span><span style="font-size:12px;display:flex;align-items:center;gap:5px"><span class="dot sim"></span>Fake 전부 · 재생 중 · 3/7</span></div>
+            <p style="font-size:12px;margin-top:6px"><span class="mono">AI COACH</span> 설정 없음 — copilot_config.json 없음 · 시드 문장으로 말해요</p>
+          </div>
+          <div class="band" style="left:10px;top:384px;width:833px;height:33px;border:1.5px dashed #9a9da0;border-radius:17px;padding:0 6px 0 12px">
+            <span class="mono" style="color:var(--onyx)">ADMIN</span><span class="ach d">잘한 주차</span><span class="ach d">못한 주차</span><span style="flex:1"></span><span class="ach d">시나리오 정지</span><span class="ach d">정차</span><span class="ach d">출발</span><span class="ach d">문 열기</span><span class="ach d">문 닫기</span><span class="ach on">접기 ▾</span>
+          </div>
+        </div></div></div>
+      </div>
+      <div class="notes">
+        <h4>장점</h4>
+        <ul><li><b>가장 분명하게 "뒤쪽 면"</b> — 점선 · 고정폭 · 그림자 0. 시연 영상에 잠깐 비쳐도 운전자 UI 와 헷갈리지 않는다.</li><li>공수 작음 — 점선 테두리 모디파이어 하나 + 라디오 행. 그림자·그라데이션 없음.</li></ul>
+        <h4>주의점</h4>
+        <ul><li>너무 "미완성" 처럼 보일 수 있다 — 심사 영상에 준비실이 길게 나오면 덜 다듬어 보임(영상엔 띠만 짧게).</li><li>라디오 점 13 px(39 dp) — 행 전체를 누르게 해 터치 높이 확보.</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= C3 ================= -->
+<section class="prop">
+  <div class="ph"><span class="no">C3</span><div><h3>문장 준비실 — 작은 목소리 <span class="eff">공수 중간</span></h3><p class="one">운전자 문장 시트의 문법을 빌리되 한 단계 낮게: 문장은 회색 Graphite 26 px, 낱말 칩은 그림자 없는 테두리. "[장롱 10년차] 연수생으로 [후면 주차 두 회차]를 보여 줘요." 띠는 접힌 손잡이 "관리자 ▴" 하나.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>준비실</b>문장이 곧 지금 설정</p>
+      <div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <span class="demo" style="left:150px;top:19px;color:#6b6f72">DEMO ONLY · 관리자 모드</span>
+        <div class="eb" style="left:28px;top:70px">시연 준비</div>
+        <div style="left:28px;top:92px;width:800px;font-size:26px;line-height:48px;color:var(--graphite);letter-spacing:-.01em">
+          <span style="border:1.5px solid var(--graphite);border-radius:999px;padding:0 12px">장롱 10년차</span> 연수생으로 <span style="border:1.5px solid var(--graphite);border-radius:999px;padding:0 12px">후면 주차 두 회차</span>를 보여 줘요.<br>
+          세션 중 패널은 <span style="border:1.5px solid var(--graphite);border-radius:999px;padding:0 12px">아래 띠</span>, 음성 입력은 <span style="border:1.5px solid var(--graphite);border-radius:999px;padding:0 12px">카드 + 글</span><span style="color:#9a9da0">.</span>
+        </div>
+        <div class="eb" style="left:28px;top:200px">프리셋 낱말을 누르면 다섯 장면 카드가 올라와요 · 못한 주차 → 잘한 주차</div>
+        <div style="left:28px;top:236px;display:flex;gap:8px;flex-wrap:wrap;width:800px">
+          <span class="lkp">AI 코치 · 설정 없음</span><span class="lkp"><span class="dot sim"></span>신호 출처 · Fake 전부 · 시뮬레이션</span><span class="lkp">기록 · 0회</span><span class="lkp">목표 · 아이 등하원</span>
+        </div>
+        <div class="eb" style="left:28px;top:276px">copilot_config.json 없음 — 시드 문장으로 말해요</div>
+        <div style="left:28px;top:306px;display:flex;gap:18px"><span class="lnk">기록 초기화</span><span class="lnk">프로필 초기화</span></div>
+        <div class="bo" style="left:610px;top:362px;width:220px"><i>→</i>이 설정으로 홈</div>
+      </div>
+    </div>
+    <div>
+      <div class="smalls">
+        <div><p class="cap"><b>준비실 · 프리셋 카드</b>낱말을 누름 → 카드 올라옴(그림자 얕게)</p><div class="sm"><div class="scr">
+          <div style="left:28px;top:40px;width:800px;font-size:20px;line-height:36px;color:var(--graphite)"><span style="border:1.5px solid var(--graphite);border-radius:999px;padding:0 10px">장롱 10년차</span> 연수생으로 <span style="background:var(--graphite);color:#fff;border-radius:999px;padding:0 10px">후면 주차 두 회차</span>를 보여 줘요.</div>
+          <div class="wc" style="left:24px;top:110px;width:805px;height:300px;padding:16px 18px;box-shadow:0 -4px 10px -4px rgba(0,0,0,.12)">
+            <p class="eb">시연 프리셋 — 누르면 기록을 비우고 홈 제안을 고정</p>
+            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:10px">
+              <div class="pc" style="height:120px;border:2px solid var(--graphite);box-shadow:none"><p style="font-size:16px">후면 주차<br>두 회차</p><small style="font-size:12px">못한 주차 → 잘한 주차</small></div>
+              <div class="pc" style="height:120px;background:var(--chip);box-shadow:none"><p style="font-size:16px">장내<br>모의시험</p><small style="font-size:12px">불합격 → 합격</small></div>
+              <div class="pc" style="height:120px;background:var(--chip);box-shadow:none"><p style="font-size:16px">출발 전<br>점검</p><small style="font-size:12px">일곱 단계</small></div>
+              <div class="pc" style="height:120px;background:var(--chip);box-shadow:none"><p style="font-size:16px">지식<br>테스트</p><small style="font-size:12px">정차 중 문항</small></div>
+              <div class="pc" style="height:120px;background:var(--chip);box-shadow:none"><p style="font-size:16px">예약 →<br>시험장</p><small style="font-size:12px">서초 장내기능 모의시험 예약</small></div>
+            </div>
+            <div style="display:flex;justify-content:flex-end;margin-top:30px"><span class="lkp">↓ 닫기</span></div>
+          </div>
+        </div></div></div>
+        <div><p class="cap"><b>띠</b>접힌 손잡이 하나 — 누르면 펼침</p><div class="sm"><div class="scr">
+          <div style="left:0;top:0;width:380px;height:423px;background:var(--onyx)"></div>
+          <div class="wm" style="left:28px;top:24px;color:var(--platinum)">DRIVE COACH</div>
+          <svg style="left:144px;top:60px;color:#E0E0E0" width="56" height="97" viewBox="0 0 44 76"><use href="#car4"/></svg>
+          <div class="num" style="left:28px;top:318px;font-size:30px;color:#fff">오른쪽 450°</div>
+          <div class="eb" style="left:404px;top:28px">후면 직각 주차 · 1회차</div>
+          <div class="num" style="left:700px;top:22px;font-size:28px;width:125px;text-align:right">3 km/h</div>
+          <div style="left:690px;top:56px;width:135px;justify-content:flex-end;font-size:11.5px;display:flex;align-items:center;gap:5px"><span class="dot sim"></span>시뮬레이션 신호</div>
+          <div class="sent" style="left:404px;top:124px;width:430px;font-size:32px;line-height:44px">핸들을 오른쪽 끝까지<br><span class="gw">돌려 주세요.</span></div>
+          <div style="left:404px;top:250px;display:flex;gap:44px"><div><p class="eb">기어</p><p class="num" style="font-size:40px">R</p></div><div><p class="eb">뒤 거리</p><p class="num" style="font-size:40px">85 cm</p></div></div>
+          <div class="band" style="left:12px;top:380px;height:32px;padding:0 14px;border-radius:16px;border:1.5px solid rgba(224,224,224,.5);color:var(--platinum);font-size:12px">관리자 ▴ <span style="color:var(--ash);margin-left:6px">재생 중 · 3/7</span></div>
+        </div></div></div>
+      </div>
+      <div class="notes">
+        <h4>장점</h4>
+        <ul><li>운전자 문장 시트와 <b>같은 생각</b>이라 발표에서 "관리자도 같은 말투" 로 설명이 쉽다. 지금 설정이 한 문장으로 읽힘.</li><li>세션 중 화면이 가장 깨끗(손잡이 하나).</li></ul>
+        <h4>주의점</h4>
+        <ul><li>공수 중간 — 낱말 넷 × 카드.</li><li><b>도구가 띠 라벨(잘한 주차 · 정차 …)을 찾는다</b> — 접힌 기본이면 tools/ 를 "관리자 ▴ 먼저 누름" 으로 고쳐야 한다(사내 점검 스크립트 영향).</li><li>운전자 문장 시트와 너무 닮으면 층 구분이 흐려짐 → 그림자 0 · 회색 글자로 낮춤.</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= C4 ================= -->
+<section class="prop">
+  <div class="ph"><span class="no">C4</span><div><h3>어두운 콘솔 <span class="eff">공수 중간</span></h3><p class="one">결과판(Onyx · 테두리 알약 · 작은 대문자 · 촘촘한 표)의 재료로 — 다만 숫자 알약은 없다. 밝은 운전자 홈과 정반대 밝기라 "다른 방" 으로 읽힌다. 띠도 같은 Onyx 에 테두리 알약.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>준비실</b>콘솔</p>
+      <div class="scr dk">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <span class="up" style="left:150px;top:21px;color:var(--ash)">ADMIN · DEMO BUILD</span>
+        <p style="left:28px;top:56px;font-size:24px;color:#fff;font-weight:500">시연 준비</p>
+        <p class="eb" style="left:28px;top:92px;color:var(--ash)">프리셋을 고르고 홈에서 연습을 시작해요.</p>
+        <div class="up" style="left:28px;top:124px;color:var(--ash)">PRESET</div>
+        <div style="left:28px;top:142px;width:520px;display:flex;flex-wrap:wrap;gap:8px">
+          <span class="ach" style="height:34px;padding:0 14px">후면 주차 두 회차 <span style="color:var(--ash);margin-left:6px">못한 → 잘한</span></span>
+          <span class="ach" style="height:34px;padding:0 14px">장내 모의시험 <span style="color:var(--ash);margin-left:6px">불합격 → 합격</span></span>
+          <span class="ach" style="height:34px;padding:0 14px">출발 전 점검 <span style="color:var(--ash);margin-left:6px">일곱 단계</span></span>
+          <span class="ach" style="height:34px;padding:0 14px">지식 테스트 <span style="color:var(--ash);margin-left:6px">정차 중 문항</span></span>
+          <span class="ach" style="height:34px;padding:0 14px">예약 → 시험장 <span style="color:var(--ash);margin-left:6px">서초 장내기능 모의시험</span></span>
+        </div>
+        <div class="up" style="left:28px;top:236px;color:var(--ash)">PROFILE</div>
+        <div style="left:28px;top:254px;display:flex;gap:6px"><span class="ach on" style="height:32px">장롱 10년차</span><span class="ach" style="height:32px">초보</span><span class="ach" style="height:32px">숙련</span><span class="ach" style="height:32px">비움</span></div>
+        <div class="up" style="left:28px;top:298px;color:var(--ash)">PANEL · VOICE INPUT</div>
+        <div style="left:28px;top:316px;display:flex;gap:6px"><span class="ach on" style="height:32px">아래 띠</span><span class="ach" style="height:32px">숨김</span><span style="width:14px"></span><span class="ach" style="height:32px">끔</span><span class="ach" style="height:32px">카드</span><span class="ach on" style="height:32px">카드 + 글</span></div>
+        <div style="left:28px;top:372px;display:flex;gap:18px"><span class="lnk">기록 초기화</span><span class="lnk">프로필 초기화</span></div>
+        <div style="left:574px;top:52px;width:256px;height:290px;border:1.5px solid rgba(224,224,224,.3);border-radius:22px;padding:14px 16px">
+          <div class="up" style="color:var(--ash);position:static">NOW</div>
+          <table class="tb" style="width:100%;margin-top:6px;position:static">
+            <tr><td style="color:var(--ash)">AI 코치</td><td>설정 없음</td></tr>
+            <tr><td style="color:var(--ash)">신호 출처</td><td><span class="dot sim"></span> Fake 전부</td></tr>
+            <tr><td style="color:var(--ash)">기록</td><td>0회</td></tr>
+            <tr><td style="color:var(--ash)">연수생</td><td>장롱 10년차</td></tr>
+            <tr><td style="color:var(--ash)">목표</td><td>아이 등하원</td></tr>
+            <tr><td style="color:var(--ash)">음성 입력</td><td>카드 + 글</td></tr>
+          </table>
+          <p style="font-size:11px;color:var(--ash);margin-top:10px;line-height:1.45;position:static">copilot_config.json 없음 —<br>시드 문장으로 말해요</p>
+        </div>
+        <div class="bo" style="left:610px;top:362px;width:220px"><i>→</i>이 설정으로 홈</div>
+      </div>
+    </div>
+    <div>
+      <div class="smalls">
+        <div><p class="cap"><b>띠</b>Onyx 띠 · 테두리 알약 · 작은 대문자</p><div class="sm"><div class="scr">
+          <div style="left:0;top:0;width:380px;height:380px;background:var(--onyx)"></div>
+          <div class="wm" style="left:28px;top:24px;color:var(--platinum)">DRIVE COACH</div>
+          <svg style="left:144px;top:60px;color:#E0E0E0" width="56" height="97" viewBox="0 0 44 76"><use href="#car4"/></svg>
+          <div class="num" style="left:28px;top:318px;font-size:30px;color:#fff">오른쪽 450°</div>
+          <div class="eb" style="left:404px;top:28px">후면 직각 주차 · 1회차</div>
+          <div class="num" style="left:700px;top:22px;font-size:28px;width:125px;text-align:right">3 km/h</div>
+          <div style="left:690px;top:56px;width:135px;justify-content:flex-end;font-size:11.5px;display:flex;align-items:center;gap:5px"><span class="dot sim"></span>시뮬레이션 신호</div>
+          <div class="sent" style="left:404px;top:124px;width:430px;font-size:32px;line-height:44px">핸들을 오른쪽 끝까지<br><span class="gw">돌려 주세요.</span></div>
+          <div style="left:404px;top:250px;display:flex;gap:44px"><div><p class="eb">기어</p><p class="num" style="font-size:40px">R</p></div><div><p class="eb">뒤 거리</p><p class="num" style="font-size:40px">85 cm</p></div></div>
+          <div class="band dk" style="background:var(--onyx);left:0;top:380px;width:853px;height:43px;padding:0 12px;border-top:1px solid #444">
+            <span class="up" style="color:var(--ash)">ADMIN</span><span class="ach">잘한 주차</span><span class="ach">못한 주차</span><span style="flex:1"></span><span class="ach">시나리오 정지</span><span class="ach">정차</span><span class="ach">출발</span><span class="ach">문 열기</span><span class="ach">문 닫기</span><span class="ach">더 보기 ▴</span>
+          </div>
+        </div></div></div>
+        <div><p class="cap"><b>띠 · 더 보기</b>둘째 줄 = 표 한 줄</p><div class="sm"><div class="scr">
+          <div style="left:0;top:0;width:380px;height:336px;background:var(--onyx)"></div>
+          <svg style="left:144px;top:40px;color:#E0E0E0" width="56" height="97" viewBox="0 0 44 76"><use href="#car4"/></svg>
+          <div class="sent" style="left:404px;top:100px;width:430px;font-size:32px;line-height:44px">핸들을 오른쪽 끝까지<br><span class="gw">돌려 주세요.</span></div>
+          <div class="band dk" style="background:var(--onyx);left:0;top:336px;width:853px;height:43px;padding:0 12px;border-top:1px solid #444">
+            <span class="up" style="color:var(--ash)">ADMIN</span><span class="ach">잘한 주차</span><span class="ach">못한 주차</span><span style="flex:1"></span><span class="ach">시나리오 정지</span><span class="ach">정차</span><span class="ach">출발</span><span class="ach">문 열기</span><span class="ach">문 닫기</span><span class="ach on">접기 ▾</span>
+          </div>
+          <div class="band dk" style="background:var(--onyx);left:0;top:379px;width:853px;height:44px;padding:0 12px;font-size:11.5px;color:var(--ash);border-top:1px solid #333">
+            <span class="ach">기록 초기화</span><span class="ach">패널 숨김</span><span class="up" style="margin-left:12px">SOURCE</span><span style="display:flex;align-items:center;gap:5px;color:var(--platinum)"><span class="dot sim"></span>Fake 전부 · 재생 중 · 3/7</span><span style="flex:1"></span><span class="up">AI</span><span style="color:var(--platinum)">설정 없음</span>
+          </div>
+        </div></div></div>
+      </div>
+      <div class="notes">
+        <h4>장점</h4>
+        <ul><li>결과판과 같은 재료 — 새 부품이 거의 없다(테두리 알약 · 표).</li><li>밝은 운전자 홈 ↔ 어두운 콘솔: 들어오고 나갈 때 층이 바뀌는 게 분명.</li></ul>
+        <h4>주의점</h4>
+        <ul><li>결과판(운전자가 보는 진단서·기록)과 같은 어두운 판이라 "결과 화면인가?" 로 잠깐 헷갈릴 수 있다 — 큰 숫자 알약이 없어서 구분은 됨.</li><li>공수 중간 — 지금 왼쪽 어두운 단을 전체로 넓히고 칩을 테두리 알약으로.</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= C5 ================= -->
+<section class="prop">
+  <div class="ph"><span class="no">C5</span><div><h3>홈 위 서랍 <span class="eff">공수 중간</span></h3><p class="one">준비실이 별도 화면이 아니라 <b>홈 오른쪽에서 밀려 나오는 좁은 서랍</b>. 홈(H8)은 어둡게 깔린 채 보인다 — 바꾼 설정이 홈 제목에 바로 비친다. 띠는 가운데를 비운 두 섬.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>준비실</b>홈 위로 서랍</p>
+      <div class="scr wt">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="sent" style="left:28px;top:80px;width:520px;font-size:52px;line-height:66px;letter-spacing:-.03em">오늘은 <u style="text-underline-offset:8px">후면 직각 주차</u>를<br><u style="text-underline-offset:8px">힌트</u>로 연습해요.</div>
+        <div style="left:28px;top:270px;width:440px;height:1px;background:var(--onyx)"></div>
+        <div style="left:360px;top:300px;width:100px;height:100px;border-radius:50%;background:var(--onyx);color:#fff;display:flex;align-items:center;justify-content:center;font-size:40px">↗</div>
+        <div style="left:0;top:0;width:853px;height:423px;background:rgba(34,37,38,.5)"></div>
+        <div class="drw" style="left:478px;top:0;width:375px;height:423px;background:#F6F6F6;border-radius:24px 0 0 24px;padding:14px 18px;box-shadow:-12px 0 30px rgba(0,0,0,.25)">
+          <div style="display:flex;align-items:center;justify-content:space-between"><p style="font-size:15px;font-weight:500">시연 준비 <span class="demo" style="color:#6b6f72;margin-left:4px">DEMO</span></p><span class="lkp">✕</span></div>
+          <p class="eb" style="margin-top:4px">시연 프리셋</p>
+          <div style="display:flex;flex-direction:column;gap:3px;margin-top:2px">
+            <div class="rad" style="justify-content:space-between;background:#fff;border-radius:10px;padding:0 10px">후면 주차 두 회차<span class="eb">못한 → 잘한</span></div>
+            <div class="rad" style="justify-content:space-between;background:#fff;border-radius:10px;padding:0 10px">장내 모의시험<span class="eb">불합격 → 합격</span></div>
+            <div class="rad" style="justify-content:space-between;background:#fff;border-radius:10px;padding:0 10px">출발 전 점검<span class="eb">일곱 단계</span></div>
+            <div class="rad" style="justify-content:space-between;background:#fff;border-radius:10px;padding:0 10px">지식 테스트<span class="eb">정차 중 문항</span></div>
+            <div class="rad" style="justify-content:space-between;background:#fff;border-radius:10px;padding:0 10px">예약 → 시험장<span class="eb">서초 장내기능 모의시험</span></div>
+          </div>
+          <p class="eb" style="margin-top:8px">프로필</p>
+          <div class="trk s"><span class="on">장롱 10년차</span><span>초보</span><span>숙련</span><span>비움</span></div>
+          <div style="display:flex;gap:8px;margin-top:6px">
+            <div style="flex:1"><p class="eb">세션 중 패널</p><div class="trk s"><span class="on">아래 띠</span><span>숨김</span></div></div>
+            <div style="flex:1.3"><p class="eb">음성 입력</p><div class="trk s"><span>끔</span><span>카드</span><span class="on">카드+글</span></div></div>
+          </div>
+          <p style="font-size:11px;color:#4a4e51;margin-top:8px;line-height:1.5;display:flex;align-items:center;gap:5px;flex-wrap:wrap">AI 코치 설정 없음 · <span class="dot sim"></span> Fake 전부 · 기록 0회 · 목표: 아이 등하원</p>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px"><span style="display:flex;gap:12px"><span class="lnk">기록 초기화</span><span class="lnk">프로필 초기화</span></span><div class="bo" style="height:32px;font-size:12.5px"><i style="width:24px;height:24px">→</i>이 설정으로 홈</div></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="smalls">
+        <div><p class="cap"><b>띠</b>가운데를 비운 두 섬</p><div class="sm"><div class="scr">
+          <div style="left:0;top:0;width:380px;height:423px;background:var(--onyx)"></div>
+          <div class="wm" style="left:28px;top:24px;color:var(--platinum)">DRIVE COACH</div>
+          <svg style="left:144px;top:60px;color:#E0E0E0" width="56" height="97" viewBox="0 0 44 76"><use href="#car4"/></svg>
+          <div class="num" style="left:28px;top:300px;font-size:30px;color:#fff">오른쪽 450°</div>
+          <div class="eb" style="left:404px;top:28px">후면 직각 주차 · 1회차</div>
+          <div class="num" style="left:700px;top:22px;font-size:28px;width:125px;text-align:right">3 km/h</div>
+          <div style="left:690px;top:56px;width:135px;justify-content:flex-end;font-size:11.5px;display:flex;align-items:center;gap:5px"><span class="dot sim"></span>시뮬레이션 신호</div>
+          <div class="sent" style="left:404px;top:124px;width:430px;font-size:32px;line-height:44px">핸들을 오른쪽 끝까지<br><span class="gw">돌려 주세요.</span></div>
+          <div style="left:404px;top:250px;display:flex;gap:44px"><div><p class="eb">기어</p><p class="num" style="font-size:40px">R</p></div><div><p class="eb">뒤 거리</p><p class="num" style="font-size:40px">85 cm</p></div></div>
+          <div class="band dk" style="left:10px;top:380px;height:34px;padding:0 6px 0 12px;border-radius:17px;background:var(--graphite)"><span style="font-size:11px;color:var(--ash)">관리자</span><span class="ach">잘한 주차</span><span class="ach">못한 주차</span><span class="ach">시나리오 정지</span></div>
+          <div class="band" style="left:440px;top:380px;height:34px;padding:0 6px;border-radius:17px;background:rgba(255,255,255,.85)"><span class="ach">정차</span><span class="ach">출발</span><span class="ach">문 열기</span><span class="ach">문 닫기</span><span class="ach">더 보기 ▴</span></div>
+        </div></div></div>
+        <div><p class="cap"><b>준비실 · 적용</b>프리셋 누름 → 서랍 닫히며 홈 제목이 바뀜</p><div class="sm"><div class="scr wt">
+          <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+          <div class="sent" style="left:28px;top:80px;width:620px;font-size:52px;line-height:66px;letter-spacing:-.03em">오늘은 <u style="text-underline-offset:8px">후면 직각 주차</u>를<br><u style="text-underline-offset:8px">힌트</u>로 연습해요.</div>
+          <div style="left:28px;top:270px;width:797px;height:1px;background:var(--onyx)"></div>
+          <div style="left:720px;top:300px;width:100px;height:100px;border-radius:50%;background:var(--onyx);color:#fff;display:flex;align-items:center;justify-content:center;font-size:40px">↗</div>
+          <div style="left:0;top:0;width:853px;height:423px;background:rgba(34,37,38,.12)"></div>
+          <div style="left:760px;top:0;width:93px;height:423px;background:#F6F6F6;border-radius:24px 0 0 24px;box-shadow:-12px 0 30px rgba(0,0,0,.2)"></div>
+          <span class="lkp" style="left:28px;top:300px;background:var(--graphite);color:#fff">후면 주차 두 회차 적용 · 기록 비움 · 장롱 10년차</span>
+        </div></div></div>
+      </div>
+      <div class="notes">
+        <h4>장점</h4>
+        <ul><li>준비실 → 홈 왕복이 0 — 설정 결과가 홈 제목에 바로 보인다(시연자가 확인하기 쉬움).</li><li>띠 두 섬은 가운데(운전자 문장·버튼 축)를 비워 둔다.</li></ul>
+        <h4>주의점</h4>
+        <ul><li>서랍 폭 375 px(1125 dp) — 프리셋 행이 촘촘해 행 높이 26 px(78 dp). 시연자 전용이라 허용하되 112 dp 기준엔 못 미침.</li><li>두 섬이면 도구가 찾는 라벨은 그대로지만 위치가 바뀌어 화면 좌표를 쓰는 도구 단계가 있다면 확인 필요.</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= C6 ================= -->
+<section class="prop">
+  <div class="ph"><span class="no">C6</span><div><h3>설정 표 <span class="eff s">공수 작음</span></h3><p class="one">시스템 설정처럼 — 흰 카드 하나에 행 여덟(왼쪽 이름 · 오른쪽 작은 테두리 칩). 꾸밈 없이 한 장에 다 읽히는 표. 띠는 무리마다 이름(SCENARIO · VEHICLE · DOOR)이 붙은 두 층.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>준비실</b>행 여덟</p>
+      <div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <p style="left:28px;top:44px;font-size:18px;font-weight:500">시연 준비 <span style="font-size:12px;color:var(--mu);font-weight:400">· 관리자 모드 · 프리셋을 고르고 홈에서 연습을 시작해요.</span></p>
+        <span class="demo" style="left:722px;top:46px;color:#6b6f72">DEMO ONLY</span>
+        <div class="wc" style="left:24px;top:78px;width:805px;height:272px;padding:4px 18px;box-shadow:0 1px 2px rgba(0,0,0,.06)">
+          <div class="srow"><span class="k">시연 프리셋<span class="mono">PRESET</span></span><span class="v"><span class="ach">후면 주차 두 회차</span><span class="ach">장내 모의시험</span><span class="ach">출발 전 점검</span><span class="ach">지식 테스트</span><span class="ach">예약 → 시험장</span></span></div>
+          <div class="srow"><span class="k">프로필<span class="mono">PROFILE</span></span><span class="v"><span class="ach on">장롱 10년차</span><span class="ach">초보</span><span class="ach">숙련</span><span class="ach">비움</span><span class="lnk" style="margin-left:auto">프로필 초기화</span></span></div>
+          <div class="srow"><span class="k">세션 중 패널<span class="mono">PANEL</span></span><span class="v"><span class="ach on">아래 띠</span><span class="ach">숨김</span></span></div>
+          <div class="srow"><span class="k">시뮬레이션 음성 입력<span class="mono">VOICE INPUT</span></span><span class="v"><span class="ach">끔</span><span class="ach">카드</span><span class="ach on">카드 + 글</span></span></div>
+          <div class="srow"><span class="k">신호 출처<span class="mono">SOURCE</span></span><span class="v"><span class="dot sim"></span>Fake 전부 · 시뮬레이션</span></div>
+          <div class="srow"><span class="k">AI 코치<span class="mono">AI COACH</span></span><span class="v">설정 없음 <span style="color:var(--mu)">— copilot_config.json 없음 · 시드 문장으로 말해요</span></span></div>
+          <div class="srow"><span class="k">기록<span class="mono">RECORDS</span></span><span class="v">0회 <span class="lnk" style="margin-left:auto">기록 초기화</span></span></div>
+          <div class="srow" style="border:none"><span class="k">연수생<span class="mono">LEARNER</span></span><span class="v">장롱 10년차 · 목표: 아이 등하원</span></div>
+        </div>
+        <div class="eb" style="left:28px;top:372px">프리셋을 누르면 기록을 비우고 홈 제안을 고정해요.</div>
+        <div class="bo" style="left:610px;top:362px;width:220px"><i>→</i>이 설정으로 홈</div>
+      </div>
+    </div>
+    <div>
+      <div class="smalls">
+        <div><p class="cap"><b>띠</b>무리 이름이 붙은 두 층</p><div class="sm"><div class="scr">
+          <div style="left:0;top:0;width:380px;height:370px;background:var(--onyx)"></div>
+          <div class="wm" style="left:28px;top:24px;color:var(--platinum)">DRIVE COACH</div>
+          <svg style="left:144px;top:60px;color:#E0E0E0" width="56" height="97" viewBox="0 0 44 76"><use href="#car4"/></svg>
+          <div class="num" style="left:28px;top:300px;font-size:30px;color:#fff">오른쪽 450°</div>
+          <div class="eb" style="left:404px;top:28px">후면 직각 주차 · 1회차</div>
+          <div class="num" style="left:700px;top:22px;font-size:28px;width:125px;text-align:right">3 km/h</div>
+          <div style="left:690px;top:56px;width:135px;justify-content:flex-end;font-size:11.5px;display:flex;align-items:center;gap:5px"><span class="dot sim"></span>시뮬레이션 신호</div>
+          <div class="sent" style="left:404px;top:124px;width:430px;font-size:32px;line-height:44px">핸들을 오른쪽 끝까지<br><span class="gw">돌려 주세요.</span></div>
+          <div style="left:404px;top:250px;display:flex;gap:44px"><div><p class="eb">기어</p><p class="num" style="font-size:40px">R</p></div><div><p class="eb">뒤 거리</p><p class="num" style="font-size:40px">85 cm</p></div></div>
+          <div style="left:0;top:370px;width:853px;height:53px;background:#EDEDED;border-top:1px solid rgba(34,37,38,.2)"></div>
+          <div style="left:12px;top:373px;display:flex;gap:0">
+            <div style="padding:0 12px 0 0"><p class="mono" style="font-size:8.5px">관리자 · SCENARIO</p><div class="band" style="margin-top:2px"><span class="ach">잘한 주차</span><span class="ach">못한 주차</span><span class="ach">시나리오 정지</span></div></div>
+            <div style="padding:0 12px;border-left:1px solid rgba(34,37,38,.2)"><p class="mono" style="font-size:8.5px">VEHICLE</p><div class="band" style="margin-top:2px"><span class="ach">정차</span><span class="ach">출발</span></div></div>
+            <div style="padding:0 12px;border-left:1px solid rgba(34,37,38,.2)"><p class="mono" style="font-size:8.5px">DOOR</p><div class="band" style="margin-top:2px"><span class="ach">문 열기</span><span class="ach">문 닫기</span></div></div>
+            <div style="padding:0 0 0 12px;border-left:1px solid rgba(34,37,38,.2)"><p class="mono" style="font-size:8.5px">MORE</p><div class="band" style="margin-top:2px"><span class="ach">더 보기 ▴</span></div></div>
+          </div>
+        </div></div></div>
+        <div><p class="cap"><b>띠 · 숨김</b>"숨김" 이면 띠 0 — 시연 영상 녹화용</p><div class="sm"><div class="scr">
+          <div style="left:0;top:0;width:380px;height:423px;background:var(--onyx)"></div>
+          <div class="wm" style="left:28px;top:24px;color:var(--platinum)">DRIVE COACH</div>
+          <svg style="left:144px;top:70px;color:#E0E0E0" width="56" height="97" viewBox="0 0 44 76"><use href="#car4"/></svg>
+          <div class="num" style="left:28px;top:340px;font-size:30px;color:#fff">오른쪽 450°</div>
+          <div class="eb" style="left:404px;top:28px">후면 직각 주차 · 1회차</div>
+          <div class="num" style="left:700px;top:22px;font-size:28px;width:125px;text-align:right">3 km/h</div>
+          <div style="left:690px;top:56px;width:135px;justify-content:flex-end;font-size:11.5px;display:flex;align-items:center;gap:5px"><span class="dot sim"></span>시뮬레이션 신호</div>
+          <div class="sent" style="left:404px;top:140px;width:430px;font-size:32px;line-height:44px">핸들을 오른쪽 끝까지<br><span class="gw">돌려 주세요.</span></div>
+          <div style="left:404px;top:290px;display:flex;gap:44px"><div><p class="eb">기어</p><p class="num" style="font-size:40px">R</p></div><div><p class="eb">뒤 거리</p><p class="num" style="font-size:40px">85 cm</p></div></div>
+          <span class="demo" style="left:12px;top:398px;color:#6f7376;border-color:#555">워드마크 길게 누르면 준비실</span>
+        </div></div></div>
+      </div>
+      <div class="notes">
+        <h4>장점</h4>
+        <ul><li>공수 작음 — 행 컴포넌트 하나 반복. 표라서 시연자가 체크리스트처럼 위에서 아래로 훑는다.</li><li>띠의 무리 이름 덕에 "정차/출발" 과 "문" 을 잘못 누를 일이 줄어든다.</li></ul>
+        <h4>주의점</h4>
+        <ul><li>밋밋하다 — 의도된 것(시연 전용)이지만 화면 캡처에 걸리면 앱 톤과 덜 닮음.</li><li>두 층 띠는 높이 53 px(159 dp) — 지금 띠(90 dp)보다 높아 주차 화면 아래가 그만큼 줄어든다.</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= C7 ================= -->
+<section class="prop">
+  <div class="ph"><span class="no">C7</span><div><h3>프리셋 하나로 <span class="eff">공수 중간</span></h3><p class="one">시연자가 하는 일의 9할 = 프리셋 하나 누르기. 그래서 다섯 장면 카드가 화면의 주인공이고, 나머지(프로필 · 패널 · 음성 · 상태)는 한 줄로 접힌 "세부". 띠도 최소 — 차 조작 넷은 "차 ▴" 하나로 묶음.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>준비실</b>장면 카드 다섯 + 접힌 세부</p>
+      <div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <span class="demo" style="left:150px;top:19px;color:#6b6f72">DEMO ONLY · 관리자 모드</span>
+        <p style="left:28px;top:54px;font-size:22px;color:var(--graphite);font-weight:500">어떤 장면을 보여 줄까요?</p>
+        <div style="left:28px;top:98px;width:800px;display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
+          <div class="pc on" style="height:160px;padding:12px"><span class="et" style="width:40px;height:40px;background:#fff;color:#111;font-family:var(--num);font-size:18px">P</span><p style="font-size:15px;margin-top:12px">후면 주차<br>두 회차</p><small style="font-size:11px">못한 주차 → 잘한 주차</small></div>
+          <div class="pc" style="height:160px;padding:12px"><span class="et" style="width:40px;height:40px;font-size:14px">시험</span><p style="font-size:15px;margin-top:12px">장내<br>모의시험</p><small style="font-size:11px">불합격 → 합격</small></div>
+          <div class="pc" style="height:160px;padding:12px"><span class="et" style="width:40px;height:40px"><svg width="20" height="20"><use href="#tick"/></svg></span><p style="font-size:15px;margin-top:12px">출발 전<br>점검</p><small style="font-size:11px">일곱 단계</small></div>
+          <div class="pc" style="height:160px;padding:12px"><span class="et" style="width:40px;height:40px;font-size:18px">?</span><p style="font-size:15px;margin-top:12px">지식<br>테스트</p><small style="font-size:11px">정차 중 문항</small></div>
+          <div class="pc" style="height:160px;padding:12px"><span class="et" style="width:40px;height:40px;font-size:16px">↗</span><p style="font-size:15px;margin-top:12px">예약 →<br>시험장</p><small style="font-size:11px">서초 장내기능 모의시험 예약</small></div>
+        </div>
+        <div style="left:28px;top:276px;width:800px;height:40px;border-radius:20px;background:rgba(255,255,255,.6);display:flex;align-items:center;gap:10px;padding:0 16px;font-size:12px;color:#4a4e51;white-space:nowrap">
+          <span class="mono">세부</span>장롱 10년차 · 아래 띠 · 음성 카드 + 글 · AI 코치 설정 없음 · <span class="dot sim"></span> Fake 전부 · 기록 0회 · 목표 아이 등하원<span style="margin-left:auto;color:var(--onyx)">펼치기 ▾</span>
+        </div>
+        <div style="left:28px;top:330px;display:flex;gap:18px"><span class="lnk">기록 초기화</span><span class="lnk">프로필 초기화</span><span class="eb">copilot_config.json 없음 — 시드 문장으로 말해요</span></div>
+        <div class="bo" style="left:610px;top:364px;width:220px"><i>→</i>이 설정으로 홈</div>
+      </div>
+    </div>
+    <div>
+      <div class="smalls">
+        <div><p class="cap"><b>준비실 · 세부 펼침</b>접힌 줄이 아래에서 카드로</p><div class="sm"><div class="scr">
+          <p style="left:28px;top:30px;font-size:22px;color:var(--graphite);font-weight:500">어떤 장면을 보여 줄까요?</p>
+          <div style="left:28px;top:70px;width:800px;display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
+            <div class="pc on" style="height:70px"><p>후면 주차 두 회차</p></div><div class="pc" style="height:70px"><p>장내 모의시험</p></div><div class="pc" style="height:70px"><p>출발 전 점검</p></div><div class="pc" style="height:70px"><p>지식 테스트</p></div><div class="pc" style="height:70px"><p>예약 → 시험장</p></div>
+          </div>
+          <div class="wc" style="left:24px;top:156px;width:805px;height:260px;padding:14px 18px;box-shadow:0 -4px 10px -4px rgba(0,0,0,.12)">
+            <div style="display:flex;justify-content:space-between"><span class="mono">세부</span><span class="lkp">접기 ▴</span></div>
+            <p class="eb" style="margin-top:6px">프로필</p><div class="trk s"><span class="on">장롱 10년차</span><span>초보</span><span>숙련</span><span>비움</span></div>
+            <div style="display:flex;gap:12px;margin-top:8px"><div style="flex:1"><p class="eb">세션 중 패널</p><div class="trk s"><span class="on">아래 띠</span><span>숨김</span></div></div><div style="flex:1.4"><p class="eb">시뮬레이션 음성 입력</p><div class="trk s"><span>끔</span><span>카드</span><span class="on">카드 + 글</span></div></div></div>
+            <p style="font-size:12px;color:#4a4e51;margin-top:12px;display:flex;align-items:center;gap:6px">AI 코치 · 설정 없음 · 신호 출처 <span class="dot sim"></span> Fake 전부 · 시뮬레이션 · 기록 0회 · 연수생 장롱 10년차 · 목표: 아이 등하원</p>
+          </div>
+        </div></div></div>
+        <div><p class="cap"><b>띠</b>최소 — 차 조작 넷은 "차 ▴" 로 묶음</p><div class="sm"><div class="scr">
+          <div style="left:0;top:0;width:380px;height:383px;background:var(--onyx)"></div>
+          <div class="wm" style="left:28px;top:24px;color:var(--platinum)">DRIVE COACH</div>
+          <svg style="left:144px;top:60px;color:#E0E0E0" width="56" height="97" viewBox="0 0 44 76"><use href="#car4"/></svg>
+          <div class="num" style="left:28px;top:300px;font-size:30px;color:#fff">오른쪽 450°</div>
+          <div class="eb" style="left:404px;top:28px">후면 직각 주차 · 1회차</div>
+          <div class="num" style="left:700px;top:22px;font-size:28px;width:125px;text-align:right">3 km/h</div>
+          <div style="left:690px;top:56px;width:135px;justify-content:flex-end;font-size:11.5px;display:flex;align-items:center;gap:5px"><span class="dot sim"></span>시뮬레이션 신호</div>
+          <div class="sent" style="left:404px;top:124px;width:430px;font-size:32px;line-height:44px">핸들을 오른쪽 끝까지<br><span class="gw">돌려 주세요.</span></div>
+          <div style="left:404px;top:250px;display:flex;gap:44px"><div><p class="eb">기어</p><p class="num" style="font-size:40px">R</p></div><div><p class="eb">뒤 거리</p><p class="num" style="font-size:40px">85 cm</p></div></div>
+          <div class="wc" style="left:560px;top:250px;width:180px;height:126px;padding:8px;border-radius:16px;display:flex;flex-direction:column;gap:4px"><span class="ach" style="justify-content:flex-start">정차</span><span class="ach" style="justify-content:flex-start">출발</span><span class="ach" style="justify-content:flex-start">문 열기</span><span class="ach" style="justify-content:flex-start">문 닫기</span></div>
+          <div class="band" style="left:0;top:383px;width:853px;height:40px;background:#E7E7E7;padding:0 12px;border-top:1px solid rgba(34,37,38,.15)"><span style="font-size:11px;color:var(--mu)">관리자</span><span class="ach">잘한 주차</span><span class="ach">못한 주차</span><span class="ach">시나리오 정지</span><span style="flex:1"></span><span class="ach on" style="margin-right:84px">차 ▴</span><span class="ach">더 보기 ▴</span></div>
+        </div></div></div>
+      </div>
+      <div class="notes">
+        <h4>장점</h4>
+        <ul><li>시연 순서와 같은 위계 — 장면 고르기가 가장 크다. 고른 장면 = 검은 카드(마지막 적용).</li><li>세션 중 띠의 칩이 아홉 → 여섯, 운전자 화면 아래가 조용해진다.</li></ul>
+        <h4>주의점</h4>
+        <ul><li>공수 중간 — 접힘 카드 + 띠 묶음 팝업.</li><li><b>도구가 "정차 · 출발 · 문 열기 · 문 닫기" 를 띠에서 바로 찾는다</b> → 묶으면 tools/ 와 사내 점검 스크립트를 함께 고쳐야 한다(10/9 마감 전엔 위험).</li><li>검은 카드 = 운전자 문법의 "고른 것" 과 같아 층 구분이 약해짐.</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="reco">
+  <p class="k">C 추천 · 준비실 + 관리자 띠</p>
+  <h3>준비실 = C2 점선 작업대 · 띠 = C2 점선 캡슐(라벨 · 순서 그대로). 시간이 남으면 준비실 머리만 C7 처럼 프리셋을 크게</h3>
+  <ul>
+    <li><b>왜</b>: 시연 전용 면은 "운전자 화면처럼 보이지 않는 것" 이 첫째 조건 — 점선 · 고정폭 · 그림자 0 은 운전자 쪽(입체 · 흰 카드 · 큰 문장)과 재료부터 달라 영상에 잠깐 비쳐도 섞이지 않는다.</li>
+    <li><b>공수</b>: 작음 — 점선 테두리 하나 + 라디오 행. 띠는 라벨·순서·높이를 지금과 같게 둬 <b>tools/ · 사내 점검 스크립트 수정 0</b>(C3·C7 처럼 접거나 묶는 안은 도구까지 고쳐야 해서 10/9 마감 전엔 보류).</li>
+    <li><b>대안</b>: 앱 톤과 더 닮아야 한다면 C1(흰 카드 대시보드 + Graphite 띠, 역시 작음).</li>
+  </ul>
+</div>
+</section>
+
+<style>
+.sum{width:100%;border-collapse:collapse;margin-top:14px;background:#fff;border-radius:18px;overflow:hidden;font-size:13px}
+.sum th{font-weight:500;font-size:11.5px;letter-spacing:.06em;color:#6b6f72;text-align:left;padding:10px 14px;border-bottom:1px solid rgba(34,37,38,.15);background:#F7F7F7}
+.sum td{padding:9px 14px;border-bottom:1px solid rgba(34,37,38,.08);vertical-align:top}
+.sum tr.pick td{background:#222526;color:#E0E0E0}
+.sum tr.pick td b{color:#fff}
+.sum td.e{white-space:nowrap}
+</style>
+<section class="sec">
+  <div class="sh"><span class="L">Σ</span><div><h2>요약 — 화면별 일곱 안과 추천</h2><p>검은 줄 = 추천. 공수는 10/9 마감 기준(작음 = 반나절 안 · 중간 = 하루 · 큼 = 하루 넘음). 모든 안이 기능 · 버튼 이름 · 문구 · 정직성 표식 · 도구 라벨을 그대로 둔다(바꾸는 안은 주의점에 적었다).</p></div></div>
+  <table class="sum">
+    <tr><th style="width:120px">화면</th><th style="width:250px">안</th><th>한 줄</th><th style="width:90px">공수</th></tr>
+    <tr class="pick"><td><b>A 퀴즈</b></td><td><b>Q1 문장 시트 문항</b> + Q6 결과판</td><td>문항 = 큰 문장 + 흰 알약 보기 넷 + 해설 흰 카드(C1) · 결과 = Onyx 쌍 알약 06 → 05 + 촘촘한 표</td><td class="e">중간</td></tr>
+    <tr><td></td><td>Q2 왼쪽 큰 번호 판</td><td>지금 뼈대 + 거대한 02 · 그림 칸 · 흰 줄 보기 — 가장 쌈, 새 느낌은 약함</td><td class="e">작음</td></tr>
+    <tr><td></td><td>Q3 그림이 주인공</td><td>도로 그림 반 화면 · 보기 = 어두운 기호 타일 · 결과 = 그림 격자</td><td class="e">중간</td></tr>
+    <tr><td></td><td>Q4 겹친 문항 덱</td><td>남은 문항 = 뒤 카드 · 보기 = 트랙 네 칸 · 결과 = 덱 펼침</td><td class="e">중간</td></tr>
+    <tr><td></td><td>Q5 진행 알약 띠</td><td>위 알약 여섯이 진행 · 결과에서 복습 목록으로</td><td class="e">중간</td></tr>
+    <tr><td></td><td>Q6 어두운 시험지</td><td>전체 Onyx · 테두리 알약 · 고른 답 → 정답 쌍 알약</td><td class="e">중간</td></tr>
+    <tr><td></td><td>Q7 흰 벽 문항(H8)</td><td>거대한 문항 · 가는 선 아래 네 칸 · 결과 큰 ↗ = 메인으로</td><td class="e">중간</td></tr>
+    <tr class="pick"><td><b>B 시험장</b></td><td><b>V1 문장 예약 시트</b></td><td>"[서초 시험장]에서 [14:00–15:00]에 [주차 3종]을 연습해요." · 카드는 문장과 하단 줄 사이로 · 예약 → 늘 보임(흐림 → 켜짐)</td><td class="e">중간</td></tr>
+    <tr><td></td><td>V2 문장 머리 + 세 줄 트랙</td><td>요약 문장 한 줄 + 늘 펼친 트랙 셋 — 시간이 없을 때의 V1</td><td class="e">작음</td></tr>
+    <tr><td></td><td>V3 겹친 시험장 덱</td><td>앞 장만 크게 · 뒤는 이름·거리 띠 · 세로 문장</td><td class="e">중간</td></tr>
+    <tr><td></td><td>V4 거리 자 위의 알약</td><td>0–15 km 자 위에 시험장 알약 — 결과판 자 문법</td><td class="e">중간</td></tr>
+    <tr><td></td><td>V5 시험장 타일 셋</td><td>과제 카드 문법(검은 카드 + 흰 체크) + 흰 알약 줄</td><td class="e">중간</td></tr>
+    <tr><td></td><td>V6 단계 카드가 쌓인다</td><td>시험장 → 시간 → 코스 카드, 앞 카드는 값 띠로</td><td class="e">중간~큼</td></tr>
+    <tr><td></td><td>V7 시간표 판</td><td>시험장 × 시간 아홉 칸 — 칸 하나로 둘 다 고름</td><td class="e">중간</td></tr>
+    <tr class="pick"><td><b>C 준비실 · 띠</b></td><td><b>C2 점선 작업대 + 점선 캡슐 띠</b></td><td>점선 · 고정폭 · 그림자 0 — 운전자 화면과 재료부터 다름 · 띠 라벨·순서 그대로(도구 수정 0)</td><td class="e">작음</td></tr>
+    <tr><td></td><td>C1 흰 카드 대시보드</td><td>지금 두 단을 흰 카드 둘로 · Graphite 띠 — 앱 톤에 가장 가까움</td><td class="e">작음</td></tr>
+    <tr><td></td><td>C3 문장 준비실</td><td>낮은 목소리의 문장 · 띠는 접힌 손잡이(도구 수정 필요)</td><td class="e">중간</td></tr>
+    <tr><td></td><td>C4 어두운 콘솔</td><td>결과판 재료(Onyx · 테두리 알약 · 표) · Onyx 띠</td><td class="e">중간</td></tr>
+    <tr><td></td><td>C5 홈 위 서랍</td><td>홈 위로 좁은 서랍 · 띠는 가운데를 비운 두 섬</td><td class="e">중간</td></tr>
+    <tr><td></td><td>C6 설정 표</td><td>행 여덟 표 · 띠는 무리 이름이 붙은 두 층</td><td class="e">작음</td></tr>
+    <tr><td></td><td>C7 프리셋 하나로</td><td>장면 카드 다섯이 주인공 · 세부 접힘 · 띠 최소(도구 수정 필요)</td><td class="e">중간</td></tr>
+  </table>
+</section>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,1601 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>출발 전 점검 · 코스 주행 — 라운드 28 시안</title>
+<style>
+:root{
+  --onyx:#222526; --platinum:#E0E0E0; --graphite:#353A3E; --jet:#1A1A1A; --ash:#BFBFBF; --white:#FFFFFF;
+  --signal:#F52D48; --sigd:#C2112B; --yellow:#F2C230; --chip:#F1F1F1; --gw:#B3B5B7; --mu:#7a7e81;
+  --kr:"Noto Sans KR","Malgun Gothic",system-ui,sans-serif;
+  --num:"Segoe UI Variable Display","Bahnschrift",Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#ECECEC;color:var(--onyx);font-family:var(--kr);line-height:1.5}
+.page{max-width:1600px;margin:0 auto;padding:40px 24px 64px}
+.head h1{font-size:30px;font-weight:500;letter-spacing:-.01em}
+.head .lead{font-size:15px;color:#5a5e61;margin-top:6px;max-width:1380px}
+.chipline{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.chipline span{font-size:12px;padding:4px 12px;border-radius:14px;border:1px solid rgba(34,37,38,.25)}
+.chipline span.k{background:var(--onyx);color:var(--platinum);border-color:var(--onyx)}
+.rules{margin-top:18px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.rules div{background:#fff;border-radius:14px;padding:10px 14px;font-size:12.5px}
+.rules div>b:first-child{display:block;font-size:11px;letter-spacing:.08em;color:#6b6f72;font-weight:500;margin-bottom:2px}
+.part{margin-top:56px;display:flex;align-items:baseline;gap:16px;padding:18px 24px;border-radius:22px;background:var(--onyx);color:var(--platinum)}
+.part .no{font-family:var(--num);font-size:46px;line-height:1;font-weight:500}
+.part h2{font-size:28px;font-weight:500}
+.part p{font-size:14px;color:var(--ash);margin-top:2px}
+.prop{margin-top:44px;padding-top:24px;border-top:1px solid rgba(34,37,38,.15)}
+.ph{display:flex;align-items:baseline;gap:14px}
+.ph .no{font-family:var(--num);font-size:38px;line-height:1;font-weight:600}
+.ph h2{font-size:25px;font-weight:500}
+.ph .one{font-size:15px;color:#4a4e51;margin-top:3px}
+.row{display:grid;grid-template-columns:853px 1fr;gap:30px;margin-top:14px;align-items:start}
+.row2{display:grid;grid-template-columns:426px 426px 1fr;gap:16px;margin-top:14px;align-items:start}
+.cap{font-size:12px;color:#6b6f72;letter-spacing:.04em;margin-bottom:6px}
+.cap b{color:var(--onyx);font-weight:500;margin-right:6px}
+.notes h3{font-size:12px;letter-spacing:.08em;color:#6b6f72;font-weight:500;margin-top:12px}
+.notes h3:first-child{margin-top:0}
+.notes ul{padding-left:18px;font-size:13.5px;margin-top:4px}
+.notes li{margin-top:3px}
+.eff{display:inline-block;margin-top:10px;font-size:12.5px;padding:3px 12px;border-radius:12px;background:var(--onyx);color:var(--platinum)}
+.weight{font-size:12.5px;margin-top:8px;color:#4a4e51}
+.side{background:#fff;border-radius:16px;padding:12px 14px;font-size:12.5px}
+.side h4{font-size:11px;letter-spacing:.08em;color:#6b6f72;font-weight:500;margin-bottom:6px}
+.side table{width:100%;border-collapse:collapse}
+.side td,.side th{padding:4px 6px;border-bottom:1px solid rgba(34,37,38,.1);text-align:left;vertical-align:top}
+.side th{font-weight:500;color:#6b6f72;font-size:11px}
+.fstrip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px}
+.fstrip .fr{background:#F6F6F6;border-radius:10px;padding:6px}
+.fstrip svg{display:block;width:100%;height:auto}
+.fstrip .fl{font-size:11px;color:#6b6f72;margin-top:4px}
+.fstrip .fl b{display:inline-block;padding:0 7px;margin-right:4px;border-radius:9px;background:var(--onyx);color:var(--platinum);font-weight:400;font-size:10.5px}
+.rec{margin-top:36px;background:#fff;border-radius:24px;padding:22px 26px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.rec .lab{font-family:var(--num);font-size:11px;letter-spacing:.18em;color:#6b6f72}
+.rec h2{font-size:24px;font-weight:500;margin-top:4px}
+.rec h2 span{color:#8a8d90}
+.rec p,.rec li{font-size:14px;margin-top:6px}
+.rec ol{padding-left:20px}
+.sum{width:100%;border-collapse:collapse;font-size:13px;margin-top:12px;background:#fff;border-radius:16px;overflow:hidden}
+.sum th,.sum td{padding:7px 10px;border-bottom:1px solid rgba(34,37,38,.1);text-align:left;vertical-align:top}
+.sum th{font-weight:500;background:var(--onyx);color:var(--platinum);font-size:12px}
+.sum tr.pick td{background:#F7F3E3}
+
+/* ===== 화면 목업 (1/3) ===== */
+.scr{position:relative;width:853px;height:423px;overflow:hidden;border-radius:8px;box-shadow:0 0 0 1px rgba(0,0,0,.16);font-family:var(--kr);background:linear-gradient(165deg,#F0F0F0 0%,#D7D7D7 100%);color:var(--onyx)}
+.scr > *{position:absolute}
+.scr.wh{background:linear-gradient(180deg,#FFFFFF 0%,#F4F4F4 100%)}
+.scr.dk{background:var(--onyx);color:var(--platinum)}
+.half{position:relative;width:426px;height:211px;overflow:hidden;border-radius:6px}
+.half > .scr{transform:scale(.4994);transform-origin:0 0}
+.wm{font-family:var(--num);font-size:9px;letter-spacing:.32em;font-weight:500}
+.eb{font-size:12px;color:var(--mu);white-space:nowrap}
+.up{font-family:var(--num);text-transform:uppercase;letter-spacing:.14em;font-size:9.5px}
+.sent{font-weight:500;letter-spacing:-.02em;color:var(--jet)}
+.dk .sent{color:var(--white)}
+.gw{color:var(--gw)}
+.dk .gw{color:#7d8285}
+.num{font-family:var(--num);font-weight:500;letter-spacing:-.02em;line-height:1}
+.wc{background:#fff;border-radius:22px;box-shadow:0 -8px 22px -6px rgba(0,0,0,.14),0 1px 0 rgba(0,0,0,.04)}
+.wc.back{background:#FAFAFA}
+.k3{background:linear-gradient(180deg,#43474a 0%,#141516 55%,#0d0e0f 100%);color:#fff;box-shadow:0 9px 14px -7px rgba(0,0,0,.65)}
+.trk{display:flex;gap:4px;background:var(--chip);border-radius:999px;padding:3px}
+.trk span{flex:1;text-align:center;height:28px;line-height:28px;border-radius:14px;font-size:12.5px;color:#8a8d90;white-space:nowrap}
+.trk span.on{background:linear-gradient(180deg,#43474a 0%,#141516 55%,#0d0e0f 100%);color:#fff;box-shadow:0 9px 14px -7px rgba(0,0,0,.65)}
+.dk .trk{background:#2c3032}
+.dk .trk span.on{background:var(--platinum);color:var(--onyx);box-shadow:none}
+.btnk{display:flex;align-items:center;justify-content:center;gap:12px;height:42px;border-radius:21px;font-size:15px;color:#fff;background:linear-gradient(180deg,#43474a 0%,#141516 55%,#0d0e0f 100%);box-shadow:0 12px 18px -8px rgba(0,0,0,.6)}
+.lkp{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:14px;background:var(--chip);font-size:12px;white-space:nowrap}
+.chipf{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;border-radius:17px;background:var(--chip);color:#6b6f72;font-size:13.5px;white-space:nowrap}
+.chipf.on{background:linear-gradient(180deg,#43474a,#0d0e0f);color:#fff;box-shadow:0 9px 14px -7px rgba(0,0,0,.65)}
+.chipf.wt{background:#fff;color:var(--onyx);box-shadow:0 2px 0 #222526}
+.chipf.ol{background:transparent;border:1.5px solid var(--ash);color:var(--onyx)}
+.bad{background:rgba(245,45,72,.1)!important;color:var(--sigd)!important}
+.badb{box-shadow:inset 0 0 0 2px var(--signal)!important}
+/* 문장 속 노란 아이콘 알약 */
+.ip{display:inline-flex;align-items:center;gap:.25em;height:1em;padding:0 .4em 0 .1em;border-radius:999px;background:var(--onyx);color:#fff;vertical-align:-.12em;font-size:1em}
+.ip svg{width:.82em;height:.82em}
+.ip em{font-style:normal;font-size:.5em;font-weight:400;letter-spacing:.02em}
+.ipb{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 9px 0 3px;border-radius:11px;background:var(--onyx);color:#fff;font-size:11px;vertical-align:middle}
+.ipb svg{width:16px;height:16px}
+.dk .ipb{background:#43474a}
+/* 정직성 */
+.hon{display:flex;gap:10px;align-items:center;font-size:11px;white-space:nowrap;color:var(--mu)}
+.hon span{display:inline-flex;align-items:center;gap:4px}
+.dk .hon{color:var(--ash)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;flex:none}
+.dot.live{background:currentColor}
+.dot.sim{border:1.5px solid currentColor;background:linear-gradient(90deg,currentColor 50%,transparent 50%)}
+.dot.miss{border:1.5px dashed currentColor}
+/* 기호 */
+.e1{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9px;background:var(--graphite);color:#fff;flex:none}
+.e1 svg{width:17px;height:17px}
+.e1.lt{background:#E4E4E4;color:#8a8d90}
+.e1.w{background:#fff;color:var(--onyx)}
+.box{display:inline-block;width:15px;height:15px;border:1.6px solid currentColor;border-radius:4px;flex:none}
+.okc{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--onyx);color:#fff;flex:none}
+.okc svg{width:13px;height:13px}
+.dsc{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#E4E4E4;color:#9a9da0;flex:none;font-size:13px}
+.tl{display:inline-flex;gap:4px;align-items:center;padding:5px 7px;border-radius:10px;background:var(--jet)}
+.tl i{width:10px;height:10px;border-radius:50%;background:#4a4e51;display:block}
+.tl i.r{background:var(--signal);box-shadow:0 0 6px rgba(245,45,72,.7)}
+.lockn{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--mu);white-space:nowrap}
+.lockn svg{width:14px;height:14px}
+.dk .lockn{color:var(--ash)}
+.warn{display:inline-flex;align-items:center;justify-content:center;width:1em;height:1em;border-radius:50%;background:var(--signal);color:#fff;font-weight:600;font-size:1em;vertical-align:-.12em}
+.warn b{font-size:.62em;line-height:1}
+/* 목록 줄 */
+.lst{display:flex;flex-direction:column;gap:2px}
+.lst .r{display:flex;align-items:center;gap:10px;height:48px;padding:0 14px;border-radius:24px;font-size:15px}
+.lst .r .v{margin-left:auto;font-size:13.5px;color:var(--mu)}
+.lst .r.done{color:var(--onyx)}
+.lst .r.todo{color:#9a9da0}
+/* 타일 */
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.tile{position:relative;height:140px;border-radius:18px;background:#fff;padding:10px 12px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.tile .nm{position:absolute;left:12px;top:58px;font-size:15px;white-space:nowrap}
+.tile .va{position:absolute;left:12px;bottom:12px;font-size:13.5px;color:var(--mu);white-space:nowrap}
+.tile .sd{position:absolute;right:12px;top:14px;color:var(--mu)}
+.tile.on{background:linear-gradient(180deg,#43474a 0%,#141516 55%,#0d0e0f 100%);color:#fff;box-shadow:0 12px 18px -8px rgba(0,0,0,.6)}
+.tile.on .va,.tile.on .sd{color:#d0d2d3}
+.tile.flat{background:#EDEDED;box-shadow:none}
+.tile .big{position:absolute;right:12px;bottom:10px;font-family:var(--num);font-size:30px;line-height:1}
+/* 큰 알약 (어두운 판) */
+.bp{border:1.5px solid currentColor;border-radius:999px;display:flex;align-items:center;gap:10px;padding:0 18px;white-space:nowrap}
+.bp.dim{color:rgba(224,224,224,.45)}
+.bp.fill{background:var(--platinum);color:var(--onyx);border-color:var(--platinum)}
+.bp.sig{border-color:var(--signal);color:#FF8A9A;border-width:2px}
+.pa{display:inline-flex;align-items:center;gap:12px;height:42px;padding:0 22px 0 4px;border:1.5px solid currentColor;border-radius:21px;font-size:15px;white-space:nowrap}
+.pa i{font-style:normal;width:34px;height:34px;border-radius:50%;background:var(--onyx);color:var(--platinum);display:flex;align-items:center;justify-content:center;font-size:17px}
+.pa.on{background:var(--platinum);color:var(--onyx);border-color:var(--platinum)}
+.rule{height:1px;background:rgba(34,37,38,.18)}
+.dk .rule{background:rgba(224,224,224,.25)}
+/* 지도 */
+.mp{overflow:visible}
+
+/* ===== 움직임 (CSS) ===== */
+@keyframes stone{0%,60%{transform:translateY(0)}62%{transform:translateY(-52px)}74%,100%{transform:translateY(0)}}
+.liveStone{animation:stone 4s cubic-bezier(.2,.8,.2,1) infinite}
+@keyframes rise{0%,60%{transform:translateY(0);opacity:1}62%{transform:translateY(60px);opacity:0}76%,100%{transform:translateY(0);opacity:1}}
+.liveRise{animation:rise 4.5s cubic-bezier(.2,.8,.2,1) infinite}
+@keyframes pulse{0%{r:7;opacity:.9}70%,100%{r:14;opacity:0}}
+.pulse{animation:pulse 1.2s ease-out infinite}
+@keyframes sigbar{0%,60%{transform:scaleX(1)}62%{transform:scaleX(0)}70%,100%{transform:scaleX(1)}}
+.liveBar{transform-origin:0 50%;animation:sigbar 5s ease infinite}
+@keyframes node{0%,60%{transform:translateX(0)}62%{transform:translateX(-126px)}72%,100%{transform:translateX(0)}}
+.liveNode{animation:node 4s cubic-bezier(.2,.8,.2,1) infinite}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="bars3" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#F2C230"/><rect x="5" y="11" width="2.6" height="4" rx="1" fill="#1A1A1A"/><rect x="8.7" y="8" width="2.6" height="7" rx="1" fill="#1A1A1A"/><rect x="12.4" y="5" width="2.6" height="10" rx="1" fill="#1A1A1A"/></symbol>
+    <symbol id="bars2" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#F2C230"/><rect x="5" y="11" width="2.6" height="4" rx="1" fill="#1A1A1A"/><rect x="8.7" y="8" width="2.6" height="7" rx="1" fill="#1A1A1A"/><rect x="12.4" y="5" width="2.6" height="10" rx="1" fill="#1A1A1A" opacity=".25"/></symbol>
+    <symbol id="bars1" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#F2C230"/><rect x="5" y="11" width="2.6" height="4" rx="1" fill="#1A1A1A"/><rect x="8.7" y="8" width="2.6" height="7" rx="1" fill="#1A1A1A" opacity=".25"/><rect x="12.4" y="5" width="2.6" height="10" rx="1" fill="#1A1A1A" opacity=".25"/></symbol>
+    <symbol id="tick" viewBox="0 0 16 16"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M6 3h8l4 5v13H6z"/><path d="M13 13h2.5"/></g></symbol>
+    <symbol id="i-belt" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><circle cx="12" cy="5" r="2.4"/><path d="M6.5 21v-8a5.5 5.5 0 0 1 11 0v8"/><path d="M8 10.5l9 9"/></g></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="5" y="3" width="14" height="18" rx="4.5"/><path d="M10 16.5V7.5h3a2.3 2.3 0 0 1 0 4.6h-3"/></g></symbol>
+    <symbol id="i-power" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v8"/><path d="M7 6.6a7 7 0 1 0 10 0"/></g></symbol>
+    <symbol id="i-left" viewBox="0 0 24 24"><path d="M10 5L3 12l7 7v-4h11V9H10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-right" viewBox="0 0 24 24"><path d="M14 5l7 7-7 7v-4H3V9h11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-haz" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l10 17H2z"/><path d="M12 10l4.6 7.6H7.4z"/></g></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></g></symbol>
+    <!-- V4 기하 차 (위에서 본 모습, 앞 = +x) -->
+    <g id="car"><rect x="-35" y="-16" width="70" height="32" rx="14" style="fill:var(--cf,#fff);stroke:var(--cs,#222526)" stroke-width="1.8" vector-effect="non-scaling-stroke"/><rect x="-20" y="-10" width="30" height="20" rx="6" fill="none" style="stroke:var(--cs,#222526)" stroke-width="1.8" vector-effect="non-scaling-stroke"/><path d="M22 -9V9" style="stroke:var(--cs,#222526)" stroke-width="1.8" stroke-linecap="round" vector-effect="non-scaling-stroke"/></g>
+    <!-- 동네 도로(예시) 지도, 단위 m (0..100 × 0..110, 위 = 북) -->
+    <g id="rmap">
+      <path d="M10 110 L10 20 A8 8 0 0 1 18 12 L86 12" fill="none" style="stroke:var(--road,#EBEBEB)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M0 48 L30 48" fill="none" style="stroke:var(--road,#EBEBEB)" stroke-width="7" stroke-linecap="round"/>
+      <rect x="3.5" y="64" width="13" height="34" rx="2" fill="none" style="stroke:var(--lbl,#8a8d90)" stroke-width=".35" stroke-dasharray="1.4 1.2"/>
+      <rect x="66" y="5.5" width="24" height="13" rx="2" fill="none" style="stroke:var(--lbl,#8a8d90)" stroke-width=".35" stroke-dasharray="1.4 1.2"/>
+      <g style="fill:var(--rt,#222526)" opacity=".45"><rect x="7.3" y="79" width=".8" height="3.4"/><rect x="8.9" y="79" width=".8" height="3.4"/><rect x="10.5" y="79" width=".8" height="3.4"/><rect x="12.1" y="79" width=".8" height="3.4"/></g>
+      <path d="M6.8 53 H13.2" style="stroke:var(--rt,#222526)" stroke-width=".9"/>
+      <g style="fill:var(--lbl,#8a8d90);font:4.2px 'Noto Sans KR','Malgun Gothic',sans-serif"><text x="18.5" y="82">어린이 보호구역</text><text x="19" y="46.5">신호</text><text x="73.5" y="25">도착</text><text x="14.5" y="108">출발</text><text x="22" y="22">우회전</text></g>
+    </g>
+    <path id="r_mv_d" d="M10 110 L10 60" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+    <path id="r_mv_t" d="M10 60 L10 20 A8 8 0 0 1 18 12 L78 12" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+    <path id="r_st_d" d="M10 110 L10 58" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+    <path id="r_st_t" d="M10 58 L10 20 A8 8 0 0 1 18 12 L78 12" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+    <path id="r_em_d" d="M10 110 L10 20 A8 8 0 0 1 18 12 L50 12" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+    <path id="r_em_t" d="M50 12 L78 12" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+    <g id="tlR"><rect x="0" y="0" width="3.6" height="9" rx="1.3" fill="#1A1A1A"/><circle cx="1.8" cy="1.8" r="1.05" fill="#F52D48"/><circle cx="1.8" cy="4.5" r="1.05" fill="#55595c"/><circle cx="1.8" cy="7.2" r="1.05" fill="#55595c"/></g>
+  </defs>
+</svg>
+<div class="page">
+
+<header class="head">
+  <h1>3 · 출발 전 점검 · 코스 주행 — 새 컨셉으로 처음부터, 화면마다 일곱 안</h1>
+  <p class="lead">라운드 27 에서 고른 세 기준(4-dense 의 <b>문장 시트</b> · 3-results 의 <b>전 → 후 쌍 알약</b> · 1-home 의 <b>H8 흰 벽</b>)의 말투 안에서, 배치 · 구성 요소 · 정보 위계 · 움직임을 새로 짰다. 색만 바꾼 지금(27a)과 달리 안마다 화면 뼈대가 다르다. 차 그림은 모두 <b>V4 기하</b>(둥근 사각 + 실내 사각 + 앞 선, 같은 굵기 선). 노란 원 아이콘 알약 <span class="ipb"><svg><use href="#bars2"/></svg>힌트</span> 은 화면마다 한 곳(모드 표시), Signal <span style="color:var(--signal)">●</span> 은 틀린 점검 줄 · 돌발 경고에만.</p>
+  <div class="chipline">
+    <span class="k">화면 목업 = 2560×1268 dp 의 1/3 (853×423) · 실제 화면은 약 3배 · 작은 목업 = 1/6</span>
+    <span>같은 데이터: 출발 전 점검 · 1회차 · 코치 4/7 = 브레이크 / 시동 · 일반 도로 코스 · 1회차 · 힌트</span>
+    <span>정직성 모양: <span class="dot live" style="vertical-align:-1px"></span> 실신호 · <span class="dot sim" style="vertical-align:-1px"></span> 시뮬레이션 · <span class="dot miss" style="vertical-align:-1px"></span> 미측정</span>
+    <span>숫자·영문: Segoe UI Variable Display 흉내 — 앱 글꼴 후보 Roboto Flex</span>
+  </div>
+  <div class="rules">
+    <div><b>점검 데이터(모든 안 같음)</b>도어 닫힘 ● · 안전벨트 채움 ● · 기어 P ● · <b>브레이크 / 시동 밟음 → 켜짐 ◐(지금)</b> · 좌 지시등 ● · 우 지시등 ● · 비상등 ◌ 미측정(채점에서 뺌)</div>
+    <div><b>세 모드가 달라 보여야 한다</b>가이드 = 값 + 지금 항목 크게 · 힌트 = ✓ / — / 틀린 줄만("브레이크 없이 켜짐") · 평가 = 이름 + 빈 칸만. 노란 막대 셋 · 둘 · 하나 = 손을 떼는 정도.</div>
+    <div><b>주행 데이터(모든 안 같음)</b>지금 신호 교차로 · 다음 우회전 · 신호 빨간불 · 28 km/h · 한 줄 "신호를 봐요. 빨간불이면 정지선 앞에 멈춰요." · 돌발 "돌발 상황이에요. 멈추세요."</div>
+    <div><b>주행 중(&gt; 5 km/h) 규칙</b>터치 타깃 0 · 점수 0 · 지도는 도식이라 허용 · 한 줄 + 음성이 본체 · "운전에 집중해 주세요" 잠금 표시 · 장식 움직임 0 (차 위치만 움직임).</div>
+  </div>
+</header>
+
+<!-- ======================================================= A ======================================================= -->
+<div class="part"><span class="no">A</span><div><h2>출발 전 점검 — 가이드 · 힌트 · 평가</h2><p>정차 화면(0 km/h). 지금 앱 = 왼쪽 어두운 목록 + 오른쪽 흰 문장(lesson-checklist-modes · lesson-maneuver-checklist). 큰 목업 = 가이드, 작은 두 장 = 힌트 · 평가.</p></div></div>
+
+<!-- A1 -->
+<section class="prop">
+  <div class="ph"><span class="no">A1</span><div><h2>카드 더미</h2><p class="one">항목 하나 = 흰 카드 한 장. 끝낸 카드는 위로 밀려 겹친 띠, 지금 카드는 크게 서고, 남은 카드는 아래 가장자리만. (라운드 27 4-dense 5 를 다듬은 기준안)</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>가이드</b>지금 카드 = 이름 · 값 · 할 일 · 출처</p>
+      <div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="eb" style="left:28px;top:54px">출발 전 점검 · 1회차</div>
+        <div class="eb" style="left:28px;top:92px;color:var(--onyx)">코치 4/7 <span class="ipb"><svg><use href="#bars3"/></svg>가이드</span></div>
+        <div class="sent" style="left:28px;top:120px;width:290px;font-size:30px;line-height:42px">브레이크를 밟고<br>시동을 켜<br><span class="gw">주세요.</span></div>
+        <div style="left:28px;top:258px"><span class="num" style="font-size:22px">0 km/h</span></div>
+        <div class="trk" style="left:28px;top:306px;width:272px"><span class="on">가이드</span><span>힌트</span><span>평가</span></div>
+        <div class="btnk" style="left:28px;top:356px;width:272px">다 됐어요 →</div>
+        <div class="wc back" style="left:356px;top:30px;width:448px;height:60px"><div style="display:flex;align-items:center;gap:8px;height:24px;padding:0 16px;font-size:12.5px"><span class="dot live"></span>도어 · 닫힘<span style="margin-left:auto"><svg width="13" height="13"><use href="#tick"/></svg></span></div></div>
+        <div class="wc back" style="left:346px;top:54px;width:468px;height:60px"><div style="display:flex;align-items:center;gap:8px;height:24px;padding:0 16px;font-size:12.5px"><span class="dot live"></span>안전벨트 · 채움<span style="margin-left:auto"><svg width="13" height="13"><use href="#tick"/></svg></span></div></div>
+        <div class="wc back" style="left:336px;top:78px;width:488px;height:60px"><div style="display:flex;align-items:center;gap:8px;height:24px;padding:0 16px;font-size:12.5px"><span class="dot live"></span>기어 · P<span style="margin-left:auto"><svg width="13" height="13"><use href="#tick"/></svg></span></div></div>
+        <div class="wc liveRise" style="left:326px;top:104px;width:508px;height:180px;padding:16px 20px">
+          <div style="display:flex;justify-content:space-between;align-items:center"><span class="eb">지금 · 4/7</span><span class="lkp" style="height:24px;font-size:11px"><span class="dot sim"></span>시뮬레이션</span></div>
+          <div style="display:flex;align-items:center;gap:12px;margin-top:8px"><span class="e1"><svg><use href="#i-power"/></svg></span><span style="font-size:30px;font-weight:500">브레이크 / 시동</span></div>
+          <p style="margin-top:12px;display:flex;gap:10px;align-items:center"><span class="chipf wt" style="height:32px">밟음 → 켜짐</span><span style="font-size:13.5px;color:var(--mu)">발을 브레이크에 둔 채 시동</span></p>
+        </div>
+        <div class="wc back" style="left:336px;top:298px;width:488px;height:60px"><div style="display:flex;align-items:center;gap:8px;height:24px;padding:0 16px;font-size:12.5px;color:var(--mu)"><span class="dot live"></span>좌 지시등<span style="margin-left:auto">미수행</span></div></div>
+        <div class="wc back" style="left:346px;top:330px;width:468px;height:60px"><div style="display:flex;align-items:center;gap:8px;height:24px;padding:0 16px;font-size:12.5px;color:var(--mu)"><span class="dot live"></span>우 지시등<span style="margin-left:auto">미수행</span></div></div>
+        <div class="wc back" style="left:356px;top:362px;width:448px;height:60px"><div style="display:flex;align-items:center;gap:8px;height:24px;padding:0 16px;font-size:12.5px;color:var(--mu)"><span class="dot miss"></span>비상등<span style="margin-left:auto">미측정</span></div></div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>"한 가지씩" 이 형태 자체 — 지금 카드 하나만 크고 끝낸 것·남은 것은 띠. 가이드 = 손을 가장 많이 잡아 주는 모양.</li>
+        <li>카드 머리마다 출처 모양(● ◐ ◌) — 항목별 정직성이 가장 촘촘하다.</li>
+        <li>지금 항목이 바뀔 때 새 카드가 아래에서 올라와 겹친다(C1 420 ms) — 핀 B 문법 그대로.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>공수 중간</b> — 카드 더미 레이아웃 + 위로 밀리는 움직임. 상태기계 변경 없음(지금 항목 = preDrive 인덱스).</li>
+        <li>운전 중 가독성: 정차 화면. 위·아래 띠 글자 12.5px(38 dp)로 40 dp 경계 — 띠는 "있다" 만 보이면 되고 읽을 건 큰 카드.</li>
+        <li>정직성: 비상등 ◌ 미측정은 띠에도 남는다. 평가 모드는 출처 점만 남기고 값은 숨긴다.</li>
+      </ul>
+      <p class="weight"><b>세 모드</b>: 가이드 = 큰 카드 + 값 · 힌트 = 끝낸 셋이 한 띠 ✓ 로 합쳐지고 틀린 카드만 열림 · 평가 = 일곱 장 똑같은 띠 + 빈 칸.</p>
+      <span class="eff">공수 중간 · 움직임 C1 카드 올라옴</span>
+    </div>
+  </div>
+  <div class="row2">
+    <div><p class="cap"><b>힌트</b>✓ 한 띠 · 틀린 카드만 열림</p>
+      <div class="half"><div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="eb" style="left:28px;top:54px">출발 전 점검 · 1회차</div>
+        <div class="eb" style="left:28px;top:92px;color:var(--onyx)">틀릴 때만 말해요 <span class="ipb"><svg><use href="#bars2"/></svg>힌트</span></div>
+        <div class="sent" style="left:28px;top:120px;width:290px;font-size:30px;line-height:42px">순서대로<br><span class="gw">해 보세요.</span></div>
+        <div style="left:28px;top:258px"><span class="num" style="font-size:22px">0 km/h</span></div>
+        <div class="trk" style="left:28px;top:306px;width:272px"><span>가이드</span><span class="on">힌트</span><span>평가</span></div>
+        <div class="btnk" style="left:28px;top:356px;width:272px">다 됐어요 →</div>
+        <div class="wc back" style="left:336px;top:40px;width:488px;height:56px;display:flex;align-items:center;gap:14px;padding:0 18px;font-size:14px"><span class="okc"><svg><use href="#tick"/></svg></span><span class="okc"><svg><use href="#tick"/></svg></span><span class="okc"><svg><use href="#tick"/></svg></span><span style="color:var(--mu);font-size:12.5px">끝낸 셋</span></div>
+        <div class="wc" style="left:326px;top:112px;width:508px;height:160px;padding:18px 20px">
+          <div style="display:flex;justify-content:space-between;align-items:center"><span class="eb">다시 해 봐요</span><span class="lkp" style="height:24px;font-size:11px"><span class="dot sim"></span>시뮬레이션</span></div>
+          <p style="font-size:30px;font-weight:500;margin-top:6px">브레이크 / 시동</p>
+          <p style="margin-top:10px"><span class="chipf bad" style="height:32px">브레이크 없이 켜짐</span></p>
+        </div>
+        <div class="wc back" style="left:336px;top:290px;width:488px;height:52px;display:flex;align-items:center;gap:14px;padding:0 18px"><span class="dsc">—</span><span class="dsc">—</span><span class="dsc">—</span><span class="dot miss" style="color:var(--mu)"></span><span style="color:var(--mu);font-size:12.5px">남은 셋</span></div>
+      </div></div>
+    </div>
+    <div><p class="cap"><b>평가</b>일곱 장 같은 띠 · 빈 칸</p>
+      <div class="half"><div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="eb" style="left:28px;top:54px">출발 전 점검 · 1회차</div>
+        <div class="eb" style="left:28px;top:92px;color:var(--onyx)">조용히 지켜봐요 <span class="ipb"><svg><use href="#bars1"/></svg>평가</span></div>
+        <div class="sent" style="left:28px;top:120px;width:290px;font-size:30px;line-height:42px">끝나면<br>다 됐어요를<br><span class="gw">눌러 주세요.</span></div>
+        <div style="left:28px;top:258px"><span class="num" style="font-size:22px">0 km/h</span></div>
+        <div class="trk" style="left:28px;top:306px;width:272px"><span>가이드</span><span>힌트</span><span class="on">평가</span></div>
+        <div class="btnk" style="left:28px;top:356px;width:272px">다 됐어요 →</div>
+        <div class="lst" style="left:340px;top:30px;width:484px;gap:6px">
+          <div class="r" style="background:#fff;height:46px"><span class="box"></span>도어<span class="dot live" style="margin-left:auto;color:var(--mu)"></span></div>
+          <div class="r" style="background:#fff;height:46px"><span class="box"></span>안전벨트<span class="dot live" style="margin-left:auto;color:var(--mu)"></span></div>
+          <div class="r" style="background:#fff;height:46px"><span class="box"></span>기어<span class="dot live" style="margin-left:auto;color:var(--mu)"></span></div>
+          <div class="r" style="background:#fff;height:46px"><span class="box"></span>브레이크 / 시동<span class="dot sim" style="margin-left:auto;color:var(--mu)"></span></div>
+          <div class="r" style="background:#fff;height:46px"><span class="box"></span>좌 지시등<span class="dot live" style="margin-left:auto;color:var(--mu)"></span></div>
+          <div class="r" style="background:#fff;height:46px"><span class="box"></span>우 지시등<span class="dot live" style="margin-left:auto;color:var(--mu)"></span></div>
+          <div class="r" style="background:#fff;height:46px"><span class="box"></span>비상등<span class="dot miss" style="margin-left:auto;color:var(--mu)"></span></div>
+        </div>
+      </div></div>
+    </div>
+    <div><p class="cap"><b>프레임 띠</b>지금 항목이 바뀔 때 — 새 카드가 올라와 겹침(420 ms)</p>
+      <div class="fstrip">
+        <div class="fr"><svg viewBox="0 0 150 90"><rect x="20" y="6" width="110" height="10" rx="4" fill="#fff"/><rect x="16" y="12" width="118" height="10" rx="4" fill="#fff"/><rect x="12" y="20" width="126" height="40" rx="7" fill="#fff" stroke="#ddd"/><text x="20" y="44" font-size="10" fill="#222">기어</text><rect x="16" y="66" width="118" height="10" rx="4" fill="#E6E6E6"/></svg><div class="fl"><b>0</b>지금 = 기어</div></div>
+        <div class="fr"><svg viewBox="0 0 150 90"><rect x="20" y="4" width="110" height="10" rx="4" fill="#fff"/><rect x="16" y="9" width="118" height="10" rx="4" fill="#fff"/><rect x="14" y="15" width="122" height="20" rx="6" fill="#fff" stroke="#ddd"/><rect x="12" y="48" width="126" height="40" rx="7" fill="#fff" stroke="#bbb"/></svg><div class="fl"><b>⅓</b>기어 → 띠</div></div>
+        <div class="fr"><svg viewBox="0 0 150 90"><rect x="20" y="4" width="110" height="10" rx="4" fill="#fff"/><rect x="16" y="9" width="118" height="10" rx="4" fill="#fff"/><rect x="14" y="14" width="122" height="10" rx="4" fill="#fff"/><rect x="12" y="30" width="126" height="40" rx="7" fill="#fff" stroke="#bbb"/></svg><div class="fl"><b>⅔</b>새 카드 올라옴</div></div>
+        <div class="fr"><svg viewBox="0 0 150 90"><rect x="20" y="4" width="110" height="10" rx="4" fill="#fff"/><rect x="16" y="9" width="118" height="10" rx="4" fill="#fff"/><rect x="14" y="14" width="122" height="10" rx="4" fill="#fff"/><rect x="12" y="20" width="126" height="40" rx="7" fill="#fff" stroke="#999"/><text x="20" y="44" font-size="10" fill="#222">브레이크 / 시동</text><rect x="16" y="66" width="118" height="10" rx="4" fill="#E6E6E6"/></svg><div class="fl"><b>끝</b>지금 = 4/7</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- A2 -->
+<section class="prop">
+  <div class="ph"><span class="no">A2</span><div><h2>문장 + 정거장 칩</h2><p class="one">고른 "문장 시트" 문법을 점검에 그대로 — 위는 132 dp 큰 문장, 아래는 일곱 항목이 한 줄 칩(끝낸 것 = 검은 칩, 지금 = 흰 칩 + 아래 그림자, 남은 것 = 납작 회색).</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>가이드</b>문장 = 지금 할 일 · 칩 = 일곱 항목과 값</p>
+      <div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="eb" style="left:28px;top:54px">출발 전 점검 · 1회차</div>
+        <div style="right:28px;top:20px;text-align:right"><span class="num" style="font-size:26px">0 km/h</span></div>
+        <div class="eb" style="left:28px;top:90px;color:var(--onyx)">코치 4/7</div>
+        <div class="sent" style="left:28px;top:110px;width:800px;font-size:44px;line-height:60px">브레이크를 밟고<br><span class="ip" style="font-size:44px;padding:0 .12em"><svg><use href="#bars3"/></svg></span> 시동을 켜 <span class="gw">주세요.</span></div>
+        <div style="left:28px;top:250px;width:800px;display:flex;flex-wrap:wrap;gap:8px">
+          <span class="chipf on"><svg width="13" height="13"><use href="#tick"/></svg>도어 · 닫힘<span class="dot live" style="color:#bbb"></span></span>
+          <span class="chipf on"><svg width="13" height="13"><use href="#tick"/></svg>안전벨트 · 채움<span class="dot live" style="color:#bbb"></span></span>
+          <span class="chipf on"><svg width="13" height="13"><use href="#tick"/></svg>기어 · P<span class="dot live" style="color:#bbb"></span></span>
+          <span class="chipf wt" style="height:40px;font-size:16px;padding:0 18px">브레이크 / 시동 · 밟음 → 켜짐<span class="dot sim" style="color:var(--mu)"></span></span>
+          <span class="chipf">좌 지시등<span class="dot live"></span></span>
+          <span class="chipf">우 지시등<span class="dot live"></span></span>
+          <span class="chipf">비상등 · 미측정<span class="dot miss"></span></span>
+        </div>
+        <div style="left:28px;top:364px" class="hon"><span><i class="dot live"></i>실신호 5</span><span><i class="dot sim"></i>시뮬레이션 1</span><span><i class="dot miss"></i>미측정 1</span></div>
+        <div class="trk" style="left:300px;top:356px;width:220px"><span class="on">가이드</span><span>힌트</span><span>평가</span></div>
+        <div class="btnk" style="left:548px;top:350px;width:277px">다 됐어요 →</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>홈 → 과제 시트 → 점검이 <b>같은 한 문장 문법</b>으로 이어진다. 사용자가 "딱 저렇게" 라고 한 시트와 가장 가까운 점검.</li>
+        <li>문장이 곧 코치 말(TTS 와 같은 문장) — 눈으로 읽는 것과 듣는 것이 같다.</li>
+        <li>칩 하나 = 항목 하나라 모드마다 칩만 갈아 끼우면 된다(힌트 = 동그라미만, 평가 = 테두리 칩).</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>공수 작음~중간</b> — FlowRow 칩 7 개 + 큰 문장. 지금 칩이 길면 두 줄로 넘친다(지금도 두 줄 — 두 줄을 기본으로 잡는다).</li>
+        <li>가독성: 칩 13.5px(40 dp) 경계, 지금 칩 16px(48 dp). 값은 지금 칩만 크다.</li>
+        <li>정직성: 칩 안 출처 점은 작다 — 아래 정직성 줄(실신호 5 · 시뮬레이션 1 · 미측정 1)로 한 번 더.</li>
+      </ul>
+      <p class="weight"><b>세 모드</b>: 가이드 = 이름 + 값 칩 · 힌트 = 이름 없는 ✓ / — 동그라미 + 틀린 칩 하나만 이름 · 평가 = 테두리 칩 + 빈 칸.</p>
+      <span class="eff">공수 작음~중간 · 움직임 B1 지금 칩으로 미끄러짐</span>
+    </div>
+  </div>
+  <div class="row2">
+    <div><p class="cap"><b>힌트</b>동그라미 ✓ / — · 틀린 칩만 이름</p>
+      <div class="half"><div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="eb" style="left:28px;top:54px">출발 전 점검 · 1회차</div>
+        <div style="right:28px;top:20px"><span class="num" style="font-size:26px">0 km/h</span></div>
+        <div class="eb" style="left:28px;top:90px;color:var(--onyx)">틀릴 때만 말해요</div>
+        <div class="sent" style="left:28px;top:110px;width:800px;font-size:44px;line-height:60px">순서대로<br><span class="ip" style="font-size:44px;padding:0 .12em"><svg><use href="#bars2"/></svg></span> <span class="gw">해 보세요.</span></div>
+        <div style="left:28px;top:258px;display:flex;gap:10px;align-items:center">
+          <span class="okc" style="width:34px;height:34px"><svg><use href="#tick"/></svg></span><span class="okc" style="width:34px;height:34px"><svg><use href="#tick"/></svg></span><span class="okc" style="width:34px;height:34px"><svg><use href="#tick"/></svg></span>
+          <span class="chipf bad" style="height:40px;font-size:16px;padding:0 18px">브레이크 / 시동 · 브레이크 없이 켜짐</span>
+          <span class="dsc" style="width:34px;height:34px">—</span><span class="dsc" style="width:34px;height:34px">—</span><span class="dsc" style="width:34px;height:34px;box-shadow:inset 0 0 0 1.5px #9a9da0;background:transparent">—</span>
+        </div>
+        <div style="left:28px;top:364px" class="hon"><span><i class="dot live"></i>실신호 5</span><span><i class="dot sim"></i>시뮬레이션 1</span><span><i class="dot miss"></i>미측정 1</span></div>
+        <div class="trk" style="left:300px;top:356px;width:220px"><span>가이드</span><span class="on">힌트</span><span>평가</span></div>
+        <div class="btnk" style="left:548px;top:350px;width:277px">다 됐어요 →</div>
+      </div></div>
+    </div>
+    <div><p class="cap"><b>평가</b>테두리 칩 + 빈 칸, 값 없음</p>
+      <div class="half"><div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="eb" style="left:28px;top:54px">출발 전 점검 · 1회차</div>
+        <div style="right:28px;top:20px"><span class="num" style="font-size:26px">0 km/h</span></div>
+        <div class="eb" style="left:28px;top:90px;color:var(--onyx)">조용히 지켜봐요</div>
+        <div class="sent" style="left:28px;top:110px;width:800px;font-size:44px;line-height:60px">끝나면 <span class="ip" style="font-size:44px;padding:0 .12em"><svg><use href="#bars1"/></svg></span> 다 됐어요를<br><span class="gw">눌러 주세요.</span></div>
+        <div style="left:28px;top:258px;width:800px;display:flex;flex-wrap:wrap;gap:8px">
+          <span class="chipf ol"><span class="box"></span>도어</span><span class="chipf ol"><span class="box"></span>안전벨트</span><span class="chipf ol"><span class="box"></span>기어</span><span class="chipf ol"><span class="box"></span>브레이크 / 시동</span><span class="chipf ol"><span class="box"></span>좌 지시등</span><span class="chipf ol"><span class="box"></span>우 지시등</span><span class="chipf ol"><span class="box"></span>비상등<span class="dot miss" style="color:var(--mu)"></span></span>
+        </div>
+        <div style="left:28px;top:364px" class="hon"><span><i class="dot live"></i>실신호 5</span><span><i class="dot sim"></i>시뮬레이션 1</span><span><i class="dot miss"></i>미측정 1</span></div>
+        <div class="trk" style="left:300px;top:356px;width:220px"><span>가이드</span><span>힌트</span><span class="on">평가</span></div>
+        <div class="btnk" style="left:548px;top:350px;width:277px">다 됐어요 →</div>
+      </div></div>
+    </div>
+    <div class="side"><h4>모드별로 칩이 갖는 것</h4>
+      <table><tr><th></th><th>이름</th><th>값</th><th>출처 점</th></tr>
+      <tr><td>가이드</td><td>모두</td><td>모두(지금 칩 크게)</td><td>칩 안</td></tr>
+      <tr><td>힌트</td><td>틀린 칩만</td><td>틀린 값만(Signal)</td><td>정직성 줄</td></tr>
+      <tr><td>평가</td><td>모두</td><td>없음 · 빈 칸</td><td>미측정만 칩 안</td></tr></table>
+    </div>
+  </div>
+</section>
+
+<!-- A3 -->
+<section class="prop">
+  <div class="ph"><span class="no">A3</span><div><h2>일곱 타일 격자</h2><p class="one">과제 시트의 타일 문법(4 × 2)을 점검으로 — 타일마다 어두운 둥근 기호 타일(E1) · 이름 · 값 · 출처. 지금 항목 = 검은 입체 타일. 오른쪽 흰 카드에 코치 문장과 버튼.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>가이드</b>타일 = 기호 + 이름 + 값 · 여덟째 칸 = 정직성</p>
+      <div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="eb" style="left:28px;top:50px">출발 전 점검 · 1회차</div>
+        <div class="tiles" style="left:28px;top:78px;width:524px">
+          <div class="tile"><span class="e1"><svg><use href="#i-door"/></svg></span><span class="sd"><span class="dot live"></span></span><span class="nm">도어</span><span class="va" style="color:var(--onyx)">✓ 닫힘</span></div>
+          <div class="tile"><span class="e1"><svg><use href="#i-belt"/></svg></span><span class="sd"><span class="dot live"></span></span><span class="nm">안전벨트</span><span class="va" style="color:var(--onyx)">✓ 채움</span></div>
+          <div class="tile"><span class="e1"><svg><use href="#i-gear"/></svg></span><span class="sd"><span class="dot live"></span></span><span class="nm">기어</span><span class="va" style="color:var(--onyx)">✓ P</span></div>
+          <div class="tile on"><span class="e1 w"><svg><use href="#i-power"/></svg></span><span class="sd"><span class="dot sim"></span></span><span class="nm" style="font-size:16px">브레이크 / 시동</span><span class="va">밟음 → 켜짐</span></div>
+          <div class="tile flat"><span class="e1 lt"><svg><use href="#i-left"/></svg></span><span class="sd"><span class="dot live"></span></span><span class="nm" style="color:#8a8d90">좌 지시등</span><span class="va">미수행</span></div>
+          <div class="tile flat"><span class="e1 lt"><svg><use href="#i-right"/></svg></span><span class="sd"><span class="dot live"></span></span><span class="nm" style="color:#8a8d90">우 지시등</span><span class="va">미수행</span></div>
+          <div class="tile flat"><span class="e1 lt"><svg><use href="#i-haz"/></svg></span><span class="sd"><span class="dot miss"></span></span><span class="nm" style="color:#8a8d90">비상등</span><span class="va">미측정</span></div>
+          <div class="tile" style="background:transparent;box-shadow:inset 0 0 0 1.5px rgba(34,37,38,.18);font-size:12px;color:var(--mu);line-height:2"><div style="position:static"><span class="dot live"></span> 실신호 5<br><span class="dot sim"></span> 시뮬레이션 1<br><span class="dot miss"></span> 미측정 1</div></div>
+        </div>
+        <div class="wc" style="left:572px;top:24px;width:253px;height:375px;padding:18px 18px"></div>
+        <div style="left:590px;top:40px"><span class="num" style="font-size:24px">0 km/h</span></div>
+        <div class="trk" style="left:590px;top:78px;width:217px"><span class="on">가이드</span><span>힌트</span><span>평가</span></div>
+        <div class="eb" style="left:590px;top:136px;color:var(--onyx)">코치 4/7 <span class="ipb"><svg><use href="#bars3"/></svg>가이드</span></div>
+        <div class="sent" style="left:590px;top:164px;width:220px;font-size:24px;line-height:34px">브레이크를 밟고<br>시동을 켜<br><span class="gw">주세요.</span></div>
+        <div class="btnk" style="left:590px;top:340px;width:217px">다 됐어요 →</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>일곱 항목이 <b>한 번에 다 보이는</b> 유일한 안 — 위치가 고정이라 회차가 쌓이면 "어디가 늘 틀리나" 가 자리로 기억된다.</li>
+        <li>기호 타일(E1)이 모드와 무관하게 남아, 평가 모드에서도 무엇을 보는지 알 수 있다.</li>
+        <li>여덟째 칸이 남아 정직성 줄의 집이 생긴다.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>공수 중간</b> — 기호 7 개(선 아이콘) + 격자. 과제 시트 타일과 컴포넌트를 나눠 쓰면 작아진다.</li>
+        <li>가독성: 타일 이름 15px(45 dp) OK. 다만 "지금" 이 격자 속 한 칸이라 문장(오른쪽)과 눈이 두 번 오간다.</li>
+        <li>정직성: 점이 타일 오른쪽 위 — 가장 눈에 덜 띄는 자리. 여덟째 칸 범례가 보완.</li>
+      </ul>
+      <p class="weight"><b>세 모드</b>: 가이드 = 값 · 힌트 = 큰 ✓ / — + 틀린 타일만 Signal 테두리 · 평가 = 연회색 기호 + 빈 칸.</p>
+      <span class="eff">공수 중간 · 움직임 E1 기호 그려짐</span>
+    </div>
+  </div>
+  <div class="row2">
+    <div><p class="cap"><b>힌트</b>큰 ✓ / — · 틀린 타일만 Signal 테두리</p>
+      <div class="half"><div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="eb" style="left:28px;top:50px">출발 전 점검 · 1회차</div>
+        <div class="tiles" style="left:28px;top:78px;width:524px">
+          <div class="tile"><span class="e1"><svg><use href="#i-door"/></svg></span><span class="nm">도어</span><span class="big">✓</span></div>
+          <div class="tile"><span class="e1"><svg><use href="#i-belt"/></svg></span><span class="nm">안전벨트</span><span class="big">✓</span></div>
+          <div class="tile"><span class="e1"><svg><use href="#i-gear"/></svg></span><span class="nm">기어</span><span class="big">✓</span></div>
+          <div class="tile badb"><span class="e1" style="background:var(--signal)"><svg><use href="#i-power"/></svg></span><span class="sd"><span class="dot sim"></span></span><span class="nm" style="font-size:16px">브레이크 / 시동</span><span class="va" style="color:var(--sigd);white-space:normal;width:100px;line-height:1.3">브레이크 없이 켜짐</span></div>
+          <div class="tile flat"><span class="e1 lt"><svg><use href="#i-left"/></svg></span><span class="nm" style="color:#8a8d90">좌 지시등</span><span class="big" style="color:#9a9da0">—</span></div>
+          <div class="tile flat"><span class="e1 lt"><svg><use href="#i-right"/></svg></span><span class="nm" style="color:#8a8d90">우 지시등</span><span class="big" style="color:#9a9da0">—</span></div>
+          <div class="tile flat"><span class="e1 lt"><svg><use href="#i-haz"/></svg></span><span class="sd"><span class="dot miss"></span></span><span class="nm" style="color:#8a8d90">비상등</span><span class="big" style="color:#9a9da0">—</span></div>
+          <div class="tile" style="background:transparent;box-shadow:inset 0 0 0 1.5px rgba(34,37,38,.18);font-size:12px;color:var(--mu);line-height:2"><div style="position:static"><span class="dot live"></span> 실신호 5<br><span class="dot sim"></span> 시뮬레이션 1<br><span class="dot miss"></span> 미측정 1</div></div>
+        </div>
+        <div class="wc" style="left:572px;top:24px;width:253px;height:375px"></div>
+        <div style="left:590px;top:40px"><span class="num" style="font-size:24px">0 km/h</span></div>
+        <div class="trk" style="left:590px;top:78px;width:217px"><span>가이드</span><span class="on">힌트</span><span>평가</span></div>
+        <div class="eb" style="left:590px;top:136px;color:var(--onyx)">틀릴 때만 말해요 <span class="ipb"><svg><use href="#bars2"/></svg>힌트</span></div>
+        <div class="sent" style="left:590px;top:164px;width:220px;font-size:24px;line-height:34px">순서대로<br><span class="gw">해 보세요.</span></div>
+        <div class="btnk" style="left:590px;top:340px;width:217px">다 됐어요 →</div>
+      </div></div>
+    </div>
+    <div><p class="cap"><b>평가</b>연한 기호 + 이름 + 빈 칸</p>
+      <div class="half"><div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="eb" style="left:28px;top:50px">출발 전 점검 · 1회차</div>
+        <div class="tiles" style="left:28px;top:78px;width:524px">
+          <div class="tile"><span class="e1 lt"><svg><use href="#i-door"/></svg></span><span class="nm">도어</span><span class="va"><span class="box" style="width:22px;height:22px"></span></span></div>
+          <div class="tile"><span class="e1 lt"><svg><use href="#i-belt"/></svg></span><span class="nm">안전벨트</span><span class="va"><span class="box" style="width:22px;height:22px"></span></span></div>
+          <div class="tile"><span class="e1 lt"><svg><use href="#i-gear"/></svg></span><span class="nm">기어</span><span class="va"><span class="box" style="width:22px;height:22px"></span></span></div>
+          <div class="tile"><span class="e1 lt"><svg><use href="#i-power"/></svg></span><span class="nm" style="font-size:16px">브레이크 / 시동</span><span class="va"><span class="box" style="width:22px;height:22px"></span></span></div>
+          <div class="tile"><span class="e1 lt"><svg><use href="#i-left"/></svg></span><span class="nm">좌 지시등</span><span class="va"><span class="box" style="width:22px;height:22px"></span></span></div>
+          <div class="tile"><span class="e1 lt"><svg><use href="#i-right"/></svg></span><span class="nm">우 지시등</span><span class="va"><span class="box" style="width:22px;height:22px"></span></span></div>
+          <div class="tile"><span class="e1 lt"><svg><use href="#i-haz"/></svg></span><span class="sd"><span class="dot miss"></span></span><span class="nm">비상등</span><span class="va"><span class="box" style="width:22px;height:22px;border-style:dashed"></span></span></div>
+          <div class="tile" style="background:transparent;box-shadow:inset 0 0 0 1.5px rgba(34,37,38,.18);font-size:12px;color:var(--mu);line-height:2"><div style="position:static"><span class="dot live"></span> 실신호 5<br><span class="dot sim"></span> 시뮬레이션 1<br><span class="dot miss"></span> 미측정 1</div></div>
+        </div>
+        <div class="wc" style="left:572px;top:24px;width:253px;height:375px"></div>
+        <div style="left:590px;top:40px"><span class="num" style="font-size:24px">0 km/h</span></div>
+        <div class="trk" style="left:590px;top:78px;width:217px"><span>가이드</span><span>힌트</span><span class="on">평가</span></div>
+        <div class="eb" style="left:590px;top:136px;color:var(--onyx)">조용히 지켜봐요 <span class="ipb"><svg><use href="#bars1"/></svg>평가</span></div>
+        <div class="sent" style="left:590px;top:164px;width:220px;font-size:24px;line-height:34px">끝나면<br>다 됐어요를<br><span class="gw">눌러 주세요.</span></div>
+        <div class="btnk" style="left:590px;top:340px;width:217px">다 됐어요 →</div>
+      </div></div>
+    </div>
+    <div class="side"><h4>기호 일곱 (E1 — 어두운 둥근 타일 속 흰 선)</h4>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
+        <span class="e1"><svg><use href="#i-door"/></svg></span><span class="e1"><svg><use href="#i-belt"/></svg></span><span class="e1"><svg><use href="#i-gear"/></svg></span><span class="e1"><svg><use href="#i-power"/></svg></span><span class="e1"><svg><use href="#i-left"/></svg></span><span class="e1"><svg><use href="#i-right"/></svg></span><span class="e1"><svg><use href="#i-haz"/></svg></span>
+      </div>
+      <p style="margin-top:8px;color:#4a4e51">도어 · 안전벨트 · 기어 · 브레이크 / 시동 · 좌 · 우 지시등 · 비상등. 선 굵기 2 px(실제 ≈ 6 dp) — V4 차와 같은 선. 지금 항목이 되면 선이 그려지는 효과(E2) 한 번.</p>
+    </div>
+  </div>
+</section>
+
+<!-- A4 -->
+<section class="prop">
+  <div class="ph"><span class="no">A4</span><div><h2>세로 트랙 · 미끄러지는 돌</h2><p class="one">레퍼런스 3 의 "흰 트랙 위 검은 입체 알약" 을 세로로 — 일곱 줄 흰 트랙에서 검은 돌이 지금 줄로 미끄러진다(B1 280 ms). 왼쪽은 큰 문장 · 모드 · 버튼.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>가이드</b>돌 = 지금 줄 · 끝낸 줄 = 값 + ✓ · 남은 줄 = 회색</p>
+      <div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="eb" style="left:28px;top:54px">출발 전 점검 · 1회차</div>
+        <div class="eb" style="left:28px;top:98px;color:var(--onyx)">코치 4/7 <span class="ipb"><svg><use href="#bars3"/></svg>가이드</span></div>
+        <div class="sent" style="left:28px;top:124px;width:400px;font-size:40px;line-height:54px">브레이크를 밟고<br>시동을 켜 <span class="gw">주세요.</span></div>
+        <div style="left:28px;top:256px;display:flex;align-items:baseline;gap:12px"><span class="num" style="font-size:24px">0 km/h</span><span class="hon"><span><i class="dot sim"></i>시뮬레이션 신호 섞임</span></span></div>
+        <div class="trk" style="left:28px;top:304px;width:300px"><span class="on">가이드</span><span>힌트</span><span>평가</span></div>
+        <div class="btnk" style="left:28px;top:354px;width:300px">다 됐어요 →</div>
+        <div class="wc" style="left:452px;top:20px;width:373px;height:383px;box-shadow:0 1px 2px rgba(0,0,0,.08)"></div>
+        <div class="k3 liveStone" style="left:462px;top:186px;width:353px;height:56px;border-radius:28px"></div>
+        <div class="lst" style="left:462px;top:30px;width:353px">
+          <div class="r done" style="height:50px"><span class="okc"><svg><use href="#tick"/></svg></span>도어<span class="v" style="color:var(--onyx)">닫힘</span><span class="dot live" style="color:var(--mu)"></span></div>
+          <div class="r done" style="height:50px"><span class="okc"><svg><use href="#tick"/></svg></span>안전벨트<span class="v" style="color:var(--onyx)">채움</span><span class="dot live" style="color:var(--mu)"></span></div>
+          <div class="r done" style="height:50px"><span class="okc"><svg><use href="#tick"/></svg></span>기어<span class="v" style="color:var(--onyx)">P</span><span class="dot live" style="color:var(--mu)"></span></div>
+          <div class="r" style="height:56px;color:#fff;font-size:17px;font-weight:500"><span class="e1 w" style="width:26px;height:26px;border-radius:13px"><svg style="width:15px;height:15px"><use href="#i-power"/></svg></span>브레이크 / 시동<span class="v" style="color:#fff;font-size:14px;font-weight:400">밟음 → 켜짐</span><span class="dot sim" style="color:#ccc"></span></div>
+          <div class="r todo" style="height:50px"><span class="dsc">5</span>좌 지시등<span class="v">미수행</span><span class="dot live"></span></div>
+          <div class="r todo" style="height:50px"><span class="dsc">6</span>우 지시등<span class="v">미수행</span><span class="dot live"></span></div>
+          <div class="r todo" style="height:50px"><span class="dsc">7</span>비상등<span class="v">미측정</span><span class="dot miss"></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>지금 화면(목록 + 문장)과 <b>정보 배치가 같아</b> 상태기계 · 계측 · 시연 대본이 그대로다 — 형태만 레퍼런스 3 의 트랙 · 돌.</li>
+        <li>돌이 한 칸씩 내려가는 것 = "다음으로 넘어갔다" 가 말 없이 보인다. 홈 모드 칩 · 과제 시트 트랙과 같은 움직임.</li>
+        <li>줄 높이 50 px(150 dp) — 점검 화면 중 가장 크게 읽힌다.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>공수 작음</b> — 지금 ChecklistPanel 의 줄을 트랙 · 돌로 바꾸고 offset 애니메이션 하나.</li>
+        <li>가독성: 좋음. 다만 돌 위 흰 글자 대비가 높아 "지금" 이 버튼처럼 보일 수 있다 — 돌은 누를 수 없음(접근성 이름에 "지금 항목").</li>
+        <li>정직성: 줄 끝 출처 점 일곱 + 왼쪽 "시뮬레이션 신호 섞임" 한 줄.</li>
+      </ul>
+      <p class="weight"><b>세 모드</b>: 가이드 = 돌 + 값 · 힌트 = 돌 없음, 오른쪽 ✓ / — 열, 틀린 줄만 Signal 연한 바탕 · 평가 = 이름 + 빈 칸만, 트랙 회색.</p>
+      <span class="eff">공수 작음 · 움직임 B1 돌 미끄러짐 280 ms</span>
+    </div>
+  </div>
+  <div class="row2">
+    <div><p class="cap"><b>힌트</b>돌 없음 · ✓ / — 열 · 틀린 줄만</p>
+      <div class="half"><div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="eb" style="left:28px;top:54px">출발 전 점검 · 1회차</div>
+        <div class="eb" style="left:28px;top:98px;color:var(--onyx)">틀릴 때만 말해요 <span class="ipb"><svg><use href="#bars2"/></svg>힌트</span></div>
+        <div class="sent" style="left:28px;top:124px;width:400px;font-size:40px;line-height:54px">순서대로<br><span class="gw">해 보세요.</span></div>
+        <div style="left:28px;top:256px"><span class="num" style="font-size:24px">0 km/h</span></div>
+        <div class="trk" style="left:28px;top:304px;width:300px"><span>가이드</span><span class="on">힌트</span><span>평가</span></div>
+        <div class="btnk" style="left:28px;top:354px;width:300px">다 됐어요 →</div>
+        <div class="wc" style="left:452px;top:20px;width:373px;height:383px;box-shadow:0 1px 2px rgba(0,0,0,.08)"></div>
+        <div class="lst" style="left:462px;top:30px;width:353px">
+          <div class="r" style="height:50px;color:var(--mu)">도어<span class="v" style="color:var(--onyx);font-size:20px">✓</span></div>
+          <div class="r" style="height:50px;color:var(--mu)">안전벨트<span class="v" style="color:var(--onyx);font-size:20px">✓</span></div>
+          <div class="r" style="height:50px;color:var(--mu)">기어<span class="v" style="color:var(--onyx);font-size:20px">✓</span></div>
+          <div class="r bad" style="height:56px;font-size:17px;font-weight:500;box-shadow:inset 4px 0 0 var(--signal)">브레이크 / 시동<span class="v" style="color:var(--sigd);font-size:14px">브레이크 없이 켜짐</span></div>
+          <div class="r" style="height:50px;color:#9a9da0">좌 지시등<span class="v" style="font-size:20px">—</span></div>
+          <div class="r" style="height:50px;color:#9a9da0">우 지시등<span class="v" style="font-size:20px">—</span></div>
+          <div class="r" style="height:50px;color:#9a9da0">비상등 <span class="dot miss"></span><span class="v" style="font-size:20px">—</span></div>
+        </div>
+      </div></div>
+    </div>
+    <div><p class="cap"><b>평가</b>이름 + 빈 칸만</p>
+      <div class="half"><div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="eb" style="left:28px;top:54px">출발 전 점검 · 1회차</div>
+        <div class="eb" style="left:28px;top:98px;color:var(--onyx)">조용히 지켜봐요 <span class="ipb"><svg><use href="#bars1"/></svg>평가</span></div>
+        <div class="sent" style="left:28px;top:124px;width:400px;font-size:40px;line-height:54px">끝나면 다 됐어요를<br><span class="gw">눌러 주세요.</span></div>
+        <div style="left:28px;top:256px"><span class="num" style="font-size:24px">0 km/h</span></div>
+        <div class="trk" style="left:28px;top:304px;width:300px"><span>가이드</span><span>힌트</span><span class="on">평가</span></div>
+        <div class="btnk" style="left:28px;top:354px;width:300px">다 됐어요 →</div>
+        <div class="wc" style="left:452px;top:20px;width:373px;height:383px;background:#F3F3F3;box-shadow:none"></div>
+        <div class="lst" style="left:462px;top:30px;width:353px">
+          <div class="r" style="height:50px"><span class="box"></span>도어</div>
+          <div class="r" style="height:50px"><span class="box"></span>안전벨트</div>
+          <div class="r" style="height:50px"><span class="box"></span>기어</div>
+          <div class="r" style="height:50px"><span class="box"></span>브레이크 / 시동</div>
+          <div class="r" style="height:50px"><span class="box"></span>좌 지시등</div>
+          <div class="r" style="height:50px"><span class="box"></span>우 지시등</div>
+          <div class="r" style="height:50px"><span class="box" style="border-style:dashed"></span>비상등<span class="v" style="font-size:11.5px"><span class="dot miss"></span> 미측정</span></div>
+        </div>
+      </div></div>
+    </div>
+    <div><p class="cap"><b>프레임 띠</b>다음 항목으로 — 돌이 한 칸 미끄러짐(280 ms)</p>
+      <div class="fstrip">
+        <div class="fr"><svg viewBox="0 0 120 120"><rect x="4" y="4" width="112" height="112" rx="12" fill="#fff"/><g fill="#E6E6E6"><rect x="10" y="12" width="100" height="10" rx="5"/><rect x="10" y="28" width="100" height="10" rx="5"/></g><rect x="10" y="42" width="100" height="14" rx="7" fill="#141516"/><g fill="#EFEFEF"><rect x="10" y="62" width="100" height="10" rx="5"/><rect x="10" y="78" width="100" height="10" rx="5"/><rect x="10" y="94" width="100" height="10" rx="5"/></g></svg><div class="fl"><b>0</b>돌 = 기어</div></div>
+        <div class="fr"><svg viewBox="0 0 120 120"><rect x="4" y="4" width="112" height="112" rx="12" fill="#fff"/><g fill="#E6E6E6"><rect x="10" y="12" width="100" height="10" rx="5"/><rect x="10" y="28" width="100" height="10" rx="5"/><rect x="10" y="44" width="100" height="10" rx="5"/></g><rect x="10" y="49" width="100" height="14" rx="7" fill="#141516"/><g fill="#EFEFEF"><rect x="10" y="78" width="100" height="10" rx="5"/><rect x="10" y="94" width="100" height="10" rx="5"/></g></svg><div class="fl"><b>⅓</b>내려가는 중</div></div>
+        <div class="fr"><svg viewBox="0 0 120 120"><rect x="4" y="4" width="112" height="112" rx="12" fill="#fff"/><g fill="#E6E6E6"><rect x="10" y="12" width="100" height="10" rx="5"/><rect x="10" y="28" width="100" height="10" rx="5"/><rect x="10" y="44" width="100" height="10" rx="5"/></g><rect x="10" y="56" width="100" height="14" rx="7" fill="#141516"/><g fill="#EFEFEF"><rect x="10" y="78" width="100" height="10" rx="5"/><rect x="10" y="94" width="100" height="10" rx="5"/></g></svg><div class="fl"><b>⅔</b>거의 닿음</div></div>
+        <div class="fr"><svg viewBox="0 0 120 120"><rect x="4" y="4" width="112" height="112" rx="12" fill="#fff"/><g fill="#E6E6E6"><rect x="10" y="12" width="100" height="10" rx="5"/><rect x="10" y="28" width="100" height="10" rx="5"/><rect x="10" y="44" width="100" height="10" rx="5"/></g><rect x="10" y="58" width="100" height="14" rx="7" fill="#141516"/><g fill="#EFEFEF"><rect x="10" y="78" width="100" height="10" rx="5"/><rect x="10" y="94" width="100" height="10" rx="5"/></g></svg><div class="fl"><b>끝</b>돌 = 4/7</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- A5 -->
+<section class="prop">
+  <div class="ph"><span class="no">A5</span><div><h2>어두운 판 알약 계기</h2><p class="one">결과서(3-results 6 쌍 알약)와 한 가족 — Onyx 판 위 일곱 알약. 끝낸 것 = Platinum 채운 알약, 지금 = 굵은 테두리 큰 알약, 남은 것 = 흐린 테두리. 오른쪽 흰 글자 문장과 Platinum 알약 버튼.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>가이드</b>채움 = 끝냄 · 굵은 테두리 = 지금 · 흐림 = 남음</p>
+      <div class="scr dk">
+        <div class="wm" style="left:28px;top:22px">DRIVE COACH</div>
+        <div class="up" style="left:28px;top:44px;color:var(--ash)">출발 전 점검 · 1회차 · PRE-DRIVE</div>
+        <div class="bp fill" style="left:28px;top:72px;width:360px;height:36px;font-size:14px"><svg width="14" height="14"><use href="#tick"/></svg>도어<span style="margin-left:auto">닫힘</span><span class="dot live"></span></div>
+        <div class="bp fill" style="left:28px;top:114px;width:360px;height:36px;font-size:14px"><svg width="14" height="14"><use href="#tick"/></svg>안전벨트<span style="margin-left:auto">채움</span><span class="dot live"></span></div>
+        <div class="bp fill" style="left:28px;top:156px;width:360px;height:36px;font-size:14px"><svg width="14" height="14"><use href="#tick"/></svg>기어<span style="margin-left:auto">P</span><span class="dot live"></span></div>
+        <div class="bp" style="left:28px;top:200px;width:380px;height:74px;border-width:2.5px;color:#fff;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;padding:0 26px"><span style="font-size:23px;font-weight:500">브레이크 / 시동</span><span style="font-size:14px;color:var(--ash);display:flex;align-items:center;gap:8px">밟음 → 켜짐 · <span class="dot sim"></span> 시뮬레이션</span></div>
+        <div class="bp dim" style="left:28px;top:282px;width:360px;height:36px;font-size:14px">좌 지시등<span style="margin-left:auto">미수행</span><span class="dot live"></span></div>
+        <div class="bp dim" style="left:28px;top:324px;width:360px;height:36px;font-size:14px">우 지시등<span style="margin-left:auto">미수행</span><span class="dot live"></span></div>
+        <div class="bp dim" style="left:28px;top:366px;width:360px;height:36px;font-size:14px;border-style:dashed">비상등<span style="margin-left:auto">미측정</span><span class="dot miss"></span></div>
+        <div class="up" style="left:450px;top:72px;color:var(--ash)">COACH 4/7 <span class="ipb" style="text-transform:none;letter-spacing:0"><svg><use href="#bars3"/></svg>가이드</span></div>
+        <div class="sent" style="left:450px;top:100px;width:380px;font-size:34px;line-height:46px">브레이크를 밟고<br>시동을 켜 <span class="gw">주세요.</span></div>
+        <div class="bp" style="left:450px;top:212px;width:150px;height:62px;color:var(--platinum);justify-content:center"><span class="num" style="font-size:34px">0</span><span class="up" style="font-size:9px">KM/H</span></div>
+        <div class="trk" style="left:616px;top:228px;width:209px"><span class="on">가이드</span><span>힌트</span><span>평가</span></div>
+        <div class="hon" style="left:450px;top:300px"><span><i class="dot live"></i>실신호 5</span><span><i class="dot sim"></i>시뮬레이션 1</span><span><i class="dot miss"></i>미측정 1</span></div>
+        <div class="pa on" style="left:450px;top:352px;width:375px"><i>→</i><span style="flex:1;text-align:center;margin-right:30px">다 됐어요</span></div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>점검 → 회차 판정 → 자세히 보기가 <b>같은 어두운 판 · 같은 알약</b>으로 이어진다 — 점검 중 채운 알약이 판정 화면의 ✓ 알약으로 그대로 옮겨 간다.</li>
+        <li>"채움 / 테두리 / 흐림" 세 겹이 진행을 색 없이 보여 준다(색맹 안전).</li>
+        <li>밤 운전 · 지하 주차장에서 눈부심이 가장 적다.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>공수 작음~중간</b> — 알약 컴포넌트는 결과서 쪽과 공유. 레이아웃은 지금 왼쪽 목록 자리 그대로.</li>
+        <li>가독성: 알약 글자 14px(42 dp) — 남은 줄 흐림(45 %)은 운전석에서 약하다(일부러 — 읽을 필요 없는 줄).</li>
+        <li>정직성: 미측정 알약은 <b>점선 테두리</b>로 모양까지 다르다. 다만 홈 · 시트(밝은 판)에서 점검만 어두워지는 장면 전환이 크다.</li>
+      </ul>
+      <p class="weight"><b>세 모드</b>: 가이드 = 알약 + 값 · 힌트 = 끝낸 셋이 작은 ✓ 원, 틀린 알약만 Signal 테두리 · 평가 = 일곱 흐린 테두리 알약 + 빈 칸.</p>
+      <span class="eff">공수 작음~중간 · 움직임 A1 원 번짐(채워지기)</span>
+    </div>
+  </div>
+  <div class="row2">
+    <div><p class="cap"><b>힌트</b>✓ 원 셋 · 틀린 알약 하나 · — 원 셋</p>
+      <div class="half"><div class="scr dk">
+        <div class="wm" style="left:28px;top:22px">DRIVE COACH</div>
+        <div class="up" style="left:28px;top:44px;color:var(--ash)">출발 전 점검 · 1회차 · PRE-DRIVE</div>
+        <div style="left:28px;top:90px;display:flex;gap:12px"><span class="okc" style="width:44px;height:44px;background:var(--platinum);color:var(--onyx)"><svg style="width:20px;height:20px"><use href="#tick"/></svg></span><span class="okc" style="width:44px;height:44px;background:var(--platinum);color:var(--onyx)"><svg style="width:20px;height:20px"><use href="#tick"/></svg></span><span class="okc" style="width:44px;height:44px;background:var(--platinum);color:var(--onyx)"><svg style="width:20px;height:20px"><use href="#tick"/></svg></span></div>
+        <div class="bp sig" style="left:28px;top:160px;width:380px;height:80px;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;padding:0 26px"><span style="font-size:23px;font-weight:500;color:#fff">브레이크 / 시동</span><span style="font-size:15px">브레이크 없이 켜짐</span></div>
+        <div style="left:28px;top:262px;display:flex;gap:12px"><span class="okc" style="width:44px;height:44px;background:transparent;border:1.5px solid rgba(224,224,224,.45);color:rgba(224,224,224,.45);font-size:18px">—</span><span class="okc" style="width:44px;height:44px;background:transparent;border:1.5px solid rgba(224,224,224,.45);color:rgba(224,224,224,.45);font-size:18px">—</span><span class="okc" style="width:44px;height:44px;background:transparent;border:1.5px dashed rgba(224,224,224,.45);color:rgba(224,224,224,.45);font-size:18px">—</span></div>
+        <div class="up" style="left:450px;top:72px;color:var(--ash)">틀릴 때만 말해요 <span class="ipb" style="text-transform:none;letter-spacing:0"><svg><use href="#bars2"/></svg>힌트</span></div>
+        <div class="sent" style="left:450px;top:100px;width:380px;font-size:34px;line-height:46px">순서대로<br><span class="gw">해 보세요.</span></div>
+        <div class="bp" style="left:450px;top:212px;width:150px;height:62px;color:var(--platinum);justify-content:center"><span class="num" style="font-size:34px">0</span><span class="up" style="font-size:9px">KM/H</span></div>
+        <div class="trk" style="left:616px;top:228px;width:209px"><span>가이드</span><span class="on">힌트</span><span>평가</span></div>
+        <div class="hon" style="left:450px;top:300px"><span><i class="dot live"></i>실신호 5</span><span><i class="dot sim"></i>시뮬레이션 1</span><span><i class="dot miss"></i>미측정 1</span></div>
+        <div class="pa on" style="left:450px;top:352px;width:375px"><i>→</i><span style="flex:1;text-align:center;margin-right:30px">다 됐어요</span></div>
+      </div></div>
+    </div>
+    <div><p class="cap"><b>평가</b>흐린 테두리 알약 일곱 + 빈 칸</p>
+      <div class="half"><div class="scr dk">
+        <div class="wm" style="left:28px;top:22px">DRIVE COACH</div>
+        <div class="up" style="left:28px;top:44px;color:var(--ash)">출발 전 점검 · 1회차 · PRE-DRIVE</div>
+        <div class="bp dim" style="left:28px;top:72px;width:360px;height:40px;font-size:15px;color:rgba(224,224,224,.7)"><span class="box"></span>도어</div>
+        <div class="bp dim" style="left:28px;top:118px;width:360px;height:40px;font-size:15px;color:rgba(224,224,224,.7)"><span class="box"></span>안전벨트</div>
+        <div class="bp dim" style="left:28px;top:164px;width:360px;height:40px;font-size:15px;color:rgba(224,224,224,.7)"><span class="box"></span>기어</div>
+        <div class="bp dim" style="left:28px;top:210px;width:360px;height:40px;font-size:15px;color:rgba(224,224,224,.7)"><span class="box"></span>브레이크 / 시동</div>
+        <div class="bp dim" style="left:28px;top:256px;width:360px;height:40px;font-size:15px;color:rgba(224,224,224,.7)"><span class="box"></span>좌 지시등</div>
+        <div class="bp dim" style="left:28px;top:302px;width:360px;height:40px;font-size:15px;color:rgba(224,224,224,.7)"><span class="box"></span>우 지시등</div>
+        <div class="bp dim" style="left:28px;top:348px;width:360px;height:40px;font-size:15px;color:rgba(224,224,224,.7);border-style:dashed"><span class="box" style="border-style:dashed"></span>비상등<span style="margin-left:auto;font-size:11px">미측정</span></div>
+        <div class="up" style="left:450px;top:72px;color:var(--ash)">조용히 지켜봐요 <span class="ipb" style="text-transform:none;letter-spacing:0"><svg><use href="#bars1"/></svg>평가</span></div>
+        <div class="sent" style="left:450px;top:100px;width:380px;font-size:34px;line-height:46px">끝나면 다 됐어요를<br><span class="gw">눌러 주세요.</span></div>
+        <div class="bp" style="left:450px;top:212px;width:150px;height:62px;color:var(--platinum);justify-content:center"><span class="num" style="font-size:34px">0</span><span class="up" style="font-size:9px">KM/H</span></div>
+        <div class="trk" style="left:616px;top:228px;width:209px"><span>가이드</span><span>힌트</span><span class="on">평가</span></div>
+        <div class="hon" style="left:450px;top:300px"><span><i class="dot live"></i>실신호 5</span><span><i class="dot sim"></i>시뮬레이션 1</span><span><i class="dot miss"></i>미측정 1</span></div>
+        <div class="pa on" style="left:450px;top:352px;width:375px"><i>→</i><span style="flex:1;text-align:center;margin-right:30px">다 됐어요</span></div>
+      </div></div>
+    </div>
+    <div class="side"><h4>판정 화면으로 이어지는 모습</h4>
+      <p style="color:#4a4e51">점검이 끝나 "다 됐어요" 를 누르면 왼쪽 알약 일곱이 그대로 회차 판정(4-results)의 점검 표 자리로 미끄러진다 — 채운 알약 = 잘함, Signal 테두리 = 다시 볼 것, 점선 = 미측정(채점 제외). 결과서와 같은 부품이라 바뀌는 것은 크기뿐.</p>
+      <div style="display:flex;gap:6px;margin-top:10px;align-items:center;background:var(--onyx);border-radius:12px;padding:10px">
+        <span class="bp fill" style="height:26px;font-size:11px;padding:0 10px">✓ 도어</span><span class="bp sig" style="height:26px;font-size:11px;padding:0 10px">브레이크 / 시동</span><span class="bp dim" style="height:26px;font-size:11px;padding:0 10px;border-style:dashed">비상등</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- A6 -->
+<section class="prop">
+  <div class="ph"><span class="no">A6</span><div><h2>진행 선 + 거대한 지금</h2><p class="one">H8 흰 벽 문법 — 위에 가는 선 하나에 일곱 정거장, 가운데는 지금 항목 이름이 거대한 글자로. 목록이 아니라 "지금 하나" 가 화면의 주인.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>가이드</b>선 위 정거장 일곱 · 지금 이름 60px(180 dp) · 값 칩</p>
+      <div class="scr wh">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div style="right:28px;top:18px;text-align:right;font-size:11.5px;line-height:1.55;color:var(--mu)">출발 전 점검 · 1회차<br><span class="num" style="font-size:18px;color:var(--onyx)">0 km/h</span><br><span class="hon" style="justify-content:flex-end"><span><i class="dot live"></i>5</span><span><i class="dot sim"></i>1</span><span><i class="dot miss"></i>1</span></span></div>
+        <svg style="left:40px;top:84px" width="780" height="60" viewBox="0 0 780 60">
+          <path d="M10 18 H384" stroke="#222526" stroke-width="2"/><path d="M384 18 H770" stroke="#BFBFBF" stroke-width="2" stroke-dasharray="2 6" stroke-linecap="round"/>
+          <g fill="#222526"><circle cx="10" cy="18" r="9"/><circle cx="134" cy="18" r="9"/><circle cx="258" cy="18" r="9"/></g>
+          <g fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18l3 3 5-6"/><path d="M130 18l3 3 5-6"/><path d="M254 18l3 3 5-6"/></g>
+          <g fill="#fff" stroke="#BFBFBF" stroke-width="2"><circle cx="510" cy="18" r="8"/><circle cx="640" cy="18" r="8"/><circle cx="770" cy="18" r="8" stroke-dasharray="3 3"/></g>
+          <g font-size="12" fill="#7a7e81" text-anchor="middle" font-family="Noto Sans KR, Malgun Gothic"><text x="14" y="50">도어</text><text x="134" y="50">안전벨트</text><text x="258" y="50">기어</text><text x="510" y="50">좌 지시등</text><text x="640" y="50">우 지시등</text><text x="760" y="50">비상등 ◌</text></g>
+        </svg>
+        <div class="k3 liveNode" style="left:369px;top:88px;width:110px;height:28px;border-radius:14px;font-size:12px;display:flex;align-items:center;justify-content:center">지금 4/7</div>
+        <div class="eb" style="left:28px;top:168px;color:var(--onyx)">코치 4/7 <span class="ipb"><svg><use href="#bars3"/></svg>가이드</span></div>
+        <div class="sent" style="left:28px;top:186px;font-size:60px;line-height:80px;white-space:nowrap">브레이크 / 시동</div>
+        <div style="left:500px;top:208px;display:flex;align-items:center;gap:10px"><span class="chipf wt" style="height:40px;font-size:17px;padding:0 18px">밟음 → 켜짐</span><span class="lkp"><span class="dot sim"></span>시뮬레이션</span></div>
+        <div style="left:28px;top:272px;font-size:20px;color:var(--gw)">브레이크를 밟고 시동을 켜 주세요.</div>
+        <div class="rule" style="left:28px;right:28px;top:330px"></div>
+        <div class="trk" style="left:28px;top:356px;width:260px"><span class="on">가이드</span><span>힌트</span><span>평가</span></div>
+        <div class="btnk" style="left:525px;top:350px;width:300px">다 됐어요 →</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>홈(H8)과 같은 흰 벽 · 가는 선 · 거대한 글자 — 앱 첫 화면과 점검이 한 장의 포스터처럼 이어진다.</li>
+        <li>운전석에서 1초 안에 읽히는 것 = "브레이크 / 시동" 한 낱말. 가장 덜 산만한 점검.</li>
+        <li>정거장 선은 회차 판정(Done) 머리에 그대로 재사용 가능.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>공수 중간</b> — 정거장 선(Canvas 한 장) + 지금 알약이 선을 따라 미끄러짐.</li>
+        <li>가독성: 정거장 이름 12px(36 dp) — 40 dp 아래. 선은 "어디쯤" 만 알리고 이름은 보조라 허용 가능, 아니면 14px 로.</li>
+        <li>정직성: 출처는 오른쪽 위 숫자 셋(5 · 1 · 1)과 지금 항목 칩 하나 — 끝낸 항목의 출처는 선에서 안 보인다(자세히 보기로).</li>
+      </ul>
+      <p class="weight"><b>세 모드</b>: 가이드 = 지금 이름 거대 + 값 · 힌트 = 가운데가 "순서대로 해 보세요.", 선 위 틀린 정거장만 Signal + 이름표 · 평가 = 정거장이 빈 네모, 가운데 "조용히 지켜봐요" 회색.</p>
+      <span class="eff">공수 중간 · 움직임 B1 정거장 알약 이동</span>
+    </div>
+  </div>
+  <div class="row2">
+    <div><p class="cap"><b>힌트</b>틀린 정거장만 Signal + 이름표</p>
+      <div class="half"><div class="scr wh">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div style="right:28px;top:18px;text-align:right;font-size:11.5px;line-height:1.55;color:var(--mu)">출발 전 점검 · 1회차<br><span class="num" style="font-size:18px;color:var(--onyx)">0 km/h</span></div>
+        <svg style="left:40px;top:84px" width="780" height="60" viewBox="0 0 780 60">
+          <path d="M10 18 H770" stroke="#BFBFBF" stroke-width="2"/>
+          <g fill="#222526"><circle cx="10" cy="18" r="9"/><circle cx="134" cy="18" r="9"/><circle cx="258" cy="18" r="9"/></g>
+          <g fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18l3 3 5-6"/><path d="M130 18l3 3 5-6"/><path d="M254 18l3 3 5-6"/></g>
+          <circle cx="384" cy="18" r="12" fill="#F52D48"/><text x="384" y="23" text-anchor="middle" fill="#fff" font-size="14" font-weight="600" font-family="Arial">!</text>
+          <g fill="#fff" stroke="#BFBFBF" stroke-width="2"><circle cx="510" cy="18" r="8"/><circle cx="640" cy="18" r="8"/><circle cx="770" cy="18" r="8" stroke-dasharray="3 3"/></g>
+          <g font-size="14" fill="#9a9da0" text-anchor="middle" font-family="Arial"><text x="510" y="50">—</text><text x="640" y="50">—</text><text x="770" y="50">—</text></g>
+        </svg>
+        <div class="eb" style="left:28px;top:168px;color:var(--onyx)">틀릴 때만 말해요 <span class="ipb"><svg><use href="#bars2"/></svg>힌트</span></div>
+        <div class="sent" style="left:28px;top:186px;font-size:52px;line-height:74px;white-space:nowrap">순서대로 <span class="gw">해 보세요.</span></div>
+        <div style="left:28px;top:274px"><span class="chipf bad" style="height:40px;font-size:17px;padding:0 18px">브레이크 / 시동 · 브레이크 없이 켜짐</span></div>
+        <div class="rule" style="left:28px;right:28px;top:330px"></div>
+        <div class="trk" style="left:28px;top:356px;width:260px"><span>가이드</span><span class="on">힌트</span><span>평가</span></div>
+        <div class="btnk" style="left:525px;top:350px;width:300px">다 됐어요 →</div>
+      </div></div>
+    </div>
+    <div><p class="cap"><b>평가</b>빈 네모 정거장 · 회색 문장</p>
+      <div class="half"><div class="scr wh">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div style="right:28px;top:18px;text-align:right;font-size:11.5px;line-height:1.55;color:var(--mu)">출발 전 점검 · 1회차<br><span class="num" style="font-size:18px;color:var(--onyx)">0 km/h</span></div>
+        <svg style="left:40px;top:84px" width="780" height="60" viewBox="0 0 780 60">
+          <path d="M10 18 H770" stroke="#D5D5D5" stroke-width="2"/>
+          <g fill="#fff" stroke="#222526" stroke-width="1.8"><rect x="2" y="10" width="16" height="16" rx="4"/><rect x="126" y="10" width="16" height="16" rx="4"/><rect x="250" y="10" width="16" height="16" rx="4"/><rect x="376" y="10" width="16" height="16" rx="4"/><rect x="502" y="10" width="16" height="16" rx="4"/><rect x="632" y="10" width="16" height="16" rx="4"/><rect x="762" y="10" width="16" height="16" rx="4" stroke-dasharray="3 2"/></g>
+          <g font-size="12" fill="#222526" text-anchor="middle" font-family="Noto Sans KR, Malgun Gothic"><text x="14" y="50">도어</text><text x="134" y="50">안전벨트</text><text x="258" y="50">기어</text><text x="384" y="50">브레이크 / 시동</text><text x="510" y="50">좌 지시등</text><text x="640" y="50">우 지시등</text><text x="760" y="50">비상등 ◌</text></g>
+        </svg>
+        <div class="eb" style="left:28px;top:168px;color:var(--onyx)"><span class="ipb"><svg><use href="#bars1"/></svg>평가</span></div>
+        <div class="sent gw" style="left:28px;top:186px;font-size:52px;line-height:74px;white-space:nowrap;color:var(--gw)">조용히 지켜봐요</div>
+        <div style="left:28px;top:274px;font-size:20px;color:var(--onyx)">끝나면 다 됐어요를 눌러 주세요.</div>
+        <div class="rule" style="left:28px;right:28px;top:330px"></div>
+        <div class="trk" style="left:28px;top:356px;width:260px"><span>가이드</span><span>힌트</span><span class="on">평가</span></div>
+        <div class="btnk" style="left:525px;top:350px;width:300px">다 됐어요 →</div>
+      </div></div>
+    </div>
+    <div><p class="cap"><b>프레임 띠</b>다음 정거장 — 알약이 선을 따라(280 ms), 이름이 바뀜</p>
+      <div class="fstrip">
+        <div class="fr"><svg viewBox="0 0 150 80"><path d="M6 14 H144" stroke="#ccc" stroke-width="1.5"/><rect x="40" y="8" width="28" height="12" rx="6" fill="#141516"/><text x="6" y="54" font-size="15" fill="#1A1A1A" font-family="Noto Sans KR, Malgun Gothic">기어</text></svg><div class="fl"><b>0</b>지금 = 기어</div></div>
+        <div class="fr"><svg viewBox="0 0 150 80"><path d="M6 14 H144" stroke="#ccc" stroke-width="1.5"/><rect x="52" y="8" width="28" height="12" rx="6" fill="#141516"/><text x="6" y="54" font-size="15" fill="#1A1A1A" opacity=".35" font-family="Noto Sans KR, Malgun Gothic">기어</text></svg><div class="fl"><b>⅓</b>알약 이동 · 이름 흐려짐</div></div>
+        <div class="fr"><svg viewBox="0 0 150 80"><path d="M6 14 H144" stroke="#ccc" stroke-width="1.5"/><rect x="62" y="8" width="28" height="12" rx="6" fill="#141516"/><text x="6" y="58" font-size="15" fill="#1A1A1A" opacity=".5" font-family="Noto Sans KR, Malgun Gothic">브레이크 / 시동</text></svg><div class="fl"><b>⅔</b>새 이름 올라옴</div></div>
+        <div class="fr"><svg viewBox="0 0 150 80"><path d="M6 14 H144" stroke="#ccc" stroke-width="1.5"/><rect x="66" y="8" width="28" height="12" rx="6" fill="#141516"/><text x="6" y="54" font-size="15" fill="#1A1A1A" font-family="Noto Sans KR, Malgun Gothic">브레이크 / 시동</text></svg><div class="fl"><b>끝</b>지금 = 4/7</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- A7 -->
+<section class="prop">
+  <div class="ph"><span class="no">A7</span><div><h2>차 위 그림 점검 (V4)</h2><p class="one">V4 차를 위에서 크게 그리고, 일곱 항목을 실제 자리(도어 · 운전석 · 콘솔 · 발밑 · 앞 모서리 · 대시)에 꼬리표로 단다. "어디를 만지나" 를 그림으로.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>가이드</b>꼬리표 = 자리 · 지금 꼬리표만 흰 칩 크게(앞 = 오른쪽)</p>
+      <div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="eb" style="left:28px;top:50px">출발 전 점검 · 1회차</div>
+        <svg style="left:20px;top:80px" width="520" height="330" viewBox="0 0 520 330">
+          <g fill="none" stroke="#222526" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round">
+            <rect x="40" y="90" width="340" height="156" rx="64" fill="#fff"/>
+            <rect x="130" y="118" width="150" height="100" rx="26"/>
+            <path d="M330 120 V216"/>
+          </g>
+          <g fill="#222526"><circle cx="230" cy="92" r="4"/><circle cx="240" cy="140" r="4"/><circle cx="205" cy="168" r="4"/><circle cx="292" cy="140" r="4"/><circle cx="372" cy="104" r="4"/><circle cx="372" cy="232" r="4"/><circle cx="318" cy="168" r="4"/></g>
+          <g stroke="#222526" stroke-width="1.2"><path d="M230 92 V52"/><path d="M240 140 L110 52"/><path d="M205 168 L205 168"/><path d="M292 140 L340 40"/><path d="M372 104 L430 104"/><path d="M372 232 L430 262"/><path d="M318 168 L430 180"/></g>
+        </svg>
+        <span class="chipf on" style="left:40px;top:118px;height:30px;font-size:12.5px"><svg width="12" height="12"><use href="#tick"/></svg>안전벨트 · 채움<span class="dot live" style="color:#bbb"></span></span>
+        <span class="chipf on" style="left:198px;top:118px;height:30px;font-size:12.5px"><svg width="12" height="12"><use href="#tick"/></svg>도어 · 닫힘<span class="dot live" style="color:#bbb"></span></span>
+        <span class="chipf on" style="left:168px;top:234px;height:30px;font-size:12.5px"><svg width="12" height="12"><use href="#tick"/></svg>기어 · P<span class="dot live" style="color:#bbb"></span></span>
+        <span class="chipf wt" style="left:330px;top:90px;height:40px;font-size:16px;padding:0 16px">브레이크 / 시동 · 밟음 → 켜짐<span class="dot sim" style="color:var(--mu)"></span></span>
+        <span class="chipf" style="left:452px;top:168px;height:30px;font-size:12.5px">좌 지시등<span class="dot live"></span></span>
+        <span class="chipf" style="left:452px;top:244px;height:30px;font-size:12.5px">비상등 · 미측정<span class="dot miss"></span></span>
+        <span class="chipf" style="left:452px;top:326px;height:30px;font-size:12.5px">우 지시등<span class="dot live"></span></span>
+        <div class="wc" style="left:600px;top:24px;width:225px;height:375px"></div>
+        <div style="left:618px;top:40px"><span class="num" style="font-size:24px">0 km/h</span></div>
+        <div class="trk" style="left:618px;top:78px;width:189px"><span class="on">가이드</span><span>힌트</span><span>평가</span></div>
+        <div class="eb" style="left:618px;top:134px;color:var(--onyx)">코치 4/7 <span class="ipb"><svg><use href="#bars3"/></svg>가이드</span></div>
+        <div class="sent" style="left:618px;top:160px;width:195px;font-size:24px;line-height:34px">브레이크를 밟고<br>시동을 켜<br><span class="gw">주세요.</span></div>
+        <div class="hon" style="left:618px;top:300px"><span><i class="dot live"></i>5</span><span><i class="dot sim"></i>1</span><span><i class="dot miss"></i>1</span></div>
+        <div class="btnk" style="left:618px;top:340px;width:189px">다 됐어요 →</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>장롱면허 운전자에게 가장 친절 — "시동" 이 어디 있는지가 아니라 "발밑 브레이크" 가 그림으로 보인다.</li>
+        <li>V4 차가 홈 · 시트 · 주차 궤적 · 코스 지도에 이어 점검에도 등장 — 차 한 대가 앱 전체를 꿴다.</li>
+        <li>발표 영상에서 가장 "자동차 앱" 다운 컷.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>공수 큼</b> — 꼬리표 7 개의 자리 · 선 · 겹침을 손으로 잡아야 하고, 두 줄 넘침 처리. 10/9 마감엔 무겁다.</li>
+        <li>가독성: 꼬리표 12.5px(38 dp) — 40 dp 아래. 지금 꼬리표만 16px.</li>
+        <li>정직성: 꼬리표 안 점 + 오른쪽 숫자 셋. 비상등 미측정이 "대시 가운데" 에 점선 꼬리표로 남는다.</li>
+      </ul>
+      <p class="weight"><b>세 모드</b>: 가이드 = 꼬리표 + 값 · 힌트 = 꼬리표가 ✓ / — 점으로 줄고 틀린 자리만 Signal 꼬리표 · 평가 = 흰 테두리 꼬리표 + 빈 칸.</p>
+      <span class="eff">공수 큼 · 움직임 지금 자리 원 번짐(A1)</span>
+    </div>
+  </div>
+  <div class="row2">
+    <div><p class="cap"><b>힌트</b>✓ / — 점 · 틀린 자리만 Signal</p>
+      <div class="half"><div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="eb" style="left:28px;top:50px">출발 전 점검 · 1회차</div>
+        <svg style="left:20px;top:80px" width="520" height="330" viewBox="0 0 520 330">
+          <g fill="none" stroke="#222526" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"><rect x="40" y="90" width="340" height="156" rx="64" fill="#fff"/><rect x="130" y="118" width="150" height="100" rx="26"/><path d="M330 120 V216"/></g>
+          <g><circle cx="230" cy="92" r="11" fill="#222526"/><circle cx="240" cy="140" r="11" fill="#222526"/><circle cx="205" cy="168" r="11" fill="#222526"/></g>
+          <g fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M225 92l3 3 6-6"/><path d="M235 140l3 3 6-6"/><path d="M200 168l3 3 6-6"/></g>
+          <g fill="#E4E4E4"><circle cx="372" cy="104" r="11"/><circle cx="372" cy="232" r="11"/><circle cx="318" cy="168" r="11" stroke="#9a9da0" stroke-dasharray="2 2" fill="#fff"/></g>
+          <g fill="#9a9da0" font-size="13" text-anchor="middle" font-family="Arial"><text x="372" y="108">—</text><text x="372" y="236">—</text><text x="318" y="172">—</text></g>
+          <circle cx="292" cy="140" r="12" fill="#F52D48"/><text x="292" y="145" text-anchor="middle" fill="#fff" font-size="14" font-weight="600" font-family="Arial">!</text>
+          <path d="M292 140 L340 40" stroke="#F52D48" stroke-width="1.5"/>
+        </svg>
+        <span class="chipf bad" style="left:330px;top:90px;height:40px;font-size:16px;padding:0 16px">브레이크 없이 켜짐</span>
+        <div class="wc" style="left:600px;top:24px;width:225px;height:375px"></div>
+        <div style="left:618px;top:40px"><span class="num" style="font-size:24px">0 km/h</span></div>
+        <div class="trk" style="left:618px;top:78px;width:189px"><span>가이드</span><span class="on">힌트</span><span>평가</span></div>
+        <div class="eb" style="left:618px;top:134px;color:var(--onyx)">틀릴 때만 말해요 <span class="ipb"><svg><use href="#bars2"/></svg>힌트</span></div>
+        <div class="sent" style="left:618px;top:160px;width:195px;font-size:24px;line-height:34px">순서대로<br><span class="gw">해 보세요.</span></div>
+        <div class="btnk" style="left:618px;top:340px;width:189px">다 됐어요 →</div>
+      </div></div>
+    </div>
+    <div><p class="cap"><b>평가</b>흰 테두리 꼬리표 + 빈 칸</p>
+      <div class="half"><div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="eb" style="left:28px;top:50px">출발 전 점검 · 1회차</div>
+        <svg style="left:20px;top:80px" width="520" height="330" viewBox="0 0 520 330">
+          <g fill="none" stroke="#222526" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"><rect x="40" y="90" width="340" height="156" rx="64" fill="#fff"/><rect x="130" y="118" width="150" height="100" rx="26"/><path d="M330 120 V216"/></g>
+          <g fill="#222526"><circle cx="230" cy="92" r="4"/><circle cx="240" cy="140" r="4"/><circle cx="205" cy="168" r="4"/><circle cx="292" cy="140" r="4"/><circle cx="372" cy="104" r="4"/><circle cx="372" cy="232" r="4"/><circle cx="318" cy="168" r="4"/></g>
+          <g stroke="#222526" stroke-width="1.2"><path d="M230 92 V52"/><path d="M240 140 L110 52"/><path d="M292 140 L340 40"/><path d="M372 104 L430 104"/><path d="M372 232 L430 262"/><path d="M318 168 L430 180"/></g>
+        </svg>
+        <span class="chipf ol" style="left:40px;top:118px;height:30px;font-size:12.5px;background:#fff"><span class="box"></span>안전벨트</span>
+        <span class="chipf ol" style="left:198px;top:118px;height:30px;font-size:12.5px;background:#fff"><span class="box"></span>도어</span>
+        <span class="chipf ol" style="left:168px;top:234px;height:30px;font-size:12.5px;background:#fff"><span class="box"></span>기어</span>
+        <span class="chipf ol" style="left:330px;top:94px;height:30px;font-size:12.5px;background:#fff"><span class="box"></span>브레이크 / 시동</span>
+        <span class="chipf ol" style="left:452px;top:168px;height:30px;font-size:12.5px;background:#fff"><span class="box"></span>좌 지시등</span>
+        <span class="chipf ol" style="left:452px;top:244px;height:30px;font-size:12.5px;background:#fff"><span class="box" style="border-style:dashed"></span>비상등</span>
+        <span class="chipf ol" style="left:452px;top:326px;height:30px;font-size:12.5px;background:#fff"><span class="box"></span>우 지시등</span>
+        <div class="wc" style="left:600px;top:24px;width:225px;height:375px"></div>
+        <div style="left:618px;top:40px"><span class="num" style="font-size:24px">0 km/h</span></div>
+        <div class="trk" style="left:618px;top:78px;width:189px"><span>가이드</span><span>힌트</span><span class="on">평가</span></div>
+        <div class="eb" style="left:618px;top:134px;color:var(--onyx)">조용히 지켜봐요 <span class="ipb"><svg><use href="#bars1"/></svg>평가</span></div>
+        <div class="sent" style="left:618px;top:160px;width:195px;font-size:24px;line-height:34px">끝나면<br>다 됐어요를<br><span class="gw">눌러 주세요.</span></div>
+        <div class="btnk" style="left:618px;top:340px;width:189px">다 됐어요 →</div>
+      </div></div>
+    </div>
+    <div class="side"><h4>꼬리표 자리 (앞 = 오른쪽, 운전석 = 위쪽 앞)</h4>
+      <table><tr><th>항목</th><th>차 위 자리</th></tr>
+      <tr><td>도어</td><td>운전석 쪽 옆면 가운데</td></tr><tr><td>안전벨트</td><td>운전석 시트</td></tr><tr><td>기어</td><td>가운데 콘솔</td></tr><tr><td>브레이크 / 시동</td><td>운전석 발밑</td></tr><tr><td>좌 · 우 지시등</td><td>앞 두 모서리</td></tr><tr><td>비상등</td><td>대시 가운데</td></tr></table>
+    </div>
+  </div>
+</section>
+
+<div class="rec">
+  <div class="lab">RECOMMENDATION · A 출발 전 점검</div>
+  <h2>A4 세로 트랙 · 돌 <span>— 세 모드 차이는 A2 의 "힌트 = 이름 없는 동그라미" 를 빌린다</span></h2>
+  <ol>
+    <li><b>A4 를 바탕으로</b>: 지금 화면과 정보 배치가 같아 상태기계 · 계측 · 시연 대본 변경 0, 공수 작음(줄 → 트랙 · 돌, offset 애니메이션 1). 줄 높이 150 dp 로 점검 화면 중 가장 크게 읽힌다. 레퍼런스 3 의 트랙 · 돌을 가장 그대로 쓴다.</li>
+    <li><b>힌트 모드만 A2 처럼 더 비운다</b>: 끝낸 줄 · 남은 줄의 이름을 연한 회색으로 낮추고 ✓ / — 를 크게 — "가이드보다 손을 뗐다" 가 화면 밀도로 바로 보인다. 평가는 A4 그대로(트랙 회색 + 빈 칸).</li>
+    <li><b>시간이 남으면</b> A1 의 카드 머리 출처 칩(◐ 시뮬레이션)을 돌 안에 넣는다. A7(차 위 그림)은 발표 영상 한 컷용으로만 — 10/9 마감엔 공수가 크다.</li>
+  </ol>
+  <p style="color:#6b6f72">대안: 사용자가 "문장 시트와 똑같은 느낌" 을 더 원하면 A2(공수 작음~중간). 결과서와 한 가족을 더 원하면 A5.</p>
+</div>
+
+<!-- ======================================================= B ======================================================= -->
+<div class="part"><span class="no">B</span><div><h2>코스 · 도로 주행 — 지도 · 신호 · 돌발</h2><p>지금 앱 = 주행 중(&gt; 5 km/h) 잠금 면 + 한 줄(lesson-drive-exam · lesson-drive-emergency), 정차 시 어두운 지도 + 흰 문장 + 다 됐어요(lesson-drive-road-red). 큰 목업 = 주행 중 28 km/h(터치 0 · 점수 0), 작은 두 장 = 돌발 순간 · 정차(≤ 5 km/h).</p></div></div>
+
+<!-- B1 -->
+<section class="prop">
+  <div class="ph"><span class="no">B1</span><div><h2>흰 벽 지도 + 한 줄</h2><p class="one">H8 홈과 같은 흰 벽 — 왼쪽 가는 선 지도 위 V4 차, 오른쪽 위 정보 블록(지금 · 다음 · 신호), 가는 가로선 아래 한 줄. 정차하면 H8 의 ↗ 자리에 다 됐어요.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>주행 중 · 28 km/h</b>터치 0 · 점수 0 · 지도 + 한 줄</p>
+      <div class="scr wh">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <svg class="mp" viewBox="0 0 100 110" style="left:28px;top:56px;width:280px;height:308px;--road:#F0F0F0;--rt:#222526;--lbl:#8a8d90">
+          <use href="#rmap"/>
+          <use href="#r_mv_t" style="stroke:#BFBFBF;stroke-width:2px;stroke-dasharray:1 6"/>
+          <use href="#r_mv_d" style="stroke:#222526;stroke-width:3px"/>
+          <use href="#tlR" transform="translate(14 47)"/>
+          <use href="#car" transform="translate(10 60) rotate(-90) scale(.15)"/>
+        </svg>
+        <div style="left:28px;top:384px" class="hon"><span><i class="dot sim"></i>위치 · 신호 시뮬레이션</span><span><i class="dot live"></i>속도 실신호</span></div>
+        <div style="left:350px;top:22px;font-size:12px;color:var(--mu);line-height:1.6">일반 도로 코스 · 1회차 <span class="ipb"><svg><use href="#bars2"/></svg>힌트</span><br>코스 · 동네 도로(예시)</div>
+        <div style="right:28px;top:20px;text-align:right"><span class="num" style="font-size:44px">28</span> <span style="font-size:13px;color:var(--mu)">km/h</span></div>
+        <div style="left:350px;top:96px;display:flex;gap:28px;align-items:flex-end">
+          <div><div class="eb">지금</div><div style="font-size:30px;font-weight:500;line-height:1.2">신호 교차로</div></div>
+          <div><div class="eb">다음</div><div style="font-size:22px;color:var(--gw);line-height:1.3">우회전</div></div>
+        </div>
+        <div style="left:350px;top:170px;display:flex;align-items:center;gap:10px"><span class="tl"><i class="r"></i><i></i><i></i></span><span style="font-size:20px">빨간불</span></div>
+        <div class="rule" style="left:350px;right:28px;top:226px"></div>
+        <div class="sent" style="left:350px;top:244px;width:480px;font-size:30px;line-height:42px">신호를 봐요.<br><span class="gw">빨간불이면 정지선 앞에 멈춰요.</span></div>
+        <div class="lockn" style="left:350px;top:384px"><svg><use href="#i-lock"/></svg>운전에 집중해 주세요 · 화면 터치 잠김</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>홈(H8)의 흰 벽 · 오른쪽 위 정보 블록 · 가는 선을 주행에도 — 앱이 처음부터 끝까지 같은 포스터.</li>
+        <li>주행 중 화면에 남는 것 = 지도 도식 + 지금 · 다음 + 신호 + 한 줄. 누를 것 · 점수 0, 움직이는 건 차 표식뿐.</li>
+        <li>V4 차가 가는 선 지도와 같은 굵기 — 지도와 차가 한 그림.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>공수 작음</b> — 지금 DriveScreen 의 두 칸 배치 그대로, 바탕 Ink → 흰 벽, CourseMap 색 토큰 교체 + V4 표식(이미 1단계 계획). 잠금 면 대신 이 화면을 주행 중에도 보이려면 locked 분기에서 버튼만 빼면 된다.</li>
+        <li>가독성: 한 줄 30px(90 dp), 지금 구간 30px. 흰 벽은 밤에 눈부심 — 야간 테마에서 B2 로 바뀌는 것도 방법.</li>
+        <li>정직성: 위치 · 신호 ◐ 시뮬레이션 / 속도 ● 실신호를 지도 아래 한 줄로 늘 표시.</li>
+      </ul>
+      <p class="weight"><b>돌발</b>: 위 가장자리 Signal 띠가 왼쪽에서 펼쳐지고(1회, 300 ms) 한 줄이 "돌발 상황이에요. 멈추세요." 로 바뀐다, 차 표식에 Signal 고리. <b>정차</b>: 잠금 표시가 사라지고 오른쪽 아래 검은 알약.</p>
+      <span class="eff">공수 작음 · 움직임 차 위치만 · 돌발 띠 1회</span>
+    </div>
+  </div>
+  <div class="row2">
+    <div><p class="cap"><b>돌발 순간</b>Signal 띠 · 고리 · 한 줄 교체</p>
+      <div class="half"><div class="scr wh">
+        <div class="liveBar" style="left:0;top:0;width:853px;height:8px;background:var(--signal)"></div>
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <svg class="mp" viewBox="0 0 100 110" style="left:28px;top:56px;width:280px;height:308px;--road:#F0F0F0;--rt:#222526;--lbl:#8a8d90">
+          <use href="#rmap"/>
+          <use href="#r_em_t" style="stroke:#BFBFBF;stroke-width:2px;stroke-dasharray:1 6"/>
+          <use href="#r_em_d" style="stroke:#222526;stroke-width:3px"/>
+          <circle cx="50" cy="12" r="9" fill="none" stroke="#F52D48" stroke-width="1.2"/>
+          <use href="#car" transform="translate(50 12) scale(.15)"/>
+        </svg>
+        <div style="left:28px;top:384px" class="hon"><span><i class="dot sim"></i>돌발 경보 · 위치 시뮬레이션</span></div>
+        <div style="left:350px;top:22px;font-size:12px;color:var(--mu);line-height:1.6">일반 도로 코스 · 1회차 <span class="ipb"><svg><use href="#bars2"/></svg>힌트</span><br>코스 · 동네 도로(예시)</div>
+        <div style="right:28px;top:20px;text-align:right"><span class="num" style="font-size:44px">24</span> <span style="font-size:13px;color:var(--mu)">km/h</span></div>
+        <div style="left:350px;top:96px;display:flex;gap:28px;align-items:flex-end">
+          <div><div class="eb">지금</div><div style="font-size:30px;font-weight:500;line-height:1.2">구간 사이</div></div>
+          <div><div class="eb">다음</div><div style="font-size:22px;color:var(--gw);line-height:1.3">도착</div></div>
+        </div>
+        <div class="rule" style="left:350px;right:28px;top:226px"></div>
+        <div class="sent" style="left:350px;top:244px;width:480px;font-size:36px;line-height:50px"><span class="warn"><b>!</b></span> 돌발 상황이에요.<br><span style="color:var(--signal)">멈추세요.</span></div>
+        <div class="lockn" style="left:350px;top:384px"><svg><use href="#i-lock"/></svg>운전에 집중해 주세요 · 화면 터치 잠김</div>
+      </div></div>
+    </div>
+    <div><p class="cap"><b>정차 · 0 km/h</b>잠금 표시 → 다 됐어요</p>
+      <div class="half"><div class="scr wh">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <svg class="mp" viewBox="0 0 100 110" style="left:28px;top:56px;width:280px;height:308px;--road:#F0F0F0;--rt:#222526;--lbl:#8a8d90">
+          <use href="#rmap"/>
+          <use href="#r_st_t" style="stroke:#BFBFBF;stroke-width:2px;stroke-dasharray:1 6"/>
+          <use href="#r_st_d" style="stroke:#222526;stroke-width:3px"/>
+          <use href="#tlR" transform="translate(14 47)"/>
+          <use href="#car" transform="translate(10 58) rotate(-90) scale(.15)"/>
+        </svg>
+        <div style="left:28px;top:384px" class="hon"><span><i class="dot sim"></i>위치 · 신호 시뮬레이션</span><span><i class="dot live"></i>속도 실신호</span></div>
+        <div style="left:350px;top:22px;font-size:12px;color:var(--mu);line-height:1.6">일반 도로 코스 · 1회차 <span class="ipb"><svg><use href="#bars2"/></svg>힌트</span><br>코스 · 동네 도로(예시)</div>
+        <div style="right:28px;top:20px;text-align:right"><span class="num" style="font-size:44px">0</span> <span style="font-size:13px;color:var(--mu)">km/h</span></div>
+        <div style="left:350px;top:96px;display:flex;gap:28px;align-items:flex-end">
+          <div><div class="eb">지금</div><div style="font-size:30px;font-weight:500;line-height:1.2">신호 교차로</div></div>
+          <div><div class="eb">다음</div><div style="font-size:22px;color:var(--gw);line-height:1.3">우회전</div></div>
+        </div>
+        <div style="left:350px;top:170px;display:flex;align-items:center;gap:10px"><span class="tl"><i class="r"></i><i></i><i></i></span><span style="font-size:20px">빨간불</span></div>
+        <div class="rule" style="left:350px;right:28px;top:226px"></div>
+        <div class="sent" style="left:350px;top:244px;width:480px;font-size:30px;line-height:42px">신호를 봐요.<br><span class="gw">빨간불이면 정지선 앞에 멈춰요.</span></div>
+        <div class="btnk" style="left:525px;top:356px;width:300px">다 됐어요 →</div>
+      </div></div>
+    </div>
+    <div><p class="cap"><b>프레임 띠</b>돌발 순간(300 ms, 한 번) — 장식 아님, 경고</p>
+      <div class="fstrip">
+        <div class="fr"><svg viewBox="0 0 150 84"><rect width="150" height="84" rx="6" fill="#fff"/><path d="M76 40 H144" stroke="#ddd"/><text x="76" y="56" font-size="9" fill="#1A1A1A" font-family="Noto Sans KR, Malgun Gothic">신호를 봐요.</text><path d="M14 74 V20 Q14 12 22 12 H60" stroke="#222526" stroke-width="2" fill="none"/></svg><div class="fl"><b>0</b>평소</div></div>
+        <div class="fr"><svg viewBox="0 0 150 84"><rect width="150" height="84" rx="6" fill="#fff"/><rect width="50" height="4" fill="#F52D48"/><path d="M76 40 H144" stroke="#ddd"/><text x="76" y="56" font-size="9" fill="#1A1A1A" opacity=".4" font-family="Noto Sans KR, Malgun Gothic">신호를 봐요.</text><path d="M14 74 V20 Q14 12 22 12 H60" stroke="#222526" stroke-width="2" fill="none"/><circle cx="44" cy="12" r="5" fill="none" stroke="#F52D48"/></svg><div class="fl"><b>⅓</b>띠 펼침 · 고리</div></div>
+        <div class="fr"><svg viewBox="0 0 150 84"><rect width="150" height="84" rx="6" fill="#fff"/><rect width="110" height="4" fill="#F52D48"/><path d="M76 40 H144" stroke="#ddd"/><text x="76" y="58" font-size="10" fill="#1A1A1A" opacity=".6" font-family="Noto Sans KR, Malgun Gothic">돌발 상황이에요.</text><path d="M14 74 V20 Q14 12 22 12 H60" stroke="#222526" stroke-width="2" fill="none"/><circle cx="44" cy="12" r="7" fill="none" stroke="#F52D48"/></svg><div class="fl"><b>⅔</b>한 줄 교체</div></div>
+        <div class="fr"><svg viewBox="0 0 150 84"><rect width="150" height="84" rx="6" fill="#fff"/><rect width="150" height="4" fill="#F52D48"/><path d="M76 40 H144" stroke="#ddd"/><text x="76" y="56" font-size="10" fill="#1A1A1A" font-family="Noto Sans KR, Malgun Gothic">돌발 상황이에요.</text><text x="76" y="70" font-size="10" fill="#F52D48" font-family="Noto Sans KR, Malgun Gothic">멈추세요.</text><path d="M14 74 V20 Q14 12 22 12 H60" stroke="#222526" stroke-width="2" fill="none"/><circle cx="44" cy="12" r="6" fill="none" stroke="#F52D48" stroke-width="1.5"/></svg><div class="fl"><b>끝</b>경보 동안 유지</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- B2 -->
+<section class="prop">
+  <div class="ph"><span class="no">B2</span><div><h2>어두운 판 계기 알약</h2><p class="one">결과서 가족(Onyx + 테두리 · 채운 큰 알약)으로 주행 — 속도 = 테두리 큰 알약, 신호 = 등 셋 알약, 지금 = 채운 알약, 다음 = 흐린 알약. 지도는 Platinum 가는 선.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>주행 중 · 28 km/h</b>알약 = 계기(누를 수 없음)</p>
+      <div class="scr dk">
+        <div class="wm" style="left:28px;top:22px">DRIVE COACH</div>
+        <svg class="mp" viewBox="0 0 100 110" style="left:28px;top:52px;width:280px;height:308px;--road:#2F3335;--rt:#E0E0E0;--lbl:#8b8f92;--cf:#222526;--cs:#E0E0E0">
+          <use href="#rmap"/>
+          <use href="#r_mv_t" style="stroke:#6a6e71;stroke-width:2px;stroke-dasharray:1 6"/>
+          <use href="#r_mv_d" style="stroke:#E0E0E0;stroke-width:3px"/>
+          <use href="#tlR" transform="translate(14 47)"/>
+          <use href="#car" transform="translate(10 60) rotate(-90) scale(.15)"/>
+        </svg>
+        <div class="hon" style="left:28px;top:384px"><span><i class="dot sim"></i>위치 · 신호 시뮬레이션</span><span><i class="dot live"></i>속도 실신호</span></div>
+        <div class="up" style="left:340px;top:24px;color:var(--ash)">일반 도로 코스 · 1회차 · ROAD <span class="ipb" style="text-transform:none;letter-spacing:0"><svg><use href="#bars2"/></svg>힌트</span></div>
+        <div class="bp" style="left:340px;top:52px;width:200px;height:92px;color:var(--platinum);justify-content:center;gap:8px"><span class="num" style="font-size:54px">28</span><span class="up">KM/H</span></div>
+        <div class="bp" style="left:556px;top:52px;width:269px;height:92px;color:var(--platinum);justify-content:center;gap:14px"><span class="tl" style="background:transparent;padding:0"><i class="r" style="width:16px;height:16px"></i><i style="width:16px;height:16px"></i><i style="width:16px;height:16px"></i></span><span style="font-size:22px">빨간불</span></div>
+        <div class="bp fill" style="left:340px;top:162px;width:250px;height:54px;font-size:20px;justify-content:center"><span class="up" style="font-size:9px">NOW</span>신호 교차로</div>
+        <div style="left:596px;top:188px;width:24px;height:1.5px;background:rgba(224,224,224,.5)"></div>
+        <div class="bp dim" style="left:626px;top:162px;width:199px;height:54px;font-size:18px;justify-content:center;color:rgba(224,224,224,.6)"><span class="up" style="font-size:9px">NEXT</span>우회전</div>
+        <div class="rule" style="left:340px;right:28px;top:240px"></div>
+        <div class="sent" style="left:340px;top:256px;width:485px;font-size:28px;line-height:40px">신호를 봐요.<br><span class="gw">빨간불이면 정지선 앞에 멈춰요.</span></div>
+        <div class="lockn" style="left:340px;top:384px"><svg><use href="#i-lock"/></svg>운전에 집중해 주세요 · 화면 터치 잠김</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>밤 · 지하 주차장에서 가장 편하다 — 계기판 옆 화면에 어울리는 어두운 판.</li>
+        <li>3-results 6 쌍 알약과 같은 부품(테두리 · 채운 큰 알약)이라 결과서 구현과 컴포넌트 공유.</li>
+        <li>"지금 = 채움 / 다음 = 흐림" 이 결과서의 "지금 값 = 채움 / 지난 값 = 흐림" 과 같은 뜻.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>공수 작음~중간</b> — 알약 컴포넌트 공유 시 작음. 지도 색 토큰 어두운 판 버전 하나 더.</li>
+        <li>가독성: 큰 숫자 54px(162 dp) 속도가 화면에서 가장 크다 — 속도계 중복이라는 비판 가능(대신 한 줄을 키우는 B7 과 대조).</li>
+        <li>알약이 버튼처럼 보일 위험 — 주행 중엔 테두리만, 그림자 · 화살표 원 없음으로 "계기" 임을 구분. 정직성 줄은 지도 아래.</li>
+      </ul>
+      <p class="weight"><b>돌발</b>: 속도 알약 자리가 Signal 채운 알약 "멈추세요" 로 바뀌고 신호 알약은 "돌발 경보 ◐" . <b>정차</b>: 아래에 Platinum 알약 다 됐어요(A 왼쪽 원 화살표).</p>
+      <span class="eff">공수 작음~중간 · 움직임 차 위치 · 알약 교체 1회</span>
+    </div>
+  </div>
+  <div class="row2">
+    <div><p class="cap"><b>돌발 순간</b>속도 알약 → Signal "멈추세요"</p>
+      <div class="half"><div class="scr dk">
+        <div class="wm" style="left:28px;top:22px">DRIVE COACH</div>
+        <svg class="mp" viewBox="0 0 100 110" style="left:28px;top:52px;width:280px;height:308px;--road:#2F3335;--rt:#E0E0E0;--lbl:#8b8f92;--cf:#222526;--cs:#E0E0E0">
+          <use href="#rmap"/>
+          <use href="#r_em_t" style="stroke:#6a6e71;stroke-width:2px;stroke-dasharray:1 6"/>
+          <use href="#r_em_d" style="stroke:#E0E0E0;stroke-width:3px"/>
+          <circle cx="50" cy="12" r="9" fill="none" stroke="#F52D48" stroke-width="1.2"/>
+          <use href="#car" transform="translate(50 12) scale(.15)"/>
+        </svg>
+        <div class="hon" style="left:28px;top:384px"><span><i class="dot sim"></i>돌발 경보 · 위치 시뮬레이션</span></div>
+        <div class="up" style="left:340px;top:24px;color:var(--ash)">일반 도로 코스 · 1회차 · ROAD</div>
+        <div class="bp" style="left:340px;top:52px;width:200px;height:92px;background:var(--signal);border-color:var(--signal);color:#fff;justify-content:center;font-size:30px;font-weight:500">멈추세요</div>
+        <div class="bp" style="left:556px;top:52px;width:269px;height:92px;color:var(--platinum);justify-content:center;gap:10px;font-size:18px"><span class="dot sim"></span>돌발 경보 · <span class="num" style="font-size:22px">24</span><span class="up">KM/H</span></div>
+        <div class="bp fill" style="left:340px;top:162px;width:250px;height:54px;font-size:20px;justify-content:center"><span class="up" style="font-size:9px">NOW</span>구간 사이</div>
+        <div class="bp dim" style="left:626px;top:162px;width:199px;height:54px;font-size:18px;justify-content:center;color:rgba(224,224,224,.6)"><span class="up" style="font-size:9px">NEXT</span>도착</div>
+        <div class="rule" style="left:340px;right:28px;top:240px"></div>
+        <div class="sent" style="left:340px;top:256px;width:485px;font-size:34px;line-height:46px">돌발 상황이에요.<br><span style="color:#FF6B7F">멈추세요.</span></div>
+        <div class="lockn" style="left:340px;top:384px"><svg><use href="#i-lock"/></svg>운전에 집중해 주세요 · 화면 터치 잠김</div>
+      </div></div>
+    </div>
+    <div><p class="cap"><b>정차 · 0 km/h</b>Platinum 알약 다 됐어요</p>
+      <div class="half"><div class="scr dk">
+        <div class="wm" style="left:28px;top:22px">DRIVE COACH</div>
+        <svg class="mp" viewBox="0 0 100 110" style="left:28px;top:52px;width:280px;height:308px;--road:#2F3335;--rt:#E0E0E0;--lbl:#8b8f92;--cf:#222526;--cs:#E0E0E0">
+          <use href="#rmap"/>
+          <use href="#r_st_t" style="stroke:#6a6e71;stroke-width:2px;stroke-dasharray:1 6"/>
+          <use href="#r_st_d" style="stroke:#E0E0E0;stroke-width:3px"/>
+          <use href="#tlR" transform="translate(14 47)"/>
+          <use href="#car" transform="translate(10 58) rotate(-90) scale(.15)"/>
+        </svg>
+        <div class="hon" style="left:28px;top:384px"><span><i class="dot sim"></i>위치 · 신호 시뮬레이션</span><span><i class="dot live"></i>속도 실신호</span></div>
+        <div class="up" style="left:340px;top:24px;color:var(--ash)">일반 도로 코스 · 1회차 · ROAD</div>
+        <div class="bp" style="left:340px;top:52px;width:200px;height:92px;color:var(--platinum);justify-content:center;gap:8px"><span class="num" style="font-size:54px">0</span><span class="up">KM/H</span></div>
+        <div class="bp" style="left:556px;top:52px;width:269px;height:92px;color:var(--platinum);justify-content:center;gap:14px"><span class="tl" style="background:transparent;padding:0"><i class="r" style="width:16px;height:16px"></i><i style="width:16px;height:16px"></i><i style="width:16px;height:16px"></i></span><span style="font-size:22px">빨간불</span></div>
+        <div class="bp fill" style="left:340px;top:162px;width:250px;height:54px;font-size:20px;justify-content:center"><span class="up" style="font-size:9px">NOW</span>신호 교차로</div>
+        <div class="bp dim" style="left:626px;top:162px;width:199px;height:54px;font-size:18px;justify-content:center;color:rgba(224,224,224,.6)"><span class="up" style="font-size:9px">NEXT</span>우회전</div>
+        <div class="rule" style="left:340px;right:28px;top:240px"></div>
+        <div class="sent" style="left:340px;top:256px;width:485px;font-size:28px;line-height:40px">신호를 봐요.<br><span class="gw">빨간불이면 정지선 앞에 멈춰요.</span></div>
+        <div class="pa on" style="left:340px;top:356px;width:485px"><i>→</i><span style="flex:1;text-align:center;margin-right:30px">다 됐어요</span></div>
+      </div></div>
+    </div>
+    <div class="side"><h4>주행 중 알약 vs 정차 알약 — 누를 수 있나</h4>
+      <table><tr><th></th><th>모양</th><th>누름</th></tr>
+      <tr><td>속도 · 신호 · 지금 · 다음</td><td>테두리 / 채움, 그림자 없음, 화살표 원 없음</td><td>아니요(계기)</td></tr>
+      <tr><td>다 됐어요(정차)</td><td>Platinum 채움 + 왼쪽 원 화살표</td><td>예 — 정차 때만 나타남</td></tr>
+      <tr><td>멈추세요(돌발)</td><td>Signal 채움</td><td>아니요(경고)</td></tr></table>
+    </div>
+  </div>
+</section>
+
+<!-- B3 -->
+<section class="prop">
+  <div class="ph"><span class="no">B3</span><div><h2>잠금 면 + 지도 창</h2><p class="one">지금 앱의 잠금 면("운전에 집중해 주세요" + 한 줄)을 그대로 두고, 오른쪽에 흰 카드 창 하나로 지도만 더한다. 규칙에 가장 보수적인 안.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>주행 중 · 28 km/h</b>잠금 면이 주인 · 지도는 창</p>
+      <div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div style="left:28px;top:96px;width:44px;height:44px;border-radius:13px;background:var(--graphite);color:#fff;display:flex;align-items:center;justify-content:center"><svg width="24" height="24"><use href="#i-lock"/></svg></div>
+        <div class="sent" style="left:28px;top:154px;width:470px;font-size:42px;line-height:56px">운전에 집중해 주세요</div>
+        <div style="left:28px;top:220px;width:450px;font-size:22px;line-height:32px;color:#6b6f72">신호를 봐요.<br>빨간불이면 정지선 앞에 멈춰요.</div>
+        <div style="left:28px;top:306px;display:flex;gap:8px"><span class="lkp" style="background:#fff">지금 · 신호 교차로</span><span class="lkp">다음 · 우회전</span><span class="ipb" style="height:28px;border-radius:14px"><svg><use href="#bars2"/></svg>힌트</span></div>
+        <div class="hon" style="left:28px;top:384px"><span><i class="dot sim"></i>위치 · 신호 시뮬레이션</span><span><i class="dot live"></i>속도 실신호</span></div>
+        <div class="wc" style="left:520px;top:24px;width:305px;height:375px;box-shadow:0 12px 26px -10px rgba(0,0,0,.25)"></div>
+        <div style="left:540px;top:40px;display:flex;align-items:center;gap:8px"><span class="tl"><i class="r"></i><i></i><i></i></span><span style="font-size:14px">빨간불</span></div>
+        <div style="left:700px;top:36px;text-align:right;width:108px"><span class="num" style="font-size:28px">28</span> <span style="font-size:11px;color:var(--mu)">km/h</span></div>
+        <svg class="mp" viewBox="0 0 100 110" style="left:540px;top:80px;width:270px;height:297px;--road:#F0F0F0;--rt:#222526;--lbl:#8a8d90">
+          <use href="#rmap"/>
+          <use href="#r_mv_t" style="stroke:#BFBFBF;stroke-width:2px;stroke-dasharray:1 6"/>
+          <use href="#r_mv_d" style="stroke:#222526;stroke-width:3px"/>
+          <use href="#tlR" transform="translate(14 47)"/>
+          <use href="#car" transform="translate(10 60) rotate(-90) scale(.15)"/>
+        </svg>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>"잠금 = 한 면 + 운전에 집중해 주세요" 규칙을 문자 그대로 지키면서 지도를 더한다 — 심사에서 설명이 가장 쉽다.</li>
+        <li>지금 앱(lesson-drive-exam)과 차이가 작아 회귀 위험 최소.</li>
+        <li>지도 창은 홈 시트의 흰 카드 문법(겹친 흰 카드)과 같다.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>공수 작음</b> — ResultLockedScreen 에 CourseMap 카드 하나.</li>
+        <li>가독성: 큰 글자가 "운전에 집중해 주세요" 라 정작 코치 한 줄(22px, 66 dp)은 작다 — 음성이 본체이니 허용 범위.</li>
+        <li>새 컨셉 느낌은 가장 약하다 — "기존 그대로" 라는 사용자 아쉬움에 다시 걸릴 수 있다.</li>
+      </ul>
+      <p class="weight"><b>돌발</b>: 큰 글자가 "돌발 상황이에요. 멈추세요." 로 바뀌고 지도 창 테두리 Signal 3 px. <b>정차</b>: 자물쇠 · 잠금 문장이 사라지고 코치 한 줄이 큰 글자로, 아래 다 됐어요.</p>
+      <span class="eff">공수 작음 · 움직임 없음(차 위치만)</span>
+    </div>
+  </div>
+  <div class="row2">
+    <div><p class="cap"><b>돌발 순간</b>큰 글자 교체 · 창 테두리 Signal</p>
+      <div class="half"><div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div style="left:28px;top:96px;width:44px;height:44px;border-radius:13px;background:var(--signal);color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:600">!</div>
+        <div class="sent" style="left:28px;top:150px;width:470px;font-size:44px;line-height:58px">돌발 상황이에요.<br><span style="color:var(--signal)">멈추세요.</span></div>
+        <div style="left:28px;top:306px;display:flex;gap:8px"><span class="lkp" style="background:#fff">지금 · 구간 사이</span><span class="lkp">다음 · 도착</span></div>
+        <div class="hon" style="left:28px;top:384px"><span><i class="dot sim"></i>돌발 경보 · 위치 시뮬레이션</span></div>
+        <div class="wc" style="left:520px;top:24px;width:305px;height:375px;box-shadow:inset 0 0 0 3px var(--signal)"></div>
+        <div style="left:700px;top:36px;text-align:right;width:108px"><span class="num" style="font-size:28px">24</span> <span style="font-size:11px;color:var(--mu)">km/h</span></div>
+        <svg class="mp" viewBox="0 0 100 110" style="left:540px;top:80px;width:270px;height:297px;--road:#F0F0F0;--rt:#222526;--lbl:#8a8d90">
+          <use href="#rmap"/>
+          <use href="#r_em_t" style="stroke:#BFBFBF;stroke-width:2px;stroke-dasharray:1 6"/>
+          <use href="#r_em_d" style="stroke:#222526;stroke-width:3px"/>
+          <circle cx="50" cy="12" r="9" fill="none" stroke="#F52D48" stroke-width="1.2"/>
+          <use href="#car" transform="translate(50 12) scale(.15)"/>
+        </svg>
+      </div></div>
+    </div>
+    <div><p class="cap"><b>정차 · 0 km/h</b>잠금 풀림 · 다 됐어요</p>
+      <div class="half"><div class="scr">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="sent" style="left:28px;top:96px;width:480px;font-size:34px;line-height:48px">신호를 봐요.<br><span class="gw">빨간불이면 정지선 앞에 멈춰요.</span></div>
+        <div style="left:28px;top:270px;display:flex;gap:8px"><span class="lkp" style="background:#fff">지금 · 신호 교차로</span><span class="lkp">다음 · 우회전</span><span class="ipb" style="height:28px;border-radius:14px"><svg><use href="#bars2"/></svg>힌트</span></div>
+        <div class="btnk" style="left:28px;top:340px;width:460px">다 됐어요 →</div>
+        <div class="wc" style="left:520px;top:24px;width:305px;height:375px;box-shadow:0 12px 26px -10px rgba(0,0,0,.25)"></div>
+        <div style="left:540px;top:40px;display:flex;align-items:center;gap:8px"><span class="tl"><i class="r"></i><i></i><i></i></span><span style="font-size:14px">빨간불</span></div>
+        <div style="left:700px;top:36px;text-align:right;width:108px"><span class="num" style="font-size:28px">0</span> <span style="font-size:11px;color:var(--mu)">km/h</span></div>
+        <svg class="mp" viewBox="0 0 100 110" style="left:540px;top:80px;width:270px;height:297px;--road:#F0F0F0;--rt:#222526;--lbl:#8a8d90">
+          <use href="#rmap"/>
+          <use href="#r_st_t" style="stroke:#BFBFBF;stroke-width:2px;stroke-dasharray:1 6"/>
+          <use href="#r_st_d" style="stroke:#222526;stroke-width:3px"/>
+          <use href="#tlR" transform="translate(14 47)"/>
+          <use href="#car" transform="translate(10 58) rotate(-90) scale(.15)"/>
+        </svg>
+      </div></div>
+    </div>
+    <div class="side"><h4>지금 앱과 다른 점</h4>
+      <table><tr><th>지금(27a)</th><th>B3</th></tr>
+      <tr><td>주행 중 = 어두운 잠금 면, 지도 없음</td><td>밝은 잠금 면 + 흰 카드 지도 창</td></tr>
+      <tr><td>정차 = 어두운 지도 반 + 흰 문장 반</td><td>같은 배치 유지, 문장이 큰 글자로</td></tr>
+      <tr><td>돌발 = 지도 위 Signal 띠 "돌발 상황"</td><td>큰 글자 교체 + 창 테두리</td></tr></table>
+    </div>
+  </div>
+</section>
+
+<!-- B4 -->
+<section class="prop">
+  <div class="ph"><span class="no">B4</span><div><h2>전면 지도 + 떠 있는 흰 카드</h2><p class="one">지도가 화면 전체(연회색 바탕 · 흰 길 · 가는 경로선), 그 위에 흰 카드 한 장이 떠서 지금 · 다음 · 한 줄을 든다. 구간이 바뀌면 새 카드가 아래에서 올라와 겹친다.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>주행 중 · 28 km/h</b>지도 = 바탕 · 카드 = 말</p>
+      <div class="scr" style="background:linear-gradient(165deg,#ECECEC,#DADADA)">
+        <svg class="mp" viewBox="-60 -4 230 114" preserveAspectRatio="xMidYMid meet" style="left:0;top:0;width:853px;height:423px;--road:#FFFFFF;--rt:#222526;--lbl:#8a8d90">
+          <use href="#rmap"/>
+          <use href="#r_mv_t" style="stroke:#9a9da0;stroke-width:2px;stroke-dasharray:1 7"/>
+          <use href="#r_mv_d" style="stroke:#222526;stroke-width:3.5px"/>
+          <use href="#tlR" transform="translate(14 47)"/>
+          <use href="#car" transform="translate(10 60) rotate(-90) scale(.14)"/>
+        </svg>
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div style="left:28px;top:44px;font-size:12px;color:var(--mu)">일반 도로 코스 · 1회차 · 동네 도로(예시)</div>
+        <div style="right:28px;top:22px;display:flex;gap:8px;align-items:center"><span class="tl"><i class="r"></i><i></i><i></i></span><span class="lkp" style="background:#fff;height:36px;border-radius:18px;padding:0 16px"><span class="num" style="font-size:24px">28</span> km/h</span></div>
+        <div class="wc liveRise" style="left:470px;top:226px;width:355px;height:170px;padding:16px 20px;box-shadow:0 18px 30px -12px rgba(0,0,0,.3)">
+          <div style="display:flex;gap:6px;align-items:center"><span class="chipf on" style="height:28px;font-size:12.5px;padding:0 12px">지금 · 신호 교차로</span><span class="chipf" style="height:28px;font-size:12.5px;padding:0 12px">다음 · 우회전</span><span class="ipb" style="margin-left:auto"><svg><use href="#bars2"/></svg>힌트</span></div>
+          <p class="sent" style="font-size:24px;line-height:34px;margin-top:12px">신호를 봐요.<br><span class="gw">빨간불이면 정지선 앞에 멈춰요.</span></p>
+        </div>
+        <div class="hon" style="left:28px;top:388px"><span><i class="dot sim"></i>위치 · 신호 시뮬레이션</span><span><i class="dot live"></i>속도 실신호</span></div>
+        <div class="lockn" style="right:28px;top:200px"><svg><use href="#i-lock"/></svg>운전에 집중해 주세요</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>"지도 앱" 처럼 익숙 — 큰 지도에서 차가 어디쯤인지 한눈에. 카드는 핀 B 의 "올라와 겹치는 흰 카드" 그대로.</li>
+        <li>구간이 바뀔 때만 카드가 바뀐다 → 화면이 바뀌는 순간 = 들을 순간. 움직임이 정보다.</li>
+        <li>돌발은 카드 한 장이 Signal 로 바뀌는 것뿐 — 경고가 한 곳에 모인다.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>공수 중간</b> — CourseMap 을 전체 화면 + 맞춤 확대로, 카드 겹침 애니메이션.</li>
+        <li>가독성: 카드 한 줄 24px(72 dp). 지도 위 라벨 작다(도식이니 허용). 카드 올라옴은 구간 바뀔 때 한 번 — 주행 중 장식 0 규칙과 경계(정보 전환이라 허용으로 본다).</li>
+        <li>정직성: 지도가 넓어 "정확한 위치" 처럼 보일 위험 — 위치 ◐ 시뮬레이션을 왼쪽 아래에 늘.</li>
+      </ul>
+      <p class="weight"><b>돌발</b>: 카드 바탕이 Signal, 흰 글자 "돌발 상황이에요. 멈추세요." <b>정차</b>: 카드 아래쪽에 검은 알약 다 됐어요가 붙는다(카드가 커짐).</p>
+      <span class="eff">공수 중간 · 움직임 C1 구간 카드 올라옴(구간마다 1회)</span>
+    </div>
+  </div>
+  <div class="row2">
+    <div><p class="cap"><b>돌발 순간</b>카드 한 장이 Signal</p>
+      <div class="half"><div class="scr" style="background:linear-gradient(165deg,#ECECEC,#DADADA)">
+        <svg class="mp" viewBox="-60 -4 230 114" preserveAspectRatio="xMidYMid meet" style="left:0;top:0;width:853px;height:423px;--road:#FFFFFF;--rt:#222526;--lbl:#8a8d90">
+          <use href="#rmap"/>
+          <use href="#r_em_t" style="stroke:#9a9da0;stroke-width:2px;stroke-dasharray:1 7"/>
+          <use href="#r_em_d" style="stroke:#222526;stroke-width:3.5px"/>
+          <circle cx="50" cy="12" r="8" fill="none" stroke="#F52D48" stroke-width="1"/>
+          <use href="#car" transform="translate(50 12) scale(.14)"/>
+        </svg>
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div style="right:28px;top:22px"><span class="lkp" style="background:#fff;height:36px;border-radius:18px;padding:0 16px"><span class="num" style="font-size:24px">24</span> km/h</span></div>
+        <div class="wc" style="left:470px;top:226px;width:355px;height:170px;padding:18px 22px;background:var(--signal);color:#fff;box-shadow:0 18px 30px -12px rgba(245,45,72,.5)">
+          <div style="font-size:12.5px;opacity:.85"><span class="dot sim"></span> 돌발 경보 · 시뮬레이션</div>
+          <p style="font-size:32px;line-height:44px;margin-top:10px;font-weight:500">돌발 상황이에요.<br>멈추세요.</p>
+        </div>
+        <div class="hon" style="left:28px;top:388px"><span><i class="dot sim"></i>위치 · 신호 시뮬레이션</span></div>
+        <div class="lockn" style="right:28px;top:200px"><svg><use href="#i-lock"/></svg>운전에 집중해 주세요</div>
+      </div></div>
+    </div>
+    <div><p class="cap"><b>정차 · 0 km/h</b>카드에 다 됐어요가 붙음</p>
+      <div class="half"><div class="scr" style="background:linear-gradient(165deg,#ECECEC,#DADADA)">
+        <svg class="mp" viewBox="-60 -4 230 114" preserveAspectRatio="xMidYMid meet" style="left:0;top:0;width:853px;height:423px;--road:#FFFFFF;--rt:#222526;--lbl:#8a8d90">
+          <use href="#rmap"/>
+          <use href="#r_st_t" style="stroke:#9a9da0;stroke-width:2px;stroke-dasharray:1 7"/>
+          <use href="#r_st_d" style="stroke:#222526;stroke-width:3.5px"/>
+          <use href="#tlR" transform="translate(14 47)"/>
+          <use href="#car" transform="translate(10 58) rotate(-90) scale(.14)"/>
+        </svg>
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div style="right:28px;top:22px;display:flex;gap:8px;align-items:center"><span class="tl"><i class="r"></i><i></i><i></i></span><span class="lkp" style="background:#fff;height:36px;border-radius:18px;padding:0 16px"><span class="num" style="font-size:24px">0</span> km/h</span></div>
+        <div class="wc" style="left:470px;top:150px;width:355px;height:250px;padding:16px 20px;box-shadow:0 18px 30px -12px rgba(0,0,0,.3)">
+          <div style="display:flex;gap:6px;align-items:center"><span class="chipf on" style="height:28px;font-size:12.5px;padding:0 12px">지금 · 신호 교차로</span><span class="chipf" style="height:28px;font-size:12.5px;padding:0 12px">다음 · 우회전</span></div>
+          <p class="sent" style="font-size:24px;line-height:34px;margin-top:12px">신호를 봐요.<br><span class="gw">빨간불이면 정지선 앞에 멈춰요.</span></p>
+          <div class="btnk" style="margin-top:22px">다 됐어요 →</div>
+        </div>
+        <div class="hon" style="left:28px;top:388px"><span><i class="dot sim"></i>위치 · 신호 시뮬레이션</span><span><i class="dot live"></i>속도 실신호</span></div>
+      </div></div>
+    </div>
+    <div><p class="cap"><b>프레임 띠</b>구간이 바뀔 때 — 새 카드가 올라와 겹침(420 ms, 1회)</p>
+      <div class="fstrip">
+        <div class="fr"><svg viewBox="0 0 150 84"><rect width="150" height="84" rx="6" fill="#E3E3E3"/><rect x="70" y="36" width="72" height="40" rx="8" fill="#fff"/><text x="76" y="52" font-size="8" fill="#222" font-family="Noto Sans KR, Malgun Gothic">어린이 보호구역</text></svg><div class="fl"><b>0</b>지난 구간 카드</div></div>
+        <div class="fr"><svg viewBox="0 0 150 84"><rect width="150" height="84" rx="6" fill="#E3E3E3"/><rect x="73" y="33" width="66" height="40" rx="8" fill="#F6F6F6"/><rect x="70" y="70" width="72" height="40" rx="8" fill="#fff" stroke="#ccc"/></svg><div class="fl"><b>⅓</b>새 카드 올라옴</div></div>
+        <div class="fr"><svg viewBox="0 0 150 84"><rect width="150" height="84" rx="6" fill="#E3E3E3"/><rect x="74" y="31" width="64" height="40" rx="8" fill="#F2F2F2"/><rect x="70" y="46" width="72" height="40" rx="8" fill="#fff" stroke="#ccc"/></svg><div class="fl"><b>⅔</b>앞 카드 위로 겹침</div></div>
+        <div class="fr"><svg viewBox="0 0 150 84"><rect width="150" height="84" rx="6" fill="#E3E3E3"/><rect x="70" y="36" width="72" height="40" rx="8" fill="#fff" stroke="#bbb"/><text x="76" y="52" font-size="8" fill="#222" font-family="Noto Sans KR, Malgun Gothic">신호 교차로</text></svg><div class="fl"><b>끝</b>앞 카드는 사라짐</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- B5 -->
+<section class="prop">
+  <div class="ph"><span class="no">B5</span><div><h2>구간 줄 — 지도 대신 한 줄 노선도</h2><p class="one">2D 지도를 버리고 지하철 노선도처럼 가로선 하나 — 출발 · 어린이 보호구역 · 신호 교차로 · 우회전 · 도착. 위에는 거대한 한 줄, 선 위엔 V4 차.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>주행 중 · 28 km/h</b>위치 = "어느 구간" 만 · 문장이 주인</p>
+      <div class="scr wh">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div style="left:28px;top:48px;font-size:12px;color:var(--mu)">일반 도로 코스 · 1회차 <span class="ipb"><svg><use href="#bars2"/></svg>힌트</span></div>
+        <div style="right:28px;top:20px;text-align:right"><span class="num" style="font-size:44px">28</span> <span style="font-size:13px;color:var(--mu)">km/h</span></div>
+        <div class="sent" style="left:28px;top:96px;width:800px;font-size:44px;line-height:58px">신호를 봐요.<br><span class="gw">빨간불이면 정지선 앞에 멈춰요.</span></div>
+        <svg style="left:28px;top:236px" width="800" height="130" viewBox="0 0 800 130">
+          <path d="M30 60 H362" stroke="#222526" stroke-width="3.2" stroke-linecap="round"/>
+          <path d="M362 60 H770" stroke="#BFBFBF" stroke-width="3" stroke-dasharray="1 9" stroke-linecap="round"/>
+          <g fill="#222526"><circle cx="30" cy="60" r="7"/><circle cx="200" cy="60" r="7"/></g>
+          <circle cx="400" cy="60" r="9" fill="#fff" stroke="#222526" stroke-width="3"/>
+          <g fill="#fff" stroke="#BFBFBF" stroke-width="3"><circle cx="590" cy="60" r="7"/><circle cx="770" cy="60" r="7"/></g>
+          <g transform="translate(350 60) scale(.62)"><rect x="-35" y="-16" width="70" height="32" rx="14" fill="#fff" stroke="#222526" stroke-width="5"/><rect x="-20" y="-10" width="30" height="20" rx="6" fill="none" stroke="#222526" stroke-width="5"/><path d="M22 -9V9" stroke="#222526" stroke-width="5" stroke-linecap="round"/></g>
+          <g font-size="14" fill="#7a7e81" font-family="Noto Sans KR, Malgun Gothic" text-anchor="middle"><text x="30" y="98">출발</text><text x="200" y="98">어린이 보호구역</text><text x="770" y="98">도착</text></g>
+          <g transform="translate(386 14)"><rect width="30" height="18" rx="6" fill="#1A1A1A"/><circle cx="7" cy="9" r="3.5" fill="#F52D48"/><circle cx="15" cy="9" r="3.5" fill="#4a4e51"/><circle cx="23" cy="9" r="3.5" fill="#4a4e51"/></g>
+        </svg>
+        <span class="chipf on" style="left:350px;top:318px;height:34px;font-size:14px">지금 · 신호 교차로 · 빨간불</span>
+        <span class="chipf" style="left:560px;top:318px;height:34px;font-size:14px;background:#fff;box-shadow:0 2px 0 #222526;color:var(--onyx)">다음 · 우회전</span>
+        <div class="lockn" style="left:28px;top:392px"><svg><use href="#i-lock"/></svg>운전에 집중해 주세요 · 화면 터치 잠김</div>
+        <div class="hon" style="right:28px;top:392px"><span><i class="dot sim"></i>구간 위치 · 신호 시뮬레이션</span><span><i class="dot live"></i>속도 실신호</span></div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>문장이 132 dp 로 화면의 주인 — "음성이 본체, 화면은 한 줄" 에 가장 충실.</li>
+        <li>노선도는 "몇 m" 가 아니라 "어느 구간" 만 말한다 → <b>위치 정밀도를 과장하지 않는 정직한 그림</b>(위치가 시뮬레이션이라는 사실과 잘 맞는다).</li>
+        <li>코스가 바뀌어도 같은 그림(구간 수만 다름) — 시험장 코스 여섯 개를 한 컴포넌트로.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>공수 작음~중간</b> — 새 컴포넌트지만 Canvas 선 + 점 + 차 하나. CourseMap 은 정차 · 결과서에서만 쓴다.</li>
+        <li>가독성: 매우 좋음. 다만 우회전 · 좌회전 같은 "모양" 정보가 사라진다(음성이 말해 줌).</li>
+        <li>정직성: "구간 위치 ◐" 로 표시, 지도 없음 자체가 정직성 장치.</li>
+      </ul>
+      <p class="weight"><b>돌발</b>: 차 앞쪽 선이 Signal 로, 문장이 "돌발 상황이에요. 멈추세요." <b>정차</b>: 오른쪽 아래 다 됐어요.</p>
+      <span class="eff">공수 작음~중간 · 움직임 차가 선을 따라(위치)</span>
+    </div>
+  </div>
+  <div class="row2">
+    <div><p class="cap"><b>돌발 순간</b>앞 선 Signal · 문장 교체</p>
+      <div class="half"><div class="scr wh">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div style="left:28px;top:48px;font-size:12px;color:var(--mu)">일반 도로 코스 · 1회차</div>
+        <div style="right:28px;top:20px;text-align:right"><span class="num" style="font-size:44px">24</span> <span style="font-size:13px;color:var(--mu)">km/h</span></div>
+        <div class="sent" style="left:28px;top:96px;width:800px;font-size:44px;line-height:58px"><span class="warn"><b>!</b></span> 돌발 상황이에요.<br><span style="color:var(--signal)">멈추세요.</span></div>
+        <svg style="left:28px;top:236px" width="800" height="130" viewBox="0 0 800 130">
+          <path d="M30 60 H660" stroke="#222526" stroke-width="3.2" stroke-linecap="round"/>
+          <path d="M700 60 H770" stroke="#F52D48" stroke-width="3.2" stroke-linecap="round"/>
+          <g fill="#222526"><circle cx="30" cy="60" r="7"/><circle cx="200" cy="60" r="7"/><circle cx="400" cy="60" r="7"/><circle cx="590" cy="60" r="7"/></g>
+          <circle cx="770" cy="60" r="7" fill="#fff" stroke="#BFBFBF" stroke-width="3"/>
+          <circle cx="660" cy="60" r="30" fill="none" stroke="#F52D48" stroke-width="2"/>
+          <g transform="translate(660 60) scale(.62)"><rect x="-35" y="-16" width="70" height="32" rx="14" fill="#fff" stroke="#222526" stroke-width="5"/><rect x="-20" y="-10" width="30" height="20" rx="6" fill="none" stroke="#222526" stroke-width="5"/><path d="M22 -9V9" stroke="#222526" stroke-width="5" stroke-linecap="round"/></g>
+          <g font-size="14" fill="#7a7e81" font-family="Noto Sans KR, Malgun Gothic" text-anchor="middle"><text x="30" y="98">출발</text><text x="200" y="98">어린이 보호구역</text><text x="400" y="98">신호 교차로</text><text x="590" y="98">우회전</text><text x="770" y="98">도착</text></g>
+        </svg>
+        <div class="lockn" style="left:28px;top:392px"><svg><use href="#i-lock"/></svg>운전에 집중해 주세요 · 화면 터치 잠김</div>
+        <div class="hon" style="right:28px;top:392px"><span><i class="dot sim"></i>돌발 경보 시뮬레이션</span></div>
+      </div></div>
+    </div>
+    <div><p class="cap"><b>정차 · 0 km/h</b>정지선 앞 · 다 됐어요</p>
+      <div class="half"><div class="scr wh">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div style="left:28px;top:48px;font-size:12px;color:var(--mu)">일반 도로 코스 · 1회차 <span class="ipb"><svg><use href="#bars2"/></svg>힌트</span></div>
+        <div style="right:28px;top:20px;text-align:right"><span class="num" style="font-size:44px">0</span> <span style="font-size:13px;color:var(--mu)">km/h</span></div>
+        <div class="sent" style="left:28px;top:96px;width:800px;font-size:44px;line-height:58px">신호를 봐요.<br><span class="gw">빨간불이면 정지선 앞에 멈춰요.</span></div>
+        <svg style="left:28px;top:236px" width="800" height="130" viewBox="0 0 800 130">
+          <path d="M30 60 H372" stroke="#222526" stroke-width="3.2" stroke-linecap="round"/>
+          <path d="M372 60 H770" stroke="#BFBFBF" stroke-width="3" stroke-dasharray="1 9" stroke-linecap="round"/>
+          <g fill="#222526"><circle cx="30" cy="60" r="7"/><circle cx="200" cy="60" r="7"/></g>
+          <path d="M392 44 V76" stroke="#222526" stroke-width="2.5"/>
+          <g fill="#fff" stroke="#BFBFBF" stroke-width="3"><circle cx="590" cy="60" r="7"/><circle cx="770" cy="60" r="7"/></g>
+          <g transform="translate(362 60) scale(.62)"><rect x="-35" y="-16" width="70" height="32" rx="14" fill="#fff" stroke="#222526" stroke-width="5"/><rect x="-20" y="-10" width="30" height="20" rx="6" fill="none" stroke="#222526" stroke-width="5"/><path d="M22 -9V9" stroke="#222526" stroke-width="5" stroke-linecap="round"/></g>
+          <g transform="translate(386 14)"><rect width="30" height="18" rx="6" fill="#1A1A1A"/><circle cx="7" cy="9" r="3.5" fill="#F52D48"/><circle cx="15" cy="9" r="3.5" fill="#4a4e51"/><circle cx="23" cy="9" r="3.5" fill="#4a4e51"/></g>
+          <g font-size="14" fill="#7a7e81" font-family="Noto Sans KR, Malgun Gothic" text-anchor="middle"><text x="30" y="98">출발</text><text x="200" y="98">어린이 보호구역</text><text x="590" y="98">우회전</text><text x="770" y="98">도착</text></g>
+        </svg>
+        <span class="chipf on" style="left:350px;top:318px;height:34px;font-size:14px">지금 · 신호 교차로 · 빨간불</span>
+        <div class="btnk" style="left:525px;top:368px;width:300px">다 됐어요 →</div>
+        <div class="hon" style="left:28px;top:392px"><span><i class="dot sim"></i>구간 위치 · 신호 시뮬레이션</span></div>
+      </div></div>
+    </div>
+    <div class="side"><h4>지도 대신 노선도일 때 사라지는 것 · 남는 것</h4>
+      <table><tr><th>사라짐</th><th>남음(어디로)</th></tr>
+      <tr><td>길 모양(꺾임)</td><td>음성 "오른쪽 방향지시등을 켜고…"</td></tr>
+      <tr><td>정지선까지 거리 그림</td><td>정지선 눈금 하나(정차 화면)</td></tr>
+      <tr><td>2D 지도</td><td>회차 판정 · 자세히 보기의 궤적 지도</td></tr></table>
+    </div>
+  </div>
+</section>
+
+<!-- B6 -->
+<section class="prop">
+  <div class="ph"><span class="no">B6</span><div><h2>지금 · 다음 카드 더미</h2><p class="one">왼쪽 흰 카드 지도, 오른쪽은 구간 카드 더미 — 지나온 구간은 위 띠, 지금은 검은 입체 카드(신호등 · 한 줄), 다음은 아래에서 고개만 내민 흰 카드.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>주행 중 · 28 km/h</b>검은 카드 = 지금 구간</p>
+      <div class="scr">
+        <div class="wc" style="left:28px;top:24px;width:330px;height:375px;box-shadow:0 1px 2px rgba(0,0,0,.08)"></div>
+        <div class="wm" style="left:48px;top:42px">DRIVE COACH</div>
+        <svg class="mp" viewBox="0 0 100 110" style="left:48px;top:66px;width:290px;height:300px;--road:#F0F0F0;--rt:#222526;--lbl:#8a8d90">
+          <use href="#rmap"/>
+          <use href="#r_mv_t" style="stroke:#BFBFBF;stroke-width:2px;stroke-dasharray:1 6"/>
+          <use href="#r_mv_d" style="stroke:#222526;stroke-width:3px"/>
+          <use href="#tlR" transform="translate(14 47)"/>
+          <use href="#car" transform="translate(10 60) rotate(-90) scale(.15)"/>
+        </svg>
+        <div class="hon" style="left:48px;top:372px"><span><i class="dot sim"></i>위치 · 신호 시뮬레이션</span></div>
+        <div style="left:390px;top:26px;font-size:12px;color:var(--mu)">일반 도로 코스 · 1회차 <span class="ipb"><svg><use href="#bars2"/></svg>힌트</span></div>
+        <div style="right:28px;top:20px;text-align:right"><span class="num" style="font-size:36px">28</span> <span style="font-size:12px;color:var(--mu)">km/h</span> <span class="dot live" style="color:var(--mu)"></span></div>
+        <div class="wc back" style="left:410px;top:72px;width:395px;height:60px;box-shadow:0 1px 2px rgba(0,0,0,.08)"><div style="padding:8px 18px;font-size:12px;color:var(--mu)">지나옴 · 어린이 보호구역 ✓</div></div>
+        <div class="k3" style="left:390px;top:104px;width:435px;height:190px;border-radius:24px;padding:18px 22px">
+          <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;color:#bfc1c2">지금</span><span class="tl" style="background:#000"><i class="r"></i><i></i><i></i></span></div>
+          <div style="font-size:32px;font-weight:500;margin-top:2px">신호 교차로 <span style="font-size:18px;color:#FF8A9A;font-weight:400">빨간불</span></div>
+          <div style="font-size:20px;line-height:30px;margin-top:10px;color:#e8e8e8">신호를 봐요.<br><span style="color:#9a9da0">빨간불이면 정지선 앞에 멈춰요.</span></div>
+        </div>
+        <div class="wc" style="left:400px;top:308px;width:415px;height:62px;padding:12px 20px;font-size:17px">다음 · 우회전</div>
+        <div class="lockn" style="left:390px;top:388px"><svg><use href="#i-lock"/></svg>운전에 집중해 주세요 · 화면 터치 잠김</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>점검 A1(카드 더미)과 같은 문법 — 출발 전 점검 → 코스 주행이 "카드가 한 장씩 올라온다" 로 이어진다.</li>
+        <li>지금 구간의 모든 정보(이름 · 신호 · 한 줄)가 검은 카드 하나에 모여 시선이 한 곳.</li>
+        <li>다음 구간이 아래에서 고개를 내밀고 있어 "곧 우회전" 을 미리 안다.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>공수 중간</b> — 구간 카드 3 겹 + 바뀔 때 올라옴. 지도는 지금 CourseMap 재사용.</li>
+        <li>가독성: 검은 카드 위 이름 32px(96 dp) 좋음, 한 줄 20px(60 dp). 검은 입체 카드가 버튼처럼 보일 위험 — 주행 중엔 그림자를 줄여 "판" 으로.</li>
+        <li>정직성: 위치 ◐ 는 지도 카드 안, 속도 ● 는 숫자 옆 점.</li>
+      </ul>
+      <p class="weight"><b>돌발</b>: Signal 카드 한 장이 더미 맨 위로 올라와 지금 카드를 덮는다. <b>정차</b>: 다음 카드 자리에 다 됐어요.</p>
+      <span class="eff">공수 중간 · 움직임 C1 카드 올라옴(구간 · 돌발 때만)</span>
+    </div>
+  </div>
+  <div class="row2">
+    <div><p class="cap"><b>돌발 순간</b>Signal 카드가 더미 위로</p>
+      <div class="half"><div class="scr">
+        <div class="wc" style="left:28px;top:24px;width:330px;height:375px;box-shadow:0 1px 2px rgba(0,0,0,.08)"></div>
+        <div class="wm" style="left:48px;top:42px">DRIVE COACH</div>
+        <svg class="mp" viewBox="0 0 100 110" style="left:48px;top:66px;width:290px;height:300px;--road:#F0F0F0;--rt:#222526;--lbl:#8a8d90">
+          <use href="#rmap"/>
+          <use href="#r_em_t" style="stroke:#BFBFBF;stroke-width:2px;stroke-dasharray:1 6"/>
+          <use href="#r_em_d" style="stroke:#222526;stroke-width:3px"/>
+          <circle cx="50" cy="12" r="9" fill="none" stroke="#F52D48" stroke-width="1.2"/>
+          <use href="#car" transform="translate(50 12) scale(.15)"/>
+        </svg>
+        <div class="hon" style="left:48px;top:372px"><span><i class="dot sim"></i>돌발 경보 · 위치 시뮬레이션</span></div>
+        <div style="right:28px;top:20px;text-align:right"><span class="num" style="font-size:36px">24</span> <span style="font-size:12px;color:var(--mu)">km/h</span></div>
+        <div class="k3" style="left:400px;top:92px;width:415px;height:180px;border-radius:24px;opacity:.5"></div>
+        <div class="wc" style="left:390px;top:120px;width:435px;height:200px;border-radius:24px;padding:20px 24px;background:var(--signal);color:#fff;box-shadow:0 18px 30px -12px rgba(245,45,72,.55)">
+          <div style="font-size:12.5px;opacity:.85">돌발</div>
+          <div style="font-size:40px;line-height:54px;font-weight:500;margin-top:6px">돌발 상황이에요.<br>멈추세요.</div>
+        </div>
+        <div class="lockn" style="left:390px;top:388px"><svg><use href="#i-lock"/></svg>운전에 집중해 주세요 · 화면 터치 잠김</div>
+      </div></div>
+    </div>
+    <div><p class="cap"><b>정차 · 0 km/h</b>다음 카드 자리 → 다 됐어요</p>
+      <div class="half"><div class="scr">
+        <div class="wc" style="left:28px;top:24px;width:330px;height:375px;box-shadow:0 1px 2px rgba(0,0,0,.08)"></div>
+        <div class="wm" style="left:48px;top:42px">DRIVE COACH</div>
+        <svg class="mp" viewBox="0 0 100 110" style="left:48px;top:66px;width:290px;height:300px;--road:#F0F0F0;--rt:#222526;--lbl:#8a8d90">
+          <use href="#rmap"/>
+          <use href="#r_st_t" style="stroke:#BFBFBF;stroke-width:2px;stroke-dasharray:1 6"/>
+          <use href="#r_st_d" style="stroke:#222526;stroke-width:3px"/>
+          <use href="#tlR" transform="translate(14 47)"/>
+          <use href="#car" transform="translate(10 58) rotate(-90) scale(.15)"/>
+        </svg>
+        <div class="hon" style="left:48px;top:372px"><span><i class="dot sim"></i>위치 · 신호 시뮬레이션</span></div>
+        <div style="left:390px;top:26px;font-size:12px;color:var(--mu)">일반 도로 코스 · 1회차 <span class="ipb"><svg><use href="#bars2"/></svg>힌트</span></div>
+        <div style="right:28px;top:20px;text-align:right"><span class="num" style="font-size:36px">0</span> <span style="font-size:12px;color:var(--mu)">km/h</span></div>
+        <div class="k3" style="left:390px;top:72px;width:435px;height:200px;border-radius:24px;padding:18px 22px">
+          <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;color:#bfc1c2">지금</span><span class="tl" style="background:#000"><i class="r"></i><i></i><i></i></span></div>
+          <div style="font-size:32px;font-weight:500;margin-top:2px">신호 교차로 <span style="font-size:18px;color:#FF8A9A;font-weight:400">빨간불</span></div>
+          <div style="font-size:20px;line-height:30px;margin-top:10px;color:#e8e8e8">신호를 봐요.<br><span style="color:#9a9da0">빨간불이면 정지선 앞에 멈춰요.</span></div>
+        </div>
+        <div class="wc" style="left:400px;top:286px;width:415px;height:46px;padding:10px 20px;font-size:15px;color:var(--mu)">다음 · 우회전</div>
+        <div class="btnk" style="left:390px;top:350px;width:435px">다 됐어요 →</div>
+      </div></div>
+    </div>
+    <div><p class="cap"><b>프레임 띠</b>돌발 — Signal 카드가 올라와 덮음(420 ms, 1회)</p>
+      <div class="fstrip">
+        <div class="fr"><svg viewBox="0 0 150 84"><rect width="150" height="84" rx="6" fill="#E6E6E6"/><rect x="30" y="16" width="100" height="44" rx="9" fill="#141516"/><rect x="34" y="64" width="92" height="14" rx="6" fill="#fff"/></svg><div class="fl"><b>0</b>지금 카드</div></div>
+        <div class="fr"><svg viewBox="0 0 150 84"><rect width="150" height="84" rx="6" fill="#E6E6E6"/><rect x="30" y="16" width="100" height="44" rx="9" fill="#141516"/><rect x="28" y="62" width="104" height="44" rx="9" fill="#F52D48"/></svg><div class="fl"><b>⅓</b>올라옴</div></div>
+        <div class="fr"><svg viewBox="0 0 150 84"><rect width="150" height="84" rx="6" fill="#E6E6E6"/><rect x="34" y="12" width="92" height="40" rx="9" fill="#141516" opacity=".6"/><rect x="28" y="34" width="104" height="44" rx="9" fill="#F52D48"/></svg><div class="fl"><b>⅔</b>지금 카드 뒤로</div></div>
+        <div class="fr"><svg viewBox="0 0 150 84"><rect width="150" height="84" rx="6" fill="#E6E6E6"/><rect x="34" y="10" width="92" height="40" rx="9" fill="#141516" opacity=".5"/><rect x="28" y="22" width="104" height="46" rx="9" fill="#F52D48"/><text x="36" y="44" font-size="9" fill="#fff" font-family="Noto Sans KR, Malgun Gothic">돌발 상황이에요.</text><text x="36" y="58" font-size="9" fill="#fff" font-family="Noto Sans KR, Malgun Gothic">멈추세요.</text></svg><div class="fl"><b>끝</b>경보 동안 유지</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- B7 -->
+<section class="prop">
+  <div class="ph"><span class="no">B7</span><div><h2>문장 우선 + 동그란 미니맵</h2><p class="one">한 줄이 화면의 2/3 를 차지하는 거대한 글자(52 px = 156 dp), 지도는 오른쪽 동그라미 하나 — 진행 방향이 늘 위(헤딩 업), 차는 가운데.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>주행 중 · 28 km/h</b>거대한 한 줄 · 동그란 지도</p>
+      <div class="scr wh">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div style="left:28px;top:50px;font-size:12px;color:var(--mu)">일반 도로 코스 · 1회차 <span class="ipb"><svg><use href="#bars2"/></svg>힌트</span></div>
+        <div class="sent" style="left:28px;top:92px;width:540px;font-size:52px;line-height:66px">신호를 봐요.<br><span class="gw">빨간불이면 정지선 앞에 멈춰요.</span></div>
+        <div style="left:28px;top:322px;display:flex;gap:8px"><span class="chipf on">지금 · 신호 교차로</span><span class="chipf">다음 · 우회전</span></div>
+        <div class="lockn" style="left:28px;top:388px"><svg><use href="#i-lock"/></svg>운전에 집중해 주세요 · 화면 터치 잠김</div>
+        <div style="left:596px;top:34px;width:230px;height:230px;border-radius:50%;overflow:hidden;background:#F3F3F3;box-shadow:inset 0 0 0 1.5px #222526">
+          <svg viewBox="-20 30 60 60" style="width:230px;height:230px;display:block;--road:#FFFFFF;--rt:#222526;--lbl:#8a8d90">
+            <use href="#rmap"/>
+            <use href="#r_mv_t" style="stroke:#9a9da0;stroke-width:2.5px;stroke-dasharray:1 8"/>
+            <use href="#r_mv_d" style="stroke:#222526;stroke-width:4px"/>
+            <use href="#tlR" transform="translate(14 47)"/>
+            <use href="#car" transform="translate(10 60) rotate(-90) scale(.15)"/>
+          </svg>
+        </div>
+        <div style="left:596px;top:282px;width:230px;display:flex;justify-content:space-between;align-items:center"><span><span class="num" style="font-size:36px">28</span> <span style="font-size:12px;color:var(--mu)">km/h</span></span><span style="display:flex;align-items:center;gap:8px"><span class="tl"><i class="r"></i><i></i><i></i></span><span style="font-size:16px">빨간불</span></span></div>
+        <div class="hon" style="left:596px;top:336px;flex-direction:column;align-items:flex-start;gap:3px"><span><i class="dot sim"></i>위치 · 신호 시뮬레이션</span><span><i class="dot live"></i>속도 실신호</span></div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>운전석에서 가장 잘 읽힌다 — 한 줄이 156 dp. 곁눈질 한 번에 끝.</li>
+        <li>동그란 미니맵은 "지도 앱이 아니다, 조수석이 말하는 중이다" 를 형태로 말한다. 차가 늘 가운데라 위치를 찾을 필요가 없다.</li>
+        <li>핀 B 의 "큰 문장 + 회색 낱말" 을 주행 화면에 가장 크게.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><b>공수 중간</b> — 헤딩 업 회전 · 원 자르기 · 확대가 CourseMap 에 새로 필요(지금은 북쪽 위 고정).</li>
+        <li>가독성: 최고. 다만 문장이 길면(우회전 안내 등) 세 줄 → 글자 두 단계(52 / 44 px) 규칙 필요.</li>
+        <li>정직성: 미니맵은 확대라 위치가 더 "정확해 보인다" — ◐ 위치 시뮬레이션을 미니맵 바로 아래에.</li>
+      </ul>
+      <p class="weight"><b>돌발</b>: 문장이 "멈추세요." 72 px Signal 로 커지고 위에 "돌발 상황이에요.", 미니맵 테두리 Signal. <b>정차</b>: 아래 칩 줄 자리에 다 됐어요.</p>
+      <span class="eff">공수 중간 · 움직임 지도 회전(위치 따라)만</span>
+    </div>
+  </div>
+  <div class="row2">
+    <div><p class="cap"><b>돌발 순간</b>"멈추세요." 가 가장 큰 글자</p>
+      <div class="half"><div class="scr wh">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div style="left:28px;top:50px;font-size:12px;color:var(--mu)">일반 도로 코스 · 1회차</div>
+        <div class="sent" style="left:28px;top:96px;width:540px;font-size:34px;line-height:46px"><span class="warn"><b>!</b></span> 돌발 상황이에요.</div>
+        <div class="sent" style="left:28px;top:150px;width:560px;font-size:84px;line-height:100px;color:var(--signal)">멈추세요.</div>
+        <div style="left:28px;top:322px;display:flex;gap:8px"><span class="chipf on">지금 · 구간 사이</span><span class="chipf">다음 · 도착</span></div>
+        <div class="lockn" style="left:28px;top:388px"><svg><use href="#i-lock"/></svg>운전에 집중해 주세요 · 화면 터치 잠김</div>
+        <div style="left:596px;top:34px;width:230px;height:230px;border-radius:50%;overflow:hidden;background:#F3F3F3;box-shadow:inset 0 0 0 3px var(--signal)">
+          <svg viewBox="20 -18 60 60" style="width:230px;height:230px;display:block;--road:#FFFFFF;--rt:#222526;--lbl:#8a8d90">
+            <g transform="rotate(-90 50 12)">
+              <use href="#rmap"/>
+              <use href="#r_em_t" style="stroke:#9a9da0;stroke-width:2.5px;stroke-dasharray:1 8"/>
+              <use href="#r_em_d" style="stroke:#222526;stroke-width:4px"/>
+              <use href="#car" transform="translate(50 12) scale(.15)"/>
+            </g>
+          </svg>
+        </div>
+        <div style="left:596px;top:282px;width:230px"><span class="num" style="font-size:36px">24</span> <span style="font-size:12px;color:var(--mu)">km/h</span></div>
+        <div class="hon" style="left:596px;top:336px"><span><i class="dot sim"></i>돌발 경보 시뮬레이션</span></div>
+      </div></div>
+    </div>
+    <div><p class="cap"><b>정차 · 0 km/h</b>칩 줄 → 다 됐어요</p>
+      <div class="half"><div class="scr wh">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div style="left:28px;top:50px;font-size:12px;color:var(--mu)">일반 도로 코스 · 1회차 <span class="ipb"><svg><use href="#bars2"/></svg>힌트</span></div>
+        <div class="sent" style="left:28px;top:92px;width:540px;font-size:52px;line-height:66px">신호를 봐요.<br><span class="gw">빨간불이면 정지선 앞에 멈춰요.</span></div>
+        <div class="btnk" style="left:28px;top:340px;width:520px">다 됐어요 →</div>
+        <div style="left:596px;top:34px;width:230px;height:230px;border-radius:50%;overflow:hidden;background:#F3F3F3;box-shadow:inset 0 0 0 1.5px #222526">
+          <svg viewBox="-20 28 60 60" style="width:230px;height:230px;display:block;--road:#FFFFFF;--rt:#222526;--lbl:#8a8d90">
+            <use href="#rmap"/>
+            <use href="#r_st_t" style="stroke:#9a9da0;stroke-width:2.5px;stroke-dasharray:1 8"/>
+            <use href="#r_st_d" style="stroke:#222526;stroke-width:4px"/>
+            <use href="#tlR" transform="translate(14 47)"/>
+            <use href="#car" transform="translate(10 58) rotate(-90) scale(.15)"/>
+          </svg>
+        </div>
+        <div style="left:596px;top:282px;width:230px;display:flex;justify-content:space-between;align-items:center"><span><span class="num" style="font-size:36px">0</span> <span style="font-size:12px;color:var(--mu)">km/h</span></span><span style="display:flex;align-items:center;gap:8px"><span class="tl"><i class="r"></i><i></i><i></i></span><span style="font-size:16px">빨간불</span></span></div>
+        <div class="hon" style="left:596px;top:336px"><span><i class="dot sim"></i>위치 · 신호 시뮬레이션</span></div>
+      </div></div>
+    </div>
+    <div class="side"><h4>글자 크기 사다리 (실제 dp)</h4>
+      <table><tr><th>상태</th><th>가장 큰 글자</th><th>크기</th></tr>
+      <tr><td>주행 중</td><td>코치 한 줄</td><td>156 dp</td></tr>
+      <tr><td>돌발</td><td>"멈추세요."</td><td>252 dp</td></tr>
+      <tr><td>정차</td><td>코치 한 줄 + 다 됐어요</td><td>156 dp / 126 dp 높이</td></tr></table>
+      <p style="margin-top:8px;color:#4a4e51">긴 문장(세 줄 넘침)은 132 dp 로 한 단계 낮춘다 — 코치 문장 24자 규칙(라운드 26)이라 대부분 두 줄 안.</p>
+    </div>
+  </div>
+</section>
+
+<div class="rec">
+  <div class="lab">RECOMMENDATION · B 코스 · 도로 주행</div>
+  <h2>B1 흰 벽 지도 + 한 줄 <span>— 돌발은 B1 의 Signal 띠, 문장 크기는 B7 쪽으로 한 단계 키운다</span></h2>
+  <ol>
+    <li><b>B1 을 바탕으로</b>: 지금 DriveScreen 의 두 칸 배치 · CourseMap 을 그대로 쓰고 토큰(Ink → 흰 벽) · V4 표식 · 오른쪽 위 정보 블록만 바꾼다 — 공수 작음. 홈 H8 과 같은 포스터라 "색만 바뀐 느낌" 이 사라진다.</li>
+    <li><b>주행 중에도 이 화면</b>(잠금 면 대신): locked 일 때 버튼만 빼고 "운전에 집중해 주세요 · 화면 터치 잠김" 한 줄을 둔다 — 터치 0 · 점수 0 은 그대로, 지도는 도식이라 허용(LessonPhase.Drive 주석과 같은 판단).</li>
+    <li><b>한 줄을 30 → 36 px(108 dp)</b>로 키워 B7 의 가독성을 일부 가져오고, 돌발은 B1 방식(위 Signal 띠 1회 + 한 줄 교체 + 차 고리) — 경고 색이 화면에 세 곳 이하.</li>
+  </ol>
+  <p style="color:#6b6f72">대안: 규칙 설명을 가장 쉽게 하려면 B3(공수 작음, 새 느낌 약함). 밤 시연이면 B2. 시간이 남는 회차에 B5 노선도를 "위치 미측정" 상태의 대체 그림으로 쓰면 정직성이 한층 좋아진다.</p>
+</div>
+
+<h2 style="margin-top:44px;font-size:22px;font-weight:500">한눈에 — 열네 안 요약</h2>
+<table class="sum">
+  <tr><th>안</th><th>뼈대</th><th>세 모드 / 세 상태 차이</th><th>운전 중 가독성</th><th>정직성</th><th>움직임</th><th>공수</th></tr>
+  <tr><td><b>A1</b> 카드 더미</td><td>왼쪽 문장 · 오른쪽 겹친 카드</td><td>큰 카드 / ✓ 띠 + 틀린 카드 / 같은 띠 일곱</td><td>정차 · 큰 카드만 읽음</td><td>카드마다 출처 칩</td><td>C1 카드 올라옴</td><td>중간</td></tr>
+  <tr><td><b>A2</b> 문장 + 정거장 칩</td><td>132 dp 문장 · 칩 한 줄</td><td>값 칩 / 동그라미 + 틀린 칩 / 테두리 칩</td><td>문장 좋음 · 칩 40 dp</td><td>정직성 줄 + 칩 점</td><td>B1 칩 이동</td><td>작음~중간</td></tr>
+  <tr><td><b>A3</b> 일곱 타일</td><td>4 × 2 타일 + 흰 카드</td><td>값 / 큰 ✓ — + Signal 타일 / 빈 칸</td><td>좋음 · 눈 두 번</td><td>여덟째 칸 범례</td><td>E1 기호 그려짐</td><td>중간</td></tr>
+  <tr class="pick"><td><b>A4</b> 세로 트랙 · 돌 ★</td><td>문장 · 일곱 줄 트랙</td><td>돌 + 값 / ✓ — 열 + 틀린 줄 / 빈 칸</td><td><b>가장 큼(150 dp 줄)</b></td><td>줄 끝 점 일곱</td><td>B1 돌 280 ms</td><td><b>작음</b></td></tr>
+  <tr><td><b>A5</b> 어두운 판 알약</td><td>Onyx · 알약 일곱</td><td>채움·테두리 / ✓ 원 + Signal 알약 / 흐린 알약</td><td>밤 좋음 · 흐린 줄 약함</td><td>미측정 = 점선 알약</td><td>A1 원 번짐</td><td>작음~중간</td></tr>
+  <tr><td><b>A6</b> 진행 선 + 거대한 지금</td><td>흰 벽 · 정거장 선 · 180 dp 이름</td><td>이름 거대 / 문장 + 틀린 정거장 / 빈 네모</td><td>지금 이름 최고 · 선 이름 작음</td><td>숫자 셋</td><td>B1 알약 이동</td><td>중간</td></tr>
+  <tr><td><b>A7</b> 차 위 그림(V4)</td><td>큰 V4 차 + 꼬리표</td><td>꼬리표 값 / ✓ — 점 + Signal / 빈 꼬리표</td><td>꼬리표 38 dp</td><td>꼬리표 점</td><td>A1 원 번짐</td><td>큼</td></tr>
+  <tr class="pick"><td><b>B1</b> 흰 벽 지도 + 한 줄 ★</td><td>H8 흰 벽 · 지도 · 정보 블록 · 한 줄</td><td>평소 / Signal 띠 + 한 줄 / 다 됐어요</td><td>한 줄 90→108 dp</td><td>지도 아래 늘</td><td>차 위치 · 띠 1회</td><td><b>작음</b></td></tr>
+  <tr><td><b>B2</b> 어두운 판 계기 알약</td><td>Onyx · 속도 · 신호 · 구간 알약</td><td>평소 / Signal "멈추세요" 알약 / Platinum 알약</td><td>속도가 가장 큼(중복)</td><td>지도 아래</td><td>알약 교체 1회</td><td>작음~중간</td></tr>
+  <tr><td><b>B3</b> 잠금 면 + 지도 창</td><td>지금 잠금 면 + 흰 카드 지도</td><td>잠금 / 큰 글자 교체 + 창 테두리 / 잠금 풀림</td><td>코치 한 줄 작음</td><td>왼쪽 아래</td><td>없음</td><td>작음</td></tr>
+  <tr><td><b>B4</b> 전면 지도 + 떠 있는 카드</td><td>지도 바탕 · 흰 카드 한 장</td><td>흰 카드 / Signal 카드 / 카드 + 버튼</td><td>카드 72 dp</td><td>왼쪽 아래 늘</td><td>C1 구간마다</td><td>중간</td></tr>
+  <tr><td><b>B5</b> 구간 줄(노선도)</td><td>132 dp 문장 · 가로 노선</td><td>평소 / 앞 선 Signal / 정지선 + 버튼</td><td>매우 좋음</td><td><b>구간만 = 과장 없음</b></td><td>차 위치</td><td>작음~중간</td></tr>
+  <tr><td><b>B6</b> 지금 · 다음 카드 더미</td><td>지도 카드 · 구간 카드 셋</td><td>검은 카드 / Signal 카드 덮음 / 버튼</td><td>이름 96 dp</td><td>지도 카드 안</td><td>C1 구간 · 돌발</td><td>중간</td></tr>
+  <tr><td><b>B7</b> 문장 우선 + 미니맵</td><td>156 dp 한 줄 · 동그란 지도</td><td>평소 / "멈추세요." 252 dp / 버튼</td><td><b>최고</b></td><td>미니맵 아래</td><td>지도 회전</td><td>중간</td></tr>
+</table>
+<p style="font-size:12.5px;color:#6b6f72;margin-top:10px">공통: 시연 조작 띠(관리자 · 시나리오 정지 · 정차 · 출발 …)는 정차 화면 맨 아래에 지금처럼 남고 주행 중엔 그리지 않는다(DriveScreen 의 band = demo.takeUnless{locked} 그대로). 모든 목업의 문장은 코치 문장 규칙(숫자 0, 24자) 안 — 4/7 · km/h 는 계기 · 가이드 단계 예외.</p>
+
+</div>
+</body>
+</html>
