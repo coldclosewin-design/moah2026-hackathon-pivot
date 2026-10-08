@@ -1,14 +1,11 @@
 package com.moah.hackathon.ui.lesson
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.foundation.layout.*
@@ -16,15 +13,8 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.moah.hackathon.R
 import com.moah.hackathon.feature.lesson.*
 import com.moah.hackathon.ui.CoachColors
 
@@ -95,8 +85,6 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
     val selectedTask = task.takeIf { it.isReady && it.type.name == categoryName }
     val mode = supportedMode(task, LessonMode.valueOf(modeName))
     val start = { if (task.isReady && (if (sheet) selectedTask != null else picked)) onBegin(task.id, mode) }
-    val fraction by animateFloatAsState(when { profileOpen -> .30f; else -> 0f },
-        tween(400, easing = FastOutSlowInEasing), label = "poster")
     val slide = with(LocalDensity.current) { 40.dp.roundToPx() }
     PosterSurface(band = demo.takeUnless { sheet || profileOpen || coach != null }) {
         BoxWithConstraints(Modifier.fillMaxSize()) {
@@ -104,16 +92,7 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
             // A1 action/card gaps and full button heights; compact only the reading area.
             val compactHome = maxHeight < 1120.dp
             Row(Modifier.fillMaxSize().then(if (coachInput == CoachInputMode.CARDS_AND_TEXT && coach != null) Modifier.imePadding() else Modifier)) {
-                if (fraction > .001f) Box(Modifier.weight(fraction).fillMaxHeight().clipToBounds().testTag("setup-poster")) {
-                    Image(painterResource(R.drawable.poster_car), null, Modifier.fillMaxSize().graphicsLayer {
-                        scaleX = 1f + (.53f - fraction) * .35f
-                        scaleY = scaleX
-                        translationX = -(.53f - fraction) * 220.dp.toPx()
-                    }, contentScale = ContentScale.Crop, alignment = Alignment.CenterStart,
-                        colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(CoachColors.Periwinkle, androidx.compose.ui.graphics.BlendMode.Color))
-                    SetupBrandMark(Modifier.padding(start = 180.dp, top = 64.dp), onAdmin)
-                }
-                AnimatedContent(if (profileOpen) "profile" else if (coach != null) "coach" else if (sheet) "tasks" else "home", Modifier.weight(1f - fraction).fillMaxHeight(),
+                AnimatedContent(if (profileOpen) "profile" else if (coach != null) "coach" else if (sheet) "tasks" else "home", Modifier.weight(1f).fillMaxHeight(),
                     transitionSpec = {
                         (fadeIn(tween(300)) + slideInHorizontally(tween(300)) { slide }) togetherWith fadeOut(tween(300))
                     }, label = "setup-content") { page ->
@@ -132,9 +111,10 @@ internal fun SetupScreen(profile: Profile, tasks: List<Task>, suggestedTask: Tas
                                 }
                             }
                         }
-                    } else Column(Modifier.fillMaxSize().padding(if (page == "profile" || venuesOpen) 64.dp else 0.dp),
+                    } else Column(Modifier.fillMaxSize().background(if (page == "profile") CoachColors.Lavender else CoachColors.Paper).padding(if (page == "profile") 84.dp else 0.dp),
                         verticalArrangement = Arrangement.spacedBy(24.dp)) {
                         if (page == "profile") {
+                            BrandMark()
                             ProfileScreen(profileRows, onAnswerProfile, { profileOpen = false }, observedLines = observedLines)
                         } else if (page == "coach") {
                             Box(Modifier.fillMaxSize()) {

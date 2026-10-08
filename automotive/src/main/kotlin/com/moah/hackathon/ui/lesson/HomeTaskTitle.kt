@@ -35,25 +35,31 @@ import com.moah.hackathon.ui.CoachColors
 
 @Composable
 internal fun HomeTaskTitle(task: Task, mode: LessonMode, picked: Boolean, compact: Boolean,
-    onTask: () -> Unit, onMode: (LessonMode) -> Unit, titleSize: Int? = null, onWheelChanged: (Boolean) -> Unit = {}) {
+    onTask: () -> Unit, onMode: (LessonMode) -> Unit, titleSize: Int? = null,
+    onWheelChanged: (Boolean) -> Unit = {}, singleLine: Boolean = false) {
     var popup by remember(task.id, picked) { mutableStateOf(false) }
     LaunchedEffect(popup) { onWheelChanged(popup) }
     val taskWord = if (picked) task.title else "과제 고르기"
     val suffix = if (picked) task.title.withObjectParticle().removePrefix(task.title) else "부터"
-    Eyebrow(if (picked) "오늘의 과제 · ${taskTypeLabel(task.type)}" else "처음 오셨네요", color = CoachColors.Periwinkle)
-    Spacer(Modifier.height(16.dp))
+    if (!singleLine) {
+        Eyebrow(if (picked) "오늘의 과제 · ${taskTypeLabel(task.type)}" else "처음 오셨네요", color = CoachColors.Periwinkle)
+        Spacer(Modifier.height(16.dp))
+    }
     BoxWithConstraints(Modifier.fillMaxWidth().testTag("home-task-title")) {
         val measurer = rememberTextMeasurer()
         val width = with(LocalDensity.current) { maxWidth.toPx() }
-        val lines = listOf("$taskWord ▼ $suffix", if (picked) "${mode.label} ▼ 모드로 해 볼까요?" else "해 볼까요?")
+        val parts = listOf("$taskWord ▼ $suffix", if (picked) "${mode.label} ▼ 모드로 해 볼까요?" else "해 볼까요?")
+        val lines = if (singleLine) listOf(parts.joinToString(" ")) else parts
         val size = listOf(titleSize ?: if (compact) 104 else 126, 112, 104, 88, 80, 72, 64, 56).distinct().filter { it <= (titleSize ?: if (compact) 104 else 126) }.firstOrNull { candidate ->
             lines.all { measurer.measure(AnnotatedString(it), TextStyle(fontSize = candidate.sp), softWrap = false).size.width <= width }
         } ?: 56
-        Column {
+        val taskTitle: @Composable () -> Unit = {
             Row(Modifier.alpha(if (popup) .16f else 1f), verticalAlignment = Alignment.CenterVertically) {
                 HomeTitleLink("$taskWord ▼", "과제·모드 바꾸기", size, !picked, onTask)
                 LessonText(suffix, size, if (popup) CoachColors.Platinum else CoachColors.Ink, bold = true)
             }
+        }
+        val modeTitle: @Composable () -> Unit = {
             if (picked) Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(if (popup) Modifier.width(500.dp) else Modifier) {
                     Box(Modifier.alpha(if (popup) 0f else 1f)) { HomeTitleLink("${mode.label} ▼", "모드 바꾸기", size, false, { popup = true }) }
@@ -87,6 +93,9 @@ internal fun HomeTaskTitle(task: Task, mode: LessonMode, picked: Boolean, compac
                 LessonText("모드로 해 볼까요?", size, bold = true)
             } else LessonText("해 볼까요?", size, bold = true)
         }
+        if (singleLine) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+            taskTitle(); modeTitle()
+        } else Column { taskTitle(); modeTitle() }
     }
 }
 

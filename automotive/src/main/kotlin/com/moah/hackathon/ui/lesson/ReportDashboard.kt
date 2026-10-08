@@ -121,9 +121,12 @@ private fun SourceBars(report: LessonReport) {
     Row(Modifier.fillMaxWidth().testTag("report-source-bars")
         .clearAndSetSemantics { text = AnnotatedString(badgeText(badge)) }, horizontalArrangement = Arrangement.spacedBy(20.dp)) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            listOf("● 실신호", "◐ 시뮬레이션", "○ 미측정").forEachIndexed { index, label ->
+            listOf("실신호", "시뮬레이션", "미측정").forEachIndexed { index, label ->
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                    LessonText(label, 36, modifier = Modifier.width(290.dp))
+                    Row(Modifier.width(340.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        SignalShape(com.moah.hackathon.vehicle.SignalAvailability.entries[index], Modifier.size(36.dp))
+                        LessonText(label, 36)
+                    }
                     Canvas(Modifier.weight(1f).height(28.dp)) {
                         val radius = CornerRadius(size.height / 2)
                         drawRoundRect(CoachColors.Lavender, cornerRadius = radius)

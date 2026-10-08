@@ -1,6 +1,8 @@
 package com.moah.hackathon.ui.lesson
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
@@ -28,12 +30,12 @@ internal fun QuizDoneScreen(task: Task, results: List<QuizResult>, items: List<Q
     val correct = items.count { byItem[it.id]?.correct == true }
     PosterSurface {
         Row(Modifier.fillMaxSize()) {
-            QuizNumber(correct.toString().padStart(2, '0'), "맞은 문제 / ${items.size}", Modifier.weight(.38f))
-            Column(Modifier.weight(.62f).fillMaxHeight().padding(start = 100.dp, end = 120.dp, top = 64.dp, bottom = 52.dp),
+            QuizNumber(correct.toString().padStart(2, '0'), "맞은 문제 / ${items.size}", Modifier.weight(.30f))
+            Column(Modifier.weight(.70f).fillMaxHeight().background(CoachColors.Lavender).padding(start = 100.dp, end = 120.dp, top = 64.dp, bottom = 52.dp),
                 verticalArrangement = Arrangement.spacedBy(32.dp)) {
                 Eyebrow(taskModeLine(task, LessonMode.QUIZ))
                 Headline(coachDisplayText(remark), size = 72)
-                Column(Modifier.weight(1f).verticalScroll(rememberScrollState()),
+                Column(Modifier.weight(1f).background(CoachColors.Paper, RoundedCornerShape(48.dp)).padding(40.dp).verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(28.dp)) {
                     items.forEachIndexed { index, item ->
                         val result = byItem[item.id]

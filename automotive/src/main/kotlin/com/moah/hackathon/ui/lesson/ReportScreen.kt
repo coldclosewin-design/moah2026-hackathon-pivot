@@ -1,6 +1,7 @@
 package com.moah.hackathon.ui.lesson
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -39,56 +40,19 @@ internal fun ReportScreen(report: LessonReport, onRestart: () -> Unit, locked: B
         return
     }
     PosterSurface {
-        Row(Modifier.fillMaxSize()) {
-            Box(Modifier.weight(.38f).fillMaxHeight()) {
-                RecordGraphic(report.attempts.size, Modifier.fillMaxSize())
-            }
-            Column(Modifier.weight(.62f).fillMaxHeight().padding(start = 120.dp, end = 180.dp, top = 96.dp, bottom = 64.dp),
-                verticalArrangement = Arrangement.spacedBy(28.dp)) {
-                when (page) {
-                    ReportPage.SUMMARY, ReportPage.DETAILS -> Unit
-                    ReportPage.CERTIFICATE -> {
-                        CertificateContent(report, shareLevel, { shareName = it.name },
-                            { page = ReportPage.SHARE_EXAMPLE }, Modifier.weight(1f))
-                        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) { CompactProvenance(report) }
-                        BottomActions(secondary = { BackPill { page = ReportPage.SUMMARY } },
-                            primary = { MainPill(onRestart) })
+        Column(Modifier.fillMaxSize().background(CoachColors.Lavender).padding(72.dp), verticalArrangement = Arrangement.spacedBy(32.dp)) {
+            if (page == ReportPage.CERTIFICATE) {
+                CertificateContent(report, shareLevel, { shareName = it.name }, Modifier.weight(1f))
+                BottomActions(secondary = {
+                    Row(horizontalArrangement = Arrangement.spacedBy(32.dp)) {
+                        BackPill { page = ReportPage.SUMMARY }
+                        ArrowPill("공유 예시 보기", "↗", { page = ReportPage.SHARE_EXAMPLE })
                     }
-                    ReportPage.SHARE_EXAMPLE -> {
-                        ShareExampleContent(report, shareLevel, Modifier.weight(1f))
-                        BottomActions(secondary = { BackPill { page = ReportPage.CERTIFICATE } })
-                    }
-                }
+                }, primary = { MainPill(onRestart) })
+            } else {
+                ShareExampleContent(report, shareLevel, Modifier.weight(1f))
+                BottomActions(secondary = { BackPill { page = ReportPage.CERTIFICATE } })
             }
-        }
-    }
-}
-
-@Composable
-private fun RecordGraphic(attempts: Int, modifier: Modifier, compact: Boolean = false) {
-    Box(modifier.clipToBounds()) {
-        Canvas(Modifier.fillMaxSize()) {
-            drawArc(CoachColors.Periwinkle, -90f, 180f, false,
-                topLeft = Offset(-size.width * .67f, -size.height * .30f),
-                size = Size(size.width * 1.7f, size.height * 1.6f), style = Stroke(size.width * .28f))
-            drawPath(Path().apply {
-                moveTo(0f, 0f); lineTo(size.width * .52f, 0f)
-                lineTo(size.width * .52f, size.height * .19f)
-                cubicTo(size.width * .98f, size.height * .31f, size.width * .95f, size.height * .61f,
-                    size.width * .83f, size.height * .73f)
-                quadraticTo(size.width * .4f, size.height * .82f, size.width * .16f, size.height)
-                lineTo(0f, size.height); close()
-            }, CoachColors.Ink)
-            drawLine(CoachColors.Platinum, Offset(size.width * .18f, size.height * .74f),
-                Offset(size.width * .29f, size.height * .66f), strokeWidth = 14.dp.toPx())
-        }
-        BrandMark(Modifier.padding(start = 180.dp, top = 64.dp), CoachColors.Paper)
-        Column(if (compact) Modifier.align(Alignment.TopStart).padding(start = 150.dp, top = 200.dp)
-            else Modifier.align(Alignment.CenterStart).padding(start = 150.dp, bottom = 90.dp)) {
-            Eyebrow("연습한 회차", color = CoachColors.Paper)
-            val count = attempts.toString().padStart(2, '0')
-            Headline(count, size = minOf(if (compact) 320 else 400, 820 / count.length), color = CoachColors.Paper)
-            LessonText("회", 40, CoachColors.Paper.copy(alpha = .6f))
         }
     }
 }
