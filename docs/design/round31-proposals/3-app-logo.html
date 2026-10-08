@@ -1,0 +1,709 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>앱 로고 "Drive Coach" 동그라미 안 그림 20안 — 라운드 31 시안</title><style>
+:root{--onyx:#222526;--platinum:#E0E0E0;--graphite:#353A3E;--jet:#1A1A1A;--ash:#BFBFBF;--signal:#F52D48;--yellow:#F2C230;--chip:#F2F2F2;--mu:#7a7e81;
+--kr:"Noto Sans KR","Malgun Gothic",system-ui,sans-serif;--numf:"Segoe UI Variable Display","Bahnschrift",Arial,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#ECECEC;color:var(--onyx);font-family:var(--kr);line-height:1.5}
+.page{width:1600px;margin:0 auto;padding:40px 28px 64px}
+.head h1{font-size:30px;font-weight:500}
+.head .lead{font-size:15px;color:#4a4e51;margin-top:6px;max-width:1480px}
+.chipline{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.chipline span{font-size:12px;padding:4px 12px;border-radius:14px;border:1px solid rgba(34,37,38,.25)}
+.chipline span.k{background:var(--onyx);color:var(--platinum);border-color:var(--onyx)}
+.chipline span.y{background:var(--yellow);border-color:var(--yellow)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px}
+.box{background:#fff;border-radius:20px;padding:18px 22px;font-size:14px}
+.box h3{font-size:12px;letter-spacing:.08em;color:#6b6f72;font-weight:500;margin-bottom:6px}
+.box ul{padding-left:18px}.box li{margin-top:3px}
+.box code{font-family:Consolas,monospace;font-size:12.5px;background:var(--chip);padding:0 5px;border-radius:4px}
+.part{margin-top:44px;display:flex;align-items:baseline;gap:16px;padding:18px 24px;border-radius:22px;background:var(--onyx);color:var(--platinum)}
+.part .no{font-family:var(--numf);font-size:46px;line-height:1;font-weight:500}
+.part h2{font-size:28px;font-weight:500}
+.part p{font-size:14px;color:var(--ash);margin-top:2px}
+/* option card */
+.opt{margin-top:26px;background:#fff;border-radius:24px;padding:22px 26px 24px}
+.ph{display:flex;align-items:baseline;gap:14px}
+.ph .no{font-family:var(--numf);font-size:38px;line-height:1;font-weight:600}
+.ph h2{font-size:25px;font-weight:500}
+.ph .one{font-size:15px;color:#4a4e51}
+.pickb{display:inline-block;vertical-align:4px;margin-left:8px;font-size:12px;padding:2px 10px;border-radius:10px;background:var(--yellow);color:var(--onyx)}
+.row{display:grid;grid-template-columns:560px 430px 1fr;gap:28px;margin-top:16px;align-items:start}
+.prev{display:grid;grid-template-columns:240px 1fr;gap:22px;align-items:start}
+.cap{font-size:11.5px;color:#6b6f72;margin-top:6px;text-align:center}
+.smalls{display:grid;grid-template-columns:repeat(2,auto);gap:8px 22px;align-items:end;justify-content:start}
+.smalls .pair{display:flex;align-items:flex-end;gap:10px}
+.smalls .cap{text-align:left;margin-top:0;grid-column:1/-1}
+.lock{display:flex;align-items:center;gap:14px;margin-top:14px;padding:10px 14px;border-radius:14px;background:var(--chip);width:max-content}
+.lock .wm{font-family:var(--numf);font-size:24px;font-weight:500;letter-spacing:-.01em;color:var(--onyx);line-height:1}
+.lock .wm small{display:block;font-size:9.5px;letter-spacing:.3em;font-weight:600;color:#6b6f72;margin-top:4px}
+.notes h3{font-size:12px;letter-spacing:.08em;color:#6b6f72;font-weight:500;margin-top:12px}
+.notes h3:first-child{margin-top:0}
+.notes .o1{font-size:14.5px;margin-top:3px}
+.notes ul{padding-left:18px;font-size:13.5px;margin-top:4px}
+.notes li{margin-top:3px}
+.eff{display:inline-block;margin-top:10px;font-size:12.5px;padding:3px 12px;border-radius:12px;background:var(--onyx);color:var(--platinum)}
+pre.code{font-family:Consolas,"Cascadia Mono",monospace;font-size:11.5px;line-height:1.45;background:#F6F6F6;border:1px solid rgba(34,37,38,.12);border-radius:14px;padding:12px 14px;white-space:pre-wrap;word-break:break-all;color:#2b2e30}
+pre.code b{color:#6b6f72;font-weight:400}
+/* icon circle */
+.ic{display:inline-block;border-radius:50%;background:var(--bg);box-shadow:0 0 0 1px rgba(0,0,0,.10);--fg:#222526;--bg:#FFFFFF;--acc:#F2C230;--ink:#222526;flex:none}
+.ic.on{--fg:#FFFFFF;--bg:#222526}
+.ic.mono{--acc:var(--bg);--ink:var(--fg)}
+.ic svg{width:100%;height:100%;display:block}
+.s240{width:240px;height:240px}.s72{width:72px;height:72px}.s48{width:48px;height:48px}
+.rec{margin-top:36px;background:#fff;border-radius:24px;padding:22px 26px}
+.rec .lab{font-family:var(--numf);font-size:11px;letter-spacing:.18em;color:#6b6f72}
+.rec h2{font-size:24px;font-weight:500;margin-top:4px}
+.rec p,.rec li{font-size:14px;margin-top:6px}
+.rec ol{padding-left:20px}
+.recrow{display:flex;gap:28px;margin-top:14px;align-items:center}
+.recrow .pick{display:flex;align-items:center;gap:12px;padding:12px 18px 12px 12px;border-radius:18px;background:var(--chip)}
+.recrow .pick .t{font-size:14px}.recrow .pick .t b{display:block;font-size:16px;font-weight:500}
+.sum{width:100%;border-collapse:collapse;font-size:13px;margin-top:14px}
+.sum th,.sum td{padding:7px 10px;border-bottom:1px solid rgba(34,37,38,.1);text-align:left;vertical-align:top}
+.sum th{font-weight:500;background:var(--onyx);color:var(--platinum);font-size:12px}
+.sum tr.pick td{background:#F7F3E3}
+.sum td .ic{vertical-align:middle;margin-right:4px}
+/* split */
+body:has(#pa:target) .topic:not(.ta),body:has(#pb:target) .topic:not(.tb){display:none}
+body:has(#pa:target) .foot,body:has(#pb:target) .head{display:none}
+body:has(#pb:target) .topic.tb{margin-top:0}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<!-- 01 새싹 -->
+<g id="i01" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M54,82 V58" stroke="var(--fg)" stroke-width="6"/>
+<path d="M54,60 C40,60 30,52 30,38 C44,38 54,46 54,60 Z" fill="var(--fg)"/>
+<path d="M54,52 C54,38 62,30 76,30 C76,44 68,52 54,52 Z" fill="var(--fg)"/>
+</g>
+<!-- 02 새싹 차 -->
+<g id="i02" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M28,74 V68 a6,6 0 0 1 6,-6 h6 l9,-11 h30 l9,11 h6 a6,6 0 0 1 6,6 v6 Z" stroke="var(--fg)" stroke-width="5"/>
+<circle cx="40" cy="74" r="5" fill="var(--bg)" stroke="var(--fg)" stroke-width="5"/>
+<circle cx="68" cy="74" r="5" fill="var(--bg)" stroke="var(--fg)" stroke-width="5"/>
+<path d="M54,51 V42" stroke="var(--fg)" stroke-width="5"/>
+<path d="M54,44 C47,44 42,39 42,31 C50,31 54,36 54,44 Z" fill="var(--fg)"/>
+<path d="M54,40 C54,32 59,27 67,27 C67,35 62,40 54,40 Z" fill="var(--fg)"/>
+</g>
+<!-- 03 핸들 -->
+<g id="i03" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<circle cx="54" cy="54" r="29" stroke="var(--fg)" stroke-width="6"/>
+<circle cx="54" cy="54" r="8" fill="var(--fg)"/>
+<path d="M54,62 V83 M46.5,52.3 L26.8,44.1 M61.5,52.3 L81.2,44.1" stroke="var(--fg)" stroke-width="6"/>
+</g>
+<!-- 04 말풍선 속 핸들 -->
+<g id="i04" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M38,30 h32 a8,8 0 0 1 8,8 v26 a8,8 0 0 1 -8,8 H56 l-12,10 v-10 h-6 a8,8 0 0 1 -8,-8 V38 a8,8 0 0 1 8,-8 Z" stroke="var(--fg)" stroke-width="5"/>
+<circle cx="54" cy="51" r="12" stroke="var(--fg)" stroke-width="5"/>
+<circle cx="54" cy="51" r="3.5" fill="var(--fg)"/>
+<path d="M54,54.5 V63 M50.7,49.5 L42.7,46 M57.3,49.5 L65.3,46" stroke="var(--fg)" stroke-width="4"/>
+</g>
+<!-- 05 두 좌석 -->
+<g id="i05" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<rect x="34" y="28" width="14" height="8" rx="4" fill="var(--fg)"/>
+<rect x="30" y="42" width="22" height="36" rx="8" fill="var(--fg)"/>
+<rect x="60" y="28" width="14" height="8" rx="4" fill="var(--fg)"/>
+<rect x="56" y="42" width="22" height="36" rx="8" fill="var(--acc)" stroke="var(--fg)" stroke-width="4"/>
+</g>
+<!-- 06 두 사람 -->
+<g id="i06" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<circle cx="42" cy="48" r="7.5" stroke="var(--fg)" stroke-width="5"/>
+<path d="M32,74 a11,11 0 0 1 22,0" stroke="var(--fg)" stroke-width="5"/>
+<circle cx="62" cy="42" r="9" fill="var(--fg)" stroke="var(--bg)" stroke-width="4"/>
+<path d="M48,76 a14,14 0 0 1 28,0 Z" fill="var(--fg)" stroke="var(--bg)" stroke-width="4"/>
+</g>
+<!-- 07 주차 칸 속 차 -->
+<g id="i07" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M34,82 V30 H74 V82" stroke="var(--fg)" stroke-width="6"/>
+<rect x="44" y="42" width="20" height="34" rx="7" fill="var(--acc)" stroke="var(--fg)" stroke-width="4"/>
+<path d="M48,53 H60" stroke="var(--ink)" stroke-width="3"/>
+</g>
+<!-- 08 후진 궤적 -->
+<g id="i08" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M56,50 V78 M78,50 V78" stroke="var(--fg)" stroke-width="6"/>
+<path d="M28,36 H53 a14,14 0 0 1 14,14 V70" stroke="var(--fg)" stroke-width="6"/>
+<path d="M59,62 L67,70 L75,62" stroke="var(--fg)" stroke-width="6"/>
+</g>
+<!-- 09 원목 차 옆모습 -->
+<g id="i09" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M26,68 V58 a6,6 0 0 1 6,-6 h6 l10,-12 h24 l10,12 h4 a6,6 0 0 1 6,6 v10 Z" fill="var(--fg)"/>
+<path d="M42,52 l7,-8 h16 l7,8 Z" fill="var(--bg)"/>
+<circle cx="38" cy="68" r="7" fill="var(--fg)" stroke="var(--bg)" stroke-width="3"/>
+<circle cx="70" cy="68" r="7" fill="var(--fg)" stroke="var(--bg)" stroke-width="3"/>
+<circle cx="38" cy="68" r="2.5" fill="var(--acc)"/>
+<circle cx="70" cy="68" r="2.5" fill="var(--acc)"/>
+</g>
+<!-- 10 V4 선 차 -->
+<g id="i10" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M28,70 a4,4 0 0 1 -4,-4 V60 a6,6 0 0 1 6,-6 h6 l10,-12 h24 l10,12 h4 a6,6 0 0 1 6,6 v6 a4,4 0 0 1 -4,4 Z" stroke="var(--fg)" stroke-width="5"/>
+<path d="M56,42 V54" stroke="var(--fg)" stroke-width="5"/>
+<circle cx="38" cy="70" r="6" fill="var(--bg)" stroke="var(--fg)" stroke-width="5"/>
+<circle cx="70" cy="70" r="6" fill="var(--bg)" stroke="var(--fg)" stroke-width="5"/>
+<circle cx="38" cy="70" r="1.6" fill="var(--fg)"/>
+<circle cx="70" cy="70" r="1.6" fill="var(--fg)"/>
+</g>
+<!-- 11 세 단계 -->
+<g id="i11" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<circle cx="24" cy="54" r="5" fill="var(--fg)"/>
+<circle cx="42" cy="54" r="5" fill="var(--fg)"/>
+<circle cx="71" cy="54" r="13" fill="var(--acc)" stroke="var(--fg)" stroke-width="5"/>
+<path d="M64,54 l5,5 l10,-10" stroke="var(--ink)" stroke-width="5"/>
+</g>
+<!-- 12 체크리스트 -->
+<g id="i12" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M28,36 l5,5 l9,-9 M48,36 H80" stroke="var(--fg)" stroke-width="5"/>
+<path d="M28,54 l5,5 l9,-9 M48,54 H80" stroke="var(--fg)" stroke-width="5"/>
+<circle cx="35" cy="72" r="5" stroke="var(--fg)" stroke-width="5"/>
+<path d="M48,72 H80" stroke="var(--fg)" stroke-width="5"/>
+</g>
+<!-- 13 말풍선 둘 -->
+<g id="i13" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M34,30 h26 a8,8 0 0 1 8,8 v16 a8,8 0 0 1 -8,8 H46 l-8,8 v-8 h-4 a8,8 0 0 1 -8,-8 V38 a8,8 0 0 1 8,-8 Z" stroke="var(--fg)" stroke-width="5"/>
+<path d="M48,46 h26 a8,8 0 0 1 8,8 v12 a8,8 0 0 1 -8,8 h-2 v8 l-8,-8 H48 a8,8 0 0 1 -8,-8 V54 a8,8 0 0 1 8,-8 Z" fill="var(--fg)" stroke="var(--bg)" stroke-width="4"/>
+</g>
+<!-- 14 시작 ↗ 원 -->
+<g id="i14" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<circle cx="54" cy="54" r="29" stroke="var(--fg)" stroke-width="5"/>
+<path d="M40,68 L68,40 M48,40 H68 V60" stroke="var(--fg)" stroke-width="6"/>
+</g>
+<!-- 15 길 위 점선 + 차 -->
+<g id="i15" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M30,30 V78 M78,30 V78" stroke="var(--fg)" stroke-width="5"/>
+<path d="M54,26 V82" stroke="var(--fg)" stroke-width="5" stroke-dasharray="8 8"/>
+<rect x="59" y="44" width="14" height="24" rx="5" fill="var(--acc)" stroke="var(--fg)" stroke-width="4"/>
+</g>
+<!-- 16 S 커브 길 -->
+<g id="i16" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M36,74 C36,46 72,62 72,34" stroke="var(--fg)" stroke-width="18"/>
+<path d="M36,74 C36,46 72,62 72,34" stroke="var(--bg)" stroke-width="4" stroke-dasharray="7 7"/>
+</g>
+<!-- 17 나침반 -->
+<g id="i17" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<circle cx="54" cy="54" r="29" stroke="var(--fg)" stroke-width="5"/>
+<path d="M32,76 L50,50 L58,58 Z" fill="var(--fg)" stroke="var(--fg)" stroke-width="5"/>
+<path d="M76,32 L58,58 L50,50 Z" fill="var(--acc)" stroke="var(--fg)" stroke-width="5"/>
+</g>
+<!-- 18 C 핸들 -->
+<g id="i18" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M72,32 A28,28 0 1 0 72,76" stroke="var(--fg)" stroke-width="7"/>
+<circle cx="54" cy="54" r="7" fill="var(--fg)"/>
+<path d="M54,61 V82 M47,51 L28,44" stroke="var(--fg)" stroke-width="7"/>
+</g>
+<!-- 19 조수석 시트 + 벨트 -->
+<g id="i19" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M46,28 L42,70 H76" stroke="var(--fg)" stroke-width="12"/>
+<path d="M36,38 L68,74" stroke="var(--bg)" stroke-width="10"/>
+<path d="M36,38 L68,74" stroke="var(--fg)" stroke-width="5"/>
+</g>
+<!-- 20 초보 표식 플레이트 -->
+<g id="i20" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<rect x="26" y="32" width="56" height="44" rx="10" fill="var(--acc)" stroke="var(--fg)" stroke-width="5"/>
+<path d="M54,68 V54" stroke="var(--ink)" stroke-width="5"/>
+<path d="M54,56 C46,56 41,51 41,43 C49,43 54,48 54,56 Z" fill="var(--ink)"/>
+<path d="M54,51 C54,43 59,38 67,38 C67,46 62,51 54,51 Z" fill="var(--ink)"/>
+</g>
+</defs></svg>
+<div class="page">
+<span id="pa"></span><span id="pb"></span>
+<div class="head">
+<h1>라운드 31 · 3 — 앱 로고 "Drive Coach" · 동그라미 안 그림 20안</h1>
+<p class="lead">사내 런처는 모든 앱 아이콘을 <b>동그라미 안 그림</b>으로 그린다. 그래서 각 안은 108×108 벡터(Android adaptive icon 캔버스) 가운데 72 만 보이는 원으로 미리 본다 — 큰 240 px(흰 바탕 + Onyx 그림 + 노란 점 허용) · 작은 72 / 48 px 를 흰 바탕·Onyx 바탕으로 · 노란 점을 뺀 단색까지. 그림은 원 안의 안전 영역(지름 66, 반지름 33) 안에 두고, 선 굵기 5–7 · 둥근 끝 — 화면 속 V4 차와 같은 문법이다. 이름은 "Drive Coach"(홈 상단의 <code>DRIVE COACH</code> 와 같은 글꼴)로 아이콘 옆에 한 줄로 놓아 본다. 실제 브랜드 마크는 베끼지 않았다.</p>
+<div class="chipline"><span class="k">바탕 흰 #FFFFFF · 그림 Onyx #222526</span><span class="k">바탕 Onyx · 그림 흰</span><span class="y">노란 점 #F2C230 한 곳(선택)</span><span>108×108 viewBox · 보이는 원 = 가운데 72 · 안전 반지름 33</span><span>SVG → VectorDrawable 그대로</span><span>script 없음</span></div>
+<div class="grid2">
+<div class="box"><h3>미리보기 규칙</h3><ul>
+<li>원 = adaptive icon 의 마스크. <code>viewBox="18 18 72 72"</code> 로 가운데 72 만 보인다. 런처가 원을 그리므로 <b>그림 자체에는 원을 넣지 않는다</b>(배경 레이어 = 바탕색 단색).</li>
+<li>작은 72 / 48 px 는 사내 런처 격자에서 실제로 보이는 크기 — 여기서 뭉개지면 탈락.</li>
+<li>색 쌍은 두 가지: 흰 바탕 + Onyx 그림 / Onyx 바탕 + 흰 그림. 노란 점은 한 곳만, 노란 면 위에 그리는 선은 항상 Onyx(<code>--ink</code>).</li>
+<li>단색(mono) 미리보기 = 노란 점을 바탕색으로 바꾼 것 — 노랑을 쓰지 않기로 하면 그대로 그 모습이다.</li>
+</ul></div>
+<div class="box"><h3>VectorDrawable 로 옮길 때(Codex)</h3><ul>
+<li><code>android:viewportWidth/Height="108"</code>, <code>width/height="108dp"</code>. 각 <code>&lt;path&gt;</code>: <code>fill → android:fillColor</code>, <code>stroke → android:strokeColor</code>, <code>stroke-width → android:strokeWidth</code>, <code>stroke-linecap/linejoin="round"</code>. <code>fill="none"</code> 이면 fillColor 를 생략.</li>
+<li><code>&lt;circle&gt;·&lt;rect&gt;</code> 는 path 로: 원 <code>M cx-r,cy a r,r 0 1 0 2r,0 a r,r 0 1 0 -2r,0 Z</code>, 둥근 사각은 <code>a rx,rx</code> 모서리.</li>
+<li><b><code>stroke-dasharray</code> 는 VectorDrawable 에 없다</b> — 15 · 16 의 점선은 짧은 선분을 여러 path 로 쪼개서(또는 <code>trimPath</code>) 그린다.</li>
+<li>색 변수: <code>var(--fg)</code>=그림색, <code>var(--bg)</code>=바탕색, <code>var(--acc)</code>=#F2C230, <code>var(--ink)</code>=#222526. 아래 코드 칸은 흰 바탕 기준으로 이미 바꿔 적었다. Onyx 바탕은 #222526 ↔ #FFFFFF 맞바꿈.</li>
+<li>런처 라벨 <code>android:label="Drive Coach"</code>(지금은 "드라이브 코치") — 이름 바꾸기는 <code>strings.xml</code> 한 줄.</li>
+</ul></div>
+</div>
+</div>
+
+<div class="topic ta">
+<div class="part"><span class="no">A</span><div><h2>01 – 10 · 초보 표식 · 핸들 · 동승 · 주차 · 차</h2><p>240 px 큰 미리보기(흰 바탕) · 72 / 48 px 흰·Onyx 바탕 · 단색 48 px · "Drive Coach" 한 줄 · SVG 코드</p></div></div>
+
+<section class="opt"><div class="ph"><span class="no">01</span><h2>새싹</h2><span class="one">초보의 표식 — 한 줄기 두 잎. 가장 적은 획.</span></div>
+<div class="row">
+<div class="prev"><div><span class="ic s240"><svg viewBox="18 18 72 72"><use href="#i01"/></svg></span><div class="cap">240 px · 흰 + Onyx (노란 점 없음)</div></div>
+<div><div class="smalls">
+<div class="pair"><span class="ic s72"><svg viewBox="18 18 72 72"><use href="#i01"/></svg></span><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i01"/></svg></span></div>
+<div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i01"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i01"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕</div>
+<div class="pair"><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i01"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i01"/></svg></span></div>
+<div class="cap">단색 48 px(노란 점 없음 — 이 안은 원래 단색)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i01"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div></div></div>
+<div class="notes"><h3>바탕 / 그림</h3><p class="o1">흰 + Onyx 추천. Onyx 바탕에서는 흰 새싹 — 둘 다 그대로 통한다.</p>
+<h3>장점</h3><ul><li>획 셋(줄기 1 + 잎 2) — 48 px 에서도 잎 두 장이 또렷하다.</li><li>한국 운전자에게 '초보운전' 표식으로 바로 통한다. L 플레이트 문법을 쓰지 않는다.</li><li>차 아이콘이 많은 차량 런처에서 유일한 식물 모양 — 찾기 쉽다.</li></ul>
+<h3>주의</h3><ul><li>이름 없이 보면 식물·환경 앱으로 읽힐 수 있다 — 라벨 "Drive Coach" 와 함께면 해결.</li><li>'운전' 이 그림에 없다(20 · 02 가 보강판).</li></ul><span class="eff">공수 최소 · path 3</span></div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M54,82 V58" stroke="#222526" stroke-width="6"/&gt;
+  &lt;path d="M54,60 C40,60 30,52 30,38 C44,38 54,46 54,60 Z" fill="#222526"/&gt;
+  &lt;path d="M54,52 C54,38 62,30 76,30 C76,44 68,52 54,52 Z" fill="#222526"/&gt;
+&lt;/svg&gt;
+<b>Onyx 바탕: #222526 → #FFFFFF</b></pre>
+</div></section>
+
+<section class="opt"><div class="ph"><span class="no">02</span><h2>새싹 차</h2><span class="one">지붕에서 새싹이 난 V4 선 차 — '초보' 와 '차' 를 한 그림에.</span></div>
+<div class="row">
+<div class="prev"><div><span class="ic s240"><svg viewBox="18 18 72 72"><use href="#i02"/></svg></span><div class="cap">240 px · 흰 + Onyx</div></div>
+<div><div class="smalls">
+<div class="pair"><span class="ic s72"><svg viewBox="18 18 72 72"><use href="#i02"/></svg></span><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i02"/></svg></span></div>
+<div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i02"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i02"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕</div>
+<div class="pair"><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i02"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i02"/></svg></span></div>
+<div class="cap">단색 48 px</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i02"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div></div></div>
+<div class="notes"><h3>바탕 / 그림</h3><p class="o1">흰 + Onyx. 노란 점 없음(새싹을 노랗게 하면 뜻이 흐려진다).</p>
+<h3>장점</h3><ul><li>'초보' + '차' 두 뜻이 한 그림 — 앱 설명이 필요 없다.</li><li>차는 화면 속 V4 선 문법(둥근 몸통 + 원 바퀴 + 같은 굵기).</li></ul>
+<h3>주의</h3><ul><li>48 px 에서 새싹이 점 하나로 뭉친다 — 잎을 더 키우면 차와 겹친다.</li><li>획 7개 — 런처 격자에서 가장 바쁜 쪽.</li></ul><span class="eff">공수 중 · path 6</span></div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M28,74 V68 a6,6 0 0 1 6,-6 h6 l9,-11 h30 l9,11 h6 a6,6 0 0 1 6,6 v6 Z" stroke="#222526" stroke-width="5"/&gt;
+  &lt;circle cx="40" cy="74" r="5" fill="#FFFFFF" stroke="#222526" stroke-width="5"/&gt;
+  &lt;circle cx="68" cy="74" r="5" fill="#FFFFFF" stroke="#222526" stroke-width="5"/&gt;
+  &lt;path d="M54,51 V42" stroke="#222526" stroke-width="5"/&gt;
+  &lt;path d="M54,44 C47,44 42,39 42,31 C50,31 54,36 54,44 Z" fill="#222526"/&gt;
+  &lt;path d="M54,40 C54,32 59,27 67,27 C67,35 62,40 54,40 Z" fill="#222526"/&gt;
+&lt;/svg&gt;</pre>
+</div></section>
+
+<section class="opt"><div class="ph"><span class="no">03</span><h2>핸들</h2><span class="one">간결한 링 + 세 살 + 허브. 운전 그 자체.</span></div>
+<div class="row">
+<div class="prev"><div><span class="ic on s240"><svg viewBox="18 18 72 72"><use href="#i03"/></svg></span><div class="cap">240 px · Onyx + 흰</div></div>
+<div><div class="smalls">
+<div class="pair"><span class="ic s72"><svg viewBox="18 18 72 72"><use href="#i03"/></svg></span><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i03"/></svg></span></div>
+<div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i03"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i03"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕</div>
+<div class="pair"><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i03"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i03"/></svg></span></div>
+<div class="cap">단색 48 px(원래 단색)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i03"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div></div></div>
+<div class="notes"><h3>바탕 / 그림</h3><p class="o1">Onyx 바탕 + 흰 링 추천 — 링이 원 안의 원이라 어두운 바탕에서 더 또렷하다.</p>
+<h3>장점</h3><ul><li>어떤 크기에서도 읽힌다. 획 셋.</li><li>'운전' 이 가장 직설적이다.</li></ul>
+<h3>주의</h3><ul><li>차량 설정·주행 보조 등 OEM 앱이 핸들을 쓸 수 있어 런처에서 겹칠 수 있다 — 사내 런처의 다른 아이콘을 보고 결정.</li><li>'코치' 가 없다. 브랜드 색도 없어 라벨로만 구별된다.</li></ul><span class="eff">공수 최소 · path 3</span></div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;circle cx="54" cy="54" r="29" stroke="#222526" stroke-width="6"/&gt;
+  &lt;circle cx="54" cy="54" r="8" fill="#222526"/&gt;
+  &lt;path d="M54,62 V83 M46.5,52.3 L26.8,44.1 M61.5,52.3 L81.2,44.1" stroke="#222526" stroke-width="6"/&gt;
+&lt;/svg&gt;</pre>
+</div></section>
+
+<section class="opt"><div class="ph"><span class="no">04</span><h2>말풍선 속 핸들</h2><span class="one">말하는 조수석 — 말풍선 안에 작은 핸들.</span></div>
+<div class="row">
+<div class="prev"><div><span class="ic s240"><svg viewBox="18 18 72 72"><use href="#i04"/></svg></span><div class="cap">240 px · 흰 + Onyx</div></div>
+<div><div class="smalls">
+<div class="pair"><span class="ic s72"><svg viewBox="18 18 72 72"><use href="#i04"/></svg></span><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i04"/></svg></span></div>
+<div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i04"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i04"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕</div>
+<div class="pair"><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i04"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i04"/></svg></span></div>
+<div class="cap">단색 48 px(원래 단색)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i04"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div></div></div>
+<div class="notes"><h3>바탕 / 그림</h3><p class="o1">흰 + Onyx. 노란 점 없음.</p>
+<h3>장점</h3><ul><li>'코치가 말한다' 가 들어가 핸들만 있는 앱과 구별된다.</li><li>"화내지 않는 조수석" 이라는 한 줄과 가장 가깝다.</li></ul>
+<h3>주의</h3><ul><li>48 px 에서 링 살 셋이 뭉친다 — 살을 지우고 '링 + 점' 으로 줄인 변형을 권한다(공수 같음).</li><li>말풍선 꼬리가 안전 원 가장자리에 닿는다 — 더 못 키운다.</li></ul><span class="eff">공수 소 · path 4</span></div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M38,30 h32 a8,8 0 0 1 8,8 v26 a8,8 0 0 1 -8,8 H56 l-12,10 v-10 h-6 a8,8 0 0 1 -8,-8 V38 a8,8 0 0 1 8,-8 Z" stroke="#222526" stroke-width="5"/&gt;
+  &lt;circle cx="54" cy="51" r="12" stroke="#222526" stroke-width="5"/&gt;
+  &lt;circle cx="54" cy="51" r="3.5" fill="#222526"/&gt;
+  &lt;path d="M54,54.5 V63 M50.7,49.5 L42.7,46 M57.3,49.5 L65.3,46" stroke="#222526" stroke-width="4"/&gt;
+&lt;/svg&gt;</pre>
+</div></section>
+
+<section class="opt"><div class="ph"><span class="no">05</span><h2>두 좌석</h2><span class="one">위에서 본 운전석과 조수석 — 조수석이 노란 점.</span></div>
+<div class="row">
+<div class="prev"><div><span class="ic s240"><svg viewBox="18 18 72 72"><use href="#i05"/></svg></span><div class="cap">240 px · 흰 + Onyx + 노란 조수석</div></div>
+<div><div class="smalls">
+<div class="pair"><span class="ic s72"><svg viewBox="18 18 72 72"><use href="#i05"/></svg></span><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i05"/></svg></span></div>
+<div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i05"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i05"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕</div>
+<div class="pair"><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i05"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i05"/></svg></span></div>
+<div class="cap">단색 48 px — 조수석이 테두리만</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i05"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div></div></div>
+<div class="notes"><h3>바탕 / 그림</h3><p class="o1">흰 + Onyx + 노란 조수석. 노란 점 하나의 자리가 자연스럽다(조수석 = 코치).</p>
+<h3>장점</h3><ul><li>'동승' 컨셉을 직역 — 운전석은 채워지고 조수석은 비어 있다가(단색) 코치가 앉는다(노랑).</li><li>면이 커서 48 px 에서도 두 덩어리로 읽힌다.</li></ul>
+<h3>주의</h3><ul><li>위에서 본 좌석은 설명 없이는 '의자 둘' — 뜻이 늦게 온다.</li><li>Onyx 바탕에서는 흰 좌석 + 노란 좌석으로 콘트라스트 과함 — 단색 쪽이 낫다.</li></ul><span class="eff">공수 최소 · path 4(rect)</span></div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;rect x="34" y="28" width="14" height="8" rx="4" fill="#222526"/&gt;
+  &lt;rect x="30" y="42" width="22" height="36" rx="8" fill="#222526"/&gt;
+  &lt;rect x="60" y="28" width="14" height="8" rx="4" fill="#222526"/&gt;
+  &lt;rect x="56" y="42" width="22" height="36" rx="8" fill="#F2C230" stroke="#222526" stroke-width="4"/&gt;
+&lt;/svg&gt;
+<b>단색: #F2C230 → #FFFFFF(바탕색)</b></pre>
+</div></section>
+
+<section class="opt"><div class="ph"><span class="no">06</span><h2>두 사람</h2><span class="one">나란히 앉은 둘 — 앞에 운전자, 뒤에 코치.</span></div>
+<div class="row">
+<div class="prev"><div><span class="ic on s240"><svg viewBox="18 18 72 72"><use href="#i06"/></svg></span><div class="cap">240 px · Onyx + 흰</div></div>
+<div><div class="smalls">
+<div class="pair"><span class="ic s72"><svg viewBox="18 18 72 72"><use href="#i06"/></svg></span><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i06"/></svg></span></div>
+<div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i06"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i06"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕</div>
+<div class="pair"><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i06"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i06"/></svg></span></div>
+<div class="cap">단색 48 px(원래 단색)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i06"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div></div></div>
+<div class="notes"><h3>바탕 / 그림</h3><p class="o1">Onyx + 흰. 노란 점 없음.</p>
+<h3>장점</h3><ul><li>조수석에 사람이 있다는 뜻 — 따뜻하고 '코치' 가 보인다.</li><li>채운 앞사람 + 선 뒷사람의 두 층이 48 px 에서도 구분된다.</li></ul>
+<h3>주의</h3><ul><li>연락처·사용자 전환·공유 아이콘과 비슷해 런처에서 구분이 약하다.</li><li>'운전' 이 그림에 없다.</li></ul><span class="eff">공수 최소 · path 4</span></div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;circle cx="42" cy="48" r="7.5" stroke="#222526" stroke-width="5"/&gt;
+  &lt;path d="M32,74 a11,11 0 0 1 22,0" stroke="#222526" stroke-width="5"/&gt;
+  &lt;circle cx="62" cy="42" r="9" fill="#222526" stroke="#FFFFFF" stroke-width="4"/&gt;
+  &lt;path d="M48,76 a14,14 0 0 1 28,0 Z" fill="#222526" stroke="#FFFFFF" stroke-width="4"/&gt;
+&lt;/svg&gt;</pre>
+</div></section>
+
+<section class="opt"><div class="ph"><span class="no">07</span><h2>주차 칸 속 차</h2><span class="one">칸 선 ∩ 와 위에서 본 차 — 시연 본편(후면 직각 주차) 그대로.</span><span class="pickb">추천</span></div>
+<div class="row">
+<div class="prev"><div><span class="ic s240"><svg viewBox="18 18 72 72"><use href="#i07"/></svg></span><div class="cap">240 px · 흰 + Onyx + 노란 차</div></div>
+<div><div class="smalls">
+<div class="pair"><span class="ic s72"><svg viewBox="18 18 72 72"><use href="#i07"/></svg></span><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i07"/></svg></span></div>
+<div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i07"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i07"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕</div>
+<div class="pair"><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i07"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i07"/></svg></span></div>
+<div class="cap">단색 48 px — 차가 테두리만</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i07"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div></div></div>
+<div class="notes"><h3>바탕 / 그림</h3><p class="o1">흰 + Onyx + 노란 차 추천. 단색이면 차를 Onyx 로 채운다(테두리보다 낫다).</p>
+<h3>장점</h3><ul><li>시연 본편과 1:1 — 발표 덱·영상 첫 컷과 같은 그림.</li><li>세로 두 선 + 둥근 사각 = 48 px 에서도 '칸에 든 차' 로 읽힌다.</li><li>기하가 주차 중 화면의 도식·V4 와 한 가족.</li></ul>
+<h3>주의</h3><ul><li>주차 결제·주차장 앱으로 읽힐 수 있다 — 노란 차가 '연습' 느낌을 보강한다.</li><li>정직성: 앱은 칸에 반듯이 들어갔는지 모른다(카메라 없음) — 그림이 '성공' 을 암시하지만 로고 수준에서는 허용.</li></ul><span class="eff">공수 최소 · path 3</span></div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M34,82 V30 H74 V82" stroke="#222526" stroke-width="6"/&gt;
+  &lt;rect x="44" y="42" width="20" height="34" rx="7" fill="#F2C230" stroke="#222526" stroke-width="4"/&gt;
+  &lt;path d="M48,53 H60" stroke="#222526" stroke-width="3"/&gt;
+&lt;/svg&gt;
+<b>단색: rect fill → #222526, 창 선 → #FFFFFF</b></pre>
+</div></section>
+
+<section class="opt"><div class="ph"><span class="no">08</span><h2>후진 궤적</h2><span class="one">칸으로 꺾여 들어가는 화살 — 과정을 코치한다.</span></div>
+<div class="row">
+<div class="prev"><div><span class="ic s240"><svg viewBox="18 18 72 72"><use href="#i08"/></svg></span><div class="cap">240 px · 흰 + Onyx</div></div>
+<div><div class="smalls">
+<div class="pair"><span class="ic s72"><svg viewBox="18 18 72 72"><use href="#i08"/></svg></span><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i08"/></svg></span></div>
+<div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i08"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i08"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕</div>
+<div class="pair"><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i08"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i08"/></svg></span></div>
+<div class="cap">단색 48 px(원래 단색)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i08"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div></div></div>
+<div class="notes"><h3>바탕 / 그림</h3><p class="o1">흰 + Onyx. 화살촉만 노랗게 하는 변형 가능.</p>
+<h3>장점</h3><ul><li>결과가 아니라 '궤적(과정)' 을 그린다 — 앱의 채점 철학과 같다.</li><li>세 획, 움직임이 있다.</li></ul>
+<h3>주의</h3><ul><li>48 px 에서 화살촉이 작다 — 촉을 7 로 키우거나 칸 선을 하나로 줄인다.</li><li>내비 '경로' 아이콘과 닮았다.</li></ul><span class="eff">공수 최소 · path 3</span></div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M56,50 V78 M78,50 V78" stroke="#222526" stroke-width="6"/&gt;
+  &lt;path d="M28,36 H53 a14,14 0 0 1 14,14 V70" stroke="#222526" stroke-width="6"/&gt;
+  &lt;path d="M59,62 L67,70 L75,62" stroke="#222526" stroke-width="6"/&gt;
+&lt;/svg&gt;</pre>
+</div></section>
+
+<section class="opt"><div class="ph"><span class="no">09</span><h2>원목 차 옆모습</h2><span class="one">홈의 장난감 차를 실루엣으로 — 런처에서 홈으로 이어지는 한 가족.</span><span class="pickb">추천</span></div>
+<div class="row">
+<div class="prev"><div><span class="ic on s240"><svg viewBox="18 18 72 72"><use href="#i09"/></svg></span><div class="cap">240 px · Onyx + 흰 차 + 노란 허브</div></div>
+<div><div class="smalls">
+<div class="pair"><span class="ic s72"><svg viewBox="18 18 72 72"><use href="#i09"/></svg></span><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i09"/></svg></span></div>
+<div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i09"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i09"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕</div>
+<div class="pair"><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i09"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i09"/></svg></span></div>
+<div class="cap">단색 48 px — 허브가 바탕색</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i09"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div></div></div>
+<div class="notes"><h3>바탕 / 그림</h3><p class="o1">Onyx 바탕 + 흰 차 추천(허브 노란 점 둘 = 한 모티프). 흰 바탕 + Onyx 차도 그대로 통한다.</p>
+<h3>장점</h3><ul><li>홈의 원목 차(오른쪽을 봄, 둥근 지붕, 큰 바퀴)와 같은 비례 — 앱을 열면 로고가 사진이 된다.</li><li>실루엣이라 48 px 에서 가장 강하다. 창문 구멍이 사라져도 차로 읽힌다.</li><li>둥근 장난감 비례라 OEM 차 아이콘과 겹치지 않는다.</li></ul>
+<h3>주의</h3><ul><li>'코치·초보' 뜻이 없다 — 라벨과 홈이 보강한다.</li><li>Onyx 바탕에서 창문은 바탕색(Onyx) 구멍 — 세 색이 섞이지 않게 창문은 항상 바탕색.</li></ul><span class="eff">공수 소 · path 6(원 4 포함)</span></div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M26,68 V58 a6,6 0 0 1 6,-6 h6 l10,-12 h24 l10,12 h4 a6,6 0 0 1 6,6 v10 Z" fill="#222526"/&gt;
+  &lt;path d="M42,52 l7,-8 h16 l7,8 Z" fill="#FFFFFF"/&gt;
+  &lt;circle cx="38" cy="68" r="7" fill="#222526" stroke="#FFFFFF" stroke-width="3"/&gt;
+  &lt;circle cx="70" cy="68" r="7" fill="#222526" stroke="#FFFFFF" stroke-width="3"/&gt;
+  &lt;circle cx="38" cy="68" r="2.5" fill="#F2C230"/&gt;
+  &lt;circle cx="70" cy="68" r="2.5" fill="#F2C230"/&gt;
+&lt;/svg&gt;
+<b>Onyx 바탕: #222526 ↔ #FFFFFF 맞바꿈 · 단색: 허브 → 바탕색</b></pre>
+</div></section>
+
+<section class="opt"><div class="ph"><span class="no">10</span><h2>V4 선 차</h2><span class="one">앱 화면 속 차 그림을 그대로 — 선 하나 굵기.</span></div>
+<div class="row">
+<div class="prev"><div><span class="ic s240"><svg viewBox="18 18 72 72"><use href="#i10"/></svg></span><div class="cap">240 px · 흰 + Onyx</div></div>
+<div><div class="smalls">
+<div class="pair"><span class="ic s72"><svg viewBox="18 18 72 72"><use href="#i10"/></svg></span><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i10"/></svg></span></div>
+<div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i10"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i10"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕</div>
+<div class="pair"><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i10"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i10"/></svg></span></div>
+<div class="cap">단색 48 px(원래 단색)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i10"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div></div></div>
+<div class="notes"><h3>바탕 / 그림</h3><p class="o1">흰 + Onyx. 노란 점 없음.</p>
+<h3>장점</h3><ul><li>주차 중·주행 화면의 V4 차와 완전히 같은 선 — 공수 최소(기존 path 재사용).</li><li>선 그림이라 가볍고 정직하다.</li></ul>
+<h3>주의</h3><ul><li>선 굵기 5 는 48 px 에서 2 px — 가늘다. 런처용은 7 로 키운다.</li><li>'그냥 차' — OEM 차량 앱과 구분이 가장 약하다.</li></ul><span class="eff">공수 최소 · path 6</span></div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M28,70 a4,4 0 0 1 -4,-4 V60 a6,6 0 0 1 6,-6 h6 l10,-12 h24 l10,12 h4 a6,6 0 0 1 6,6 v6 a4,4 0 0 1 -4,4 Z" stroke="#222526" stroke-width="5"/&gt;
+  &lt;path d="M56,42 V54" stroke="#222526" stroke-width="5"/&gt;
+  &lt;circle cx="38" cy="70" r="6" fill="#FFFFFF" stroke="#222526" stroke-width="5"/&gt;
+  &lt;circle cx="70" cy="70" r="6" fill="#FFFFFF" stroke="#222526" stroke-width="5"/&gt;
+  &lt;circle cx="38" cy="70" r="1.6" fill="#222526"/&gt;
+  &lt;circle cx="70" cy="70" r="1.6" fill="#222526"/&gt;
+&lt;/svg&gt;</pre>
+</div></section>
+</div>
+
+<div class="topic tb">
+<div class="part"><span class="no">B</span><div><h2>11 – 20 · 세 단계 · 체크 · 대화 · 시작 · 길 · 나침반 · 모노그램 · 좌석 · 표식</h2><p>같은 형식 — 240 px · 72 / 48 px 두 바탕 · 단색 · 한 줄 · SVG</p></div></div>
+
+<section class="opt"><div class="ph"><span class="no">11</span><h2>세 단계</h2><span class="one">점 · 점 · 체크 — 가이드 → 힌트 → 평가.</span></div>
+<div class="row">
+<div class="prev"><div><span class="ic s240"><svg viewBox="18 18 72 72"><use href="#i11"/></svg></span><div class="cap">240 px · 흰 + Onyx + 노란 체크 원</div></div>
+<div><div class="smalls">
+<div class="pair"><span class="ic s72"><svg viewBox="18 18 72 72"><use href="#i11"/></svg></span><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i11"/></svg></span></div>
+<div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i11"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i11"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕</div>
+<div class="pair"><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i11"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i11"/></svg></span></div>
+<div class="cap">단색 48 px</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i11"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div></div></div>
+<div class="notes"><h3>바탕 / 그림</h3><p class="o1">흰 + Onyx + 노란 체크 원 — 화면의 "노란 원 알약" 규칙과 같은 자리.</p>
+<h3>장점</h3><ul><li>앱의 핵심 구조(세 모드, 손을 떼 가며)가 그림에 있다.</li><li>노란 점 한 곳 규칙에 정확히 맞는다.</li></ul>
+<h3>주의</h3><ul><li>운전과 무관해 보인다 — 할 일·진행 앱 느낌.</li><li>작은 점 둘이 48 px 에서 흐리다(r 을 6 으로).</li></ul><span class="eff">공수 최소 · path 4</span></div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;circle cx="24" cy="54" r="5" fill="#222526"/&gt;
+  &lt;circle cx="42" cy="54" r="5" fill="#222526"/&gt;
+  &lt;circle cx="71" cy="54" r="13" fill="#F2C230" stroke="#222526" stroke-width="5"/&gt;
+  &lt;path d="M64,54 l5,5 l10,-10" stroke="#222526" stroke-width="5"/&gt;
+&lt;/svg&gt;
+<b>단색: 큰 원 fill → 바탕색</b></pre>
+</div></section>
+
+<section class="opt"><div class="ph"><span class="no">12</span><h2>체크리스트</h2><span class="one">두 줄 체크, 한 줄 남음 — 출발 전 점검·채점표.</span></div>
+<div class="row">
+<div class="prev"><div><span class="ic s240"><svg viewBox="18 18 72 72"><use href="#i12"/></svg></span><div class="cap">240 px · 흰 + Onyx</div></div>
+<div><div class="smalls">
+<div class="pair"><span class="ic s72"><svg viewBox="18 18 72 72"><use href="#i12"/></svg></span><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i12"/></svg></span></div>
+<div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i12"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i12"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕</div>
+<div class="pair"><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i12"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i12"/></svg></span></div>
+<div class="cap">단색 48 px(원래 단색)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i12"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div></div></div>
+<div class="notes"><h3>바탕 / 그림</h3><p class="o1">흰 + Onyx. 남은 한 줄의 원만 노랗게 하는 변형 가능.</p>
+<h3>장점</h3><ul><li>도로주행 채점표·출발 전 점검을 그대로 — 가로줄이라 작은 크기에서 안정.</li><li>'아직 한 줄 남았다' 가 연수 중이라는 뜻.</li></ul>
+<h3>주의</h3><ul><li>가장 흔한 '할 일' 아이콘 — 식별력이 가장 낮다.</li><li>운전 요소 없음.</li></ul><span class="eff">공수 최소 · path 4</span></div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M28,36 l5,5 l9,-9 M48,36 H80" stroke="#222526" stroke-width="5"/&gt;
+  &lt;path d="M28,54 l5,5 l9,-9 M48,54 H80" stroke="#222526" stroke-width="5"/&gt;
+  &lt;circle cx="35" cy="72" r="5" stroke="#222526" stroke-width="5"/&gt;
+  &lt;path d="M48,72 H80" stroke="#222526" stroke-width="5"/&gt;
+&lt;/svg&gt;</pre>
+</div></section>
+
+<section class="opt"><div class="ph"><span class="no">13</span><h2>말풍선 둘</h2><span class="one">코치와 운전자의 대화 — 선 풍선 뒤에 채운 풍선.</span></div>
+<div class="row">
+<div class="prev"><div><span class="ic on s240"><svg viewBox="18 18 72 72"><use href="#i13"/></svg></span><div class="cap">240 px · Onyx + 흰</div></div>
+<div><div class="smalls">
+<div class="pair"><span class="ic s72"><svg viewBox="18 18 72 72"><use href="#i13"/></svg></span><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i13"/></svg></span></div>
+<div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i13"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i13"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕</div>
+<div class="pair"><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i13"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i13"/></svg></span></div>
+<div class="cap">단색 48 px(원래 단색)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i13"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div></div></div>
+<div class="notes"><h3>바탕 / 그림</h3><p class="o1">Onyx + 흰. 노란 점 없음.</p>
+<h3>장점</h3><ul><li>홈의 "코치와 대화" 와 일치, 말투가 부드럽다.</li><li>두 획.</li></ul>
+<h3>주의</h3><ul><li>메신저 앱으로 읽힌다 — 핸들·차가 없어 운전 맥락이 없다.</li><li>차량 런처에 메시지 앱이 이미 있으면 바로 혼동.</li></ul><span class="eff">공수 최소 · path 2</span></div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M34,30 h26 a8,8 0 0 1 8,8 v16 a8,8 0 0 1 -8,8 H46 l-8,8 v-8 h-4 a8,8 0 0 1 -8,-8 V38 a8,8 0 0 1 8,-8 Z" stroke="#222526" stroke-width="5"/&gt;
+  &lt;path d="M48,46 h26 a8,8 0 0 1 8,8 v12 a8,8 0 0 1 -8,8 h-2 v8 l-8,-8 H48 a8,8 0 0 1 -8,-8 V54 a8,8 0 0 1 8,-8 Z" fill="#222526" stroke="#FFFFFF" stroke-width="4"/&gt;
+&lt;/svg&gt;</pre>
+</div></section>
+
+<section class="opt"><div class="ph"><span class="no">14</span><h2>시작 ↗ 원</h2><span class="one">홈 오른쪽 아래의 시작 버튼 그대로 — 링 + ↗.</span></div>
+<div class="row">
+<div class="prev"><div><span class="ic on s240"><svg viewBox="18 18 72 72"><use href="#i14"/></svg></span><div class="cap">240 px · Onyx + 흰</div></div>
+<div><div class="smalls">
+<div class="pair"><span class="ic s72"><svg viewBox="18 18 72 72"><use href="#i14"/></svg></span><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i14"/></svg></span></div>
+<div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i14"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i14"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕</div>
+<div class="pair"><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i14"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i14"/></svg></span></div>
+<div class="cap">단색 48 px(원래 단색)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i14"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div></div></div>
+<div class="notes"><h3>바탕 / 그림</h3><p class="o1">Onyx + 흰(홈 버튼의 반전). 노란 점 없음.</p>
+<h3>장점</h3><ul><li>앱 안 어디에나 있는 동작(시작 원)과 같아 '한 가족' 이 가장 쉽다.</li><li>두 획, 48 px 에서 또렷.</li></ul>
+<h3>주의</h3><ul><li>런처 동그라미 안에 다시 링 — 과녁처럼 보인다. 링을 지우고 화살만 두는 변형(두 번째 path 만)을 권한다.</li><li>'열기·내보내기' 기호와 겹친다.</li></ul><span class="eff">공수 최소 · path 2</span></div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;circle cx="54" cy="54" r="29" stroke="#222526" stroke-width="5"/&gt;
+  &lt;path d="M40,68 L68,40 M48,40 H68 V60" stroke="#222526" stroke-width="6"/&gt;
+&lt;/svg&gt;
+<b>변형: circle 을 빼고 화살 stroke-width 8</b></pre>
+</div></section>
+
+<section class="opt"><div class="ph"><span class="no">15</span><h2>길 위 점선 + 차</h2><span class="one">차선 위 노란 차 — 도로 주행 과제.</span></div>
+<div class="row">
+<div class="prev"><div><span class="ic s240"><svg viewBox="18 18 72 72"><use href="#i15"/></svg></span><div class="cap">240 px · 흰 + Onyx + 노란 차</div></div>
+<div><div class="smalls">
+<div class="pair"><span class="ic s72"><svg viewBox="18 18 72 72"><use href="#i15"/></svg></span><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i15"/></svg></span></div>
+<div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i15"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i15"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕</div>
+<div class="pair"><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i15"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i15"/></svg></span></div>
+<div class="cap">단색 48 px — 차가 테두리만</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i15"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div></div></div>
+<div class="notes"><h3>바탕 / 그림</h3><p class="o1">흰 + Onyx + 노란 차. 단색이면 차를 채운다.</p>
+<h3>장점</h3><ul><li>도로 주행 과제의 직역 — 노란 차가 작은 크기에서 초점이 된다.</li><li>주행 화면 코스 지도의 선 문법.</li></ul>
+<h3>주의</h3><ul><li>내비 앱과 겹친다. 선이 셋이라 48 px 에서 뭉친다.</li><li>점선은 VectorDrawable 에서 선분 4개로 쪼개야 한다.</li></ul><span class="eff">공수 소 · path 3(점선 쪼개면 7)</span></div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M30,30 V78 M78,30 V78" stroke="#222526" stroke-width="5"/&gt;
+  &lt;path d="M54,26 V82" stroke="#222526" stroke-width="5" stroke-dasharray="8 8"/&gt;
+  &lt;rect x="59" y="44" width="14" height="24" rx="5" fill="#F2C230" stroke="#222526" stroke-width="4"/&gt;
+&lt;/svg&gt;
+<b>VectorDrawable: 점선 → M54,26 V34 M54,42 V50 M54,58 V66 M54,74 V82</b></pre>
+</div></section>
+
+<section class="opt"><div class="ph"><span class="no">16</span><h2>S 커브 길</h2><span class="one">굵은 S 길에 바탕색 점선 중앙선 — 두 path.</span></div>
+<div class="row">
+<div class="prev"><div><span class="ic on s240"><svg viewBox="18 18 72 72"><use href="#i16"/></svg></span><div class="cap">240 px · Onyx + 흰 길</div></div>
+<div><div class="smalls">
+<div class="pair"><span class="ic s72"><svg viewBox="18 18 72 72"><use href="#i16"/></svg></span><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i16"/></svg></span></div>
+<div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i16"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i16"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕</div>
+<div class="pair"><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i16"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i16"/></svg></span></div>
+<div class="cap">단색 48 px(원래 단색)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i16"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div></div></div>
+<div class="notes"><h3>바탕 / 그림</h3><p class="o1">Onyx + 흰. 점선은 바탕색. 노란 점 없음(점선을 노랗게 하면 중앙선 = 노랑으로 뜻이 맞긴 하다).</p>
+<h3>장점</h3><ul><li>두 path, 어떤 크기에서도 읽힌다.</li><li>S 코스 · 코스 주행의 선 문법과 같다.</li></ul>
+<h3>주의</h3><ul><li>지도·내비 느낌. 코치·초보 뜻이 없다.</li><li>점선은 VectorDrawable 에서 짧은 호 여러 개 또는 trimPath 로.</li></ul><span class="eff">공수 최소 · path 2(점선 쪼개면 6)</span></div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M36,74 C36,46 72,62 72,34" stroke="#222526" stroke-width="18"/&gt;
+  &lt;path d="M36,74 C36,46 72,62 72,34" stroke="#FFFFFF" stroke-width="4" stroke-dasharray="7 7"/&gt;
+&lt;/svg&gt;</pre>
+</div></section>
+
+<section class="opt"><div class="ph"><span class="no">17</span><h2>나침반</h2><span class="one">↗ 바늘 — 북쪽이 노란 점. 시작 원과 같은 방향.</span></div>
+<div class="row">
+<div class="prev"><div><span class="ic s240"><svg viewBox="18 18 72 72"><use href="#i17"/></svg></span><div class="cap">240 px · 흰 + Onyx + 노란 북쪽</div></div>
+<div><div class="smalls">
+<div class="pair"><span class="ic s72"><svg viewBox="18 18 72 72"><use href="#i17"/></svg></span><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i17"/></svg></span></div>
+<div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i17"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i17"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕</div>
+<div class="pair"><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i17"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i17"/></svg></span></div>
+<div class="cap">단색 48 px — 북쪽이 테두리만</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i17"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div></div></div>
+<div class="notes"><h3>바탕 / 그림</h3><p class="o1">흰 + Onyx + 노란 북쪽 반쪽. 단색은 채움/비움 반쪽.</p>
+<h3>장점</h3><ul><li>↗ 는 앱의 시작 원과 같은 방향 — '길잡이(코치)' 뜻.</li><li>노란 점이 자리 하나.</li></ul>
+<h3>주의</h3><ul><li>나침반은 지도·탐색 앱의 상징 — 혼동.</li><li>바늘 각이 48 px 에서 보통; 링은 14 와 같은 '원 안 원' 문제.</li></ul><span class="eff">공수 최소 · path 3</span></div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;circle cx="54" cy="54" r="29" stroke="#222526" stroke-width="5"/&gt;
+  &lt;path d="M32,76 L50,50 L58,58 Z" fill="#222526" stroke="#222526" stroke-width="5"/&gt;
+  &lt;path d="M76,32 L58,58 L50,50 Z" fill="#F2C230" stroke="#222526" stroke-width="5"/&gt;
+&lt;/svg&gt;</pre>
+</div></section>
+
+<section class="opt"><div class="ph"><span class="no">18</span><h2>C 핸들 모노그램</h2><span class="one">오른쪽이 열린 핸들 = Coach 의 C.</span></div>
+<div class="row">
+<div class="prev"><div><span class="ic on s240"><svg viewBox="18 18 72 72"><use href="#i18"/></svg></span><div class="cap">240 px · Onyx + 흰</div></div>
+<div><div class="smalls">
+<div class="pair"><span class="ic s72"><svg viewBox="18 18 72 72"><use href="#i18"/></svg></span><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i18"/></svg></span></div>
+<div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i18"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i18"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕</div>
+<div class="pair"><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i18"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i18"/></svg></span></div>
+<div class="cap">단색 48 px(원래 단색)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i18"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div></div></div>
+<div class="notes"><h3>바탕 / 그림</h3><p class="o1">Onyx + 흰. 허브만 노랗게 하는 변형 가능.</p>
+<h3>장점</h3><ul><li>글자(C)와 사물(핸들)이 한 몸 — 고유성이 가장 높다.</li><li>세 획.</li></ul>
+<h3>주의</h3><ul><li>전원 기호·그냥 'C' 로 보일 수 있다.</li><li>살 둘(아래·왼쪽)이 비대칭이라 어색할 수 있다 — 살 없이 '열린 링 + 점' 변형도 가능.</li></ul><span class="eff">공수 최소 · path 3</span></div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M72,32 A28,28 0 1 0 72,76" stroke="#222526" stroke-width="7"/&gt;
+  &lt;circle cx="54" cy="54" r="7" fill="#222526"/&gt;
+  &lt;path d="M54,61 V82 M47,51 L28,44" stroke="#222526" stroke-width="7"/&gt;
+&lt;/svg&gt;</pre>
+</div></section>
+
+<section class="opt"><div class="ph"><span class="no">19</span><h2>조수석 시트 + 벨트</h2><span class="one">좌석 옆모습에 벨트 한 줄 — 조수석.</span></div>
+<div class="row">
+<div class="prev"><div><span class="ic s240"><svg viewBox="18 18 72 72"><use href="#i19"/></svg></span><div class="cap">240 px · 흰 + Onyx</div></div>
+<div><div class="smalls">
+<div class="pair"><span class="ic s72"><svg viewBox="18 18 72 72"><use href="#i19"/></svg></span><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i19"/></svg></span></div>
+<div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i19"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i19"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕</div>
+<div class="pair"><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i19"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i19"/></svg></span></div>
+<div class="cap">단색 48 px(원래 단색)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i19"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div></div></div>
+<div class="notes"><h3>바탕 / 그림</h3><p class="o1">흰 + Onyx. 벨트를 노랗게 하는 변형 가능(단, 경고등 느낌이 더 난다).</p>
+<h3>장점</h3><ul><li>'조수석' 을 그대로 — 안전벨트 항목(B층)과도 이어진다.</li><li>세 획, 큰 면.</li></ul>
+<h3>주의</h3><ul><li>안전벨트 경고등과 닮아 '경고' 로, 사선 때문에 '금지' 로 읽힐 수 있다 — 벨트를 짧게 두었다.</li><li>벨트가 좌석을 끊는 틈(바탕색 10)이 48 px 에서 좁다.</li></ul><span class="eff">공수 최소 · path 3</span></div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M46,28 L42,70 H76" stroke="#222526" stroke-width="12"/&gt;
+  &lt;path d="M36,38 L68,74" stroke="#FFFFFF" stroke-width="10"/&gt;
+  &lt;path d="M36,38 L68,74" stroke="#222526" stroke-width="5"/&gt;
+&lt;/svg&gt;</pre>
+</div></section>
+
+<section class="opt"><div class="ph"><span class="no">20</span><h2>초보 표식 플레이트</h2><span class="one">노란 판 위 새싹 — '초보운전' 스티커 문법, L 대신 새싹.</span><span class="pickb">추천</span></div>
+<div class="row">
+<div class="prev"><div><span class="ic s240"><svg viewBox="18 18 72 72"><use href="#i20"/></svg></span><div class="cap">240 px · 흰 + 노란 판 + Onyx 새싹</div></div>
+<div><div class="smalls">
+<div class="pair"><span class="ic s72"><svg viewBox="18 18 72 72"><use href="#i20"/></svg></span><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i20"/></svg></span></div>
+<div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i20"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i20"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕(흰 테두리 + 노란 판)</div>
+<div class="pair"><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i20"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i20"/></svg></span></div>
+<div class="cap">단색 48 px — 판이 테두리만</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i20"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div></div></div>
+<div class="notes"><h3>바탕 / 그림</h3><p class="o1">흰 + 노란 판 + Onyx 새싹 추천. Onyx 바탕에서도 판은 노랑, 새싹은 Onyx(<code>--ink</code>) 로 고정.</p>
+<h3>장점</h3><ul><li>'초보운전' 스티커 문법을 그대로 가져오되 L 플레이트 대신 새싹 — 뜻이 가장 빨리 온다.</li><li>노란 덩어리라 런처 격자에서 가장 찾기 쉽다(48 px 에서도).</li><li>01 의 보강판: 식물 앱으로 안 읽힌다.</li></ul>
+<h3>주의</h3><ul><li>노랑이 '점' 이 아니라 '면' — 컨셉의 "노란 포인트 한 곳" 보다 크다. 사용자 승인 필요.</li><li>판이 커서 안전 원 가장자리에 닿는다 — 더 못 키운다.</li></ul><span class="eff">공수 최소 · path 4</span></div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;rect x="26" y="32" width="56" height="44" rx="10" fill="#F2C230" stroke="#222526" stroke-width="5"/&gt;
+  &lt;path d="M54,68 V54" stroke="#222526" stroke-width="5"/&gt;
+  &lt;path d="M54,56 C46,56 41,51 41,43 C49,43 54,48 54,56 Z" fill="#222526"/&gt;
+  &lt;path d="M54,51 C54,43 59,38 67,38 C67,46 62,51 54,51 Z" fill="#222526"/&gt;
+&lt;/svg&gt;
+<b>Onyx 바탕: rect stroke → #FFFFFF, 나머지 그대로 · 단색: rect fill → 바탕색, 새싹 → 그림색</b></pre>
+</div></section>
+</div>
+
+<div class="foot">
+<div class="rec"><div class="lab">RECOMMENDATION · 3</div><h2>추천 셋</h2>
+<div class="recrow">
+<div class="pick"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i09"/></svg></span><div class="t"><b>① 09 원목 차 옆모습</b>런처 → 홈의 원목 차로 바로 이어지는 한 가족. 실루엣이라 48 px 에서 가장 강하다.</div></div>
+<div class="pick"><span class="ic s72"><svg viewBox="18 18 72 72"><use href="#i07"/></svg></span><div class="t"><b>② 07 주차 칸 속 차</b>시연 본편(후면 직각 주차)과 1:1 — 발표 덱·영상 첫 컷과 같은 그림, path 3.</div></div>
+<div class="pick"><span class="ic s72"><svg viewBox="18 18 72 72"><use href="#i20"/></svg></span><div class="t"><b>③ 20 초보 표식 플레이트</b>'초보운전' 문법으로 뜻이 가장 빨리 오고 노란 덩어리라 런처에서 찾기 쉽다(노랑 면 승인 필요).</div></div>
+</div>
+<p>셋 다 "Drive Coach" 라벨과 함께 놓았을 때 뜻이 완성된다. 노란 점 없이 가야 하면 09 (허브 바탕색) → 07 (차 Onyx 채움) → 01 새싹 순. 핸들 계열(03 · 04 · 18)은 사내 런처의 OEM 아이콘을 본 뒤에만 고른다.</p>
+<table class="sum"><tr><th>#</th><th>이름</th><th>뜻</th><th>48 px</th><th>식별력(런처)</th><th>노란 점</th><th>path</th></tr>
+<tr><td>01</td><td><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i01"/></svg></span>새싹</td><td>초보</td><td>좋음</td><td>높음(식물 앱 주의)</td><td>없음</td><td>3</td></tr>
+<tr><td>02</td><td><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i02"/></svg></span>새싹 차</td><td>초보 + 차</td><td>보통</td><td>중</td><td>없음</td><td>6</td></tr>
+<tr><td>03</td><td><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i03"/></svg></span>핸들</td><td>운전</td><td>좋음</td><td>낮음(OEM 겹침)</td><td>없음</td><td>3</td></tr>
+<tr><td>04</td><td><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i04"/></svg></span>말풍선 속 핸들</td><td>말하는 조수석</td><td>보통</td><td>중</td><td>없음</td><td>4</td></tr>
+<tr><td>05</td><td><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i05"/></svg></span>두 좌석</td><td>동승</td><td>좋음</td><td>중(뜻 늦음)</td><td>조수석</td><td>4</td></tr>
+<tr><td>06</td><td><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i06"/></svg></span>두 사람</td><td>동승</td><td>좋음</td><td>낮음(연락처)</td><td>없음</td><td>4</td></tr>
+<tr class="pick"><td>07</td><td><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i07"/></svg></span>주차 칸 속 차</td><td>후면 직각 주차</td><td>좋음</td><td>높음</td><td>차</td><td>3</td></tr>
+<tr><td>08</td><td><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i08"/></svg></span>후진 궤적</td><td>과정 코칭</td><td>보통</td><td>중(경로)</td><td>없음</td><td>3</td></tr>
+<tr class="pick"><td>09</td><td><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i09"/></svg></span>원목 차 옆모습</td><td>홈의 차</td><td>매우 좋음</td><td>높음</td><td>허브</td><td>6</td></tr>
+<tr><td>10</td><td><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i10"/></svg></span>V4 선 차</td><td>앱 속 차</td><td>보통(가늘다)</td><td>낮음</td><td>없음</td><td>6</td></tr>
+<tr><td>11</td><td><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i11"/></svg></span>세 단계</td><td>가이드→힌트→평가</td><td>보통</td><td>중(할 일)</td><td>체크 원</td><td>4</td></tr>
+<tr><td>12</td><td><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i12"/></svg></span>체크리스트</td><td>점검·채점표</td><td>좋음</td><td>낮음</td><td>없음</td><td>4</td></tr>
+<tr><td>13</td><td><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i13"/></svg></span>말풍선 둘</td><td>대화</td><td>좋음</td><td>낮음(메신저)</td><td>없음</td><td>2</td></tr>
+<tr><td>14</td><td><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i14"/></svg></span>시작 ↗ 원</td><td>시작 버튼</td><td>좋음</td><td>중(과녁)</td><td>없음</td><td>2</td></tr>
+<tr><td>15</td><td><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i15"/></svg></span>길 위 점선 + 차</td><td>도로 주행</td><td>보통</td><td>중(내비)</td><td>차</td><td>3+</td></tr>
+<tr><td>16</td><td><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i16"/></svg></span>S 커브 길</td><td>코스</td><td>매우 좋음</td><td>중(지도)</td><td>없음</td><td>2+</td></tr>
+<tr><td>17</td><td><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i17"/></svg></span>나침반</td><td>길잡이</td><td>보통</td><td>낮음(지도)</td><td>북쪽</td><td>3</td></tr>
+<tr><td>18</td><td><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i18"/></svg></span>C 핸들 모노그램</td><td>Coach + 핸들</td><td>좋음</td><td>높음(고유)</td><td>없음</td><td>3</td></tr>
+<tr><td>19</td><td><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i19"/></svg></span>조수석 시트 + 벨트</td><td>조수석</td><td>보통</td><td>중(경고등)</td><td>없음</td><td>3</td></tr>
+<tr class="pick"><td>20</td><td><span class="ic s48"><svg viewBox="18 18 72 72"><use href="#i20"/></svg></span>초보 표식 플레이트</td><td>초보운전 표식</td><td>매우 좋음</td><td>높음</td><td>판(면)</td><td>4</td></tr>
+</table>
+<p style="margin-top:12px;color:#6b6f72;font-size:13px">적용 순서(Codex): ① <code>ic_launcher.xml</code> 의 두 path 를 고른 안의 path 로 교체(배경 path 는 바탕색 사각 그대로) ② adaptive icon 이면 <code>ic_launcher_background</code> = 바탕색, <code>ic_launcher_foreground</code> = 위 그림 ③ <code>strings.xml</code> 의 <code>app_name</code> = "Drive Coach" ④ 에뮬 런처 캡처로 72 px 확인.</p>
+</div>
+</div>
+</div>
+</body></html>
