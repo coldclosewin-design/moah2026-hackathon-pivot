@@ -2291,8 +2291,11 @@ class LessonScreenInstrumentation : Instrumentation() {
         check(buttonBounds("예약 카드 열기").right < buttonBounds("시작").left)
         check(texts().containsAll(listOf("${SeedCatalog.parkingTask.title} ▼", "가이드 ▼")))
         check(texts().any { it.startsWith(ModeAdvisor.RESERVED_REASON) })
-        capture("setup-reserved") { bitmap ->
-            check(!colorBounds(bitmap, textBounds(badge), CoachColors.Muted.toArgb()).isEmpty)
+        // 돌아가기 뒤 홈이 페이드 중이면 글자가 Muted 보다 옅다(느린 에뮬 5554 에서 0x7A7C7D) — 다 그려진 뒤 픽셀을 본다
+        afterUiSettles("Reserved badge color") {
+            capture("setup-reserved") { bitmap ->
+                check(!colorBounds(bitmap, textBounds(badge), CoachColors.Muted.toArgb()).isEmpty)
+            }
         }
         click("과제·모드 바꾸기")
         assertSelected("주차")
