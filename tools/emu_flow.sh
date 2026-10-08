@@ -145,7 +145,8 @@ echo "== report: 정차 + 운전석 도어 열림"
 open_demo_panel; tap_text "문 열기"; wait_log "report: attempts=2" 15 || exit 1; mark "report (= 시연 길이)"; sleep 3; shot 17_report
 # 라운드 26: 결과 화면 `다시 시작` → `메인으로`(둘 다 찾는다)
 now_texts | grep -qE "메인으로|다시 시작" || { echo "  !! report screen not reached: $(texts)"; FAIL=1; }
-now_texts | grep -qE "실신호|시뮬레이션|미측정" || { echo "  !! report has no availability badge"; FAIL=1; }
+# 라운드 31a: 배지 줄은 리포트 본문에서 빠지고 자세히 보기에만 남는다 — 화면 글자 대신 상태기계 로그로 판정
+adb logcat -d -s "$TAG" | grep -q "report: attempts=2.*badge=AvailabilityBadge(" || { echo "  !! report log has no availability badge"; FAIL=1; }
 echo "  texts: $(texts)"
 
 if [ -n "${RECORD:-}" ]; then
