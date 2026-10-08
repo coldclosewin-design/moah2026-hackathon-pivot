@@ -139,7 +139,7 @@ internal fun CourseMap(course: TrackCourse, modifier: Modifier, progress: Course
                 val h = VehicleSilhouetteGeometry.LENGTH * scale * TrackCourses.MAP_CAR_SCALE
                 rotate(180f - car.headingDeg, c) {
                     withTransform({ translate(c.x - w / 2, c.y - h / 2); scale(w / 100f, h / 250f, Offset.Zero) }) {
-                        vehicleSilhouette(if (lightRoad) CoachColors.Ink else CoachColors.Paper, CoachColors.Periwinkle, if (lightRoad) CoachColors.Paper else CoachColors.Ink)
+                        vehicleSilhouette(CoachColors.Ink, CoachColors.Paper, CoachColors.Paper)
                     }
                 }
             }

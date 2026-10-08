@@ -16,6 +16,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
@@ -89,86 +90,126 @@ internal fun CoachChoices(choices: List<CoachChoice>, onChoose: (CoachChoice) ->
     }
 }
 
+/** B2: one white ticket beside the start circle; its radios stay available on the home. */
 @Composable
 internal fun HomeBookingCard(details: BookingDetails, tasks: List<Task>, options: List<BookingOption>,
-    chosen: BookingOption?, highlighted: Boolean, onChoose: (BookingOption) -> Unit) {
-    var expanded by remember { mutableStateOf(highlighted) }
-    SheetCard(Modifier.fillMaxWidth().height(if (expanded) 470.dp else 220.dp).testTag("home-booking-card")) {
-        Column(Modifier.fillMaxSize().padding(horizontal = 44.dp, vertical = 20.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-            Box(Modifier.width(120.dp).height(10.dp).background(CoachColors.Platinum, RoundedCornerShape(100)).align(Alignment.CenterHorizontally))
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(28.dp)) {
-                val course = tasks.firstOrNull { it.id in details.course.taskIds && it.course != null }?.course ?: TrackCourses.exam
-                CourseMap(course, Modifier.size(124.dp).background(CoachColors.Ink, RoundedCornerShape(28.dp)).padding(12.dp),
-                    thumbnail = true, ink = CoachColors.Paper, previewRoute = CoachColors.Paper)
-                YellowContextIcon(ContextIcon.Calendar)
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    LessonText("예약 · ${details.venue.area} ${details.slot.start}", 32, CoachColors.Periwinkle)
-                    LessonText("예약한 ${details.venue.name} · ${details.course.title}", 42)
-                }
-                ArrowPill(if (expanded) "닫기" else "거기서 할 걸 골라요", if (expanded) "↓" else "↑", { expanded = !expanded })
-            }
-            if (expanded) Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(28.dp)) {
-                options.forEach { option ->
-                    val selected = option == chosen
-                    Column(Modifier.weight(1f).fillMaxHeight()
-                        .surfaceTexture(if (selected) CoachColors.Ink else CoachColors.Lavender,
-                            if (selected) CoachTexture.SelectedCard else CoachTexture.Card, shape = RoundedCornerShape(36.dp))
-                        .clickable(role = Role.RadioButton) { onChoose(option) }.semantics { this.selected = selected }.padding(32.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                        LessonText(option.label, 48, if (selected) CoachColors.Paper else CoachColors.Ink)
-                        LessonText(if (option.label == "모의시험") "시험장 그대로 제가 채점만 할게요." else "예약한 코스부터, 틀린 순간에만 말할게요.",
-                            36, if (selected) CoachColors.Platinum else CoachColors.Muted)
-                    }
-                }
+    chosen: BookingOption?, onOpen: () -> Unit, onChoose: (BookingOption) -> Unit) {
+    Row(Modifier.fillMaxWidth().height(348.dp).homeShared("booking-ticket")
+        .shadow(16.dp, RoundedCornerShape(66.dp)).background(CoachColors.Paper, RoundedCornerShape(66.dp))
+        .clickable(role = Role.Button, onClick = onOpen).semantics { contentDescription = "예약 카드 열기" }
+        .padding(42.dp).testTag("home-booking-card"), verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(40.dp)) {
+        BookingMap(details, tasks, Modifier.size(264.dp))
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            LessonText("예약 · ${details.venue.area} ${details.slot.start} · 예시", 36, CoachColors.Muted)
+            LessonText("${details.venue.name} · ${details.course.title}", 54, maxLines = 1)
+            BookingOptions(options, chosen, onChoose)
+        }
+        LessonText("›", 52, modifier = Modifier.semantics { contentDescription = "거기서 할 걸 골라요" })
+    }
+}
+
+@Composable
+private fun BookingMap(details: BookingDetails, tasks: List<Task>, modifier: Modifier) {
+    val course = tasks.firstOrNull { it.id in details.course.taskIds && it.course != null }?.course ?: TrackCourses.exam
+    CourseMap(course, modifier.background(CoachColors.Ink, RoundedCornerShape(42.dp)).padding(36.dp),
+        thumbnail = true, ink = CoachColors.Paper, previewRoute = CoachColors.Paper)
+}
+
+@Composable
+private fun BookingOptions(options: List<BookingOption>, chosen: BookingOption?, onChoose: (BookingOption) -> Unit) {
+    Row(Modifier.semantics { contentDescription = "예약에서 할 일" }, horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+        options.forEach { option ->
+            val selected = option == chosen
+            Row(Modifier.height(100.dp).background(if (selected) CoachColors.Ink else CoachColors.Lavender, RoundedCornerShape(100))
+                .clickable(role = Role.RadioButton) { onChoose(option) }.semantics { this.selected = selected }
+                .padding(horizontal = 32.dp), verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                if (selected) LessonText("✓", 36, CoachColors.Paper)
+                LessonText(option.label, 38, if (selected) CoachColors.Paper else CoachColors.Muted)
             }
         }
     }
 }
 
-/** H8: the start circle is the action; the title and profile sit on one white wall. */
+@Composable
+internal fun BookingTicketSheet(details: BookingDetails, tasks: List<Task>, options: List<BookingOption>,
+    chosen: BookingOption?, onChoose: (BookingOption) -> Unit, onBack: () -> Unit, onEdit: () -> Unit, onSlot: (String) -> Unit) {
+    Column(Modifier.fillMaxSize().background(CoachColors.Lavender).padding(120.dp), verticalArrangement = Arrangement.spacedBy(40.dp)) {
+        BrandMark()
+        Column(Modifier.weight(1f).fillMaxWidth().homeShared("booking-ticket")
+            .shadow(16.dp, RoundedCornerShape(66.dp)).background(CoachColors.Paper, RoundedCornerShape(66.dp))
+            .padding(64.dp), verticalArrangement = Arrangement.spacedBy(40.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(48.dp), verticalAlignment = Alignment.CenterVertically) {
+                BookingMap(details, tasks, Modifier.size(340.dp))
+                Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                    Eyebrow("제휴 시험장 · 오늘", color = CoachColors.Muted)
+                    Headline(details.venue.name, size = 88)
+                    LessonText(details.course.title, 48, CoachColors.Muted)
+                    LessonText(Reservation.EXAMPLE_NOTE, 32, CoachColors.Muted)
+                }
+            }
+            SelectionTrack(details.venue.slots, details.slot, { it.label }, { onSlot(it.id) },
+                Modifier.fillMaxWidth(), height = 104.dp, textSize = 40, enabled = { it.available })
+            BookingOptions(options, chosen, onChoose)
+            TextAction("시간·코스 바꾸기", onEdit)
+        }
+        BottomActions(secondary = { BackPill(onBack) }, primary = { PrimaryPill("이 코스로", onBack) })
+    }
+}
+
+/** H8/P3: booking never changes the title size or reserves a separate bottom row. */
 @Composable
 internal fun HomeGallery(profile: Profile, task: Task, mode: LessonMode, picked: Boolean, compact: Boolean,
     onAdmin: (() -> Unit)?, onProfile: () -> Unit, onCoach: () -> Unit, onTask: () -> Unit,
     onMode: (LessonMode) -> Unit, onStart: () -> Unit, hasBooking: Boolean, reason: String, booking: @Composable () -> Unit) {
     var wheelOpen by remember { mutableStateOf(false) }
     Column(Modifier.fillMaxSize().padding(start = 120.dp, end = 120.dp, top = 52.dp, bottom = 36.dp)) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             SetupBrandMark(onAdmin = onAdmin)
             CoachPill("코치와 대화", onCoach, Modifier.alpha(if (wheelOpen) .18f else 1f))
         }
-        BoxWithConstraints(Modifier.fillMaxWidth().weight(1f).padding(bottom = if (hasBooking) 32.dp else 0.dp)) {
-            val readingHeight = maxHeight
-            Column(Modifier.alpha(if (wheelOpen) .18f else 1f).width(620.dp).align(Alignment.TopEnd).heightIn(min = 112.dp).testTag("profile-entry")
-                .clickable(role = Role.Button, onClick = onProfile).padding(top = 12.dp)) {
-                Eyebrow("프로필", color = CoachColors.Periwinkle)
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    LessonText(profileLine(profile), 36, modifier = Modifier.weight(1f))
-                    LessonText("›", 36)
-                }
-            }
-            Column(Modifier.width(if (wheelOpen) 2160.dp else 1630.dp).align(Alignment.CenterStart)) {
-                if (hasBooking && readingHeight < 350.dp) {
-                    HomeTaskTitle(task, mode, picked, compact, onTask, onMode, titleSize = 56,
-                        onWheelChanged = { wheelOpen = it }, singleLine = true)
-                } else {
-                    HomeTaskTitle(task, mode, picked, compact, onTask, onMode,
-                        titleSize = when { readingHeight < 400.dp -> 64; readingHeight < 520.dp -> 80; else -> null }, onWheelChanged = { wheelOpen = it })
-                    Spacer(Modifier.height(20.dp))
-                    LessonText(reason, 36, CoachColors.Muted, modifier = Modifier.padding(start = if (wheelOpen) 500.dp else 0.dp).testTag("home-reason"))
-                }
+        Box(Modifier.fillMaxWidth().weight(1f)) {
+            ProfileTableEntry(profile, onProfile, Modifier.align(Alignment.TopEnd).alpha(if (wheelOpen) .18f else 1f))
+            Column(Modifier.width(if (wheelOpen) 2160.dp else 1700.dp).align(Alignment.CenterStart).padding(top = 100.dp)) {
+                HomeTaskTitle(task, mode, picked, compact, onTask, onMode, onWheelChanged = { wheelOpen = it })
+                Spacer(Modifier.height(20.dp))
+                LessonText(reason, 36, CoachColors.Muted, modifier = Modifier.padding(start = if (wheelOpen) 500.dp else 0.dp).testTag("home-reason"))
             }
         }
         Spacer(Modifier.height(20.dp))
-        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-            HomeVehicle(Modifier.alpha(if (wheelOpen) .18f else 1f).align(Alignment.BottomStart).width(780.dp).height(270.dp).offset(y = 26.dp))
-            FillButton("시작", onStart, Modifier.alpha(if (wheelOpen) .18f else 1f).width(1410.dp).height(if (hasBooking) { if (compact) 160.dp else 240.dp } else if (compact) 240.dp else 300.dp), picked, home = true)
+        Row(Modifier.fillMaxWidth().height(if (compact) 280.dp else 348.dp),
+            horizontalArrangement = Arrangement.spacedBy(36.dp), verticalAlignment = Alignment.CenterVertically) {
+            if (hasBooking) {
+                Box(Modifier.weight(1f).alpha(if (wheelOpen) .18f else 1f)) { booking() }
+                FillButton("시작", onStart, Modifier.width(610.dp).height(300.dp), picked, home = true)
+            } else {
+                Box(Modifier.weight(1f)) {
+                    HomeVehicle(Modifier.alpha(if (wheelOpen) .18f else 1f).width(780.dp).height(270.dp))
+                }
+                FillButton("시작", onStart, Modifier.alpha(if (wheelOpen) .18f else 1f).width(1410.dp).height(if (compact) 240.dp else 300.dp), picked, home = true)
+            }
         }
-        Spacer(Modifier.height(1.dp))
+        Spacer(Modifier.height(32.dp))
         PosterRule(color = CoachColors.Platinum)
-        if (hasBooking) {
-            Spacer(Modifier.height(32.dp))
-            CompositionLocalProvider(LocalContextAccent provides !wheelOpen) { booking() }
+    }
+}
+
+@Composable
+private fun ProfileTableEntry(profile: Profile, onClick: () -> Unit, modifier: Modifier) {
+    val parts = profileLine(profile).split(" · ")
+    Row(modifier.heightIn(min = 140.dp).clickable(role = Role.Button, onClick = onClick)
+        .semantics(mergeDescendants = true) { contentDescription = "프로필 열기" }.testTag("profile-entry").padding(top = 24.dp),
+        horizontalArrangement = Arrangement.spacedBy(40.dp), verticalAlignment = Alignment.CenterVertically) {
+        listOf("단계" to parts.getOrElse(0) { "연수생" },
+            "장롱" to parts.getOrElse(1) { "아직" }.removePrefix("장롱 "),
+            "목표" to parts.getOrElse(2) { "아직" }.removePrefix("목표: ")).forEachIndexed { index, (label, value) ->
+            if (index > 0) Box(Modifier.width(2.dp).height(104.dp).background(CoachColors.Platinum))
+            Column(Modifier.widthIn(min = 150.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                LessonText(label, 32, CoachColors.Muted)
+                LessonText(value, 47, bold = true)
+            }
         }
+        LessonText("›", 42)
     }
 }

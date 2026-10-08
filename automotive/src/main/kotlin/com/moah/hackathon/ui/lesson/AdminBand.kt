@@ -26,7 +26,8 @@ import kotlinx.coroutines.flow.StateFlow
 internal fun AdminBand(scenarios: List<Scenario>, playback: ScenarioPlayback?, onPlay: (String) -> Unit,
     onStopScenario: () -> Unit, onStopCar: () -> Unit, onResumeCar: () -> Unit, onDoor: (Boolean) -> Unit,
     aiState: StateFlow<CopilotAuth.State>? = null, onConnectAi: () -> Unit = {},
-    onResetRecords: () -> Unit = {}, onHide: () -> Unit = {}, signalSource: String = "") {
+    onResetRecords: () -> Unit = {}, onHide: () -> Unit = {}, signalSource: String = "",
+    steeringSteps: List<Float> = emptyList(), onSteering: (Float) -> Unit = {}) {
     var more by rememberSaveable { mutableStateOf(false) }
     val auth = aiState?.collectAsState()?.value
     Column(Modifier.fillMaxWidth().background(CoachColors.Periwinkle).testTag("admin-band")) {
@@ -44,7 +45,8 @@ internal fun AdminBand(scenarios: List<Scenario>, playback: ScenarioPlayback?, o
             aiLine(auth)?.let { LessonText(it.title, 28, CoachColors.Paper) }
             BandAction(if (more) "접기 ▾" else "더 보기 ▴", { more = !more })
         }
-        if (more) Row(Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 12.dp),
+        if (more) Column {
+        Row(Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(24.dp), verticalAlignment = Alignment.CenterVertically) {
             BandAction("기록 초기화", onResetRecords)
             BandAction("패널 숨김", onHide)
@@ -55,7 +57,20 @@ internal fun AdminBand(scenarios: List<Scenario>, playback: ScenarioPlayback?, o
                 AdminAiDetail(auth, onConnectAi, onInk = true)
             }
         }
+        if (steeringSteps.isNotEmpty()) Row(Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically) {
+            LessonText("조향각", 28, CoachColors.Paper)
+            steeringSteps.forEach { deg -> BandAction(steeringControlLabel(deg), { onSteering(deg) }) }
+            LessonText("시나리오를 멈춘 뒤 조작", 28, CoachColors.Platinum)
+        }
+        }
     }
+}
+
+internal fun steeringControlLabel(deg: Float) = when {
+    deg < 0f -> "왼쪽 ${-deg.toInt()}°"
+    deg > 0f -> "오른쪽 ${deg.toInt()}°"
+    else -> "중립 0°"
 }
 
 @Composable

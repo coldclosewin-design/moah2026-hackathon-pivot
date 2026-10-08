@@ -1,6 +1,10 @@
 package com.moah.hackathon.ui.lesson
 
-import androidx.compose.animation.Crossfade
+import androidx.compose.animation.*
+import androidx.compose.animation.core.Animatable
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import kotlinx.coroutines.delay
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -8,7 +12,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.*
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalDensity
@@ -45,7 +49,9 @@ import com.moah.hackathon.ports.withObjectParticle
 internal fun TaskSheet(tasks: List<Task>, category: TaskType, task: Task?, mode: LessonMode,
     onCategory: (TaskType) -> Unit, onTask: (Task) -> Unit,
     onMode: (LessonMode) -> Unit, onBack: () -> Unit, onStart: () -> Unit, onVenues: () -> Unit) {
-    var editor by remember { mutableStateOf<String?>("task") }
+    var editor by remember { mutableStateOf<String?>(null) }
+    // T2 ends on the sentence, then reveals the cards for the existing text-driven tools.
+    LaunchedEffect(Unit) { Animatable(0f).animateTo(1f, tween(620)); editor = "task" }
     val sentenceSize by androidx.compose.animation.core.animateIntAsState(if (editor == null) 132 else 90,
         tween(420, easing = CoachMotion.Fill), label = "sentence-size")
     val groups = tasks.groupBy { it.type }
@@ -91,20 +97,29 @@ internal fun TaskSheet(tasks: List<Task>, category: TaskType, task: Task?, mode:
                     Column(Modifier.fillMaxSize().padding(40.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
                         if (editor == "task") {
                             SelectionTrack(categoryOrder(), category, ::taskTypeLabel, onCategory,
-                                Modifier.fillMaxWidth(.72f), height = 88.dp, textSize = 40, role = Role.Tab)
+                                Modifier.fillMaxWidth(.72f), height = 88.dp, textSize = 40, role = Role.Tab, smoothCategory = true)
                             BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
-                                val items = groups[category].orEmpty()
-                                val width = (maxWidth - 72.dp - if (items.size > 4) 80.dp else 0.dp) / 4
-                                key(category) {
-                                    LazyRow(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                                        items(items, key = { it.id }) { item ->
-                                            TaskBay(item, item.id == task?.id, Modifier.width(width).fillMaxHeight()) { onTask(item) }
+                                val width = (maxWidth - 72.dp - if (groups[category].orEmpty().size > 4) 80.dp else 0.dp) / 4
+                                val density = LocalDensity.current
+                                val categoryTransition = androidx.compose.animation.core.updateTransition(category, label = "category")
+                                categoryTransition.AnimatedContent(Modifier.fillMaxSize(), transitionSpec = {
+                                    val direction = if (categoryOrder().indexOf(targetState) > categoryOrder().indexOf(initialState)) 1 else -1
+                                    EnterTransition.None togetherWith (fadeOut(tween(160)) + slideOutHorizontally(tween(160, easing = androidx.compose.animation.core.CubicBezierEasing(.4f, 0f, 1f, 1f))) {
+                                        -with(density) { 48.dp.roundToPx() } * direction
+                                    })
+                                }) { shown ->
+                                    LazyRow(Modifier.fillMaxSize().then(if (shown != category) Modifier.clearAndSetSemantics {} else Modifier),
+                                        horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                                        itemsIndexed(groups[shown].orEmpty(), key = { _, item -> item.id }) { index, item ->
+                                            val direction = if (categoryOrder().indexOf(categoryTransition.targetState) >= categoryOrder().indexOf(categoryTransition.currentState)) 1 else -1
+                                            TaskBay(item, item.id == task?.id, Modifier.width(width).fillMaxHeight().animateEnterExit(
+                                                enter = fadeIn(tween(280, delayMillis = 80 + index * 40)) + slideInHorizontally(tween(280, delayMillis = 80 + index * 40, easing = androidx.compose.animation.core.CubicBezierEasing(.22f, 1f, .36f, 1f))) {
+                                                    with(density) { 64.dp.roundToPx() } * direction
+                                                }, exit = ExitTransition.None)) { onTask(item) }
                                         }
                                     }
                                 }
                             }
-                            if (task != null) SelectionTrack(LessonMode.entries.filter(task::supports), mode, { it.label }, onMode,
-                                Modifier.fillMaxWidth(.6f), height = 80.dp, textSize = 36)
                         } else {
                             Eyebrow("모드 바꾸기")
                             Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(28.dp)) {
@@ -125,6 +140,9 @@ internal fun TaskSheet(tasks: List<Task>, category: TaskType, task: Task?, mode:
                         }
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End,
                             verticalAlignment = Alignment.CenterVertically) {
+                            if (editor == "task" && task != null) SelectionTrack(LessonMode.entries.filter(task::supports), mode, { it.label }, onMode,
+                                Modifier.width(980.dp), height = 96.dp, textSize = 38)
+                            Spacer(Modifier.weight(1f))
                             ArrowPill("닫기", "↓", { editor = null })
                             Spacer(Modifier.width(32.dp))
                             PrimaryPill(if (editor == "task") "이 과제로" else "이 모드로", { editor = null }, Modifier.width(660.dp))
@@ -153,8 +171,9 @@ private fun TaskBay(task: Task, chosen: Boolean, modifier: Modifier, onClick: ()
     Box(modifier.background(background, androidx.compose.foundation.shape.RoundedCornerShape(32.dp))
         .then(action).semantics(mergeDescendants = true) { selected = chosen }) {
         Column(Modifier.fillMaxSize().padding(20.dp)) {
-            Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
-                val art = Modifier.size(240.dp, 176.dp).alpha(if (task.isReady) 1f else .55f)
+            BoxWithConstraints(Modifier.fillMaxWidth().weight(1f).padding(top = 36.dp, bottom = 16.dp), contentAlignment = Alignment.Center) {
+                val artHeight = minOf(176.dp, maxHeight * .72f)
+                val art = Modifier.size(artHeight * (240f / 176f), artHeight).alpha(if (task.isReady) 1f else .55f)
                 val ink = if (chosen) CoachColors.Paper else CoachColors.Ink
                 when (task.type) {
                     TaskType.PARKING -> ParkingTaskDiagram(task.id, ink,
@@ -169,7 +188,7 @@ private fun TaskBay(task: Task, chosen: Boolean, modifier: Modifier, onClick: ()
                     modifier = Modifier.align(Alignment.TopStart))
             }
             TaskTitleBand(task, foreground, if (chosen) CoachColors.Paper.copy(alpha = .7f) else CoachColors.Muted,
-                Modifier.fillMaxWidth().height(88.dp))
+                Modifier.fillMaxWidth().height(72.dp))
         }
         if (chosen) SymbolTile(CoachSymbol.Check, Modifier.align(Alignment.TopEnd).padding(12.dp).size(48.dp), animate = false)
     }
@@ -191,7 +210,7 @@ private fun TaskTitleBand(task: Task, titleColor: Color, detailColor: Color, mod
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             LessonText(task.title, titleSize, titleColor, modifier = Modifier.weight(1f).alignByBaseline(), maxLines = 1)
             Spacer(Modifier.width(8.dp))
-            LessonText(detail, 32, detailColor, modifier = Modifier.alignByBaseline(), maxLines = 1)
+            LessonText(detail, 28, detailColor, modifier = Modifier.background(detailColor.copy(alpha = .12f), androidx.compose.foundation.shape.RoundedCornerShape(100)).padding(horizontal = 12.dp, vertical = 2.dp), maxLines = 1)
         }
     }
 }
@@ -226,6 +245,8 @@ private fun CategoryTaskDiagram(type: TaskType, color: Color, modifier: Modifier
 @Composable
 private fun ChecklistTaskDiagram(color: Color, modifier: Modifier) {
     Canvas(modifier) {
+        val sx = size.width / 240.dp.toPx(); val sy = size.height / 176.dp.toPx()
+        withTransform({ scale(sx, sy, Offset.Zero) }) {
         val stroke = 4.dp.toPx()
         repeat(3) { row ->
             val y = (40 + row * 48).dp.toPx()
@@ -236,6 +257,7 @@ private fun ChecklistTaskDiagram(color: Color, modifier: Modifier) {
             }, color, style = Stroke(stroke))
             drawLine(color, Offset(88.dp.toPx(), y), Offset(204.dp.toPx(), y), stroke)
         }
+        }
     }
 }
 
@@ -243,7 +265,7 @@ private fun ChecklistTaskDiagram(color: Color, modifier: Modifier) {
 @Composable
 private fun ParkingTaskDiagram(id: String, color: Color, panel: Color, glass: Color, modifier: Modifier) {
     Canvas(modifier) {
-        val nominalHeight = 160.dp.toPx()
+        val nominalHeight = size.height * .90f
         // The diagonal bay also fits the 176 dp art box, including its rotated line ends.
         val fit = if (id == "parking-angle") minOf(1f,
             (size.height - 6.dp.toPx()) / (nominalHeight * .8660254f + (nominalHeight * .43f + 40.dp.toPx()) * .5f)) else 1f

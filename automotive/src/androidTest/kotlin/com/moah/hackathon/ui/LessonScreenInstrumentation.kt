@@ -87,6 +87,8 @@ class LessonScreenInstrumentation : Instrumentation() {
     private var round27aOnly = false
     private var round28aOnly = false
     private var round28bOnly = false
+    private var round28cOnly = false
+    private var round28cMotionOnly = false
     override fun onCreate(arguments: Bundle?) {
         super.onCreate(arguments)
         seedSpeech = arguments?.getString("seedSpeech") == "true"
@@ -104,6 +106,8 @@ class LessonScreenInstrumentation : Instrumentation() {
         round26bOnly = arguments?.getString("round26bOnly") == "true"
         round25bOnly = arguments?.getString("round25bOnly") == "true"
         round27aOnly = arguments?.getString("round27aOnly") == "true"
+        round28cOnly = arguments?.getString("round28cOnly") == "true"
+        round28cMotionOnly = arguments?.getString("round28cMotionOnly") == "true"
         round28bOnly = arguments?.getString("round28bOnly") == "true"
         round28aOnly = arguments?.getString("round28aOnly") == "true"
         start()
@@ -113,6 +117,17 @@ class LessonScreenInstrumentation : Instrumentation() {
         val activity = startActivitySync(Intent(targetContext, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as MainActivity
         try {
+            if (round28cMotionOnly) {
+                captureRound28cMotion(activity)
+                finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Round28c motion passed\n") })
+                return
+            }
+            if (round28cOnly) {
+                round28cContract(activity)
+                captureRound28cMotion(activity)
+                finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "Round28c contract passed\n") })
+                return
+            }
             if (round28bOnly) {
                 round28bContract(activity)
                 reservationFlow(activity)
@@ -217,6 +232,8 @@ class LessonScreenInstrumentation : Instrumentation() {
             // and safety suites, and assert the selected layouts in round28aContract.
             round28aContract(activity)
             round28bContract(activity)
+            round28cContract(activity)
+            captureRound28cMotion(activity)
             captureFillMotion(activity, home = true)
             captureFillMotion(activity, home = false)
             captureSelectionMorph(activity)
@@ -233,6 +250,230 @@ class LessonScreenInstrumentation : Instrumentation() {
             finish(Activity.RESULT_CANCELED, Bundle().apply { putString("stream", failure.stackTraceToString()) })
         }
     }
+
+    /** Selected round29 cells: measurements stay live, scopes stay honest, and admin stays optional. */
+    private fun round28cContract(activity: MainActivity) {
+        val container = (activity.application as App).container
+        val fake = container.vehicle as FakeVehiclePort
+        lateinit var vm: LessonViewModel
+        onMainChecked {
+            vm = ViewModelProvider(activity, LessonViewModel.factory(container))[LessonViewModel::class.java]
+            vm.admin!!.applyPreset("rear-two"); vm.admin!!.setBand(false); vm.restart(); vm.cancelReservation()
+        }
+        render(activity) { LessonRoute(vm) }
+        capture("28c-profile-home")
+        val homeTitle = textBounds("후면 직각 주차 ▼")
+        check(listOf("단계", "장롱", "목표", "연수생", "10년차", "아이 등하원").all { it in texts() })
+        click("프로필 열기"); capture("28c-profile")
+        check(ProfileField.entries.all { it.title in texts() })
+        check("앱이 본 것" in texts())
+        click("필요한 일, 아이 등하원, 바꾸기"); capture("28c-profile-edit")
+        click("출퇴근"); check("필요한 일, 출퇴근, 바꾸기" in allText()); click("돌아가기")
+        onMainChecked { vm.admin!!.applyPreset("rear-two"); vm.admin!!.setBand(false) }
+        val venue = SeedCatalog.venues.first()
+        onMainChecked { vm.reserve(venue.id, venue.slots.first { it.available }.id, venue.courses.first().id) }
+        render(activity) { LessonRoute(vm) }
+        check(textBounds("후면 직각 주차 ▼").height() == homeTitle.height()) { "Booking must preserve the title size" }
+        check(buttonBounds("예약 카드 열기").right < buttonBounds("시작").left)
+        capture("28c-booking-home")
+        click("예약 카드 열기"); capture("28c-booking-expanded")
+        click("모의시험"); check((vm.phase.value as LessonPhase.Setup).suggestedMode == LessonMode.EVALUATE)
+        click("코스 연습"); click("이 코스로")
+        onMainChecked { vm.cancelReservation() }
+        render(activity) { LessonRoute(vm) }
+        click("과제·모드 바꾸기")
+        afterUiSettles("T2 sheet ready") { check("주차" in texts()) }
+        for (category in categoryOrder()) {
+            if (!isSelected(taskTypeLabel(category))) click(taskTypeLabel(category))
+            capture("28c-tasks-${category.name.lowercase()}")
+        }
+        click("제휴 시험장"); click(venue.name)
+        check(!buttonNode("예약").isEnabled)
+        assertPlannedTask(venue.slots.first { !it.available }.label)
+        click(venue.slots.first { it.available }.label)
+        check(!buttonNode("예약").isEnabled)
+        click(venue.courses.first().title)
+        check(buttonNode("예약").isEnabled); capture("28c-venue")
+
+        val base = ManeuverDisplayState("3", 450f, "R", 85f, false,
+            "핸들을 오른쪽 끝까지\n돌려 주세요.", "4/6", null, 1, 2, 18, false,
+            SignalAvailability.SIMULATED, SignalAvailability.SIMULATED, SignalAvailability.SIMULATED)
+        render(activity) { ManeuverScreen(base, false, false, null, {}) }
+        check("오른쪽 450°" in texts()); check("위치 측정 아님" in texts())
+        check(nodes().none(::hasTouchAction)); capture("28c-parking")
+        render(activity) { ManeuverScreen(base.copy(mode = LessonMode.HINT, guideStep = null, guideText = null, hintText = "뒤가 가까워요.", rearDistanceCm = 40f), false, false, null, {}) }
+        check("위치 측정 아님" !in texts()); capture("28c-parking-hint")
+        render(activity) { ManeuverScreen(base.copy(steeringDeg = null, gear = null, rearDistanceCm = null), false, false, null, {}) }
+        check(texts().count { it == "미측정" } == 3); capture("28c-parking-missing")
+
+        fun attempt(scenario: Scenario, index: Int): AttemptRecord {
+            val recorder = ParkingRecorder(SignalRegistry(ParkingRecorder.KEYS, simulated = true)).apply {
+                scenario.steps.forEach { onDelta((it.atSeconds * 1000).toLong(), it.values) }
+            }
+            return AttemptRecord(index, SeedCatalog.parkingTask.id, LessonMode.HINT, recorder.score()!!, null,
+                "방향을 맞췄어요.\n서두르지 않고 연습해요.", 0, path = recorder.path(), verdict = recorder.verdict())
+        }
+        val bad = attempt(ParkingScenarios.bad, 1); val good = attempt(ParkingScenarios.good, 2)
+        val report = LessonReport(SeedCatalog.parkingTask, LessonMode.HINT, listOf(bad, good), good.score,
+            good.remark, SeedCatalog.parkingTask, LessonMode.HINT, "함께 연습해요.", ShareLevel.entries, emptyList(), emptyList())
+        render(activity) { ReportScreen(report, {}) }
+        click("진단서")
+        for (level in ShareLevel.entries) {
+            if (!isSelected(level.label)) click(level.label)
+            capture("28c-certificate-${level.name.lowercase()}")
+            assertFullText(activity, level.benefit); assertFullText(activity, level.description)
+            click("공유 예시 보기")
+            assertShareExample(activity, level)
+            onMainChecked {
+                composeNodes(activity).filter { it.config.getOrNull(SemanticsProperties.StateDescription) == "범위 밖" }.forEach { node ->
+                    check(node.config.getOrNull(SemanticsProperties.Text).orEmpty().none { Regex("\\d").containsMatchIn(it.text) })
+                }
+            }
+            capture("28c-share-${level.name.lowercase()}"); click("돌아가기")
+        }
+
+        onMainChecked { vm.restart(); vm.begin(SeedCatalog.parkingTask.id, LessonMode.GUIDE); vm.skipBriefing(); vm.admin!!.setBand(true) }
+        render(activity) { LessonRoute(vm) }
+        click("더 보기 ▴")
+        vm.admin!!.demo.steeringSteps.forEach { degrees ->
+            click(steeringControlLabel(degrees))
+            afterUiSettles("Steering $degrees reaches the displayed signal") {
+                check((vm.phase.value as LessonPhase.Maneuver).snapshot.steeringDeg == degrees)
+                check(steeringControlLabel(degrees) in texts())
+            }
+        }
+        capture("28c-admin-steering")
+        onMainChecked { vm.admin!!.setBand(false) }
+        fun hold(duration: Long, strip: Boolean = false) {
+            val rect = textBounds("DRIVE COACH")
+            val down = SystemClock.uptimeMillis()
+            fun event(action: Int) {
+                val e = android.view.MotionEvent.obtain(down, SystemClock.uptimeMillis(), action, rect.exactCenterX(), rect.exactCenterY(), 0)
+                check(uiAutomation.injectInputEvent(e, true)); e.recycle()
+            }
+            event(android.view.MotionEvent.ACTION_DOWN)
+            if (strip) {
+                val frames = mutableListOf<Bitmap>()
+                for (elapsed in listOf(0L, 667L, 1333L, 2100L)) {
+                    Thread.sleep((down + elapsed - SystemClock.uptimeMillis()).coerceAtLeast(0L))
+                    frames += screenshot()
+                }
+                saveStrip("28c-escape-strip", frames, listOf("0 ms", "667 ms", "1333 ms", "2100 ms · home"))
+                frames.forEach(Bitmap::recycle)
+            } else Thread.sleep(duration)
+            event(android.view.MotionEvent.ACTION_UP)
+            Thread.sleep(350); refreshAccessibility()
+        }
+        val course = com.moah.hackathon.data.TrackCourses.exam
+        val track = com.moah.hackathon.data.CourseScenarios.examGood
+        val recorder = CourseRecorder(course).apply { track.steps.take(8).forEach { onDelta((it.atSeconds * 1000).toLong(), it.values) } }
+        val drive = LessonPhase.Drive(SeedCatalog.tasks.single { it.id == SeedCatalog.TASK_TRACK_EXAM }, LessonMode.EVALUATE, 1,
+            VehicleSnapshot(speedKmh = 12f), course, recorder.progress(), null, null, 0, false, CourseRecorder.KEYS.associateWith { SignalAvailability.SIMULATED })
+        val screens: List<Pair<String, @Composable () -> Unit>> = listOf(
+            "briefing" to { BriefingScreen(SeedCatalog.parkingTask, LessonMode.GUIDE, "안내를 들어 주세요.", null, locked = false) },
+            "parking" to { ManeuverScreen(base, false, false, null, {}) },
+            "locked" to { ManeuverScreen(base, true, false, null, {}) },
+            "drive" to { DriveScreen(drive, null, {}, null) },
+            "s-curve" to { DriveScreen(drive.copy(mode = LessonMode.GUIDE, progress = drive.progress.copy(currentZoneId = "exam-s-curve")), null, {}, null) },
+            "done" to { DoneScreen(SeedCatalog.parkingTask, 2, good, null, {}, {}) },
+            "report" to { ReportScreen(report, {}) }
+        )
+        for ((name, screen) in screens) {
+            onMainChecked { vm.restart(); vm.begin(SeedCatalog.parkingTask.id, LessonMode.HINT); vm.skipBriefing() }
+            fake.play(ParkingScenarios.bad)
+            render(activity) {
+                val phase by vm.phase.collectAsStateWithLifecycle()
+                androidx.compose.runtime.CompositionLocalProvider(LocalDemoEscape provides vm.admin!!.demo::escapeHome) {
+                    if (phase is LessonPhase.Setup) SetupScreen(SeedCatalog.demoProfile, SeedCatalog.tasks, SeedCatalog.parkingTask, LessonMode.GUIDE, "처음은 제가 순서대로 함께할게요.", null, { _, _ -> })
+                    else screen()
+                }
+            }
+            if (name in listOf("locked", "drive")) check(nodes().none(::hasTouchAction))
+            if (name == "locked") capture("28c-escape-locked")
+            if (name == "drive") capture("28c-course-car")
+            hold(700); check(vm.phase.value !is LessonPhase.Setup)
+            hold(2_100, strip = name == "locked")
+            afterUiSettles("$name escape") { check(vm.phase.value is LessonPhase.Setup) }
+            check(fake.playback.value == null && fake.speedOverrideKmh == 0f)
+            onMainChecked { vm.begin(SeedCatalog.parkingTask.id, LessonMode.HINT); vm.skipBriefing() }
+            render(activity) { androidx.compose.runtime.CompositionLocalProvider(LocalDemoEscape provides null) { screen() } }
+            check(texts().none { it.startsWith("시연 ·") || it == "조향각 조작" })
+            onMainChecked { check(composeNodes(activity).none { it.config.contains(SemanticsActions.OnLongClick) }) }
+            hold(2_100); check(vm.phase.value !is LessonPhase.Setup)
+        }
+        onMainChecked { vm.admin!!.demo.escapeHome(); vm.admin!!.setBand(true) }
+        render(activity) { LessonRoute(vm) }
+        hold(2_100); check("시연 준비" in texts())
+        hold(2_100); check("시연 준비" !in texts() && "코치와 대화" in texts())
+        pass("Round28c: P3/S4, B2 same title size, C1 booking guards, A3/B5/C3 signal display, A4/A7 masks, nine steering steps, two-second escape and no admin-capability gestures")
+    }
+
+    /** Production animations sampled at explicit 0 / one-third / two-thirds / end timestamps. */
+    private fun captureRound28cMotion(activity: MainActivity) {
+        fun motion(name: String, times: List<Long>, content: @Composable () -> Unit, change: () -> Unit, verify: (Int) -> Unit = {}) {
+            val clock = BroadcastFrameClock()
+            val scope = CoroutineScope(AndroidUiDispatcher.Main + clock)
+            val recomposer = Recomposer(scope.coroutineContext)
+            lateinit var view: ComposeView
+            onMainChecked {
+                view = ComposeView(activity).apply {
+                    setParentCompositionContext(recomposer)
+                    setContent { MaterialTheme(colorScheme = coachColorScheme()) { DesignScale { androidx.compose.runtime.key(content) { content() } } } }
+                }
+                activity.setContentView(view); scope.launch { recomposer.runRecomposeAndApplyChanges() }
+            }
+            var time = 16L
+            fun advance(delta: Long) {
+                time += delta
+                repeat(4) { onMainChecked { clock.sendFrame(time * 1_000_000) }; waitForIdleSync(); Thread.sleep(30) }
+            }
+            val frames = mutableListOf<Bitmap>()
+            try {
+                advance(0); advance(1800); advance(1800)
+                onMainChecked(change)
+                var previous = 0L
+                times.forEachIndexed { index, elapsed ->
+                    advance(elapsed - previous); previous = elapsed
+                    verify(index); frames += screenshot()
+                }
+                saveStrip("28c-$name-strip", frames, times.map { "$it ms" })
+            } finally {
+                frames.forEach(Bitmap::recycle)
+                onMainChecked { view.disposeComposition(); recomposer.cancel(); scope.cancel() }
+            }
+        }
+        fun activate(label: String) {
+            val node = composeNodes(activity).first { n ->
+                (n.config.getOrNull(SemanticsProperties.ContentDescription)?.contains(label) == true || n.config.getOrNull(SemanticsProperties.Text)?.any { it.text == label } == true)
+                    && n.config.getOrNull(SemanticsActions.OnClick) != null
+            }
+            check(node.config[SemanticsActions.OnClick].action?.invoke() == true)
+        }
+        motion("home-task", listOf(0, 187, 373, 560), {
+            SetupScreen(SeedCatalog.demoProfile, SeedCatalog.tasks, SeedCatalog.parkingTask, LessonMode.GUIDE, "처음은 제가 순서대로 함께할게요.", null, { _, _ -> })
+        }, { activate("과제·모드 바꾸기") })
+        val venue = SeedCatalog.venues.first()
+        val booking = Reservation(venue.id, venue.slots.first().id, venue.courses.first().id, 0)
+        motion("booking", listOf(0, 187, 373, 560), {
+            SetupScreen(SeedCatalog.demoProfile, SeedCatalog.tasks, SeedCatalog.parkingTask, LessonMode.GUIDE, "예약한 코스부터 함께해요.", null, { _, _ -> },
+                venues = SeedCatalog.venues, booking = booking, bookingOptions = BookingOption.entries, bookingChoice = BookingOption.COURSE_PRACTICE)
+        }, { activate("예약 카드 열기") })
+        val category = mutableStateOf(TaskType.PARKING)
+        motion("category", listOf(0, 160, 320, 480), {
+            TaskSheet(SeedCatalog.tasks, category.value, SeedCatalog.tasks.first { it.type == category.value }, LessonMode.GUIDE,
+                { category.value = it }, {}, {}, {}, {}, {})
+        }, { category.value = TaskType.CHECKLIST })
+        val state = mutableStateOf(ManeuverDisplayState("3", 0f, "R", 85f, false, "핸들을 오른쪽 끝까지\n돌려 주세요.", "4/6", null, 1, 1, 1, false,
+            SignalAvailability.SIMULATED, SignalAvailability.SIMULATED, SignalAvailability.SIMULATED))
+        motion("ring", listOf(0, 267, 534, 800), { ManeuverScreen(state.value, false, false, null, {}) }, { state.value = state.value.copy(steeringDeg = 450f) }, {
+            onMainChecked { check(composeNodes(activity, true).any { it.config.getOrNull(SemanticsProperties.Text)?.any { text -> text.text == "오른쪽 450°" } == true }) }
+        })
+        motion("ripple", listOf(0, 233, 467, 700), { ManeuverScreen(state.value, false, false, null, {}) }, {
+            state.value = state.value.copy(guideStep = "5/6", guideText = "이제 천천히 후진해요.")
+        })
+        pass("Round28c motion: shared title/ticket, category row, live numeric angle during .88/110 ring spring, guide-completion ripple; four explicit frames each")
+    }
+
 
     /** Round28b fixtures use real seed recordings, with view-only safety and exact action callbacks. */
     private fun round28bContract(activity: MainActivity) {
@@ -352,7 +593,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             vm.admin!!.setProfile(com.moah.hackathon.data.AdminPresets.PROFILE_RUSTY); vm.restart(); vm.cancelReservation()
         }
         render(activity) { LessonRoute(vm) }
-        click(profileLine((vm.phase.value as LessonPhase.Setup).profile))
+        click("프로필 열기")
         capture("28b-profile")
         click("필요한 일, 아이 등하원, 바꾸기")
         capture("28b-profile-edit"); click("출퇴근")
@@ -375,6 +616,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         capture("28b-booking-home"); click("거기서 할 걸 골라요")
         check(texts().containsAll(listOf("코스 연습", "모의시험")))
         capture("28b-booking-expanded")
+        click("돌아가기")
         click("모드 바꾸기")
         check(allText().any { it.contains("모드 바꾸기") })
         capture("28b-booking-mode-wheel")
@@ -408,7 +650,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         capture("28a-vehicle")
         click("과제·모드 바꾸기")
         noPoster()
-        check(texts().containsAll(listOf("주차", "주행", "점검", "지식", "힌트", "평가", "시작")))
+        afterUiSettles("T2 then task cards") { check(texts().containsAll(listOf("주차", "주행", "점검", "지식", "힌트", "평가", "시작"))) }
         SeedCatalog.tasks.filter { it.type == TaskType.PARKING }.forEach { assertFullText(activity, it.title) }
         capture("28a-task-expanded")
         click("닫기")
@@ -786,7 +1028,7 @@ class LessonScreenInstrumentation : Instrumentation() {
     private fun assertFullText(activity: MainActivity, text: String, action: String? = null, minLines: Int = 1) {
         var height = 0
         runOnMainSync {
-            val node = composeNodes(activity).first { it.config.getOrNull(SemanticsProperties.Text)?.any { it.text == text } == true }
+            val node = composeNodes(activity, true).first { it.config.getOrNull(SemanticsProperties.Text)?.singleOrNull()?.text == text && it.config.contains(SemanticsActions.GetTextLayoutResult) }
             val layouts = mutableListOf<TextLayoutResult>()
             check(node.config.getOrNull(SemanticsActions.GetTextLayoutResult)?.action?.invoke(layouts) == true)
             val layout = layouts.single()
@@ -1157,7 +1399,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             hold(2_100)
             check(locked()) { "Real $name exposed a simulator gesture" }
             render(activity) { LessonRoute(vm) }
-            val note = "시연 · 시나리오가 끝나면 차가 멈춰요 — 막히면 워드마크를 길게"
+            val note = "시연 · 막히면 워드마크를 길게"
             check(note in texts())
             check(nodes().none(::hasTouchAction))
             check(allText().none { Regex("\\d|점수|감점").containsMatchIn(it) })
@@ -1168,6 +1410,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             hold(2_100)
             awaitPhase { !locked() }
             afterUiSettles("$name unlocked") { check("운전에 집중해 주세요" !in texts()) }
+            check(vm.phase.value is LessonPhase.Setup)
             check(fake.playback.value == null)
             check(fake.speedOverrideKmh == 0f)
         }
@@ -1176,6 +1419,10 @@ class LessonScreenInstrumentation : Instrumentation() {
         onMainChecked { vm.finishAttempt() }
         awaitPhase { it is LessonPhase.Done }
         exercise("done")
+        onMainChecked { vm.begin(SeedCatalog.predriveTask.id, LessonMode.GUIDE) }
+        awaitPhase { it is LessonPhase.Maneuver }
+        onMainChecked { vm.finishAttempt() }
+        awaitPhase { it is LessonPhase.Done }
         onMainChecked { vm.endSession() }
         awaitPhase { it is LessonPhase.Report }
         exercise("report")
@@ -1185,6 +1432,8 @@ class LessonScreenInstrumentation : Instrumentation() {
         }
         awaitPhase { it is LessonPhase.Quiz }
         exercise("quiz")
+        onMainChecked { vm.begin(SeedCatalog.tasks.first { it.type == TaskType.KNOWLEDGE }.id, LessonMode.QUIZ) }
+        awaitPhase { it is LessonPhase.Quiz }
         onMainChecked { vm.endSession() }
         awaitPhase { it is LessonPhase.QuizDone }
         exercise("quiz-done")
@@ -1385,7 +1634,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         click("시작하기")
         afterUiSettles("Onboarding closes") { check("과제·모드 바꾸기" in allText()) }
         val setup = vm.phase.value as LessonPhase.Setup
-        click(profileLine(setup.profile))
+        click("프로필 열기")
         afterUiSettles("Profile sheet") { check("앱이 본 것" in texts()) }
         check(ProfileField.entries.none { it.question in texts() })
         capture("profile-sheet")
@@ -1450,7 +1699,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         click("건너뛰기")
         check((vm.phase.value as LessonPhase.Setup).onboarding == null)
         check((vm.phase.value as LessonPhase.Setup).profileRows.all { it.answer == null })
-        check(buttonBounds(profileLine((vm.phase.value as LessonPhase.Setup).profile)).height() / designScale(activity) >= 112)
+        check(buttonBounds("프로필 열기").height() / designScale(activity) >= 112)
         lateinit var real: LessonViewModel
         runOnMainSync { real = LessonViewModel(container.lesson, container.tts) }
         check(real.admin == null)
@@ -1563,7 +1812,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             check(buttonBounds("과제·모드 바꾸기").bottom < start.top)
             check(abs(coach.right - start.right) <= 1) { "Coach pill must align with start right edge" }
         }
-        val profile = buttonBounds(profileLine((vm.phase.value as LessonPhase.Setup).profile))
+        val profile = buttonBounds("프로필 열기")
         check(profile.height() / designScale(activity) >= 112)
         val screenshot = screenshot()
         val margin = (20 * designScale(activity)).roundToInt()
@@ -1571,7 +1820,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             profile.width() + 2 * margin, profile.height() + 2 * margin)
         File(targetContext.filesDir, "lesson-profile-pill.png").outputStream().use { closeup.compress(Bitmap.CompressFormat.PNG, 100, it) }
         closeup.recycle(); screenshot.recycle()
-        click(profileLine((vm.phase.value as LessonPhase.Setup).profile))
+        click("프로필 열기")
         check("앱이 본 것" in texts())
         click("돌아가기"); awaitHome()
         assertLinkGap(); capture("setup-coach")
@@ -1604,7 +1853,7 @@ class LessonScreenInstrumentation : Instrumentation() {
                 venue.courses.single { SeedCatalog.TASK_TRACK_EXAM in it.taskIds }.id)
         }
         awaitHome()
-        afterUiSettles("booking card") { check("예약 · 서초 14:00" in texts()) }
+        afterUiSettles("booking card") { check("예약 · 서초 14:00 · 예시" in texts()) }
         assertLinkGap()
         fun assertBookingGaps() {
             val scale = designScale(activity)
@@ -1833,7 +2082,7 @@ class LessonScreenInstrumentation : Instrumentation() {
                 highlightBooking = setup.highlightBooking, onChooseBooking = vm::chooseBooking)
         }
         check(texts().none { it.startsWith("예약 · ") })
-        val originalProfileBounds = textBounds(profileLine(SeedCatalog.demoProfile))
+        val originalProfileBounds = buttonBounds("프로필 열기")
         click("과제·모드 바꾸기")
         // A manual choice must not hide the state machine's new recommendation after booking.
         click("지식")
@@ -1858,12 +2107,11 @@ class LessonScreenInstrumentation : Instrumentation() {
         click(parking.title)
         assertDriverButton(activity, "예약")
         capture("28b-venue-ready")
-        click("시간 바꾸기"); capture("28b-venue-time-selected"); click("닫기")
+        capture("28c-venue-time-selected")
         // Choosing a different venue must clear the previous time/course before booking.
-        click("시험장 바꾸기"); click(gangnam.name)
+        click(gangnam.name)
         assertReserveDisabled(activity)
         assertPlannedTask(gangnam.slots.single { !it.available }.label)
-        click("돌아가기")
         click(seocho.name); click(seocho.slots.first().label); click(parking.title)
         assertDriverButton(activity, "예약")
         assertReservationNumbers()
@@ -1878,14 +2126,14 @@ class LessonScreenInstrumentation : Instrumentation() {
         assertReservationNumbers()
         capture("reservation")
         click("돌아가기")
-        val badge = "예약 · 서초 14:00"
+        val badge = "예약 · 서초 14:00 · 예시"
         check(texts().contains(badge))
-        check(textBounds(badge).top > textBounds(profileLine(SeedCatalog.demoProfile)).bottom)
-        check(textBounds(badge).top > buttonBounds("시작").bottom)
+        check(textBounds(badge).top > buttonBounds("프로필 열기").bottom)
+        check(buttonBounds("예약 카드 열기").right < buttonBounds("시작").left)
         check(texts().containsAll(listOf("${SeedCatalog.parkingTask.title} ▼", "가이드 ▼")))
         check(texts().any { it.startsWith(ModeAdvisor.RESERVED_REASON) })
         capture("setup-reserved") { bitmap ->
-            check(!colorBounds(bitmap, textBounds(badge), CoachColors.Periwinkle.toArgb()).isEmpty)
+            check(!colorBounds(bitmap, textBounds(badge), CoachColors.Muted.toArgb()).isEmpty)
         }
         click("과제·모드 바꾸기")
         assertSelected("주차")
@@ -1903,13 +2151,13 @@ class LessonScreenInstrumentation : Instrumentation() {
         click("돌아가기")
         click("돌아가기")
         check(texts().none { it.startsWith("예약 · ") })
-        val profileLabel = profileLine(SeedCatalog.demoProfile)
+        val profileLabel = "프로필 열기"
         val deadline = SystemClock.uptimeMillis() + 1_000
-        while (textBounds(profileLabel) != originalProfileBounds && SystemClock.uptimeMillis() < deadline) {
+        while (buttonBounds(profileLabel) != originalProfileBounds && SystemClock.uptimeMillis() < deadline) {
             Thread.sleep(50)
         }
-        check(textBounds(profileLabel) == originalProfileBounds) {
-            "Cancelled badge left empty space after morph settled: ${textBounds(profileLabel)} / $originalProfileBounds"
+        check(buttonBounds(profileLabel) == originalProfileBounds) {
+            "Cancelled badge left empty space after morph settled: ${buttonBounds(profileLabel)} / $originalProfileBounds"
         }
         pass("Reservation: sentence words and rising cards, unavailable slot disabled, both choices required/reset per venue, reserve/cancel once, real ViewModel recommendation, confirmation/reopen, badge without leftover space")
     }
@@ -2213,7 +2461,7 @@ class LessonScreenInstrumentation : Instrumentation() {
     private fun render(activity: MainActivity, content: @Composable () -> Unit) {
         runOnMainSync { activity.setContent {
             androidx.compose.runtime.CompositionLocalProvider(LocalSelectionMotion provides false) {
-                MaterialTheme(colorScheme = coachColorScheme()) { DesignScale { content() } }
+                MaterialTheme(colorScheme = coachColorScheme()) { DesignScale { androidx.compose.runtime.key(content) { content() } } }
             }
         } }
         Thread.sleep(700)
@@ -2545,7 +2793,7 @@ class LessonScreenInstrumentation : Instrumentation() {
             "함께 연습해요.", speech, { _, _ -> }) }
         check(speech !in texts()) { "Home must omit the speech subtitle" }
         check(profileLine(SeedCatalog.demoProfile) == "연수생 · 장롱 10년차 · 목표: 아이 등하원")
-        val profile = buttonBounds(profileLine(SeedCatalog.demoProfile))
+        val profile = buttonBounds("프로필 열기")
         check(profile.height() / designScale(activity) >= 112)
         click("과제·모드 바꾸기")
         val posterScale = designScale(activity)
@@ -3494,14 +3742,15 @@ class LessonScreenInstrumentation : Instrumentation() {
     private fun click(label: String) {
         val button = buttonNode(label)
         check(button.performAction(AccessibilityNodeInfo.ACTION_CLICK))
-        Thread.sleep(300)
+        Thread.sleep(if (label == "과제·모드 바꾸기") 1_100 else 300)
         // Read the updated semantics after Compose's accessibility events, not a cached subtree.
         uiAutomation.waitForIdle(100, 2_000)
         refreshAccessibility()
     }
     private fun buttonNode(label: String): AccessibilityNodeInfo {
         val current = nodes()
-        return current.firstOrNull { it.isClickable && descendants(it).any { node ->
+        // Nested ticket radios must dispatch to the radio, not their clickable card ancestor.
+        return current.lastOrNull { it.isClickable && descendants(it).any { node ->
             node.text?.toString() == label || node.contentDescription?.toString() == label
         } } ?: error("Missing button $label: " + current.map {
             "${it.packageName}: ${it.text ?: it.contentDescription} clickable=${it.isClickable} enabled=${it.isEnabled}"
@@ -3619,7 +3868,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         return checkNotNull(bitmap) { "UiAutomation.takeScreenshot() returned null after 3 attempts" }
     }
     private fun capture(name: String, verify: (Bitmap) -> Unit = {}) {
-        if (name.startsWith("28b-")) Thread.sleep(500) // capture after C1 settles, not a translucent intermediate frame
+        if (name.startsWith("28b-") || name.startsWith("28c-")) Thread.sleep(700) // capture after C1 settles, not a translucent intermediate frame
         val screenshot = screenshot()
         try {
             File(targetContext.filesDir, "lesson-$name.png").outputStream().use { screenshot.compress(Bitmap.CompressFormat.PNG, 100, it) }

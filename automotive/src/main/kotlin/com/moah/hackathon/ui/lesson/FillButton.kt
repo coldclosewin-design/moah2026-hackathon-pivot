@@ -33,7 +33,7 @@ internal fun FillButton(label: String, onClick: () -> Unit, modifier: Modifier =
         tween(if (pressed) { if (home) CoachMotion.HomePressMillis else CoachMotion.PressMillis }
             else CoachMotion.ReleaseMillis, easing = if (!pressed) CoachMotion.Release else if (home) CoachMotion.HomeFill else CoachMotion.Fill), label = "fill-button")
     val shape = RoundedCornerShape(100)
-    Box(modifier.alpha(if (enabled) 1f else .32f)
+    Box(modifier.then(if (label == "시작" && !home) Modifier.homeShared("home-start") else Modifier).alpha(if (enabled) 1f else .32f)
         .shadow(if (home || !enabled) 0.dp else 2.dp, shape).clip(shape)
         .background(if (home) CoachColors.Paper else if (inverse) CoachColors.Platinum else CoachColors.Ink)
         .clickable(interactionSource = interactions, indication = null, enabled = enabled, role = Role.Button, onClick = onClick)
@@ -67,7 +67,7 @@ internal fun FillButton(label: String, onClick: () -> Unit, modifier: Modifier =
 
 @Composable
 private fun ButtonFace(label: String, home: Boolean, progress: Float, ink: Color) = BoxWithConstraints(Modifier.fillMaxSize()) {
-    Row(Modifier.fillMaxSize().padding(start = if (home) 112.dp else 28.dp,
+    Row(Modifier.fillMaxSize().padding(start = if (home) { if (maxWidth < 800.dp) 48.dp else 112.dp } else 28.dp,
         end = if (home) 0.dp else if (maxWidth < 360.dp) 20.dp else 48.dp), verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = if (home) Arrangement.SpaceBetween else Arrangement.Start) {
         if (!home) {
@@ -76,16 +76,25 @@ private fun ButtonFace(label: String, home: Boolean, progress: Float, ink: Color
         }
         LessonText(label, if (home) 120 else 40, ink, bold = true, maxLines = 1)
         if (!home) Spacer(Modifier.weight(1f))
-        if (home) Canvas(Modifier.fillMaxHeight().aspectRatio(1f).clearAndSetSemantics {}) {
+        if (home) {
+            val leaving = LocalHomeVisibility.current?.transition?.targetState == androidx.compose.animation.EnterExitState.PostExit
+            val turn by animateFloatAsState(if (leaving) 1f else progress, tween(440, delayMillis = if (leaving) 120 else 0, easing = CoachMotion.Shared), label = "start-arrow-morph")
+            Canvas(Modifier.fillMaxHeight().aspectRatio(1f).then(if (ink == CoachColors.Ink) Modifier.homeShared("home-start") else Modifier).clearAndSetSemantics {}) {
             val stroke = 4.dp.toPx()
-            if (ink == CoachColors.Ink) drawCircle(ink, size.minDimension / 2 - stroke, style = Stroke(stroke))
-            rotate(45f * progress) {
+            if (ink == CoachColors.Ink) {
+                val radius = size.height / 2
+                drawRoundRect(lerp(CoachColors.Paper, CoachColors.Ink, turn), cornerRadius = CornerRadius(radius))
+                drawRoundRect(CoachColors.Ink, topLeft = Offset(stroke, stroke), size = Size(size.width - 2 * stroke, size.height - 2 * stroke),
+                    cornerRadius = CornerRadius((radius - stroke).coerceAtLeast(0f)), style = Stroke(stroke))
+            }
+            rotate(45f * turn, pivot = Offset(size.minDimension / 2, size.minDimension / 2)) {
                 val s = size.minDimension
                 drawPath(Path().apply {
                     moveTo(s * .3f, s * .7f); lineTo(s * .7f, s * .3f)
                     moveTo(s * .39f, s * .3f); lineTo(s * .7f, s * .3f); lineTo(s * .7f, s * .61f)
-                }, ink, style = Stroke(12.dp.toPx(), cap = StrokeCap.Square, join = StrokeJoin.Miter))
+                }, if (leaving && ink == CoachColors.Ink) lerp(ink, CoachColors.Paper, turn) else ink, style = Stroke((size.minDimension * .04f).coerceAtMost(12.dp.toPx()), cap = StrokeCap.Square, join = StrokeJoin.Miter))
             }
         }
     }
+}
 }

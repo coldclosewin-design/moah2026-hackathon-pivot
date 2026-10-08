@@ -1,0 +1,6 @@
+JVM testDebugUnitTest: {'tests': 368, 'failures': 0, 'errors': 0, 'skipped': 0}
+Base: 769edfa62eedbf9faf8242c599eb1489c0e1bbc8
+Device: emulator-5556
+
+7c69741f001078cdcafcf83aea94f2dc129cfa7a48ba5ea21b87109b27fc3641  automotive/build/outputs/apk/debug/automotive-debug.apk
+ddb2e74d47fa2b02be52ab0a200ce2135b3e8d2c8e83ba04018a67eb74f92905  automotive/build/outputs/apk/androidTest/debug/automotive-debug-androidTest.apk
