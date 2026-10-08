@@ -775,7 +775,7 @@ class LessonScreenInstrumentation : Instrumentation() {
         click("코치와 대화")
         noInput(); check("보내기" !in texts() && "음성 입력 · 시뮬레이션" !in texts())
         val opening = setup().coach!!.cards
-        check(opening.size == 4)
+        check(opening.size == com.moah.hackathon.data.SpeechCards.all.count { it.stage == CardStage.OPENING })   // 10/8 카드 늘림 — 목록에서 센다
         val cardScale = designScale(activity)
         onMainChecked {
             val row = tagged("coach-speech-cards").boundsInWindow

@@ -100,6 +100,12 @@ object IntentRules {
     const val WORRY_LINE = "어디가 가장 걱정돼요?\n주차인지 도로인지 알려 주세요."
     const val MOVING_LINE = "세운 뒤에 이야기해요."
     const val NEAR_MISS_LINE = "많이 놀라셨죠.\n주차할 때였나요, 달릴 때였나요?"
+    /** "가르치다 싸웠어요" — 이 앱의 이야기("화내지 않는 조수석") 그대로 받는다. */
+    const val TEACH_LINE = "저는 화내지 않아요.\n어떤 게 제일 어려웠어요?"
+    const val FIRST_LINE = "천천히 같이 가요.\n시동 켜는 순서부터 볼까요?"
+    const val START_LINE = "점검부터 해요.\n가이드로 천천히 할까요?"
+    const val SHAKY_LINE = "떨리는 게 당연해요.\n어떤 순간이 제일 떨려요?"
+    const val SHORT_LINE = "좋아요, 짧게 해요.\n주차 하나만 해 볼까요?"
     const val KID_LINE = "주차부터 해 볼까요?\n아이를 태우려면 주차가 편해야 해요."
 
     /** 과제 제목 → 그 과제를 가리키는 말. 제목이 시드에 없으면 그 줄은 쓰이지 않는다. */
@@ -164,6 +170,18 @@ object IntentRules {
                 if (ctx.allows(pin)) return CoachReply("이것부터 해 봐요.\n${first.title.withObjectParticle()} ${first.suggested.label} 모드로 올려 둘게요.", pin)
             }
         }
+        // 모드만 말했으면(과제 없음) 지금 추천 과제를 그 모드로 — "힌트만 주세요"
+        MODE_WORDS.firstOrNull { (_, words) -> has(*words.toTypedArray()) }?.first?.let { mode ->
+            val first = ctx.tasks.firstOrNull { mode in it.modes }
+            val pin = first?.let { CoachIntent.PinTask(it.id, mode) }
+            if (first != null && pin != null && !has("처음") && ctx.allows(pin))
+                return CoachReply("좋아요.\n${first.title.withObjectParticle()} ${mode.label} 모드로 올려 둘게요.", pin)
+        }
+        if (has("싸웠", "화내", "혼났", "가르치")) return CoachReply(TEACH_LINE, CoachIntent.AskMore)
+        if (has("처음")) return CoachReply(FIRST_LINE, CoachIntent.AskMore)
+        if (has("떨려", "손이")) return CoachReply(SHAKY_LINE, CoachIntent.AskMore)
+        if (has("시동", "헷갈")) return CoachReply(START_LINE, CoachIntent.AskMore)
+        if (has("짧게", "조금만")) return CoachReply(SHORT_LINE, CoachIntent.AskMore)
         if (has("긁", "부딪", "뻔했")) return CoachReply(NEAR_MISS_LINE, CoachIntent.AskMore)
         if (has("등하원", "아이")) return CoachReply(KID_LINE, CoachIntent.AskMore)
 

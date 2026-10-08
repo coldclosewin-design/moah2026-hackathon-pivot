@@ -71,6 +71,15 @@ class SpeechCardsTest {
             "near-miss" to { it == CoachIntent.AskMore },
             "what-first" to { it is CoachIntent.PinTask && it.taskId == SeedCatalog.TASK_PARKING_REAR },
             "kid-school" to { it == CoachIntent.AskMore },
+            "fought" to { it == CoachIntent.AskMore },
+            "shaky" to { it == CoachIntent.AskMore },
+            "first-alone" to { it == CoachIntent.AskMore },
+            "short-today" to { it == CoachIntent.AskMore },
+            "start-confused" to { it == CoachIntent.AskMore },
+            "guide-check" to { it == CoachIntent.PinTask(SeedCatalog.TASK_PREDRIVE, LessonMode.GUIDE) },
+            "parking-hard" to { it == CoachIntent.OpenSheet(TaskType.PARKING) },
+            "lane-scary" to { it is CoachIntent.PinTask && it.taskId == "lane-change" },
+            "hint-only" to { it is CoachIntent.PinTask && it.mode == LessonMode.HINT },
             "parallel-hint" to { it == CoachIntent.PinTask(SeedCatalog.TASK_PARKING_PARALLEL, LessonMode.HINT) },
             "rear-again" to { it is CoachIntent.PinTask && it.taskId == SeedCatalog.TASK_PARKING_REAR },
             "mock-exam" to { it == CoachIntent.Booking(BookingOption.MOCK_EXAM) },
@@ -90,7 +99,7 @@ class SpeechCardsTest {
         val noBooking = IntentRules.reply("모의시험 볼래요", full.copy(bookingVenue = null, bookingOptions = emptyList())).intent
         assertTrue(noBooking.code, noBooking is CoachIntent.PinTask && noBooking.taskId == SeedCatalog.TASK_TRACK_EXAM)
         // 감정 카드의 되물음은 서로 다르다(같은 줄 반복이 아니게)
-        assertEquals(3, listOf("long-time", "near-miss", "kid-school").map { id -> IntentRules.reply(SpeechCards.all.first { it.id == id }.text, full).say }.toSet().size)
+        assertEquals(7, listOf("long-time", "near-miss", "kid-school", "fought", "shaky", "first-alone", "short-today").map { id -> IntentRules.reply(SpeechCards.all.first { it.id == id }.text, full).say }.toSet().size)
     }
 
     @Test
