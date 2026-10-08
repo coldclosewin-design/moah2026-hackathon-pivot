@@ -1,0 +1,1613 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>결과 화면 시안 — 회차 판정 · 오늘의 기록 · 진단서</title>
+<style>
+:root{
+  --onyx:#222526; --platinum:#E0E0E0; --graphite:#353A3E; --jet:#1A1A1A; --ash:#BFBFBF; --white:#FFFFFF;
+  --signal:#F52D48; --yellow:#F2C230; --chip:#F1F1F1; --gw:#B3B5B7; --mu:#7a7e81;
+  --kr:"Noto Sans KR","Malgun Gothic",system-ui,sans-serif;
+  --num:"Segoe UI Variable Display","Bahnschrift",Arial,sans-serif;
+  --noise-lt:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#ECECEC;color:var(--onyx);font-family:var(--kr);line-height:1.5}
+.page{max-width:1560px;margin:0 auto;padding:40px 24px 64px}
+.head h1{font-size:30px;font-weight:500;letter-spacing:-.01em}
+.head .lead{font-size:15px;color:#5a5e61;margin-top:6px;max-width:1340px}
+.chipline{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.chipline span{font-size:12px;padding:4px 12px;border-radius:14px;border:1px solid rgba(34,37,38,.25)}
+.chipline span.k{background:var(--onyx);color:var(--platinum);border-color:var(--onyx)}
+.rules{margin-top:18px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.rules div{background:#fff;border-radius:14px;padding:10px 14px;font-size:12.5px}
+.rules div>b:first-child{display:block;font-size:11px;letter-spacing:.08em;color:#6b6f72;font-weight:500;margin-bottom:2px}
+.famrow{display:grid;grid-template-columns:426px 1fr;gap:24px;margin-top:20px;align-items:start;background:#fff;border-radius:18px;padding:16px}
+.famrow h3{font-size:12px;letter-spacing:.08em;color:#6b6f72;font-weight:500}
+.famrow ul{padding-left:18px;font-size:13.5px;margin-top:4px}
+.famrow li{margin-top:3px}
+
+/* 화면 구역 머리 */
+.scrhead{margin-top:70px;background:var(--onyx);color:var(--platinum);border-radius:22px;padding:22px 28px;display:flex;gap:22px;align-items:center}
+.scrhead .L{font-family:var(--num);font-size:64px;line-height:1;font-weight:500;width:70px}
+.scrhead h2{font-size:28px;font-weight:500;color:#fff}
+.scrhead p{font-size:14px;color:var(--ash);margin-top:4px;max-width:1250px}
+.prop{margin-top:44px;padding-top:24px;border-top:1px solid rgba(34,37,38,.15)}
+.ph{display:flex;align-items:baseline;gap:14px}
+.ph .no{font-family:var(--num);font-size:36px;line-height:1;font-weight:600;min-width:52px}
+.ph h2{font-size:24px;font-weight:500}
+.ph .one{font-size:15px;color:#4a4e51;margin-top:3px}
+.row{display:grid;grid-template-columns:853px 1fr;gap:30px;margin-top:14px;align-items:start}
+.cap{font-size:12px;color:#6b6f72;letter-spacing:.04em;margin-bottom:6px}
+.cap b{color:var(--onyx);font-weight:500;margin-right:6px}
+.notes h3{font-size:12px;letter-spacing:.08em;color:#6b6f72;font-weight:500;margin-top:12px}
+.notes h3:first-child{margin-top:0}
+.notes ul{padding-left:18px;font-size:13.5px;margin-top:4px}
+.notes li{margin-top:3px}
+.eff{display:inline-block;font-size:12px;padding:2px 10px;border-radius:11px;background:var(--onyx);color:var(--platinum);margin-right:4px}
+.eff.m{background:#6b6f72}.eff.l{background:#fff;color:var(--onyx);box-shadow:0 0 0 1px rgba(0,0,0,.25)}
+.strip{display:grid;grid-template-columns:repeat(3,426px);gap:16px;margin-top:14px}
+.strip4{display:grid;grid-template-columns:repeat(4,358px);gap:16px;margin-top:14px}
+.fl{font-size:12px;color:#6b6f72;margin-bottom:5px}
+.fl b{display:inline-block;min-width:34px;height:20px;line-height:20px;padding:0 8px;margin-right:6px;border-radius:10px;background:var(--onyx);color:var(--platinum);font-weight:400;font-size:11px;text-align:center}
+.rec{margin-top:34px;background:var(--onyx);color:var(--platinum);border-radius:20px;padding:22px 28px}
+.rec .t{font-size:12px;letter-spacing:.14em;color:var(--ash)}
+.rec .t span{margin-left:10px;padding:2px 10px;border-radius:10px;background:var(--platinum);color:var(--onyx);letter-spacing:0}
+.rec h2{font-size:23px;font-weight:500;margin-top:8px;color:#fff}
+.rec p{font-size:14.5px;margin-top:8px;max-width:1340px}
+.rec ol{font-size:13.5px;margin-top:10px;padding-left:20px}
+.sum{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:14px;background:#fff;border-radius:14px;overflow:hidden}
+.sum th{font-weight:500;color:#555;font-size:12px;text-align:left;padding:8px 10px;background:#F6F6F6}
+.sum td{padding:7px 10px;border-top:1px solid rgba(34,37,38,.08);vertical-align:top}
+.sum tr.pick td{background:#222526;color:#E0E0E0}
+.sum tr.pick2 td{background:#E6E6E6}
+
+/* ===== 화면 목업 (1/3) ===== */
+.scr{position:relative;width:853px;height:423px;overflow:hidden;border-radius:8px;box-shadow:0 0 0 1px rgba(0,0,0,.18);font-family:var(--kr);background:#fff;color:var(--onyx)}
+.scr > *{position:absolute}
+.half{position:relative;width:426px;height:211px;overflow:hidden;border-radius:6px}
+.half > .scr{transform:scale(.4994);transform-origin:0 0}
+.mini{position:relative;width:358px;height:178px;overflow:hidden;border-radius:6px}
+.mini > .scr{transform:scale(.4197);transform-origin:0 0}
+.dk{background:var(--onyx);color:var(--platinum)}
+.lt{background:linear-gradient(165deg,#F0F0F0 0%,#D7D7D7 100%);color:var(--onyx)}
+.paper{background:var(--noise-lt),#EEECE7;color:var(--onyx)}
+.wm{font-family:var(--num);font-size:9px;letter-spacing:.32em;font-weight:500}
+.up{font-family:var(--num);text-transform:uppercase;letter-spacing:.14em;font-size:9.5px;color:var(--mu)}
+.dk .up,.kc .up{color:var(--ash)}
+.ey{font-size:11px;color:var(--mu)}
+.dk .ey{color:var(--ash)}
+.ttl{font-weight:500;letter-spacing:-.02em;line-height:1.18;color:var(--jet)}
+.dk .ttl,.kc .ttl{color:#fff}
+.sub{color:#7a7e81;line-height:1.35}
+.dk .sub,.kc .sub{color:var(--ash)}
+.gw{color:var(--gw)}
+.num{font-family:var(--num);font-weight:500;letter-spacing:-.03em;line-height:1}
+/* 큰 숫자 알약 (6 의 문법) */
+.bp{border:1.5px solid currentColor;border-radius:999px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.bp .n{font-family:var(--num);font-size:54px;line-height:1;letter-spacing:-.03em;font-weight:500}
+.bp .l{font-size:10.5px;letter-spacing:.1em;margin-top:5px;white-space:nowrap}
+.bp.dim{color:rgba(224,224,224,.45)}
+.bp.fill{background:var(--platinum);color:var(--onyx);border-color:var(--platinum)}
+.bp.dash{border-style:dashed}
+.bp.ink{color:var(--onyx)}
+.bp.inkfill{background:linear-gradient(180deg,#43474a 0%,#141516 55%,#0d0e0f 100%);color:#fff;border-color:transparent;box-shadow:0 12px 18px -8px rgba(0,0,0,.6)}
+/* 가로 판정 알약 */
+.vp{display:flex;align-items:center;gap:8px;height:34px;padding:0 14px 0 6px;border-radius:17px;font-size:13.5px;white-space:nowrap;border:1.5px solid currentColor}
+.vp i{font-style:normal;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none}
+.vp i svg{width:14px;height:14px}
+.vp small{font-size:10.5px;opacity:.7;margin-left:auto;padding-left:8px}
+.vp.dim{color:rgba(224,224,224,.5)}
+.vp.dim i{border:1.2px solid currentColor}
+.vp.fill{background:var(--platinum);color:var(--onyx);border-color:var(--platinum)}
+.vp.fill i{background:var(--onyx);color:var(--platinum)}
+.vp.wt{background:#fff;color:var(--onyx);border-color:transparent;box-shadow:0 2px 0 #222}
+.vp.wt i{background:var(--onyx);color:#fff}
+/* 판정 줄 */
+.vl{display:flex;flex-direction:column}
+.vl .h{font-size:10.5px;letter-spacing:.1em;color:var(--mu);margin-bottom:4px}
+.dk .vl .h,.kc .vl .h{color:var(--ash)}
+.vl .r{display:flex;align-items:center;justify-content:space-between;height:29px;font-size:14px;border-bottom:1px solid rgba(34,37,38,.1);white-space:nowrap}
+.dk .vl .r,.kc .vl .r{border-bottom-color:rgba(224,224,224,.14)}
+.vl .r small{font-size:10.5px;color:var(--mu);margin-left:6px}
+.dk .vl .r small,.kc .vl .r small{color:var(--ash)}
+.mk{width:17px;height:17px;flex:none}
+/* 버튼 */
+.btnk{display:flex;align-items:center;justify-content:center;gap:12px;height:44px;border-radius:22px;font-size:15px;color:#fff;background:linear-gradient(180deg,#43474a 0%,#141516 55%,#0d0e0f 100%);box-shadow:0 12px 18px -8px rgba(0,0,0,.6);white-space:nowrap}
+.btnp{display:flex;align-items:center;justify-content:center;height:44px;border-radius:22px;font-size:15px;color:var(--onyx);background:linear-gradient(180deg,#F4F4F4 0%,#E0E0E0 60%,#D2D2D2 100%);box-shadow:0 12px 20px -8px rgba(0,0,0,.75);white-space:nowrap}
+.btno{display:flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;border-radius:22px;font-size:14px;border:1.5px solid currentColor;white-space:nowrap}
+.btng{display:flex;align-items:center;gap:10px;height:44px;padding:0 18px 0 6px;border-radius:22px;font-size:14px;background:#fff;color:var(--onyx);box-shadow:0 1px 2px rgba(0,0,0,.08),0 2px 0 rgba(0,0,0,.12);white-space:nowrap}
+.btng i{font-style:normal;width:32px;height:32px;border-radius:50%;background:var(--chip);display:flex;align-items:center;justify-content:center}
+.dk .btng{background:transparent;color:var(--platinum);box-shadow:none;border:1.5px solid rgba(224,224,224,.6)}
+.dk .btng i{background:var(--graphite)}
+.lkp{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:14px;background:var(--chip);font-size:12px;white-space:nowrap}
+.lkp.w{background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.lkp.k{background:linear-gradient(180deg,#43474a,#0d0e0f);color:#fff}
+.dk .lkp,.kc .lkp{background:var(--graphite);color:var(--platinum)}
+.dk .lkp.k{background:var(--platinum);color:var(--onyx)}
+.lnk{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 16px;border-radius:20px;font-size:14px;white-space:nowrap;border:1.5px solid rgba(224,224,224,.55);color:var(--platinum)}
+.lnk.ink{border-color:rgba(34,37,38,.35);color:var(--onyx)}
+.lnk.wt{border:none;background:#fff;color:var(--onyx);box-shadow:0 1px 2px rgba(0,0,0,.08),0 2px 0 rgba(0,0,0,.12)}
+/* 정직성: 모양으로 구분 */
+.hon{display:flex;gap:12px;align-items:center;font-size:11.5px;white-space:nowrap;color:var(--mu)}
+.dk .hon,.kc .hon{color:var(--ash)}
+.hon span{display:inline-flex;align-items:center;gap:5px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;flex:none}
+.dot.live{background:currentColor}
+.dot.sim{border:1.5px solid currentColor;background:linear-gradient(90deg,currentColor 50%,transparent 50%)}
+.dot.miss{border:1.5px dashed currentColor}
+/* 표 */
+.tb{border-collapse:collapse;font-size:12px}
+.tb th{font-weight:400;font-size:9.5px;letter-spacing:.1em;color:var(--mu);text-align:left;padding:0 8px 5px 0;border-bottom:1px solid rgba(34,37,38,.2);white-space:nowrap}
+.tb td{padding:4px 8px 4px 0;border-bottom:1px solid rgba(34,37,38,.08);white-space:nowrap}
+.dk .tb th,.kc .tb th{color:var(--ash);border-bottom-color:rgba(224,224,224,.35)}
+.dk .tb td,.kc .tb td{border-bottom-color:rgba(224,224,224,.12)}
+.tb .rt{text-align:right}
+.tb .mu{color:var(--mu)}
+.dk .tb .mu{color:var(--ash)}
+/* 카드 */
+.wc{background:#fff;border-radius:22px;box-shadow:0 -8px 22px -6px rgba(0,0,0,.12),0 1px 0 rgba(0,0,0,.04)}
+.kc{background:var(--onyx);color:var(--platinum);border-radius:22px;box-shadow:0 -10px 26px -8px rgba(0,0,0,.35)}
+.gt{background:var(--graphite);border-radius:18px}
+.trk{display:flex;gap:4px;background:var(--chip);border-radius:999px;padding:3px}
+.trk span{flex:1;text-align:center;height:34px;line-height:34px;border-radius:17px;font-size:13.5px;color:#8a8d90;white-space:nowrap}
+.trk span.on{background:linear-gradient(180deg,#43474a 0%,#141516 55%,#0d0e0f 100%);color:#fff;box-shadow:0 9px 14px -7px rgba(0,0,0,.65)}
+.dk .trk{background:var(--graphite)}
+.dk .trk span{color:var(--ash)}
+.dk .trk span.on{background:var(--platinum);color:var(--onyx);box-shadow:0 8px 14px -6px rgba(0,0,0,.8)}
+/* 문장 속 노란 아이콘 알약 (화면마다 한 곳) */
+.ip{display:inline-flex;align-items:center;height:1em;padding:0 .12em;border-radius:999px;background:var(--onyx);vertical-align:-.12em}
+.ip svg{width:.82em;height:.82em}
+.yc{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px 0 3px;border-radius:14px;background:var(--onyx);color:#fff;font-size:12px;white-space:nowrap}
+.yc svg{width:22px;height:22px}
+/* 타일 (E1) */
+.tile{border-radius:14px;background:var(--graphite);display:flex;align-items:center;justify-content:center;color:#fff}
+
+/* ===== 움직임 (@keyframes) — 정지 캡처가 '끝 상태' 가 되도록 0% 를 끝 상태로 ===== */
+@keyframes draw{0%,30%{stroke-dashoffset:0}38%{stroke-dashoffset:520}92%,100%{stroke-dashoffset:0}}
+@keyframes carin{0%,30%{opacity:1}36%,80%{opacity:0}92%,100%{opacity:1}}
+.liveTrace .tr{stroke-dasharray:520;animation:draw 7s cubic-bezier(.2,.8,.2,1) infinite}
+.liveTrace .cr{animation:carin 7s ease infinite}
+@keyframes riseK{0%,30%{transform:translateY(0)}36%{transform:translateY(105%)}48%,100%{transform:translateY(0)}}
+@keyframes rowin{0%,30%{opacity:1;transform:none}36%,50%{opacity:0;transform:translateY(10px)}60%,100%{opacity:1;transform:none}}
+.liveRise .k{animation:riseK 6s cubic-bezier(.2,.8,.2,1) infinite}
+.liveRise .r1{animation:rowin 6s ease infinite}
+.liveRise .r2{animation:rowin 6s ease infinite;animation-delay:.16s}
+.liveRise .r3{animation:rowin 6s ease infinite;animation-delay:.32s}
+.liveRise .r4{animation:rowin 6s ease infinite;animation-delay:.48s}
+@keyframes peek{0%,30%{transform:translateY(0)}40%,75%{transform:translateY(-250px)}85%,100%{transform:translateY(0)}}
+.livePeek .k{animation:peek 7s cubic-bezier(.2,.8,.2,1) infinite}
+@keyframes riseW{0%,30%{transform:translateY(0)}36%{transform:translateY(110%)}50%,100%{transform:translateY(0)}}
+.liveSheet .k{animation:riseW 6s cubic-bezier(.2,.8,.2,1) infinite}
+.livebox{display:inline-block;margin-top:10px;background:#fff;border-radius:14px;padding:10px 12px}
+.livebox p{font-size:11.5px;color:#6b6f72;margin-bottom:6px}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="ok" viewBox="0 0 16 16"><path d="M3.5 8.4l2.9 2.9 6-6.3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="okc" viewBox="0 0 18 18"><circle cx="9" cy="9" r="7.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M5.4 9.2l2.4 2.4 4.8-5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="tri" viewBox="0 0 16 16"><path d="M8 3 L13.5 12.6 H2.5 Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+    <symbol id="tric" viewBox="0 0 18 18"><circle cx="9" cy="9" r="7.6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2.4 2"/><path d="M9 5.2 L12.6 11.8 H5.4 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></symbol>
+    <symbol id="ybars" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#F2C230"/><rect x="5" y="11" width="2.6" height="4" rx="1" fill="#1A1A1A"/><rect x="8.7" y="8" width="2.6" height="7" rx="1" fill="#1A1A1A"/><rect x="12.4" y="5" width="2.6" height="10" rx="1" fill="#1A1A1A"/></symbol>
+    <symbol id="ytick" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#F2C230"/><path d="M5.6 10.4l3 3 5.8-6" fill="none" stroke="#1A1A1A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="ydoc" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#F2C230"/><rect x="6" y="4.6" width="8" height="10.8" rx="1.6" fill="none" stroke="#1A1A1A" stroke-width="1.6"/><path d="M8 8.4h4M8 11.2h2.6" stroke="#1A1A1A" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="yflag" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#F2C230"/><path d="M7 15V5.2M7 5.6h6.6l-1.6 2.4 1.6 2.4H7" fill="none" stroke="#1A1A1A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <!-- V4 차 (위에서) -->
+    <symbol id="carD" viewBox="-38 -19 76 38"><rect x="-35" y="-16" width="70" height="32" rx="14" fill="#222526" stroke="#E0E0E0" stroke-width="3.2"/><rect x="-20" y="-10" width="30" height="20" rx="6" fill="none" stroke="#E0E0E0" stroke-width="3.2"/><path d="M22 -9 V9" stroke="#E0E0E0" stroke-width="3.2" stroke-linecap="round"/></symbol>
+    <symbol id="carL" viewBox="-38 -19 76 38"><rect x="-35" y="-16" width="70" height="32" rx="14" fill="#fff" stroke="#222526" stroke-width="3.2"/><rect x="-20" y="-10" width="30" height="20" rx="6" fill="none" stroke="#222526" stroke-width="3.2"/><path d="M22 -9 V9" stroke="#222526" stroke-width="3.2" stroke-linecap="round"/></symbol>
+    <!-- V4 궤적: 어두운 판 -->
+    <symbol id="trajD" viewBox="10 10 340 236">
+      <rect x="36" y="94" width="108" height="56" rx="6" fill="#E0E0E0" opacity=".07"/>
+      <g stroke="#E0E0E0" stroke-width="3.2" stroke-linecap="round"><path d="M34 32 H146"/><path d="M34 92 H146"/><path d="M34 152 H146"/><path d="M34 212 H146"/></g>
+      <path d="M290 205 L290 170 C290 134 262 122 215 122 L92 122" fill="none" stroke="#BFBFBF" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="0.1 9"/>
+      <g transform="translate(290 205) rotate(90)" opacity=".35"><rect x="-35" y="-16" width="70" height="32" rx="14" fill="none" stroke="#E0E0E0" stroke-width="3.2" stroke-dasharray="5 5"/></g>
+      <use href="#carD" x="-38" y="-19" width="76" height="38" transform="translate(92 122)"/>
+    </symbol>
+    <!-- V4 궤적: 밝은 판 -->
+    <symbol id="trajL" viewBox="10 10 340 236">
+      <rect x="36" y="94" width="108" height="56" rx="6" fill="#222526" opacity=".05"/>
+      <g stroke="#222526" stroke-width="3.2" stroke-linecap="round"><path d="M34 32 H146"/><path d="M34 92 H146"/><path d="M34 152 H146"/><path d="M34 212 H146"/></g>
+      <path d="M290 205 L290 170 C290 134 262 122 215 122 L92 122" fill="none" stroke="#9a9da0" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="0.1 9"/>
+      <g transform="translate(290 205) rotate(90)" opacity=".35"><rect x="-35" y="-16" width="70" height="32" rx="14" fill="none" stroke="#222526" stroke-width="3.2" stroke-dasharray="5 5"/></g>
+      <use href="#carL" x="-38" y="-19" width="76" height="38" transform="translate(92 122)"/>
+    </symbol>
+    <!-- 장내 코스 (어두운 판) -->
+    <symbol id="courseD" viewBox="20 0 340 240">
+      <path d="M60 215 L60 80 Q60 50 90 50 L280 50 Q310 50 310 80 L310 185 Q310 215 280 215 L150 215 Q120 215 120 185 L120 150" fill="none" stroke="#E0E0E0" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/>
+      <g stroke="#E0E0E0" stroke-width="2.2"><path d="M150 18 V44"/><path d="M172 18 V44"/><path d="M194 18 V44"/><path d="M216 18 V44"/></g>
+      <path d="M52 120 h16 M52 130 h16" stroke="#BFBFBF" stroke-width="2"/>
+      <path d="M200 205 v20 M208 205 v20 M216 205 v20" stroke="#BFBFBF" stroke-width="2"/>
+      <circle cx="310" cy="110" r="7" fill="none" stroke="#BFBFBF" stroke-width="2"/>
+      <g font-family="Noto Sans KR, Malgun Gothic" font-size="15" fill="#BFBFBF"><text x="183" y="13" text-anchor="middle">직각 주차</text><text x="74" y="236">출발</text><text x="134" y="146">종료</text><text x="72" y="114">경사로</text><text x="208" y="200" text-anchor="middle">돌발</text><text x="300" y="134" text-anchor="end">신호</text></g>
+      <use href="#carD" x="-38" y="-19" width="76" height="38" transform="translate(120 160) rotate(-90) scale(.5)"/>
+    </symbol>
+    <symbol id="courseL" viewBox="20 0 340 240">
+      <path d="M60 215 L60 80 Q60 50 90 50 L280 50 Q310 50 310 80 L310 185 Q310 215 280 215 L150 215 Q120 215 120 185 L120 150" fill="none" stroke="#222526" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/>
+      <g stroke="#222526" stroke-width="2.2"><path d="M150 18 V44"/><path d="M172 18 V44"/><path d="M194 18 V44"/><path d="M216 18 V44"/></g>
+      <path d="M52 120 h16 M52 130 h16" stroke="#9a9da0" stroke-width="2"/>
+      <path d="M200 205 v20 M208 205 v20 M216 205 v20" stroke="#9a9da0" stroke-width="2"/>
+      <circle cx="310" cy="110" r="7" fill="none" stroke="#9a9da0" stroke-width="2"/>
+      <g font-family="Noto Sans KR, Malgun Gothic" font-size="15" fill="#7a7e81"><text x="183" y="13" text-anchor="middle">직각 주차</text><text x="74" y="236">출발</text><text x="134" y="146">종료</text><text x="72" y="114">경사로</text><text x="208" y="200" text-anchor="middle">돌발</text><text x="300" y="134" text-anchor="end">신호</text></g>
+      <use href="#carL" x="-38" y="-19" width="76" height="38" transform="translate(120 160) rotate(-90) scale(.5)"/>
+    </symbol>
+  </defs>
+</svg>
+<div class="page">
+
+<header class="head">
+  <h1>4 · 결과 화면 — 회차 판정 · 오늘의 기록 · 진단서, 화면마다 일곱 안</h1>
+  <p class="lead">라운드 27 에서 <b>자세히 보기 = 6 전 → 후 쌍 알약</b>(어두운 Onyx 판 · 지난 값 흐린 테두리 알약 · 지금 값 Platinum 채운 알약 · 사이 변화량 칩 · 오른쪽 촘촘한 표 · 정직성 줄)으로 확정됐다. 이 페이지는 그 앞뒤 세 화면 — <b>회차 판정(Done)</b> · <b>오늘의 기록(Report)</b> · <b>진단서</b> — 을 색 교체가 아니라 <b>배치 · 구성 요소 · 정보 위계 · 움직임</b>부터 새로 짠 대안이다. 모든 안이 같은 데이터·문구를 쓴다. 차 그림은 V4 기하(둥근 사각 + 실내 사각 + 앞 유리 선, 같은 굵기 선).</p>
+  <div class="chipline">
+    <span class="k">화면 목업 = 2560×1268 dp 의 1/3 (853×423) · 실제 화면은 약 3배</span>
+    <span>작은 판(426×211) = 같은 안의 다른 과제 판정 · 프레임 띠 = 0 · ⅓ · ⅔ · 끝</span>
+    <span>숫자 글꼴 흉내: Segoe UI Variable Display — 앱 글꼴 후보 Roboto Flex / OFL 그로테스크</span>
+    <span>한국어: Noto Sans KR</span>
+  </div>
+  <div class="rules">
+    <div><b>지키는 것 · 숫자</b>세 화면은 숫자가 허용되는 결과 화면이다(회차 · 점수 · 신호 개수 · 기간). 그러나 <b>코치 문장(제목 + 한 마디)에는 숫자 0</b> — "한 번에 들어갔어요." · "갈수록 좋아졌어요." 그대로.</div>
+    <div><b>지키는 것 · 정직성</b>실신호 · 시뮬레이션 · 미측정은 색이 아니라 <b>모양</b>: <span class="dot live" style="color:#222"></span> 꽉 찬 점 · <span class="dot sim" style="color:#222"></span> 반 찬 점 · <span class="dot miss" style="color:#222"></span> 점선 고리. 궤적엔 "신호로 추정한 궤적이에요", 진단서엔 "예시" 가 늘 붙는다.</div>
+    <div><b>지키는 것 · 버튼</b><code>한 번 더 →</code> · <code>오늘은 여기까지</code> · <code>메인으로 →</code> · <code>자세히 보기</code> · <code>진단서</code> · <code>← 돌아가기</code> · <code>공유 예시 보기</code> 이름·흐름 그대로. 누르는 높이 44px(= 132 dp, 기준 112 dp↑). 세 화면 모두 정차 상태(Done = "다 됐어요" 뒤, Report = 운전석 도어 열림).</div>
+    <div><b>데이터 (모든 안 공통)</b>주차 › 후면 직각 주차 · 힌트 모드 · 2회차 · 판정 넷 ✓(1회차는 △ 셋 · ✓ 하나) · 숙련 60→100 · 안전 55→100 · 실신호 7 · 시뮬레이션 1 · 미측정 0 / 점검 7 항목 / 모의시험 1회차 70 불합격 → 2회차 100 합격 · 합격선 80 · 시뮬레이션 17</div>
+  </div>
+  <div class="famrow">
+    <div>
+      <div class="half"><div class="scr dk">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="up" style="left:28px;top:44px">자세히 보기 · 1회차 → 2회차</div>
+        <div class="up" style="left:120px;top:72px">1회차</div>
+        <div class="up" style="left:392px;top:72px;color:var(--platinum)">2회차</div>
+        <div style="left:28px;top:118px;font-size:14px">숙련<br><span style="font-size:9.5px;color:var(--ash);letter-spacing:.12em">SKILL</span></div>
+        <div class="bp dim" style="left:90px;top:96px;width:150px;height:84px"><span class="n">60</span></div>
+        <div style="left:244px;top:137px;width:110px;height:1.5px;background:rgba(224,224,224,.5)"></div>
+        <div style="left:270px;top:126px;height:22px;line-height:22px;padding:0 10px;border-radius:11px;background:var(--graphite);font-size:11px">+40</div>
+        <div class="bp fill" style="left:358px;top:96px;width:180px;height:84px"><span class="n">100</span></div>
+        <div style="left:28px;top:218px;font-size:14px">안전<br><span style="font-size:9.5px;color:var(--ash);letter-spacing:.12em">SAFETY</span></div>
+        <div class="bp dim" style="left:90px;top:196px;width:150px;height:84px"><span class="n">55</span></div>
+        <div style="left:244px;top:237px;width:110px;height:1.5px;background:rgba(224,224,224,.5)"></div>
+        <div style="left:270px;top:226px;height:22px;line-height:22px;padding:0 10px;border-radius:11px;background:var(--graphite);font-size:11px">+45</div>
+        <div class="bp fill" style="left:358px;top:196px;width:180px;height:84px"><span class="n">100</span></div>
+        <table class="tb" style="left:575px;top:72px;width:250px;font-size:12px">
+          <tr><th>항목</th><th class="rt">1회차</th><th></th><th class="rt">2회차</th></tr>
+          <tr><td>이동</td><td class="rt mu">4회</td><td class="mu">→</td><td class="rt">2회</td></tr>
+          <tr><td>시간</td><td class="rt mu">51초</td><td class="mu">→</td><td class="rt">35초</td></tr>
+          <tr><td>조향 왕복</td><td class="rt mu">3</td><td class="mu">→</td><td class="rt">1</td></tr>
+          <tr><td>기어 전환</td><td class="rt mu">2</td><td class="mu">→</td><td class="rt">0</td></tr>
+          <tr><td>근접</td><td class="rt mu">1</td><td class="mu">→</td><td class="rt">0</td></tr>
+          <tr><td>급정지</td><td class="rt mu">1</td><td class="mu">→</td><td class="rt">0</td></tr>
+          <tr><td>방향 편차</td><td class="rt mu">16°</td><td class="mu">→</td><td class="rt">1°</td></tr>
+        </table>
+        <div style="left:28px;right:28px;top:302px;height:1px;background:rgba(224,224,224,.28)"></div>
+        <div style="left:28px;top:316px;font-size:13.5px;color:#fff">다음엔 후면 직각 주차 · 힌트 — 틀린 순간에만 말할게요.</div>
+        <div class="hon" style="left:28px;top:346px;font-size:10.5px;gap:10px"><span><i class="dot live"></i>실신호 7</span><span><i class="dot sim"></i>시뮬레이션 1</span><span><i class="dot miss"></i>미측정 0</span><span>· 주차 과정만 측정했어요.</span></div>
+        <div class="btng" style="left:28px;top:368px;height:42px"><i>←</i>돌아가기</div>
+      </div></div>
+    </div>
+    <div>
+      <h3>가족 기준 · 확정된 자세히 보기(27-3 6안, 바꾸지 않음)</h3>
+      <ul>
+        <li>이 페이지의 모든 안은 이 판에서 <b>다섯 가지</b>를 물려받는다 — ① Onyx 판(또는 연회색 바탕 위 Onyx 카드) ② 흐린 테두리 알약 = 지난 것 · Platinum 채운 알약 = 지금 것 ③ 작은 대문자 라벨(SKILL · SAFETY) ④ 모양으로 구분하는 정직성 점 ⑤ 흰 테두리 알약 <code>← 돌아가기</code>.</li>
+        <li>판정 표시 문법 하나로 통일: <b>✓ = 실선 원 안 체크</b> · <b>△ = 점선 원 안 세모</b> · <b>— = 점선 고리(알 수 없음)</b>. 색이 아니라 모양 — 정직성 점과 같은 규칙.</li>
+        <li>노란 포인트 <span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:#F2C230;vertical-align:-1px"></span> 는 <b>화면마다 한 곳</b>(문장 속 아이콘 알약 또는 "예시" 표지). Signal 빨강은 결과 화면에 쓰지 않는다(경고 아님).</li>
+        <li>회차 판정 → 오늘의 기록 → 자세히 보기 → 진단서는 <b>같은 판이 이어지는 느낌</b>이어야 한다 — 그래서 안마다 "6 으로 넘어갈 때 무엇이 그대로 남는가" 를 적었다.</li>
+      </ul>
+    </div>
+  </div>
+</header>
+
+<style>.pn > *{position:absolute}</style>
+<!-- ======================================================= A ======================================================= -->
+<div class="scrhead"><div class="L">A</div><div><h2>회차 판정 (Done) — "다 됐어요" 바로 뒤</h2><p>들어가는 것: V4 궤적("신호로 추정한 궤적이에요") · 판정 넷 ✓/△ · 회차 멘트(제목 + 한 마디, 숫자 0) · <code>한 번 더 →</code>(주) · <code>오늘은 여기까지</code> · 과제 줄 <code>주차 › 후면 직각 주차 · 힌트 모드 · 2회차</code>. 같은 문법이 출발 전 점검 Done · 모의시험 Done(합격/불합격)에도 맞아야 한다 — 몇 안은 작은 판 셋으로 함께 그렸다. 지금 앱 = 왼쪽 어두운 궤적판 + 오른쪽 흰 면(<code>lesson-done.png</code>).</p></div></div>
+
+<!-- A1 -->
+<section class="prop">
+  <div class="ph"><span class="no">A1</span><div><h2>두 판 — 궤적판 + 흰 카드</h2><p class="one">지금 배치(왼쪽 어두운 판 · 오른쪽 밝은 면)를 그대로 두고, 오른쪽을 "연회색 바탕 위 흰 카드" 로, 버튼을 검은 입체 알약으로. 가장 덜 바꾸는 기준선.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>주차 · 2회차</b>왼쪽 Onyx 판 390 · 오른쪽 흰 카드</p>
+      <div class="scr">
+        <div class="pn dk" style="left:0;top:0;width:390px;height:423px">
+          <div class="wm" style="left:24px;top:22px">DRIVE COACH</div>
+          <div class="up" style="left:24px;top:42px">궤적 · TRACE</div>
+          <svg style="left:50px;top:56px" width="270" height="187"><use href="#trajD"/></svg>
+          <div style="left:24px;top:246px;font-size:11.5px;color:var(--ash);line-height:1.45">신호로 추정한 궤적이에요.<br>실제 위치와 다를 수 있어요.</div>
+          <div class="vl" style="left:24px;top:290px;width:342px">
+            <div class="r">한 번에 들어갔어요<svg class="mk"><use href="#okc"/></svg></div>
+            <div class="r"><span>방향은 맞게 섰어요<small>신호로 추정</small></span><svg class="mk"><use href="#okc"/></svg></div>
+            <div class="r">마무리가 깔끔했어요<svg class="mk"><use href="#okc"/></svg></div>
+            <div class="r" style="border-bottom:none">안전했어요<svg class="mk"><use href="#okc"/></svg></div>
+          </div>
+        </div>
+        <div class="lt" style="left:390px;top:0;width:463px;height:423px"></div>
+        <div class="wc" style="left:408px;top:18px;width:427px;height:387px"></div>
+        <div class="ey" style="left:432px;top:40px">회차 판정</div>
+        <div style="left:432px;top:62px;display:flex;gap:6px"><span class="lkp">주차 › 후면 직각 주차</span><span class="lkp">힌트 모드</span><span class="lkp k">2회차</span></div>
+        <div class="ttl" style="left:432px;top:148px;font-size:38px">한 번에 들어갔어요.</div>
+        <div class="sub" style="left:432px;top:198px;font-size:17px">이 감각 그대로 한 번만 더 해 봐요.</div>
+        <div class="btnk" style="left:432px;top:340px;width:240px">한 번 더 →</div>
+        <div class="btno" style="left:684px;top:340px;width:131px;font-size:13.5px;border-color:rgba(34,37,38,.35)">오늘은 여기까지</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>지금 화면과 자리 하나하나가 같아 <b>캡처·계측 태그·시연 대본이 그대로 산다</b>. 바뀌는 건 카드 · 칩 · 입체 알약뿐.</li>
+        <li>왼쪽 Onyx 판은 6(자세히 보기)의 바탕과 같은 판 — "결과 판" 의 첫 장으로 이어진다.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><span class="eff">공수 작음</span> 사용자가 "색만 바뀐 느낌" 이라 한 바로 그 유형 — 기준선으로만 둔다.</li>
+        <li>운전 중 가독성: 정차 화면이라 문제 없음. 제목 38px(114 dp) · 판정 줄 14px(42 dp).</li>
+        <li>정직성: 궤적 아래 두 줄 + "신호로 추정" 꼬리표. 신호 출처 점은 이 화면에 없다(Report 로).</li>
+        <li>6 으로 넘어갈 때 남는 것: 왼쪽 Onyx 판만.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- A2 -->
+<section class="prop">
+  <div class="ph"><span class="no">A2</span><div><h2>판정 알약 넷 — 한 장 Onyx</h2><p class="one">화면 전체가 6 과 같은 Onyx 판. 판정 넷이 <b>Platinum 채운 큰 알약 2×2</b> 가 되고(✓ = 채움 · △ = 흐린 테두리), 궤적은 왼쪽 아래 둥근 타일로 작아진다. 판정이 주인공.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>주차 · 2회차</b>판정 알약 2×2 · 궤적 타일</p>
+      <div class="scr dk">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="up" style="left:28px;top:44px">회차 판정 · VERDICT</div>
+        <div style="left:28px;top:66px;display:flex;gap:6px"><span class="lkp">주차 › 후면 직각 주차</span><span class="lkp">힌트 모드</span><span class="lkp k">2회차</span></div>
+        <div class="ttl" style="left:28px;top:108px;font-size:34px">한 번에 들어갔어요.</div>
+        <div class="sub" style="left:28px;top:154px;font-size:15.5px">이 감각 그대로 한 번만 더 해 봐요.</div>
+        <div class="gt" style="left:28px;top:196px;width:304px;height:148px"></div>
+        <svg style="left:36px;top:204px" width="190" height="132"><use href="#trajD"/></svg>
+        <div style="left:236px;top:262px;width:88px;font-size:11px;line-height:1.4;color:var(--ash)">신호로 추정한 궤적이에요.</div>
+        <div class="up" style="left:360px;top:46px">마지막 판정 · 2회차</div>
+        <div class="bp fill" style="left:360px;top:66px;width:226px;height:78px"><svg class="mk" style="width:22px;height:22px"><use href="#okc"/></svg><span style="font-size:14.5px;margin-top:3px">한 번에 들어갔어요</span></div>
+        <div class="bp fill" style="left:598px;top:66px;width:226px;height:78px"><svg class="mk" style="width:22px;height:22px"><use href="#okc"/></svg><span style="font-size:14.5px;margin-top:3px">방향은 맞게 섰어요</span><span class="l" style="margin-top:1px">신호로 추정</span></div>
+        <div class="bp fill" style="left:360px;top:154px;width:226px;height:78px"><svg class="mk" style="width:22px;height:22px"><use href="#okc"/></svg><span style="font-size:14.5px;margin-top:3px">마무리가 깔끔했어요</span></div>
+        <div class="bp fill" style="left:598px;top:154px;width:226px;height:78px"><svg class="mk" style="width:22px;height:22px"><use href="#okc"/></svg><span style="font-size:14.5px;margin-top:3px">안전했어요</span></div>
+        <div class="hon" style="left:360px;top:250px"><span><i class="dot live"></i>실신호 7</span><span><i class="dot sim"></i>시뮬레이션 1</span><span><i class="dot miss"></i>미측정 0</span><span>· 주차 과정만 측정했어요.</span></div>
+        <div style="left:360px;right:28px;top:286px;height:1px;background:rgba(224,224,224,.24)"></div>
+        <div class="btnp" style="left:360px;top:352px;width:290px">한 번 더 →</div>
+        <div class="btno" style="left:662px;top:352px;width:163px;font-size:13.5px">오늘은 여기까지</div>
+        <div class="ey" style="left:28px;top:362px;font-size:11.5px">△ 가 있으면 그 알약만 흐린 테두리로 — 아래 작은 판</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li><b>6 과 같은 판 · 같은 알약</b> — Done → Report → 자세히 보기가 한 벌로 보인다. 채운 알약 = 좋았던 것, 흐린 알약 = 다시 볼 것 — 6 의 "지금 = 채움, 지난 = 흐림" 과 같은 뜻.</li>
+        <li>판정 넷이 화면의 절반 — "어땠는지" 가 문장을 읽기 전에 보인다. 신호 출처 줄도 Done 에서 처음 보인다.</li>
+        <li>같은 틀이 점검(항목 알약 일곱) · 모의시험(0–100 자 위 알약)으로 바로 바뀐다 — 아래 작은 판.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><span class="eff m">공수 중간</span> 화면 한 장 새 배치 + 판정 알약 컴포넌트(크기 둘). 궤적 그림은 크기만 줄임.</li>
+        <li>가독성: 알약 글자 14.5px(44 dp) · 제목 34px(102 dp) — 제목이 지금보다 작다. 정차 화면이라 괜찮지만 132 dp 로 올리려면 과제 칩을 위 띠로.</li>
+        <li>정직성: "신호로 추정" 을 알약 안 작은 대문자 줄로 — 알약 크기 때문에 지금보다 더 잘 보인다.</li>
+        <li>궤적이 작아져 "칸에 들어간 모습" 의 감정 효과가 줄어든다.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="strip">
+    <div><p class="fl"><b>점검</b>출발 전 점검 · 1회차 — 항목 알약 일곱</p><div class="half"><div class="scr dk">
+      <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+      <div class="up" style="left:28px;top:44px">회차 판정 · VERDICT</div>
+      <div style="left:28px;top:66px;display:flex;gap:6px"><span class="lkp">점검 › 출발 전 점검</span><span class="lkp">힌트 모드</span><span class="lkp k">1회차</span></div>
+      <div class="ttl" style="left:28px;top:108px;font-size:34px">출발 준비를 했어요.</div>
+      <div class="sub" style="left:28px;top:154px;font-size:15.5px">이 순서 그대로 몸에 남겨 두세요.</div>
+      <div class="gt" style="left:28px;top:196px;width:304px;height:148px"></div>
+      <div class="bp" style="left:56px;top:222px;width:150px;height:96px;color:var(--platinum)"><span class="n" style="font-size:46px">7/7</span><span class="l">확인한 항목</span></div>
+      <div style="left:220px;top:250px;width:100px;font-size:11px;line-height:1.4;color:var(--ash)">순서대로 다 확인했어요.</div>
+      <div class="up" style="left:360px;top:46px">항목 · CHECK</div>
+      <div style="left:360px;top:66px;width:465px;display:grid;grid-template-columns:1fr 1fr;gap:8px 12px">
+        <div class="vp fill"><i><svg><use href="#ok"/></svg></i>도어</div><div class="vp fill"><i><svg><use href="#ok"/></svg></i>안전벨트</div>
+        <div class="vp fill"><i><svg><use href="#ok"/></svg></i>기어</div><div class="vp fill"><i><svg><use href="#ok"/></svg></i>브레이크 / 시동</div>
+        <div class="vp fill"><i><svg><use href="#ok"/></svg></i>좌 지시등</div><div class="vp fill"><i><svg><use href="#ok"/></svg></i>우 지시등</div>
+        <div class="vp fill"><i><svg><use href="#ok"/></svg></i>비상등</div>
+      </div>
+      <div class="hon" style="left:360px;top:250px"><span><i class="dot live"></i>실신호 7</span><span><i class="dot sim"></i>시뮬레이션 0</span><span><i class="dot miss"></i>미측정 0</span></div>
+      <div style="left:360px;right:28px;top:286px;height:1px;background:rgba(224,224,224,.24)"></div>
+      <div class="btnp" style="left:360px;top:352px;width:290px">한 번 더 →</div>
+      <div class="btno" style="left:662px;top:352px;width:163px;font-size:13.5px">오늘은 여기까지</div>
+    </div></div></div>
+    <div><p class="fl"><b>합격</b>모의시험 · 2회차 — 0–100 자 위 채운 알약</p><div class="half"><div class="scr dk">
+      <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+      <div class="up" style="left:28px;top:44px">회차 판정 · VERDICT</div>
+      <div style="left:28px;top:66px;display:flex;gap:6px"><span class="lkp">주행 › 장내기능 모의시험</span><span class="lkp">평가 모드</span><span class="lkp k">2회차</span></div>
+      <div class="ttl" style="left:28px;top:108px;font-size:34px">감점 없이 합격이에요.</div>
+      <div class="sub" style="left:28px;top:154px;font-size:15.5px">이 흐름 그대로 한 번 더 해 봐요.</div>
+      <div class="gt" style="left:28px;top:196px;width:304px;height:148px"></div>
+      <svg style="left:40px;top:204px" width="190" height="134"><use href="#courseD"/></svg>
+      <div style="left:236px;top:256px;width:88px;font-size:11px;line-height:1.4;color:var(--ash)">지나간 자리 · 시험장 위치로 기록</div>
+      <div class="bp fill" style="left:695px;top:58px;width:130px;height:64px"><span class="n" style="font-size:36px">100</span><span class="l" style="margin-top:2px">합격</span></div>
+      <div style="left:360px;top:146px;width:465px;height:8px;border-radius:4px;background:var(--graphite)"></div>
+      <div style="left:360px;top:146px;width:465px;height:8px;border-radius:4px;background:rgba(224,224,224,.4)"></div>
+      <div style="left:732px;top:130px;width:1.5px;height:40px;background:var(--platinum)"></div>
+      <div class="up" style="left:690px;top:176px;width:84px;text-align:center;color:var(--platinum)">합격선 80</div>
+      <div class="up" style="left:358px;top:162px">0</div>
+      <div style="left:360px;top:206px;font-size:14px">감점 없음 · 다섯 구간 모두 통과</div>
+      <div class="hon" style="left:360px;top:250px"><span><i class="dot live"></i>실신호 0</span><span><i class="dot sim"></i>시뮬레이션 17</span><span><i class="dot miss"></i>미측정 0</span><span>· 시험장 시뮬레이션</span></div>
+      <div style="left:360px;right:28px;top:286px;height:1px;background:rgba(224,224,224,.24)"></div>
+      <div class="btnp" style="left:360px;top:352px;width:290px">한 번 더 →</div>
+      <div class="btno" style="left:662px;top:352px;width:163px;font-size:13.5px">오늘은 여기까지</div>
+    </div></div></div>
+    <div><p class="fl"><b>불합격</b>모의시험 · 1회차 — 흐린 알약 + 감점 표</p><div class="half"><div class="scr dk">
+      <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+      <div class="up" style="left:28px;top:44px">회차 판정 · VERDICT</div>
+      <div style="left:28px;top:66px;display:flex;gap:6px"><span class="lkp">주행 › 장내기능 모의시험</span><span class="lkp">평가 모드</span><span class="lkp k">1회차</span></div>
+      <div class="ttl" style="left:28px;top:108px;font-size:34px">합격선 조금 아래예요.</div>
+      <div class="sub" style="left:28px;top:154px;font-size:15.5px">경사로에선 가속 뒤 브레이크를 떼요.</div>
+      <div class="gt" style="left:28px;top:196px;width:304px;height:148px"></div>
+      <svg style="left:40px;top:204px" width="190" height="134"><use href="#courseD"/></svg>
+      <div style="left:236px;top:256px;width:88px;font-size:11px;line-height:1.4;color:var(--ash)">지나간 자리 · 시험장 위치로 기록</div>
+      <div class="bp dim" style="left:620px;top:58px;width:130px;height:64px"><span class="n" style="font-size:36px">70</span><span class="l" style="margin-top:2px">불합격</span></div>
+      <div style="left:360px;top:146px;width:465px;height:8px;border-radius:4px;background:var(--graphite)"></div>
+      <div style="left:360px;top:146px;width:326px;height:8px;border-radius:4px;background:rgba(224,224,224,.4)"></div>
+      <div style="left:732px;top:130px;width:1.5px;height:40px;background:var(--platinum)"></div>
+      <div class="up" style="left:690px;top:176px;width:84px;text-align:center;color:var(--platinum)">합격선 80</div>
+      <table class="tb" style="left:360px;top:198px;width:330px">
+        <tr><td>경사로</td><td>뒤로 밀림</td><td class="rt">−10</td></tr>
+        <tr><td>직각 주차</td><td>검지선 접촉</td><td class="rt">−10</td></tr>
+        <tr><td>돌발</td><td>비상등 미점등</td><td class="rt">−10</td></tr>
+      </table>
+      <div class="hon" style="left:360px;top:300px"><span><i class="dot live"></i>실신호 0</span><span><i class="dot sim"></i>시뮬레이션 17</span><span><i class="dot miss"></i>미측정 0</span></div>
+      <div class="btnp" style="left:360px;top:352px;width:290px">한 번 더 →</div>
+      <div class="btno" style="left:662px;top:352px;width:163px;font-size:13.5px">오늘은 여기까지</div>
+    </div></div></div>
+  </div>
+</section>
+
+<!-- A3 -->
+<section class="prop">
+  <div class="ph"><span class="no">A3</span><div><h2>궤적이 주인공 — 그려지는 길</h2><p class="one">화면 오른쪽 2/3 를 V4 궤적이 채운다. 들어오면 점선 위로 <b>가는 선이 그려지고 차가 칸에 멈춘다</b>(900 ms). 문장 · 버튼은 왼쪽 좁은 단, 판정 넷은 궤적 아래 두 줄.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>주차 · 2회차</b>실시간 — 선이 그려지고 차가 멈춘다(7 s 반복 · 정지 캡처는 끝 상태)</p>
+      <div class="scr dk liveTrace">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="up" style="left:28px;top:44px">회차 판정</div>
+        <div style="left:28px;top:66px;font-size:13px;color:var(--ash);line-height:1.55">주차 › 후면 직각 주차<br>힌트 모드 · <span style="color:#fff">2회차</span></div>
+        <div class="ttl" style="left:28px;top:124px;font-size:34px">한 번에<br>들어갔어요.</div>
+        <div class="sub" style="left:28px;top:212px;font-size:15px">이 감각 그대로<br>한 번만 더 해 봐요.</div>
+        <div class="btnp" style="left:28px;top:300px;width:252px">한 번 더 →</div>
+        <div class="btno" style="left:28px;top:354px;width:252px;font-size:14px">오늘은 여기까지</div>
+        <svg style="left:330px;top:10px" width="440" height="305" viewBox="10 10 340 236">
+          <rect x="36" y="94" width="108" height="56" rx="6" fill="#E0E0E0" opacity=".07"/>
+          <g stroke="#E0E0E0" stroke-width="2.4" stroke-linecap="round"><path d="M34 32 H146"/><path d="M34 92 H146"/><path d="M34 152 H146"/><path d="M34 212 H146"/></g>
+          <path d="M290 205 L290 170 C290 134 262 122 215 122 L92 122" fill="none" stroke="#BFBFBF" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="0.1 8"/>
+          <path class="tr" d="M290 205 L290 170 C290 134 262 122 215 122 L92 122" fill="none" stroke="#E0E0E0" stroke-width="1.2" stroke-linecap="round" opacity=".7"/>
+          <g transform="translate(290 205) rotate(90)" opacity=".35"><rect x="-35" y="-16" width="70" height="32" rx="14" fill="none" stroke="#E0E0E0" stroke-width="2.4" stroke-dasharray="5 5"/></g>
+          <g class="cr"><use href="#carD" x="-38" y="-19" width="76" height="38" transform="translate(92 122)"/></g>
+        </svg>
+        <div class="lkp" style="left:600px;top:24px">신호로 추정한 궤적이에요</div>
+        <div class="vl" style="left:330px;top:322px;width:495px;display:grid;grid-template-columns:1fr 1fr;column-gap:22px">
+          <div class="r">한 번에 들어갔어요<svg class="mk"><use href="#okc"/></svg></div>
+          <div class="r"><span>방향은 맞게 섰어요<small>신호로 추정</small></span><svg class="mk"><use href="#okc"/></svg></div>
+          <div class="r" style="border-bottom:none">마무리가 깔끔했어요<svg class="mk"><use href="#okc"/></svg></div>
+          <div class="r" style="border-bottom:none">안전했어요<svg class="mk"><use href="#okc"/></svg></div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>"칸에 들어갔다" 는 장면이 가장 크다 — 초보 운전자에게 <b>보상의 순간</b>. 시연 영상에서 가장 잘 찍힌다.</li>
+        <li>움직임이 한 번(그려짐 → 멈춤)이라 차분하다. 차가 멈추면 끝 — 반복하지 않는다(앱에서는 1회).</li>
+        <li>궤적 오른쪽 위 칩이 정직성 문장을 그림 바로 위에 붙인다.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><span class="eff m">공수 중간</span> 궤적 Canvas 를 크게 + 경로 그리기 애니메이션(PathMeasure 로 잘라 그리기) 하나.</li>
+        <li>제목이 두 줄 34px — 왼쪽 단이 좁아 문장 길이가 바뀌면 세 줄 위험(제목 12자 규칙이라 두 줄로 묶임).</li>
+        <li>정직성: 궤적이 크면 "정확한 위치" 로 오해될 수 있다 — 칩을 지우면 안 된다. 칸 안 반듯함은 모른다(카메라 없음) — 차를 칸 가운데 "정답 위치" 로 그리지 않고 추정 끝점에 둔다.</li>
+        <li>점검 · 모의시험엔 궤적 자리에 항목 목록 · 코스 지도 — 그림 크기 차이가 커서 세 과제가 덜 닮는다.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="strip4">
+    <div><p class="fl"><b>0</b>칸 선과 출발 자리만</p><div class="mini" style="background:#222526"><svg width="358" height="178" viewBox="-20 0 400 248"><g stroke="#E0E0E0" stroke-width="2.4" stroke-linecap="round"><path d="M34 32 H146"/><path d="M34 92 H146"/><path d="M34 152 H146"/><path d="M34 212 H146"/></g><use href="#carD" x="-38" y="-19" width="76" height="38" transform="translate(290 205) rotate(90)"/></svg></div></div>
+    <div><p class="fl"><b>⅓</b>선이 따라 그려짐 · 차가 돈다</p><div class="mini" style="background:#222526"><svg width="358" height="178" viewBox="-20 0 400 248"><g stroke="#E0E0E0" stroke-width="2.4" stroke-linecap="round"><path d="M34 32 H146"/><path d="M34 92 H146"/><path d="M34 152 H146"/><path d="M34 212 H146"/></g><path d="M290 205 L290 170 C290 134 262 122 215 122 L92 122" fill="none" stroke="#BFBFBF" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="0.1 8"/><path d="M290 205 L290 170 C290 134 262 122 215 122 L92 122" fill="none" stroke="#E0E0E0" stroke-width="1.2" stroke-dasharray="260" stroke-dashoffset="170" opacity=".7"/><use href="#carD" x="-38" y="-19" width="76" height="38" transform="translate(257.7 127.1) rotate(17.3)"/></svg></div></div>
+    <div><p class="fl"><b>⅔</b>칸 입구 · 곧게</p><div class="mini" style="background:#222526"><svg width="358" height="178" viewBox="-20 0 400 248"><g stroke="#E0E0E0" stroke-width="2.4" stroke-linecap="round"><path d="M34 32 H146"/><path d="M34 92 H146"/><path d="M34 152 H146"/><path d="M34 212 H146"/></g><path d="M290 205 L290 170 C290 134 262 122 215 122 L92 122" fill="none" stroke="#BFBFBF" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="0.1 8"/><path d="M290 205 L290 170 C290 134 262 122 215 122 L92 122" fill="none" stroke="#E0E0E0" stroke-width="1.2" stroke-dasharray="260" stroke-dashoffset="30" opacity=".7"/><use href="#carD" x="-38" y="-19" width="76" height="38" transform="translate(116 122)"/></svg></div></div>
+    <div><p class="fl"><b>끝</b>칸 안에 멈춤 · 판정 줄이 뜬다</p><div class="mini" style="background:#222526"><svg width="358" height="178" viewBox="-20 0 400 248"><rect x="36" y="94" width="108" height="56" rx="6" fill="#E0E0E0" opacity=".07"/><g stroke="#E0E0E0" stroke-width="2.4" stroke-linecap="round"><path d="M34 32 H146"/><path d="M34 92 H146"/><path d="M34 152 H146"/><path d="M34 212 H146"/></g><path d="M290 205 L290 170 C290 134 262 122 215 122 L92 122" fill="none" stroke="#BFBFBF" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="0.1 8"/><path d="M290 205 L290 170 C290 134 262 122 215 122 L92 122" fill="none" stroke="#E0E0E0" stroke-width="1.2" opacity=".7"/><use href="#carD" x="-38" y="-19" width="76" height="38" transform="translate(92 122)"/></svg></div></div>
+  </div>
+</section>
+
+<!-- A4 -->
+<section class="prop">
+  <div class="ph"><span class="no">A4</span><div><h2>문장 판정 — 밝은 시트 문법</h2><p class="one">문장 시트(홈 과제 시트)와 같은 말투. 큰 문장 앞 <b>노란 체크 아이콘 알약</b>, 둘째 줄은 회색 약한 문장, 판정 넷은 <b>흰 알약 칩 + 아래 그림자</b>, 궤적은 오른쪽 흰 카드.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>주차 · 2회차</b>연회색 바탕 · 흰 칩 · 검은 입체 알약</p>
+      <div class="scr lt">
+        <div class="wm" style="left:28px;top:26px">DRIVE COACH</div>
+        <div class="ey" style="left:28px;top:70px">회차 판정</div>
+        <div class="ttl" style="left:28px;top:90px;font-size:42px"><span class="ip" style="font-size:42px"><svg><use href="#ytick"/></svg></span> 한 번에 들어갔어요.</div>
+        <div style="left:28px;top:146px;font-size:22px;color:#9a9da0;font-weight:500;letter-spacing:-.01em">이 감각 그대로 한 번만 더 해 봐요.</div>
+        <div style="left:28px;top:196px;display:flex;gap:6px"><span class="lkp w">주차 › 후면 직각 주차</span><span class="lkp w">힌트 모드</span><span class="lkp k">2회차</span></div>
+        <div style="left:28px;top:240px;width:520px;display:flex;flex-wrap:wrap;gap:10px">
+          <div class="vp wt"><i><svg><use href="#ok"/></svg></i>한 번에 들어갔어요</div>
+          <div class="vp wt"><i><svg><use href="#ok"/></svg></i>방향은 맞게 섰어요<small>신호로 추정</small></div>
+          <div class="vp wt"><i><svg><use href="#ok"/></svg></i>마무리가 깔끔했어요</div>
+          <div class="vp wt"><i><svg><use href="#ok"/></svg></i>안전했어요</div>
+        </div>
+        <div class="wc" style="left:566px;top:24px;width:262px;height:300px"></div>
+        <div class="up" style="left:584px;top:40px">궤적 · TRACE</div>
+        <svg style="left:580px;top:62px" width="234" height="162"><use href="#trajL"/></svg>
+        <div style="left:584px;top:240px;width:230px;font-size:11.5px;line-height:1.45;color:var(--mu)">신호로 추정한 궤적이에요.<br>실제 위치와 다를 수 있어요.</div>
+        <div class="hon" style="left:584px;top:290px;font-size:10.5px;gap:8px"><span><i class="dot live"></i>실신호 7</span><span><i class="dot sim"></i>시뮬 1</span><span><i class="dot miss"></i>미측정 0</span></div>
+        <div class="btng" style="left:28px;top:356px;width:200px"><i style="font-size:9px">■</i>오늘은 여기까지</div>
+        <div class="btnk" style="left:450px;top:356px;width:375px">한 번 더 →</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>사용자가 "딱 저렇게" 라고 한 <b>문장 시트와 같은 화면 문법</b> — 홈에서 고른 문장이 끝나고 같은 말투의 판정으로 돌아온다. 시작 → 판정이 한 짝.</li>
+        <li>판정 칩이 "누를 수 있는 낱말" 과 같은 흰 알약이라 <b>누르면 그 판정의 근거(자세히 보기의 해당 줄)로</b> 가는 연결을 나중에 붙일 수 있다.</li>
+        <li>노란 포인트 = 문장 앞 체크 하나. 결과 화면에서 유일한 색.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><span class="eff m">공수 중간</span> 화면 새 배치. 문장 · 칩 · 카드 컴포넌트는 홈 시트 것 재사용.</li>
+        <li><b>6 과는 판이 다르다</b>(밝음 → 어두움). 자세히 보기로 넘어갈 때 Onyx 카드가 아래에서 올라와 덮는 움직임(C1)으로 이어 줘야 한 가족으로 느껴진다.</li>
+        <li>흰 칩이 "누를 수 있다" 로 읽힌다 — 지금은 누르는 기능이 없으니 그림자를 빼 납작 칩으로 할지 결정 필요.</li>
+        <li>정직성: 궤적 카드 안에 출처 점 — 작다(10.5px). 실제 화면에서는 32 dp.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="strip">
+    <div><p class="fl"><b>점검</b>출발 전 점검 · 1회차</p><div class="half"><div class="scr lt">
+      <div class="wm" style="left:28px;top:26px">DRIVE COACH</div>
+      <div class="ey" style="left:28px;top:70px">회차 판정</div>
+      <div class="ttl" style="left:28px;top:90px;font-size:42px"><span class="ip" style="font-size:42px"><svg><use href="#ytick"/></svg></span> 출발 준비를 했어요.</div>
+      <div style="left:28px;top:146px;font-size:22px;color:#9a9da0;font-weight:500">이 순서 그대로 몸에 남겨 두세요.</div>
+      <div style="left:28px;top:196px;display:flex;gap:6px"><span class="lkp w">점검 › 출발 전 점검</span><span class="lkp w">힌트 모드</span><span class="lkp k">1회차</span></div>
+      <div style="left:28px;top:240px;width:520px;display:flex;flex-wrap:wrap;gap:10px">
+        <div class="vp wt"><i><svg><use href="#ok"/></svg></i>도어</div><div class="vp wt"><i><svg><use href="#ok"/></svg></i>안전벨트</div><div class="vp wt"><i><svg><use href="#ok"/></svg></i>기어</div><div class="vp wt"><i><svg><use href="#ok"/></svg></i>브레이크 / 시동</div><div class="vp wt"><i><svg><use href="#ok"/></svg></i>좌 지시등</div><div class="vp wt"><i><svg><use href="#ok"/></svg></i>우 지시등</div><div class="vp wt"><i><svg><use href="#ok"/></svg></i>비상등</div>
+      </div>
+      <div class="wc" style="left:566px;top:24px;width:262px;height:300px"></div>
+      <div class="up" style="left:584px;top:40px">확인 · CHECK</div>
+      <div class="num" style="left:584px;top:80px;font-size:96px">7<span style="color:#B3B5B7">/7</span></div>
+      <div style="left:584px;top:190px;font-size:13px;color:var(--mu)">순서대로 다 확인했어요.</div>
+      <div class="hon" style="left:584px;top:290px;font-size:10.5px;gap:8px"><span><i class="dot live"></i>실신호 7</span><span><i class="dot sim"></i>시뮬 0</span><span><i class="dot miss"></i>미측정 0</span></div>
+      <div class="btng" style="left:28px;top:356px;width:200px"><i style="font-size:9px">■</i>오늘은 여기까지</div>
+      <div class="btnk" style="left:450px;top:356px;width:375px">한 번 더 →</div>
+    </div></div></div>
+    <div><p class="fl"><b>합격</b>모의시험 · 2회차</p><div class="half"><div class="scr lt">
+      <div class="wm" style="left:28px;top:26px">DRIVE COACH</div>
+      <div class="ey" style="left:28px;top:70px">회차 판정</div>
+      <div class="ttl" style="left:28px;top:90px;font-size:42px"><span class="ip" style="font-size:42px"><svg><use href="#ytick"/></svg></span> 감점 없이 합격이에요.</div>
+      <div style="left:28px;top:146px;font-size:22px;color:#9a9da0;font-weight:500">이 흐름 그대로 한 번 더 해 봐요.</div>
+      <div style="left:28px;top:196px;display:flex;gap:6px"><span class="lkp w">주행 › 장내기능 모의시험</span><span class="lkp w">평가 모드</span><span class="lkp k">2회차</span></div>
+      <div style="left:28px;top:240px;width:520px;display:flex;flex-wrap:wrap;gap:10px">
+        <div class="vp wt"><i><svg><use href="#ok"/></svg></i>경사로</div><div class="vp wt"><i><svg><use href="#ok"/></svg></i>직각 주차</div><div class="vp wt"><i><svg><use href="#ok"/></svg></i>신호</div><div class="vp wt"><i><svg><use href="#ok"/></svg></i>가속</div><div class="vp wt"><i><svg><use href="#ok"/></svg></i>돌발</div>
+      </div>
+      <div class="wc" style="left:566px;top:24px;width:262px;height:300px"></div>
+      <svg style="left:584px;top:40px" width="226" height="160"><use href="#courseL"/></svg>
+      <div class="bp inkfill" style="left:584px;top:214px;width:150px;height:58px"><span class="n" style="font-size:32px">100</span><span class="l" style="margin-top:1px">합격 · 합격선 80</span></div>
+      <div class="hon" style="left:584px;top:290px;font-size:10.5px;gap:8px"><span><i class="dot sim"></i>시뮬레이션 17 · 시험장</span></div>
+      <div class="btng" style="left:28px;top:356px;width:200px"><i style="font-size:9px">■</i>오늘은 여기까지</div>
+      <div class="btnk" style="left:450px;top:356px;width:375px">한 번 더 →</div>
+    </div></div></div>
+    <div><p class="fl"><b>불합격</b>모의시험 · 1회차</p><div class="half"><div class="scr lt">
+      <div class="wm" style="left:28px;top:26px">DRIVE COACH</div>
+      <div class="ey" style="left:28px;top:70px">회차 판정</div>
+      <div class="ttl" style="left:28px;top:90px;font-size:42px"><span class="ip" style="font-size:42px"><svg><use href="#ytick"/></svg></span> 합격선 조금 아래예요.</div>
+      <div style="left:28px;top:146px;font-size:22px;color:#9a9da0;font-weight:500">경사로에선 가속 뒤 브레이크를 떼요.</div>
+      <div style="left:28px;top:196px;display:flex;gap:6px"><span class="lkp w">주행 › 장내기능 모의시험</span><span class="lkp w">평가 모드</span><span class="lkp k">1회차</span></div>
+      <div style="left:28px;top:240px;width:530px;display:flex;flex-wrap:wrap;gap:10px">
+        <div class="vp wt" style="box-shadow:none;border:1.5px dashed #9a9da0"><i style="background:#fff;color:var(--onyx)"><svg><use href="#tri"/></svg></i>경사로 · 뒤로 밀림 −10</div><div class="vp wt" style="box-shadow:none;border:1.5px dashed #9a9da0"><i style="background:#fff;color:var(--onyx)"><svg><use href="#tri"/></svg></i>직각 주차 · 검지선 −10</div><div class="vp wt" style="box-shadow:none;border:1.5px dashed #9a9da0"><i style="background:#fff;color:var(--onyx)"><svg><use href="#tri"/></svg></i>돌발 · 비상등 −10</div><div class="vp wt"><i><svg><use href="#ok"/></svg></i>신호</div><div class="vp wt"><i><svg><use href="#ok"/></svg></i>가속</div>
+      </div>
+      <div class="wc" style="left:566px;top:24px;width:262px;height:300px"></div>
+      <svg style="left:584px;top:40px" width="226" height="160"><use href="#courseL"/></svg>
+      <div class="bp ink" style="left:584px;top:214px;width:150px;height:58px"><span class="n" style="font-size:32px">70</span><span class="l" style="margin-top:1px">불합격 · 합격선 80</span></div>
+      <div class="hon" style="left:584px;top:290px;font-size:10.5px;gap:8px"><span><i class="dot sim"></i>시뮬레이션 17 · 시험장</span></div>
+      <div class="btng" style="left:28px;top:356px;width:200px"><i style="font-size:9px">■</i>오늘은 여기까지</div>
+      <div class="btnk" style="left:450px;top:356px;width:375px">한 번 더 →</div>
+    </div></div></div>
+  </div>
+</section>
+
+<!-- A5 -->
+<section class="prop">
+  <div class="ph"><span class="no">A5</span><div><h2>판정 카드가 올라온다 — 밝은 문장 + Onyx 카드</h2><p class="one">위는 밝은 바탕의 큰 회차 멘트, 아래에서 <b>Onyx 카드가 올라와</b>(C1 420 ms) 궤적 · 판정 · 버튼을 담는다. 판정 줄은 160 ms 간격으로 하나씩. 이 Onyx 카드가 그대로 커지면 자세히 보기(6) 판이 된다.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>주차 · 2회차</b>실시간 — 카드가 올라오고 줄이 차례로(6 s 반복 · 정지 캡처는 끝 상태)</p>
+      <div class="scr lt liveRise">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div style="left:300px;top:20px;display:flex;gap:6px"><span class="lkp w">주차 › 후면 직각 주차</span><span class="lkp w">힌트 모드</span><span class="lkp k">2회차</span></div>
+        <div class="ttl" style="left:28px;top:62px;font-size:40px">한 번에 들어갔어요.</div>
+        <div style="left:28px;top:114px;font-size:19px;color:#8a8d90;font-weight:500">이 감각 그대로 한 번만 더 해 봐요.</div>
+        <div class="pn kc k" style="left:20px;top:160px;width:813px;height:290px">
+          <div class="up" style="left:24px;top:18px">궤적 · TRACE</div>
+          <svg style="left:20px;top:34px" width="230" height="160"><use href="#trajD"/></svg>
+          <div style="left:24px;top:196px;font-size:11px;color:var(--ash);line-height:1.4">신호로 추정한 궤적이에요.<br>실제 위치와 다를 수 있어요.</div>
+          <div class="up" style="left:282px;top:18px">판정 · VERDICT</div>
+          <div class="vl" style="left:282px;top:36px;width:262px">
+            <div class="r r1">한 번에 들어갔어요<svg class="mk"><use href="#okc"/></svg></div>
+            <div class="r r2"><span>방향은 맞게 섰어요<small>신호로 추정</small></span><svg class="mk"><use href="#okc"/></svg></div>
+            <div class="r r3">마무리가 깔끔했어요<svg class="mk"><use href="#okc"/></svg></div>
+            <div class="r r4" style="border-bottom:none">안전했어요<svg class="mk"><use href="#okc"/></svg></div>
+          </div>
+          <div class="hon" style="left:282px;top:172px;font-size:11px;gap:9px"><span><i class="dot live"></i>실신호 7</span><span><i class="dot sim"></i>시뮬레이션 1</span><span><i class="dot miss"></i>미측정 0</span></div>
+          <div class="btnp" style="left:572px;top:36px;width:217px">한 번 더 →</div>
+          <div class="btno" style="left:572px;top:92px;width:217px">오늘은 여기까지</div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li><b>밝은 시트 문법(위)과 6 의 Onyx 판(아래)을 한 화면에서 잇는다</b> — 결과 화면 세 장이 "Onyx 카드가 점점 커지는" 한 이야기가 된다(Done 카드 → Report → 자세히 보기는 카드가 화면을 다 덮음).</li>
+        <li>회차 멘트가 먼저, 근거(궤적 · 판정)가 다음 — 말하는 순서와 보이는 순서가 같다.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><span class="eff m">공수 중간</span> 카드 올라옴 + 줄 차례 등장(AnimatedVisibility 넷). 움직임 총 900 ms 안.</li>
+        <li>카드 아래가 화면 밖으로 잘리는 모양 — 정보가 잘린 것처럼 보이지 않게 모서리만 살짝.</li>
+        <li>버튼이 카드 오른쪽 위 — 손이 가는 오른쪽 아래가 아니다. 운전석(왼쪽 핸들)에서 화면 오른쪽은 멀다.</li>
+        <li>정직성: 출처 점이 판정 바로 아래 — 좋음.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="strip4">
+    <div><p class="fl"><b>0</b>멘트만 · 카드는 아래</p><div class="mini"><div class="scr lt"><div class="wm" style="left:28px;top:24px">DRIVE COACH</div><div class="ttl" style="left:28px;top:62px;font-size:40px">한 번에 들어갔어요.</div><div style="left:28px;top:114px;font-size:19px;color:#8a8d90">이 감각 그대로 한 번만 더 해 봐요.</div><div class="kc" style="left:20px;top:410px;width:813px;height:290px"></div></div></div></div>
+    <div><p class="fl"><b>⅓</b>Onyx 카드가 올라옴</p><div class="mini"><div class="scr lt"><div class="wm" style="left:28px;top:24px">DRIVE COACH</div><div class="ttl" style="left:28px;top:62px;font-size:40px">한 번에 들어갔어요.</div><div style="left:28px;top:114px;font-size:19px;color:#8a8d90">이 감각 그대로 한 번만 더 해 봐요.</div><div class="kc" style="left:20px;top:290px;width:813px;height:290px"></div></div></div></div>
+    <div><p class="fl"><b>⅔</b>자리 잡음 · 첫 줄 · 궤적</p><div class="mini"><div class="scr lt"><div class="wm" style="left:28px;top:24px">DRIVE COACH</div><div class="ttl" style="left:28px;top:62px;font-size:40px">한 번에 들어갔어요.</div><div style="left:28px;top:114px;font-size:19px;color:#8a8d90">이 감각 그대로 한 번만 더 해 봐요.</div><div class="pn kc" style="left:20px;top:168px;width:813px;height:290px"><svg style="left:20px;top:34px" width="230" height="160"><use href="#trajD"/></svg><div class="vl" style="left:282px;top:36px;width:262px"><div class="r">한 번에 들어갔어요<svg class="mk"><use href="#okc"/></svg></div></div></div></div></div></div>
+    <div><p class="fl"><b>끝</b>줄 넷 · 버튼</p><div class="mini"><div class="scr lt"><div class="wm" style="left:28px;top:24px">DRIVE COACH</div><div class="ttl" style="left:28px;top:62px;font-size:40px">한 번에 들어갔어요.</div><div style="left:28px;top:114px;font-size:19px;color:#8a8d90">이 감각 그대로 한 번만 더 해 봐요.</div><div class="pn kc" style="left:20px;top:160px;width:813px;height:290px"><svg style="left:20px;top:34px" width="230" height="160"><use href="#trajD"/></svg><div class="vl" style="left:282px;top:36px;width:262px"><div class="r">한 번에 들어갔어요<svg class="mk"><use href="#okc"/></svg></div><div class="r">방향은 맞게 섰어요<svg class="mk"><use href="#okc"/></svg></div><div class="r">마무리가 깔끔했어요<svg class="mk"><use href="#okc"/></svg></div><div class="r">안전했어요<svg class="mk"><use href="#okc"/></svg></div></div><div class="btnp" style="left:572px;top:36px;width:217px">한 번 더 →</div><div class="btno" style="left:572px;top:92px;width:217px">오늘은 여기까지</div></div></div></div></div>
+  </div>
+</section>
+
+<!-- A6 -->
+<section class="prop">
+  <div class="ph"><span class="no">A6</span><div><h2>판정 쌍 — 1회차 → 2회차</h2><p class="one">6 의 "흐린 알약 → 채운 알약" 을 <b>판정 문장</b>에 그대로. 지난 회차의 판정(△)이 흐린 테두리 알약, 이번 회차(✓)가 채운 알약, 사이 칩은 숫자 대신 "나아짐 · 그대로". 궤적도 지난 길(점선)과 이번 길(실선)을 겹친다.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>주차 · 2회차</b>왼쪽 판정 쌍 넷 · 오른쪽 궤적 겹침</p>
+      <div class="scr dk">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="up" style="left:28px;top:44px">주차 › 후면 직각 주차 · 힌트 모드 · 2회차</div>
+        <div class="ttl" style="left:28px;top:66px;font-size:34px">한 번에 들어갔어요.</div>
+        <div class="sub" style="left:28px;top:110px;font-size:15px">이 감각 그대로 한 번만 더 해 봐요.</div>
+        <div class="up" style="left:30px;top:150px">1회차</div>
+        <div class="up" style="left:328px;top:150px;color:var(--platinum)">2회차 · 이번</div>
+        <div class="vp dim" style="left:28px;top:168px;width:232px"><i><svg><use href="#tri"/></svg></i>한 번 다시 넣고 들어갔어요</div>
+        <div style="left:262px;top:185px;width:62px;height:1.5px;background:rgba(224,224,224,.45)"></div>
+        <div style="left:268px;top:174px;height:22px;line-height:22px;padding:0 8px;border-radius:11px;background:var(--graphite);font-size:11px">나아짐</div>
+        <div class="vp fill" style="left:326px;top:168px;width:232px"><i><svg><use href="#ok"/></svg></i>한 번에 들어갔어요</div>
+        <div class="vp dim" style="left:28px;top:210px;width:232px"><i><svg><use href="#tri"/></svg></i>방향이 조금 틀어졌어요</div>
+        <div style="left:262px;top:227px;width:62px;height:1.5px;background:rgba(224,224,224,.45)"></div>
+        <div style="left:268px;top:216px;height:22px;line-height:22px;padding:0 8px;border-radius:11px;background:var(--graphite);font-size:11px">나아짐</div>
+        <div class="vp fill" style="left:326px;top:210px;width:232px"><i><svg><use href="#ok"/></svg></i>방향은 맞게 섰어요<small>추정</small></div>
+        <div class="vp dim" style="left:28px;top:252px;width:232px"><i><svg><use href="#ok"/></svg></i>마무리가 깔끔했어요</div>
+        <div style="left:262px;top:269px;width:62px;height:1.5px;background:rgba(224,224,224,.2)"></div>
+        <div style="left:272px;top:258px;height:22px;line-height:22px;padding:0 8px;border-radius:11px;border:1px solid rgba(224,224,224,.35);font-size:11px;color:var(--ash)">그대로</div>
+        <div class="vp fill" style="left:326px;top:252px;width:232px"><i><svg><use href="#ok"/></svg></i>마무리가 깔끔했어요</div>
+        <div class="vp dim" style="left:28px;top:294px;width:232px"><i><svg><use href="#tri"/></svg></i>주의할 게 있었어요</div>
+        <div style="left:262px;top:311px;width:62px;height:1.5px;background:rgba(224,224,224,.45)"></div>
+        <div style="left:268px;top:300px;height:22px;line-height:22px;padding:0 8px;border-radius:11px;background:var(--graphite);font-size:11px">나아짐</div>
+        <div class="vp fill" style="left:326px;top:294px;width:232px"><i><svg><use href="#ok"/></svg></i>안전했어요</div>
+        <div class="hon" style="left:28px;top:360px"><span><i class="dot live"></i>실신호 7</span><span><i class="dot sim"></i>시뮬레이션 1</span><span><i class="dot miss"></i>미측정 0</span><span>· "추정" = 궤적 끝 방향을 신호로 추정</span></div>
+        <div class="gt" style="left:586px;top:24px;width:243px;height:264px"></div>
+        <div class="up" style="left:600px;top:36px">궤적 · 1회차 → 2회차</div>
+        <svg style="left:596px;top:56px" width="224" height="155" viewBox="10 10 340 236">
+          <g stroke="#E0E0E0" stroke-width="3.2" stroke-linecap="round"><path d="M34 32 H146"/><path d="M34 92 H146"/><path d="M34 152 H146"/><path d="M34 212 H146"/></g>
+          <path d="M290 205 L290 165 C290 128 250 104 196 106 L150 110 L214 132 L130 128 L100 126" fill="none" stroke="#BFBFBF" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 6" opacity=".9"/>
+          <path d="M290 205 L290 170 C290 134 262 122 215 122 L92 122" fill="none" stroke="#E0E0E0" stroke-width="2.4" stroke-linecap="round"/>
+          <use href="#carD" x="-38" y="-19" width="76" height="38" transform="translate(92 122)"/>
+        </svg>
+        <div style="left:600px;top:216px;font-size:11px;color:var(--ash);line-height:1.5"><span style="letter-spacing:.1em">┄</span> 1회차 · <span>━</span> 2회차<br>신호로 추정한 궤적이에요.</div>
+        <div class="btnp" style="left:586px;top:300px;width:243px">한 번 더 →</div>
+        <div class="btno" style="left:586px;top:354px;width:243px">오늘은 여기까지</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li><b>6 과 가장 같은 문법</b> — 같은 "흐린 → 채운" 쌍이 Done 에선 판정 문장, 자세히 보기에선 점수. 화면을 넘겨도 읽는 법이 같다.</li>
+        <li>"한 번 더 했더니 나아졌다" 가 <b>숫자 없이</b> 보인다 — 코치 문장 숫자 0 규칙과 결과 화면 숫자 허용 사이에서 가장 안전.</li>
+        <li>궤적 겹침(점선 = 지난 길)이 "덜 오갔다" 를 그림으로 보여 준다. 오간 횟수는 숫자로 쓰지 않는다.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><span class="eff m">공수 중간</span> 판정 쌍 컴포넌트 + 직전 회차 판정 보관(지금 <code>LessonPhase</code> 에 회차 목록이 있어 데이터 추가 없음) + 궤적 두 개 그리기.</li>
+        <li>1회차엔 쌍이 없다 — 흐린 쪽 자리를 점선 빈 알약 "첫 회차예요" 로(아래 작은 판). 나빠진 경우(✓ → △)는 칩 "다시 보기" — 칩 글자가 방향을 말해야 한다.</li>
+        <li>알약 글자 13.5px(40 dp) — 기준 하한. 실제 화면은 그대로 40 dp 이상.</li>
+        <li>정직성: "추정" 꼬리표가 짧아짐(알약 폭) — 아래 출처 줄에서 풀어 쓴다.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="strip">
+    <div><p class="fl"><b>1회차</b>쌍이 없을 때 — 점선 빈 알약</p><div class="half"><div class="scr dk">
+      <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+      <div class="up" style="left:28px;top:44px">주차 › 후면 직각 주차 · 힌트 모드 · 1회차</div>
+      <div class="ttl" style="left:28px;top:66px;font-size:34px">거의 다 왔어요.</div>
+      <div class="sub" style="left:28px;top:110px;font-size:15px">핸들은 조금 늦게 풀어 봐요.</div>
+      <div class="up" style="left:30px;top:150px">지난 회차</div><div class="up" style="left:328px;top:150px;color:var(--platinum)">1회차 · 이번</div>
+      <div class="vp" style="left:28px;top:168px;width:232px;border-style:dashed;color:rgba(224,224,224,.4);height:160px;border-radius:24px;justify-content:center;padding:0">첫 회차예요</div>
+      <div class="vp" style="left:326px;top:168px;width:232px;color:var(--platinum)"><i style="border:1.2px dashed currentColor"><svg><use href="#tri"/></svg></i>한 번 다시 넣고 들어갔어요</div>
+      <div class="vp" style="left:326px;top:210px;width:232px;color:var(--platinum)"><i style="border:1.2px dashed currentColor"><svg><use href="#tri"/></svg></i>방향이 조금 틀어졌어요</div>
+      <div class="vp fill" style="left:326px;top:252px;width:232px"><i><svg><use href="#ok"/></svg></i>마무리가 깔끔했어요</div>
+      <div class="vp" style="left:326px;top:294px;width:232px;color:var(--platinum)"><i style="border:1.2px dashed currentColor"><svg><use href="#tri"/></svg></i>주의할 게 있었어요</div>
+      <div class="gt" style="left:586px;top:24px;width:243px;height:264px"></div>
+      <svg style="left:596px;top:56px" width="224" height="155" viewBox="10 10 340 236"><g stroke="#E0E0E0" stroke-width="3.2" stroke-linecap="round"><path d="M34 32 H146"/><path d="M34 92 H146"/><path d="M34 152 H146"/><path d="M34 212 H146"/></g><path d="M290 205 L290 165 C290 128 250 104 196 106 L150 110 L214 132 L130 128 L100 126" fill="none" stroke="#E0E0E0" stroke-width="2.4" stroke-linecap="round"/><use href="#carD" x="-38" y="-19" width="76" height="38" transform="translate(100 126) rotate(4)"/></svg>
+      <div style="left:600px;top:226px;font-size:11px;color:var(--ash)">신호로 추정한 궤적이에요.</div>
+      <div class="btnp" style="left:586px;top:300px;width:243px">한 번 더 →</div>
+      <div class="btno" style="left:586px;top:354px;width:243px">오늘은 여기까지</div>
+    </div></div></div>
+    <div><p class="fl"><b>합격</b>모의시험 1 → 2회차 — 6 의 자 그대로</p><div class="half"><div class="scr dk">
+      <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+      <div class="up" style="left:28px;top:44px">주행 › 장내기능 모의시험 · 평가 모드 · 2회차</div>
+      <div class="ttl" style="left:28px;top:66px;font-size:34px">감점 없이 합격이에요.</div>
+      <div class="sub" style="left:28px;top:110px;font-size:15px">이 흐름 그대로 한 번 더 해 봐요.</div>
+      <div class="bp dim" style="left:250px;top:156px;width:130px;height:62px"><span class="n" style="font-size:34px">70</span><span class="l" style="margin-top:1px">1회차 · 불합격</span></div>
+      <div class="bp fill" style="left:430px;top:156px;width:130px;height:62px"><span class="n" style="font-size:34px">100</span><span class="l" style="margin-top:1px">2회차 · 합격</span></div>
+      <div style="left:28px;top:240px;width:532px;height:8px;border-radius:4px;background:var(--graphite)"></div>
+      <div style="left:28px;top:240px;width:532px;height:8px;border-radius:4px;background:rgba(224,224,224,.4)"></div>
+      <div style="left:453px;top:224px;width:1.5px;height:40px;background:var(--platinum)"></div>
+      <div class="up" style="left:412px;top:270px;width:84px;text-align:center;color:var(--platinum)">합격선 80</div>
+      <div style="left:28px;top:300px;font-size:13.5px">경사로 · 직각 주차 · 돌발 — <span style="color:var(--ash)">지난번 감점 셋이 모두 사라졌어요</span></div>
+      <div class="hon" style="left:28px;top:360px"><span><i class="dot sim"></i>시뮬레이션 17</span><span>· 구간·위치·신호등은 시험장 시뮬레이션이에요.</span></div>
+      <div class="gt" style="left:586px;top:24px;width:243px;height:264px"></div>
+      <svg style="left:596px;top:50px" width="224" height="160"><use href="#courseD"/></svg>
+      <div style="left:600px;top:226px;font-size:11px;color:var(--ash)">지나간 자리 · 시험장 위치로 기록</div>
+      <div class="btnp" style="left:586px;top:300px;width:243px">한 번 더 →</div>
+      <div class="btno" style="left:586px;top:354px;width:243px">오늘은 여기까지</div>
+    </div></div></div>
+    <div><p class="fl"><b>점검</b>출발 전 점검 · 1회차 — 항목 일곱</p><div class="half"><div class="scr dk">
+      <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+      <div class="up" style="left:28px;top:44px">점검 › 출발 전 점검 · 힌트 모드 · 1회차</div>
+      <div class="ttl" style="left:28px;top:66px;font-size:34px">출발 준비를 했어요.</div>
+      <div class="sub" style="left:28px;top:110px;font-size:15px">이 순서 그대로 몸에 남겨 두세요.</div>
+      <div class="up" style="left:30px;top:150px;color:var(--platinum)">1회차 · 이번</div>
+      <div style="left:28px;top:168px;width:530px;display:grid;grid-template-columns:1fr 1fr;gap:8px 12px">
+        <div class="vp fill"><i><svg><use href="#ok"/></svg></i>도어</div><div class="vp fill"><i><svg><use href="#ok"/></svg></i>안전벨트</div><div class="vp fill"><i><svg><use href="#ok"/></svg></i>기어</div><div class="vp fill"><i><svg><use href="#ok"/></svg></i>브레이크 / 시동</div><div class="vp fill"><i><svg><use href="#ok"/></svg></i>좌 지시등</div><div class="vp fill"><i><svg><use href="#ok"/></svg></i>우 지시등</div><div class="vp fill"><i><svg><use href="#ok"/></svg></i>비상등</div>
+      </div>
+      <div class="hon" style="left:28px;top:360px"><span><i class="dot live"></i>실신호 7</span><span><i class="dot sim"></i>시뮬레이션 0</span><span><i class="dot miss"></i>미측정 0</span></div>
+      <div class="gt" style="left:586px;top:24px;width:243px;height:264px"></div>
+      <div class="bp" style="left:622px;top:90px;width:170px;height:110px;color:var(--platinum)"><span class="n" style="font-size:50px">7/7</span><span class="l">확인한 항목</span></div>
+      <div class="btnp" style="left:586px;top:300px;width:243px">한 번 더 →</div>
+      <div class="btno" style="left:586px;top:354px;width:243px">오늘은 여기까지</div>
+    </div></div></div>
+  </div>
+</section>
+
+<!-- A7 -->
+<section class="prop">
+  <div class="ph"><span class="no">A7</span><div><h2>거대한 회차 숫자 — "02"</h2><p class="one">레퍼런스 5(어두운 판 위 거대한 숫자 하나)를 Done 에. 왼쪽에 테두리 큰 알약 안의 회차 "02", 그 아래 궤적 타일. 오른쪽 단에 멘트 · 판정 · 버튼. 회차가 쌓이는 감각.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>주차 · 2회차</b>회차 알약 + 오른쪽 단</p>
+      <div class="scr dk">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="bp" style="left:28px;top:52px;width:330px;height:196px;color:var(--platinum)"><span class="n" style="font-size:150px;letter-spacing:-.06em">02</span><span class="l" style="margin-top:2px">회차 · ATTEMPT</span></div>
+        <div class="gt" style="left:28px;top:262px;width:330px;height:140px"></div>
+        <svg style="left:36px;top:274px" width="168" height="117"><use href="#trajD"/></svg>
+        <div style="left:212px;top:300px;width:140px;font-size:11px;line-height:1.45;color:var(--ash)">신호로 추정한 궤적이에요.<br>실제 위치와 다를 수 있어요.</div>
+        <div style="left:390px;top:20px;display:flex;gap:6px"><span class="lkp">주차 › 후면 직각 주차</span><span class="lkp">힌트 모드</span><span class="lkp k">2회차</span></div>
+        <div class="ttl" style="left:390px;top:64px;font-size:36px">한 번에 들어갔어요.</div>
+        <div class="sub" style="left:390px;top:112px;font-size:16px">이 감각 그대로 한 번만 더 해 봐요.</div>
+        <div class="vl" style="left:390px;top:156px;width:435px">
+          <div class="h">판정</div>
+          <div class="r">한 번에 들어갔어요<svg class="mk"><use href="#okc"/></svg></div>
+          <div class="r"><span>방향은 맞게 섰어요<small>신호로 추정</small></span><svg class="mk"><use href="#okc"/></svg></div>
+          <div class="r">마무리가 깔끔했어요<svg class="mk"><use href="#okc"/></svg></div>
+          <div class="r" style="border-bottom:none">안전했어요<svg class="mk"><use href="#okc"/></svg></div>
+        </div>
+        <div class="hon" style="left:390px;top:310px"><span><i class="dot live"></i>실신호 7</span><span><i class="dot sim"></i>시뮬레이션 1</span><span><i class="dot miss"></i>미측정 0</span></div>
+        <div class="btnp" style="left:390px;top:352px;width:262px">한 번 더 →</div>
+        <div class="btno" style="left:664px;top:352px;width:161px;font-size:13.5px">오늘은 여기까지</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>오늘의 기록(Report)의 "연습한 회차 02" 와 같은 큰 숫자 — Done 과 Report 가 <b>같은 숫자 알약에서 시작</b>해 이어 보인다.</li>
+        <li>회차는 메타 숫자라 규칙상 허용 · 운전석에서 가장 멀리서도 읽힌다.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><span class="eff l">공수 작음~중간</span> 큰 숫자 알약 하나 + 오른쪽 단 재배치. 궤적은 크기만 줄임.</li>
+        <li>"02" 가 화면에서 가장 큰데 정작 중요한 건 판정 — <b>위계가 거꾸로</b>. 연습량을 칭찬하는 장면(회차가 쌓일수록)에만 맞다.</li>
+        <li>궤적이 작아 감정 효과가 약함. 정직성 문장은 타일 안에 두 줄로 남는다.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="rec">
+  <p class="t">A · 회차 판정 추천 <span>공수 중간</span></p>
+  <h2>A2(판정 알약 넷 · 한 장 Onyx)를 바탕으로, 2회차부터는 A6 의 "흐린 → 채운" 판정 쌍으로 바꿔 끼운다</h2>
+  <p>A2 는 주차 · 점검 · 모의시험 합격/불합격을 <b>같은 틀 하나</b>로 받는다(오른쪽 칸만 판정 알약 / 항목 알약 / 0–100 자로 바뀜) — 세 과제 Done 이 한 화면처럼 보이고, 판 · 알약 · 출처 줄이 확정된 6 과 똑같아 Done → Report → 자세히 보기가 "같은 판을 넘기는" 흐름이 된다. 2회차 이상이면 오른쪽 2×2 자리를 A6 의 쌍(지난 회차 흐린 알약 → 이번 채운 알약, 칩 "나아짐 · 그대로")으로 바꿔 숫자 없이 나아짐을 보여 준다. 궤적을 크게 보고 싶다면 A3 의 "선이 그려지고 차가 멈춤" 움직임만 A2 의 궤적 타일에 얹는다(그림 크기는 그대로). A1 은 시간이 없을 때의 바닥 안, A4 · A5 는 밝은 시트 문법을 결과에도 쓰고 싶을 때의 대안.</p>
+  <ol>
+    <li>Claude: 판정 표시 문법 계약(✓ 실선 원 · △ 점선 원 · — 점선 고리) 한 줄 + Done 화면 데이터(직전 회차 판정)가 <code>LessonPhase.Done</code> 에 있는지 확인</li>
+    <li>Codex: A2 배치 + 판정 알약 컴포넌트(큰 2×2 · 작은 2열) + 모의시험 자 — 세 과제 캡처 셋</li>
+    <li>시간이 남으면 Codex: 2회차 이상 A6 쌍 · 궤적 그리기 움직임(A3)</li>
+  </ol>
+</div>
+
+<!-- ======================================================= B ======================================================= -->
+<div class="scrhead"><div class="L">B</div><div><h2>오늘의 기록 (Report) — 운전석 도어가 열리면</h2><p>들어가는 것: 연습한 회차 <b>02</b> · 마지막 회차의 판정 넷 · 총평 "갈수록 좋아졌어요." + "안전은 한두 가지만 챙기면 돼요." · 과제 줄 · <code>메인으로 →</code> · <code>자세히 보기</code> · <code>진단서</code> · 신호 출처 <b>실신호 7 · 시뮬레이션 1 · 미측정 0</b> + "주차 과정만 측정했어요." · (선택) 질문 하나. 지금 앱 = 왼쪽 곡면 판의 큰 02 + 오른쪽 흰 면(<code>lesson-report-session.png</code>). 다음 화면 자세히 보기(6)와 한 벌이어야 한다.</p></div></div>
+
+<!-- B1 -->
+<section class="prop">
+  <div class="ph"><span class="no">B1</span><div><h2>2×2 숫자 알약 — 회차 하나 + 출처 셋</h2><p class="one">레퍼런스 4 를 거의 그대로. 오른쪽 큰 알약 넷 중 <b>셋이 신호 출처</b> — 꽉 찬 테두리 = 실신호, 반쯤 찬 = 시뮬레이션, 점선 = 미측정. 정직성이 이 화면의 첫눈.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>오늘의 기록</b>Onyx 한 장 · 알약 2×2</p>
+      <div class="scr dk">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="up" style="left:28px;top:44px">오늘의 기록 · TODAY</div>
+        <div class="ttl" style="left:28px;top:72px;font-size:36px">갈수록 좋아졌어요.</div>
+        <div class="sub" style="left:28px;top:120px;font-size:16px">안전은 한두 가지만 챙기면 돼요.</div>
+        <div style="left:28px;top:158px"><span class="lkp">주차 › 후면 직각 주차 · 힌트 모드</span></div>
+        <div class="vl" style="left:28px;top:204px;width:362px">
+          <div class="h">마지막 회차의 판정</div>
+          <div class="r">한 번에 들어갔어요<svg class="mk"><use href="#okc"/></svg></div>
+          <div class="r"><span>방향은 맞게 섰어요<small>신호로 추정</small></span><svg class="mk"><use href="#okc"/></svg></div>
+          <div class="r">마무리가 깔끔했어요<svg class="mk"><use href="#okc"/></svg></div>
+          <div class="r" style="border-bottom:none">안전했어요<svg class="mk"><use href="#okc"/></svg></div>
+        </div>
+        <div class="bp fill" style="left:430px;top:40px;width:190px;height:100px"><span class="n">02</span><span class="l">연습한 회차</span></div>
+        <div class="bp" style="left:634px;top:40px;width:190px;height:100px;color:var(--platinum)"><span class="n">7</span><span class="l"><i class="dot live" style="margin-right:5px"></i>실신호</span></div>
+        <div class="bp" style="left:430px;top:152px;width:190px;height:100px;color:var(--platinum);border-color:rgba(224,224,224,.6)"><span class="n">1</span><span class="l"><i class="dot sim" style="margin-right:5px"></i>시뮬레이션</span></div>
+        <div class="bp dash" style="left:634px;top:152px;width:190px;height:100px;color:var(--ash)"><span class="n">0</span><span class="l"><i class="dot miss" style="margin-right:5px"></i>미측정</span></div>
+        <div style="left:432px;top:262px;font-size:12px;color:var(--ash)">주차 과정만 측정했어요.</div>
+        <div class="lnk" style="left:430px;top:294px">자세히 보기 ↗</div>
+        <div class="lnk" style="left:566px;top:294px">진단서 ↗</div>
+        <div class="btnp" style="left:430px;top:352px;width:395px">메인으로 →</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li><b>정직성이 숫자 알약으로 가장 크게</b> — 심사·발표에서 "무엇이 진짜 신호인지" 를 설명 없이 보여 준다. 알약 테두리 모양(실선 · 흐린 실선 · 점선)이 출처 점과 같은 문법.</li>
+        <li>6(자세히 보기)과 판 · 알약 · 라벨이 같다 — <code>자세히 보기 ↗</code> 를 누르면 알약이 쌍 알약으로 바뀌는 느낌.</li>
+        <li>왼쪽 = 말(총평 · 판정), 오른쪽 = 수(회차 · 출처) — 숫자가 문장에 섞이지 않는다.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><span class="eff m">공수 중간</span> 새 배치 + 알약 컴포넌트(6 것 재사용). 데이터 추가 없음(<code>badge.live/simulated/missing</code>).</li>
+        <li>"7 · 1 · 0" 이 점수처럼 읽힐 수 있다 — 라벨을 알약 안에 꼭 붙인다. 어떤 신호가 시뮬레이션인지는 자세히 보기 · 진단서에서.</li>
+        <li>가독성: 큰 숫자 54px(162 dp) · 판정 14px(42 dp).</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- B2 -->
+<section class="prop">
+  <div class="ph"><span class="no">B2</span><div><h2>두 판 — 회차 알약 + 흰 카드</h2><p class="one">지금 배치(왼쪽 어두운 판 · 오른쪽 밝은 면)를 남기고 곡면 그림을 걷어 낸다. 왼쪽 = 테두리 큰 알약 속 "02" + 판정, 오른쪽 = 연회색 바탕 위 흰 카드에 총평 · 출처 · 버튼.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>오늘의 기록</b>왼쪽 Onyx 330 · 오른쪽 흰 카드</p>
+      <div class="scr">
+        <div class="pn dk" style="left:0;top:0;width:330px;height:423px">
+          <div class="wm" style="left:24px;top:22px">DRIVE COACH</div>
+          <div class="up" style="left:24px;top:46px">연습한 회차</div>
+          <div class="bp" style="left:24px;top:66px;width:282px;height:150px;color:var(--platinum)"><span class="n" style="font-size:110px;letter-spacing:-.05em">02</span><span class="l">회 · SESSIONS</span></div>
+          <div class="vl" style="left:24px;top:234px;width:282px">
+            <div class="h">마지막 회차의 판정</div>
+            <div class="r" style="font-size:13.5px">한 번에 들어갔어요<svg class="mk"><use href="#okc"/></svg></div>
+            <div class="r" style="font-size:13.5px"><span>방향은 맞게 섰어요<small>신호로 추정</small></span><svg class="mk"><use href="#okc"/></svg></div>
+            <div class="r" style="font-size:13.5px">마무리가 깔끔했어요<svg class="mk"><use href="#okc"/></svg></div>
+            <div class="r" style="font-size:13.5px;border-bottom:none">안전했어요<svg class="mk"><use href="#okc"/></svg></div>
+          </div>
+        </div>
+        <div class="lt" style="left:330px;top:0;width:523px;height:423px"></div>
+        <div class="wc" style="left:348px;top:18px;width:487px;height:387px"></div>
+        <div class="ey" style="left:372px;top:40px">오늘의 기록</div>
+        <div class="ttl" style="left:372px;top:62px;font-size:38px">갈수록 좋아졌어요.</div>
+        <div class="sub" style="left:372px;top:112px;font-size:18px">안전은 한두 가지만 챙기면 돼요.</div>
+        <div style="left:372px;top:154px"><span class="lkp">주차 › 후면 직각 주차 · 힌트 모드</span></div>
+        <div class="ey" style="left:372px;top:204px">신호 출처</div>
+        <div class="hon" style="left:372px;top:224px;font-size:13px;color:var(--onyx)"><span><i class="dot live"></i>실신호 7</span><span><i class="dot sim"></i>시뮬레이션 1</span><span><i class="dot miss"></i>미측정 0</span></div>
+        <div style="left:372px;top:246px;font-size:12px;color:var(--mu)">주차 과정만 측정했어요.</div>
+        <div class="lnk ink" style="left:372px;top:286px">자세히 보기 ↗</div>
+        <div class="lnk ink" style="left:508px;top:286px">진단서 ↗</div>
+        <div class="btnk" style="left:372px;top:344px;width:440px">메인으로 →</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>지금 화면과 자리가 같다 — <b>공수가 가장 작고</b> 캡처·계측 그대로. 곡면 그림만 알약으로.</li>
+        <li>A1(Done 두 판)을 고르면 Done → Report 가 같은 두 판 문법으로 이어진다.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><span class="eff">공수 작음</span> 배치 그대로, 토큰 · 컴포넌트 교체.</li>
+        <li>사용자가 원한 "새 구성" 이 아니다 — 바닥 안. 6(전체 Onyx)으로 넘어가면 판 반쪽이 갑자기 어두워진다.</li>
+        <li>정직성: 흰 카드 가운데 한 줄 — 지금보다 위로 올라와 더 잘 보인다.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- B3 -->
+<section class="prop">
+  <div class="ph"><span class="no">B3</span><div><h2>회차 띠 — 알약이 이어진다</h2><p class="one">오늘 한 회차들이 <b>왼쪽에서 오른쪽으로 이어지는 알약 띠</b>. 지난 회차 = 흐린 알약, 마지막 = 채운 알약, 알약 안엔 판정 넷의 모양(△ · ✓)만. 6 의 쌍 알약이 "오늘 전체" 로 늘어난 모양.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>오늘의 기록</b>회차 알약 띠 · 판정 모양</p>
+      <div class="scr dk">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="up" style="left:28px;top:44px">오늘의 기록 · 주차 › 후면 직각 주차 · 힌트 모드</div>
+        <div class="ttl" style="left:28px;top:66px;font-size:36px">갈수록 좋아졌어요.</div>
+        <div class="sub" style="left:28px;top:114px;font-size:16px">안전은 한두 가지만 챙기면 돼요.</div>
+        <div class="up" style="left:28px;top:150px">연습한 회차 · 02</div>
+        <div class="bp dim" style="left:28px;top:168px;width:280px;height:92px;flex-direction:row;gap:18px"><span class="n" style="font-size:46px">01</span><span style="display:flex;gap:6px"><svg class="mk" style="width:20px;height:20px"><use href="#tric"/></svg><svg class="mk" style="width:20px;height:20px"><use href="#tric"/></svg><svg class="mk" style="width:20px;height:20px"><use href="#okc"/></svg><svg class="mk" style="width:20px;height:20px"><use href="#tric"/></svg></span></div>
+        <div style="left:312px;top:213px;width:68px;height:1.5px;background:rgba(224,224,224,.45)"></div>
+        <div style="left:318px;top:202px;height:22px;line-height:22px;padding:0 9px;border-radius:11px;background:var(--graphite);font-size:11px">나아짐</div>
+        <div class="bp fill" style="left:384px;top:168px;width:280px;height:92px;flex-direction:row;gap:18px"><span class="n" style="font-size:46px">02</span><span style="display:flex;gap:6px"><svg class="mk" style="width:20px;height:20px"><use href="#okc"/></svg><svg class="mk" style="width:20px;height:20px"><use href="#okc"/></svg><svg class="mk" style="width:20px;height:20px"><use href="#okc"/></svg><svg class="mk" style="width:20px;height:20px"><use href="#okc"/></svg></span></div>
+        <div class="bp dash" style="left:680px;top:168px;width:145px;height:92px;color:rgba(224,224,224,.35)"><span style="font-size:12px">다음 회차</span></div>
+        <div class="up" style="left:402px;top:264px;color:var(--platinum)">마지막 회차</div>
+        <div class="vl" style="left:28px;top:284px;width:520px;display:grid;grid-template-columns:1fr 1fr;column-gap:22px">
+          <div class="r">한 번에 들어갔어요<svg class="mk"><use href="#okc"/></svg></div>
+          <div class="r"><span>방향은 맞게 섰어요<small>신호로 추정</small></span><svg class="mk"><use href="#okc"/></svg></div>
+          <div class="r" style="border-bottom:none">마무리가 깔끔했어요<svg class="mk"><use href="#okc"/></svg></div>
+          <div class="r" style="border-bottom:none">안전했어요<svg class="mk"><use href="#okc"/></svg></div>
+        </div>
+        <div class="hon" style="left:584px;top:286px;flex-direction:column;align-items:flex-start;gap:3px;font-size:12px"><span><i class="dot live"></i>실신호 7</span><span><i class="dot sim"></i>시뮬레이션 1</span><span><i class="dot miss"></i>미측정 0 · 주차 과정만</span></div>
+        <div class="lnk" style="left:28px;top:364px">자세히 보기 ↗</div>
+        <div class="lnk" style="left:164px;top:364px">진단서 ↗</div>
+        <div class="btnp" style="left:520px;top:362px;width:305px">메인으로 →</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>"갈수록 좋아졌어요" 를 <b>그림으로 증명</b> — △ 가 ✓ 로 바뀌는 게 한눈에. 점수 숫자 없이도 총평의 근거가 보인다.</li>
+        <li>알약 하나 = 회차 하나라 회차가 많아도 같은 문법(넷 이상이면 가운데를 접어 "01 … 05 → 06").</li>
+        <li>자세히 보기(6)로 가면 이 띠의 첫 알약과 마지막 알약이 크게 펼쳐진 것 — 이야기가 이어진다.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><span class="eff m">공수 중간</span> 회차별 판정 모양 넷을 리포트에 내려야 한다(회차 목록에 판정이 있음 — 데이터 추가 없음, 가정).</li>
+        <li>점선 "다음 회차" 알약은 장식 — 누를 수 있어 보이면 안 된다(글자 흐리게, 터치 없음).</li>
+        <li>정직성: 출처가 오른쪽 작은 세 줄 — B1 보다 약하다.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- B4 -->
+<section class="prop">
+  <div class="ph"><span class="no">B4</span><div><h2>문장 기록 + 질문 하나 — 밝은 시트 문법</h2><p class="one">총평이 문장 시트처럼 큰 문장 하나(앞에 노란 막대 아이콘 알약), 약한 회색 둘째 줄. 판정 · 출처는 오른쪽 흰 카드. 가운데 흰 카드에 <b>선택 질문 하나</b> — "오늘 연습, 어땠어요?" 고르면 다음 제안에 쓰고, 건너뛰어도 된다.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>오늘의 기록</b>연회색 바탕 · 질문 카드(선택)</p>
+      <div class="scr lt">
+        <div class="wm" style="left:28px;top:26px">DRIVE COACH</div>
+        <div class="ey" style="left:28px;top:66px">오늘의 기록</div>
+        <div class="ttl" style="left:28px;top:86px;font-size:40px"><span class="ip" style="font-size:40px"><svg><use href="#ybars"/></svg></span> 갈수록 좋아졌어요.</div>
+        <div style="left:28px;top:140px;font-size:21px;color:#9a9da0;font-weight:500">안전은 한두 가지만 챙기면 돼요.</div>
+        <div style="left:28px;top:184px;display:flex;gap:6px"><span class="lkp w">주차 › 후면 직각 주차 · 힌트 모드</span><span class="lkp k">연습한 회차 02</span></div>
+        <div class="wc" style="left:28px;top:226px;width:515px;height:110px"></div>
+        <div class="ey" style="left:48px;top:240px">한 가지만 물어볼게요 · 건너뛰어도 돼요</div>
+        <div style="left:48px;top:258px;font-size:16px;font-weight:500">오늘 연습, 어땠어요?</div>
+        <div style="left:48px;top:288px;display:flex;gap:8px">
+          <span style="height:38px;line-height:38px;padding:0 16px;border-radius:19px;background:var(--chip);font-size:13.5px">편했어요</span>
+          <span style="height:38px;line-height:38px;padding:0 16px;border-radius:19px;background:var(--chip);font-size:13.5px">조금 긴장됐어요</span>
+          <span style="height:38px;line-height:38px;padding:0 16px;border-radius:19px;background:var(--chip);font-size:13.5px">아직 무서워요</span>
+        </div>
+        <div class="wc" style="left:566px;top:24px;width:262px;height:312px"></div>
+        <div class="vl" style="left:584px;top:40px;width:228px">
+          <div class="h">마지막 회차의 판정</div>
+          <div class="r" style="font-size:13.5px">한 번에 들어갔어요<svg class="mk"><use href="#okc"/></svg></div>
+          <div class="r" style="font-size:13.5px"><span>방향은 맞게 섰어요<small>추정</small></span><svg class="mk"><use href="#okc"/></svg></div>
+          <div class="r" style="font-size:13.5px">마무리가 깔끔했어요<svg class="mk"><use href="#okc"/></svg></div>
+          <div class="r" style="font-size:13.5px;border-bottom:none">안전했어요<svg class="mk"><use href="#okc"/></svg></div>
+        </div>
+        <div class="ey" style="left:584px;top:200px">신호 출처</div>
+        <div class="hon" style="left:584px;top:220px;flex-direction:column;align-items:flex-start;gap:4px;font-size:13px;color:var(--onyx)"><span><i class="dot live"></i>실신호 7</span><span><i class="dot sim"></i>시뮬레이션 1</span><span><i class="dot miss"></i>미측정 0</span></div>
+        <div style="left:584px;top:300px;font-size:11.5px;color:var(--mu)">주차 과정만 측정했어요.</div>
+        <div class="lnk wt" style="left:28px;top:358px">자세히 보기 ↗</div>
+        <div class="lnk wt" style="left:160px;top:358px">진단서 ↗</div>
+        <div class="btnk" style="left:450px;top:356px;width:375px">메인으로 →</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>문장 시트와 같은 목소리 — <b>홈 → 판정 → 기록이 같은 말투</b>. 노란 막대 아이콘이 "갈수록" 을 그림으로.</li>
+        <li>질문 하나가 <b>코치와 대화(홈)로 이어지는 다리</b> — 고른 답은 다음 홈 제안 문장에 쓴다("조금 긴장됐어요" → 같은 과제 가이드 모드 제안). 대답은 탭 하나, 건너뛰기는 그냥 메인으로.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><span class="eff m">공수 중간</span> + <b>질문은 새 기능</b>(저장 · 홈 제안 연결) — 마감 전엔 화면만 두고 답을 프로필 메모 한 줄에 남기는 정도가 한계. 빼도 화면이 선다.</li>
+        <li>6 과 판이 다르다(밝음). B4 를 고르면 자세히 보기로 갈 때 Onyx 카드가 올라와 덮는 움직임(B5)이 필요.</li>
+        <li>질문 칩 38px(114 dp) — 하한. 정차 중이라 괜찮다.</li>
+        <li>정직성: 출처 세 줄이 카드 안 13px — 충분.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- B5 -->
+<section class="prop">
+  <div class="ph"><span class="no">B5</span><div><h2>쌓인 판 — 기록 아래에 자세히 보기 · 진단서가 겹쳐 있다</h2><p class="one">흰 기록 카드 아래로 <b>Onyx 카드(자세히 보기)와 그 뒤 진단서 카드의 윗단이 보인다</b>. 링크 대신 카드 끝을 누르면 그 카드가 올라와 화면을 덮는다 — 6 은 "올라온 Onyx 카드" 자체.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>오늘의 기록</b>실시간 — Onyx 카드가 올라왔다 내려감(7 s 반복 · 정지 캡처는 닫힌 상태)</p>
+      <div class="scr lt livePeek">
+        <div class="wc" style="left:24px;top:16px;width:805px;height:284px"></div>
+        <div class="wm" style="left:44px;top:34px">DRIVE COACH</div>
+        <div class="ey" style="left:44px;top:58px">오늘의 기록</div>
+        <div class="ttl" style="left:44px;top:78px;font-size:36px">갈수록 좋아졌어요.</div>
+        <div class="sub" style="left:44px;top:124px;font-size:17px">안전은 한두 가지만 챙기면 돼요.</div>
+        <div style="left:44px;top:162px;display:flex;gap:6px"><span class="lkp">주차 › 후면 직각 주차 · 힌트 모드</span><span class="lkp k">연습한 회차 02</span></div>
+        <div class="hon" style="left:44px;top:206px;font-size:12.5px;color:var(--onyx)"><span><i class="dot live"></i>실신호 7</span><span><i class="dot sim"></i>시뮬레이션 1</span><span><i class="dot miss"></i>미측정 0</span></div>
+        <div style="left:44px;top:228px;font-size:12px;color:var(--mu)">주차 과정만 측정했어요.</div>
+        <div class="vl" style="left:478px;top:36px;width:330px">
+          <div class="h">마지막 회차의 판정</div>
+          <div class="r">한 번에 들어갔어요<svg class="mk"><use href="#okc"/></svg></div>
+          <div class="r"><span>방향은 맞게 섰어요<small>신호로 추정</small></span><svg class="mk"><use href="#okc"/></svg></div>
+          <div class="r">마무리가 깔끔했어요<svg class="mk"><use href="#okc"/></svg></div>
+          <div class="r" style="border-bottom:none">안전했어요<svg class="mk"><use href="#okc"/></svg></div>
+        </div>
+        <div class="btnk" style="left:478px;top:236px;width:330px">메인으로 →</div>
+        <div style="left:56px;top:308px;width:741px;height:140px;border-radius:22px;background:#F7F7F7;box-shadow:0 -6px 16px -6px rgba(0,0,0,.12)"></div>
+        <div style="left:80px;top:318px;font-size:14px;display:flex;gap:10px;align-items:center">진단서 <span style="font-size:11px;color:var(--mu)">공유 범위 · 예시</span></div>
+        <div style="left:760px;top:316px;font-size:16px;color:var(--mu)">↑</div>
+        <div class="pn kc k" style="left:40px;top:354px;width:773px;height:320px">
+          <div style="left:24px;top:14px;font-size:14px;color:#fff">자세히 보기 <span style="font-size:11px;color:var(--ash);margin-left:8px">1회차 → 2회차</span></div>
+          <div style="left:738px;top:12px;font-size:16px;color:var(--ash)">↑</div>
+          <div class="bp dim" style="left:270px;top:10px;width:96px;height:44px"><span class="n" style="font-size:26px">60</span></div>
+          <div style="left:372px;top:20px;height:22px;line-height:22px;padding:0 9px;border-radius:11px;background:var(--graphite);font-size:11px">+40</div>
+          <div class="bp fill" style="left:422px;top:10px;width:110px;height:44px"><span class="n" style="font-size:26px">100</span></div>
+          <div class="up" style="left:546px;top:26px">SKILL</div>
+          <div style="left:24px;top:70px;font-size:12px;color:var(--ash)">(올라오면 6 의 판 전체 — 숙련 · 안전 쌍 알약 + 표)</div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li><b>핀 B(아래에서 올라와 겹쳐 쌓이는 카드)를 결과 화면 전체 구조로</b> — 오늘의 기록 · 자세히 보기 · 진단서가 "한 더미의 카드" 가 된다. 6 은 바꾸지 않고 그대로 올라오는 카드.</li>
+        <li>링크 두 개(작은 글자)가 큰 카드 끝(높이 46 · 67px = 138 · 200 dp)으로 바뀌어 누르기 쉽다.</li>
+        <li>Onyx 카드 윗단에 쌍 알약이 살짝 보여 "더 볼 게 있다" 를 미리 알려 준다.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><span class="eff">공수 큼</span> 세 화면을 한 컨테이너의 겹친 카드로 다시 짜야 한다(지금은 페이지 전환). 뒤로 가기(← 돌아가기) = 카드 내림.</li>
+        <li>접근성 이름 "자세히 보기" · "진단서" 를 카드 끝에 그대로 붙여야 계측 테스트가 산다.</li>
+        <li>정직성: 기록 카드 안 한 줄 — 보통.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="strip4">
+    <div><p class="fl"><b>0</b>기록 · 카드 끝 둘</p><div class="mini"><div class="scr lt"><div class="wc" style="left:24px;top:16px;width:805px;height:284px"></div><div class="ttl" style="left:44px;top:78px;font-size:36px">갈수록 좋아졌어요.</div><div style="left:56px;top:308px;width:741px;height:140px;border-radius:22px;background:#F7F7F7"></div><div class="kc" style="left:40px;top:354px;width:773px;height:320px"></div></div></div></div>
+    <div><p class="fl"><b>⅓</b>Onyx 카드를 누름 → 올라옴</p><div class="mini"><div class="scr lt"><div class="wc" style="left:24px;top:16px;width:805px;height:284px;transform:scale(.97);transform-origin:50% 0"></div><div class="ttl" style="left:44px;top:78px;font-size:36px">갈수록 좋아졌어요.</div><div style="left:56px;top:300px;width:741px;height:140px;border-radius:22px;background:#F7F7F7"></div><div class="kc" style="left:40px;top:230px;width:773px;height:320px"></div></div></div></div>
+    <div><p class="fl"><b>⅔</b>기록 카드는 위 띠만 남음</p><div class="mini"><div class="scr lt"><div class="wc" style="left:40px;top:10px;width:773px;height:284px;background:#FAFAFA"></div><div style="left:60px;top:22px;font-size:14px">오늘의 기록 · 갈수록 좋아졌어요.</div><div class="kc" style="left:24px;top:90px;width:805px;height:360px"></div></div></div></div>
+    <div><p class="fl"><b>끝</b>= 6 의 판(자세히 보기)</p><div class="mini"><div class="scr lt"><div class="wc" style="left:40px;top:10px;width:773px;height:284px;background:#FAFAFA"></div><div style="left:60px;top:22px;font-size:14px">오늘의 기록 · 갈수록 좋아졌어요.</div><div class="pn kc" style="left:24px;top:56px;width:805px;height:400px"><div class="up" style="left:28px;top:20px">자세히 보기 · 1회차 → 2회차</div><div class="bp dim" style="left:90px;top:60px;width:150px;height:84px"><span class="n">60</span></div><div class="bp fill" style="left:358px;top:60px;width:180px;height:84px"><span class="n">100</span></div><div class="bp dim" style="left:90px;top:160px;width:150px;height:84px"><span class="n">55</span></div><div class="bp fill" style="left:358px;top:160px;width:180px;height:84px"><span class="n">100</span></div><div class="btng" style="left:28px;top:300px"><i>←</i>돌아가기</div></div></div></div></div>
+  </div>
+</section>
+
+<!-- B6 -->
+<section class="prop">
+  <div class="ph"><span class="no">B6</span><div><h2>흰 카드 대시보드</h2><p class="one">레퍼런스 6 — 연회색 바탕 · 흰 둥근 카드 · 첫 카드만 Onyx 강조 카드("02") · 신호 출처는 <b>검은 둥근 막대 셋</b>(실신호 = 채움 · 시뮬레이션 = 빗금 · 미측정 = 점선 빈 막대).</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>오늘의 기록</b>카드 넷 · 막대 출처</p>
+      <div class="scr lt">
+        <div class="pn kc" style="left:24px;top:24px;width:200px;height:190px">
+          <div class="up" style="left:20px;top:18px">연습한 회차</div>
+          <div class="num" style="left:16px;top:44px;font-size:104px;color:#fff">02</div>
+          <div style="left:22px;top:152px;font-size:13px;color:var(--ash)">회 · 후면 직각 주차</div>
+        </div>
+        <div class="wc" style="left:236px;top:24px;width:593px;height:190px"></div>
+        <div class="ey" style="left:258px;top:42px">오늘의 기록</div>
+        <div class="ttl" style="left:258px;top:64px;font-size:36px">갈수록 좋아졌어요.</div>
+        <div class="sub" style="left:258px;top:112px;font-size:17px">안전은 한두 가지만 챙기면 돼요.</div>
+        <div style="left:258px;top:160px"><span class="lkp">주차 › 후면 직각 주차 · 힌트 모드</span></div>
+        <div class="wc" style="left:24px;top:226px;width:400px;height:118px"></div>
+        <div class="ey" style="left:44px;top:238px">마지막 회차의 판정</div>
+        <div class="vl" style="left:44px;top:258px;width:362px;display:grid;grid-template-columns:1fr 1fr;column-gap:16px">
+          <div class="r" style="font-size:13px">한 번에 들어갔어요<svg class="mk"><use href="#okc"/></svg></div>
+          <div class="r" style="font-size:13px"><span>방향은 맞게 섰어요<small>추정</small></span><svg class="mk"><use href="#okc"/></svg></div>
+          <div class="r" style="font-size:13px;border-bottom:none">마무리가 깔끔했어요<svg class="mk"><use href="#okc"/></svg></div>
+          <div class="r" style="font-size:13px;border-bottom:none">안전했어요<svg class="mk"><use href="#okc"/></svg></div>
+        </div>
+        <div class="wc" style="left:436px;top:226px;width:393px;height:118px"></div>
+        <div class="ey" style="left:456px;top:238px">신호 출처 · 신호 여덟</div>
+        <div style="left:456px;top:254px;width:355px;display:grid;grid-template-columns:96px 1fr 20px;row-gap:4px;align-items:center;font-size:12.5px">
+          <span><i class="dot live"></i> 실신호</span><span style="height:12px;border-radius:6px;background:var(--chip);position:relative;overflow:hidden"><b style="position:absolute;left:0;top:0;bottom:0;width:87.5%;border-radius:6px;background:linear-gradient(180deg,#43474a,#0d0e0f)"></b></span><span class="num" style="font-size:14px;text-align:right">7</span>
+          <span><i class="dot sim"></i> 시뮬레이션</span><span style="height:12px;border-radius:6px;background:var(--chip);position:relative;overflow:hidden"><b style="position:absolute;left:0;top:0;bottom:0;width:12.5%;border-radius:6px;background:repeating-linear-gradient(135deg,#222526 0 2px,#E0E0E0 2px 4px)"></b></span><span class="num" style="font-size:14px;text-align:right">1</span>
+          <span><i class="dot miss"></i> 미측정</span><span style="height:12px;border-radius:6px;border:1.2px dashed #9a9da0"></span><span class="num" style="font-size:14px;text-align:right">0</span>
+        </div>
+        <div style="left:456px;top:326px;font-size:11px;color:var(--mu)">주차 과정만 측정했어요.</div>
+        <div class="lnk wt" style="left:24px;top:362px">자세히 보기 ↗</div>
+        <div class="lnk wt" style="left:156px;top:362px">진단서 ↗</div>
+        <div class="btnk" style="left:450px;top:360px;width:379px">메인으로 →</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>사용자 "선호하는 타입"(레퍼런스 6) 그대로 — 정보가 카드별로 나뉘어 <b>무엇이 어디 있는지 가장 분명</b>.</li>
+        <li>출처 막대는 비율이 보인다 — "대부분 실신호" 가 숫자보다 먼저.</li>
+        <li>Onyx 강조 카드 하나가 6 의 판과 같은 색 — 누르면 그 카드가 커져 자세히 보기가 되는 움직임으로 이을 수 있다.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><span class="eff m">공수 중간</span> 카드 넷 + 막대 컴포넌트. 데이터 추가 없음.</li>
+        <li>카드가 많아 큰 글자가 작아진다 — 총평 36px(108 dp). 출처 막대 라벨 12.5px(38 dp) — 실제 40 dp 로 키우면 카드 높이 +10.</li>
+        <li>대시보드 느낌이 "앱" 보다 "웹 관리 화면" 에 가깝다 — 운전자에게 차갑게 보일 수 있다.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- B7 -->
+<section class="prop">
+  <div class="ph"><span class="no">B7</span><div><h2>한 장 Onyx — 출처 띠 + 질문 줄</h2><p class="one">총평이 맨 위 크게, 그 아래 <b>신호 여덟 칸 띠</b>(칸 하나 = 신호 하나 · 채움 = 실신호 · 빗금 = 시뮬레이션), 판정 넷은 한 줄, 맨 아래 어두운 질문 줄(선택). 회차는 오른쪽 위 테두리 알약.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>오늘의 기록</b>출처 띠 · 질문 줄</p>
+      <div class="scr dk">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="up" style="left:28px;top:44px">오늘의 기록 · 주차 › 후면 직각 주차 · 힌트 모드</div>
+        <div class="ttl" style="left:28px;top:66px;font-size:40px">갈수록 좋아졌어요.</div>
+        <div class="sub" style="left:28px;top:118px;font-size:17px">안전은 한두 가지만 챙기면 돼요.</div>
+        <div class="bp" style="left:640px;top:36px;width:185px;height:104px;color:var(--platinum)"><span class="n" style="font-size:58px">02</span><span class="l">연습한 회차</span></div>
+        <div style="left:28px;top:164px;width:797px;display:flex;gap:4px">
+          <span style="flex:1;height:26px;border-radius:13px;background:var(--platinum)"></span><span style="flex:1;height:26px;border-radius:13px;background:var(--platinum)"></span><span style="flex:1;height:26px;border-radius:13px;background:var(--platinum)"></span><span style="flex:1;height:26px;border-radius:13px;background:var(--platinum)"></span><span style="flex:1;height:26px;border-radius:13px;background:var(--platinum)"></span><span style="flex:1;height:26px;border-radius:13px;background:var(--platinum)"></span><span style="flex:1;height:26px;border-radius:13px;background:var(--platinum)"></span><span style="flex:1;height:26px;border-radius:13px;border:1.5px solid var(--platinum);background:repeating-linear-gradient(135deg,rgba(224,224,224,.7) 0 2px,transparent 2px 6px)"></span>
+        </div>
+        <div class="hon" style="left:28px;top:198px;font-size:12px"><span><i class="dot live"></i>실신호 7</span><span><i class="dot sim"></i>시뮬레이션 1</span><span><i class="dot miss"></i>미측정 0</span><span>· 주차 과정만 측정했어요.</span></div>
+        <div class="up" style="left:28px;top:232px">마지막 회차의 판정</div>
+        <div style="left:28px;top:250px;display:flex;gap:22px;font-size:14px;white-space:nowrap;align-items:center">
+          <span style="display:flex;gap:6px;align-items:center"><svg class="mk"><use href="#okc"/></svg>한 번에 들어갔어요</span>
+          <span style="display:flex;gap:6px;align-items:center"><svg class="mk"><use href="#okc"/></svg>방향은 맞게 섰어요<small style="font-size:10.5px;color:var(--ash)">신호로 추정</small></span>
+          <span style="display:flex;gap:6px;align-items:center"><svg class="mk"><use href="#okc"/></svg>마무리가 깔끔했어요</span>
+          <span style="display:flex;gap:6px;align-items:center"><svg class="mk"><use href="#okc"/></svg>안전했어요</span>
+        </div>
+        <div class="gt" style="left:28px;top:286px;width:797px;height:58px"></div>
+        <div style="left:46px;top:303px;font-size:15px;color:#fff">오늘 연습, 어땠어요?</div>
+        <div style="left:222px;top:296px;display:flex;gap:8px">
+          <span class="btno" style="height:38px;font-size:13.5px;border-color:rgba(224,224,224,.55)">편했어요</span>
+          <span class="btno" style="height:38px;font-size:13.5px;border-color:rgba(224,224,224,.55)">조금 긴장됐어요</span>
+          <span class="btno" style="height:38px;font-size:13.5px;border-color:rgba(224,224,224,.55)">아직 무서워요</span>
+        </div>
+        <div style="left:700px;top:306px;font-size:11px;color:var(--ash)">건너뛰어도 돼요</div>
+        <div class="lnk" style="left:28px;top:362px">자세히 보기 ↗</div>
+        <div class="lnk" style="left:164px;top:362px">진단서 ↗</div>
+        <div class="btnp" style="left:520px;top:360px;width:305px">메인으로 →</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>출처 띠가 "신호 하나 = 칸 하나" 라 <b>개수와 비율이 동시에</b> 보인다. 미측정이 생기면 점선 빈 칸 — 빠진 게 빠진 모양으로.</li>
+        <li>위에서 아래로 "총평 → 근거(출처) → 판정 → 내 느낌 → 다음" 한 방향으로 읽힌다.</li>
+        <li>질문 줄은 어두운 띠 하나라 빼도 배치가 무너지지 않는다.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><span class="eff m">공수 중간</span> 띠 컴포넌트 + 판정 한 줄. 질문은 새 기능(B4 와 같음).</li>
+        <li>판정 한 줄이 넓다 — "방향이 많이 틀어졌어요" 같은 긴 문장이 오면 두 줄로 접어야 한다.</li>
+        <li>신호가 스무 개(모의시험)면 칸이 가늘어진다 — 열 개 넘으면 칸 대신 비율 막대.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="rec">
+  <p class="t">B · 오늘의 기록 추천 <span>공수 중간</span></p>
+  <h2>B1(2×2 숫자 알약)을 바탕으로, 질문이 필요하면 B7 의 어두운 질문 줄 하나를 판정 아래에 끼운다</h2>
+  <p>B1 은 6 과 같은 Onyx 판 · 같은 큰 알약이라 Report → 자세히 보기가 "알약이 쌍으로 갈라지는" 한 동작처럼 보이고, <b>정직성(실신호 · 시뮬레이션 · 미측정)이 이 화면에서 가장 큰 요소</b>가 된다 — 발표에서 "무엇이 진짜 신호인가" 를 한 장으로 설명할 수 있다. 질문 하나는 새 기능이라 마감 전엔 B7 의 질문 줄을 화면에만 두고(답은 프로필 메모 한 줄), 시간이 없으면 빼도 배치가 그대로다. B3 의 회차 알약 띠는 회차가 셋 이상 쌓이는 시연에서 B1 의 왼쪽 판정 자리에 넣을 수 있는 확장. B2 는 바닥 안, B5 는 마감 뒤(구조 변경).</p>
+  <ol>
+    <li>Claude: Report 에 내려가는 값 확인(회차 수 · badge 셋 · 마지막 판정) — 추가 데이터 없음 · 질문을 넣으면 <code>LessonViewModel</code> 진입점 하나(답 저장) 설계</li>
+    <li>Codex: B1 배치 · 6 의 알약 컴포넌트 재사용 · 점선/흐린 테두리 변형</li>
+  </ol>
+</div>
+
+<!-- ======================================================= C ======================================================= -->
+<div class="scrhead"><div class="L">C</div><div><h2>진단서 — 기간 · 과제별 표 · 공유 범위(예시)</h2><p>들어가는 것: 기간(10/8 · 1회차–2회차) · <b>과제별 표</b>(과제 · 회차 · 숙련 · 안전/판정 · 출처) · 공유 범위 셋(총점만 · <b>항목별</b> · 원시 신호 — 범위마다 혜택 + 조건 "· 예시") · "예시입니다 — 실제 전송·계약은 없습니다" · <code>공유 예시 보기</code>(발급 대상 · 유효 · 제외 · 포함 항목) · <code>← 돌아가기</code> · <code>메인으로 →</code> · 신호 출처. 지금 앱 = 왼쪽 곡면 판 + 오른쪽 범위 세 줄(<code>lesson-certificate.png</code>). 과제별 표는 지금 앱엔 한 과제만 — 여러 과제를 한 날은 집계가 새로 필요(가정, 아래 추천에 적음).</p></div></div>
+
+<!-- C1 -->
+<section class="prop">
+  <div class="ph"><span class="no">C1</span><div><h2>트랙으로 고르는 범위 — 흰 카드 둘</h2><p class="one">문장 시트의 분류 트랙(흰 트랙 위 검은 고른 칩)을 공유 범위에. 왼쪽 흰 카드 = 과제별 표, 오른쪽 흰 카드 = 범위 트랙 + 고른 범위의 혜택 · 조건. "예시" 는 <b>노란 문서 아이콘 칩</b>으로 맨 위.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>진단서</b>연회색 바탕 · 흰 카드 둘 · 트랙</p>
+      <div class="scr lt">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="ttl" style="left:28px;top:44px;font-size:32px">진단서</div>
+        <div style="left:150px;top:56px;display:flex;gap:6px"><span class="lkp w">기간 10/8 · 1회차–2회차</span><span class="lkp w">과제 셋</span></div>
+        <div class="yc" style="left:494px;top:22px"><svg><use href="#ydoc"/></svg>예시입니다 — 실제 전송·계약은 없습니다</div>
+        <div class="wc" style="left:24px;top:104px;width:470px;height:238px"></div>
+        <div class="ey" style="left:44px;top:120px">과제별</div>
+        <table class="tb" style="left:44px;top:142px;width:430px;font-size:12.5px">
+          <tr><th>과제</th><th class="rt">회차</th><th class="rt">숙련</th><th class="rt">안전 · 판정</th><th>출처</th></tr>
+          <tr><td>후면 직각 주차<br><span class="mu" style="font-size:10.5px">힌트 모드</span></td><td class="rt">2</td><td class="rt"><span class="mu">60 →</span> 100</td><td class="rt"><span class="mu">55 →</span> 100</td><td><span class="hon" style="gap:6px;font-size:11px"><span><i class="dot live"></i>7</span><span><i class="dot sim"></i>1</span></span></td></tr>
+          <tr><td>출발 전 점검<br><span class="mu" style="font-size:10.5px">힌트 모드</span></td><td class="rt">1</td><td class="rt">7/7</td><td class="rt mu">—</td><td><span class="hon" style="gap:6px;font-size:11px"><span><i class="dot live"></i>7</span></span></td></tr>
+          <tr><td>장내기능 모의시험<br><span class="mu" style="font-size:10.5px">평가 모드</span></td><td class="rt">2</td><td class="rt"><span class="mu">70 →</span> 100</td><td class="rt">합격</td><td><span class="hon" style="gap:6px;font-size:11px"><span><i class="dot sim"></i>17</span></span></td></tr>
+        </table>
+        <div style="left:44px;top:316px;font-size:10.5px;color:var(--mu)">화살표 왼쪽 = 첫 회차 · 오른쪽 = 마지막 회차 · 출처 <i class="dot live"></i> 실신호 <i class="dot sim"></i> 시뮬레이션 <i class="dot miss"></i> 미측정</div>
+        <div class="wc" style="left:506px;top:104px;width:323px;height:238px"></div>
+        <div class="ey" style="left:526px;top:120px">공유 범위 · 오른쪽으로 갈수록 넓게</div>
+        <div class="trk" style="left:524px;top:142px;width:287px"><span>총점만</span><span class="on">항목별</span><span>원시 신호</span></div>
+        <div style="left:526px;top:192px;font-size:15px;font-weight:500;width:285px;line-height:1.3">보험사 안전운전 특약 할인 심사 대상</div>
+        <div style="left:526px;top:236px;font-size:12px;color:var(--mu)">항목별 기록을 꾸준히 공유하면 · 예시</div>
+        <div style="left:526px;top:262px;font-size:12px">구간 수·조향·기어·근접 등 수치까지</div>
+        <div style="left:526px;top:300px;font-size:10.5px;color:var(--mu);width:285px">넓은 범위일수록 혜택이 늘어요 · 포함 항목은 공유 예시에서 확인</div>
+        <div class="btng" style="left:24px;top:360px;width:150px"><i>←</i>돌아가기</div>
+        <div class="lnk wt" style="left:186px;top:362px">공유 예시 보기 ↗</div>
+        <div class="btnk" style="left:450px;top:360px;width:379px">메인으로 →</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li><b>문장 시트와 같은 손동작</b>(트랙에서 하나 고르기) — 홈에서 과제 분류를 고르던 그 컴포넌트를 그대로 쓴다.</li>
+        <li>표 · 범위가 카드로 나뉘어 "내 기록" 과 "누구에게 얼마나" 가 섞이지 않는다.</li>
+        <li>"예시" 가 노란 아이콘 칩으로 화면 맨 위 — 이 화면의 유일한 색이라 놓칠 수 없다.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><span class="eff m">공수 중간</span> 트랙 · 카드 재사용 + 과제별 집계(새 데이터 — 지금은 한 과제).</li>
+        <li>지금 문구 "위로 갈수록 넓게" → 가로 트랙이라 "오른쪽으로 갈수록 넓게" 로 한 단어 바뀐다.</li>
+        <li>6 과는 판이 다르다(밝음). 진단서는 "문서" 라 밝아도 어색하지 않다는 쪽과, 결과 판 가족(Onyx)에서 빠진다는 쪽이 갈린다.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- C2 -->
+<section class="prop">
+  <div class="ph"><span class="no">C2</span><div><h2>어두운 성적표 — 기간 알약 + 범위 사다리</h2><p class="one">6 과 같은 Onyx 판. 왼쪽 위 테두리 알약 = 기간, 아래 과제별 표(마지막 값은 작은 채운 알약), 오른쪽 = 세로로 쌓인 범위 알약 셋(위가 가장 넓음 · 고른 것만 채움).</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>진단서</b>Onyx · 기간 알약 · 범위 사다리</p>
+      <div class="scr dk">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="up" style="left:28px;top:44px">진단서 · DIAGNOSIS</div>
+        <div class="bp" style="left:28px;top:66px;width:206px;height:88px;color:var(--platinum)"><span class="n" style="font-size:40px">10/8</span><span class="l">1회차 → 2회차 · 과제 셋</span></div>
+        <div class="yc" style="left:248px;top:72px;background:var(--graphite)"><svg><use href="#ydoc"/></svg>예시입니다 — 실제 전송·계약은 없습니다</div>
+        <div style="left:250px;top:112px;font-size:11.5px;color:var(--ash);width:300px">숫자는 결과서에만 — 코치 문장엔 넣지 않아요.</div>
+        <table class="tb" style="left:28px;top:176px;width:526px;font-size:12.5px">
+          <tr><th>과제 · 모드</th><th class="rt">회차</th><th class="rt">숙련 · 점수</th><th class="rt">안전 · 판정</th><th>출처</th></tr>
+          <tr><td>후면 직각 주차 · 힌트</td><td class="rt">2</td><td class="rt"><span class="mu">60</span> <span style="display:inline-block;padding:0 9px;border-radius:10px;background:var(--platinum);color:var(--onyx)">100</span></td><td class="rt"><span class="mu">55</span> <span style="display:inline-block;padding:0 9px;border-radius:10px;background:var(--platinum);color:var(--onyx)">100</span></td><td><span class="hon" style="gap:6px;font-size:11px"><span><i class="dot live"></i>7</span><span><i class="dot sim"></i>1</span></span></td></tr>
+          <tr><td>출발 전 점검 · 힌트</td><td class="rt">1</td><td class="rt"><span style="display:inline-block;padding:0 9px;border-radius:10px;background:var(--platinum);color:var(--onyx)">7/7</span></td><td class="rt mu">—</td><td><span class="hon" style="gap:6px;font-size:11px"><span><i class="dot live"></i>7</span></span></td></tr>
+          <tr><td>장내기능 모의시험 · 평가</td><td class="rt">2</td><td class="rt"><span class="mu">70</span> <span style="display:inline-block;padding:0 9px;border-radius:10px;background:var(--platinum);color:var(--onyx)">100</span></td><td class="rt">합격</td><td><span class="hon" style="gap:6px;font-size:11px"><span><i class="dot sim"></i>17</span></span></td></tr>
+        </table>
+        <div class="hon" style="left:28px;top:318px;font-size:11px"><span><i class="dot live"></i>실신호</span><span><i class="dot sim"></i>시뮬레이션</span><span><i class="dot miss"></i>미측정</span><span>· 모의시험 구간·위치·신호등은 시험장 시뮬레이션</span></div>
+        <div class="up" style="left:580px;top:46px">공유 범위 · 위로 갈수록 넓게</div>
+        <div class="vp dim" style="left:580px;top:66px;width:245px;height:58px;border-radius:29px;flex-direction:column;align-items:flex-start;justify-content:center;gap:0;padding:0 20px"><span style="font-size:14px">원시 신호</span><span style="font-size:10.5px">적성검사 연계·연구 참여 대상</span></div>
+        <div class="vp fill" style="left:580px;top:132px;width:245px;height:66px;border-radius:33px;flex-direction:column;align-items:flex-start;justify-content:center;gap:0;padding:0 20px;box-shadow:0 10px 18px -8px rgba(0,0,0,.8)"><span style="font-size:15px;font-weight:500">항목별</span><span style="font-size:10.5px">보험사 안전운전 특약 할인 심사 대상</span></div>
+        <div class="vp dim" style="left:580px;top:206px;width:245px;height:58px;border-radius:29px;flex-direction:column;align-items:flex-start;justify-content:center;gap:0;padding:0 20px"><span style="font-size:14px">총점만</span><span style="font-size:10.5px">제휴 시험장 대여료 할인</span></div>
+        <div style="left:582px;top:272px;font-size:11px;color:var(--ash);width:245px;line-height:1.45">항목별 기록을 꾸준히 공유하면 · 예시<br>구간 수·조향·기어·근접 등 수치까지</div>
+        <div class="btng" style="left:28px;top:360px;width:150px"><i>←</i>돌아가기</div>
+        <div class="lnk" style="left:190px;top:362px">공유 예시 보기 ↗</div>
+        <div class="btnp" style="left:580px;top:360px;width:245px">메인으로 →</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li><b>6 과 같은 판</b>에서 범위를 "채운 알약 = 고른 것" 으로 — 자세히 보기 → 진단서가 끊기지 않는다. 사다리가 지금 문구 "위로 갈수록 넓게" 를 그대로 그림으로.</li>
+        <li>표의 마지막 값이 작은 채운 알약 — 6 의 "지금 = 채움" 문법이 표 안까지.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><span class="eff m">공수 중간</span> 범위 알약 셋(지금 줄 셋을 알약으로) + 표. 과제별 집계는 C1 과 같음.</li>
+        <li>범위 알약 안 혜택 글자 10.5px(32 dp) — 하한 아래. 실제 화면에서 혜택을 알약 밖(오른쪽)으로 빼거나 알약 높이를 키운다.</li>
+        <li>정직성: "예시" 칩이 왼쪽 위 — 범위 사다리와 떨어져 있다. 사다리 아래 "· 예시" 를 반드시 같이.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- C3 -->
+<section class="prop">
+  <div class="ph"><span class="no">C3</span><div><h2>넓어지는 계단 — 폭이 곧 범위</h2><p class="one">범위 카드 셋의 <b>폭이 공유하는 양</b>. 아래 "총점만" 이 가장 좁고 위 "원시 신호" 가 가장 넓다 — 오른쪽 끝을 맞춰 쌓아 계단처럼. 고른 범위만 검은 입체 카드.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>진단서</b>흰 카드 표 · 계단 범위</p>
+      <div class="scr lt">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="ttl" style="left:28px;top:44px;font-size:30px">진단서 <span class="gw" style="font-size:20px">10/8 · 1회차–2회차</span></div>
+        <div class="yc" style="left:494px;top:22px"><svg><use href="#ydoc"/></svg>예시입니다 — 실제 전송·계약은 없습니다</div>
+        <div class="wc" style="left:24px;top:96px;width:388px;height:246px"></div>
+        <div class="ey" style="left:44px;top:112px">과제별</div>
+        <table class="tb" style="left:44px;top:134px;width:350px;font-size:12.5px">
+          <tr><th>과제</th><th class="rt">회차</th><th class="rt">숙련</th><th class="rt">안전 · 판정</th></tr>
+          <tr><td>후면 직각 주차</td><td class="rt">2</td><td class="rt"><span class="mu">60 →</span> 100</td><td class="rt"><span class="mu">55 →</span> 100</td></tr>
+          <tr><td>출발 전 점검</td><td class="rt">1</td><td class="rt">7/7</td><td class="rt mu">—</td></tr>
+          <tr><td>장내기능 모의시험</td><td class="rt">2</td><td class="rt"><span class="mu">70 →</span> 100</td><td class="rt">합격</td></tr>
+        </table>
+        <div class="hon" style="left:44px;top:250px;flex-direction:column;align-items:flex-start;gap:3px;font-size:11.5px"><span><i class="dot live"></i>실신호 · 주차 7 · 점검 7</span><span><i class="dot sim"></i>시뮬레이션 · 주차 1 · 모의시험 17</span><span><i class="dot miss"></i>미측정 · 0</span></div>
+        <div class="up" style="left:430px;top:80px">공유 범위 · 위로 갈수록 넓게</div>
+        <div class="wc" style="left:429px;top:96px;width:400px;height:72px;box-shadow:0 1px 2px rgba(0,0,0,.06)"></div>
+        <div style="left:448px;top:106px;font-size:14.5px">원시 신호 <span style="font-size:11px;color:var(--mu);margin-left:6px">속도·조향각 시계열까지</span></div>
+        <div style="left:448px;top:132px;font-size:12px;color:#4a4e51">적성검사 연계·연구 참여 대상 <span class="gw">· 원시 신호까지 공유하면 · 예시</span></div>
+        <div class="pn" style="left:509px;top:176px;width:320px;height:82px;border-radius:22px;background:linear-gradient(180deg,#43474a 0%,#141516 55%,#0d0e0f 100%);color:#fff;box-shadow:0 14px 20px -8px rgba(0,0,0,.6)">
+          <div style="left:20px;top:10px;font-size:15px;font-weight:500">항목별 <span style="font-size:11px;color:var(--ash);font-weight:400;margin-left:6px">구간 수·조향·기어·근접 등</span></div>
+          <div style="left:20px;top:36px;font-size:12.5px">보험사 안전운전 특약 할인 심사 대상</div>
+          <div style="left:20px;top:56px;font-size:11px;color:var(--ash)">항목별 기록을 꾸준히 공유하면 · 예시</div>
+          <div style="left:286px;top:12px;width:20px;height:20px;border-radius:50%;background:#fff;color:#111;display:flex;align-items:center;justify-content:center"><svg width="12" height="12"><use href="#ok"/></svg></div>
+        </div>
+        <div class="wc" style="left:589px;top:266px;width:240px;height:66px;box-shadow:0 1px 2px rgba(0,0,0,.06)"></div>
+        <div style="left:606px;top:274px;font-size:14.5px">총점만 <span style="font-size:11px;color:var(--mu);margin-left:4px">두 점수만</span></div>
+        <div style="left:606px;top:300px;font-size:12px;color:#4a4e51">제휴 시험장 대여료 할인 <span class="gw">· 예시</span></div>
+        <div class="btng" style="left:24px;top:360px;width:150px"><i>←</i>돌아가기</div>
+        <div class="lnk wt" style="left:186px;top:362px">공유 예시 보기 ↗</div>
+        <div class="btnk" style="left:450px;top:360px;width:379px">메인으로 →</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>"넓게 공유할수록 혜택이 크다" 가 <b>읽지 않아도 모양으로</b> — 폭 = 공유량. 지금 문구("위로 갈수록 넓게")를 말 그대로 그림으로.</li>
+        <li>고른 카드만 검은 입체 + 흰 체크 — 문장 시트의 과제 카드와 같은 선택 문법.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><span class="eff m">공수 중간</span> 폭이 다른 카드 셋(고정 폭 비율). 표는 C1 과 같음.</li>
+        <li>가장 좁은 "총점만" 카드에 글자가 빠듯 — 혜택 한 줄이 실제 화면에서 40 dp 면 폭 720 dp 필요.</li>
+        <li>폭이 "혜택 크기" 로 오해될 수 있다(실제로는 공유하는 양). 위 라벨로 풀어 쓴다.</li>
+        <li>정직성: 카드마다 "· 예시" + 위 노란 칩 — 강함.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- C4 -->
+<section class="prop">
+  <div class="ph"><span class="no">C4</span><div><h2>종이 진단서 — 도장 "예시"</h2><p class="one">레퍼런스 5 의 종이 질감을 밝게. 진단서를 <b>인쇄된 문서 한 장</b>처럼 — 머리줄 · 큰 기간 숫자 · 가는 선 표 · 라디오 셋. 오른쪽 위 비스듬한 둥근 도장이 "예시 · 실제 전송·계약 없음".</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>진단서</b>종이 한 장 · 도장</p>
+      <div class="scr lt">
+        <div class="pn paper" style="left:24px;top:14px;width:805px;height:330px;border-radius:18px;box-shadow:0 0 0 1px rgba(34,37,38,.18),0 10px 24px -14px rgba(0,0,0,.4)">
+          <div class="wm" style="left:22px;top:18px">DRIVE COACH</div>
+          <div class="up" style="left:330px;top:16px;color:var(--onyx)">진단서 · DIAGNOSIS</div>
+          <div class="up" style="left:690px;top:16px">발급 대상 · 본인</div>
+          <div style="left:22px;right:22px;top:38px;height:1px;background:rgba(34,37,38,.35)"></div>
+          <div class="num" style="left:20px;top:52px;font-size:62px">10.08</div>
+          <div style="left:22px;top:122px;font-size:12px;color:#4a4e51">기간 · 1회차–2회차 · 과제 셋 · 유효 발급일부터 석 달 · 예시</div>
+          <div style="left:620px;top:46px;width:112px;height:112px;border-radius:50%;border:2px solid #222526;transform:rotate(-12deg);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:inset 0 0 0 5px #EEECE7,inset 0 0 0 6px #222526"><span style="font-size:26px;font-weight:500;line-height:1">예시</span><span style="font-size:9.5px;margin-top:4px;text-align:center;line-height:1.3">실제 전송·계약<br>없음</span></div>
+          <table class="tb" style="left:22px;top:152px;width:470px;font-size:12.5px">
+            <tr><th>과제 · 모드</th><th class="rt">회차</th><th class="rt">숙련</th><th class="rt">안전 · 판정</th><th>출처</th></tr>
+            <tr><td>후면 직각 주차 · 힌트</td><td class="rt">2</td><td class="rt">60 → 100</td><td class="rt">55 → 100</td><td><span class="hon" style="gap:6px;font-size:11px;color:var(--onyx)"><span><i class="dot live"></i>7</span><span><i class="dot sim"></i>1</span></span></td></tr>
+            <tr><td>출발 전 점검 · 힌트</td><td class="rt">1</td><td class="rt">7/7</td><td class="rt">—</td><td><span class="hon" style="gap:6px;font-size:11px;color:var(--onyx)"><span><i class="dot live"></i>7</span></span></td></tr>
+            <tr><td>장내기능 모의시험 · 평가</td><td class="rt">2</td><td class="rt">70 → 100</td><td class="rt">합격</td><td><span class="hon" style="gap:6px;font-size:11px;color:var(--onyx)"><span><i class="dot sim"></i>17</span></span></td></tr>
+          </table>
+          <div class="up" style="left:520px;top:170px;color:var(--onyx)">공유 범위 · 위로 갈수록 넓게</div>
+          <div style="left:520px;top:190px;width:262px;font-size:13px;line-height:1.35">
+            <div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid rgba(34,37,38,.12)"><span style="width:14px;height:14px;border-radius:50%;border:1.5px solid #222526;flex:none;margin-top:2px"></span><span>원시 신호<br><small style="font-size:10.5px;color:#6b6f72">적성검사 연계·연구 참여 대상 · 예시</small></span></div>
+            <div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid rgba(34,37,38,.12)"><span style="width:14px;height:14px;border-radius:50%;border:1.5px solid #222526;flex:none;margin-top:2px;box-shadow:inset 0 0 0 3px #EEECE7;background:#222526"></span><span><b style="font-weight:500">항목별</b><br><small style="font-size:10.5px;color:#6b6f72">보험사 안전운전 특약 할인 심사 대상 · 예시</small></span></div>
+            <div style="display:flex;gap:8px;padding:5px 0"><span style="width:14px;height:14px;border-radius:50%;border:1.5px solid #222526;flex:none;margin-top:2px"></span><span>총점만<br><small style="font-size:10.5px;color:#6b6f72">제휴 시험장 대여료 할인 · 예시</small></span></div>
+          </div>
+          <div style="left:22px;top:300px;font-size:10.5px;color:#6b6f72">제외 · 위치 · 대화 · 음성 — 어느 범위에서도 나가지 않아요. · 출처 <i class="dot live" style="color:#222"></i> 실신호 <i class="dot sim" style="color:#222"></i> 시뮬레이션 <i class="dot miss" style="color:#222"></i> 미측정</div>
+        </div>
+        <div class="btng" style="left:24px;top:360px;width:150px"><i>←</i>돌아가기</div>
+        <div class="lnk wt" style="left:186px;top:362px">공유 예시 보기 ↗</div>
+        <div class="btnk" style="left:450px;top:360px;width:379px">메인으로 →</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>"진단서" 라는 이름에 맞는 <b>문서의 무게</b> — 동승자 · 기관에게 보여 주는 장면(발표 슬라이드)에 가장 설득력 있다.</li>
+        <li>도장 "예시" 가 가장 정직하고 가장 눈에 띈다 — 진짜 문서처럼 보이는 위험을 도장이 상쇄.</li>
+        <li>제외(위치 · 대화 · 음성)를 문서 바닥 줄로 — 공유 예시를 열지 않아도 보인다.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><span class="eff m">공수 중간</span> 종이 질감(이미지 하나) · 도장 · 라디오. 6 과는 판이 다르다(문서라 의도적으로 다름).</li>
+        <li>라디오 글자 13px · 혜택 10.5px — 실제 화면에서 40 dp 로 키우면 문서가 넘친다. 범위 셋을 두 줄씩이 한계.</li>
+        <li>종이 질감이 차 화면에서 "먼지" 처럼 보일 수 있음 — 아주 옅게.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- C5 -->
+<section class="prop">
+  <div class="ph"><span class="no">C5</span><div><h2>공유 예시가 겹쳐 올라온다</h2><p class="one">진단서 카드 위로 <code>공유 예시 보기</code> 카드가 <b>아래에서 올라와 겹친다</b>(C1 420 ms). 진단서는 위 띠 한 줄로 줄어 남고, 올라온 카드엔 발급 대상 트랙 · 기간 · 유효 · 제외 · 포함 항목 ✓/—.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>진단서 → 공유 예시</b>실시간 — 카드가 올라옴(6 s 반복 · 정지 캡처는 올라온 상태)</p>
+      <div class="scr lt liveSheet">
+        <div class="wc" style="left:40px;top:12px;width:773px;height:90px;background:#FAFAFA"></div>
+        <div style="left:60px;top:24px;font-size:13px;color:#4a4e51">진단서 · 10/8 · 1회차–2회차 · <b style="font-weight:500;color:var(--onyx)">항목별</b> · 보험사 안전운전 특약 할인 심사 대상 · 예시</div>
+        <div class="pn wc k" style="left:24px;top:52px;width:805px;height:400px">
+          <div style="left:22px;top:16px;font-size:18px;font-weight:500">공유 예시 · 항목별</div>
+          <div class="yc" style="left:200px;top:14px"><svg><use href="#ydoc"/></svg>예시 — 실제 전송 없음</div>
+          <div class="ey" style="left:22px;top:56px">발급 대상</div>
+          <div class="trk" style="left:20px;top:74px;width:300px"><span class="on">본인</span><span>동승자</span><span>기관</span></div>
+          <div style="left:22px;top:122px;display:grid;grid-template-columns:52px 1fr;row-gap:6px;font-size:13px;width:300px">
+            <span class="ey" style="font-size:11px;line-height:20px">기간</span><span>1회차–2회차</span>
+            <span class="ey" style="font-size:11px;line-height:20px">과제</span><span>후면 직각 주차</span>
+            <span class="ey" style="font-size:11px;line-height:20px">유효</span><span style="color:var(--mu)">발급일부터 석 달 · 예시</span>
+            <span class="ey" style="font-size:11px;line-height:20px">제외</span><span style="color:var(--mu)">위치 · 대화 · 음성 없음</span>
+          </div>
+          <div class="ey" style="left:356px;top:56px">포함 항목</div>
+          <div class="vl" style="left:356px;top:74px;width:425px;display:grid;grid-template-columns:1fr 1fr;column-gap:22px">
+            <div class="r" style="font-size:13px;height:25px"><span><svg class="mk" style="width:13px;height:13px;vertical-align:-2px"><use href="#ok"/></svg> 숙련 점수</span>100</div>
+            <div class="r" style="font-size:13px;height:25px"><span><svg class="mk" style="width:13px;height:13px;vertical-align:-2px"><use href="#ok"/></svg> 안전 점수</span>100</div>
+            <div class="r" style="font-size:13px;height:25px"><span><svg class="mk" style="width:13px;height:13px;vertical-align:-2px"><use href="#ok"/></svg> 이동 구간 수</span>2</div>
+            <div class="r" style="font-size:13px;height:25px"><span><svg class="mk" style="width:13px;height:13px;vertical-align:-2px"><use href="#ok"/></svg> 조향 왕복</span>1</div>
+            <div class="r" style="font-size:13px;height:25px"><span><svg class="mk" style="width:13px;height:13px;vertical-align:-2px"><use href="#ok"/></svg> 기어 전환</span>0</div>
+            <div class="r" style="font-size:13px;height:25px"><span><svg class="mk" style="width:13px;height:13px;vertical-align:-2px"><use href="#ok"/></svg> 근접</span>0</div>
+            <div class="r" style="font-size:13px;height:25px"><span><svg class="mk" style="width:13px;height:13px;vertical-align:-2px"><use href="#ok"/></svg> 급정지</span>0</div>
+            <div class="r" style="font-size:13px;height:25px"><span><svg class="mk" style="width:13px;height:13px;vertical-align:-2px"><use href="#ok"/></svg> 방향 편차</span>1°</div>
+            <div class="r" style="font-size:13px;height:25px;color:#a8abad;border-bottom:none"><span>— 속도 시계열</span>범위 밖</div>
+            <div class="r" style="font-size:13px;height:25px;color:#a8abad;border-bottom:none"><span>— 조향각 시계열</span>범위 밖</div>
+          </div>
+          <div class="hon" style="left:356px;top:216px;font-size:11px"><span><i class="dot live"></i>실신호 7</span><span><i class="dot sim"></i>시뮬레이션 1</span><span><i class="dot miss"></i>미측정 0</span></div>
+          <div class="btng" style="left:20px;top:250px;width:150px;background:var(--chip);box-shadow:none"><i style="background:#fff">↓</i>닫기</div>
+          <div class="btnk" style="left:426px;top:250px;width:355px">메인으로 →</div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li><b>핀 B 를 진단서에 그대로</b> — 문장 시트의 과제 카드가 올라오는 것과 같은 움직임 · 같은 <code>↓ 닫기</code>. 사용자가 고른 문법을 정보가 가장 많은 화면에 쓴다.</li>
+        <li>지금 앱의 공유 예시(발급 대상 · 기간 · 과제 · 유효 · 제외 · 포함 항목 ✓/—)가 한 장에 다 들어간다.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><span class="eff m">공수 중간</span> 바텀 시트 하나(홈 시트 재사용) + 진단서 띠로 줄어드는 움직임.</li>
+        <li>이 목업은 <b>공유 예시를 연 뒤</b>의 모습 — 진단서 본문(과제별 표 · 범위)은 C1~C3 · C6 중 하나와 짝을 이뤄야 한다.</li>
+        <li>포함 항목 숫자 13px(40 dp) — 하한. 정직성: 노란 칩 + 출처 줄.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- C6 -->
+<section class="prop">
+  <div class="ph"><span class="no">C6</span><div><h2>쌍 알약 진단서 — 과제마다 첫 → 마지막</h2><p class="one">6 의 쌍 알약을 과제별 표로. 한 줄 = 한 과제, <b>첫 회차 흐린 알약 → 마지막 회차 채운 알약</b>, 사이 변화량 칩. 공유 범위는 오른쪽 <b>세로 슬라이더</b>(위가 넓음) — 손잡이 = 고른 범위.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>진단서</b>Onyx · 과제별 쌍 알약 · 세로 슬라이더</p>
+      <div class="scr dk">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="up" style="left:28px;top:44px">진단서 · 10/8 · 1회차 → 2회차</div>
+        <div class="yc" style="left:300px;top:20px;background:var(--graphite)"><svg><use href="#ydoc"/></svg>예시입니다 — 실제 전송·계약은 없습니다</div>
+        <div class="up" style="left:220px;top:72px">첫 회차</div>
+        <div class="up" style="left:396px;top:72px;color:var(--platinum)">마지막 회차</div>
+        <!-- 주차 -->
+        <div style="left:28px;top:94px;font-size:14px;line-height:1.3">후면 직각 주차<br><span style="font-size:10.5px;color:var(--ash)">힌트 · 숙련</span></div>
+        <div class="bp dim" style="left:216px;top:90px;width:104px;height:48px"><span class="n" style="font-size:28px">60</span></div>
+        <div style="left:322px;top:113px;width:70px;height:1.5px;background:rgba(224,224,224,.45)"></div>
+        <div style="left:336px;top:103px;height:22px;line-height:22px;padding:0 8px;border-radius:11px;background:var(--graphite);font-size:11px">+40</div>
+        <div class="bp fill" style="left:394px;top:90px;width:120px;height:48px"><span class="n" style="font-size:28px">100</span></div>
+        <div class="hon" style="left:526px;top:106px;font-size:11px;gap:6px"><span><i class="dot live"></i>7</span><span><i class="dot sim"></i>1</span></div>
+        <!-- 모의시험 -->
+        <div style="left:28px;top:156px;font-size:14px;line-height:1.3">장내기능 모의시험<br><span style="font-size:10.5px;color:var(--ash)">평가 · 점수</span></div>
+        <div class="bp dim" style="left:216px;top:152px;width:104px;height:48px"><span class="n" style="font-size:24px">70</span><span class="l" style="margin-top:0;font-size:9px">불합격</span></div>
+        <div style="left:322px;top:175px;width:70px;height:1.5px;background:rgba(224,224,224,.45)"></div>
+        <div style="left:336px;top:165px;height:22px;line-height:22px;padding:0 8px;border-radius:11px;background:var(--graphite);font-size:11px">+30</div>
+        <div class="bp fill" style="left:394px;top:152px;width:120px;height:48px"><span class="n" style="font-size:24px">100</span><span class="l" style="margin-top:0;font-size:9px">합격</span></div>
+        <div class="hon" style="left:526px;top:168px;font-size:11px;gap:6px"><span><i class="dot sim"></i>17</span></div>
+        <!-- 점검 -->
+        <div style="left:28px;top:218px;font-size:14px;line-height:1.3">출발 전 점검<br><span style="font-size:10.5px;color:var(--ash)">힌트 · 항목</span></div>
+        <div class="bp dash" style="left:216px;top:214px;width:104px;height:48px;color:rgba(224,224,224,.35)"><span style="font-size:11px">한 회차뿐</span></div>
+        <div class="bp fill" style="left:394px;top:214px;width:120px;height:48px"><span class="n" style="font-size:24px">7/7</span></div>
+        <div class="hon" style="left:526px;top:230px;font-size:11px;gap:6px"><span><i class="dot live"></i>7</span></div>
+        <div class="hon" style="left:28px;top:284px;font-size:11px"><span><i class="dot live"></i>실신호</span><span><i class="dot sim"></i>시뮬레이션</span><span><i class="dot miss"></i>미측정</span><span>· 안전 점수 · 감점 표는 자세히 보기에</span></div>
+        <!-- 슬라이더 -->
+        <div class="up" style="left:610px;top:72px">공유 범위 · 위로 갈수록 넓게</div>
+        <div style="left:628px;top:100px;width:3px;height:150px;border-radius:2px;background:var(--graphite)"></div>
+        <div style="left:628px;top:175px;width:3px;height:75px;border-radius:2px;background:var(--platinum)"></div>
+        <div style="left:622px;top:96px;width:15px;height:15px;border-radius:50%;border:1.5px solid var(--ash);background:var(--onyx)"></div>
+        <div style="left:614px;top:161px;width:31px;height:31px;border-radius:50%;background:linear-gradient(180deg,#F4F4F4,#D2D2D2);box-shadow:0 8px 14px -6px rgba(0,0,0,.9)"></div>
+        <div style="left:622px;top:240px;width:15px;height:15px;border-radius:50%;background:var(--platinum)"></div>
+        <div style="left:656px;top:92px;font-size:13px;color:var(--ash);line-height:1.3">원시 신호<br><span style="font-size:10.5px">적성검사 연계·연구 참여 대상</span></div>
+        <div style="left:656px;top:156px;font-size:15px;color:#fff;font-weight:500;line-height:1.3">항목별<br><span style="font-size:11px;font-weight:400;color:var(--platinum)">보험사 안전운전 특약<br>할인 심사 대상</span></div>
+        <div style="left:656px;top:236px;font-size:13px;color:var(--ash);line-height:1.3">총점만<br><span style="font-size:10.5px">제휴 시험장 대여료 할인</span></div>
+        <div style="left:612px;top:284px;font-size:11px;color:var(--ash);width:213px">항목별 기록을 꾸준히 공유하면 · 예시</div>
+        <div class="btng" style="left:28px;top:360px;width:150px"><i>←</i>돌아가기</div>
+        <div class="lnk" style="left:190px;top:362px">공유 예시 보기 ↗</div>
+        <div class="btnp" style="left:580px;top:360px;width:245px">메인으로 →</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li><b>6 과 똑같은 쌍 알약 · 변화량 칩</b> — 자세히 보기(한 과제 · 점수 둘) → 진단서(여러 과제 · 한 줄씩)가 같은 부품의 크기만 다른 판. 결과 판 가족이 가장 단단해진다.</li>
+        <li>세로 슬라이더가 "위로 갈수록 넓게" 를 그대로, 아래쪽 채운 선 = "여기까지 공유" — 범위가 누적이라는 사실(넓은 범위가 좁은 범위를 포함)도 보인다.</li>
+        <li>회차가 하나뿐인 과제는 점선 빈 알약 — 비교할 게 없다는 걸 숨기지 않는다.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><span class="eff m">공수 중간</span> 6 의 쌍 알약 재사용(작은 크기) + 세로 슬라이더(세 칸 고정 · 탭으로 고름, 끌기 없음) + 과제별 집계.</li>
+        <li>안전 점수가 표에서 빠진다(숙련 · 시험 점수만) — 안전은 자세히 보기로. 다 넣으면 알약 쌍이 둘씩이라 과제 셋에서 넘친다.</li>
+        <li>슬라이더 칸 사이 높이 75px(225 dp) — 누르기 충분. 혜택 글자 10.5~11px — 실제 32 dp 하한.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- C7 -->
+<section class="prop">
+  <div class="ph"><span class="no">C7</span><div><h2>문장으로 고르는 공유</h2><p class="one">문장 시트 그대로 — "[항목별]까지 [본인]에게 보여줘요." 낱말 둘이 흰 알약 칩(누르면 선택지 카드가 올라옴), 앞에 노란 문서 아이콘. 둘째 줄 회색 = 혜택. 아래 흰 카드 = 과제별 표 한 장.</p></div></div>
+  <div class="row">
+    <div>
+      <p class="cap"><b>진단서</b>연회색 바탕 · 문장 + 표 카드</p>
+      <div class="scr lt">
+        <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+        <div class="ey" style="left:28px;top:46px">진단서 · 10/8 · 1회차–2회차</div>
+        <div class="ttl" style="left:28px;top:76px;font-size:38px"><span class="ip" style="font-size:38px"><svg><use href="#ydoc"/></svg></span> <span style="background:#fff;border-radius:16px;padding:0 14px;box-shadow:0 2px 0 #222">항목별</span>까지 <span style="background:#fff;border-radius:16px;padding:0 14px;box-shadow:0 2px 0 #222">본인</span>에게 <span class="gw">보여줘요.</span></div>
+        <div style="left:28px;top:140px;font-size:18px;color:#8a8d90;font-weight:500">보험사 안전운전 특약 할인 심사 대상 · 항목별 기록을 꾸준히 공유하면</div>
+        <div style="left:28px;top:176px;display:flex;gap:6px"><span class="lkp k">예시입니다 — 실제 전송·계약은 없습니다</span><span class="lkp w">구간 수·조향·기어·근접 등 수치까지</span><span class="lkp w">제외 · 위치 · 대화 · 음성</span></div>
+        <div class="wc" style="left:24px;top:210px;width:805px;height:134px"></div>
+        <table class="tb" style="left:44px;top:224px;width:765px;font-size:13px">
+          <tr><th>과제 · 모드</th><th class="rt">회차</th><th class="rt">숙련 · 점수</th><th class="rt">안전 · 판정</th><th style="padding-left:20px">출처</th></tr>
+          <tr><td>후면 직각 주차 · 힌트</td><td class="rt">2</td><td class="rt"><span class="mu">60 →</span> 100</td><td class="rt"><span class="mu">55 →</span> 100</td><td style="padding-left:20px"><span class="hon" style="font-size:11.5px;color:var(--onyx)"><span><i class="dot live"></i>실신호 7</span><span><i class="dot sim"></i>시뮬레이션 1</span></span></td></tr>
+          <tr><td>출발 전 점검 · 힌트</td><td class="rt">1</td><td class="rt">7/7</td><td class="rt mu">—</td><td style="padding-left:20px"><span class="hon" style="font-size:11.5px;color:var(--onyx)"><span><i class="dot live"></i>실신호 7</span></span></td></tr>
+          <tr><td>장내기능 모의시험 · 평가</td><td class="rt">2</td><td class="rt"><span class="mu">70 →</span> 100</td><td class="rt">합격</td><td style="padding-left:20px"><span class="hon" style="font-size:11.5px;color:var(--onyx)"><span><i class="dot sim"></i>시뮬레이션 17 · 시험장</span></span></td></tr>
+        </table>
+        <div class="btng" style="left:24px;top:360px;width:150px"><i>←</i>돌아가기</div>
+        <div class="lnk wt" style="left:186px;top:362px">공유 예시 보기 ↗</div>
+        <div class="btnk" style="left:450px;top:360px;width:379px">메인으로 →</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>장점</h3>
+      <ul>
+        <li>사용자가 고른 <b>문장 시트 말투가 진단서까지</b> — "얼마나 · 누구에게" 를 문장 하나로 읽는다. 공유 범위와 발급 대상(지금은 공유 예시 안에 숨음)이 한 문장에 함께.</li>
+        <li>"예시" 가 검은 칩 — 문장 바로 아래, 놓치기 어렵다.</li>
+      </ul>
+      <h3>주의점</h3>
+      <ul>
+        <li><span class="eff m">공수 중간</span> 문장 안 낱말 칩 둘 + 낱말별 올라오는 카드 둘(홈 시트 재사용).</li>
+        <li>"보여줘요" 는 실제 전송처럼 들린다 — "예시" 칩과 반드시 붙어 있어야 한다. 혜택 둘째 줄이 길어 18px 로 줄었다(54 dp).</li>
+        <li>범위 셋의 차이(무엇이 늘어나나)가 문장만으론 안 보인다 — 낱말을 눌러야 비교된다.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="rec">
+  <p class="t">C · 진단서 추천 <span>공수 중간</span></p>
+  <h2>C6(쌍 알약 진단서 · 세로 슬라이더)를 바탕으로, "공유 예시 보기" 는 C5 의 올라오는 흰 카드로</h2>
+  <p>C6 는 확정된 6 의 쌍 알약을 그대로 작게 써서 <b>자세히 보기 → 진단서가 같은 부품</b>으로 이어지고, 세로 슬라이더가 지금 문구 "위로 갈수록 넓게" 와 범위의 누적 관계를 그림으로 보여 준다. "예시" 는 노란 문서 아이콘 칩(이 화면의 유일한 색) + 슬라이더 아래 "· 예시" 두 곳. 공유 예시는 C5 처럼 홈 과제 시트와 같은 흰 바텀 시트로 올려 문장 시트 문법을 재사용한다(새 컴포넌트 0). 문서의 무게가 필요한 발표 슬라이드 컷에는 C4 의 도장 "예시" 판을 정지 화면으로만 쓴다.</p>
+  <ol>
+    <li>Claude: <b>과제별 집계</b> — 지금 진단서는 한 과제(<code>report.task</code>)만. 같은 날 여러 과제 회차를 묶는 <code>CertificateSummary(task, first, last, badge)</code> 목록이 필요(가정 · <code>docs/INTEGRATION.md</code> B절 한 줄). 마감 전 시간이 없으면 <b>한 과제 한 줄</b>로 C6 를 그대로 쓴다(표가 한 줄이 될 뿐 배치 불변).</li>
+    <li>Codex: C6 배치 + 작은 쌍 알약 + 세로 슬라이더(탭 셋) · 공유 예시 바텀 시트(C5)</li>
+  </ol>
+</div>
+
+<!-- ======================================================= 요약 ======================================================= -->
+<section class="prop" style="border-top:none">
+  <h2 style="font-size:26px;font-weight:500">요약 — 스물한 안 한눈에</h2>
+  <table class="sum">
+    <tr><th>안</th><th>컨셉</th><th>바탕</th><th>6 과 한 가족</th><th>정직성 존재감</th><th>새 데이터</th><th>공수</th><th>판정</th></tr>
+    <tr><td>A1</td><td>두 판 — 궤적판 + 흰 카드</td><td>반반</td><td>왼쪽 판만</td><td>궤적 문장</td><td>없음</td><td>작음</td><td>바닥 안</td></tr>
+    <tr class="pick"><td><b>A2</b></td><td>판정 알약 넷 — 한 장 Onyx (점검 · 모의시험 같은 틀)</td><td>Onyx</td><td><b>강함</b></td><td>출처 줄 + 알약 꼬리표</td><td>없음</td><td>중간</td><td><b>추천</b></td></tr>
+    <tr><td>A3</td><td>궤적이 주인공 — 그려지는 길</td><td>Onyx</td><td>보통</td><td>궤적 위 칩</td><td>없음</td><td>중간</td><td>움직임만 A2 에</td></tr>
+    <tr><td>A4</td><td>문장 판정 — 밝은 시트 문법</td><td>밝음</td><td>약함</td><td>카드 안 점</td><td>없음</td><td>중간</td><td>대안</td></tr>
+    <tr><td>A5</td><td>판정 카드가 올라온다</td><td>밝음 + Onyx 카드</td><td>보통(카드가 이어짐)</td><td>판정 아래 점</td><td>없음</td><td>중간</td><td>대안</td></tr>
+    <tr class="pick2"><td><b>A6</b></td><td>판정 쌍 — 1회차 → 2회차</td><td>Onyx</td><td><b>가장 강함</b></td><td>출처 줄</td><td>직전 회차 판정(있음)</td><td>중간</td><td>2회차부터 A2 에 끼움</td></tr>
+    <tr><td>A7</td><td>거대한 회차 숫자 "02"</td><td>Onyx</td><td>보통</td><td>출처 줄</td><td>없음</td><td>작음~중간</td><td>위계 거꾸로</td></tr>
+    <tr class="pick"><td><b>B1</b></td><td>2×2 숫자 알약 — 회차 하나 + 출처 셋</td><td>Onyx</td><td><b>강함</b></td><td><b>가장 큼</b>(알약 셋)</td><td>없음</td><td>중간</td><td><b>추천</b></td></tr>
+    <tr><td>B2</td><td>두 판 — 회차 알약 + 흰 카드</td><td>반반</td><td>왼쪽 판만</td><td>카드 한 줄</td><td>없음</td><td>작음</td><td>바닥 안</td></tr>
+    <tr><td>B3</td><td>회차 띠 — 알약이 이어진다</td><td>Onyx</td><td>강함</td><td>작은 세 줄</td><td>회차별 판정(있음, 가정)</td><td>중간</td><td>회차 많을 때 확장</td></tr>
+    <tr><td>B4</td><td>문장 기록 + 질문 하나</td><td>밝음</td><td>약함</td><td>카드 안 세 줄</td><td>질문 답(새 기능)</td><td>중간</td><td>대안</td></tr>
+    <tr><td>B5</td><td>쌓인 판 — 자세히 보기 · 진단서가 겹쳐 있음</td><td>밝음 + Onyx 카드</td><td>강함(6 이 올라옴)</td><td>카드 한 줄</td><td>없음</td><td>큼</td><td>마감 뒤</td></tr>
+    <tr><td>B6</td><td>흰 카드 대시보드 · 막대 출처</td><td>밝음</td><td>보통</td><td>막대 셋</td><td>없음</td><td>중간</td><td>대안</td></tr>
+    <tr class="pick2"><td><b>B7</b></td><td>한 장 Onyx — 출처 띠 + 질문 줄</td><td>Onyx</td><td>강함</td><td>큼(칸 여덟)</td><td>질문 답(새 기능)</td><td>중간</td><td>질문 줄만 B1 에</td></tr>
+    <tr><td>C1</td><td>트랙으로 고르는 범위 · 흰 카드 둘</td><td>밝음</td><td>약함</td><td>노란 예시 칩</td><td>과제별 집계</td><td>중간</td><td>대안</td></tr>
+    <tr><td>C2</td><td>어두운 성적표 · 범위 사다리</td><td>Onyx</td><td>강함</td><td>예시 칩 + 출처 줄</td><td>과제별 집계</td><td>중간</td><td>대안</td></tr>
+    <tr><td>C3</td><td>넓어지는 계단 — 폭이 곧 범위</td><td>밝음</td><td>약함</td><td>예시 칩 + 카드마다</td><td>과제별 집계</td><td>중간</td><td>대안</td></tr>
+    <tr><td>C4</td><td>종이 진단서 · 도장 "예시"</td><td>종이</td><td>의도적으로 다름</td><td><b>가장 큼</b>(도장)</td><td>과제별 집계</td><td>중간</td><td>발표 컷용</td></tr>
+    <tr class="pick2"><td><b>C5</b></td><td>공유 예시가 겹쳐 올라온다</td><td>밝음</td><td>시트 문법</td><td>노란 칩 + 출처</td><td>없음</td><td>중간</td><td>공유 예시로 C6 에</td></tr>
+    <tr class="pick"><td><b>C6</b></td><td>쌍 알약 진단서 · 세로 슬라이더</td><td>Onyx</td><td><b>가장 강함</b></td><td>예시 칩 + 과제별 점</td><td>과제별 집계(없으면 한 줄)</td><td>중간</td><td><b>추천</b></td></tr>
+    <tr><td>C7</td><td>문장으로 고르는 공유</td><td>밝음</td><td>약함</td><td>검은 예시 칩</td><td>과제별 집계</td><td>중간</td><td>대안</td></tr>
+  </table>
+  <div class="rec" style="margin-top:22px">
+    <p class="t">전체 추천 · 결과 화면 한 벌 <span>공수 중간 × 3</span></p>
+    <h2>A2(+A6) → B1(+B7 질문 줄) → 6(확정) → C6(+C5 공유 예시) — 전부 같은 Onyx 판 · 같은 알약 · 같은 출처 점</h2>
+    <p>네 화면이 <b>한 판을 넘기는 것처럼</b> 보이게 하는 게 이 페이지의 기준이다: Done 은 판정을 채운 알약으로, Report 는 회차 · 출처를 숫자 알약으로, 자세히 보기는 점수를 쌍 알약으로, 진단서는 과제별 쌍 알약으로 — 부품은 큰 알약 · 흐린/채운/점선 세 변형 · 변화량 칩 · 출처 점 넷뿐이다. 밝은 문장 시트 문법(사용자가 고른 홈 · 과제 시트)은 결과 화면에선 <b>위로 올라오는 흰 카드</b>(C5 공유 예시, B4 질문)로만 들어와 두 세계가 섞이지 않는다. 마감이 내일이라 실제 순서는 B1 → A2 → C6(한 과제 한 줄) 순으로 작은 것부터; A6 쌍 · 과제별 집계 · 질문 줄은 시간이 남을 때.</p>
+  </div>
+</section>
+</div></body></html>

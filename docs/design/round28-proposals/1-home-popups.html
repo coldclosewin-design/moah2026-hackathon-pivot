@@ -1,0 +1,1267 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>라운드 28 · 홈에서 열리는 것</title>
+<style>
+:root{
+  --onyx:#222526; --platinum:#E0E0E0; --graphite:#353A3E; --jet:#1A1A1A; --ash:#BFBFBF; --white:#FFFFFF;
+  --signal:#F52D48; --yellow:#F2C230; --chip:#F1F1F1; --gw:#B3B5B7; --mu:#7a7e81;
+  --kr:"Noto Sans KR","Malgun Gothic",system-ui,sans-serif;
+  --num:"Segoe UI Variable Display","Bahnschrift",Arial,sans-serif;
+  --k3:linear-gradient(180deg,#43474a 0%,#141516 55%,#0d0e0f 100%);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#ECECEC;color:var(--onyx);font-family:var(--kr);line-height:1.5}
+.page{max-width:1560px;margin:0 auto;padding:36px 24px 56px}
+.head h1{font-size:30px;font-weight:500;letter-spacing:-.01em}
+.head .lead{font-size:14.5px;color:#4a4e51;margin-top:6px;max-width:1440px}
+.chipline{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.chipline span{font-size:12px;padding:3px 12px;border-radius:14px;border:1px solid rgba(34,37,38,.25)}
+.chipline span.k{background:var(--onyx);color:var(--platinum);border-color:var(--onyx)}
+.rules{margin-top:14px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.rules div{background:#fff;border-radius:14px;padding:9px 14px;font-size:12.5px}
+.rules div>b:first-child{display:block;font-size:11px;letter-spacing:.08em;color:#6b6f72;font-weight:500;margin-bottom:2px}
+
+.scrn{margin-top:40px;padding-top:22px;border-top:2px solid var(--onyx)}
+.sh{display:flex;align-items:baseline;gap:16px}
+.sh .no{font-family:var(--num);font-size:48px;line-height:1;font-weight:600}
+.sh h2{font-size:28px;font-weight:500;letter-spacing:-.01em}
+.sh p{font-size:14px;color:#4a4e51;margin-top:2px;max-width:1300px}
+.row{display:grid;grid-template-columns:853px 1fr;gap:26px;margin-top:22px;align-items:start}
+.notes h3{font-size:21px;font-weight:500;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
+.notes h3 .id{font-family:var(--num);font-size:13px;font-weight:600;height:24px;line-height:24px;padding:0 10px;border-radius:12px;background:var(--onyx);color:var(--platinum)}
+.notes .one{font-size:13.5px;color:#3a3e41;margin-top:3px}
+.pc{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+.pc>div>b{display:block;font-size:11px;letter-spacing:.08em;color:#6b6f72;font-weight:500}
+.pc ul{padding-left:16px;font-size:12.5px}
+.pc li{margin-top:2px}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.tags span{font-size:11.5px;padding:2px 10px;border-radius:12px;background:#fff;border:1px solid rgba(34,37,38,.15)}
+.tags span.e{background:var(--onyx);color:var(--platinum);border-color:var(--onyx)}
+.a11y{font-size:11.5px;color:#5a5e61;margin-top:5px}
+.a11y b{font-weight:500;color:var(--onyx)}
+.mcap{font-size:11.5px;color:#6b6f72;margin:8px 0 4px}
+.mcap b{color:var(--onyx);font-weight:500}
+.rec{margin-top:26px;background:#fff;border-radius:22px;padding:18px 24px;display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.rec h3{font-size:22px;font-weight:500;letter-spacing:-.01em}
+.rec h3 .gw{color:var(--gw)}
+.rec p,.rec li{font-size:13.5px}
+.rec ul{padding-left:18px;margin-top:4px}
+.rec .eff{display:inline-block;margin-top:8px;font-size:12px;padding:3px 12px;border-radius:12px;background:var(--onyx);color:var(--platinum)}
+.striph{margin-top:22px;font-size:13px}.striph small{color:#6b6f72;margin-left:8px}
+.strip{display:grid;grid-template-columns:repeat(4,358px);gap:22px;margin-top:8px}
+.fl{font-size:11.5px;color:#6b6f72;margin-bottom:4px}
+.fl b{display:inline-block;min-width:34px;height:20px;line-height:20px;padding:0 8px;margin-right:6px;border-radius:10px;background:var(--onyx);color:var(--platinum);font-weight:400;font-size:11px;text-align:center}
+.cstrip{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:8px}
+.cstrip .bx{background:#fff;border-radius:16px;padding:12px 14px;height:132px;position:relative;overflow:hidden}
+
+/* ===== 1/3 화면 ===== */
+.scr{position:relative;width:853px;height:423px;overflow:hidden;border-radius:8px;box-shadow:0 0 0 1px rgba(0,0,0,.16);font-family:var(--kr);background:#fff;color:var(--onyx)}
+.scr > *{position:absolute}
+.scr.g{background:linear-gradient(165deg,#F0F0F0 0%,#D7D7D7 100%)}
+.scr.dk{background:#222526;color:var(--platinum)}
+.mini{position:relative;width:358px;height:178px;overflow:hidden;border-radius:6px}
+.mini > .scr{transform:scale(.4197);transform-origin:0 0}
+.half{position:relative;width:426px;height:211px;overflow:hidden;border-radius:6px;box-shadow:0 0 0 1px rgba(0,0,0,.12)}
+.half > .scr{transform:scale(.4994);transform-origin:0 0;box-shadow:none}
+.scrim{left:0;top:0;width:853px;height:423px;background:linear-gradient(165deg,rgba(240,240,240,.88) 0%,rgba(212,212,212,.94) 100%)}
+.dim{opacity:.28}
+
+/* H8 홈 */
+.wm{font:600 11px/1 var(--num);letter-spacing:.16em}
+.cp{display:flex;align-items:center;gap:9px;height:40px;padding:0 16px 0 6px;border:1.3px solid var(--onyx);border-radius:20px;font-size:13px;background:#fff;white-space:nowrap}
+.cp svg{width:28px;height:28px}
+.cp.on{background:var(--k3);color:#fff;border-color:#141516;box-shadow:0 9px 14px -7px rgba(0,0,0,.6)}
+.info{font-size:11px;line-height:16px;white-space:nowrap}
+.info b{display:block;font-weight:400;color:var(--mu);font-size:10px}
+.eb{font-size:11px;color:var(--mu);white-space:nowrap}
+.ttl{font-size:42px;line-height:56px;font-weight:500;letter-spacing:-.02em;white-space:nowrap;color:var(--jet)}
+.ttl u{text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:8px}
+.cv{font-style:normal;font-size:.3em;vertical-align:.55em;margin-left:.18em}
+.kw{display:inline-block;background:var(--k3);color:#fff;border-radius:.34em;padding:0 .2em;line-height:1.18;box-shadow:0 10px 16px -8px rgba(0,0,0,.6)}
+.why{font-size:13px;color:var(--mu);white-space:nowrap}
+.p-wm{left:40px;top:30px}.p-cp{right:40px;top:20px}.p-info{right:40px;top:76px}
+.p-eb{left:40px;top:92px}.p-ttl{left:40px;top:110px}.p-why{left:40px;top:234px}
+.p-rule{left:40px;right:40px;top:400px;height:1px;background:var(--onyx)}
+.p-go{right:40px;top:288px}
+.go{width:420px;height:100px}
+.go .gt{position:absolute;left:150px;top:22px;font-size:40px;line-height:56px;font-weight:500}
+.go .gr{position:absolute;right:0;top:0;width:100px;height:100px;border:1.5px solid var(--onyx);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.go .gr svg{width:46px;height:46px;fill:none;stroke:var(--onyx);stroke-width:4}
+.go.sm{width:300px;height:72px}.go.sm .gt{left:110px;top:12px;font-size:32px;line-height:48px}.go.sm .gr{width:72px;height:72px}.go.sm .gr svg{width:34px;height:34px}
+
+/* 카드 · 버튼 · 칩 */
+.wc{background:#fff;border-radius:24px;box-shadow:0 -8px 22px -6px rgba(0,0,0,.14),0 18px 36px -14px rgba(0,0,0,.28)}
+.wc.back{background:#FAFAFA;box-shadow:0 -6px 16px -6px rgba(0,0,0,.10)}
+.btnk{display:flex;align-items:center;justify-content:center;gap:12px;height:42px;border-radius:21px;font-size:15px;color:#fff;background:var(--k3);box-shadow:0 12px 18px -8px rgba(0,0,0,.6);white-space:nowrap}
+.btng{display:flex;align-items:center;gap:10px;height:42px;padding:0 20px 0 5px;border-radius:21px;font-size:14px;background:#fff;color:var(--onyx);box-shadow:0 1px 2px rgba(0,0,0,.1);white-space:nowrap}
+.btng i{font-style:normal;width:32px;height:32px;border-radius:50%;background:var(--chip);display:flex;align-items:center;justify-content:center}
+.btng.gr{background:var(--chip)}.btng.gr i{background:#fff}
+.btno{display:flex;align-items:center;gap:10px;height:42px;padding:0 20px 0 5px;border-radius:21px;font-size:14px;border:1.3px solid var(--platinum);color:var(--platinum);white-space:nowrap}
+.btno i{font-style:normal;width:32px;height:32px;border-radius:50%;border:1px solid rgba(224,224,224,.5);display:flex;align-items:center;justify-content:center}
+.xb{width:40px;height:40px;border-radius:50%;background:var(--chip);display:flex;align-items:center;justify-content:center;font-size:16px}
+.lkp{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 12px;border-radius:13px;background:var(--chip);font-size:11.5px;color:#5a5e61;white-space:nowrap}
+.wp{display:inline-flex;align-items:center;gap:7px;height:40px;padding:0 16px;border-radius:20px;background:#fff;font-size:14px;box-shadow:0 2px 0 #222526,0 6px 12px -6px rgba(0,0,0,.25);white-space:nowrap;color:var(--onyx)}
+.wp svg{width:14px;height:14px}
+.kp{display:inline-flex;align-items:center;gap:7px;height:40px;padding:0 16px;border-radius:20px;background:var(--k3);color:#fff;font-size:14px;box-shadow:0 9px 14px -7px rgba(0,0,0,.65);white-space:nowrap}
+.fp{display:inline-flex;align-items:center;gap:7px;height:40px;padding:0 16px;border-radius:20px;background:var(--chip);color:#6b6f72;font-size:14px;white-space:nowrap}
+.dp{display:inline-flex;align-items:center;height:40px;padding:0 16px;border-radius:20px;border:1.4px dashed #A9ACAE;color:#9a9da0;font-size:14px;white-space:nowrap}
+.op{display:inline-flex;align-items:center;gap:7px;height:40px;padding:0 16px;border-radius:20px;border:1.3px solid rgba(224,224,224,.7);color:var(--platinum);font-size:14px;white-space:nowrap}
+.op.on{background:var(--platinum);color:var(--onyx);border-color:var(--platinum)}
+.sw{white-space:nowrap}
+.gw{color:var(--gw)}
+.sent{font-weight:500;letter-spacing:-.02em;color:var(--jet)}
+.sp{background:#fff;border-radius:.3em;padding:0 .26em;box-shadow:0 2px 0 #222526}
+.sp.d{background:transparent;box-shadow:none;border:1.5px dashed #9a9da0;color:#9a9da0}
+.sc{font:600 10px/1 var(--num);letter-spacing:.1em;color:var(--mu)}
+.ck{width:22px;height:22px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+.ck svg{width:12px;height:12px;color:#111}
+
+/* 모드 줄 */
+.mrow{display:flex;align-items:center;gap:12px;height:52px;padding:0 12px 0 8px;border-radius:16px;background:#F3F3F3;margin-top:6px}
+.mrow:first-child{margin-top:0}
+.mrow svg.mi{width:36px;height:36px;flex:none}
+.mrow .mn{font-size:15px;line-height:20px;font-weight:500}
+.mrow .md{font-size:11.5px;line-height:16px;color:#6b6f72;white-space:nowrap}
+.mrow.on{background:var(--k3);color:#fff;box-shadow:0 10px 16px -8px rgba(0,0,0,.6)}
+.mrow.on .md{color:rgba(255,255,255,.72)}
+.mrow .ck{margin-left:auto}
+.mcard{position:relative;border-radius:20px;background:var(--chip);padding:14px 16px}
+.mcard svg.mi{width:46px;height:46px;display:block}
+.mcard .mn{font-size:24px;font-weight:500;margin-top:8px;line-height:32px}
+.mcard .md{font-size:13px;line-height:18px;color:#6b6f72;margin-top:2px}
+.mcard.on{background:var(--k3);color:#fff;box-shadow:0 12px 18px -8px rgba(0,0,0,.6)}
+.mcard.on .md{color:rgba(255,255,255,.72)}
+.mcard .ck{position:absolute;right:12px;top:12px}
+.trk{display:flex;gap:4px;background:var(--chip);border-radius:999px;padding:4px}
+.trk span{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;height:42px;border-radius:21px;font-size:15px;color:#7a7e81;white-space:nowrap}
+.trk span svg{width:22px;height:22px}
+.trk span.on{background:var(--k3);color:#fff;box-shadow:0 9px 14px -7px rgba(0,0,0,.65)}
+
+/* 프로필 */
+.prow{display:flex;align-items:center;justify-content:space-between;height:42px;border-bottom:1px solid #E7E7E7;font-size:15px}
+.prow .pl{color:#55595c}
+.obs{background:var(--onyx);color:var(--platinum);border-radius:18px;padding:10px 14px;display:flex;gap:12px;align-items:flex-start}
+.obs svg{width:28px;height:28px;flex:none}
+.obs p{font-size:12.5px;line-height:18px}
+.obs .sc{color:#9a9da0;display:block;margin-bottom:3px}
+.ptile{position:relative;border-radius:20px;background:#fff;padding:12px 16px;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.ptile .pl{font-size:12px;color:#7a7e81}
+.ptile .pv{position:absolute;left:16px;bottom:14px;font-size:26px;font-weight:500;letter-spacing:-.02em}
+.ptile .pa{position:absolute;right:12px;top:10px;font-size:14px;color:#9a9da0}
+
+/* 대화 */
+.bub{border-radius:20px;padding:9px 16px;font-size:17px;line-height:24px;max-width:560px}
+.bub.c{background:var(--chip);color:var(--jet)}
+.bub.c small{display:block;font-size:13px;color:#7a7e81;line-height:18px}
+.bub.c .who{display:flex;align-items:center;gap:6px;font-size:10.5px;color:#7a7e81;line-height:14px;margin-bottom:2px}
+.bub.c .who svg{width:13px;height:13px}
+.bub.m{background:var(--k3);color:#fff;box-shadow:0 9px 14px -7px rgba(0,0,0,.6)}
+.think{display:inline-flex;align-items:center;justify-content:center;gap:4px;width:34px;height:34px;border-radius:10px;background:var(--onyx);vertical-align:middle}
+.think i{width:5px;height:5px;border-radius:50%;background:#fff;animation:bob 1.2s ease-in-out infinite}
+.think i:nth-child(2){animation-delay:.16s}.think i:nth-child(3){animation-delay:.32s}
+@keyframes bob{0%,60%,100%{transform:translateY(0);opacity:.45}30%{transform:translateY(-5px);opacity:1}}
+.fade-r{right:0;top:0;width:60px;height:100%;background:linear-gradient(90deg,rgba(255,255,255,0),#fff)}
+
+/* 예약 */
+.bk{border-radius:22px;background:var(--chip);display:flex;align-items:center;gap:14px;padding:0 14px}
+.bk svg.cs{width:58px;height:58px;flex:none}
+.bk .b1{font-size:11px;color:#7a7e81;display:flex;align-items:center;gap:6px;line-height:16px}
+.bk .b1 svg{width:15px;height:15px}
+.bk .b2{font-size:16px;font-weight:500;line-height:22px}
+.bk .b3{font-size:12px;color:#7a7e81;line-height:17px}
+
+/* 움직임 */
+@keyframes slideStone{0%,20%{left:4px}40%,80%{left:164px}100%{left:4px}}
+.stone{position:absolute;top:4px;width:156px;height:42px;border-radius:21px;background:var(--k3);box-shadow:0 9px 14px -7px rgba(0,0,0,.65);animation:slideStone 4s cubic-bezier(.3,.7,.2,1) infinite}
+@keyframes riseCard{0%,15%{transform:translateY(100%)}45%,85%{transform:translateY(0)}100%{transform:translateY(100%)}}
+.liveRise{animation:riseCard 5s cubic-bezier(.2,.8,.2,1) infinite}
+@keyframes fillL{0%,25%{width:32px}50%,80%{width:100%}100%{width:32px}}
+
+/* 요약 표 */
+.sum{margin-top:44px;background:#fff;border-radius:24px;padding:22px 26px}
+.sum h2{font-size:26px;font-weight:500}
+.sum table{width:100%;border-collapse:collapse;margin-top:12px;font-size:13.5px}
+.sum th{font-size:11px;letter-spacing:.08em;color:#6b6f72;font-weight:500;text-align:left;padding:6px 8px;border-bottom:1.5px solid var(--onyx)}
+.sum td{padding:9px 8px;border-bottom:1px solid #E4E4E4;vertical-align:top}
+.sum td.k{font-weight:500}
+.sum .e{display:inline-block;font-size:11.5px;padding:1px 10px;border-radius:10px;background:var(--onyx);color:var(--platinum)}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="tb3" viewBox="0 0 20 20"><rect width="20" height="20" rx="5.5" fill="#222526"/><rect x="5" y="11" width="2.6" height="4" rx="1" fill="#fff"/><rect x="8.7" y="8" width="2.6" height="7" rx="1" fill="#fff"/><rect x="12.4" y="5" width="2.6" height="10" rx="1" fill="#fff"/></symbol>
+    <symbol id="tb2" viewBox="0 0 20 20"><rect width="20" height="20" rx="5.5" fill="#222526"/><rect x="5" y="11" width="2.6" height="4" rx="1" fill="#fff"/><rect x="8.7" y="8" width="2.6" height="7" rx="1" fill="#fff"/><rect x="12.4" y="5" width="2.6" height="10" rx="1" fill="#fff" opacity=".28"/></symbol>
+    <symbol id="tb1" viewBox="0 0 20 20"><rect width="20" height="20" rx="5.5" fill="#222526"/><rect x="5" y="11" width="2.6" height="4" rx="1" fill="#fff"/><rect x="8.7" y="8" width="2.6" height="7" rx="1" fill="#fff" opacity=".28"/><rect x="12.4" y="5" width="2.6" height="10" rx="1" fill="#fff" opacity=".28"/></symbol>
+    <symbol id="ob3" viewBox="0 0 20 20"><rect x=".6" y=".6" width="18.8" height="18.8" rx="5.5" fill="none" stroke="#E0E0E0" stroke-width="1.1"/><rect x="5" y="11" width="2.6" height="4" rx="1" fill="#E0E0E0"/><rect x="8.7" y="8" width="2.6" height="7" rx="1" fill="#E0E0E0"/><rect x="12.4" y="5" width="2.6" height="10" rx="1" fill="#E0E0E0"/></symbol>
+    <symbol id="ob1" viewBox="0 0 20 20"><rect x=".6" y=".6" width="18.8" height="18.8" rx="5.5" fill="none" stroke="#E0E0E0" stroke-width="1.1"/><rect x="5" y="11" width="2.6" height="4" rx="1" fill="#E0E0E0"/><rect x="8.7" y="8" width="2.6" height="7" rx="1" fill="#E0E0E0" opacity=".3"/><rect x="12.4" y="5" width="2.6" height="10" rx="1" fill="#E0E0E0" opacity=".3"/></symbol>
+    <symbol id="yb2" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#F2C230"/><rect x="5" y="11" width="2.6" height="4" rx="1" fill="#1A1A1A"/><rect x="8.7" y="8" width="2.6" height="7" rx="1" fill="#1A1A1A"/><rect x="12.4" y="5" width="2.6" height="10" rx="1" fill="#1A1A1A" opacity=".25"/></symbol>
+    <symbol id="mic" viewBox="0 0 20 20"><rect width="20" height="20" rx="5.5" fill="#222526"/><rect x="8" y="4" width="4" height="8" rx="2" fill="none" stroke="#fff" stroke-width="1.4"/><path d="M5.6 10a4.4 4.4 0 0 0 8.8 0M10 14.4v2" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/></symbol>
+    <symbol id="micl" viewBox="0 0 20 20"><rect x="7.5" y="2.5" width="5" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4.5 10a5.5 5.5 0 0 0 11 0M10 15.5v2.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="tick" viewBox="0 0 16 16"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="ne" viewBox="0 0 50 50"><path d="M10 40L40 10M16 10h24v24" fill="none" stroke="currentColor" stroke-width="4"/></symbol>
+    <symbol id="yeye" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#F2C230"/><path d="M4 10c1.8-3 3.8-4.4 6-4.4S14.2 7 16 10c-1.8 3-3.8 4.4-6 4.4S5.8 13 4 10z" fill="none" stroke="#1A1A1A" stroke-width="1.5"/><circle cx="10" cy="10" r="2" fill="#1A1A1A"/></symbol>
+    <symbol id="ycal" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#F2C230"/><rect x="5" y="6" width="10" height="9" rx="2" fill="none" stroke="#1A1A1A" stroke-width="1.5"/><path d="M5 9.4h10M8 4.4v3M12 4.4v3" stroke="#1A1A1A" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="ycoach" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#F2C230"/><circle cx="6.4" cy="10" r="1.4" fill="#1A1A1A"/><circle cx="10" cy="10" r="1.4" fill="#1A1A1A"/><circle cx="13.6" cy="10" r="1.4" fill="#1A1A1A"/></symbol>
+    <symbol id="course" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#222526"/><path d="M9 31V11h20v9H15v6h17" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="26.5" y="13" width="5" height="8" rx="2" fill="none" stroke="#fff" stroke-width="1.4"/></symbol>
+    <symbol id="v4t" viewBox="0 0 20 34"><rect x="3" y="2" width="14" height="30" rx="5.5" fill="#fff" stroke="currentColor" stroke-width="2"/><circle cx="3" cy="9" r="2.2" fill="currentColor"/><circle cx="17" cy="9" r="2.2" fill="currentColor"/><circle cx="3" cy="25" r="2.2" fill="currentColor"/><circle cx="17" cy="25" r="2.2" fill="currentColor"/></symbol>
+  </defs>
+</svg>
+<div class="page">
+
+<header class="head">
+  <h1>1 · 홈에서 열리는 것 — 모드 팝업 · 프로필 시트 · 코치와 대화 · 예약 카드, 화면마다 7~8안</h1>
+  <p class="lead">27a 구현은 홈(H8)만 새 컨셉이고 <b>홈에서 누르면 열리는 것</b>(모드 드롭다운 · 왼쪽 큰 차 그림이 있는 프로필 · 코치 대화 화면 · 회색 예약 줄)이 예전 그대로였다. 여기서는 그 넷을 <b>H8 홈 위에서 / H8 홈으로부터</b> 열리는 새 구성으로 다시 짓는다. 기준 말투 = 문장 시트(흰 알약 칩 + 아래 그림자, 검은 고른 칩, 노란 원 아이콘 알약, 아래에서 올라오는 흰 카드) · 결과 판(Onyx + 테두리/채운 알약) · H8(흰 벽, 거대한 제목, 가는 선, 큰 ↗).</p>
+  <div class="chipline">
+    <span class="k">화면 목업 = 2560×1268 dp 의 1/3 (853×423) · 실제 화면은 약 3배</span>
+    <span>작은 판 = 같은 안의 두 번째 상태(첫 실행 · 기다림 · 고른 뒤)</span>
+    <span>누르는 것은 1/3 에서 40px 이상(= 120 dp) — 112 dp 기준 통과 · 회색 26px 칩 = 정보 칩(누르지 않음)</span>
+    <span>문구 = 지금 앱 문자열 그대로(ProfileChips · modeDescription · 코치 대화 규칙 문장)</span>
+  </div>
+  <div class="rules">
+    <div><b>강조색</b>무채색 + <b>노란 원 하나</b>(화면마다 한 곳): 모드 = 고른 모드의 막대 기호 · 프로필 = "앱이 본 것" 눈 · 대화 = 코치 표시 · 예약 = 달력. Signal 은 이 페이지에 없다(경고 화면이 아님).</div>
+    <div><b>정차 화면만</b>넷 다 홈(0 km/h)에서만 열린다. 5 km/h 를 넘으면 열린 팝업·시트가 모두 닫히고 잠금 한 면 "운전에 집중해 주세요" — 터치 타깃 0.</div>
+    <div><b>문장 숫자 0</b>코치 말·이유 줄·모드 설명엔 숫자 없음. "장롱 10년차"·"서초 14:00"·"주차 3종" 은 메타/정차 선택 화면의 시간 — 규칙상 예외(02_design_brief 불변 표).</div>
+    <div><b>접근성 이름</b>홈 제목 낱말 = <b>과제·모드 바꾸기</b> · <b>모드 바꾸기</b>(그대로). 팝업 항목 = 모드 이름, 닫기 = "닫기", 프로필 줄 = 줄 제목, 말 카드 = 그 문장.</div>
+  </div>
+</header>
+
+<!-- ================================================================ A ================================================================ -->
+<section class="scrn">
+  <div class="sh"><span class="no">A</span><div><h2>모드 팝업 — 제목 속 "힌트" 를 누르면</h2><p>지금 앱 = 낱말 아래 회색 드롭다운(이름만). 새 안은 모두 <b>세 모드 + 한 줄 설명 + 지금 고른 것</b>을 보여 주고, 고른 모드의 막대 기호만 노란 원. 설명 = 가이드 "단계마다 제가 말하고 확인해요." · 힌트 "틀린 순간에만 말할게요." · 평가 "조용히 지켜보고 끝에 판정해요."</p></div></div>
+
+  <!-- A1 -->
+  <div class="row">
+    <div class="scr">
+      <div class="wm p-wm">DRIVE COACH</div>
+      <div class="cp p-cp"><svg><use href="#mic"/></svg>코치와 대화</div>
+      <div class="info p-info"><b>프로필</b>연수생 · 장롱 10년차 · 목표: 아이 등하원 ›</div>
+      <div class="eb p-eb">오늘의 과제 · 주차</div>
+      <div class="ttl p-ttl"><u>후면 직각 주차<i class="cv">▼</i></u>를<br><span class="kw">힌트<i class="cv">▲</i></span> 모드로 해 볼까요?</div>
+      <div class="p-rule"></div>
+      <div class="go p-go dim"><span class="gt">시작</span><span class="gr"><svg><use href="#ne"/></svg></span></div>
+      <div style="left:62px;top:222px;width:16px;height:16px;background:#fff;transform:rotate(45deg);border-radius:3px;box-shadow:-2px -2px 6px -2px rgba(0,0,0,.12)"></div>
+      <div class="wc" style="left:34px;top:228px;width:430px;padding:10px">
+        <div class="mrow"><svg class="mi"><use href="#tb3"/></svg><div><p class="mn">가이드</p><p class="md">단계마다 제가 말하고 확인해요.</p></div></div>
+        <div class="mrow on"><svg class="mi"><use href="#yb2"/></svg><div><p class="mn">힌트</p><p class="md">틀린 순간에만 말할게요.</p></div><span class="ck"><svg><use href="#tick"/></svg></span></div>
+        <div class="mrow"><svg class="mi"><use href="#tb1"/></svg><div><p class="mn">평가</p><p class="md">조용히 지켜보고 끝에 판정해요.</p></div></div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3><span class="id">A1</span>낱말에서 피어나는 카드</h3>
+      <p class="one">누른 낱말이 검은 알약으로 바뀌고, 바로 아래에 꼬리 달린 흰 카드가 피어난다. 줄 셋 = 막대 기호 타일 · 이름 · 설명, 고른 줄은 검은 입체 + 흰 체크. 누르면 바로 바뀌고 닫힌다.</p>
+      <div class="pc"><div><b>장점</b><ul><li>지금 드롭다운 자리·동작 그대로 — 손이 기억하는 위치</li><li>홈 제목이 그대로 보여 "무엇을 바꾸는지" 가 분명</li></ul></div><div><b>주의점</b><ul><li>카드가 시작 버튼 위를 덮음 → 열린 동안 시작 흐리게(밖을 누르면 닫힘)</li><li>설명 11.5px(실 35 dp) — 40 dp 기준보다 살짝 작음, 실제 구현은 40 dp 로</li></ul></div></div>
+      <div class="tags"><span class="e">공수 작음</span><span>DropdownMenu → 흰 카드 Popup 교체</span><span>운전 중 — 해당 없음(정차)</span><span>정직성 — 영향 없음</span></div>
+      <p class="a11y"><b>접근성</b> 낱말 "모드 바꾸기"(그대로) · 줄 = "가이드" / "힌트, 선택됨" / "평가" · 카드 밖 = 닫기 · 줄 높이 52px = 156 dp.</p>
+    </div>
+  </div>
+
+  <!-- A2 -->
+  <div class="row">
+    <div class="scr g">
+      <div class="wm" style="left:28px;top:22px">DRIVE COACH</div>
+      <div class="cp dim" style="right:28px;top:12px"><svg><use href="#mic"/></svg>코치와 대화</div>
+      <div class="sent" style="left:28px;top:50px;font-size:28px;line-height:44px;white-space:nowrap">후면 직각 주차를 <span class="kw" style="font-size:28px">힌트</span> 모드로 <span class="gw">해 볼까요?</span></div>
+      <div class="wc back" style="left:40px;top:106px;width:773px;height:340px"></div>
+      <div class="wc" style="left:24px;top:118px;width:805px;height:330px;padding:14px 18px">
+        <div style="display:flex;align-items:center;justify-content:space-between"><span class="eb" style="font-size:12px;color:var(--onyx)">모드</span><span class="lkp">고르면 문장이 바뀌어요</span></div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px">
+          <div class="mcard" style="height:170px"><svg class="mi"><use href="#tb3"/></svg><p class="mn">가이드</p><p class="md">단계마다 제가<br>말하고 확인해요.</p></div>
+          <div class="mcard on" style="height:170px"><svg class="mi"><use href="#yb2"/></svg><p class="mn">힌트</p><p class="md">틀린 순간에만<br>말할게요.</p><span class="ck"><svg><use href="#tick"/></svg></span></div>
+          <div class="mcard" style="height:170px"><svg class="mi"><use href="#tb1"/></svg><p class="mn">평가</p><p class="md">조용히 지켜보고<br>끝에 판정해요.</p></div>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:12px;justify-content:flex-end"><div class="btng gr" style="width:140px"><i>↓</i>닫기</div><div class="btnk" style="width:260px">이 모드로 →</div></div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3><span class="id">A2</span>문장이 줄고 카드가 올라온다</h3>
+      <p class="one">확정된 문장 시트의 문법 그대로 — 홈 제목이 위로 줄어 한 줄이 되고(42 → 28px), 흰 카드가 아래에서 올라와 모드 카드 셋을 큰 타일로. 뒤에 한 장 더 비친 띠 = "쌓였다".</p>
+      <div class="pc"><div><b>장점</b><ul><li><b>과제 시트와 같은 움직임·같은 버튼</b>(↓ 닫기 · 이 ○○로 →) — 홈에서 여는 것이 모두 한 가족</li><li>설명이 13px(39 dp) 두 줄로 넉넉, 고르기 전에 읽힌다</li></ul></div><div><b>주의점</b><ul><li>모드 하나 바꾸는 데 화면 전체가 움직임 — A1 보다 무거움</li><li>"이 모드로 →" 한 번 더 눌러야 확정(지금은 고르면 즉시). 즉시 확정으로 해도 됨</li></ul></div></div>
+      <div class="tags"><span class="e">공수 중간</span><span>과제 시트 카드 컴포넌트 재사용</span><span>운전 중 — 정차</span><span>정직성 — 영향 없음</span></div>
+      <p class="a11y"><b>접근성</b> 카드 = "가이드" · "힌트, 선택됨" · "평가"(타일 전체 170px) · "닫기" · "이 모드로". 줄어든 문장의 "힌트" 도 "모드 바꾸기".</p>
+    </div>
+  </div>
+
+  <!-- A3 -->
+  <div class="row">
+    <div class="scr">
+      <div class="wm p-wm">DRIVE COACH</div>
+      <div class="cp p-cp dim"><svg><use href="#mic"/></svg>코치와 대화</div>
+      <div class="info p-info dim"><b>프로필</b>연수생 · 장롱 10년차 · 목표: 아이 등하원 ›</div>
+      <div class="eb p-eb dim">오늘의 과제 · 주차</div>
+      <div class="ttl p-ttl" style="opacity:.16">후면 직각 주차를</div>
+      <div class="wc" style="left:26px;top:100px;width:172px;height:176px;padding:8px;border-radius:22px">
+        <div style="height:50px;display:flex;align-items:center;gap:10px;padding-left:12px;font-size:24px;color:#9a9da0"><svg width="26" height="26"><use href="#tb3"/></svg>가이드</div>
+        <div style="height:56px;display:flex;align-items:center;gap:10px;padding-left:10px;font-size:28px;font-weight:500;border-radius:18px;background:var(--k3);color:#fff;box-shadow:0 10px 16px -8px rgba(0,0,0,.6)"><svg width="28" height="28"><use href="#yb2"/></svg>힌트</div>
+        <div style="height:50px;display:flex;align-items:center;gap:10px;padding-left:12px;font-size:24px;color:#9a9da0"><svg width="26" height="26"><use href="#tb1"/></svg>평가</div>
+      </div>
+      <div class="ttl" style="left:210px;top:166px">모드로 해 볼까요?</div>
+      <div style="left:210px;top:232px;font-size:16px;color:var(--onyx);white-space:nowrap">— 틀린 순간에만 말할게요.</div>
+      <div class="p-rule"></div>
+      <div class="go p-go dim"><span class="gt">시작</span><span class="gr"><svg><use href="#ne"/></svg></span></div>
+    </div>
+    <div class="notes">
+      <h3><span class="id">A3</span>제자리 낱말 바퀴</h3>
+      <p class="one">낱말 자리가 그대로 세로 바퀴가 된다 — 위 "가이드", 가운데 검은 "힌트", 아래 "평가". 다른 글자는 흐려지고, 가운데 모드의 설명이 이유 줄 자리에 대시로 붙는다. 위·아래를 누르면 돌이 미끄러져 바뀐다.</p>
+      <div class="pc"><div><b>장점</b><ul><li>새 레이어 없음 — 문장 자체가 고르는 도구, H8 의 "제목 = 선택" 생각을 끝까지</li><li>설명 문장이 홈 이유 줄과 같은 자리라 고른 뒤에도 그대로 남는다</li></ul></div><div><b>주의점</b><ul><li>고르기 전엔 <b>가운데 모드의 설명만</b> 보임 — 나머지 둘은 눌러 봐야 앎</li><li>세로 바퀴 + 흐림 처리 = 커스텀 레이아웃, 공수 중간</li></ul></div></div>
+      <div class="tags"><span class="e">공수 중간</span><span>항목 50–56px(150 dp↑)</span><span>운전 중 — 정차</span><span>정직성 — 영향 없음</span></div>
+      <p class="a11y"><b>접근성</b> 바퀴 = 라디오 그룹 "모드 바꾸기" · 항목 = 모드 이름(선택됨) · 밖 누름 = 닫기.</p>
+    </div>
+  </div>
+
+  <!-- A4 -->
+  <div class="row">
+    <div class="scr">
+      <div class="wm p-wm">DRIVE COACH</div>
+      <div class="cp p-cp"><svg><use href="#mic"/></svg>코치와 대화</div>
+      <div class="info p-info"><b>프로필</b>연수생 · 장롱 10년차 · 목표: 아이 등하원 ›</div>
+      <div class="eb p-eb">오늘의 과제 · 주차</div>
+      <div class="ttl p-ttl"><u>후면 직각 주차<i class="cv">▼</i></u>를<br><u style="text-decoration-thickness:3px">힌트<i class="cv">▲</i></u> 모드로 해 볼까요?</div>
+      <div class="trk" style="left:40px;top:238px;width:484px;position:absolute">
+        <span><svg><use href="#tb3"/></svg>가이드</span><span class="on"><svg><use href="#yb2"/></svg>힌트</span><span><svg><use href="#tb1"/></svg>평가</span>
+      </div>
+      <div style="left:40px;top:296px;width:484px;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;font-size:11.5px;line-height:16px;text-align:center;color:#9a9da0">
+        <span>단계마다 제가<br>말하고 확인해요.</span><span style="color:var(--onyx)">틀린 순간에만<br>말할게요.</span><span>조용히 지켜보고<br>끝에 판정해요.</span>
+      </div>
+      <div class="p-rule"></div>
+      <div class="go p-go"><span class="gt">시작</span><span class="gr"><svg><use href="#ne"/></svg></span></div>
+    </div>
+    <div class="notes">
+      <h3><span class="id">A4</span>제목 아래 트랙 (미끄러지는 돌)</h3>
+      <p class="one">팝업 없이 이유 줄 자리에 레퍼런스 3 트랙이 펼쳐진다. 고른 모드 = 검은 돌, 누르면 돌이 옆으로 미끄러짐(B1 280 ms). 설명 셋이 트랙 아래 한꺼번에 — 고른 것만 진하게. 시작 버튼은 그대로 살아 있다.</p>
+      <div class="pc"><div><b>장점</b><ul><li>셋 비교가 한눈에, 덮는 것 0 — 고르고 바로 ↗ 시작 가능</li><li>트랙 = 2 컴포넌트(점검 모드·보기 전환)와 같은 부품</li></ul></div><div><b>주의점</b><ul><li>열려 있는 동안 이유 줄이 사라짐(설명이 대신함)</li><li>트랙 484px 고정 — 모드가 넷(퀴즈)인 과제는 칸이 좁아짐</li></ul></div></div>
+      <div class="tags"><span class="e">공수 작음</span><span>세그먼트 + 돌 애니메이션</span><span>운전 중 — 정차</span><span>정직성 — 영향 없음</span></div>
+      <p class="a11y"><b>접근성</b> 트랙 = "모드 바꾸기" 라디오 그룹, 칸 높이 42px(126 dp). 아래 미리보기 = 실제로 움직이는 돌 ↓</p>
+      <div class="trk" style="position:relative;width:484px;margin-top:6px;background:var(--chip)"><i class="stone"></i><span style="position:relative">가이드</span><span style="position:relative;color:#fff;mix-blend-mode:difference">힌트</span><span style="position:relative">평가</span></div>
+    </div>
+  </div>
+
+  <!-- A5 -->
+  <div class="row">
+    <div class="scr">
+      <div class="wm p-wm">DRIVE COACH</div>
+      <div class="eb p-eb">오늘의 과제 · 주차</div>
+      <div class="ttl p-ttl"><u>후면 직각 주차<i class="cv">▼</i></u>를<br><span class="kw">힌트<i class="cv">▶</i></span> 모드로<br>해 볼까요?</div>
+      <div class="p-rule" style="right:360px"></div>
+      <div class="wc" style="left:500px;top:12px;width:341px;height:399px;padding:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:15px;font-weight:500">모드</span><span class="xb">×</span></div>
+        <div class="mcard" style="margin-top:10px;height:94px;display:flex;gap:12px;align-items:flex-start"><svg class="mi" style="width:40px;height:40px"><use href="#tb3"/></svg><div><p class="mn" style="font-size:20px;margin:0;line-height:28px">가이드</p><p class="md">단계마다 제가<br>말하고 확인해요.</p></div></div>
+        <div class="mcard on" style="margin-top:8px;height:94px;display:flex;gap:12px;align-items:flex-start"><svg class="mi" style="width:40px;height:40px"><use href="#yb2"/></svg><div><p class="mn" style="font-size:20px;margin:0;line-height:28px">힌트</p><p class="md">틀린 순간에만<br>말할게요.</p></div><span class="ck"><svg><use href="#tick"/></svg></span></div>
+        <div class="mcard" style="margin-top:8px;height:94px;display:flex;gap:12px;align-items:flex-start"><svg class="mi" style="width:40px;height:40px"><use href="#tb1"/></svg><div><p class="mn" style="font-size:20px;margin:0;line-height:28px">평가</p><p class="md">조용히 지켜보고<br>끝에 판정해요.</p></div></div>
+        <p style="font-size:11.5px;color:#9a9da0;margin-top:10px">고르면 바로 바뀌어요</p>
+      </div>
+    </div>
+    <div class="notes">
+      <h3><span class="id">A5</span>오른쪽 서랍</h3>
+      <p class="one">오른쪽 정보 블록 자리에서 흰 서랍이 미끄러져 나온다(높이 꽉). 홈 제목은 왼쪽에 다시 흘러 세 줄로 남고 "힌트" 는 검은 알약 + ▸ 로 서랍을 가리킨다. 시작 ↗ 은 서랍이 닫혀야 다시 보인다.</p>
+      <div class="pc"><div><b>장점</b><ul><li>제목·문장이 끝까지 읽힘 — 고르면서 결과 문장을 본다</li><li>프로필·대화도 같은 서랍으로 열면 "오른쪽 = 바꾸는 곳" 규칙이 생김(B4 · C3)</li></ul></div><div><b>주의점</b><ul><li>오른손 쪽(조수석 쪽) 터치 — 좌핸들에서 운전석과 멀다</li><li>제목 줄바꿈이 열 때마다 바뀜 → 글자가 흔들려 보일 수 있음</li></ul></div></div>
+      <div class="tags"><span class="e">공수 중간</span><span>서랍 + 제목 재배치</span><span>운전 중 — 정차</span><span>정직성 — 영향 없음</span></div>
+      <p class="a11y"><b>접근성</b> 서랍 = "모드" 대화상자 · 카드 94px(282 dp) · "닫기" 40px 원 = 120 dp.</p>
+    </div>
+  </div>
+
+  <!-- A6 -->
+  <div class="row">
+    <div class="scr">
+      <div class="wm p-wm">DRIVE COACH</div>
+      <div class="cp p-cp"><svg><use href="#mic"/></svg>코치와 대화</div>
+      <div class="info p-info"><b>프로필</b>연수생 · 장롱 10년차 · 목표: 아이 등하원 ›</div>
+      <div class="eb p-eb">오늘의 과제 · 주차</div>
+      <div class="ttl p-ttl"><u>후면 직각 주차<i class="cv">▼</i></u>를<br><u>힌트<i class="cv">▼</i></u> 모드로 해 볼까요?</div>
+      <div class="scrim"></div>
+      <div class="sent" style="left:28px;top:150px;font-size:13px;color:var(--mu);font-weight:400">모드 · 누르면 바로 바뀌어요</div>
+      <div class="btng gr" style="right:24px;top:136px;width:120px;background:#fff"><i>↓</i>닫기</div>
+      <div class="wc" style="left:24px;top:186px;width:805px;height:240px;padding:12px 18px;display:flex;align-items:center;gap:14px;align-items:flex-start"><svg width="40" height="40"><use href="#tb3"/></svg><span style="font-size:22px;font-weight:500;line-height:40px">가이드</span><span style="font-size:14px;color:#7a7e81;line-height:40px">단계마다 제가 말하고 확인해요.</span></div>
+      <div class="wc" style="left:24px;top:252px;width:805px;height:240px;padding:12px 18px;display:flex;gap:14px;align-items:flex-start;background:var(--k3);color:#fff"><svg width="40" height="40"><use href="#yb2"/></svg><span style="font-size:22px;font-weight:500;line-height:40px">힌트</span><span style="font-size:14px;color:rgba(255,255,255,.72);line-height:40px">틀린 순간에만 말할게요.</span><span class="ck" style="margin:9px 0 0 auto"><svg><use href="#tick"/></svg></span></div>
+      <div class="wc" style="left:24px;top:330px;width:805px;height:240px;padding:12px 18px;display:flex;gap:14px;align-items:flex-start"><svg width="40" height="40"><use href="#tb1"/></svg><span style="font-size:22px;font-weight:500;line-height:40px">평가</span><span style="font-size:14px;color:#7a7e81;line-height:40px">조용히 지켜보고 끝에 판정해요.</span></div>
+    </div>
+    <div class="notes">
+      <h3><span class="id">A6</span>지갑처럼 겹친 세 장</h3>
+      <p class="one">홈이 회색 막 뒤로 물러나고, 모드 카드 세 장이 아래에서 160 ms 간격으로 올라와 지갑 속 카드처럼 겹친다(C1). 고른 카드만 검은 입체 + 한 칸 위로 솟음. 한 장 = 한 줄(이름 + 설명).</p>
+      <div class="pc"><div><b>장점</b><ul><li>C1 "아래에서 올라와 겹침" 을 가장 그대로 보여 줌 — 발표 영상에서 눈에 띔</li><li>카드 띠 66–78px(200 dp↑) — 가장 누르기 쉬움</li></ul></div><div><b>주의점</b><ul><li>세 장이면 지갑, 넷(퀴즈 포함)이면 아래 띠가 얇아짐</li><li>회색 막이 홈을 가려 "무엇을 바꾸는지" 가 덜 보임</li></ul></div></div>
+      <div class="tags"><span class="e">공수 중간</span><span>겹침 오프셋 + 순차 등장</span><span>운전 중 — 정차</span><span>정직성 — 영향 없음</span></div>
+      <p class="a11y"><b>접근성</b> 카드 = 모드 이름(선택됨 표시) · "닫기" 42px · 막 누름 = 닫기.</p>
+    </div>
+  </div>
+
+  <!-- A7 -->
+  <div class="row">
+    <div class="scr">
+      <div class="wm p-wm">DRIVE COACH</div>
+      <div class="cp p-cp"><svg><use href="#mic"/></svg>코치와 대화</div>
+      <div class="info p-info"><b>프로필</b>연수생 · 장롱 10년차 · 목표: 아이 등하원 ›</div>
+      <div class="eb p-eb">오늘의 과제 · 주차</div>
+      <div class="ttl p-ttl"><u>후면 직각 주차<i class="cv">▼</i></u>를</div>
+      <div class="wc" style="left:26px;top:166px;width:600px;padding:8px">
+        <div style="height:68px;padding:6px 14px;border-radius:18px"><p style="font-size:26px;line-height:32px;font-weight:500;color:var(--jet)">가이드 <span class="gw">모드로 해 볼까요?</span></p><p style="font-size:12px;color:#7a7e81">단계마다 제가 말하고 확인해요.</p></div>
+        <div style="height:68px;padding:6px 14px;border-radius:18px;background:var(--k3);color:#fff;box-shadow:0 10px 16px -8px rgba(0,0,0,.6);position:relative"><p style="font-size:26px;line-height:32px;font-weight:500"><svg width="22" height="22" style="vertical-align:-2px"><use href="#yb2"/></svg> 힌트 <span style="color:rgba(255,255,255,.45)">모드로 해 볼까요?</span></p><p style="font-size:12px;color:rgba(255,255,255,.72)">틀린 순간에만 말할게요.</p><span class="ck" style="position:absolute;right:14px;top:23px"><svg><use href="#tick"/></svg></span></div>
+        <div style="height:68px;padding:6px 14px;border-radius:18px"><p style="font-size:26px;line-height:32px;font-weight:500;color:var(--jet)">평가 <span class="gw">모드로 해 볼까요?</span></p><p style="font-size:12px;color:#7a7e81">조용히 지켜보고 끝에 판정해요.</p></div>
+      </div>
+      <div class="p-rule"></div>
+      <div class="go p-go dim"><span class="gt">시작</span><span class="gr"><svg><use href="#ne"/></svg></span></div>
+    </div>
+    <div class="notes">
+      <h3><span class="id">A7</span>둘째 줄 미리보기</h3>
+      <p class="one">제목 둘째 줄이 그 자리에서 후보 세 줄로 펼쳐진다 — 각 후보가 "○○ 모드로 해 볼까요?" 완성 문장(뒷말은 회색). 고르면 그 줄이 그대로 제목이 된다. 설명은 줄 아래 작게.</p>
+      <div class="pc"><div><b>장점</b><ul><li>"고른 뒤 홈이 어떻게 보일지" 를 미리 보여 줌 — 가장 직관적</li><li>카드 1장 + 줄 3개, 구현이 A1 과 거의 같다</li></ul></div><div><b>주의점</b><ul><li>"모드로 해 볼까요?" 가 세 번 반복 — 시끄러움(회색으로 낮춤)</li><li>설명 12px(36 dp) — 실제는 40 dp 로 올려야 하고 그러면 카드가 높아짐</li></ul></div></div>
+      <div class="tags"><span class="e">공수 작음</span><span>A1 카드 + 문장 줄</span><span>운전 중 — 정차</span><span>정직성 — 영향 없음</span></div>
+      <p class="a11y"><b>접근성</b> 줄 = "가이드 모드" / "힌트 모드, 선택됨" / "평가 모드", 줄 높이 68px(204 dp).</p>
+    </div>
+  </div>
+
+  <!-- A8 -->
+  <div class="row">
+    <div class="scr">
+      <div class="wm p-wm">DRIVE COACH</div>
+      <div class="cp p-cp"><svg><use href="#mic"/></svg>코치와 대화</div>
+      <div class="info p-info"><b>프로필</b>연수생 · 장롱 10년차 · 목표: 아이 등하원 ›</div>
+      <div class="eb p-eb">오늘의 과제 · 주차</div>
+      <div class="ttl p-ttl"><u>후면 직각 주차<i class="cv">▼</i></u>를<br><span class="kw">힌트<i class="cv">▲</i></span> 모드로 해 볼까요?</div>
+      <div class="p-rule"></div>
+      <div class="go p-go dim"><span class="gt">시작</span><span class="gr"><svg><use href="#ne"/></svg></span></div>
+      <div style="left:34px;top:230px;width:560px;height:180px;border-radius:24px;background:var(--onyx);color:var(--platinum);padding:14px 18px;box-shadow:0 18px 36px -14px rgba(0,0,0,.45)">
+        <div style="display:flex;justify-content:space-between;align-items:center"><span class="sc" style="color:#9a9da0">MODE · 모드</span><span style="font-size:11px;color:#9a9da0">누르면 바로 바뀌어요</span></div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px">
+          <div><div class="op" style="height:58px;border-radius:29px;font-size:20px;justify-content:center;width:100%"><svg width="24" height="24"><use href="#ob3"/></svg>가이드</div><p style="font-size:11.5px;color:#9a9da0;margin-top:8px;line-height:16px;text-align:center">단계마다 제가<br>말하고 확인해요.</p></div>
+          <div><div class="op on" style="height:58px;border-radius:29px;font-size:20px;justify-content:center;width:100%"><svg width="24" height="24"><use href="#yb2"/></svg>힌트</div><p style="font-size:11.5px;color:var(--platinum);margin-top:8px;line-height:16px;text-align:center">틀린 순간에만<br>말할게요.</p></div>
+          <div><div class="op" style="height:58px;border-radius:29px;font-size:20px;justify-content:center;width:100%"><svg width="24" height="24"><use href="#ob1"/></svg>평가</div><p style="font-size:11.5px;color:#9a9da0;margin-top:8px;line-height:16px;text-align:center">조용히 지켜보고<br>끝에 판정해요.</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3><span class="id">A8</span>Onyx 판 팝업</h3>
+      <p class="one">흰 벽 위에 결과 판 가족(Onyx)의 작은 판이 떠오른다. 모드 = 테두리 큰 알약, 고른 것 = Platinum 채운 알약(전 → 후 쌍 알약과 같은 말투), 설명은 알약 아래 작게.</p>
+      <div class="pc"><div><b>장점</b><ul><li>흰 홈 위에서 대비가 가장 강함 — 열렸다는 게 즉시 보임</li><li>결과 화면(6 쌍 알약)과 같은 부품 — 앱 전체 일관</li></ul></div><div><b>주의점</b><ul><li>"어두운 판 = 결과·통계" 라는 약속이 흐려짐(설정에도 쓰게 됨)</li><li>흰 벽 + 검은 판 + 검은 알약(힌트 낱말) — 검정이 셋, 무거움</li></ul></div></div>
+      <div class="tags"><span class="e">공수 작음</span><span>결과 알약 재사용</span><span>운전 중 — 정차</span><span>정직성 — 영향 없음</span></div>
+      <p class="a11y"><b>접근성</b> 알약 58px(174 dp) = 모드 이름 · 판 밖 = 닫기.</p>
+    </div>
+  </div>
+
+  <div class="striph"><b>A2 프레임 띠</b><small>"힌트" 를 누름 → 원이 번짐(A1 360 ms) → 낱말이 검은 알약 · 제목이 줄며 위로 · 카드가 아래에서 올라옴(C1 420 ms) → 끝. 닫기 = 거꾸로.</small></div>
+  <div class="strip">
+    <div><p class="fl"><b>0</b>누름 — 낱말에서 원이 번짐</p><div class="mini"><div class="scr">
+      <div class="wm p-wm">DRIVE COACH</div><div class="cp p-cp"><svg><use href="#mic"/></svg>코치와 대화</div><div class="info p-info"><b>프로필</b>연수생 · 장롱 10년차 · 목표: 아이 등하원 ›</div>
+      <div class="eb p-eb">오늘의 과제 · 주차</div>
+      <div style="left:30px;top:150px;width:120px;height:90px;border-radius:50%;background:radial-gradient(circle,rgba(34,37,38,.22) 0%,rgba(34,37,38,.08) 60%,rgba(34,37,38,0) 70%)"></div>
+      <div class="ttl p-ttl"><u>후면 직각 주차<i class="cv">▼</i></u>를<br><u>힌트<i class="cv">▼</i></u> 모드로 해 볼까요?</div>
+      <div class="why p-why">틀린 순간에만 말할게요.</div><div class="p-rule"></div><div class="go p-go"><span class="gt">시작</span><span class="gr"><svg><use href="#ne"/></svg></span></div>
+    </div></div></div>
+    <div><p class="fl"><b>1/3</b>알약으로 · 막이 내려옴 · 카드가 고개</p><div class="mini"><div class="scr">
+      <div class="wm p-wm">DRIVE COACH</div><div class="cp p-cp"><svg><use href="#mic"/></svg>코치와 대화</div>
+      <div class="eb p-eb">오늘의 과제 · 주차</div>
+      <div class="ttl p-ttl" style="top:96px;font-size:38px;line-height:50px"><u>후면 직각 주차</u>를<br><span class="kw">힌트</span> 모드로 해 볼까요?</div>
+      <div class="go p-go"><span class="gt">시작</span><span class="gr"><svg><use href="#ne"/></svg></span></div>
+      <div class="scrim" style="opacity:.55"></div>
+      <div class="wc" style="left:24px;top:350px;width:805px;height:330px"></div>
+    </div></div></div>
+    <div><p class="fl"><b>2/3</b>제목이 한 줄로 · 카드가 반쯤</p><div class="mini"><div class="scr g">
+      <div class="wm" style="left:28px;top:24px">DRIVE COACH</div>
+      <div class="sent" style="left:28px;top:60px;font-size:32px;line-height:46px;white-space:nowrap">후면 직각 주차를 <span class="kw">힌트</span> 모드로 <span class="gw">해 볼까요?</span></div>
+      <div class="wc back" style="left:40px;top:200px;width:773px;height:340px"></div>
+      <div class="wc" style="left:24px;top:214px;width:805px;height:330px;padding:14px 18px"><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:38px"><div class="mcard" style="height:170px"><svg class="mi"><use href="#tb3"/></svg><p class="mn">가이드</p></div><div class="mcard on" style="height:170px"><svg class="mi"><use href="#yb2"/></svg><p class="mn">힌트</p></div><div class="mcard" style="height:170px"><svg class="mi"><use href="#tb1"/></svg><p class="mn">평가</p></div></div></div>
+    </div></div></div>
+    <div><p class="fl"><b>끝</b>카드 정착 · 뒤 띠 한 장</p><div class="mini"><div class="scr g">
+      <div class="wm" style="left:28px;top:22px">DRIVE COACH</div>
+      <div class="sent" style="left:28px;top:50px;font-size:28px;line-height:44px;white-space:nowrap">후면 직각 주차를 <span class="kw" style="font-size:28px">힌트</span> 모드로 <span class="gw">해 볼까요?</span></div>
+      <div class="wc back" style="left:40px;top:106px;width:773px;height:340px"></div>
+      <div class="wc" style="left:24px;top:118px;width:805px;height:330px;padding:14px 18px">
+        <div style="display:flex;justify-content:space-between"><span class="eb" style="color:var(--onyx)">모드</span><span class="lkp">고르면 문장이 바뀌어요</span></div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px"><div class="mcard" style="height:170px"><svg class="mi"><use href="#tb3"/></svg><p class="mn">가이드</p><p class="md">단계마다 제가<br>말하고 확인해요.</p></div><div class="mcard on" style="height:170px"><svg class="mi"><use href="#yb2"/></svg><p class="mn">힌트</p><p class="md">틀린 순간에만<br>말할게요.</p></div><div class="mcard" style="height:170px"><svg class="mi"><use href="#tb1"/></svg><p class="mn">평가</p><p class="md">조용히 지켜보고<br>끝에 판정해요.</p></div></div>
+        <div style="display:flex;gap:12px;margin-top:12px;justify-content:flex-end"><div class="btng gr" style="width:140px"><i>↓</i>닫기</div><div class="btnk" style="width:260px">이 모드로 →</div></div>
+      </div>
+    </div></div></div>
+  </div>
+
+  <div class="rec">
+    <div><p class="sc">추천 · A</p><h3>A2 문장이 줄고 카드가 올라온다 <span class="gw">— 시간이 없으면 A1.</span></h3>
+      <p style="margin-top:6px">사용자가 "딱 저렇게" 라고 한 문장 시트가 <b>모드 낱말을 누르면 같은 자리에 모드 카드가 올라온다</b>고 이미 약속했다. A2 는 그 약속 그대로라 과제 낱말·모드 낱말·(D4) 예약이 <b>모두 같은 움직임</b>으로 열린다 — "팝업되는 메뉴부터 예전으로 돌아갔다" 는 지적의 정면 답.</p></div>
+    <div><ul>
+      <li>공수 <b>중간</b> — 과제 시트의 올라오는 카드 · 닫기 · "이 ○○로 →" 부품을 그대로 쓰고 안의 타일만 모드 카드로.</li>
+      <li>고르면 즉시 확정으로 해도 된다(그러면 "이 모드로 →" 를 빼고 닫기만).</li>
+      <li>마감에 쫓기면 <b>A1</b>(드롭다운 → 흰 카드 + 막대 타일 + 설명, 공수 작음). A4 트랙은 점검 화면 모드 전환과 부품을 나눌 수 있어 두 번째 후보.</li>
+    </ul><span class="eff">A2 공수 중간 · A1 작음</span></div>
+  </div>
+</section>
+
+<!-- ================================================================ B ================================================================ -->
+<section class="scrn">
+  <div class="sh"><span class="no">B</span><div><h2>프로필 시트 + 첫 실행 프로필 질문</h2><p>지금 앱 = 왼쪽 큰 차 그림 + 오른쪽 목록(예전 구성). 새 안은 차 그림을 빼고 <b>H8 홈 위에서</b> 연다(오른쪽 위 "프로필 … ›" 을 누르면). 줄 = 앱 그대로 다섯(무서운 상황 · 마지막 운전 · 필요한 일 · 면허 · 타는 차 — 브리프의 "무서운 것 · 장롱 연차 · 목표 · 면허" 에 해당, 타는 차도 남긴다) + 앱이 본 것. 답은 <b>칩만</b>(키보드·숫자 없음). 작은 판 = 같은 안의 첫 실행 질문.</p></div></div>
+
+  <!-- B1 -->
+  <div class="row">
+    <div class="scr g">
+      <div class="wm" style="left:28px;top:22px">DRIVE COACH</div>
+      <div class="eb" style="left:28px;top:56px;color:var(--onyx)">내 프로필</div>
+      <div class="sent" style="left:28px;top:80px;font-size:30px;line-height:50px;white-space:nowrap">무서운 상황은 <span class="sp">주차</span>,<br>마지막 운전은 <span class="sp">십 년 넘게</span>,<br>필요한 일은 <span class="sp">아이 등하원</span><span class="gw">.</span><br><span style="font-size:22px">면허는 <span class="sp">십 년쯤 전</span> <span class="gw">·</span> 타는 차는 <span class="sp d">아직</span></span></div>
+      <div class="wc" style="left:470px;top:230px;width:359px;height:104px;padding:14px 16px;display:flex;gap:12px;border-radius:22px"><svg width="30" height="30" style="flex:none"><use href="#yeye"/></svg><div><p class="sc" style="margin-bottom:5px">앱이 본 것</p><p style="font-size:13px;line-height:19px">연습이 쌓이고 있어요.<br>후면 직각 주차 쪽을 조금 더<br>연습하면 좋아요.</p></div></div>
+      <div class="btng" style="left:28px;top:360px;width:150px"><i>←</i>돌아가기</div>
+    </div>
+    <div class="notes">
+      <h3><span class="id">B1</span>문장 프로필</h3>
+      <p class="one">홈 제목과 같은 생각 — 프로필이 큰 문장 하나. 답 = 문장 속 흰 알약(아래 그림자), 누르면 그 줄의 칩 카드가 아래에서 올라온다(과제 시트와 같음). 아직 답 안 한 줄은 점선 알약 "아직".</p>
+      <div class="pc"><div><b>장점</b><ul><li>문장 시트와 <b>완전히 같은 문법</b> — "딱 저렇게" 를 프로필까지</li><li>표가 아니라 "나에 대한 말" 로 읽혀 연수생에게 부드럽다</li></ul></div><div><b>주의점</b><ul><li>잇는 말("무서운 상황은 ○, 마지막 운전은 ○") 이 새 문구 — 줄 제목은 그대로 썼다</li><li>줄이 더 늘면 문장이 길어짐 — 다섯이 한계</li></ul></div></div>
+      <div class="tags"><span class="e">공수 중간</span><span>문장 레이아웃 + 칩 카드</span><span>정차 화면</span><span>정직성 — 앱이 본 것은 따로 판</span></div>
+      <p class="a11y"><b>접근성</b> 알약 = "무서운 상황, 주차, 바꾸기" 식(줄 제목 + 답) · 알약 높이 40px(120 dp).</p>
+      <p class="mcap"><b>첫 실행</b> 빈 알약 하나에 질문 · 칩 다섯</p>
+      <div class="half"><div class="scr g">
+        <div class="wm" style="left:28px;top:22px">DRIVE COACH</div>
+        <div class="eb" style="left:28px;top:56px;color:var(--onyx)">처음 뵙겠습니다</div>
+        <div class="sent" style="left:28px;top:80px;font-size:36px;line-height:52px;white-space:nowrap"><span class="gw">내 프로필을 같이 채워요.</span><br>무서운 상황은 <span class="sp d">&nbsp;?&nbsp;</span></div>
+        <div style="left:28px;top:200px;font-size:17px">운전하면서 제일 무서운 건 뭐예요?</div>
+        <div style="left:28px;top:240px;display:flex;gap:10px"><span class="wp">주차</span><span class="wp">고속도로</span><span class="wp">야간</span><span class="wp">차선 바꾸기</span><span class="wp">잘 모르겠어요</span></div>
+        <div style="left:28px;top:312px;font-size:13px;color:#7a7e81">나머지는 연습하면서 하나씩 천천히 물어볼게요.</div>
+        <div class="btng" style="right:28px;top:360px;padding:0 22px">건너뛰기</div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- B2 -->
+  <div class="row">
+    <div class="scr">
+      <div class="wm p-wm">DRIVE COACH</div>
+      <div class="ttl p-ttl"><u>후면 직각 주차</u>를<br><u>힌트</u> 모드로 해 볼까요?</div>
+      <div class="scrim"></div>
+      <div class="wc" style="left:24px;top:22px;width:805px;height:420px;padding:12px 20px">
+        <div style="display:flex;align-items:center;gap:16px"><div class="btng gr" style="width:140px"><i>←</i>돌아가기</div><span style="font-size:20px;font-weight:500">내 프로필</span></div>
+        <div style="margin-top:8px">
+          <div class="prow"><span class="pl">무서운 상황</span><span>주차 ›</span></div>
+          <div class="prow" style="border-bottom:0"><span class="pl">마지막 운전</span><span>십 년 넘게 ▴</span></div>
+          <div class="trk" style="margin:0 0 4px;padding:3px"><span style="height:38px;font-size:14px">요즘도 해요</span><span style="height:38px;font-size:14px">작년쯤</span><span style="height:38px;font-size:14px">몇 년 전</span><span class="on" style="height:38px;font-size:14px">십 년 넘게</span><span style="height:38px;font-size:14px">기억이 안 나요</span></div>
+          <div class="prow"><span class="pl">필요한 일</span><span>아이 등하원 ›</span></div>
+          <div class="prow"><span class="pl">면허</span><span>십 년쯤 전 ›</span></div>
+          <div class="prow"><span class="pl">타는 차</span><span class="dp" style="height:28px;font-size:13px">아직</span></div>
+        </div>
+        <div class="obs" style="margin-top:10px;height:56px;align-items:center"><svg><use href="#yeye"/></svg><p><span class="sc" style="display:inline;margin-right:10px">앱이 본 것</span>연습이 쌓이고 있어요. 후면 직각 주차 쪽을 조금 더 연습하면 좋아요.</p></div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3><span class="id">B2</span>다섯 줄 카드 + 그 자리 칩 트랙</h3>
+      <p class="one">홈 위로 흰 카드가 올라와 다섯 줄을 덮는다. 줄을 누르면 그 줄 아래에 칩 트랙이 펼쳐지고 고른 칩 = 검은 돌. "앱이 본 것" 은 맨 아래 Onyx 띠 — 내가 고른 것과 앱이 본 것이 색으로 갈린다.</p>
+      <div class="pc"><div><b>장점</b><ul><li>지금 목록 구조·코드 그대로, 생김새만 새 문법 — 가장 싸다</li><li>내 답(흰) / 앱 관측(검정) 이 한눈에 갈림 — 정직성 좋음</li></ul></div><div><b>주의점</b><ul><li>여전히 "설정 목록" 처럼 보임 — 새 컨셉의 인상은 약함</li><li>펼친 줄이 하나라 트랙 칩 다섯이 빡빡(14px)</li></ul></div></div>
+      <div class="tags"><span class="e">공수 작음</span><span>ProfileScreen 재배치</span><span>정차 화면</span><span>정직성 — 내 답 / 앱 관측 분리</span></div>
+      <p class="a11y"><b>접근성</b> 줄 = 줄 제목 + 답(42px = 126 dp) · 트랙 칩 = 칩 이름(선택됨) 38px(114 dp).</p>
+      <p class="mcap"><b>첫 실행</b> 같은 카드, 첫 줄이 질문으로 펼쳐짐</p>
+      <div class="half"><div class="scr">
+        <div class="wm p-wm">DRIVE COACH</div>
+        <div class="scrim"></div>
+        <div class="wc" style="left:24px;top:22px;width:805px;height:420px;padding:14px 20px">
+          <p class="eb">처음 뵙겠습니다</p><p style="font-size:22px;font-weight:500">내 프로필을 같이 채워요.</p>
+          <div style="margin-top:8px;border-top:1px solid #E7E7E7;padding-top:8px"><p class="pl" style="font-size:13px;color:#55595c">무서운 상황</p><p style="font-size:22px;font-weight:500;margin-top:2px">운전하면서 제일 무서운 건 뭐예요?</p>
+          <div style="display:flex;gap:8px;margin-top:10px"><span class="wp">주차</span><span class="wp">고속도로</span><span class="wp">야간</span><span class="wp">차선 바꾸기</span><span class="wp">잘 모르겠어요</span></div></div>
+          <div class="prow" style="margin-top:12px;border-top:1px solid #E7E7E7"><span class="pl">마지막 운전</span><span class="gw">아직</span></div>
+          <div class="prow"><span class="pl">필요한 일 · 면허 · 타는 차</span><span class="gw">아직</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px"><span style="font-size:13px;color:#7a7e81">나머지는 연습하면서 하나씩 천천히 물어볼게요.</span><div class="btng gr" style="padding:0 22px">건너뛰기</div></div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- B3 -->
+  <div class="row">
+    <div class="scr g">
+      <div class="btng" style="left:24px;top:20px;width:140px"><i>←</i>돌아가기</div>
+      <div style="left:184px;top:22px;font-size:26px;font-weight:500;line-height:38px">내 프로필</div>
+      <div class="wm" style="right:28px;top:36px">DRIVE COACH</div>
+      <div style="left:24px;top:78px;width:805px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+        <div class="ptile" style="height:150px"><p class="pl">무서운 상황</p><span class="pa">›</span><p class="pv">주차</p></div>
+        <div class="ptile" style="height:150px"><p class="pl">마지막 운전</p><span class="pa">›</span><p class="pv">십 년 넘게</p></div>
+        <div class="ptile" style="height:150px"><p class="pl">필요한 일</p><span class="pa">›</span><p class="pv">아이 등하원</p></div>
+        <div class="ptile" style="height:150px"><p class="pl">면허</p><span class="pa">›</span><p class="pv">십 년쯤 전</p></div>
+        <div class="ptile" style="height:150px;background:transparent;border:1.5px dashed #A9ACAE;box-shadow:none"><p class="pl">타는 차</p><span class="pa">+</span><p class="pv" style="color:#9a9da0">아직</p></div>
+        <div class="ptile" style="height:150px;background:var(--onyx);color:var(--platinum)"><div style="display:flex;align-items:center;gap:8px"><svg width="24" height="24"><use href="#yeye"/></svg><span class="sc" style="color:#9a9da0">앱이 본 것</span></div><p style="font-size:13.5px;line-height:20px;margin-top:10px">연습이 쌓이고 있어요.<br>후면 직각 주차 쪽을 조금 더<br>연습하면 좋아요.</p></div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3><span class="id">B3</span>타일 여섯</h3>
+      <p class="one">줄 대신 큰 타일 2×3 — 위 작은 줄 제목, 아래 큰 답(26px). 빈 줄은 점선 타일 "아직 +", 여섯째 타일은 Onyx "앱이 본 것". 타일을 누르면 칩 카드가 아래에서 올라온다.</p>
+      <div class="pc"><div><b>장점</b><ul><li>답이 가장 크게 읽힘 — 운전석 거리에서도 "내가 뭘 골랐는지" 가 보인다</li><li>과제 타일과 같은 부품(둥근 20, 흰 → 검정)</li></ul></div><div><b>주의점</b><ul><li>타일 누름 → 카드 → 칩 → 닫기, 바꾸는 데 한 단계 더</li><li>"앱이 본 것" 이 길어지면 타일에 안 들어감(두 줄 이상은 말줄임)</li></ul></div></div>
+      <div class="tags"><span class="e">공수 중간</span><span>격자 + 칩 카드</span><span>정차 화면</span><span>정직성 — Onyx 타일로 분리</span></div>
+      <p class="a11y"><b>접근성</b> 타일 = "무서운 상황, 주차" (150px = 450 dp) · 빈 타일 = "타는 차, 아직, 답하기".</p>
+      <p class="mcap"><b>첫 실행</b> 타일 하나가 크게 — 질문 + 칩 타일</p>
+      <div class="half"><div class="scr g">
+        <div class="wm" style="left:28px;top:30px">DRIVE COACH</div>
+        <div class="eb" style="left:28px;top:70px;color:var(--onyx)">처음 뵙겠습니다</div>
+        <div style="left:28px;top:92px;font-size:30px;font-weight:500;line-height:42px">내 프로필을<br>같이 채워요.</div>
+        <div style="left:28px;top:190px;font-size:13px;color:#7a7e81;line-height:19px">나머지는 연습하면서<br>하나씩 천천히 물어볼게요.</div>
+        <div class="btng" style="left:28px;top:360px;padding:0 22px">건너뛰기</div>
+        <div class="wc" style="left:290px;top:40px;width:540px;height:350px;padding:18px 20px"><p class="pl" style="font-size:12px;color:#7a7e81">무서운 상황</p><p style="font-size:24px;font-weight:500;line-height:34px;margin-top:2px">운전하면서 제일<br>무서운 건 뭐예요?</p>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px"><div class="ptile" style="height:74px;background:var(--chip);box-shadow:none"><p class="pv" style="font-size:18px;bottom:12px">주차</p></div><div class="ptile" style="height:74px;background:var(--chip);box-shadow:none"><p class="pv" style="font-size:18px;bottom:12px">고속도로</p></div><div class="ptile" style="height:74px;background:var(--chip);box-shadow:none"><p class="pv" style="font-size:18px;bottom:12px">야간</p></div><div class="ptile" style="height:74px;background:var(--chip);box-shadow:none"><p class="pv" style="font-size:18px;bottom:12px">차선 바꾸기</p></div><div class="ptile" style="height:74px;background:var(--chip);box-shadow:none"><p class="pv" style="font-size:18px;bottom:12px">잘 모르겠어요</p></div></div></div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- B4 -->
+  <div class="row">
+    <div class="scr">
+      <div class="wm p-wm">DRIVE COACH</div>
+      <div class="eb p-eb">오늘의 과제 · 주차</div>
+      <div class="ttl p-ttl"><u>후면 직각 주차</u>를<br><u>힌트</u> 모드로<br>해 볼까요?</div>
+      <div class="p-rule" style="right:400px"></div>
+      <div class="wc" style="left:460px;top:12px;width:381px;height:399px;padding:14px 16px">
+        <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:17px;font-weight:500">내 프로필</span><span class="xb">×</span></div>
+        <div style="margin-top:6px">
+          <div style="display:flex;align-items:center;justify-content:space-between;height:48px;border-bottom:1px solid #EEE"><span style="font-size:13px;color:#55595c">무서운 상황</span><span class="wp">주차</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;height:48px;border-bottom:1px solid #EEE"><span style="font-size:13px;color:#55595c">마지막 운전</span><span class="wp">십 년 넘게</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;height:48px;border-bottom:1px solid #EEE"><span style="font-size:13px;color:#55595c">필요한 일</span><span class="wp">아이 등하원</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;height:48px;border-bottom:1px solid #EEE"><span style="font-size:13px;color:#55595c">면허</span><span class="wp">십 년쯤 전</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;height:48px"><span style="font-size:13px;color:#55595c">타는 차</span><span class="dp">아직</span></div>
+        </div>
+        <div style="margin-top:8px;border-radius:16px;background:var(--chip);padding:10px 12px;display:flex;gap:10px"><svg width="24" height="24" style="flex:none"><use href="#yeye"/></svg><p style="font-size:12px;line-height:17px"><span class="sc" style="display:block;margin-bottom:2px">앱이 본 것</span>연습이 쌓이고 있어요. 후면 직각 주차 쪽을 조금 더 연습하면 좋아요.</p></div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3><span class="id">B4</span>정보 블록이 자라는 서랍</h3>
+      <p class="one">오른쪽 위 "프로필 … ›" 이 그 자리에서 아래로 자라 서랍이 된다(모핑). 줄 = 제목 + 흰 알약 답, 알약을 누르면 알약 옆에 칩이 가로로 펼쳐진다. 홈 제목은 왼쪽에 남는다.</p>
+      <div class="pc"><div><b>장점</b><ul><li>"어디서 열렸는지" 가 움직임으로 보임 — 홈과 이어짐이 가장 강함</li><li>A5(모드 서랍) · C3(대화 기둥)과 한 규칙: 오른쪽 = 바꾸는 곳</li></ul></div><div><b>주의점</b><ul><li>서랍 폭 381px — 칩이 가로로 펼쳐질 자리가 좁다(두 줄로 감김)</li><li>조수석 쪽 터치</li></ul></div></div>
+      <div class="tags"><span class="e">공수 중간</span><span>모핑 + 서랍</span><span>정차 화면</span><span>정직성 — 앱이 본 것 회색 판</span></div>
+      <p class="a11y"><b>접근성</b> 줄 높이 48px(144 dp) · 알약 = "마지막 운전, 십 년 넘게, 바꾸기" · "닫기".</p>
+      <p class="mcap"><b>첫 실행</b> 첫 실행 홈 옆에 서랍이 열린 채로</p>
+      <div class="half"><div class="scr">
+        <div class="wm p-wm">DRIVE COACH</div>
+        <div class="eb p-eb">처음 오셨네요</div>
+        <div class="ttl p-ttl"><u style="text-decoration-style:dashed">과제 고르기</u><br>부터 해 볼까요?</div>
+        <div class="p-rule" style="right:400px"></div>
+        <div class="wc" style="left:460px;top:12px;width:381px;height:399px;padding:16px">
+          <p class="eb">처음 뵙겠습니다 · 무서운 상황</p>
+          <p style="font-size:22px;font-weight:500;line-height:31px;margin-top:4px">운전하면서 제일<br>무서운 건 뭐예요?</p>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px"><span class="wp">주차</span><span class="wp">고속도로</span><span class="wp">야간</span><span class="wp">차선 바꾸기</span><span class="wp">잘 모르겠어요</span></div>
+          <p style="font-size:12.5px;color:#7a7e81;margin-top:18px;line-height:18px">나머지는 연습하면서<br>하나씩 천천히 물어볼게요.</p>
+          <div class="btng gr" style="position:absolute;left:16px;bottom:16px;padding:0 22px">건너뛰기</div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- B5 -->
+  <div class="row">
+    <div class="scr g">
+      <div class="btng" style="left:24px;top:18px;width:140px"><i>←</i>돌아가기</div>
+      <div style="left:182px;top:24px;font-size:20px;font-weight:500;line-height:30px">내 프로필</div>
+      <div style="right:24px;top:16px;height:46px;border-radius:23px;background:var(--onyx);color:var(--platinum);display:flex;align-items:center;gap:10px;padding:0 16px 0 8px"><svg width="30" height="30"><use href="#yeye"/></svg><p style="font-size:11px;line-height:15px"><span style="color:#9a9da0">앱이 본 것</span> 연습이 쌓이고 있어요.<br>후면 직각 주차 쪽을 조금 더 연습하면 좋아요.</p></div>
+      <div class="wc back" style="left:66px;top:76px;width:721px;height:200px;padding:0 20px;display:flex;justify-content:space-between;line-height:46px;font-size:14px"><span style="color:#7a7e81">무서운 상황</span><span>주차 ›</span></div>
+      <div class="wc back" style="left:56px;top:122px;width:741px;height:200px;padding:0 20px;display:flex;justify-content:space-between;line-height:46px;font-size:14px;background:#FCFCFC"><span style="color:#7a7e81">마지막 운전</span><span>십 년 넘게 ›</span></div>
+      <div class="wc back" style="left:46px;top:168px;width:761px;height:200px;padding:0 20px;display:flex;justify-content:space-between;line-height:46px;font-size:14px;background:#FDFDFD"><span style="color:#7a7e81">필요한 일</span><span>아이 등하원 ›</span></div>
+      <div class="wc back" style="left:36px;top:214px;width:781px;height:200px;padding:0 20px;display:flex;justify-content:space-between;line-height:46px;font-size:14px;background:#FEFEFE"><span style="color:#7a7e81">면허</span><span>십 년쯤 전 ›</span></div>
+      <div class="wc" style="left:24px;top:260px;width:805px;height:200px;padding:14px 22px">
+        <p style="font-size:12px;color:#7a7e81">타는 차 · 아직</p>
+        <p style="font-size:24px;font-weight:500;line-height:34px">타는 차는 어떤 차예요?</p>
+        <div style="display:flex;gap:10px;margin-top:12px"><span class="wp">경차</span><span class="wp">준중형</span><span class="wp">중형 SUV</span><span class="wp">큰 차</span></div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3><span class="id">B5</span>질문 카드 더미</h3>
+      <p class="one">줄 하나 = 카드 한 장. 답한 줄은 뒤로 밀려 위 띠(제목 · 답 ›)만 남고, 맨 앞 카드 = 아직 답하지 않은 줄의 질문 + 칩. 띠를 누르면 그 카드가 앞으로 나온다. 앱이 본 것은 오른쪽 위 Onyx 알약.</p>
+      <div class="pc"><div><b>장점</b><ul><li><b>첫 실행과 시트가 같은 화면</b> — 첫 실행은 더미가 비어 있을 뿐</li><li>"다음에 물어볼 것" 이 늘 앞에 — 리포트 끝 "하나만 물어볼게요" 와 같은 생각</li></ul></div><div><b>주의점</b><ul><li>띠 46px(138 dp) — 넷이 쌓이면 화면 절반, 다섯째부터는 넘침</li><li>앱이 본 것이 작은 알약으로 밀려 덜 읽힘</li></ul></div></div>
+      <div class="tags"><span class="e">공수 중간</span><span>겹침 오프셋 카드</span><span>정차 화면</span><span>정직성 — 관측은 Onyx 알약</span></div>
+      <p class="a11y"><b>접근성</b> 띠 = "무서운 상황, 주차, 열기" · 앞 카드 칩 = 칩 이름 40px.</p>
+      <p class="mcap"><b>첫 실행</b> 앞 카드 = 첫 질문, 아래로 다음 카드가 비침</p>
+      <div class="half"><div class="scr g">
+        <div class="wm" style="left:28px;top:30px">DRIVE COACH</div>
+        <div class="eb" style="left:28px;top:70px;color:var(--onyx)">처음 뵙겠습니다</div>
+        <div style="left:28px;top:92px;font-size:30px;font-weight:500;line-height:42px">내 프로필을<br>같이 채워요.</div>
+        <div style="left:28px;top:190px;font-size:13px;color:#7a7e81;line-height:19px">나머지는 연습하면서<br>하나씩 천천히 물어볼게요.</div>
+        <div class="btng" style="left:28px;top:360px;padding:0 22px">건너뛰기</div>
+        <div class="wc back" style="left:316px;top:330px;width:497px;height:200px;padding:0 20px;line-height:46px;font-size:14px;color:#9a9da0">마지막 운전</div>
+        <div class="wc" style="left:300px;top:50px;width:529px;height:270px;padding:18px 22px"><p style="font-size:12px;color:#7a7e81">무서운 상황</p><p style="font-size:24px;font-weight:500;line-height:34px">운전하면서 제일 무서운 건 뭐예요?</p><div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px"><span class="wp">주차</span><span class="wp">고속도로</span><span class="wp">야간</span><span class="wp">차선 바꾸기</span><span class="wp">잘 모르겠어요</span></div></div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- B6 -->
+  <div class="row">
+    <div class="scr dk">
+      <div class="sc" style="left:32px;top:30px;color:#9a9da0">PROFILE · 내 프로필</div>
+      <div class="btno" style="right:32px;top:18px"><i>←</i>돌아가기</div>
+      <div style="left:32px;top:80px;width:796px;display:grid;grid-template-columns:repeat(3,1fr);gap:22px 18px">
+        <div><div style="height:76px;border-radius:38px;background:var(--platinum);color:var(--onyx);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:500">주차</div><p style="font-size:11.5px;color:#9a9da0;margin-top:6px;text-align:center">무서운 상황</p></div>
+        <div><div style="height:76px;border-radius:38px;background:var(--platinum);color:var(--onyx);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:500">십 년 넘게</div><p style="font-size:11.5px;color:#9a9da0;margin-top:6px;text-align:center">마지막 운전</p></div>
+        <div><div style="height:76px;border-radius:38px;background:var(--platinum);color:var(--onyx);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:500">아이 등하원</div><p style="font-size:11.5px;color:#9a9da0;margin-top:6px;text-align:center">필요한 일</p></div>
+        <div><div style="height:76px;border-radius:38px;background:var(--platinum);color:var(--onyx);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:500">십 년쯤 전</div><p style="font-size:11.5px;color:#9a9da0;margin-top:6px;text-align:center">면허</p></div>
+        <div><div style="height:76px;border-radius:38px;border:1.5px dashed #6c7073;color:#8a8d90;display:flex;align-items:center;justify-content:center;font-size:26px">아직</div><p style="font-size:11.5px;color:#9a9da0;margin-top:6px;text-align:center">타는 차</p></div>
+        <div style="height:104px;border-radius:24px;border:1px solid rgba(224,224,224,.25);padding:12px 14px;display:flex;gap:10px"><svg width="26" height="26" style="flex:none"><use href="#yeye"/></svg><p style="font-size:12.5px;line-height:18px"><span class="sc" style="display:block;margin-bottom:4px;color:#9a9da0">앱이 본 것</span>연습이 쌓이고 있어요. 후면 직각 주차 쪽을 조금 더 연습하면 좋아요.</p></div>
+      </div>
+      <div style="left:32px;top:388px;font-size:11px;color:#8a8d90">채운 알약 = 내가 고른 답 · 점선 = 아직 · 테두리 판 = 앱이 기록에서 본 것</div>
+    </div>
+    <div class="notes">
+      <h3><span class="id">B6</span>Onyx 판 (결과 가족)</h3>
+      <p class="one">프로필을 진단서·결과와 같은 어두운 판으로. 답 = Platinum 채운 큰 알약 + 아래 작은 줄 제목(레퍼런스 4 의 "숫자 알약 + 작은 라벨"), 빈 답 = 점선 알약, 앱이 본 것 = 테두리 판.</p>
+      <div class="pc"><div><b>장점</b><ul><li>"나에 대한 기록" 이라는 성격이 결과 화면과 이어짐 — 진단서 앞장처럼 보인다</li><li>알약 76px — 운전석에서도 답이 읽힘</li></ul></div><div><b>주의점</b><ul><li>흰 홈에서 갑자기 검은 화면 — 팝업이 아니라 "다른 방" 같다</li><li>바꾸기(칩)는 다시 흰 카드가 필요 — 두 문법이 섞임</li></ul></div></div>
+      <div class="tags"><span class="e">공수 중간</span><span>결과 알약 재사용</span><span>정차 화면</span><span>정직성 — 범례 줄로 분명</span></div>
+      <p class="a11y"><b>접근성</b> 알약 = "무서운 상황, 주차, 바꾸기" (76px = 228 dp) · 테두리 "돌아가기".</p>
+      <p class="mcap"><b>첫 실행</b> 어두운 판 위 질문 + 테두리 알약</p>
+      <div class="half"><div class="scr dk">
+        <div class="sc" style="left:32px;top:30px;color:#9a9da0">처음 뵙겠습니다 · 무서운 상황</div>
+        <div style="left:32px;top:70px;font-size:36px;font-weight:500;line-height:50px;color:#fff">운전하면서 제일<br>무서운 건 뭐예요?</div>
+        <div style="left:32px;top:200px;display:flex;gap:10px"><span class="op" style="height:52px;border-radius:26px;font-size:17px;padding:0 22px">주차</span><span class="op" style="height:52px;border-radius:26px;font-size:17px;padding:0 22px">고속도로</span><span class="op" style="height:52px;border-radius:26px;font-size:17px;padding:0 22px">야간</span><span class="op" style="height:52px;border-radius:26px;font-size:17px;padding:0 22px">차선 바꾸기</span><span class="op" style="height:52px;border-radius:26px;font-size:17px;padding:0 22px">잘 모르겠어요</span></div>
+        <div style="left:32px;top:290px;font-size:14px;color:#9a9da0">나머지는 연습하면서 하나씩 천천히 물어볼게요.</div>
+        <div class="btno" style="left:32px;top:352px;padding:0 22px">건너뛰기</div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- B7 -->
+  <div class="row">
+    <div class="scr">
+      <div class="wm p-wm">DRIVE COACH</div>
+      <div class="scrim"></div>
+      <div class="wc" style="left:24px;top:22px;width:805px;height:420px;padding:12px 20px">
+        <div style="display:flex;align-items:center;gap:16px"><div class="btng gr" style="width:140px"><i>←</i>돌아가기</div><span style="font-size:20px;font-weight:500">내 프로필</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 22px;margin-top:10px">
+          <div><p class="bub c" style="font-size:13px;line-height:18px;padding:7px 14px;display:inline-block">운전하면서 제일 무서운 건 뭐예요?</p><p style="text-align:right;margin-top:4px"><span class="bub m" style="display:inline-block;font-size:16px;padding:6px 18px">주차</span></p></div>
+          <div><p class="bub c" style="font-size:13px;line-height:18px;padding:7px 14px;display:inline-block">면허는 언제 따셨어요?</p><p style="text-align:right;margin-top:4px"><span class="bub m" style="display:inline-block;font-size:16px;padding:6px 18px">십 년쯤 전</span></p></div>
+          <div><p class="bub c" style="font-size:13px;line-height:18px;padding:7px 14px;display:inline-block">마지막으로 운전한 게 언제쯤이에요?</p><p style="text-align:right;margin-top:4px"><span class="bub m" style="display:inline-block;font-size:16px;padding:6px 18px">십 년 넘게</span></p></div>
+          <div><p class="bub c" style="font-size:13px;line-height:18px;padding:7px 14px;display:inline-block">타는 차는 어떤 차예요?</p><p style="text-align:right;margin-top:4px"><span class="dp" style="height:36px">아직 — 눌러서 답하기</span></p></div>
+          <div><p class="bub c" style="font-size:13px;line-height:18px;padding:7px 14px;display:inline-block">운전이 필요한 일은 뭐예요?</p><p style="text-align:right;margin-top:4px"><span class="bub m" style="display:inline-block;font-size:16px;padding:6px 18px">아이 등하원</span></p></div>
+          <div class="obs" style="margin-top:4px"><svg><use href="#yeye"/></svg><p><span class="sc">앱이 본 것</span>연습이 쌓이고 있어요. 후면 직각 주차 쪽을 조금 더 연습하면 좋아요.</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3><span class="id">B7</span>묻고 답한 기록</h3>
+      <p class="one">프로필 = 코치가 물었던 질문(회색 말풍선) + 내 답(검은 말풍선) 다섯 쌍. 답 말풍선을 누르면 그 질문의 칩이 다시 나온다. 코치와 대화(C)와 같은 부품.</p>
+      <div class="pc"><div><b>장점</b><ul><li>질문 문장(ProfileField.question)이 그대로 보여 "왜 이걸 묻는지" 가 분명</li><li>대화 시트와 부품 공유 — 만들 것이 줄어듦</li></ul></div><div><b>주의점</b><ul><li>질문이 13px 로 작음, 답이 주인공 — 줄 제목이 사라짐</li><li>"아직 — 눌러서 답하기" 는 새 문구</li></ul></div></div>
+      <div class="tags"><span class="e">공수 작음</span><span>말풍선 재사용</span><span>정차 화면</span><span>정직성 — 관측 Onyx 판</span></div>
+      <p class="a11y"><b>접근성</b> 답 말풍선 = "주차, 바꾸기"(높이 36 + 쌍 전체 눌림 영역 80px).</p>
+      <p class="mcap"><b>첫 실행</b> 코치가 묻는 대화로 시작</p>
+      <div class="half"><div class="scr">
+        <div class="wm p-wm">DRIVE COACH</div>
+        <div class="scrim"></div>
+        <div class="wc" style="left:24px;top:22px;width:805px;height:420px;padding:18px 24px">
+          <p class="eb">처음 뵙겠습니다 · 내 프로필을 같이 채워요.</p>
+          <div class="bub c" style="margin-top:12px;font-size:24px;line-height:34px;padding:12px 20px;display:inline-block"><span class="who">코치</span>운전하면서 제일 무서운 건 뭐예요?</div>
+          <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end"><span class="wp">주차</span><span class="wp">고속도로</span><span class="wp">야간</span><span class="wp">차선 바꾸기</span><span class="wp">잘 모르겠어요</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:60px"><span style="font-size:13px;color:#7a7e81">나머지는 연습하면서 하나씩 천천히 물어볼게요.</span><div class="btng gr" style="padding:0 22px">건너뛰기</div></div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+
+  <div class="striph"><b>B1 프레임 띠</b><small>문장 속 알약을 누름 → 검게 → 칩 카드가 아래에서 → 고르면 카드가 내려가며 알약 글자가 바뀜(B1 280 ms).</small></div>
+  <div class="cstrip">
+    <div><p class="fl"><b>0</b>쉬는 상태</p><div class="bx" style="background:linear-gradient(165deg,#F0F0F0,#D7D7D7)"><p class="sent" style="font-size:20px;margin-top:30px">마지막 운전은 <span class="sp">십 년 넘게</span>,</p></div></div>
+    <div><p class="fl"><b>1/3</b>누름 — 알약이 검게</p><div class="bx" style="background:linear-gradient(165deg,#F0F0F0,#D7D7D7)"><p class="sent" style="font-size:20px;margin-top:30px">마지막 운전은 <span class="kw" style="padding:0 .26em">십 년 넘게</span>,</p></div></div>
+    <div><p class="fl"><b>2/3</b>칩 카드가 올라옴</p><div class="bx" style="background:linear-gradient(165deg,#F0F0F0,#D7D7D7)"><p class="sent" style="font-size:14px;color:#7a7e81">마지막 운전은 <span class="kw" style="padding:0 .26em">십 년 넘게</span></p><div class="wc" style="position:absolute;left:8px;right:8px;top:44px;height:110px;padding:10px;display:flex;flex-wrap:wrap;gap:5px;align-content:flex-start"><span class="fp" style="height:28px;font-size:11px;padding:0 9px">요즘도 해요</span><span class="fp" style="height:28px;font-size:11px;padding:0 9px">작년쯤</span><span class="fp" style="height:28px;font-size:11px;padding:0 9px">몇 년 전</span><span class="kp" style="height:28px;font-size:11px;padding:0 9px">십 년 넘게</span><span class="fp" style="height:28px;font-size:11px;padding:0 9px">기억이 안 나요</span></div></div></div>
+    <div><p class="fl"><b>끝</b>"몇 년 전" 을 고름 — 카드 내려가고 문장 갱신</p><div class="bx" style="background:linear-gradient(165deg,#F0F0F0,#D7D7D7)"><p class="sent" style="font-size:20px;margin-top:30px">마지막 운전은 <span class="sp">몇 년 전</span>,</p></div></div>
+  </div>
+
+  <div class="rec">
+    <div><p class="sc">추천 · B</p><h3>B1 문장 프로필 <span class="gw">— 첫 실행도 B1, 시간이 없으면 B2.</span></h3>
+      <p style="margin-top:6px">프로필이 "목록 화면" 으로 남아 있으면 새 컨셉이 거기서 끊긴다. B1 은 홈 제목 · 문장 시트와 <b>같은 말투(큰 문장 + 누를 수 있는 흰 알약)</b>라 홈 → 과제 → 프로필이 한 가족으로 보이고, 첫 실행은 같은 문장에 빈 알약 하나로 자연스럽다.</p></div>
+    <div><ul>
+      <li>공수 <b>중간</b> — 문장 레이아웃 + 줄마다 올라오는 칩 카드(과제 시트 카드와 같은 부품). 잇는 말은 줄 제목을 그대로 써서 새 문구를 최소로.</li>
+      <li>앱이 본 것 = 흰 카드 + 노란 눈(관측은 내 답과 분리 — 정직성).</li>
+      <li>마감에 쫓기면 <b>B2</b>(지금 목록 + 그 자리 칩 트랙 + Onyx 관측 띠, 공수 작음). B5 더미는 리포트 끝 "하나만 물어볼게요" 카드와 합칠 때 다시 볼 만하다.</li>
+    </ul><span class="eff">B1 공수 중간 · B2 작음</span></div>
+  </div>
+</section>
+
+<!-- ================================================================ C ================================================================ -->
+<section class="scrn">
+  <div class="sh"><span class="no">C</span><div><h2>코치와 대화 시트 — 오른쪽 위 "코치와 대화" 를 누르면</h2><p>지금 앱 = 왼쪽 큰 차 그림 + 회색/검은 말풍선 + 테두리 말 카드(예전 구성). 새 안 모두 같은 대화: 코치 "오늘은 뭘 해 볼까요?" → 나 "오랜만이라 무서워요" → 코치 "어디가 가장 걱정돼요? / 주차인지 도로인지 알려 주세요." · 말 카드 넷. 작은 판 = <b>기다림</b>(코치 생각 중 — 점 셋 타일, 말 카드는 잠시 흐리게). 코치 문장엔 숫자 없음(대화 28자 이내).</p></div></div>
+
+  <!-- C1 -->
+  <div class="row">
+    <div class="scr">
+      <div class="wm p-wm">DRIVE COACH</div>
+      <div class="cp p-cp on"><svg><use href="#mic"/></svg>코치와 대화</div>
+      <div class="ttl p-ttl"><u>후면 직각 주차</u>를<br><u>힌트</u> 모드로 해 볼까요?</div>
+      <div class="scrim"></div>
+      <div class="wc" style="left:24px;top:66px;width:805px;height:380px;padding:14px 20px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#55595c"><svg width="20" height="20"><use href="#ycoach"/></svg>코치와 대화</div>
+        <div class="bub c" style="margin-top:8px;display:inline-block">오늘은 뭘 해 볼까요?</div>
+        <div style="text-align:right;margin-top:6px"><span class="bub m" style="display:inline-block">오랜만이라 무서워요</span></div>
+        <div class="bub c" style="margin-top:6px;display:inline-block">어디가 가장 걱정돼요?<small>주차인지 도로인지 알려 주세요.</small></div>
+        <div style="position:relative;margin-top:14px;height:46px;overflow:hidden"><div style="display:flex;gap:10px;padding-top:2px"><span class="wp"><svg><use href="#micl"/></svg>평행 주차 힌트로 할래요</span><span class="wp"><svg><use href="#micl"/></svg>후면 주차 다시 해 볼래요</span><span class="wp"><svg><use href="#micl"/></svg>모의시험 볼래요</span><span class="wp"><svg><use href="#micl"/></svg>도로 주행이 궁금해요</span></div><div class="fade-r" style="position:absolute"></div></div>
+        <div class="btng gr" style="margin-top:10px;width:140px"><i>←</i>돌아가기</div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3><span class="id">C1</span>바닥 시트 + 말풍선</h3>
+      <p class="one">홈 위로 흰 카드가 올라와 대화를 담는다. 코치 = 연회색 말풍선, 나 = 검은 입체 말풍선(오른쪽), 말 카드 = 흰 알약 + 아래 그림자 + 마이크 선 기호, 옆으로 밀어 더 본다. 버튼 "코치와 대화" 는 열린 동안 검은 알약.</p>
+      <div class="pc"><div><b>장점</b><ul><li>지금 CoachTextSheet 구조 그대로 — 큰 차 그림만 빼고 카드로 감싸면 끝</li><li>말 카드가 문장 시트의 낱말 칩과 같은 생김 — "누르면 말이 된다"</li></ul></div><div><b>주의점</b><ul><li>말풍선 17px(51 dp) — 대화가 길어지면 위로 밀려 첫 말이 사라짐</li><li>말 카드 넷째가 잘림(옆 밀기) — 첫눈에 넷인지 모름</li></ul></div></div>
+      <div class="tags"><span class="e">공수 작음</span><span>시트 + 스타일 교체</span><span>정차 화면 · 주행 시작 시 닫힘</span><span>정직성 — AI/규칙 문장 구분 없음(지금과 같음)</span></div>
+      <p class="a11y"><b>접근성</b> 말 카드 = 그 문장(40px = 120 dp) · 기다림 타일 = "코치 생각 중" · "돌아가기".</p>
+      <p class="mcap"><b>기다림</b> 코치 말풍선 자리에 점 셋 타일, 말 카드 흐림</p>
+      <div class="half"><div class="scr">
+        <div class="wm p-wm">DRIVE COACH</div>
+        <div class="scrim"></div>
+        <div class="wc" style="left:24px;top:66px;width:805px;height:380px;padding:14px 20px">
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#55595c"><svg width="20" height="20"><use href="#ycoach"/></svg>코치와 대화</div>
+          <div class="bub c" style="margin-top:8px;display:inline-block">오늘은 뭘 해 볼까요?</div>
+          <div style="text-align:right;margin-top:6px"><span class="bub m" style="display:inline-block">오랜만이라 무서워요</span></div>
+          <div class="bub c" style="margin-top:6px;display:inline-flex;align-items:center;gap:10px;padding:8px 12px"><span class="think"><i></i><i></i><i></i></span><span style="color:#9a9da0;font-size:14px">코치 생각 중</span></div>
+          <div style="margin-top:28px;display:flex;gap:10px;opacity:.35"><span class="wp"><svg><use href="#micl"/></svg>평행 주차 힌트로 할래요</span><span class="wp"><svg><use href="#micl"/></svg>후면 주차 다시 해 볼래요</span><span class="wp"><svg><use href="#micl"/></svg>모의시험 볼래요</span></div>
+          <div class="btng gr" style="margin-top:10px;width:140px"><i>←</i>돌아가기</div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- C2 -->
+  <div class="row">
+    <div class="scr g">
+      <div class="wm" style="left:28px;top:22px">DRIVE COACH</div>
+      <div class="cp on" style="right:28px;top:12px"><svg><use href="#mic"/></svg>코치와 대화</div>
+      <div style="left:28px;top:62px;display:flex;gap:8px;align-items:center"><span class="lkp" style="background:rgba(255,255,255,.6)">오늘은 뭘 해 볼까요?</span><span class="lkp" style="background:#222526;color:#fff">나 · 오랜만이라 무서워요</span></div>
+      <div class="sent" style="left:28px;top:104px;font-size:46px;line-height:62px;white-space:nowrap"><svg style="width:40px;height:40px;vertical-align:-4px"><use href="#ycoach"/></svg> 어디가 가장 걱정돼요?</div>
+      <div style="left:28px;top:170px;font-size:24px;color:#9a9da0;font-weight:500;letter-spacing:-.01em">주차인지 도로인지 알려 주세요.</div>
+      <div style="left:28px;top:236px;width:800px;display:flex;flex-wrap:wrap;gap:12px"><span class="wp" style="height:46px;font-size:16px;border-radius:23px"><svg><use href="#micl"/></svg>평행 주차 힌트로 할래요</span><span class="wp" style="height:46px;font-size:16px;border-radius:23px"><svg><use href="#micl"/></svg>후면 주차 다시 해 볼래요</span><span class="wp" style="height:46px;font-size:16px;border-radius:23px"><svg><use href="#micl"/></svg>모의시험 볼래요</span><span class="wp" style="height:46px;font-size:16px;border-radius:23px"><svg><use href="#micl"/></svg>도로 주행이 궁금해요</span></div>
+      <div class="btng" style="left:28px;top:360px;width:150px"><i>←</i>돌아가기</div>
+    </div>
+    <div class="notes">
+      <h3><span class="id">C2</span>큰 문장 대화</h3>
+      <p class="one">말풍선 없이 코치의 지금 말 한 마디가 문장 시트처럼 거대하게(46px = 138 dp), 앞에 노란 원 아이콘 알약. 지난 말과 내 말은 위에 작은 정보 칩 둘로 접힌다. 말 카드는 두 줄로 다 보인다.</p>
+      <div class="pc"><div><b>장점</b><ul><li>운전석 거리에서 가장 잘 읽힘 — "말을 듣는" 느낌, 화면이 조용</li><li>말 카드 넷이 다 보여 고르기 쉬움(46px = 138 dp)</li></ul></div><div><b>주의점</b><ul><li>앞 대화가 칩 한 줄로 줄어 흐름을 되짚기 어려움(칩 누르면 펼침)</li><li>코치 답이 28자 가까우면 두 줄 → 글자 크기 두 단계 필요</li></ul></div></div>
+      <div class="tags"><span class="e">공수 중간</span><span>새 레이아웃 + 기록 칩</span><span>정차 화면</span><span>정직성 — 영향 없음</span></div>
+      <p class="a11y"><b>접근성</b> 큰 문장 = 실시간 영역(읽어 줌) · 기록 칩 = "앞 대화 보기" · 말 카드 = 그 문장.</p>
+      <p class="mcap"><b>기다림</b> 큰 문장 자리에 점 셋 타일만</p>
+      <div class="half"><div class="scr g">
+        <div class="wm" style="left:28px;top:22px">DRIVE COACH</div>
+        <div class="cp on" style="right:28px;top:12px"><svg><use href="#mic"/></svg>코치와 대화</div>
+        <div style="left:28px;top:62px;display:flex;gap:8px"><span class="lkp" style="background:rgba(255,255,255,.6)">오늘은 뭘 해 볼까요?</span><span class="lkp" style="background:#222526;color:#fff">나 · 오랜만이라 무서워요</span></div>
+        <div style="left:28px;top:112px;display:flex;align-items:center;gap:16px"><span class="think" style="width:62px;height:62px;border-radius:18px;gap:7px"><i style="width:9px;height:9px"></i><i style="width:9px;height:9px"></i><i style="width:9px;height:9px"></i></span><span style="font-size:26px;color:#9a9da0">코치 생각 중</span></div>
+        <div style="left:28px;top:236px;width:800px;display:flex;flex-wrap:wrap;gap:12px;opacity:.35"><span class="wp" style="height:46px;font-size:16px"><svg><use href="#micl"/></svg>평행 주차 힌트로 할래요</span><span class="wp" style="height:46px;font-size:16px"><svg><use href="#micl"/></svg>후면 주차 다시 해 볼래요</span><span class="wp" style="height:46px;font-size:16px"><svg><use href="#micl"/></svg>모의시험 볼래요</span><span class="wp" style="height:46px;font-size:16px"><svg><use href="#micl"/></svg>도로 주행이 궁금해요</span></div>
+        <div class="btng" style="left:28px;top:360px;width:150px"><i>←</i>돌아가기</div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- C3 -->
+  <div class="row">
+    <div class="scr">
+      <div class="wm p-wm">DRIVE COACH</div>
+      <div class="eb p-eb">오늘의 과제 · 주차</div>
+      <div class="ttl p-ttl"><u>후면 직각 주차</u>를<br><u>힌트</u> 모드로<br>해 볼까요?</div>
+      <div class="p-rule" style="right:400px"></div>
+      <div class="wc" style="left:452px;top:12px;width:389px;height:399px;padding:12px 14px;border-radius:26px">
+        <div style="display:flex;align-items:center;justify-content:space-between"><span class="cp on" style="position:static"><svg><use href="#mic"/></svg>코치와 대화</span><span class="xb">×</span></div>
+        <div class="bub c" style="margin-top:10px;display:inline-block;font-size:15px;line-height:21px;padding:7px 14px"><span class="who"><svg><use href="#ycoach"/></svg>코치</span>오늘은 뭘 해 볼까요?</div>
+        <div style="text-align:right;margin-top:5px"><span class="bub m" style="display:inline-block;font-size:15px;line-height:21px;padding:7px 14px">오랜만이라 무서워요</span></div>
+        <div class="bub c" style="margin-top:5px;display:inline-block;font-size:15px;line-height:21px;padding:7px 14px">어디가 가장 걱정돼요?<small>주차인지 도로인지 알려 주세요.</small></div>
+        <div style="position:relative;margin-top:10px;height:150px;overflow:hidden;display:flex;flex-direction:column;gap:8px;align-items:flex-start">
+          <span class="wp"><svg><use href="#micl"/></svg>평행 주차 힌트로 할래요</span><span class="wp"><svg><use href="#micl"/></svg>후면 주차 다시 해 볼래요</span><span class="wp"><svg><use href="#micl"/></svg>모의시험 볼래요</span><span class="wp"><svg><use href="#micl"/></svg>도로 주행이 궁금해요</span>
+          <div style="position:absolute;left:0;bottom:0;width:100%;height:36px;background:linear-gradient(180deg,rgba(255,255,255,0),#fff)"></div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3><span class="id">C3</span>알약이 기둥으로</h3>
+      <p class="one">오른쪽 위 "코치와 대화" 알약이 그 자리에서 아래로 늘어나 대화 기둥이 된다(알약 = 기둥 머리). 홈 제목은 왼쪽에 남아 "지금 홈의 제안" 을 보며 대화. 말 카드는 세로 목록, 아래로 밀어 더 본다.</p>
+      <div class="pc"><div><b>장점</b><ul><li>대화 결과(제안 바뀜)가 <b>왼쪽 제목에 바로 반영</b>되는 게 보인다 — 대화와 홈이 이어짐</li><li>B4 · A5 와 같은 "오른쪽에서 바꾼다" 규칙</li></ul></div><div><b>주의점</b><ul><li>기둥 폭 389px — 말풍선 15px 로 작아짐(45 dp)</li><li>세로 목록이라 말 카드 넷째가 잘림 + 조수석 쪽 터치</li></ul></div></div>
+      <div class="tags"><span class="e">공수 중간</span><span>모핑 + 기둥 레이아웃</span><span>정차 화면</span><span>정직성 — 영향 없음</span></div>
+      <p class="a11y"><b>접근성</b> 기둥 = "코치와 대화" 대화상자 · "닫기" 40px · 말 카드 40px.</p>
+      <p class="mcap"><b>기다림</b> 기둥 맨 아래 점 셋 타일</p>
+      <div class="half"><div class="scr">
+        <div class="wm p-wm">DRIVE COACH</div>
+        <div class="eb p-eb">오늘의 과제 · 주차</div>
+        <div class="ttl p-ttl"><u>후면 직각 주차</u>를<br><u>힌트</u> 모드로<br>해 볼까요?</div>
+        <div class="wc" style="left:452px;top:12px;width:389px;height:399px;padding:12px 14px;border-radius:26px">
+          <div style="display:flex;align-items:center;justify-content:space-between"><span class="cp on" style="position:static"><svg><use href="#mic"/></svg>코치와 대화</span><span class="xb">×</span></div>
+          <div class="bub c" style="margin-top:10px;display:inline-block;font-size:15px;padding:7px 14px">오늘은 뭘 해 볼까요?</div>
+          <div style="text-align:right;margin-top:5px"><span class="bub m" style="display:inline-block;font-size:15px;padding:7px 14px">오랜만이라 무서워요</span></div>
+          <div class="bub c" style="margin-top:5px;display:inline-flex;gap:8px;align-items:center;padding:6px 12px"><span class="think"><i></i><i></i><i></i></span><span style="font-size:13px;color:#9a9da0">코치 생각 중</span></div>
+          <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px;align-items:flex-start;opacity:.35"><span class="wp"><svg><use href="#micl"/></svg>평행 주차 힌트로 할래요</span><span class="wp"><svg><use href="#micl"/></svg>후면 주차 다시 해 볼래요</span></div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- C4 -->
+  <div class="row">
+    <div class="scr g">
+      <div class="wc" style="left:24px;top:16px;width:805px;height:124px;padding:12px 20px;border-radius:24px">
+        <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:#7a7e81">오늘은 뭘 해 볼까요?</span><span class="bub m" style="font-size:14px;line-height:20px;padding:5px 14px">오랜만이라 무서워요</span></div>
+        <p style="font-size:26px;font-weight:500;line-height:36px;margin-top:6px;letter-spacing:-.01em"><svg style="width:24px;height:24px;vertical-align:-3px"><use href="#ycoach"/></svg> 어디가 가장 걱정돼요? <span class="gw" style="font-size:17px">주차인지 도로인지 알려 주세요.</span></p>
+      </div>
+      <div style="left:24px;top:152px;width:805px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="ptile" style="height:96px;display:flex;align-items:center;gap:14px"><svg width="46" height="46" style="flex:none"><use href="#mic"/></svg><span style="font-size:19px;font-weight:500">평행 주차 힌트로 할래요</span></div>
+        <div class="ptile" style="height:96px;display:flex;align-items:center;gap:14px"><svg width="46" height="46" style="flex:none"><use href="#mic"/></svg><span style="font-size:19px;font-weight:500">후면 주차 다시 해 볼래요</span></div>
+        <div class="ptile" style="height:96px;display:flex;align-items:center;gap:14px"><svg width="46" height="46" style="flex:none"><use href="#mic"/></svg><span style="font-size:19px;font-weight:500">모의시험 볼래요</span></div>
+        <div class="ptile" style="height:96px;display:flex;align-items:center;gap:14px"><svg width="46" height="46" style="flex:none"><use href="#mic"/></svg><span style="font-size:19px;font-weight:500">도로 주행이 궁금해요</span></div>
+      </div>
+      <div class="btng" style="left:24px;top:366px;width:150px"><i>←</i>돌아가기</div>
+      <div class="wm" style="right:28px;top:382px">DRIVE COACH</div>
+    </div>
+    <div class="notes">
+      <h3><span class="id">C4</span>말 카드가 주인공 (타일 넷)</h3>
+      <p class="one">대화는 위 흰 띠 하나(앞 말 · 내 말 · 지금 코치 말)로 줄이고, 화면 대부분을 말 카드 타일 2×2 에 준다. 타일 = 어두운 둥근 마이크 타일(E1) + 19px 문장. 텍스트 대화(AI)를 켜도 고르는 건 이 넷.</p>
+      <div class="pc"><div><b>장점</b><ul><li>누르는 영역이 가장 큼(96px = 288 dp) — 운전석에서 한 번에</li><li>"대화" 보다 "고르기" 에 가깝다 — 실제 쓰임(의도 고르기)과 맞음</li></ul></div><div><b>주의점</b><ul><li>코치 말이 위 띠로 작아짐 — 대화의 따뜻함이 줄어듦</li><li>말 카드가 다섯 이상이면 격자가 넘침</li></ul></div></div>
+      <div class="tags"><span class="e">공수 작음</span><span>과제 타일 재사용</span><span>정차 화면</span><span>정직성 — 영향 없음</span></div>
+      <p class="a11y"><b>접근성</b> 타일 = 그 문장 · 마이크 타일은 장식(이름 없음) · "돌아가기".</p>
+      <p class="mcap"><b>기다림</b> 띠 오른쪽에 점 셋, 타일 흐림</p>
+      <div class="half"><div class="scr g">
+        <div class="wc" style="left:24px;top:16px;width:805px;height:124px;padding:12px 20px">
+          <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:#7a7e81">오늘은 뭘 해 볼까요?</span><span class="bub m" style="font-size:14px;line-height:20px;padding:5px 14px">오랜만이라 무서워요</span></div>
+          <p style="margin-top:12px;display:flex;align-items:center;gap:12px"><span class="think" style="width:44px;height:44px;border-radius:12px"><i></i><i></i><i></i></span><span style="font-size:20px;color:#9a9da0">코치 생각 중</span></p>
+        </div>
+        <div style="left:24px;top:152px;width:805px;display:grid;grid-template-columns:1fr 1fr;gap:10px;opacity:.35">
+          <div class="ptile" style="height:96px;display:flex;align-items:center;gap:14px"><svg width="46" height="46"><use href="#mic"/></svg><span style="font-size:19px">평행 주차 힌트로 할래요</span></div>
+          <div class="ptile" style="height:96px;display:flex;align-items:center;gap:14px"><svg width="46" height="46"><use href="#mic"/></svg><span style="font-size:19px">후면 주차 다시 해 볼래요</span></div>
+          <div class="ptile" style="height:96px;display:flex;align-items:center;gap:14px"><svg width="46" height="46"><use href="#mic"/></svg><span style="font-size:19px">모의시험 볼래요</span></div>
+          <div class="ptile" style="height:96px;display:flex;align-items:center;gap:14px"><svg width="46" height="46"><use href="#mic"/></svg><span style="font-size:19px">도로 주행이 궁금해요</span></div>
+        </div>
+        <div class="btng" style="left:24px;top:366px;width:150px"><i>←</i>돌아가기</div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- C5 -->
+  <div class="row">
+    <div class="scr dk">
+      <div class="sc" style="left:32px;top:30px;color:#9a9da0">COACH · 코치와 대화</div>
+      <div class="btno" style="right:32px;top:18px"><i>←</i>돌아가기</div>
+      <div style="left:32px;top:72px;font-size:17px;color:#9a9da0">오늘은 뭘 해 볼까요?</div>
+      <div style="right:32px;top:66px;height:40px;line-height:40px;padding:0 20px;border-radius:20px;background:var(--platinum);color:var(--onyx);font-size:17px">오랜만이라 무서워요</div>
+      <div style="left:32px;top:128px;font-size:40px;line-height:54px;font-weight:500;color:#fff;white-space:nowrap"><svg style="width:34px;height:34px;vertical-align:-3px"><use href="#ycoach"/></svg> 어디가 가장 걱정돼요?</div>
+      <div style="left:32px;top:186px;font-size:20px;color:#9a9da0">주차인지 도로인지 알려 주세요.</div>
+      <div style="left:32px;top:250px;width:800px;display:flex;flex-wrap:wrap;gap:12px"><span class="op" style="height:46px;border-radius:23px;font-size:16px"><svg width="15" height="15"><use href="#micl"/></svg>평행 주차 힌트로 할래요</span><span class="op" style="height:46px;border-radius:23px;font-size:16px"><svg width="15" height="15"><use href="#micl"/></svg>후면 주차 다시 해 볼래요</span><span class="op" style="height:46px;border-radius:23px;font-size:16px"><svg width="15" height="15"><use href="#micl"/></svg>모의시험 볼래요</span><span class="op" style="height:46px;border-radius:23px;font-size:16px"><svg width="15" height="15"><use href="#micl"/></svg>도로 주행이 궁금해요</span></div>
+      <div style="left:32px;right:32px;top:388px;height:1px;background:rgba(224,224,224,.25)"></div>
+    </div>
+    <div class="notes">
+      <h3><span class="id">C5</span>Onyx 대화판</h3>
+      <p class="one">대화를 어두운 판에. 코치 지금 말 = 흰 큰 글자, 앞 말 = Ash 작은 글자, 내 말 = Platinum 채운 알약(오른쪽), 말 카드 = 테두리 알약 — 결과 판 6 의 "테두리 / 채운 알약" 말투.</p>
+      <div class="pc"><div><b>장점</b><ul><li>밤 운전 전(정차) 눈부심이 적다 — 야간 연습과 어울림</li><li>내 말(채움) / 고를 말(테두리) 이 분명히 갈린다</li></ul></div><div><b>주의점</b><ul><li>흰 홈 → 검은 대화 → 흰 홈, 깜빡이는 느낌</li><li>"어두운 판 = 결과" 약속이 흐려짐(A8 과 같은 문제)</li></ul></div></div>
+      <div class="tags"><span class="e">공수 작음</span><span>색만 다른 C2</span><span>정차 화면</span><span>정직성 — 영향 없음</span></div>
+      <p class="a11y"><b>접근성</b> 테두리 알약 46px(138 dp) = 그 문장 · 대비 Platinum/Onyx 11:1.</p>
+      <p class="mcap"><b>기다림</b> 큰 글자 자리에 테두리 점 셋</p>
+      <div class="half"><div class="scr dk">
+        <div class="sc" style="left:32px;top:30px;color:#9a9da0">COACH · 코치와 대화</div>
+        <div class="btno" style="right:32px;top:18px"><i>←</i>돌아가기</div>
+        <div style="left:32px;top:72px;font-size:17px;color:#9a9da0">오늘은 뭘 해 볼까요?</div>
+        <div style="right:32px;top:66px;height:40px;line-height:40px;padding:0 20px;border-radius:20px;background:var(--platinum);color:var(--onyx);font-size:17px">오랜만이라 무서워요</div>
+        <div style="left:32px;top:132px;display:flex;align-items:center;gap:16px"><span class="think" style="width:58px;height:58px;border-radius:16px;border:1.3px solid rgba(224,224,224,.5);gap:6px"><i style="width:8px;height:8px"></i><i style="width:8px;height:8px"></i><i style="width:8px;height:8px"></i></span><span style="font-size:24px;color:#9a9da0">코치 생각 중</span></div>
+        <div style="left:32px;top:250px;display:flex;gap:12px;opacity:.35"><span class="op" style="height:46px;font-size:16px">평행 주차 힌트로 할래요</span><span class="op" style="height:46px;font-size:16px">후면 주차 다시 해 볼래요</span><span class="op" style="height:46px;font-size:16px">모의시험 볼래요</span></div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- C6 -->
+  <div class="row">
+    <div class="scr">
+      <div class="wm p-wm">DRIVE COACH</div>
+      <div class="scrim"></div>
+      <div class="wc" style="left:24px;top:22px;width:805px;height:420px;padding:14px 22px">
+        <div style="display:flex;align-items:center;gap:16px"><div class="btng gr" style="width:140px"><i>←</i>돌아가기</div><span style="font-size:18px;font-weight:500">코치와 대화</span></div>
+        <div style="position:relative;margin-top:12px;padding-left:34px">
+          <div style="position:absolute;left:9px;top:6px;bottom:4px;width:1.5px;background:#D0D0D0"></div>
+          <div style="position:relative"><span style="position:absolute;left:-30px;top:3px;width:12px;height:12px;border-radius:50%;background:#fff;border:1.5px solid #222"></span><p class="sc">코치</p><p style="font-size:17px;line-height:24px;margin-top:2px">오늘은 뭘 해 볼까요?</p></div>
+          <div style="position:relative;margin-top:10px"><span style="position:absolute;left:-30px;top:3px;width:12px;height:12px;border-radius:50%;background:#222"></span><p class="sc">나</p><p style="margin-top:3px"><span class="bub m" style="display:inline-block;font-size:16px;line-height:22px;padding:5px 14px">오랜만이라 무서워요</span></p></div>
+          <div style="position:relative;margin-top:10px"><span style="position:absolute;left:-34px;top:0;width:20px;height:20px"><svg width="20" height="20"><use href="#ycoach"/></svg></span><p class="sc">코치 · 지금</p><p style="font-size:24px;line-height:32px;font-weight:500;margin-top:2px">어디가 가장 걱정돼요?</p><p style="font-size:14px;color:#7a7e81">주차인지 도로인지 알려 주세요.</p></div>
+        </div>
+        <div style="position:relative;margin-top:16px;border-radius:24px;background:var(--chip);padding:4px;height:48px;overflow:hidden"><div style="display:flex;gap:4px"><span class="fp" style="background:#fff;color:var(--onyx)"><svg width="14" height="14"><use href="#micl"/></svg>평행 주차 힌트로 할래요</span><span class="fp" style="background:#fff;color:var(--onyx)"><svg width="14" height="14"><use href="#micl"/></svg>후면 주차 다시 해 볼래요</span><span class="fp" style="background:#fff;color:var(--onyx)"><svg width="14" height="14"><use href="#micl"/></svg>모의시험 볼래요</span><span class="fp" style="background:#fff;color:var(--onyx)"><svg width="14" height="14"><use href="#micl"/></svg>도로 주행이 궁금해요</span></div><div style="position:absolute;right:0;top:0;width:60px;height:48px;background:linear-gradient(90deg,rgba(241,241,241,0),#F1F1F1)"></div></div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3><span class="id">C6</span>대본 줄 (타임라인)</h3>
+      <p class="one">말풍선 대신 왼쪽 가는 세로선에 점을 찍은 대본. 코치 = 흰 점, 나 = 검은 점 + 검은 알약, 지금 코치 말 = 노란 원 + 큰 글자. 말 카드는 레퍼런스 3 트랙(연회색 판) 안의 흰 칩, 옆으로 민다.</p>
+      <div class="pc"><div><b>장점</b><ul><li>누가 말했는지(작은 대문자 라벨) 가 또렷 — 기록으로 남길 때도 같은 모양</li><li>"지금 말" 만 크게 — C1 과 C2 의 중간</li></ul></div><div><b>주의점</b><ul><li>트랙 안 칩은 납작(그림자 없음) — 누를 수 있는 신호가 약함</li><li>대화가 길면 세로선이 위로 밀림(앞 말 접기 필요)</li></ul></div></div>
+      <div class="tags"><span class="e">공수 중간</span><span>대본 레이아웃</span><span>정차 화면</span><span>정직성 — 영향 없음</span></div>
+      <p class="a11y"><b>접근성</b> 줄 = "코치: …" / "나: …" 순서대로 읽힘 · 칩 40px.</p>
+      <p class="mcap"><b>기다림</b> 세로선 끝에 점 셋 타일</p>
+      <div class="half"><div class="scr">
+        <div class="scrim"></div>
+        <div class="wc" style="left:24px;top:22px;width:805px;height:420px;padding:14px 22px">
+          <div style="display:flex;align-items:center;gap:16px"><div class="btng gr" style="width:140px"><i>←</i>돌아가기</div><span style="font-size:18px;font-weight:500">코치와 대화</span></div>
+          <div style="position:relative;margin-top:12px;padding-left:34px">
+            <div style="position:absolute;left:9px;top:6px;bottom:4px;width:1.5px;background:#D0D0D0"></div>
+            <div style="position:relative"><span style="position:absolute;left:-30px;top:3px;width:12px;height:12px;border-radius:50%;background:#fff;border:1.5px solid #222"></span><p class="sc">코치</p><p style="font-size:17px;margin-top:2px">오늘은 뭘 해 볼까요?</p></div>
+            <div style="position:relative;margin-top:10px"><span style="position:absolute;left:-30px;top:3px;width:12px;height:12px;border-radius:50%;background:#222"></span><p class="sc">나</p><p style="margin-top:3px"><span class="bub m" style="display:inline-block;font-size:16px;padding:5px 14px">오랜만이라 무서워요</span></p></div>
+            <div style="position:relative;margin-top:12px;display:flex;align-items:center;gap:12px;margin-left:-44px"><span class="think"><i></i><i></i><i></i></span><span style="font-size:16px;color:#9a9da0">코치 생각 중</span></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- C7 -->
+  <div class="row">
+    <div class="scr">
+      <div class="wm p-wm">DRIVE COACH</div>
+      <div class="cp p-cp on"><svg><use href="#mic"/></svg>코치와 대화</div>
+      <div class="info p-info dim"><b>프로필</b>연수생 · 장롱 10년차 · 목표: 아이 등하원 ›</div>
+      <div style="left:40px;top:84px;display:flex;gap:8px;align-items:center"><span class="eb">오늘은 뭘 해 볼까요?</span><span class="lkp" style="background:#222526;color:#fff">나 · 오랜만이라 무서워요</span></div>
+      <div class="ttl" style="left:40px;top:116px"><svg style="width:38px;height:38px;vertical-align:-3px"><use href="#ycoach"/></svg> 어디가 가장 걱정돼요?</div>
+      <div style="left:40px;top:176px;font-size:17px;color:var(--mu)">주차인지 도로인지 알려 주세요.</div>
+      <div style="left:40px;top:226px;width:780px;display:flex;flex-wrap:wrap;gap:12px"><span class="wp" style="height:44px;font-size:16px;border-radius:22px"><svg><use href="#micl"/></svg>평행 주차 힌트로 할래요</span><span class="wp" style="height:44px;font-size:16px;border-radius:22px"><svg><use href="#micl"/></svg>후면 주차 다시 해 볼래요</span><span class="wp" style="height:44px;font-size:16px;border-radius:22px"><svg><use href="#micl"/></svg>모의시험 볼래요</span><span class="wp" style="height:44px;font-size:16px;border-radius:22px"><svg><use href="#micl"/></svg>도로 주행이 궁금해요</span></div>
+      <div class="btng gr" style="left:40px;top:344px;width:150px"><i>←</i>돌아가기</div>
+      <div class="p-rule"></div>
+    </div>
+    <div class="notes">
+      <h3><span class="id">C7</span>홈 제목이 대화가 된다</h3>
+      <p class="one">시트도 서랍도 없다. 홈의 틀(워드마크 · 가는 선 · 오른쪽 위 알약)은 그대로, 거대한 제목 자리에 코치의 지금 말이, 눈썹 줄에 앞 말 + 내 말 칩이, ↗ 자리에 말 카드가 들어선다. 대화가 끝나면 제목이 새 제안으로 돌아온다.</p>
+      <div class="pc"><div><b>장점</b><ul><li>H8 홈과 가장 하나 — "코치가 홈 제목으로 말을 건다" 는 인상, 발표에서 강함</li><li>레이어 0 — 겹침·그림자 문제 없음</li></ul></div><div><b>주의점</b><ul><li>대화 중엔 시작 ↗ 이 없음 — 대화를 닫아야 시작(돌아가기)</li><li>홈과 대화가 같은 모양이라 "지금 어느 쪽인지" 는 검은 알약으로만 앎</li></ul></div></div>
+      <div class="tags"><span class="e">공수 중간</span><span>홈 상태 하나 추가</span><span>정차 화면</span><span>정직성 — 영향 없음</span></div>
+      <p class="a11y"><b>접근성</b> 제목 = 실시간 영역(코치 말 읽어 줌) · 말 카드 44px(132 dp) · "돌아가기" = 대화 닫기.</p>
+      <p class="mcap"><b>기다림</b> 제목 자리에 점 셋 + "코치 생각 중"</p>
+      <div class="half"><div class="scr">
+        <div class="wm p-wm">DRIVE COACH</div>
+        <div class="cp p-cp on"><svg><use href="#mic"/></svg>코치와 대화</div>
+        <div style="left:40px;top:84px;display:flex;gap:8px;align-items:center"><span class="eb">오늘은 뭘 해 볼까요?</span><span class="lkp" style="background:#222526;color:#fff">나 · 오랜만이라 무서워요</span></div>
+        <div style="left:40px;top:116px;display:flex;align-items:center;gap:16px"><span class="think" style="width:56px;height:56px;border-radius:16px;gap:6px"><i style="width:8px;height:8px"></i><i style="width:8px;height:8px"></i><i style="width:8px;height:8px"></i></span><span class="ttl" style="position:static;color:#C4C6C8">코치 생각 중</span></div>
+        <div style="left:40px;top:226px;display:flex;gap:12px;opacity:.35"><span class="wp" style="height:44px;font-size:16px">평행 주차 힌트로 할래요</span><span class="wp" style="height:44px;font-size:16px">후면 주차 다시 해 볼래요</span><span class="wp" style="height:44px;font-size:16px">모의시험 볼래요</span></div>
+        <div class="btng gr" style="left:40px;top:344px;width:150px"><i>←</i>돌아가기</div>
+        <div class="p-rule"></div>
+      </div></div>
+    </div>
+  </div>
+
+  <div class="striph"><b>C2 프레임 띠</b><small>내 말을 보냄 → 내 말이 위 칩으로 접힘 → 점 셋(E1, 1.2 s 반복 — 위 작은 판들은 실제로 움직임) → 코치 문장이 아래에서 떠오름(C1 420 ms).</small></div>
+  <div class="cstrip">
+    <div><p class="fl"><b>0</b>보냄 — 내 말 검은 알약</p><div class="bx" style="background:linear-gradient(165deg,#F0F0F0,#D7D7D7)"><p class="sent" style="font-size:20px;color:#9a9da0">오늘은 뭘 해 볼까요?</p><p style="text-align:right;margin-top:16px"><span class="kp" style="height:32px;font-size:13px">오랜만이라 무서워요</span></p></div></div>
+    <div><p class="fl"><b>1/3</b>위 칩으로 접힘 · 점 셋</p><div class="bx" style="background:linear-gradient(165deg,#F0F0F0,#D7D7D7)"><p style="display:flex;gap:6px"><span class="lkp" style="height:22px;font-size:10px;background:rgba(255,255,255,.6)">오늘은 뭘 해 볼까요?</span><span class="lkp" style="height:22px;font-size:10px;background:#222;color:#fff">나 · 오랜만이라 무서워요</span></p><p style="margin-top:22px;display:flex;align-items:center;gap:10px"><span class="think"><i></i><i></i><i></i></span><span style="color:#9a9da0;font-size:15px">코치 생각 중</span></p></div></div>
+    <div><p class="fl"><b>2/3</b>문장이 떠오름(투명 → 진하게)</p><div class="bx" style="background:linear-gradient(165deg,#F0F0F0,#D7D7D7)"><p style="display:flex;gap:6px"><span class="lkp" style="height:22px;font-size:10px;background:rgba(255,255,255,.6)">오늘은 뭘 해 볼까요?</span><span class="lkp" style="height:22px;font-size:10px;background:#222;color:#fff">나 · 오랜만이라 무서워요</span></p><p class="sent" style="font-size:22px;margin-top:26px;opacity:.4;transform:translateY(8px)">어디가 가장 걱정돼요?</p></div></div>
+    <div><p class="fl"><b>끝</b>문장 + 회색 덧말, 말 카드 다시 진하게</p><div class="bx" style="background:linear-gradient(165deg,#F0F0F0,#D7D7D7)"><p style="display:flex;gap:6px"><span class="lkp" style="height:22px;font-size:10px;background:rgba(255,255,255,.6)">오늘은 뭘 해 볼까요?</span><span class="lkp" style="height:22px;font-size:10px;background:#222;color:#fff">나 · 오랜만이라 무서워요</span></p><p class="sent" style="font-size:22px;margin-top:14px"><svg style="width:18px;height:18px;vertical-align:-2px"><use href="#ycoach"/></svg> 어디가 가장 걱정돼요?</p><p style="font-size:12px;color:#9a9da0">주차인지 도로인지 알려 주세요.</p></div></div>
+  </div>
+
+  <div class="rec">
+    <div><p class="sc">추천 · C</p><h3>C2 큰 문장 대화 <span class="gw">— 시간이 없으면 C1.</span></h3>
+      <p style="margin-top:6px">코치는 "화내지 않는 조수석" — 말풍선 채팅보다 <b>한 마디를 크게 말하는</b> 쪽이 제품 성격과 맞고, 문장 시트(큰 문장 + 노란 원 알약 + 흰 알약 칩)와 똑같은 문법이라 홈에서 열리는 것 넷이 한 화면 언어로 묶인다. 운전석 가독성도 가장 좋다(46px = 138 dp).</p></div>
+    <div><ul>
+      <li>공수 <b>중간</b> — CoachTextSheet 의 목록을 "지금 말 하나 + 기록 칩" 으로 바꾸고, 기다림은 SymbolTile.Thinking 을 크게.</li>
+      <li>코치 답 28자 규칙 그대로 — 두 줄이 되면 46 → 36px 한 단계.</li>
+      <li>마감에 쫓기면 <b>C1</b>(지금 구조 + 흰 카드 + 새 칩, 공수 작음). <b>C7</b>(홈 제목이 대화가 됨)은 발표 인상이 가장 강한 대안 — C2 와 생김이 거의 같아 나중에 옮기기 쉽다.</li>
+    </ul><span class="eff">C2 공수 중간 · C1 작음</span></div>
+  </div>
+</section>
+
+<!-- ================================================================ D ================================================================ -->
+<section class="scrn">
+  <div class="sh"><span class="no">D</span><div><h2>예약 카드가 있는 홈</h2><p>지금 앱 = 홈 아래 회색 줄(코스 도면 타일 · "예약 · 서초 14:00" · "예약한 서초 시험장 · 주차 3종" · "거기서 할 걸 골라요" · 오른쪽 글자 둘 "코스 연습 / 모의시험"). 고르면 홈 제안이 바뀐다 — 코스 연습 = 힌트(가이드) · 모의시험 = 평가 + "시험장 그대로 제가 채점만 할게요." 큰 판 = 코스 연습을 고른 상태, 작은 판 = 모의시험을 고른 뒤.</p></div></div>
+
+  <!-- D1 -->
+  <div class="row">
+    <div class="scr">
+      <div class="wm p-wm">DRIVE COACH</div>
+      <div class="cp p-cp"><svg><use href="#mic"/></svg>코치와 대화</div>
+      <div class="info p-info"><b>프로필</b>연수생 · 장롱 10년차 · 목표: 아이 등하원 ›</div>
+      <div class="eb" style="left:40px;top:76px">오늘의 과제 · 주차</div>
+      <div class="ttl" style="left:40px;top:94px"><u>후면 직각 주차<i class="cv">▼</i></u>를<br><u>힌트<i class="cv">▼</i></u> 모드로 해 볼까요?</div>
+      <div class="why" style="left:40px;top:216px">예약한 코스부터, 틀린 순간에만 말할게요.</div>
+      <div class="bk" style="left:40px;top:244px;width:773px;height:78px"><svg class="cs"><use href="#course"/></svg><div style="flex:1"><p class="b1"><svg><use href="#ycal"/></svg>예약 · 서초 14:00</p><p class="b2">예약한 서초 시험장 · 주차 3종</p><p class="b3">거기서 할 걸 골라요</p></div><span class="kp"><span class="ck" style="width:18px;height:18px"><svg width="10" height="10"><use href="#tick"/></svg></span>코스 연습</span><span class="wp">모의시험</span></div>
+      <div class="go sm" style="right:40px;top:332px"><span class="gt">시작</span><span class="gr"><svg><use href="#ne"/></svg></span></div>
+      <div class="p-rule" style="top:412px"></div>
+    </div>
+    <div class="notes">
+      <h3><span class="id">D1</span>둥근 카드 띠 + 고르는 알약</h3>
+      <p class="one">지금 회색 줄을 연회색 둥근 카드(24)로, 오른쪽 글자 둘을 진짜 알약으로 — 고른 것 = 검은 알약 + 흰 체크, 안 고른 것 = 흰 알약 + 아래 그림자. 제목·이유 줄이 살짝 올라가고 ↗ 은 한 단계 작아진다.</p>
+      <div class="pc"><div><b>장점</b><ul><li>지금 구조 그대로 — 무엇을 눌러야 하는지 처음으로 분명해짐(지금은 글자뿐)</li><li>고르면 제목의 "힌트 → 평가" 가 바로 바뀌는 게 같은 화면에서 보임</li></ul></div><div><b>주의점</b><ul><li>↗ 이 100 → 72px 로 줄어 H8 인상이 약해짐</li><li>"주차 3종" 숫자는 정차 선택 화면 예외(문장 아님)로 남김</li></ul></div></div>
+      <div class="tags"><span class="e">공수 작음</span><span>BookingCard 스타일 교체</span><span>정차 화면</span><span>정직성 — 시험장 = 예시(연계 없음) 표시는 시험장 화면에</span></div>
+      <p class="a11y"><b>접근성</b> 알약 = "코스 연습, 선택됨" / "모의시험"(40px) · 카드 본문 = "예약한 서초 시험장, 서초 14:00".</p>
+      <p class="mcap"><b>모의시험을 고른 뒤</b> 제목 "평가" · 이유 "채점만 할게요"</p>
+      <div class="half"><div class="scr">
+        <div class="wm p-wm">DRIVE COACH</div>
+        <div class="cp p-cp"><svg><use href="#mic"/></svg>코치와 대화</div>
+        <div class="info p-info"><b>프로필</b>연수생 · 장롱 10년차 · 목표: 아이 등하원 ›</div>
+        <div class="eb" style="left:40px;top:76px">오늘의 과제 · 주차</div>
+        <div class="ttl" style="left:40px;top:94px"><u>후면 직각 주차<i class="cv">▼</i></u>를<br><u>평가<i class="cv">▼</i></u> 모드로 해 볼까요?</div>
+        <div class="why" style="left:40px;top:216px">예약한 코스부터, 시험장 그대로 제가 채점만 할게요.</div>
+        <div class="bk" style="left:40px;top:244px;width:773px;height:78px"><svg class="cs"><use href="#course"/></svg><div style="flex:1"><p class="b1"><svg><use href="#ycal"/></svg>예약 · 서초 14:00</p><p class="b2">예약한 서초 시험장 · 주차 3종</p><p class="b3">거기서 할 걸 골라요</p></div><span class="wp">코스 연습</span><span class="kp"><span class="ck" style="width:18px;height:18px"><svg width="10" height="10"><use href="#tick"/></svg></span>모의시험</span></div>
+        <div class="go sm" style="right:40px;top:332px"><span class="gt">시작</span><span class="gr"><svg><use href="#ne"/></svg></span></div>
+        <div class="p-rule" style="top:412px"></div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- D2 -->
+  <div class="row">
+    <div class="scr">
+      <div class="wm p-wm">DRIVE COACH</div>
+      <div class="cp p-cp"><svg><use href="#mic"/></svg>코치와 대화</div>
+      <div class="info" style="right:40px;top:72px;text-align:right"><b>프로필</b>연수생 · 장롱 10년차 · 목표: 아이 등하원 ›</div>
+      <div class="eb p-eb">오늘의 과제 · 주차</div>
+      <div class="ttl p-ttl"><u>후면 직각 주차<i class="cv">▼</i></u>를<br><u>힌트<i class="cv">▼</i></u> 모드로 해 볼까요?</div>
+      <div class="why p-why">예약한 코스부터, 틀린 순간에만 말할게요.</div>
+      <div style="right:40px;top:112px;width:268px;height:170px;border-radius:22px;background:var(--chip);padding:12px 16px">
+        <div style="display:flex;align-items:center;gap:8px"><svg width="20" height="20"><use href="#ycal"/></svg><span class="sc">RESERVED · 예약</span></div>
+        <p style="font-size:19px;font-weight:500;margin-top:6px;line-height:26px">서초 시험장</p>
+        <p style="font-size:12px;color:#55595c">14:00 · 예약한 서초 시험장 · 주차 3종</p>
+        <div style="border-top:1.5px dashed #C9CBCD;margin:9px -16px 8px"></div>
+        <div style="display:flex;gap:8px"><span class="kp" style="flex:1;justify-content:center;padding:0 10px">코스 연습</span><span class="wp" style="flex:1;justify-content:center;padding:0 10px">모의시험</span></div>
+      </div>
+      <div style="right:302px;top:213px;width:12px;height:12px;border-radius:50%;background:#fff"></div>
+      <div style="right:34px;top:213px;width:12px;height:12px;border-radius:50%;background:#fff"></div>
+      <div class="p-rule"></div>
+      <div class="go p-go"><span class="gt">시작</span><span class="gr"><svg><use href="#ne"/></svg></span></div>
+    </div>
+    <div class="notes">
+      <h3><span class="id">D2</span>오른쪽 위 표 한 장 (티켓)</h3>
+      <p class="one">예약을 오른쪽 위 정보 블록 아래 "표" 한 장으로 — 이름 · 시간 · 코스, 점선 절취선 아래 고르는 알약 둘. 홈 제목 · ↗ 은 H8 그대로 100px.</p>
+      <div class="pc"><div><b>장점</b><ul><li><b>H8 를 하나도 건드리지 않음</b> — 예약이 없으면 그냥 사라질 뿐</li><li>"예약" 이라는 사물이 표 모양으로 바로 읽힘</li></ul></div><div><b>주의점</b><ul><li>"거기서 할 걸 골라요" 가 빠짐 → 알약 위 작은 글자로 옮기거나 접근성 이름에</li><li>조수석 쪽 터치 · 표 폭 268px 에 알약 둘이 빡빡</li></ul></div></div>
+      <div class="tags"><span class="e">공수 작음</span><span>카드 위치만 이동</span><span>정차 화면</span><span>정직성 — 영향 없음</span></div>
+      <p class="a11y"><b>접근성</b> 표 = "예약, 서초 시험장, 14:00, 주차 3종" · 알약 40px = "코스 연습" / "모의시험".</p>
+    </div>
+  </div>
+
+  <!-- D3 -->
+  <div class="row">
+    <div class="scr">
+      <div class="wm p-wm">DRIVE COACH</div>
+      <div class="cp p-cp"><svg><use href="#mic"/></svg>코치와 대화</div>
+      <div class="info p-info"><b>프로필</b>연수생 · 장롱 10년차 · 목표: 아이 등하원 ›</div>
+      <div class="eb p-eb">오늘의 과제 · 주차</div>
+      <div class="ttl p-ttl"><u>후면 직각 주차<i class="cv">▼</i></u>를<br><u>힌트<i class="cv">▼</i></u> 모드로 해 볼까요?</div>
+      <div class="why p-why">예약한 코스부터, 틀린 순간에만 말할게요.</div>
+      <div style="left:40px;top:274px;display:flex;align-items:center;gap:8px;font-size:12px;color:#55595c;white-space:nowrap"><svg width="18" height="18"><use href="#ycal"/></svg>예약 · 서초 14:00 — 예약한 서초 시험장 · 주차 3종 · 거기서 할 걸 골라요</div>
+      <div style="left:40px;top:306px;display:flex;gap:12px">
+        <div style="position:relative;width:210px;height:72px;border-radius:36px;background:var(--k3);color:#fff;display:flex;align-items:center;padding-left:76px;font-size:19px;box-shadow:0 12px 18px -8px rgba(0,0,0,.6)"><span style="position:absolute;left:6px;top:6px;width:60px;height:60px;border-radius:50%;background:#fff;color:#111;display:flex;align-items:center;justify-content:center"><svg width="20" height="20"><use href="#tick"/></svg></span>코스 연습</div>
+        <div style="position:relative;width:210px;height:72px;border-radius:36px;border:1.5px solid var(--onyx);display:flex;align-items:center;padding-left:76px;font-size:19px"><span style="position:absolute;left:5px;top:5px;width:60px;height:60px;border-radius:50%;background:var(--onyx);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px">→</span>모의시험</div>
+      </div>
+      <div class="go sm" style="right:40px;top:306px"><span class="gt">시작</span><span class="gr"><svg><use href="#ne"/></svg></span></div>
+      <div class="p-rule" style="top:400px"></div>
+    </div>
+    <div class="notes">
+      <h3><span class="id">D3</span>↗ 옆 두 갈래 (핀 A 알약)</h3>
+      <p class="one">예약이 있으면 아래 줄이 갈래가 된다 — 왼쪽 큰 알약 둘(테두리 + 왼쪽 원 화살표, 핀 A), 오른쪽 ↗ 시작. 고른 갈래는 검은 면으로 차오르고 원 안이 체크로 바뀐다. 예약 정보는 그 위 한 줄.</p>
+      <div class="pc"><div><b>장점</b><ul><li>고르는 것과 시작이 한 줄 — 손 동선이 가장 짧다</li><li>핀 A(원이 번져 채움)를 홈에서 보여 줄 자리</li></ul></div><div><b>주의점</b><ul><li>알약 화살표가 "바로 시작" 처럼 읽힐 위험 — 실제로는 고르기만</li><li>예약 정보가 12px 한 줄 — 가장 덜 보임</li></ul></div></div>
+      <div class="tags"><span class="e">공수 중간</span><span>핀 A 알약 + 아래 줄 재배치</span><span>정차 화면</span><span>정직성 — 영향 없음</span></div>
+      <p class="a11y"><b>접근성</b> 알약 72px(216 dp) = "코스 연습 고르기, 선택됨" / "모의시험 고르기" · ↗ = "시작".</p>
+    </div>
+  </div>
+
+  <!-- D4 -->
+  <div class="row">
+    <div class="scr">
+      <div class="wm p-wm">DRIVE COACH</div>
+      <div class="cp p-cp"><svg><use href="#mic"/></svg>코치와 대화</div>
+      <div class="info p-info"><b>프로필</b>연수생 · 장롱 10년차 · 목표: 아이 등하원 ›</div>
+      <div class="eb p-eb">오늘의 과제 · 주차</div>
+      <div class="ttl p-ttl"><u>후면 직각 주차<i class="cv">▼</i></u>를<br><u>힌트<i class="cv">▼</i></u> 모드로 해 볼까요?</div>
+      <div class="why p-why">예약한 코스부터, 틀린 순간에만 말할게요.</div>
+      <div class="go sm" style="right:40px;top:240px"><span class="gt">시작</span><span class="gr"><svg><use href="#ne"/></svg></span></div>
+      <div class="wc" style="left:24px;top:334px;width:805px;height:140px;padding:8px 20px;background:#fff;box-shadow:0 -10px 26px -8px rgba(0,0,0,.2)">
+        <div style="width:44px;height:4px;border-radius:2px;background:#D0D0D0;margin:0 auto"></div>
+        <div style="display:flex;align-items:center;gap:14px;margin-top:10px"><svg width="40" height="40"><use href="#course"/></svg><div style="flex:1"><p style="font-size:11px;color:#7a7e81;display:flex;gap:6px;align-items:center"><svg width="14" height="14"><use href="#ycal"/></svg>예약 · 서초 14:00</p><p style="font-size:16px;font-weight:500">예약한 서초 시험장 · 주차 3종</p></div><div class="btng gr" style="padding:0 18px 0 5px"><i>↑</i>거기서 할 걸 골라요</div></div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3><span class="id">D4</span>반쯤 올라온 카드</h3>
+      <p class="one">예약은 홈 아래에서 반쯤 올라온 흰 카드(C1)로 늘 보이고, "거기서 할 걸 골라요 ↑" 를 누르면 끝까지 올라와 코스 도면 + 고르는 카드 둘(이유 문장 포함)을 보여 준다.</p>
+      <div class="pc"><div><b>장점</b><ul><li>평소 홈은 H8 그대로(조용) — 예약을 쓸 때만 크게</li><li>펼친 카드에 두 갈래의 <b>결과 문장</b>이 미리 보임 → 고르기 쉬움</li></ul></div><div><b>주의점</b><ul><li>한 번 더 눌러야 고름(지금은 바로)</li><li>↗ 이 위로 올라가 제목과 가까워짐</li></ul></div></div>
+      <div class="tags"><span class="e">공수 중간</span><span>바텀 시트 2단</span><span>정차 화면</span><span>정직성 — 영향 없음</span></div>
+      <p class="a11y"><b>접근성</b> 반 카드 = "예약, 거기서 할 걸 골라요, 펼치기" · 펼친 카드 = "코스 연습" / "모의시험" · "닫기".</p>
+      <p class="mcap"><b>펼친 뒤</b> 도면 + 두 갈래 카드(이유 문장)</p>
+      <div class="half"><div class="scr g">
+        <div class="wm" style="left:28px;top:22px">DRIVE COACH</div>
+        <div class="sent" style="left:28px;top:46px;font-size:28px;line-height:42px;white-space:nowrap">후면 직각 주차를 <span class="kw" style="font-size:28px">힌트</span> 모드로 <span class="gw">해 볼까요?</span></div>
+        <div class="wc" style="left:24px;top:108px;width:805px;height:340px;padding:16px 20px">
+          <div style="display:flex;justify-content:space-between;align-items:center"><p style="font-size:16px;font-weight:500;display:flex;align-items:center;gap:8px"><svg width="20" height="20"><use href="#ycal"/></svg>예약한 서초 시험장 · 주차 3종 <span style="font-size:12px;color:#7a7e81;font-weight:400">서초 14:00</span></p><span class="lkp">거기서 할 걸 골라요</span></div>
+          <div style="display:grid;grid-template-columns:200px 1fr 1fr;gap:12px;margin-top:12px">
+            <svg viewBox="0 0 40 40" style="width:200px;height:200px"><use href="#course"/></svg>
+            <div class="mcard on" style="height:200px"><p class="mn" style="margin-top:0">코스 연습</p><p class="md" style="margin-top:6px">예약한 코스부터,<br>틀린 순간에만 말할게요.</p><span class="ck"><svg><use href="#tick"/></svg></span></div>
+            <div class="mcard" style="height:200px"><p class="mn" style="margin-top:0">모의시험</p><p class="md" style="margin-top:6px">예약한 코스부터,<br>시험장 그대로 제가<br>채점만 할게요.</p></div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;margin-top:12px"><div class="btng gr" style="width:140px"><i>↓</i>닫기</div></div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- D5 -->
+  <div class="row">
+    <div class="scr">
+      <div class="wm p-wm">DRIVE COACH</div>
+      <div class="cp p-cp"><svg><use href="#mic"/></svg>코치와 대화</div>
+      <div class="info p-info"><b>프로필</b>연수생 · 장롱 10년차 · 목표: 아이 등하원 ›</div>
+      <div class="eb p-eb">오늘의 과제 · 주차</div>
+      <div class="ttl p-ttl"><u>후면 직각 주차<i class="cv">▼</i></u>를<br><u>힌트<i class="cv">▼</i></u> 모드로 해 볼까요?</div>
+      <div class="why p-why">예약한 코스부터, 틀린 순간에만 말할게요.</div>
+      <div style="left:40px;top:262px;width:452px;height:132px;border-radius:26px;background:var(--onyx);color:var(--platinum);padding:14px 18px;display:flex;gap:18px">
+        <div style="width:132px;flex:none"><p class="sc" style="color:#9a9da0;display:flex;align-items:center;gap:6px"><svg width="16" height="16"><use href="#ycal"/></svg>예약 · 서초</p><p style="font:500 44px/52px var(--num);letter-spacing:-.02em;margin-top:8px">14:00</p></div>
+        <div style="flex:1"><p style="font-size:14px;line-height:20px">예약한 서초 시험장 · 주차 3종</p><p style="font-size:11.5px;color:#9a9da0">거기서 할 걸 골라요</p><div style="display:flex;gap:8px;margin-top:12px"><span class="op on">코스 연습</span><span class="op">모의시험</span></div></div>
+      </div>
+      <div class="go sm" style="right:40px;top:318px"><span class="gt">시작</span><span class="gr"><svg><use href="#ne"/></svg></span></div>
+      <div class="p-rule" style="top:408px"></div>
+    </div>
+    <div class="notes">
+      <h3><span class="id">D5</span>Onyx 예약 판</h3>
+      <p class="one">예약을 결과 가족의 어두운 판으로 — 큰 그로테스크 시간(정차 선택 화면의 시간 = 숫자 허용), 오른쪽에 이름·코스와 테두리/채운 알약. 흰 홈 위의 유일한 검은 덩어리라 "오늘 할 일" 이 바로 보인다.</p>
+      <div class="pc"><div><b>장점</b><ul><li>시간이 가장 크게 — 예약이 있는 날의 핵심 정보</li><li>고른 것 = 채운 알약, 결과 화면과 같은 말투</li></ul></div><div><b>주의점</b><ul><li>검은 판이 ↗ 보다 무거워 시선을 뺏음 — 시작이 덜 눈에 띔</li><li>코스 도면 타일이 빠짐(시험장 화면에서 봄)</li></ul></div></div>
+      <div class="tags"><span class="e">공수 작음</span><span>판 + 결과 알약</span><span>정차 화면</span><span>정직성 — 영향 없음</span></div>
+      <p class="a11y"><b>접근성</b> 판 = "예약, 서초, 14:00" · 알약 40px = "코스 연습, 선택됨" / "모의시험".</p>
+    </div>
+  </div>
+
+  <!-- D6 -->
+  <div class="row">
+    <div class="scr">
+      <svg viewBox="0 0 360 320" style="left:470px;top:56px;width:360px;height:320px" fill="none" stroke="#D9DADB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M30 300V60h240v110H110v70h220"/><path d="M60 300V90h180v50H80v130h250" stroke-dasharray="3 7" stroke-width="1.5"/><rect x="250" y="62" width="28" height="44" rx="4"/><rect x="282" y="62" width="28" height="44" rx="4"/><rect x="314" y="62" width="28" height="44" rx="4"/></svg>
+      <svg width="20" height="34" style="left:492px;top:316px;color:#222526"><use href="#v4t"/></svg>
+      <div class="wm p-wm">DRIVE COACH</div>
+      <div class="cp p-cp"><svg><use href="#mic"/></svg>코치와 대화</div>
+      <div class="info p-info"><b>프로필</b>연수생 · 장롱 10년차 · 목표: 아이 등하원 ›</div>
+      <div class="eb p-eb">오늘의 과제 · 주차</div>
+      <div class="ttl p-ttl"><u>후면 직각 주차<i class="cv">▼</i></u>를<br><u>힌트<i class="cv">▼</i></u> 모드로 해 볼까요?</div>
+      <div class="why p-why">예약한 코스부터, 틀린 순간에만 말할게요.</div>
+      <div class="wc" style="left:40px;top:270px;width:400px;height:112px;padding:12px 16px;border-radius:22px;box-shadow:0 1px 2px rgba(0,0,0,.1),0 10px 24px -12px rgba(0,0,0,.3)"><p style="font-size:11px;color:#7a7e81;display:flex;align-items:center;gap:6px"><svg width="15" height="15"><use href="#ycal"/></svg>예약 · 서초 14:00 · 거기서 할 걸 골라요</p><p style="font-size:16px;font-weight:500;margin-top:2px">예약한 서초 시험장 · 주차 3종</p><div style="display:flex;gap:8px;margin-top:8px"><span class="kp">코스 연습</span><span class="wp">모의시험</span></div></div>
+      <div class="go sm" style="right:40px;top:322px"><span class="gt">시작</span><span class="gr" style="background:#fff"><svg><use href="#ne"/></svg></span></div>
+      <div class="p-rule" style="top:410px"></div>
+    </div>
+    <div class="notes">
+      <h3><span class="id">D6</span>코스 도면이 벽이 된다</h3>
+      <p class="one">예약이 있는 날은 흰 벽 오른쪽에 그 시험장 코스 도면이 옅은 선으로 깔리고, 출발점에 V4 차. 예약 카드는 왼쪽 아래 흰 카드, ↗ 은 도면 위.</p>
+      <div class="pc"><div><b>장점</b><ul><li>"오늘은 저 코스로 간다" 가 그림으로 — 발표 컷으로 좋다</li><li>도면은 이미 있는 CourseMap 을 옅게 그리면 됨</li></ul></div><div><b>주의점</b><ul><li>옅은 선이 정보처럼 보일 위험 — 장식임을 분명히(누를 수 없음)</li><li>프로필·대화 알약과 도면이 겹치는 자리 조정 필요</li></ul></div></div>
+      <div class="tags"><span class="e">공수 중간</span><span>CourseMap 배경 모드</span><span>정차 화면</span><span>정직성 — 도면 = 시뮬레이션 코스(시험장 화면에 표시)</span></div>
+      <p class="a11y"><b>접근성</b> 도면 = 장식(이름 없음) · 카드 알약 40px · ↗ = "시작".</p>
+    </div>
+  </div>
+
+  <!-- D7 -->
+  <div class="row">
+    <div class="scr">
+      <div class="wm p-wm">DRIVE COACH</div>
+      <div class="cp p-cp"><svg><use href="#mic"/></svg>코치와 대화</div>
+      <div class="info p-info"><b>프로필</b>연수생 · 장롱 10년차 · 목표: 아이 등하원 ›</div>
+      <div class="eb p-eb">오늘의 과제 · 주차 · 예약 · 서초 14:00</div>
+      <div class="ttl p-ttl"><u>후면 직각 주차<i class="cv">▼</i></u>를<br><u>힌트<i class="cv">▼</i></u> 모드로 해 볼까요?</div>
+      <div class="sent" style="left:40px;top:236px;font-size:20px;line-height:44px;white-space:nowrap"><svg style="width:22px;height:22px;vertical-align:-4px"><use href="#ycal"/></svg> 예약한 서초 시험장 · 주차 3종 <span class="gw">— 거기서</span> <span class="kp" style="vertical-align:middle">코스 연습</span> <span class="wp" style="vertical-align:middle">모의시험</span></div>
+      <div class="why" style="left:40px;top:300px">예약한 코스부터, 틀린 순간에만 말할게요.</div>
+      <div class="p-rule"></div>
+      <div class="go p-go" style="top:296px"><span class="gt">시작</span><span class="gr"><svg><use href="#ne"/></svg></span></div>
+    </div>
+    <div class="notes">
+      <h3><span class="id">D7</span>제목 아래 한 문장</h3>
+      <p class="one">예약을 카드로 따로 두지 않고 제목 아래 한 문장으로 — 노란 달력 원 · 시험장 · 코스, 그리고 문장 속 알약 둘(문장 시트의 "누를 수 있는 낱말"). 시간은 눈썹 줄로 올라간다.</p>
+      <div class="pc"><div><b>장점</b><ul><li>문장 시트 문법 그대로 — 홈이 끝까지 "문장" 으로 읽힘</li><li>↗ 100px 그대로, 카드 0 — H8 가 가장 덜 깨짐</li></ul></div><div><b>주의점</b><ul><li>코스 도면 타일이 빠짐 · "거기서 할 걸 골라요" 를 "— 거기서" 로 줄임(문구 변경)</li><li>문장 20px — 한 줄에 다 넣느라 작아짐</li></ul></div></div>
+      <div class="tags"><span class="e">공수 작음</span><span>Text + 칩 두 개</span><span>정차 화면</span><span>정직성 — 영향 없음</span></div>
+      <p class="a11y"><b>접근성</b> 알약 40px = "코스 연습, 선택됨" / "모의시험" · 문장은 읽기 전용.</p>
+    </div>
+  </div>
+
+  <div class="striph"><b>D1 프레임 띠</b><small>"모의시험" 을 누름 → 왼쪽에서 검은 원이 번져 알약을 채움(핀 A 360 ms) → 옆 알약은 흰색으로 → 제목 낱말이 "힌트 → 평가" 로 미끄러져 바뀜(B1 280 ms).</small></div>
+  <div class="cstrip">
+    <div><p class="fl"><b>0</b>코스 연습이 골라져 있음</p><div class="bx"><p class="sent" style="font-size:20px"><u style="text-underline-offset:4px">힌트</u> 모드로 해 볼까요?</p><p style="margin-top:18px;display:flex;gap:8px"><span class="kp">코스 연습</span><span class="wp">모의시험</span></p></div></div>
+    <div><p class="fl"><b>1/3</b>누른 자리에서 원이 번짐</p><div class="bx"><p class="sent" style="font-size:20px"><u style="text-underline-offset:4px">힌트</u> 모드로 해 볼까요?</p><p style="margin-top:18px;display:flex;gap:8px"><span class="kp" style="opacity:.6">코스 연습</span><span class="wp" style="position:relative;overflow:hidden"><i style="position:absolute;left:4px;top:4px;width:32px;height:32px;border-radius:16px;background:#141516"></i><span style="position:relative;margin-left:22px">모의시험</span></span></p></div></div>
+    <div><p class="fl"><b>2/3</b>검은 면이 알약을 채움 · 낱말이 미끄러짐</p><div class="bx"><p class="sent" style="font-size:20px;position:relative;height:28px;overflow:hidden"><span style="position:absolute;top:-12px;opacity:.35">힌트</span><span style="position:absolute;top:14px">평가</span><span style="position:absolute;left:46px">모드로 해 볼까요?</span></p><p style="margin-top:18px;display:flex;gap:8px"><span class="wp">코스 연습</span><span class="wp" style="position:relative;overflow:hidden"><i style="position:absolute;left:4px;top:4px;width:80%;height:32px;border-radius:16px;background:#141516"></i><span style="position:relative;color:#fff">모의시험</span></span></p></div></div>
+    <div><p class="fl"><b>끝</b>모의시험 = 검은 알약 + 체크 · 제목 "평가"</p><div class="bx"><p class="sent" style="font-size:20px"><u style="text-underline-offset:4px">평가</u> 모드로 해 볼까요?</p><p style="margin-top:18px;display:flex;gap:8px"><span class="wp">코스 연습</span><span class="kp"><span class="ck" style="width:18px;height:18px"><svg width="10" height="10"><use href="#tick"/></svg></span>모의시험</span></p></div></div>
+  </div>
+
+  <div class="rec">
+    <div><p class="sc">추천 · D</p><h3>D1 둥근 카드 띠 + 고르는 알약 <span class="gw">— 문장으로 더 가려면 D7.</span></h3>
+      <p style="margin-top:6px">지금 예약 줄의 가장 큰 문제는 "코스 연습 / 모의시험" 이 <b>누를 수 있는지 안 보이는 글자</b>라는 것. D1 은 정보는 하나도 안 빼고(도면 타일 · 시간 · 시험장 · 코스 · 안내 문장) 그 둘을 진짜 알약으로 만들어, 고르면 바로 위 제목이 바뀌는 게 한 화면에서 보인다.</p></div>
+    <div><ul>
+      <li>공수 <b>작음</b> — 카드 모양·알약 교체 + 제목·↗ 위치 조정(↗ 72px 변형).</li>
+      <li>노란 원 = 달력 하나. 고른 것 = 검은 알약 + 흰 체크(문장 시트 과제 카드와 같은 표시).</li>
+      <li><b>D7</b>(제목 아래 한 문장 + 문장 속 알약)은 H8 을 가장 덜 깨는 대안 — 다만 도면 타일이 빠지고 안내 문구가 줄어든다. <b>D4</b> 는 A2 를 고르면 같은 올라오는 카드 부품이라 그다음 후보.</li>
+    </ul><span class="eff">D1 공수 작음 · D7 작음</span></div>
+  </div>
+</section>
+
+<section class="sum">
+  <p class="sc">요약</p>
+  <h2>홈에서 열리는 것 넷 — 추천과 대안</h2>
+  <table>
+    <tr><th style="width:150px">화면</th><th>안 (총 29)</th><th style="width:230px">추천</th><th style="width:170px">시간 없을 때</th><th style="width:110px">공수</th><th>한 줄 이유</th></tr>
+    <tr><td class="k">A 모드 팝업</td><td>A1 낱말 카드 · A2 문장+카드 · A3 낱말 바퀴 · A4 트랙 · A5 오른쪽 서랍 · A6 지갑 · A7 둘째 줄 미리보기 · A8 Onyx 판</td><td><b>A2</b> 문장이 줄고 카드가 올라온다</td><td>A1</td><td><span class="e">중간</span></td><td>확정된 문장 시트의 "모드 낱말 → 모드 카드" 약속 그대로 — 과제·모드·예약이 같은 움직임</td></tr>
+    <tr><td class="k">B 프로필 + 첫 실행</td><td>B1 문장 프로필 · B2 다섯 줄+칩 트랙 · B3 타일 여섯 · B4 자라는 서랍 · B5 질문 카드 더미 · B6 Onyx 판 · B7 묻고 답한 기록</td><td><b>B1</b> 문장 프로필(첫 실행 = 빈 알약)</td><td>B2</td><td><span class="e">중간</span></td><td>큰 문장 + 흰 알약 — 홈·과제 시트와 한 가족, 앱이 본 것은 노란 눈 카드로 분리</td></tr>
+    <tr><td class="k">C 코치와 대화</td><td>C1 바닥 시트 말풍선 · C2 큰 문장 대화 · C3 알약이 기둥으로 · C4 말 카드 타일 · C5 Onyx 대화판 · C6 대본 줄 · C7 홈 제목이 대화</td><td><b>C2</b> 큰 문장 대화</td><td>C1</td><td><span class="e">중간</span></td><td>한 마디를 크게 = "화내지 않는 조수석", 운전석 가독성 최고, 기다림 = 점 셋 타일</td></tr>
+    <tr><td class="k">D 예약 카드 홈</td><td>D1 카드 띠+알약 · D2 티켓 · D3 ↗ 옆 두 갈래 · D4 반쯤 올라온 카드 · D5 Onyx 판 · D6 도면 벽 · D7 제목 아래 한 문장</td><td><b>D1</b> 둥근 카드 띠 + 고르는 알약</td><td>D1(그대로)</td><td><span class="e">작음</span></td><td>정보는 그대로, "누를 수 있는지" 만 분명하게 — 고르면 위 제목이 바로 바뀜</td></tr>
+    <tr><td class="k">공통</td><td colspan="5">노란 원은 화면마다 한 곳(모드 막대 · 눈 · 코치 표시 · 달력) · 누르는 것 40px↑(120 dp) · 넷 다 정차 화면 — 5 km/h 넘으면 모두 닫히고 잠금 한 면 · 코치 문장 숫자 0(시간·"주차 3종"·연차는 메타 예외) · 접근성 이름 "과제·모드 바꾸기" / "모드 바꾸기" 그대로 · 왼쪽 큰 차 그림(프로필·대화)은 모든 안에서 뺐다 — 차 그림은 V4 기하로 2·3 페이지(주행·주차 도식)에만.</td></tr>
+  </table>
+</section>
+
+</div>
+</body>
+</html>
