@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>라운드 31 · 1 홈 제목 속 모드 롤링</title>
+<style>
+:root{
+  --onyx:#222526; --platinum:#E0E0E0; --graphite:#353A3E; --jet:#1A1A1A; --ash:#BFBFBF; --white:#FFFFFF;
+  --signal:#F52D48; --yellow:#F2C230; --chip:#F2F2F2; --gw:#B3B5B7; --mu:#7a7e81;
+  --kr:"Noto Sans KR","Malgun Gothic",system-ui,sans-serif;
+  --num:"Segoe UI Variable Display","Bahnschrift",Arial,sans-serif;
+  --k3:linear-gradient(180deg,#43474a 0%,#141516 55%,#0d0e0f 100%);
+  --ease:cubic-bezier(.2,.8,.2,1);
+  --spring:cubic-bezier(.3,1.25,.5,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#ECECEC;color:var(--onyx);font-family:var(--kr);line-height:1.5}
+.page{max-width:1560px;margin:0 auto;padding:36px 24px 56px}
+.head h1{font-size:30px;font-weight:500;letter-spacing:-.01em}
+.head .lead{font-size:14.5px;color:#4a4e51;margin-top:6px;max-width:1440px}
+.chipline{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.chipline span{font-size:12px;padding:3px 12px;border-radius:14px;border:1px solid rgba(34,37,38,.25)}
+.chipline span.k{background:var(--onyx);color:var(--platinum);border-color:var(--onyx)}
+.rules{margin-top:14px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.rules div{background:#fff;border-radius:14px;padding:9px 14px;font-size:12.5px}
+.rules div>b:first-child{display:block;font-size:11px;letter-spacing:.08em;color:#6b6f72;font-weight:500;margin-bottom:2px}
+
+.scrn{margin-top:40px;padding-top:22px;border-top:2px solid var(--onyx)}
+.sh{display:flex;align-items:baseline;gap:16px}
+.sh .no{font-family:var(--num);font-size:48px;line-height:1;font-weight:600}
+.sh h2{font-size:28px;font-weight:500;letter-spacing:-.01em}
+.sh p{font-size:14px;color:#4a4e51;margin-top:2px;max-width:1300px}
+.row{display:grid;grid-template-columns:853px 1fr;gap:26px;margin-top:22px;align-items:start}
+.row.now{grid-template-columns:426px 1fr}
+.notes h3{font-size:21px;font-weight:500;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
+.notes h3 .id{font-family:var(--num);font-size:13px;font-weight:600;height:24px;line-height:24px;padding:0 10px;border-radius:12px;background:var(--onyx);color:var(--platinum)}
+.notes .one{font-size:13.5px;color:#3a3e41;margin-top:3px}
+.pc{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+.pc>div>b{display:block;font-size:11px;letter-spacing:.08em;color:#6b6f72;font-weight:500}
+.pc ul{padding-left:16px;font-size:12.5px}
+.pc li{margin-top:2px}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.tags span{font-size:11.5px;padding:2px 10px;border-radius:12px;background:#fff;border:1px solid rgba(34,37,38,.15)}
+.tags span.e{background:var(--onyx);color:var(--platinum);border-color:var(--onyx)}
+.a11y{font-size:11.5px;color:#5a5e61;margin-top:6px}
+.a11y b{font-weight:500;color:var(--onyx)}
+.code{font-family:Consolas,"Cascadia Mono",monospace;font-size:11.5px;background:#fff;border-radius:10px;padding:8px 12px;margin-top:8px;color:#2a2e31;white-space:pre-wrap;line-height:1.55}
+.mcap{font-size:11.5px;color:#6b6f72;margin:8px 0 4px}
+.mcap b{color:var(--onyx);font-weight:500}
+.rec{margin-top:26px;background:#fff;border-radius:22px;padding:18px 24px;display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.rec h3{font-size:22px;font-weight:500;letter-spacing:-.01em}
+.rec h3 .gw{color:var(--gw)}
+.rec p,.rec li{font-size:13.5px}
+.rec ul{padding-left:18px;margin-top:4px}
+.rec .eff{display:inline-block;margin-top:8px;font-size:12px;padding:3px 12px;border-radius:12px;background:var(--onyx);color:var(--platinum)}
+.striph{margin-top:18px;font-size:13px}.striph small{color:#6b6f72;margin-left:8px}
+.strip{display:grid;grid-template-columns:repeat(4,358px);gap:22px;margin-top:8px}
+.fl{font-size:11.5px;color:#6b6f72;margin-bottom:4px}
+.fl b{display:inline-block;min-width:34px;height:20px;line-height:20px;padding:0 8px;margin-right:6px;border-radius:10px;background:var(--onyx);color:var(--platinum);font-weight:400;font-size:11px;text-align:center}
+
+/* ===== 1/3 화면 (2560×1268 dp → 853×423) ===== */
+.scr{position:relative;width:853px;height:423px;overflow:hidden;border-radius:8px;box-shadow:0 0 0 1px rgba(0,0,0,.16);font-family:var(--kr);background:#fff;color:var(--onyx)}
+.scr > *{position:absolute}
+.half{position:relative;width:426px;height:211px;overflow:hidden;border-radius:6px;box-shadow:0 0 0 1px rgba(0,0,0,.12)}
+.half > .scr{transform:scale(.4994);transform-origin:0 0;box-shadow:none}
+
+/* H8 홈(#261 원목 차) */
+.wm{left:40px;top:30px;font:600 11px/1 var(--num);letter-spacing:.16em;color:var(--jet)}
+.cp{right:40px;top:22px;display:flex;align-items:center;gap:8px;height:38px;padding:0 16px 0 5px;border:1.3px solid var(--onyx);border-radius:20px;font-size:12.5px;background:#fff;white-space:nowrap}
+.cp i{display:inline-flex;align-items:center;justify-content:center;width:27px;height:27px;border-radius:50%;background:var(--onyx)}
+.cp svg{width:14px;height:14px}
+.info{right:40px;top:92px;display:flex;gap:0;align-items:flex-start;white-space:nowrap}
+.info div{padding:0 16px;border-left:1px solid #DADADA;font-size:14px;line-height:20px;color:var(--jet)}
+.info div:first-child{border-left:0;padding-left:0}
+.info div b{display:block;font-weight:400;color:var(--mu);font-size:10px;line-height:14px;margin-bottom:3px}
+.info em{font-style:normal;color:var(--mu);font-size:12px;line-height:34px;margin-left:4px}
+.lab{left:40px;top:114px;font-size:11px;color:var(--graphite)}
+.ttl{font-size:42px;line-height:56px;font-weight:500;letter-spacing:-.02em;white-space:nowrap;color:var(--jet)}
+.t1{left:40px;top:136px}.t2{left:40px;top:192px}
+.ul{display:inline-block;height:56px;border-bottom:1.5px solid var(--jet)}
+.cv{width:11px;height:9px;fill:currentColor;vertical-align:middle;margin:0 2px 0 8px}
+.why{left:40px;top:266px;font-size:13px;color:var(--graphite);white-space:nowrap}
+.car{left:40px;top:300px;width:200px;height:92px}
+.car svg{width:200px;height:92px;display:block}
+.go{left:714px;top:281px;width:98px;height:98px;border:2px solid var(--onyx);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.go svg{width:44px;height:44px}
+.hl{left:40px;right:40px;top:399px;height:1px;background:#DADADA}
+.dim .t1,.dim .why{opacity:.22}
+
+/* 모드 슬롯 — 제목 둘째 줄의 낱말 자리 */
+.slot{position:relative;display:inline-block;vertical-align:top;height:56px;width:150px;margin-right:10px}
+.slot::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1.5px;background:var(--jet)}
+.slot .cv{position:absolute;right:4px;top:23px;margin:0}
+.slot .cv.s{width:10px;height:18px;top:19px}
+.slot .cv.r{width:12px;height:12px;top:22px}
+.win{position:absolute;left:0;top:0;width:128px;height:56px;overflow:hidden}
+.rail b{display:block;height:56px;line-height:56px;font-weight:500;color:var(--jet)}
+.rail{display:block;will-change:transform}
+.live .mv{animation-delay:1.4s}
+body:has(#still:target) .live .mv{animation-play-state:paused;animation-delay:0ms} /* PNG 는 #still 로 정지 상태 */
+
+/* A 세로 드럼 — 열린 창(3줄) */
+.A .win{left:-10px;top:-44px;width:148px;height:144px;padding-left:10px;background:#fff;
+  -webkit-mask:linear-gradient(180deg,transparent 0,#000 14px,#000 calc(100% - 14px),transparent 100%);
+  mask:linear-gradient(180deg,transparent 0,#000 14px,#000 calc(100% - 14px),transparent 100%)}
+.A .win::after{content:"";position:absolute;left:0;top:0;right:0;bottom:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.72) 0,rgba(255,255,255,.72) 30%,rgba(255,255,255,0) 40%,rgba(255,255,255,0) 60%,rgba(255,255,255,.72) 70%,rgba(255,255,255,.72) 100%)}
+.dim .t1{opacity:.12}
+.A .rail b{height:48px;line-height:48px}
+.A .rail{animation:drumA 3600ms infinite}
+@keyframes drumA{
+  0%{transform:translateY(0);animation-timing-function:var(--spring)}
+  10%,33.3%{transform:translateY(-48px);animation-timing-function:var(--spring)}
+  43.3%,66.6%{transform:translateY(-96px);animation-timing-function:var(--spring)}
+  76.6%,100%{transform:translateY(-144px)}
+}
+
+/* B 가로 롤 */
+.B .win{-webkit-mask:linear-gradient(90deg,transparent 0,#000 8px,#000 calc(100% - 8px),transparent 100%);mask:linear-gradient(90deg,transparent 0,#000 8px,#000 calc(100% - 8px),transparent 100%)}
+.B .rail{display:flex}
+.B .rail b{width:128px;flex:none}
+.B .rail{animation:rollB 3600ms infinite}
+@keyframes rollB{
+  0%{transform:translateX(0);animation-timing-function:var(--ease)}
+  10%,33.3%{transform:translateX(-128px);animation-timing-function:var(--ease)}
+  43.3%,66.6%{transform:translateX(-256px);animation-timing-function:var(--ease)}
+  76.6%,100%{transform:translateX(-384px)}
+}
+
+/* C 제자리 넘김(계기판 숫자처럼 X축 회전) */
+.C .win{perspective:300px;overflow:visible}
+.C .face{position:absolute;left:0;top:0;width:128px;height:56px;line-height:56px;font-weight:500;color:var(--jet);backface-visibility:hidden;transform-origin:50% 50%}
+.C .fa{animation:flipA 3600ms infinite}
+.C .fb{animation:flipB 3600ms infinite}
+.C .fc{animation:flipC 3600ms infinite}
+@keyframes flipA{
+  0%{transform:rotateX(0);animation-timing-function:cubic-bezier(.45,0,1,1)}
+  5%{transform:rotateX(-90deg)}
+  5.01%,71.6%{transform:rotateX(90deg);animation-timing-function:cubic-bezier(0,0,.2,1)}
+  76.6%,100%{transform:rotateX(0)}
+}
+@keyframes flipB{
+  0%,5%{transform:rotateX(90deg);animation-timing-function:cubic-bezier(0,0,.2,1)}
+  10%,33.3%{transform:rotateX(0);animation-timing-function:cubic-bezier(.45,0,1,1)}
+  38.3%{transform:rotateX(-90deg)}
+  38.31%,100%{transform:rotateX(90deg)}
+}
+@keyframes flipC{
+  0%,38.3%{transform:rotateX(90deg);animation-timing-function:cubic-bezier(0,0,.2,1)}
+  43.3%,66.6%{transform:rotateX(0);animation-timing-function:cubic-bezier(.45,0,1,1)}
+  71.6%{transform:rotateX(-90deg)}
+  71.61%,100%{transform:rotateX(90deg)}
+}
+
+/* D 쓸어 넘김(손가락 따라오다 놓으면 스프링) */
+.D .win{-webkit-mask:linear-gradient(180deg,transparent 0,#000 6px,#000 calc(100% - 6px),transparent 100%);mask:linear-gradient(180deg,transparent 0,#000 6px,#000 calc(100% - 6px),transparent 100%)}
+.D .rail{animation:swipeD 3000ms infinite}
+.D .fing{position:absolute;left:28px;top:14px;width:30px;height:30px;border-radius:50%;background:rgba(34,37,38,.16);border:1px solid rgba(34,37,38,.25);animation:fingD 3000ms infinite}
+@keyframes swipeD{
+  0%{transform:translateY(0);animation-timing-function:cubic-bezier(.4,0,.6,1)}
+  16.6%{transform:translateY(-30px);animation-timing-function:var(--spring)}
+  28.3%,100%{transform:translateY(-56px)}
+}
+@keyframes fingD{
+  0%{transform:translateY(0);opacity:1;animation-timing-function:cubic-bezier(.4,0,.6,1)}
+  16.6%{transform:translateY(-30px);opacity:1}
+  20%,100%{transform:translateY(-30px);opacity:0}
+}
+
+/* E 세 점 + 위로 굴러감 */
+.E{width:128px}
+.E .win{-webkit-mask:linear-gradient(180deg,transparent 0,#000 6px,#000 calc(100% - 6px),transparent 100%);mask:linear-gradient(180deg,transparent 0,#000 6px,#000 calc(100% - 6px),transparent 100%)}
+.E .rail{animation:rollE 3600ms infinite}
+.E .dots{position:absolute;left:2px;top:60px;width:44px;height:8px}
+.E .dots i{position:absolute;top:1px;width:6px;height:6px;border-radius:50%;background:var(--ash)}
+.E .dots i:nth-child(1){left:1px}.E .dots i:nth-child(2){left:15px}.E .dots i:nth-child(3){left:29px}
+.E .dots .dot{top:0;left:0;width:8px;height:8px;background:var(--yellow);animation:dotE 3600ms infinite}
+@keyframes rollE{
+  0%{transform:translateY(0);animation-timing-function:var(--spring)}
+  10%,33.3%{transform:translateY(-56px);animation-timing-function:var(--spring)}
+  43.3%,66.6%{transform:translateY(-112px);animation-timing-function:var(--spring)}
+  76.6%,100%{transform:translateY(-168px)}
+}
+@keyframes dotE{
+  0%{transform:translateX(14px);animation-timing-function:var(--ease)}
+  7.8%,33.3%{transform:translateX(28px);animation-timing-function:var(--ease)}
+  41.1%,66.6%{transform:translateX(0);animation-timing-function:var(--ease)}
+  74.4%,100%{transform:translateX(14px)}
+}
+
+/* 프레임 띠 — 같은 keyframes 를 음수 delay + paused 로 정지 */
+.fr{position:relative;width:358px;height:170px;overflow:hidden;background:#fff;border-radius:10px;box-shadow:0 0 0 1px rgba(0,0,0,.1)}
+.fr .lite{position:absolute;left:0;top:0;width:853px;height:423px;transform:translate(-26px,-178px) scale(1.25);transform-origin:0 0}
+.fr .lite > *{position:absolute}
+.fr .mv{animation-play-state:paused!important;animation-delay:0ms}
+.fr.k1 .mv{animation-delay:-120ms}.fr.k2 .mv{animation-delay:-240ms}.fr.k3 .mv{animation-delay:-360ms}
+.fr.k1 .D .mv{animation-delay:-283ms}.fr.k2 .D .mv{animation-delay:-567ms}.fr.k3 .D .mv{animation-delay:-850ms}
+
+/* 지금(28b) 드롭다운 재현 */
+.now .drop{left:40px;top:150px;width:170px;height:160px;background:#fff;border-radius:20px;box-shadow:0 26px 40px -6px rgba(0,0,0,.42),0 8px 14px rgba(0,0,0,.18);padding:12px 10px}
+.now .drop2{left:46px;top:160px;width:170px;height:160px;background:#fff;border-radius:20px;box-shadow:0 18px 30px rgba(0,0,0,.28)}
+.now .drop div{display:flex;align-items:center;gap:10px;height:44px;padding:0 10px;border-radius:12px;font-size:21px;color:var(--mu)}
+.now .drop div i{width:20px;height:20px;border-radius:6px;background:#D4D5D6;display:inline-block}
+.now .drop div.on{background:var(--onyx);color:#fff}
+.now .drop div.on i{background:var(--yellow);border-radius:50%}
+.now .gh{color:#D9D9D9}.now .gh .ul{border-color:#D9D9D9}
+</style>
+</head>
+<body>
+<a id="still"></a>
+<div class="page">
+  <div class="head">
+    <h1>라운드 31 · 1 — 홈 제목 속 모드 고르기를 롤링형으로 (5안)</h1>
+    <p class="lead">지금은 <b>힌트 ▼</b> 를 누르면 <b>두 겹 카드가 떨어지는 드롭다운</b>(그림자 셈, 뒤 카드 불필요). 다섯 안 모두 <b>제목 크기(132 dp)·밑줄은 그대로</b>, <b>모드 낱말만</b> 그 자리에서 움직인다. 카드·그림자 없음. 과제 쪽 <b>▼</b>(시트가 열림)와 기호를 다르게 둔다. 목업은 2560×1268 dp 의 1/3(853×423) — 실제 화면은 약 3배. 오른쪽의 띠는 같은 CSS keyframes 를 0 / ⅓ / ⅔ / 끝에서 멈춘 것(ms·이징 표기), 큰 목업은 실제로 움직인다(1.4 s 뒤 반복).</p>
+    <div class="chipline"><span class="k">01 Onyx 갤러리 · 흰 벽</span><span>H8 홈 · 원목 차 PNG(#261)</span><span>Onyx #222526 · Jet #1A1A1A · Ash #BFBFBF</span><span>노란 포인트 #F2C230 화면당 한 곳</span><span>움직임 A1·B1(280 ms)·C1 · 스프링</span><span>Compose 기본 애니메이션만</span></div>
+    <div class="rules">
+      <div><b>바꾸지 않는 것</b>제목 "후면 직각 주차 ▼를 / [모드] 모드로 해 볼까요?" 의 크기·줄간·밑줄. 아래 한 줄 설명("틀린 순간에만 말할게요.")은 낱말이 멈춘 뒤 200 ms crossfade 로 바뀐다(모든 안 공통).</div>
+      <div><b>그림자 0</b>떨어지는 카드가 없다. A 만 낱말 뒤에 흰 창(배경색과 같은 흰색, 그림자 없음, 위아래는 투명으로 사라짐)을 둔다.</div>
+      <div><b>과제 ▼ 와 구분</b>과제 = ▼(시트가 올라옴). 모드 = ▴▾(A·D) · ▸(B) · ↻(C) · 세 점(E). 접근성 이름은 그대로 `과제·모드 바꾸기`, 상태 설명에 지금 모드.</div>
+      <div><b>슬롯 폭 고정</b>모드 자리 폭 = 가장 긴 낱말(가이드) 기준 고정 → 낱말이 바뀌어도 뒤의 "모드로 해 볼까요?" 가 밀리지 않는다. 밑줄은 슬롯 폭 전체(= 빈칸 채우기처럼 읽힌다).</div>
+    </div>
+  </div>
+
+  <!-- 지금 -->
+  <div class="scrn">
+    <div class="sh"><div class="no">00</div><div><h2>지금(28b) — 두 겹 카드 드롭다운</h2><p>`lesson-28a-mode.png` · `lesson-28b-booking-mode-wheel.png` 재현. 낱말과 떨어진 리스트 · 두 겹 · 깊은 그림자 · 과제 ▼ 와 같은 기호.</p></div></div>
+    <div class="row now">
+      <div class="half"><div class="scr now">
+        <div class="wm">DRIVE COACH</div>
+        <div class="cp"><i><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" fill="#fff"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4" fill="none" stroke="#fff" stroke-width="2"/></svg></i>코치와 대화</div>
+        <div class="info"><div><b>단계</b>연수생</div><div><b>장롱</b>10년차</div><div><b>목표</b>아이 등하원</div><em>›</em></div>
+        <div class="lab">오늘의 과제 · 주차</div>
+        <div class="ttl t1 gh"><span class="ul">후면 직각 주차<svg class="cv" viewBox="0 0 10 8"><path d="M0 0h10L5 8z"/></svg></span>를</div>
+        <div class="ttl t2" style="left:230px">모드로 해 볼까요?</div>
+        <div class="why" style="left:230px">틀린 순간에만 말할게요.</div>
+        <div class="drop2"></div>
+        <div class="drop"><div><i></i>가이드</div><div class="on"><i></i>힌트</div><div><i></i>평가</div></div>
+        <div class="go"><svg viewBox="0 0 40 40"><path d="M11 29L29 11M15 11h14v14" fill="none" stroke="#222526" stroke-width="2.6"/></svg></div>
+        <div class="hl"></div>
+      </div></div>
+      <div class="notes">
+        <h3>사용자 지적 네 가지</h3>
+        <div class="pc">
+          <div><b>문제</b><ul><li>팝업 그림자가 너무 세다(두 단 그림자).</li><li>두 겹 — 뒤에 있는 카드는 역할이 없다.</li><li>드롭다운이 제목 문장과 떨어져 "리스트에서 고르기" 로 바뀐다 — 문장 속 낱말을 바꾸는 느낌이 끊긴다.</li><li>과제 ▼ 와 모드 ▼ 가 같은 기호인데 하나는 시트, 하나는 팝업 — 다른 일이 같은 기호다.</li></ul></div>
+          <div><b>다섯 안의 공통 답</b><ul><li>카드 0 · 그림자 0 — 낱말이 <b>그 자리에서</b> 바뀐다.</li><li>세 모드뿐이므로 "굴러감" 한 번 = 다음 모드. 세 번이면 한 바퀴(A·C·E) 또는 보고 고르기(A·D).</li><li>모드 기호를 과제 ▼ 와 다르게.</li><li>Compose: `AnimatedContent` · `animateFloatAsState` · `graphicsLayer` · `draggable` 안에서 끝난다.</li></ul></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- A -->
+  <div class="scrn">
+    <div class="sh"><div class="no">A</div><div><h2>세로 드럼 — 제목 자리가 창이 되어 세 줄이 돈다</h2><p>누르면 낱말 위아래로 이웃 모드(가이드 · 평가)가 옅게 나타나 세 줄 창이 된다. 창 안에서 스프링으로 한 칸(48 dp×3 = 144 dp) 굴러가고, 가운데 줄 = 제목 자리(밑줄이 곧 가운데 표시선). 열린 동안 윗줄 "후면 직각 주차" 와 아래 설명은 흐려진다.</p></div></div>
+    <div class="row">
+      <div class="scr live dim">
+        <div class="wm">DRIVE COACH</div>
+        <div class="cp"><i><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" fill="#fff"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4" fill="none" stroke="#fff" stroke-width="2"/></svg></i>코치와 대화</div>
+        <div class="info"><div><b>단계</b>연수생</div><div><b>장롱</b>10년차</div><div><b>목표</b>아이 등하원</div><em>›</em></div>
+        <div class="lab">오늘의 과제 · 주차</div>
+        <div class="ttl t1"><span class="ul">후면 직각 주차<svg class="cv" viewBox="0 0 10 8"><path d="M0 0h10L5 8z"/></svg></span>를</div>
+        <div class="ttl t2"><span class="slot A"><span class="win"><span class="rail mv"><b>가이드</b><b>힌트</b><b>평가</b><b>가이드</b><b>힌트</b><b>평가</b></span></span><svg class="cv s" viewBox="0 0 10 18"><path d="M0 7h10L5 0z"/><path d="M0 11h10L5 18z"/></svg></span><span>모드로 해 볼까요?</span></div>
+        <div class="why">틀린 순간에만 말할게요.</div>
+        <div class="car"><svg viewBox="0 0 240 100"><path d="M18 70V52q0-6 6-6h28l22-24q4-4 10-4h56q6 0 10 4l20 24h40q6 0 6 6v18Z" fill="#E9C9A3"/><path d="M60 46l18-20h26v20Zm50 0V26h28l18 20Z" fill="#F4E2C8" stroke="#C9A47C" stroke-width="2"/><path d="M18 70h198v16q0 6-6 6H24q-6 0-6-6Z" fill="#1F4F3E"/><circle cx="60" cy="86" r="18" fill="#E9C9A3" stroke="#C9A47C" stroke-width="3"/><circle cx="60" cy="86" r="6" fill="#C9A47C"/><circle cx="176" cy="86" r="18" fill="#E9C9A3" stroke="#C9A47C" stroke-width="3"/><circle cx="176" cy="86" r="6" fill="#C9A47C"/></svg></div>
+        <div class="go"><svg viewBox="0 0 40 40"><path d="M11 29L29 11M15 11h14v14" fill="none" stroke="#222526" stroke-width="2.6"/></svg></div>
+        <div class="hl"></div>
+      </div>
+      <div class="notes">
+        <h3><span class="id">A</span>세로 드럼 <span style="font-size:13px;color:#6b6f72;font-weight:400">· 목업은 "열린 상태" 로 움직임</span></h3>
+        <div class="one">누름 → 창 열림(이웃 두 줄 fade-in 160 ms, 윗줄 과제 제목은 거의 사라짐) → 한 번 더 누르거나 위아래로 쓸면 한 칸 굴러감(스프링 360 ms) → 1.2 s 가만히 두면 창 닫힘(이웃 fade-out, 윗줄 복귀). 가운데 줄만 Jet, 이웃은 흰 반투명 덮개로 Ash 가 된다. 창 배경은 불투명 흰색(위아래 14 dp×3 만 투명으로 사라짐).</div>
+        <div class="pc">
+          <div><b>장점</b><ul><li>사용자가 말한 "롤링" 그대로 — 세 모드가 <b>한눈에 보이면서</b> 굴러간다.</li><li>카드·그림자 없음. 창 배경은 바탕과 같은 흰색이라 "판" 이 아니라 "구멍" 으로 읽힌다.</li><li>밑줄이 그대로 가운데 표시선이 되어 새 요소가 없다.</li></ul></div>
+          <div><b>주의</b><ul><li><b>공수 중간</b>: 창이 윗줄(과제 제목)·아랫줄(설명)과 겹치므로 열린 동안 그 둘을 흐리게 하는 상태가 하나 더 필요.</li><li>이웃 줄이 제목 크기(132 dp) 그대로라 열리면 꽤 크다 — 호기심은 끌지만 정차 화면이라 가독성 문제는 없음.</li><li>마스크(위아래 투명)는 `drawWithContent` + `BlendMode.DstIn` — 반나절 안이지만 다른 안보다 코드가 많다.</li></ul></div>
+        </div>
+        <div class="tags"><span class="e">공수 중간</span><span>탭 = 열기/한 칸 · 드래그 = 자유 회전</span><span>스프링 dampingRatio .72 · Medium</span><span>창 열림 160 ms · 닫힘 1.2 s 뒤</span></div>
+        <div class="code">Column(3 줄, 48 dp×…) + Modifier.offset { IntOffset(0, -(index*rowH)) } · animateFloatAsState(index, spring(0.72f, Spring.StiffnessMedium))
+.clip + drawWithContent { drawContent(); drawRect(verticalGradient(transparent→black→transparent), blendMode = DstIn) } — 이웃 줄 투명도
+열림 동안 t1·why: animateFloatAsState(alpha .22, tween(160))</div>
+        <div class="a11y"><b>접근성</b> Role.Button · contentDescription "모드 바꾸기 · 지금 힌트" · 탭 한 번 = 다음 모드(드래그 없이도 됨) · stateDescription 갱신.</div>
+      </div>
+    </div>
+    <div class="striph">프레임 띠 · 한 칸 굴러감 <small>360 ms · spring(.72, Medium) ≈ cubic-bezier(.3,1.25,.5,1) · 0 / 120 / 240 / 360 ms</small></div>
+    <div class="strip">
+      <div><div class="fl"><b>0 ms</b>힌트, 창 열림</div><div class="fr k0"><div class="lite dim"><div class="ttl t1"><span class="ul">후면 직각 주차<svg class="cv" viewBox="0 0 10 8"><path d="M0 0h10L5 8z"/></svg></span>를</div><div class="ttl t2"><span class="slot A"><span class="win"><span class="rail mv"><b>가이드</b><b>힌트</b><b>평가</b><b>가이드</b><b>힌트</b><b>평가</b></span></span><svg class="cv s" viewBox="0 0 10 18"><path d="M0 7h10L5 0z"/><path d="M0 11h10L5 18z"/></svg></span><span>모드로 해 볼까요?</span></div><div class="why">틀린 순간에만 말할게요.</div></div></div></div>
+      <div><div class="fl"><b>120 ms</b>⅓ — 반쯤 올라감</div><div class="fr k1"><div class="lite dim"><div class="ttl t1"><span class="ul">후면 직각 주차<svg class="cv" viewBox="0 0 10 8"><path d="M0 0h10L5 8z"/></svg></span>를</div><div class="ttl t2"><span class="slot A"><span class="win"><span class="rail mv"><b>가이드</b><b>힌트</b><b>평가</b><b>가이드</b><b>힌트</b><b>평가</b></span></span><svg class="cv s" viewBox="0 0 10 18"><path d="M0 7h10L5 0z"/><path d="M0 11h10L5 18z"/></svg></span><span>모드로 해 볼까요?</span></div><div class="why">틀린 순간에만 말할게요.</div></div></div></div>
+      <div><div class="fl"><b>240 ms</b>⅔ — 살짝 넘침(스프링)</div><div class="fr k2"><div class="lite dim"><div class="ttl t1"><span class="ul">후면 직각 주차<svg class="cv" viewBox="0 0 10 8"><path d="M0 0h10L5 8z"/></svg></span>를</div><div class="ttl t2"><span class="slot A"><span class="win"><span class="rail mv"><b>가이드</b><b>힌트</b><b>평가</b><b>가이드</b><b>힌트</b><b>평가</b></span></span><svg class="cv s" viewBox="0 0 10 18"><path d="M0 7h10L5 0z"/><path d="M0 11h10L5 18z"/></svg></span><span>모드로 해 볼까요?</span></div><div class="why">틀린 순간에만 말할게요.</div></div></div></div>
+      <div><div class="fl"><b>360 ms</b>끝 — 평가가 가운데</div><div class="fr k3"><div class="lite dim"><div class="ttl t1"><span class="ul">후면 직각 주차<svg class="cv" viewBox="0 0 10 8"><path d="M0 0h10L5 8z"/></svg></span>를</div><div class="ttl t2"><span class="slot A"><span class="win"><span class="rail mv"><b>가이드</b><b>힌트</b><b>평가</b><b>가이드</b><b>힌트</b><b>평가</b></span></span><svg class="cv s" viewBox="0 0 10 18"><path d="M0 7h10L5 0z"/><path d="M0 11h10L5 18z"/></svg></span><span>모드로 해 볼까요?</span></div><div class="why">틀린 순간에만 말할게요.</div></div></div></div>
+    </div>
+  </div>
+
+  <!-- B -->
+  <div class="scrn">
+    <div class="sh"><div class="no">B</div><div><h2>가로 롤 — 낱말이 옆으로 밀려 나가고 다음 낱말이 들어온다</h2><p>슬롯(가이드 폭) 안에서 지금 낱말이 왼쪽으로 빠지고 다음 모드가 오른쪽에서 들어온다. 슬롯 양끝 8 dp 는 투명으로 사라져 잘린 글자가 보이지 않는다. 기호 ▸ (오른쪽에서 온다는 뜻).</p></div></div>
+    <div class="row">
+      <div class="scr live">
+        <div class="wm">DRIVE COACH</div>
+        <div class="cp"><i><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" fill="#fff"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4" fill="none" stroke="#fff" stroke-width="2"/></svg></i>코치와 대화</div>
+        <div class="info"><div><b>단계</b>연수생</div><div><b>장롱</b>10년차</div><div><b>목표</b>아이 등하원</div><em>›</em></div>
+        <div class="lab">오늘의 과제 · 주차</div>
+        <div class="ttl t1"><span class="ul">후면 직각 주차<svg class="cv" viewBox="0 0 10 8"><path d="M0 0h10L5 8z"/></svg></span>를</div>
+        <div class="ttl t2"><span class="slot B"><span class="win"><span class="rail mv"><b>힌트</b><b>평가</b><b>가이드</b><b>힌트</b></span></span><svg class="cv" viewBox="0 0 8 10"><path d="M0 0v10l8-5z"/></svg></span><span>모드로 해 볼까요?</span></div>
+        <div class="why">틀린 순간에만 말할게요.</div>
+        <div class="car"><svg viewBox="0 0 240 100"><path d="M18 70V52q0-6 6-6h28l22-24q4-4 10-4h56q6 0 10 4l20 24h40q6 0 6 6v18Z" fill="#E9C9A3"/><path d="M60 46l18-20h26v20Zm50 0V26h28l18 20Z" fill="#F4E2C8" stroke="#C9A47C" stroke-width="2"/><path d="M18 70h198v16q0 6-6 6H24q-6 0-6-6Z" fill="#1F4F3E"/><circle cx="60" cy="86" r="18" fill="#E9C9A3" stroke="#C9A47C" stroke-width="3"/><circle cx="60" cy="86" r="6" fill="#C9A47C"/><circle cx="176" cy="86" r="18" fill="#E9C9A3" stroke="#C9A47C" stroke-width="3"/><circle cx="176" cy="86" r="6" fill="#C9A47C"/></svg></div>
+        <div class="go"><svg viewBox="0 0 40 40"><path d="M11 29L29 11M15 11h14v14" fill="none" stroke="#222526" stroke-width="2.6"/></svg></div>
+        <div class="hl"></div>
+      </div>
+      <div class="notes">
+        <h3><span class="id">B</span>가로 롤</h3>
+        <div class="one">누름 → 지금 낱말 왼쪽으로 128 dp×3 이동 + fade, 다음 낱말 오른쪽에서 같은 거리 들어옴. 360 ms, FastOutSlowIn. 세 번 누르면 한 바퀴. 옆으로 쓸어도 같은 동작.</div>
+        <div class="pc">
+          <div><b>장점</b><ul><li><b>공수 가장 작음</b> — `AnimatedContent` 한 줄(slideIn/slideOut Horizontally)로 끝난다.</li><li>글줄 밖으로 아무것도 안 나간다 — 윗줄·아랫줄과 겹칠 일이 없다.</li><li>문장 속 "낱말 교체" 라는 뜻이 가장 직관적(책장 넘기듯).</li></ul></div>
+          <div><b>주의</b><ul><li>"롤링" 느낌은 덜하다 — 가로 이동은 드럼보다 "슬라이드" 로 읽힌다.</li><li>다른 모드가 미리 보이지 않는다 → 처음엔 눌러 봐야 안다(▸ 기호 + 아래 설명 줄이 보완).</li><li>낱말 폭이 달라(힌트 2자 · 가이드 3자) 짧은 낱말 뒤 밑줄이 길게 남는다 — 슬롯 폭 고정의 대가(모든 안 공통).</li></ul></div>
+        </div>
+        <div class="tags"><span class="e">공수 작음</span><span>탭 = 다음 · 가로 스와이프 = 앞/뒤</span><span>tween 360 ms · FastOutSlowIn</span></div>
+        <div class="code">AnimatedContent(mode, transitionSpec = {
+  (slideInHorizontally { it } + fadeIn(tween(200))) togetherWith (slideOutHorizontally { -it } + fadeOut(tween(200)))
+  using SizeTransform(clip = true) }, modifier = Modifier.width(slotW).clipToBounds())</div>
+        <div class="a11y"><b>접근성</b> Role.Button · "모드 바꾸기 · 지금 힌트 · 다음 평가" · 스와이프 없이도 탭으로 전부 도달.</div>
+      </div>
+    </div>
+    <div class="striph">프레임 띠 <small>360 ms · FastOutSlowIn ≈ cubic-bezier(.2,.8,.2,1) · 0 / 120 / 240 / 360 ms</small></div>
+    <div class="strip">
+      <div><div class="fl"><b>0 ms</b>힌트</div><div class="fr k0"><div class="lite"><div class="ttl t1"><span class="ul">후면 직각 주차<svg class="cv" viewBox="0 0 10 8"><path d="M0 0h10L5 8z"/></svg></span>를</div><div class="ttl t2"><span class="slot B"><span class="win"><span class="rail mv"><b>힌트</b><b>평가</b><b>가이드</b><b>힌트</b></span></span><svg class="cv" viewBox="0 0 8 10"><path d="M0 0v10l8-5z"/></svg></span><span>모드로 해 볼까요?</span></div><div class="why">틀린 순간에만 말할게요.</div></div></div></div>
+      <div><div class="fl"><b>120 ms</b>⅓ — 밀려 나감</div><div class="fr k1"><div class="lite"><div class="ttl t1"><span class="ul">후면 직각 주차<svg class="cv" viewBox="0 0 10 8"><path d="M0 0h10L5 8z"/></svg></span>를</div><div class="ttl t2"><span class="slot B"><span class="win"><span class="rail mv"><b>힌트</b><b>평가</b><b>가이드</b><b>힌트</b></span></span><svg class="cv" viewBox="0 0 8 10"><path d="M0 0v10l8-5z"/></svg></span><span>모드로 해 볼까요?</span></div><div class="why">틀린 순간에만 말할게요.</div></div></div></div>
+      <div><div class="fl"><b>240 ms</b>⅔ — 평가 들어옴</div><div class="fr k2"><div class="lite"><div class="ttl t1"><span class="ul">후면 직각 주차<svg class="cv" viewBox="0 0 10 8"><path d="M0 0h10L5 8z"/></svg></span>를</div><div class="ttl t2"><span class="slot B"><span class="win"><span class="rail mv"><b>힌트</b><b>평가</b><b>가이드</b><b>힌트</b></span></span><svg class="cv" viewBox="0 0 8 10"><path d="M0 0v10l8-5z"/></svg></span><span>모드로 해 볼까요?</span></div><div class="why">틀린 순간에만 말할게요.</div></div></div></div>
+      <div><div class="fl"><b>360 ms</b>끝 — 평가</div><div class="fr k3"><div class="lite"><div class="ttl t1"><span class="ul">후면 직각 주차<svg class="cv" viewBox="0 0 10 8"><path d="M0 0h10L5 8z"/></svg></span>를</div><div class="ttl t2"><span class="slot B"><span class="win"><span class="rail mv"><b>힌트</b><b>평가</b><b>가이드</b><b>힌트</b></span></span><svg class="cv" viewBox="0 0 8 10"><path d="M0 0v10l8-5z"/></svg></span><span>모드로 해 볼까요?</span></div><div class="why">틀린 순간에만 말할게요.</div></div></div></div>
+    </div>
+  </div>
+
+  <!-- C -->
+  <div class="scrn">
+    <div class="sh"><div class="no">C</div><div><h2>제자리 넘김 — 낱말 자체가 계기판 숫자처럼 뒤로 넘어간다</h2><p>누르면 지금 낱말이 가로축으로 눕듯 넘어가(0 → −90°) 사라지고, 다음 낱말이 아래에서 일어선다(90° → 0). 세 번 누르면 한 바퀴. 글줄 밖으로 나가는 것이 없고 창도 없다. 기호 ↻.</p></div></div>
+    <div class="row">
+      <div class="scr live">
+        <div class="wm">DRIVE COACH</div>
+        <div class="cp"><i><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" fill="#fff"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4" fill="none" stroke="#fff" stroke-width="2"/></svg></i>코치와 대화</div>
+        <div class="info"><div><b>단계</b>연수생</div><div><b>장롱</b>10년차</div><div><b>목표</b>아이 등하원</div><em>›</em></div>
+        <div class="lab">오늘의 과제 · 주차</div>
+        <div class="ttl t1"><span class="ul">후면 직각 주차<svg class="cv" viewBox="0 0 10 8"><path d="M0 0h10L5 8z"/></svg></span>를</div>
+        <div class="ttl t2"><span class="slot C"><span class="win"><b class="face fa mv">힌트</b><b class="face fb mv">평가</b><b class="face fc mv">가이드</b></span><svg class="cv r" viewBox="0 0 12 12"><path d="M6 1.6a4.4 4.4 0 1 1-4.1 2.8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M1 1v4.2h4.2z"/></svg></span><span>모드로 해 볼까요?</span></div>
+        <div class="why">틀린 순간에만 말할게요.</div>
+        <div class="car"><svg viewBox="0 0 240 100"><path d="M18 70V52q0-6 6-6h28l22-24q4-4 10-4h56q6 0 10 4l20 24h40q6 0 6 6v18Z" fill="#E9C9A3"/><path d="M60 46l18-20h26v20Zm50 0V26h28l18 20Z" fill="#F4E2C8" stroke="#C9A47C" stroke-width="2"/><path d="M18 70h198v16q0 6-6 6H24q-6 0-6-6Z" fill="#1F4F3E"/><circle cx="60" cy="86" r="18" fill="#E9C9A3" stroke="#C9A47C" stroke-width="3"/><circle cx="60" cy="86" r="6" fill="#C9A47C"/><circle cx="176" cy="86" r="18" fill="#E9C9A3" stroke="#C9A47C" stroke-width="3"/><circle cx="176" cy="86" r="6" fill="#C9A47C"/></svg></div>
+        <div class="go"><svg viewBox="0 0 40 40"><path d="M11 29L29 11M15 11h14v14" fill="none" stroke="#222526" stroke-width="2.6"/></svg></div>
+        <div class="hl"></div>
+      </div>
+      <div class="notes">
+        <h3><span class="id">C</span>제자리 넘김</h3>
+        <div class="one">누름 → 지금 낱말 rotationX 0 → −90°(180 ms, 가속) → 글자 교체 → 90° → 0(180 ms, 감속). 원근(cameraDistance 8×density)으로 윗부분이 먼저 작아진다. 세 번 = 한 바퀴.</div>
+        <div class="pc">
+          <div><b>장점</b><ul><li>겹침 0 · 클립 0 · 창 0 — 제목 문장이 한순간도 흐트러지지 않는다.</li><li>"넘어감" 이 분명해 다른 안보다 조작 결과가 즉시 읽힌다(계기판·시계 넘김의 기억).</li><li>공수 작음: `graphicsLayer { rotationX }` + `Animatable` 두 구간.</li></ul></div>
+          <div><b>주의</b><ul><li>다른 두 모드가 미리 보이지 않는다 — 처음엔 "눌러 보면 바뀜" 을 ↻ 기호와 설명 줄로 알려야 한다.</li><li>회전 중 글자가 납작해져 90 ms 쯤 읽을 수 없다(정차 화면이라 허용).</li><li>한글 획이 가는 Medium 굵기에서 원근이 약하면 "찌그러짐" 으로 보일 수 있다 — cameraDistance 를 작게(강한 원근).</li></ul></div>
+        </div>
+        <div class="tags"><span class="e">공수 작음</span><span>탭 = 다음(3 번 = 한 바퀴)</span><span>180 + 180 ms · FastOutLinearIn → LinearOutSlowIn</span></div>
+        <div class="code">val a = remember { Animatable(0f) }
+onClick { scope.launch { a.animateTo(-90f, tween(180, easing = FastOutLinearInEasing)); mode = mode.next(); a.snapTo(90f); a.animateTo(0f, tween(180, easing = LinearOutSlowInEasing)) } }
+Text(mode.label, Modifier.graphicsLayer { rotationX = a.value; cameraDistance = 8f * density })</div>
+        <div class="a11y"><b>접근성</b> Role.Button · "모드 바꾸기 · 지금 힌트 · 누르면 평가" · TalkBack 에서는 회전 없이 즉시 교체(`LocalAccessibilityManager` 또는 reduce-motion 설정).</div>
+      </div>
+    </div>
+    <div class="striph">프레임 띠 <small>360 ms(180 넘어감 + 180 일어남) · 0 / 120 / 240 / 360 ms</small></div>
+    <div class="strip">
+      <div><div class="fl"><b>0 ms</b>힌트</div><div class="fr k0"><div class="lite"><div class="ttl t1"><span class="ul">후면 직각 주차<svg class="cv" viewBox="0 0 10 8"><path d="M0 0h10L5 8z"/></svg></span>를</div><div class="ttl t2"><span class="slot C"><span class="win"><b class="face fa mv">힌트</b><b class="face fb mv">평가</b><b class="face fc mv">가이드</b></span><svg class="cv r" viewBox="0 0 12 12"><path d="M6 1.6a4.4 4.4 0 1 1-4.1 2.8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M1 1v4.2h4.2z"/></svg></span><span>모드로 해 볼까요?</span></div><div class="why">틀린 순간에만 말할게요.</div></div></div></div>
+      <div><div class="fl"><b>120 ms</b>⅓ — 힌트가 눕기 시작(약 −36°, 가속)</div><div class="fr k1"><div class="lite"><div class="ttl t1"><span class="ul">후면 직각 주차<svg class="cv" viewBox="0 0 10 8"><path d="M0 0h10L5 8z"/></svg></span>를</div><div class="ttl t2"><span class="slot C"><span class="win"><b class="face fa mv">힌트</b><b class="face fb mv">평가</b><b class="face fc mv">가이드</b></span><svg class="cv r" viewBox="0 0 12 12"><path d="M6 1.6a4.4 4.4 0 1 1-4.1 2.8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M1 1v4.2h4.2z"/></svg></span><span>모드로 해 볼까요?</span></div><div class="why">틀린 순간에만 말할게요.</div></div></div></div>
+      <div><div class="fl"><b>240 ms</b>⅔ — 평가가 일어선다(약 +40°, 감속)</div><div class="fr k2"><div class="lite"><div class="ttl t1"><span class="ul">후면 직각 주차<svg class="cv" viewBox="0 0 10 8"><path d="M0 0h10L5 8z"/></svg></span>를</div><div class="ttl t2"><span class="slot C"><span class="win"><b class="face fa mv">힌트</b><b class="face fb mv">평가</b><b class="face fc mv">가이드</b></span><svg class="cv r" viewBox="0 0 12 12"><path d="M6 1.6a4.4 4.4 0 1 1-4.1 2.8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M1 1v4.2h4.2z"/></svg></span><span>모드로 해 볼까요?</span></div><div class="why">틀린 순간에만 말할게요.</div></div></div></div>
+      <div><div class="fl"><b>360 ms</b>끝 — 평가</div><div class="fr k3"><div class="lite"><div class="ttl t1"><span class="ul">후면 직각 주차<svg class="cv" viewBox="0 0 10 8"><path d="M0 0h10L5 8z"/></svg></span>를</div><div class="ttl t2"><span class="slot C"><span class="win"><b class="face fa mv">힌트</b><b class="face fb mv">평가</b><b class="face fc mv">가이드</b></span><svg class="cv r" viewBox="0 0 12 12"><path d="M6 1.6a4.4 4.4 0 1 1-4.1 2.8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M1 1v4.2h4.2z"/></svg></span><span>모드로 해 볼까요?</span></div><div class="why">틀린 순간에만 말할게요.</div></div></div></div>
+    </div>
+  </div>
+
+  <!-- D -->
+  <div class="scrn">
+    <div class="sh"><div class="no">D</div><div><h2>쓸어 넘김 — 밑줄 낱말을 손가락으로 위아래로 민다</h2><p>낱말이 손가락을 따라 올라오고(다음 모드가 아래서 따라 들어옴), 반 넘게 밀고 놓으면 스프링으로 다음 모드에 멈춘다. 덜 밀면 되돌아온다. 글줄 안에서만 움직이고(위아래 6 dp 투명), 기호 ▴▾ 가 "위아래로" 를 알린다. 탭 = 다음(드래그 없이도 됨).</p></div></div>
+    <div class="row">
+      <div class="scr live">
+        <div class="wm">DRIVE COACH</div>
+        <div class="cp"><i><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" fill="#fff"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4" fill="none" stroke="#fff" stroke-width="2"/></svg></i>코치와 대화</div>
+        <div class="info"><div><b>단계</b>연수생</div><div><b>장롱</b>10년차</div><div><b>목표</b>아이 등하원</div><em>›</em></div>
+        <div class="lab">오늘의 과제 · 주차</div>
+        <div class="ttl t1"><span class="ul">후면 직각 주차<svg class="cv" viewBox="0 0 10 8"><path d="M0 0h10L5 8z"/></svg></span>를</div>
+        <div class="ttl t2"><span class="slot D"><span class="win"><span class="rail mv"><b>힌트</b><b>평가</b></span></span><i class="fing mv"></i><svg class="cv s" viewBox="0 0 10 18"><path d="M0 7h10L5 0z"/><path d="M0 11h10L5 18z"/></svg></span><span>모드로 해 볼까요?</span></div>
+        <div class="why">틀린 순간에만 말할게요.</div>
+        <div class="car"><svg viewBox="0 0 240 100"><path d="M18 70V52q0-6 6-6h28l22-24q4-4 10-4h56q6 0 10 4l20 24h40q6 0 6 6v18Z" fill="#E9C9A3"/><path d="M60 46l18-20h26v20Zm50 0V26h28l18 20Z" fill="#F4E2C8" stroke="#C9A47C" stroke-width="2"/><path d="M18 70h198v16q0 6-6 6H24q-6 0-6-6Z" fill="#1F4F3E"/><circle cx="60" cy="86" r="18" fill="#E9C9A3" stroke="#C9A47C" stroke-width="3"/><circle cx="60" cy="86" r="6" fill="#C9A47C"/><circle cx="176" cy="86" r="18" fill="#E9C9A3" stroke="#C9A47C" stroke-width="3"/><circle cx="176" cy="86" r="6" fill="#C9A47C"/></svg></div>
+        <div class="go"><svg viewBox="0 0 40 40"><path d="M11 29L29 11M15 11h14v14" fill="none" stroke="#222526" stroke-width="2.6"/></svg></div>
+        <div class="hl"></div>
+      </div>
+      <div class="notes">
+        <h3><span class="id">D</span>쓸어 넘김 <span style="font-size:13px;color:#6b6f72;font-weight:400">· 회색 원 = 손가락(시안 표시용)</span></h3>
+        <div class="one">손가락이 500 ms 동안 30 dp×3 올림(낱말이 1:1 따라옴) → 놓음 → 350 ms 스프링으로 56 dp×3 지점에 안착(살짝 넘쳤다 돌아옴). 임계 1/3 미만이면 제자리로 스프링.</div>
+        <div class="pc">
+          <div><b>장점</b><ul><li>손에 붙어 움직이니 "롤러" 감각이 가장 직접적이다 — 사용자의 "롤링형" 요구에 촉감으로 답한다.</li><li>반대 방향(아래로)으로 이전 모드 — 세 모드 사이를 어느 쪽으로든 한 번에 간다.</li><li>창·카드·겹침 없음.</li></ul></div>
+          <div><b>주의</b><ul><li><b>공수 중간</b>: `draggable` + `Animatable` + 임계 판정 + 탭 폴백. 드래그 중 다음 낱말의 위치 계산이 붙는다.</li><li>차 화면은 미세 드래그가 서툴다(팔 거리·진동) — 탭 폴백이 필수라 결국 E 와 같은 탭 동작을 하나 더 가진다.</li><li>세로 스크롤이 있는 홈 상태(예약 카드 올라온 때)에서 제스처가 겹칠 수 있다 — 슬롯 안에서만 소비.</li></ul></div>
+        </div>
+        <div class="tags"><span class="e">공수 중간</span><span>드래그 = 1:1 · 놓음 = 스프링 350 ms</span><span>탭 폴백 = 다음</span><span>spring(.7, MediumLow)</span></div>
+        <div class="code">val y = remember { Animatable(0f) }
+Modifier.draggable(rememberDraggableState { d -> scope.launch { y.snapTo((y.value + d).coerceIn(-rowH, rowH)) } }, Orientation.Vertical,
+  onDragStopped = { v -> val t = if (abs(y.value) > rowH/3 || abs(v) > 600) -rowH * sign(y.value) else 0f
+                        y.animateTo(t, spring(0.7f, Spring.StiffnessMediumLow)); if (t != 0f) { mode = …; y.snapTo(0f) } })</div>
+        <div class="a11y"><b>접근성</b> Role.Button + `semantics { customActions = [다음 모드, 이전 모드] }` · 탭 = 다음.</div>
+      </div>
+    </div>
+    <div class="striph">프레임 띠 <small>드래그 500 ms(1:1) + 놓음 350 ms spring(.7) · 0 / 283 / 567 / 850 ms</small></div>
+    <div class="strip">
+      <div><div class="fl"><b>0 ms</b>손가락 닿음</div><div class="fr k0"><div class="lite"><div class="ttl t1"><span class="ul">후면 직각 주차<svg class="cv" viewBox="0 0 10 8"><path d="M0 0h10L5 8z"/></svg></span>를</div><div class="ttl t2"><span class="slot D"><span class="win"><span class="rail mv"><b>힌트</b><b>평가</b></span></span><i class="fing mv"></i><svg class="cv s" viewBox="0 0 10 18"><path d="M0 7h10L5 0z"/><path d="M0 11h10L5 18z"/></svg></span><span>모드로 해 볼까요?</span></div><div class="why">틀린 순간에만 말할게요.</div></div></div></div>
+      <div><div class="fl"><b>283 ms</b>⅓ — 따라 올라옴</div><div class="fr k1"><div class="lite"><div class="ttl t1"><span class="ul">후면 직각 주차<svg class="cv" viewBox="0 0 10 8"><path d="M0 0h10L5 8z"/></svg></span>를</div><div class="ttl t2"><span class="slot D"><span class="win"><span class="rail mv"><b>힌트</b><b>평가</b></span></span><i class="fing mv"></i><svg class="cv s" viewBox="0 0 10 18"><path d="M0 7h10L5 0z"/><path d="M0 11h10L5 18z"/></svg></span><span>모드로 해 볼까요?</span></div><div class="why">틀린 순간에만 말할게요.</div></div></div></div>
+      <div><div class="fl"><b>567 ms</b>⅔ — 놓은 뒤 스프링</div><div class="fr k2"><div class="lite"><div class="ttl t1"><span class="ul">후면 직각 주차<svg class="cv" viewBox="0 0 10 8"><path d="M0 0h10L5 8z"/></svg></span>를</div><div class="ttl t2"><span class="slot D"><span class="win"><span class="rail mv"><b>힌트</b><b>평가</b></span></span><i class="fing mv"></i><svg class="cv s" viewBox="0 0 10 18"><path d="M0 7h10L5 0z"/><path d="M0 11h10L5 18z"/></svg></span><span>모드로 해 볼까요?</span></div><div class="why">틀린 순간에만 말할게요.</div></div></div></div>
+      <div><div class="fl"><b>850 ms</b>끝 — 평가</div><div class="fr k3"><div class="lite"><div class="ttl t1"><span class="ul">후면 직각 주차<svg class="cv" viewBox="0 0 10 8"><path d="M0 0h10L5 8z"/></svg></span>를</div><div class="ttl t2"><span class="slot D"><span class="win"><span class="rail mv"><b>힌트</b><b>평가</b></span></span><i class="fing mv"></i><svg class="cv s" viewBox="0 0 10 18"><path d="M0 7h10L5 0z"/><path d="M0 11h10L5 18z"/></svg></span><span>모드로 해 볼까요?</span></div><div class="why">틀린 순간에만 말할게요.</div></div></div></div>
+    </div>
+  </div>
+
+  <!-- E -->
+  <div class="scrn">
+    <div class="sh"><div class="no">E</div><div><h2>세 점 + 위로 굴러감 — 밑줄 아래 작은 점 셋이 "셋 중 어디" 를 말하고 낱말은 위로 넘어간다</h2><p>기호 ▼ 대신 밑줄 아래 작은 점 셋(가이드 · 힌트 · 평가 순). 지금 모드 = 노란 점(홈의 노란 포인트 한 곳). 누르면 낱말이 위로 굴러 나가고 다음 낱말이 아래서 올라오며(스프링 360 ms), 노란 점이 옆 칸으로 미끄러진다(B1 280 ms). 세 번 = 한 바퀴.</p></div></div>
+    <div class="row">
+      <div class="scr live">
+        <div class="wm">DRIVE COACH</div>
+        <div class="cp"><i><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" fill="#fff"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4" fill="none" stroke="#fff" stroke-width="2"/></svg></i>코치와 대화</div>
+        <div class="info"><div><b>단계</b>연수생</div><div><b>장롱</b>10년차</div><div><b>목표</b>아이 등하원</div><em>›</em></div>
+        <div class="lab">오늘의 과제 · 주차</div>
+        <div class="ttl t1"><span class="ul">후면 직각 주차<svg class="cv" viewBox="0 0 10 8"><path d="M0 0h10L5 8z"/></svg></span>를</div>
+        <div class="ttl t2"><span class="slot E"><span class="win"><span class="rail mv"><b>힌트</b><b>평가</b><b>가이드</b><b>힌트</b></span></span><span class="dots"><i></i><i></i><i></i><i class="dot mv"></i></span></span><span>모드로 해 볼까요?</span></div>
+        <div class="why">틀린 순간에만 말할게요.</div>
+        <div class="car"><svg viewBox="0 0 240 100"><path d="M18 70V52q0-6 6-6h28l22-24q4-4 10-4h56q6 0 10 4l20 24h40q6 0 6 6v18Z" fill="#E9C9A3"/><path d="M60 46l18-20h26v20Zm50 0V26h28l18 20Z" fill="#F4E2C8" stroke="#C9A47C" stroke-width="2"/><path d="M18 70h198v16q0 6-6 6H24q-6 0-6-6Z" fill="#1F4F3E"/><circle cx="60" cy="86" r="18" fill="#E9C9A3" stroke="#C9A47C" stroke-width="3"/><circle cx="60" cy="86" r="6" fill="#C9A47C"/><circle cx="176" cy="86" r="18" fill="#E9C9A3" stroke="#C9A47C" stroke-width="3"/><circle cx="176" cy="86" r="6" fill="#C9A47C"/></svg></div>
+        <div class="go"><svg viewBox="0 0 40 40"><path d="M11 29L29 11M15 11h14v14" fill="none" stroke="#222526" stroke-width="2.6"/></svg></div>
+        <div class="hl"></div>
+      </div>
+      <div class="notes">
+        <h3><span class="id">E</span>세 점 + 위로 굴러감</h3>
+        <div class="one">누름 → 지금 낱말 위로 56 dp×3 나가고 다음 낱말 아래서 들어옴(한 띠로 묶여 같이 움직임, 스프링 360 ms) → 노란 점 옆 칸으로(280 ms). 점은 표시일 뿐 누르는 대상은 낱말 전체(높이 132 dp).</div>
+        <div class="pc">
+          <div><b>장점</b><ul><li>"지금 셋 중 몇 번째" 가 늘 보인다 — 다른 모드를 미리 보여 주지 않아도 <b>세 개뿐</b>임을 알 수 있다.</li><li>과제 ▼ 와 완전히 다른 기호(점 셋)라 "시트" 와 "굴러감" 이 섞이지 않는다.</li><li>홈의 노란 포인트 자리가 생긴다(지금 홈엔 노란색이 없다). 겹침·카드·그림자 0.</li><li><b>공수 작음</b>: `AnimatedContent`(Vertically) + 점 Row 의 `animateDpAsState`.</li></ul></div>
+          <div><b>주의</b><ul><li>점 셋이 6 dp×3 = 18 dp 로 작다 — 표시용이라 괜찮지만 운전석에서 "어느 점" 은 노란색으로만 구분된다(색약: 노란 점은 크기도 8 dp 로 더 크다).</li><li>점의 위치가 어떤 모드인지는 순서(가이드→힌트→평가)로만 알 수 있다 — 설명 줄이 보완.</li><li>밑줄과 점 사이 4 dp×3 — 설명 줄을 6 dp×3 아래로 내린다(모든 안 공통 262 → 266).</li></ul></div>
+        </div>
+        <div class="tags"><span class="e">공수 작음</span><span>탭 = 다음(3 번 = 한 바퀴) · 위아래 스와이프 선택</span><span>spring(.72, Medium) 360 ms · 점 B1 280 ms</span><span>노란 포인트 = 지금 모드 점</span></div>
+        <div class="code">AnimatedContent(mode, transitionSpec = { slideInVertically { it } togetherWith slideOutVertically { -it } using SizeTransform(clip = true) },
+  modifier = Modifier.width(slotW).clipToBounds())
+val dotX by animateDpAsState(mode.ordinal * 14.dp * 3, tween(280, easing = FastOutSlowInEasing))   // B1 미끄러지는 돌</div>
+        <div class="a11y"><b>접근성</b> Role.Button · "모드 바꾸기 · 지금 힌트 · 둘째" · 점은 `clearAndSetSemantics {}` 로 숨김.</div>
+      </div>
+    </div>
+    <div class="striph">프레임 띠 <small>낱말 spring(.72) 360 ms · 점 280 ms FastOutSlowIn · 0 / 120 / 240 / 360 ms</small></div>
+    <div class="strip">
+      <div><div class="fl"><b>0 ms</b>힌트 · 둘째 점</div><div class="fr k0"><div class="lite"><div class="ttl t1"><span class="ul">후면 직각 주차<svg class="cv" viewBox="0 0 10 8"><path d="M0 0h10L5 8z"/></svg></span>를</div><div class="ttl t2"><span class="slot E"><span class="win"><span class="rail mv"><b>힌트</b><b>평가</b><b>가이드</b><b>힌트</b></span></span><span class="dots"><i></i><i></i><i></i><i class="dot mv"></i></span></span><span>모드로 해 볼까요?</span></div><div class="why">틀린 순간에만 말할게요.</div></div></div></div>
+      <div><div class="fl"><b>120 ms</b>⅓ — 위로 굴러감</div><div class="fr k1"><div class="lite"><div class="ttl t1"><span class="ul">후면 직각 주차<svg class="cv" viewBox="0 0 10 8"><path d="M0 0h10L5 8z"/></svg></span>를</div><div class="ttl t2"><span class="slot E"><span class="win"><span class="rail mv"><b>힌트</b><b>평가</b><b>가이드</b><b>힌트</b></span></span><span class="dots"><i></i><i></i><i></i><i class="dot mv"></i></span></span><span>모드로 해 볼까요?</span></div><div class="why">틀린 순간에만 말할게요.</div></div></div></div>
+      <div><div class="fl"><b>240 ms</b>⅔ — 살짝 넘침 · 점 도착</div><div class="fr k2"><div class="lite"><div class="ttl t1"><span class="ul">후면 직각 주차<svg class="cv" viewBox="0 0 10 8"><path d="M0 0h10L5 8z"/></svg></span>를</div><div class="ttl t2"><span class="slot E"><span class="win"><span class="rail mv"><b>힌트</b><b>평가</b><b>가이드</b><b>힌트</b></span></span><span class="dots"><i></i><i></i><i></i><i class="dot mv"></i></span></span><span>모드로 해 볼까요?</span></div><div class="why">틀린 순간에만 말할게요.</div></div></div></div>
+      <div><div class="fl"><b>360 ms</b>끝 — 평가 · 셋째 점</div><div class="fr k3"><div class="lite"><div class="ttl t1"><span class="ul">후면 직각 주차<svg class="cv" viewBox="0 0 10 8"><path d="M0 0h10L5 8z"/></svg></span>를</div><div class="ttl t2"><span class="slot E"><span class="win"><span class="rail mv"><b>힌트</b><b>평가</b><b>가이드</b><b>힌트</b></span></span><span class="dots"><i></i><i></i><i></i><i class="dot mv"></i></span></span><span>모드로 해 볼까요?</span></div><div class="why">틀린 순간에만 말할게요.</div></div></div></div>
+    </div>
+  </div>
+
+  <!-- 추천 -->
+  <div class="rec">
+    <div>
+      <h3>추천 · <b>E 세 점 + 위로 굴러감</b> <span class="gw">— 대안 A 세로 드럼</span></h3>
+      <p>이유 한 줄: 카드·그림자 없이 낱말이 제자리에서 굴러가면서도 "셋 중 어디" 가 늘 보이고(점 셋 = 과제 ▼ 와 다른 기호), Compose `AnimatedContent` 한 줄 + 점 하나로 반나절 안에 끝난다.</p>
+      <ul>
+        <li><b>A 를 고르는 경우</b>: "세 모드가 한꺼번에 보이며 돈다" 는 롤링 그 자체를 원하면. 공수 중간(창 열림 상태 + 마스크 + 윗줄 흐림).</li>
+        <li><b>C</b> 는 가장 적은 코드지만 다른 모드가 미리 안 보이고, <b>B</b> 는 "슬라이드" 로 읽혀 롤링 요구에서 멀고, <b>D</b> 는 차 안 미세 드래그가 서툴어 결국 탭 폴백(= E)을 갖는다.</li>
+        <li>E 에 D 의 위아래 스와이프를 선택으로 붙일 수 있다(`draggable` 로 임계 넘기면 탭과 같은 전환) — 1 차엔 빼고 탭만.</li>
+      </ul>
+      <span class="eff">공수 작음 · 반나절 미만</span>
+    </div>
+    <div>
+      <h3>모든 안 공통 구현 메모</h3>
+      <ul>
+        <li>슬롯 폭 = `가이드` 측정 폭 고정(`Modifier.width(IntrinsicSize)` 대신 세 낱말 중 최대 `measureText`) → 뒤 문장이 밀리지 않는다. 밑줄은 슬롯 폭 전체.</li>
+        <li>아래 설명 줄("틀린 순간에만 말할게요." ↔ "단계마다 제가 말하고 확인해요." ↔ "조용히 지켜보고 끝에 판정해요.")은 낱말이 멈춘 뒤 `Crossfade(200 ms)`.</li>
+        <li>과제 쪽 `▼` 는 그대로(시트) — 모드 쪽만 새 기호. 접근성 이름 `과제·모드 바꾸기` 유지, `stateDescription = "지금 힌트"`.</li>
+        <li>기존 모드 팝업(두 겹 카드)·`ModeWheel` 은 지운다. 예약 카드 위 모드 바퀴(28b `booking-mode-wheel`)도 같은 컴포저블을 쓴다.</li>
+        <li>주행 중 화면과 무관(홈 = 정차). 운전자 문장 숫자 0 — 점은 숫자가 아니다.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</body>
+</html>
