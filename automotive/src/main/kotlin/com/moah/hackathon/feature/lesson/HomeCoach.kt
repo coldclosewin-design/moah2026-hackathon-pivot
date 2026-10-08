@@ -107,13 +107,16 @@ object IntentRules {
     const val SHAKY_LINE = "떨리는 게 당연해요.\n어떤 순간이 제일 떨려요?"
     const val SHORT_LINE = "좋아요, 짧게 해요.\n주차 하나만 해 볼까요?"
     const val KID_LINE = "주차부터 해 볼까요?\n아이를 태우려면 주차가 편해야 해요."
+    const val RUSTY_LINE = "감은 금방 돌아와요.\n쉬운 것부터 해 볼까요?"
+    const val HONK_LINE = "급할 것 없어요.\n어디서 그럴 때가 많아요?"
+    const val PILLAR_LINE = "기둥은 다들 무서워요.\n앞으로 넣기, 뒤로 넣기 중 뭐가요?"
 
     /** 과제 제목 → 그 과제를 가리키는 말. 제목이 시드에 없으면 그 줄은 쓰이지 않는다. */
     private val TASK_WORDS: List<Pair<String, List<String>>> = listOf(
         "평행 주차" to listOf("평행"),
         "사선 주차" to listOf("사선"),
         "전면 직각 주차" to listOf("전면", "앞으로주차", "전진주차"),
-        "후면 직각 주차" to listOf("후면", "후진주차", "뒤로주차", "직각주차"),
+        "후면 직각 주차" to listOf("후면", "후진", "뒤로주차", "직각주차"),
         "장내기능 모의시험" to listOf("장내", "기능시험", "모의시험"),
         "회전교차로" to listOf("회전교차로", "로터리"),
         "차선 변경" to listOf("차선"),
@@ -184,6 +187,9 @@ object IntentRules {
         if (has("짧게", "조금만")) return CoachReply(SHORT_LINE, CoachIntent.AskMore)
         if (has("긁", "부딪", "뻔했")) return CoachReply(NEAR_MISS_LINE, CoachIntent.AskMore)
         if (has("등하원", "아이")) return CoachReply(KID_LINE, CoachIntent.AskMore)
+        if (has("감을", "되찾")) return CoachReply(RUSTY_LINE, CoachIntent.AskMore)
+        if (has("빵빵", "재촉", "당황")) return CoachReply(HONK_LINE, CoachIntent.AskMore)
+        if (has("기둥")) return CoachReply(PILLAR_LINE, CoachIntent.AskMore)
 
         val category = when {
             has("주차") -> TaskType.PARKING
