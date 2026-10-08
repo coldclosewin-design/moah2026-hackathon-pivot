@@ -63,6 +63,26 @@ class LessonViewModel(
         fun setDoor(open: Boolean) {
             viewModelScope.launch { fake.set(mapOf(VssConstants.VEHICLE_CABIN_DOOR_ROW1_DRIVERSIDE_ISOPEN to VssValues.ofBoolean(open))) }
         }
+        /**
+         * 관리자 조향각(사용자 10/8 "관리자 모드에 조향각 바꾸는 모드") — 핸들 링·가이드를 시연 중 손으로 맞춘다.
+         * ±[STEERING_LIMIT_DEG] 로 자른다. 시나리오가 재생 중이면 다음 단계가 덮어쓴다(멈춘 뒤에 쓴다). Hybrid 에서 조향이 실신호면 실물로 써 넣는다.
+         */
+        fun setSteering(deg: Float) {
+            val v = deg.coerceIn(-STEERING_LIMIT_DEG, STEERING_LIMIT_DEG)
+            viewModelScope.launch { fake.set(mapOf(VssConstants.VEHICLE_CHASSIS_STEERINGWHEEL_ANGLE to VssValues.ofFloat(v))) }
+        }
+        /** 띠·준비실의 조향 단추가 쓰는 값(음수 = 왼쪽). */
+        val steeringSteps: List<Float> = listOf(-540f, -450f, -270f, -90f, 0f, 90f, 270f, 450f, 540f)
+        /**
+         * 시연 탈출(라운드 29 결정 4-B1): 어느 화면이든 워드마크 2 초 → 시나리오 멈춤 · 정차 · 홈. 잠금·주행·S자 중에도.
+         * 화면에 보이는 터치 타깃이 아니라 진행자용 숨은 동작이다(절대 규칙 10 유지) — Real 빌드(`admin == null`)엔 없다.
+         */
+        fun escapeHome() {
+            fake.stop()
+            viewModelScope.launch { fake.holdSpeed(0f) }
+            machine.reset()
+            android.util.Log.i(TAG, "admin: escape → stopped, home")
+        }
         /** AI 코치 상태(패널 맨 아래 `AI 코치 · <상태>`). 플래그 off 면 null. */
         val aiState: StateFlow<com.moah.hackathon.ports.copilot.CopilotAuth.State>? get() = ai?.state
         /** `AI 연결` 버튼 — NeedsLogin·Error 일 때만 보인다. device code 흐름 시작. */
@@ -172,6 +192,8 @@ class LessonViewModel(
 
     companion object {
         private const val TAG = "MOAH/LessonViewModel"
+        /** 관리자 조향각 상한 — 시나리오가 쓰는 범위(한 바퀴 반)와 같다. */
+        const val STEERING_LIMIT_DEG = 540f
         fun factory(container: AppContainer): ViewModelProvider.Factory = viewModelFactory {
             initializer { LessonViewModel(container.lesson, container.tts, container.vehicle, container.scenarios, container.scenariosFor, container.copilot) }
         }
