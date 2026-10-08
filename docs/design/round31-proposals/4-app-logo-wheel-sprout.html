@@ -1,0 +1,763 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>앱 로고 2차 · 핸들 속 새싹 20안 — 라운드 31 시안</title><style>
+:root{--onyx:#222526;--platinum:#E0E0E0;--graphite:#353A3E;--ash:#BFBFBF;--yellow:#F2C230;--chip:#F2F2F2;
+--kr:"Noto Sans KR","Malgun Gothic",system-ui,sans-serif;--numf:"Segoe UI Variable Display","Bahnschrift",Arial,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#ECECEC;color:var(--onyx);font-family:var(--kr);line-height:1.5}
+.page{width:1600px;margin:0 auto;padding:40px 28px 64px}
+.head h1{font-size:30px;font-weight:500}
+.head .lead{font-size:15px;color:#4a4e51;margin-top:6px;max-width:1480px}
+.chipline{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.chipline span{font-size:12px;padding:4px 12px;border-radius:14px;border:1px solid rgba(34,37,38,.25)}
+.chipline span.k{background:var(--onyx);color:var(--platinum);border-color:var(--onyx)}
+.chipline span.y{background:var(--yellow);border-color:var(--yellow)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px}
+.box{background:#fff;border-radius:20px;padding:18px 22px;font-size:14px}
+.box h3{font-size:12px;letter-spacing:.08em;color:#6b6f72;font-weight:500;margin-bottom:6px}
+.box ul{padding-left:18px}.box li{margin-top:3px}
+.box code,.rec code{font-family:Consolas,monospace;font-size:12.5px;background:var(--chip);padding:0 5px;border-radius:4px}
+.axesbox{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 18px;font-size:13px}
+.axesbox b{font-weight:500}
+.part{margin-top:44px;display:flex;align-items:baseline;gap:16px;padding:18px 24px;border-radius:22px;background:var(--onyx);color:var(--platinum)}
+.part .no{font-family:var(--numf);font-size:46px;line-height:1;font-weight:500}
+.part h2{font-size:28px;font-weight:500}
+.part p{font-size:14px;color:var(--ash);margin-top:2px}
+.opt{margin-top:26px;background:#fff;border-radius:24px;padding:22px 26px 22px}
+.ph{display:flex;align-items:baseline;gap:14px}
+.ph .no{font-family:var(--numf);font-size:38px;line-height:1;font-weight:600}
+.ph h2{font-size:25px;font-weight:500}
+.ph .one{font-size:15px;color:#4a4e51}
+.pickb{display:inline-block;vertical-align:4px;margin-left:8px;font-size:12px;padding:2px 10px;border-radius:10px;background:var(--yellow);color:var(--onyx)}
+.axes{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.axes span{font-size:11.5px;padding:2px 10px;border-radius:10px;background:var(--chip);color:#4a4e51}
+.row{display:grid;grid-template-columns:504px 318px 1fr;gap:26px;margin-top:16px;align-items:start}
+.prev{display:grid;grid-template-columns:240px 240px;gap:24px;align-items:start}
+.cap{font-size:11.5px;color:#6b6f72;margin-top:6px;text-align:center}
+.smalls{display:grid;grid-template-columns:repeat(2,auto);gap:8px 22px;align-items:end;justify-content:start}
+.smalls .pair{display:flex;align-items:flex-end;gap:10px}
+.smalls .cap{text-align:left;margin-top:0;grid-column:1/-1}
+.lock{display:flex;align-items:center;gap:14px;margin-top:14px;padding:10px 14px;border-radius:14px;background:var(--chip);width:max-content}
+.lock .wm{font-family:var(--numf);font-size:24px;font-weight:500;letter-spacing:-.01em;color:var(--onyx);line-height:1}
+.lock .wm small{display:block;font-size:9.5px;letter-spacing:.3em;font-weight:600;color:#6b6f72;margin-top:4px}
+.notes h3{font-size:12px;letter-spacing:.08em;color:#6b6f72;font-weight:500;margin-top:12px}
+.notes h3:first-child{margin-top:0}
+.notes ul{padding-left:18px;font-size:13.5px;margin-top:4px}
+.notes li{margin-top:3px}
+.eff{display:inline-block;margin-top:10px;font-size:12.5px;padding:3px 12px;border-radius:12px;background:var(--onyx);color:var(--platinum)}
+pre.code{margin-top:14px;font-family:Consolas,"Cascadia Mono",monospace;font-size:11.5px;line-height:1.45;background:#F6F6F6;border:1px solid rgba(34,37,38,.12);border-radius:14px;padding:12px 14px;white-space:pre-wrap;word-break:break-all;color:#2b2e30}
+pre.code b{color:#6b6f72;font-weight:400}
+.ic{display:inline-block;border-radius:50%;background:var(--bg);box-shadow:0 0 0 1px rgba(0,0,0,.10);--fg:#222526;--bg:#FFFFFF;--acc:#F2C230;--acc2:#F2C230;--ink:#222526;flex:none}
+.ic.on{--fg:#FFFFFF;--bg:#222526}
+.ic.mono{--acc:var(--fg);--acc2:var(--bg)}
+.ic svg{width:100%;height:100%;display:block}
+.s240{width:240px;height:240px}.s72{width:72px;height:72px}.s48{width:48px;height:48px}
+.rec{margin-top:36px;background:#fff;border-radius:24px;padding:22px 26px}
+.rec .lab{font-family:var(--numf);font-size:11px;letter-spacing:.18em;color:#6b6f72}
+.rec h2{font-size:24px;font-weight:500;margin-top:4px}
+.rec p,.rec li{font-size:14px;margin-top:6px}
+.recrow{display:flex;gap:28px;margin-top:14px;align-items:center}
+.recrow .pick{display:flex;align-items:center;gap:12px;padding:12px 18px 12px 12px;border-radius:18px;background:var(--chip);flex:1}
+.recrow .pick .t{font-size:14px}.recrow .pick .t b{display:block;font-size:16px;font-weight:500}
+.sum{width:100%;border-collapse:collapse;font-size:13px;margin-top:14px}
+.sum th,.sum td{padding:7px 10px;border-bottom:1px solid rgba(34,37,38,.1);text-align:left;vertical-align:middle}
+.sum th{font-weight:500;background:var(--onyx);color:var(--platinum);font-size:12px}
+.sum tr.pick td{background:#F7F3E3}
+.sum td .ic{vertical-align:middle;margin-right:4px}
+.sum td .ic+.ic{margin-left:2px}
+body:has(#pa:target) .topic:not(.ta),body:has(#pb:target) .topic:not(.tb){display:none}
+body:has(#pa:target) .foot,body:has(#pb:target) .head{display:none}
+body:has(#pb:target) .topic.tb{margin-top:0}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<g id="i01" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M26,54 A28,28 0 1 1 82,54 A28,28 0 1 1 26,54 Z" stroke="var(--fg)" stroke-width="6"/>
+<path d="M54,54 C43.1,57.6 32.9,52.8 28.6,42.2 C39.5,38.6 49.7,43.3 54,54 Z" fill="var(--fg)"/>
+<path d="M54,54 C58.3,43.3 68.5,38.6 79.4,42.2 C75.1,52.8 64.9,57.6 54,54 Z" fill="var(--fg)"/>
+<path d="M54,54 V82" stroke="var(--fg)" stroke-width="6"/>
+<path d="M49.5,54 a4.5,4.5 0 1 0 9,0 a4.5,4.5 0 1 0 -9,0 Z" fill="var(--acc)"/>
+</g>
+<g id="i02" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M26,54 A28,28 0 1 1 82,54 A28,28 0 1 1 26,54 Z" stroke="var(--fg)" stroke-width="6"/>
+<path d="M54,56 C42.7,59.5 32.3,54.5 28,43.5 C39.3,40 49.7,45 54,56 Z" fill="var(--fg)"/>
+<path d="M54,56 C58.3,45 68.7,40 80,43.5 C75.7,54.5 65.3,59.5 54,56 Z" fill="var(--fg)"/>
+<path d="M54,56 V82" stroke="var(--fg)" stroke-width="6"/>
+<path d="M46.5,56 a7.5,7.5 0 1 0 15,0 a7.5,7.5 0 1 0 -15,0 Z" fill="var(--acc)" stroke="var(--fg)" stroke-width="3"/>
+</g>
+<g id="i03" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M26,54 A28,28 0 1 1 82,54 A28,28 0 1 1 26,54 Z" stroke="var(--fg)" stroke-width="5"/>
+<path d="M54,58 Q35.3,50.7 38.3,30.8 Q57.1,38.1 54,58 Z" fill="var(--fg)"/>
+<path d="M54,58 Q50.9,38.1 69.7,30.8 Q72.7,50.7 54,58 Z" fill="var(--fg)"/>
+<path d="M54,58 V82" stroke="var(--fg)" stroke-width="6"/>
+<path d="M49.5,58 a4.5,4.5 0 1 0 9,0 a4.5,4.5 0 1 0 -9,0 Z" fill="var(--acc)"/>
+</g>
+<g id="i04" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M31.1,37.9 A28,28 0 0 1 76.9,37.9 M81,46.8 A28,28 0 1 1 27,46.8" stroke="var(--fg)" stroke-width="6"/>
+<path d="M54,55 C40.4,61.8 22.7,49.5 26.8,41.3 C30.9,33.2 51.3,40 54,55 Z" fill="var(--fg)"/>
+<path d="M54,55 C56.7,40 77.1,33.2 81.2,41.3 C85.3,49.5 67.6,61.8 54,55 Z" fill="var(--fg)"/>
+<path d="M54,55 V82" stroke="var(--fg)" stroke-width="6"/>
+<path d="M49.5,55 a4.5,4.5 0 1 0 9,0 a4.5,4.5 0 1 0 -9,0 Z" fill="var(--acc)"/>
+</g>
+<g id="i05" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M28,54 A26,26 0 1 1 80,54 A26,26 0 1 1 28,54 Z" stroke="var(--fg)" stroke-width="5"/>
+<path d="M54,54 Q33.1,58.2 26.3,38 Q47.2,33.8 54,54 Z" fill="var(--fg)"/>
+<path d="M54,54 Q60.8,33.8 81.7,38 Q74.9,58.2 54,54 Z" fill="var(--acc)" stroke="var(--fg)" stroke-width="3"/>
+<path d="M54,54 V80" stroke="var(--fg)" stroke-width="6"/>
+</g>
+<g id="i06" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M24.5,54 A29.5,29.5 0 1 1 83.5,54 A29.5,29.5 0 1 1 24.5,54 Z" stroke="var(--fg)" stroke-width="2.5"/>
+<path d="M54,56 C41.9,60.3 30.9,55.1 26.6,42.9 C38.8,38.7 49.7,43.9 54,56 Z" fill="var(--fg)"/>
+<path d="M54,56 C58.3,43.9 69.2,38.7 81.4,42.9 C77.1,55.1 66.1,60.3 54,56 Z" fill="var(--fg)"/>
+<path d="M54,56 V83" stroke="var(--fg)" stroke-width="7"/>
+<path d="M49.5,56 a4.5,4.5 0 1 0 9,0 a4.5,4.5 0 1 0 -9,0 Z" fill="var(--acc)"/>
+</g>
+<g id="i07" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M26.5,54 A27.5,27.5 0 1 1 81.5,54 A27.5,27.5 0 1 1 26.5,54 Z" stroke="var(--fg)" stroke-width="7"/>
+<path d="M54,54 C43.2,57.1 33.4,52.1 29.5,41.5 C40.3,38.4 50.1,43.4 54,54 Z" fill="var(--fg)"/>
+<path d="M54,54 C57.9,43.4 67.7,38.4 78.5,41.5 C74.6,52.1 64.8,57.1 54,54 Z" fill="var(--fg)"/>
+<path d="M54,54 V81.5" stroke="var(--fg)" stroke-width="7"/>
+<path d="M49.5,54 a4.5,4.5 0 1 0 9,0 a4.5,4.5 0 1 0 -9,0 Z" fill="var(--acc)"/>
+</g>
+<g id="i08" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M26,54 A28,28 0 1 1 82,54 A28,28 0 1 1 26,54 Z" stroke="var(--fg)" stroke-width="5"/>
+<path d="M54,58 C40.7,64.5 30.2,59 27.7,44.4 C41,38 51.5,43.4 54,58 Z" fill="var(--acc)" stroke="var(--fg)" stroke-width="5"/>
+<path d="M54,58 C56.5,43.4 67,38 80.3,44.4 C77.8,59 67.3,64.5 54,58 Z" fill="none" stroke="var(--fg)" stroke-width="5"/>
+<path d="M54,58 V82" stroke="var(--fg)" stroke-width="5"/>
+</g>
+<g id="i09" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M23,54 a31,31 0 1 0 62,0 a31,31 0 1 0 -62,0 Z" fill="var(--fg)"/>
+<path d="M54,53 C43.7,56.7 34,52.6 29.5,42.6 C39.8,38.9 49.6,43 54,53 Z" fill="var(--bg)"/>
+<path d="M54,53 C58.4,43 68.2,38.9 78.5,42.6 C74,52.6 64.3,56.7 54,53 Z" fill="var(--bg)"/>
+<path d="M54,53 V81" stroke="var(--bg)" stroke-width="6"/>
+<path d="M49.5,53 a4.5,4.5 0 1 0 9,0 a4.5,4.5 0 1 0 -9,0 Z" fill="var(--acc2)"/>
+</g>
+<g id="i10" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M26,54 A28,28 0 1 1 82,54 A28,28 0 1 1 26,54 Z" stroke="var(--fg)" stroke-width="6"/>
+<path d="M54,56 C40.9,62 24.5,49.8 28.6,42.2 C32.8,34.6 51.9,41.7 54,56 Z" fill="var(--fg)"/>
+<path d="M54,56 C56.1,41.7 75.2,34.6 79.4,42.2 C83.5,49.8 67.1,62 54,56 Z" fill="var(--fg)"/>
+<path d="M54,56 V82" stroke="var(--fg)" stroke-width="6"/>
+<path d="M49.5,56 a4.5,4.5 0 1 0 9,0 a4.5,4.5 0 1 0 -9,0 Z" fill="var(--acc)"/>
+</g>
+<g id="i11" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M26,54 A28,28 0 1 1 82,54 A28,28 0 1 1 26,54 Z" stroke="var(--fg)" stroke-width="4"/>
+<path d="M54,57 Q36.4,58.8 28.2,43.1 Q45.9,41.3 54,57 Z" fill="var(--fg)"/>
+<path d="M54,57 Q62.1,41.3 79.8,43.1 Q71.6,58.8 54,57 Z" fill="var(--fg)"/>
+<path d="M54,57 V82" stroke="var(--fg)" stroke-width="5"/>
+<path d="M49.5,57 a4.5,4.5 0 1 0 9,0 a4.5,4.5 0 1 0 -9,0 Z" fill="var(--acc)"/>
+</g>
+<g id="i12" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M26,54 A28,28 0 1 1 82,54 A28,28 0 1 1 26,54 Z" stroke="var(--fg)" stroke-width="6"/>
+<path d="M54,57 C45.2,64.4 28.5,57.2 25.9,48.1 C27,42.4 29.2,40.7 29.8,40 Z" fill="var(--fg)"/>
+<path d="M54,57 C50,46.2 62.5,33 71.9,33.6 C76.9,36.6 77.7,39.3 78.2,40 Z" fill="var(--acc)" stroke="var(--fg)" stroke-width="3"/>
+<path d="M54,57 V82" stroke="var(--fg)" stroke-width="6"/>
+</g>
+<g id="i13" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M26,54 A28,28 0 1 1 82,54 A28,28 0 1 1 26,54 Z" stroke="var(--fg)" stroke-width="6"/>
+<path d="M54,54 C44.1,59.7 33.1,57.2 26.7,47.7 C36.7,42 47.6,44.5 54,54 Z" fill="var(--fg)"/>
+<path d="M54,54 C56,42.7 64.9,35.9 76.4,37.1 C74.4,48.5 65.4,55.2 54,54 Z" fill="var(--fg)"/>
+<path d="M54,54 L59.8,81.4" stroke="var(--fg)" stroke-width="6"/>
+<path d="M49.5,54 a4.5,4.5 0 1 0 9,0 a4.5,4.5 0 1 0 -9,0 Z" fill="var(--acc)"/>
+</g>
+<g id="i14" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M26,54 A28,28 0 1 1 82,54 A28,28 0 1 1 26,54 Z" stroke="var(--fg)" stroke-width="5"/>
+<path d="M52,56 C41.8,60 28.9,48.4 29.3,39.4 C32,34.5 34.6,33.7 35.3,33.2 Z" fill="var(--fg)"/>
+<path d="M52,56 C52.8,44.3 69.9,37 78.5,41.5 C81.9,46.4 81.6,49.2 81.7,50.1 Z" fill="var(--fg)"/>
+<path d="M54,82 C54,72 48,65 52,56" stroke="var(--fg)" stroke-width="6"/>
+<path d="M47.5,56 a4.5,4.5 0 1 0 9,0 a4.5,4.5 0 1 0 -9,0 Z" fill="var(--acc)"/>
+</g>
+<g id="i15" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M26,54 A28,28 0 1 1 82,54 A28,28 0 1 1 26,54 Z" stroke="var(--fg)" stroke-width="5"/>
+<path d="M54,44 C45,48 36.6,44.5 33.2,35.3 C42.2,31.2 50.6,34.7 54,44 Z" fill="var(--fg)"/>
+<path d="M54,44 C57.4,34.7 65.8,31.2 74.8,35.3 C71.4,44.5 63,48 54,44 Z" fill="var(--fg)"/>
+<path d="M54,44 V82" stroke="var(--fg)" stroke-width="6"/>
+<path d="M49.5,44 a4.5,4.5 0 1 0 9,0 a4.5,4.5 0 1 0 -9,0 Z" fill="var(--acc)"/>
+</g>
+<g id="i16" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M26,54 A28,28 0 1 1 82,54 A28,28 0 1 1 26,54 Z" stroke="var(--fg)" stroke-width="6"/>
+<path d="M54,64 Q32.1,60.5 30.8,38.3 Q52.7,41.9 54,64 Z" fill="var(--fg)"/>
+<path d="M54,64 Q55.3,41.9 77.2,38.3 Q75.9,60.5 54,64 Z" fill="var(--fg)"/>
+<path d="M54,64 V82" stroke="var(--fg)" stroke-width="6"/>
+<path d="M48.5,64 a5.5,5.5 0 1 0 11,0 a5.5,5.5 0 1 0 -11,0 Z" fill="var(--acc)" stroke="var(--fg)" stroke-width="2.5"/>
+</g>
+<g id="i17" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M26,54 A28,28 0 1 1 82,54 A28,28 0 1 1 26,54 Z" stroke="var(--fg)" stroke-width="5"/>
+<path d="M54,55 C42.8,58.3 32.6,53.1 28.6,42.2 C39.8,38.9 50,44 54,55 Z" fill="var(--fg)"/>
+<path d="M54,55 C58,44 68.2,38.9 79.4,42.2 C75.4,53.1 65.2,58.3 54,55 Z" fill="var(--fg)"/>
+<path d="M54,55 V82" stroke="var(--fg)" stroke-width="6"/>
+<path d="M54,26 V33" stroke="var(--acc)" stroke-width="5"/>
+</g>
+<g id="i18" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M26,54 A28,28 0 1 1 82,54 A28,28 0 1 1 26,54 Z" stroke="var(--fg)" stroke-width="6"/>
+<path d="M54,54 C43.1,57.6 32.9,52.8 28.6,42.2 C39.5,38.6 49.7,43.3 54,54 Z" fill="var(--fg)"/>
+<path d="M54,54 C54.8,46.8 60.1,43.1 67.1,44.8 C66.3,52 61.1,55.7 54,54 Z" fill="var(--acc)" stroke="var(--fg)" stroke-width="2.5"/>
+<path d="M54,54 V82" stroke="var(--fg)" stroke-width="6"/>
+</g>
+<g id="i19" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M26,54 A28,28 0 1 1 82,54 A28,28 0 1 1 26,54 Z" stroke="var(--fg)" stroke-width="5"/>
+<path d="M54,52 C44,57.1 33.5,54.1 27.7,44.4 C37.7,39.3 48.2,42.4 54,52 Z" fill="var(--fg)"/>
+<path d="M54,62 C57.8,49.9 68.7,43.8 81,46.8 C77.2,58.9 66.4,65 54,62 Z" fill="var(--fg)"/>
+<path d="M54,46 V82" stroke="var(--fg)" stroke-width="6"/>
+<path d="M49.5,46 a4.5,4.5 0 1 0 9,0 a4.5,4.5 0 1 0 -9,0 Z" fill="var(--acc)" stroke="var(--fg)" stroke-width="2.5"/>
+</g>
+<g id="i20" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M26,54 A28,28 0 1 1 82,54 A28,28 0 1 1 26,54 Z" stroke="var(--fg)" stroke-width="6"/>
+<path d="M54,54 C45.6,64.6 26,62.4 26,54 C26,45.6 45.6,43.4 54,54 Z" fill="var(--fg)"/>
+<path d="M54,54 C62.4,43.4 82,45.6 82,54 C82,62.4 62.4,64.6 54,54 Z" fill="var(--fg)"/>
+<path d="M54,54 V82" stroke="var(--fg)" stroke-width="6"/>
+<path d="M49.5,54 a4.5,4.5 0 1 0 9,0 a4.5,4.5 0 1 0 -9,0 Z" fill="var(--acc)"/>
+</g>
+</defs></svg>
+<div class="page">
+<span id="pa"></span><span id="pb"></span>
+<div class="head">
+<h1>라운드 31 · 4 — 앱 로고 2차 · 핸들 속 새싹이 운전대를 완성하는 20안</h1>
+<p class="lead">1차 20안에서 고른 방향 — <b>03 핸들</b>의 링 안에 <b>01 새싹</b>(줄기 하나 + 잎 둘)이 들어가, 두 잎과 줄기가 핸들의 <b>살(스포크)·허브</b>가 되어 운전대가 완성되는 한 컨셉. 아래는 그 한 컨셉의 변주 20안이다. 사내 런처 방식(동그라미 안 그림) 그대로 108×108 벡터의 가운데 72 만 원으로 본다 — 240 px 를 <b>노란 점 없는 판과 있는 판</b> 나란히, 72 / 48 px 를 흰·Onyx 바탕 × 노랑 있음·없음 네 쌍, "Drive Coach" 한 줄 락업, 변주 축 칩, 장점·주의, VectorDrawable 로 그대로 옮길 SVG(path 만 — circle·rect·dasharray 없음). 그림은 안전 원(반지름 33) 안, 선 5–7 둥근 끝(V4 문법, 가는 링 안만 예외). 실제 자동차 엠블럼(세 살이 정확히 Y 로 등분된 링 + 원 허브)과 닮지 않도록 잎 모양·각도·허브 위치를 흔들었다.</p>
+<div class="chipline"><span class="k">바탕 흰 #FFFFFF · 그림 Onyx #222526</span><span class="k">바탕 Onyx · 그림 흰</span><span class="y">노란 점 #F2C230 한 곳(없는 판도 같이)</span><span>108×108 viewBox · 보이는 원 = 가운데 72 · 안전 반지름 33</span><span>path 만 · circle/rect/dasharray 없음</span><span>script 없음</span></div>
+<div class="grid2">
+<div class="box"><h3>변주 축(브리프)과 어느 안이 어디를 흔드는가</h3><div class="axesbox">
+<div><b>잎이 살이 되는 방식</b> — 좌우 살 + 아래 살(01·02·04–14·17·20) · 위 두 살(03·15) · 잎 하나만(18) · 높이 어긋남(19)</div>
+<div><b>허브</b> — 없음(잎이 만나는 점, 대부분) · 노란 원(02) · 줄기 끝 점(15·16·19) · 반전 속 점(09)</div>
+<div><b>링 두께</b> — 2.5(06) · 4(11) · 5(03·05·08·14·15·17·19) · 6(기본) · 7(07) · 채운 원의 테(09)</div>
+<div><b>링이 끊긴 자리</b> — 닫힘(기본) · 잎끝에서 열림(04) · 잎이 뚫음(05) · 눈금(17)</div>
+<div><b>자세</b> — 곧게(기본) · 살짝 기울어(13) · 바람 맞은(14)</div>
+<div><b>잎 모양</b> — 둥근 마름모(기본) · 뾰족(03·05·11·16) · 둥근 끝(04·10·20) · 하트 반(12·14)</div>
+<div><b>채움</b> — 잎 채움(기본) · 선만(08) · 반전(09) · 노란 잎 하나(05·08·12·18)</div>
+<div><b>줄기 길이</b> — 보통(기본) · 길게(15·19) · 짧게(02·16)</div>
+<div><b>눈금</b> — 없음(기본) · 12시 센터 마크(17)</div>
+</div></div>
+<div class="box"><h3>VectorDrawable 로 옮길 때(Codex)</h3><ul>
+<li><code>android:viewportWidth/Height="108"</code>, <code>width/height="108dp"</code>. 각 <code>&lt;path&gt;</code>: <code>fill → android:fillColor</code>, <code>stroke → android:strokeColor</code>, <code>stroke-width → android:strokeWidth</code>, <code>stroke-linecap/linejoin="round"</code>. <code>fill="none"</code> 이면 fillColor 생략.</li>
+<li>아래 코드는 전부 <code>&lt;path&gt;</code> 뿐이다 — 링·점은 <code>A</code>/<code>a</code> 호 두 개로 그린 원, 잎은 <code>C</code>/<code>Q</code> 곡선. 점선·dasharray 없음. 그대로 복사해 <code>pathData</code> 에 넣는다.</li>
+<li>색 변수: <code>var(--fg)</code>=그림색, <code>var(--bg)</code>=바탕색, <code>var(--acc)</code>=#F2C230. 코드 칸은 흰 바탕 + 노란 점 기준. Onyx 바탕은 #222526 ↔ #FFFFFF 맞바꿈, 노란 점을 빼려면 #F2C230 → 그림색(#222526).</li>
+<li>겹침 순서 = 코드 순서(위가 먼저). 09 반전은 채운 원 → 바탕색 새싹 → 점 순.</li>
+<li>런처 라벨 <code>android:label="Drive Coach"</code> — <code>strings.xml</code> 한 줄.</li>
+</ul></div>
+</div>
+</div>
+<div class="topic ta"><div class="part"><span class="no">A</span><div><h2>01 – 10 · 기본 · 허브 · 위 두 살 · 열린 링 · 뚫는 잎 · 링 두께 · 선 · 반전 · 둥근 잎</h2><p>240 px 노란 점 없음 / 있음 · 72 / 48 px 흰·Onyx × 노랑 있음·없음 · "Drive Coach" 한 줄 · 변주 축 · SVG(path 만)</p></div></div>
+<section class="opt"><div class="ph"><span class="no">01</span><h2>기본</h2><span class="one">두 잎이 좌우 살, 줄기가 아래 살 — 컨셉 그대로. 나머지 19안의 기준.</span><span class="pickb">추천</span></div>
+<div class="axes"><span>잎 = 좌우 살 · 줄기 = 아래 살</span><span>허브 없음(잎이 만나는 점)</span><span>링 6 닫힘</span><span>곧게</span><span>둥근 잎 · 잎 채움</span><span>노란 점 = 허브</span></div>
+<div class="row">
+<div class="prev">
+<div><span class="ic mono  s240"><svg viewBox="18 18 72 72"><use href="#i01"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 없음</div></div>
+<div><span class="ic  s240"><svg viewBox="18 18 72 72"><use href="#i01"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 = 허브 한 점</div></div>
+</div>
+<div class="mid"><div class="smalls">
+<div class="pair"><span class="ic  s72"><svg viewBox="18 18 72 72"><use href="#i01"/></svg></span><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i01"/></svg></span></div><div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i01"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i01"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕(노란 점 있음)</div>
+<div class="pair"><span class="ic mono s72"><svg viewBox="18 18 72 72"><use href="#i01"/></svg></span><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i01"/></svg></span></div><div class="pair"><span class="ic on mono s72"><svg viewBox="18 18 72 72"><use href="#i01"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i01"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 / Onyx(노란 점 없음)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i01"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div>
+</div>
+<div class="notes"><h3>장점</h3><ul><li>획 넷(링 · 잎 둘 · 줄기) — 48 px 에서 링 + 세 갈래가 그대로 읽힌다.</li><li>잎이 살이고 줄기가 살이라 '핸들' 과 '새싹' 이 한 몸 — 둘 중 하나만 보여도 뜻이 선다.</li><li>노란 점 없이도 완성, 있으면 허브 자리 한 점.</li></ul><h3>주의</h3><ul><li>잎 각도 10시·2시가 OEM 핸들 아이콘과 겹친다 — 사내 런처 확인 뒤 각도를 03·20 처럼 바꿀 수 있다.</li><li>노란 점(지름 9)이 48 px 에서 작다 — 02 가 큰 허브판.</li></ul><span class="eff">공수 최소 · path 4(+점 1)</span></div>
+</div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M26,54 A28,28 0 1 1 82,54 A28,28 0 1 1 26,54 Z" stroke="#222526" stroke-width="6"/&gt;
+  &lt;path d="M54,54 C43.1,57.6 32.9,52.8 28.6,42.2 C39.5,38.6 49.7,43.3 54,54 Z" fill="#222526"/&gt;
+  &lt;path d="M54,54 C58.3,43.3 68.5,38.6 79.4,42.2 C75.1,52.8 64.9,57.6 54,54 Z" fill="#222526"/&gt;
+  &lt;path d="M54,54 V82" stroke="#222526" stroke-width="6"/&gt;
+  &lt;path d="M49.5,54 a4.5,4.5 0 1 0 9,0 a4.5,4.5 0 1 0 -9,0 Z" fill="#F2C230"/&gt;
+&lt;/svg&gt;
+<b>Onyx 바탕: #222526 ↔ #FFFFFF 맞바꿈 · 노란 점 없음: #F2C230 → #222526(그림색)</b></pre>
+</section>
+<section class="opt"><div class="ph"><span class="no">02</span><h2>노란 허브</h2><span class="one">허브가 노란 원 — 잎과 줄기가 그 원에서 나온다.</span></div>
+<div class="axes"><span>잎 = 좌우 살 · 줄기 = 아래 살</span><span>노란 점 허브(원 7.5)</span><span>링 6 닫힘</span><span>곧게</span><span>둥근 잎 · 잎 채움</span><span>노란 점 = 허브 원</span></div>
+<div class="row">
+<div class="prev">
+<div><span class="ic mono  s240"><svg viewBox="18 18 72 72"><use href="#i02"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 없음</div></div>
+<div><span class="ic  s240"><svg viewBox="18 18 72 72"><use href="#i02"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 = 허브 원</div></div>
+</div>
+<div class="mid"><div class="smalls">
+<div class="pair"><span class="ic  s72"><svg viewBox="18 18 72 72"><use href="#i02"/></svg></span><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i02"/></svg></span></div><div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i02"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i02"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕(노란 점 있음)</div>
+<div class="pair"><span class="ic mono s72"><svg viewBox="18 18 72 72"><use href="#i02"/></svg></span><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i02"/></svg></span></div><div class="pair"><span class="ic on mono s72"><svg viewBox="18 18 72 72"><use href="#i02"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i02"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 / Onyx(노란 점 없음)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i02"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div>
+</div>
+<div class="notes"><h3>장점</h3><ul><li>허브가 커서 48 px 에서 노란 점이 분명하다 — 런처에서 '노란 눈' 으로 찾는다.</li><li>줄기가 허브에서 짧게 — 새싹의 눈(芽) 느낌.</li></ul><h3>주의</h3><ul><li>링 + 세 살 + 원 허브 = 브랜드 엠블럼 문법에 가장 가깝다 — 잎 모양이 살을 '선' 이 아니게 하지만 주의.</li><li>단색이면 Onyx 원 허브로 — 03 핸들(1차)과 거의 같아진다.</li></ul><span class="eff">공수 최소 · path 5</span></div>
+</div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M26,54 A28,28 0 1 1 82,54 A28,28 0 1 1 26,54 Z" stroke="#222526" stroke-width="6"/&gt;
+  &lt;path d="M54,56 C42.7,59.5 32.3,54.5 28,43.5 C39.3,40 49.7,45 54,56 Z" fill="#222526"/&gt;
+  &lt;path d="M54,56 C58.3,45 68.7,40 80,43.5 C75.7,54.5 65.3,59.5 54,56 Z" fill="#222526"/&gt;
+  &lt;path d="M54,56 V82" stroke="#222526" stroke-width="6"/&gt;
+  &lt;path d="M46.5,56 a7.5,7.5 0 1 0 15,0 a7.5,7.5 0 1 0 -15,0 Z" fill="#F2C230" stroke="#222526" stroke-width="3"/&gt;
+&lt;/svg&gt;
+<b>Onyx 바탕: #222526 ↔ #FFFFFF 맞바꿈 · 노란 점 없음: #F2C230 → #222526(그림색)</b></pre>
+</section>
+<section class="opt"><div class="ph"><span class="no">03</span><h2>위 두 살</h2><span class="one">잎 둘이 11시·1시로 올라가 위 두 살, 줄기는 아래 살 — Y 가 아니라 '싹'.</span></div>
+<div class="axes"><span>잎 = 위 두 살 · 줄기 = 아래 살</span><span>허브 없음</span><span>링 5 닫힘</span><span>곧게</span><span>뾰족 잎 · 잎 채움</span><span>노란 점 = 허브</span></div>
+<div class="row">
+<div class="prev">
+<div><span class="ic mono  s240"><svg viewBox="18 18 72 72"><use href="#i03"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 없음</div></div>
+<div><span class="ic  s240"><svg viewBox="18 18 72 72"><use href="#i03"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 = 허브 한 점</div></div>
+</div>
+<div class="mid"><div class="smalls">
+<div class="pair"><span class="ic  s72"><svg viewBox="18 18 72 72"><use href="#i03"/></svg></span><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i03"/></svg></span></div><div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i03"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i03"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕(노란 점 있음)</div>
+<div class="pair"><span class="ic mono s72"><svg viewBox="18 18 72 72"><use href="#i03"/></svg></span><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i03"/></svg></span></div><div class="pair"><span class="ic on mono s72"><svg viewBox="18 18 72 72"><use href="#i03"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i03"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 / Onyx(노란 점 없음)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i03"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div>
+</div>
+<div class="notes"><h3>장점</h3><ul><li>세 살 각도가 60°·150°·150° — 등분 Y 엠블럼과 멀다.</li><li>새싹이 위로 자라는 자세라 '초보' 가 먼저 읽힌다.</li></ul><h3>주의</h3><ul><li>잎 둘이 위에 몰려 아래가 비어 보인다 — 줄기를 6 으로 굵게.</li><li>48 px 에서 좁은 잎끝이 링에 묻힌다.</li></ul><span class="eff">공수 최소 · path 4(+점 1)</span></div>
+</div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M26,54 A28,28 0 1 1 82,54 A28,28 0 1 1 26,54 Z" stroke="#222526" stroke-width="5"/&gt;
+  &lt;path d="M54,58 Q35.3,50.7 38.3,30.8 Q57.1,38.1 54,58 Z" fill="#222526"/&gt;
+  &lt;path d="M54,58 Q50.9,38.1 69.7,30.8 Q72.7,50.7 54,58 Z" fill="#222526"/&gt;
+  &lt;path d="M54,58 V82" stroke="#222526" stroke-width="6"/&gt;
+  &lt;path d="M49.5,58 a4.5,4.5 0 1 0 9,0 a4.5,4.5 0 1 0 -9,0 Z" fill="#F2C230"/&gt;
+&lt;/svg&gt;
+<b>Onyx 바탕: #222526 ↔ #FFFFFF 맞바꿈 · 노란 점 없음: #F2C230 → #222526(그림색)</b></pre>
+</section>
+<section class="opt"><div class="ph"><span class="no">04</span><h2>열린 링</h2><span class="one">잎끝이 닿는 자리에서 링이 끊긴다 — 잎이 링의 틈을 메운다.</span></div>
+<div class="axes"><span>잎 = 좌우 살 · 줄기 = 아래 살</span><span>허브 없음</span><span>링 6 · 잎끝에서 열림</span><span>곧게</span><span>물방울 잎 · 잎 채움</span><span>노란 점 = 허브</span></div>
+<div class="row">
+<div class="prev">
+<div><span class="ic mono  s240"><svg viewBox="18 18 72 72"><use href="#i04"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 없음</div></div>
+<div><span class="ic  s240"><svg viewBox="18 18 72 72"><use href="#i04"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 = 허브 한 점</div></div>
+</div>
+<div class="mid"><div class="smalls">
+<div class="pair"><span class="ic  s72"><svg viewBox="18 18 72 72"><use href="#i04"/></svg></span><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i04"/></svg></span></div><div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i04"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i04"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕(노란 점 있음)</div>
+<div class="pair"><span class="ic mono s72"><svg viewBox="18 18 72 72"><use href="#i04"/></svg></span><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i04"/></svg></span></div><div class="pair"><span class="ic on mono s72"><svg viewBox="18 18 72 72"><use href="#i04"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i04"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 / Onyx(노란 점 없음)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i04"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div>
+</div>
+<div class="notes"><h3>장점</h3><ul><li>끊긴 링은 OEM 핸들 아이콘에 없다 — 식별력이 높다.</li><li>잎이 링을 '잇는' 느낌이라 '새싹이 핸들을 완성한다' 가 가장 직설적이다.</li></ul><h3>주의</h3><ul><li>틈(각도 20°) 이 48 px 에서 좁아 닫힌 링으로 보일 수 있다 — 틈을 26° 까지 키울 여지.</li><li>링이 세 조각 — path 는 하나지만 M 이 셋.</li></ul><span class="eff">공수 최소 · path 4(+점 1)</span></div>
+</div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M31.1,37.9 A28,28 0 0 1 76.9,37.9 M81,46.8 A28,28 0 1 1 27,46.8" stroke="#222526" stroke-width="6"/&gt;
+  &lt;path d="M54,55 C40.4,61.8 22.7,49.5 26.8,41.3 C30.9,33.2 51.3,40 54,55 Z" fill="#222526"/&gt;
+  &lt;path d="M54,55 C56.7,40 77.1,33.2 81.2,41.3 C85.3,49.5 67.6,61.8 54,55 Z" fill="#222526"/&gt;
+  &lt;path d="M54,55 V82" stroke="#222526" stroke-width="6"/&gt;
+  &lt;path d="M49.5,55 a4.5,4.5 0 1 0 9,0 a4.5,4.5 0 1 0 -9,0 Z" fill="#F2C230"/&gt;
+&lt;/svg&gt;
+<b>Onyx 바탕: #222526 ↔ #FFFFFF 맞바꿈 · 노란 점 없음: #F2C230 → #222526(그림색)</b></pre>
+</section>
+<section class="opt"><div class="ph"><span class="no">05</span><h2>뚫는 잎</h2><span class="one">잎끝이 링 밖으로 살짝 나간다 — 핸들보다 큰 새싹.</span></div>
+<div class="axes"><span>잎 = 좌우 살 · 줄기 = 아래 살</span><span>허브 없음</span><span>링 5 · 잎이 뚫음</span><span>곧게</span><span>뾰족 잎 · 잎 채움</span><span>노란 점 = 오른쪽 잎</span></div>
+<div class="row">
+<div class="prev">
+<div><span class="ic mono  s240"><svg viewBox="18 18 72 72"><use href="#i05"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 없음</div></div>
+<div><span class="ic  s240"><svg viewBox="18 18 72 72"><use href="#i05"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 = 오른쪽 잎</div></div>
+</div>
+<div class="mid"><div class="smalls">
+<div class="pair"><span class="ic  s72"><svg viewBox="18 18 72 72"><use href="#i05"/></svg></span><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i05"/></svg></span></div><div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i05"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i05"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕(노란 점 있음)</div>
+<div class="pair"><span class="ic mono s72"><svg viewBox="18 18 72 72"><use href="#i05"/></svg></span><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i05"/></svg></span></div><div class="pair"><span class="ic on mono s72"><svg viewBox="18 18 72 72"><use href="#i05"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i05"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 / Onyx(노란 점 없음)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i05"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div>
+</div>
+<div class="notes"><h3>장점</h3><ul><li>새싹이 주인공, 핸들이 배경 — '코치보다 운전자' 라는 앱의 태도.</li><li>잎끝이 안전 원(반지름 33) 안에서 끝나므로 런처 마스크에 잘리지 않는다.</li></ul><h3>주의</h3><ul><li>링을 26 으로 줄여 안쪽이 좁다 — 48 px 에서 잎·링 교차가 뭉친다.</li><li>노란 잎은 Onyx 바탕에서 흰 테두리가 필요하다(코드에 포함).</li></ul><span class="eff">공수 최소 · path 4</span></div>
+</div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M28,54 A26,26 0 1 1 80,54 A26,26 0 1 1 28,54 Z" stroke="#222526" stroke-width="5"/&gt;
+  &lt;path d="M54,54 Q33.1,58.2 26.3,38 Q47.2,33.8 54,54 Z" fill="#222526"/&gt;
+  &lt;path d="M54,54 Q60.8,33.8 81.7,38 Q74.9,58.2 54,54 Z" fill="#F2C230" stroke="#222526" stroke-width="3"/&gt;
+  &lt;path d="M54,54 V80" stroke="#222526" stroke-width="6"/&gt;
+&lt;/svg&gt;
+<b>Onyx 바탕: #222526 ↔ #FFFFFF 맞바꿈 · 노란 점 없음: #F2C230 → #222526(그림색)</b></pre>
+</section>
+<section class="opt"><div class="ph"><span class="no">06</span><h2>가는 링</h2><span class="one">링은 2.5 로 가늘게, 새싹은 굵게 — 새싹이 몸이고 링은 테.</span></div>
+<div class="axes"><span>잎 = 좌우 살 · 줄기 = 아래 살</span><span>허브 없음</span><span>링 2.5 닫힘</span><span>곧게</span><span>둥근 잎 · 잎 채움</span><span>노란 점 = 허브</span></div>
+<div class="row">
+<div class="prev">
+<div><span class="ic mono  s240"><svg viewBox="18 18 72 72"><use href="#i06"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 없음</div></div>
+<div><span class="ic  s240"><svg viewBox="18 18 72 72"><use href="#i06"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 = 허브 한 점</div></div>
+</div>
+<div class="mid"><div class="smalls">
+<div class="pair"><span class="ic  s72"><svg viewBox="18 18 72 72"><use href="#i06"/></svg></span><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i06"/></svg></span></div><div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i06"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i06"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕(노란 점 있음)</div>
+<div class="pair"><span class="ic mono s72"><svg viewBox="18 18 72 72"><use href="#i06"/></svg></span><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i06"/></svg></span></div><div class="pair"><span class="ic on mono s72"><svg viewBox="18 18 72 72"><use href="#i06"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i06"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 / Onyx(노란 점 없음)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i06"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div>
+</div>
+<div class="notes"><h3>장점</h3><ul><li>두 두께의 대비가 커서 1차 01 새싹의 단순함을 지키면서 '핸들' 을 얹는다.</li><li>큰 240 px 에서 가장 세련되다.</li></ul><h3>주의</h3><ul><li>가는 링(48 px 에서 1.7 px)이 런처에서 사라질 수 있다 — 그러면 1차 01 과 같아진다.</li><li>VectorDrawable 은 가는 선도 그대로지만 안티앨리어싱으로 흐려진다.</li></ul><span class="eff">공수 최소 · path 4(+점 1)</span></div>
+</div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M24.5,54 A29.5,29.5 0 1 1 83.5,54 A29.5,29.5 0 1 1 24.5,54 Z" stroke="#222526" stroke-width="2.5"/&gt;
+  &lt;path d="M54,56 C41.9,60.3 30.9,55.1 26.6,42.9 C38.8,38.7 49.7,43.9 54,56 Z" fill="#222526"/&gt;
+  &lt;path d="M54,56 C58.3,43.9 69.2,38.7 81.4,42.9 C77.1,55.1 66.1,60.3 54,56 Z" fill="#222526"/&gt;
+  &lt;path d="M54,56 V83" stroke="#222526" stroke-width="7"/&gt;
+  &lt;path d="M49.5,56 a4.5,4.5 0 1 0 9,0 a4.5,4.5 0 1 0 -9,0 Z" fill="#F2C230"/&gt;
+&lt;/svg&gt;
+<b>Onyx 바탕: #222526 ↔ #FFFFFF 맞바꿈 · 노란 점 없음: #F2C230 → #222526(그림색)</b></pre>
+</section>
+<section class="opt"><div class="ph"><span class="no">07</span><h2>굵은 링</h2><span class="one">링 7 — 가장 무거운 핸들. 새싹도 7 로 맞춘다.</span></div>
+<div class="axes"><span>잎 = 좌우 살 · 줄기 = 아래 살</span><span>허브 없음</span><span>링 7 닫힘</span><span>곧게</span><span>둥근 잎 · 잎 채움</span><span>노란 점 = 허브</span></div>
+<div class="row">
+<div class="prev">
+<div><span class="ic mono  s240"><svg viewBox="18 18 72 72"><use href="#i07"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 없음</div></div>
+<div><span class="ic  s240"><svg viewBox="18 18 72 72"><use href="#i07"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 = 허브 한 점</div></div>
+</div>
+<div class="mid"><div class="smalls">
+<div class="pair"><span class="ic  s72"><svg viewBox="18 18 72 72"><use href="#i07"/></svg></span><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i07"/></svg></span></div><div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i07"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i07"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕(노란 점 있음)</div>
+<div class="pair"><span class="ic mono s72"><svg viewBox="18 18 72 72"><use href="#i07"/></svg></span><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i07"/></svg></span></div><div class="pair"><span class="ic on mono s72"><svg viewBox="18 18 72 72"><use href="#i07"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i07"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 / Onyx(노란 점 없음)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i07"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div>
+</div>
+<div class="notes"><h3>장점</h3><ul><li>48 px 에서 가장 또렷하다 — 링·잎·줄기 모두 4 px 이상.</li><li>V4 차(선 5–7)의 굵은 끝과 같은 무게.</li></ul><h3>주의</h3><ul><li>안쪽 여백이 줄어 잎과 줄기 사이 바탕이 48 px 에서 가늘다.</li><li>무거워서 홈의 원목 차(가벼운 선)와 다른 성격.</li></ul><span class="eff">공수 최소 · path 4(+점 1)</span></div>
+</div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M26.5,54 A27.5,27.5 0 1 1 81.5,54 A27.5,27.5 0 1 1 26.5,54 Z" stroke="#222526" stroke-width="7"/&gt;
+  &lt;path d="M54,54 C43.2,57.1 33.4,52.1 29.5,41.5 C40.3,38.4 50.1,43.4 54,54 Z" fill="#222526"/&gt;
+  &lt;path d="M54,54 C57.9,43.4 67.7,38.4 78.5,41.5 C74.6,52.1 64.8,57.1 54,54 Z" fill="#222526"/&gt;
+  &lt;path d="M54,54 V81.5" stroke="#222526" stroke-width="7"/&gt;
+  &lt;path d="M49.5,54 a4.5,4.5 0 1 0 9,0 a4.5,4.5 0 1 0 -9,0 Z" fill="#F2C230"/&gt;
+&lt;/svg&gt;
+<b>Onyx 바탕: #222526 ↔ #FFFFFF 맞바꿈 · 노란 점 없음: #F2C230 → #222526(그림색)</b></pre>
+</section>
+<section class="opt"><div class="ph"><span class="no">08</span><h2>선 새싹</h2><span class="one">잎을 채우지 않고 테두리만 — 전부 같은 굵기의 선 하나.</span></div>
+<div class="axes"><span>잎 = 좌우 살 · 줄기 = 아래 살</span><span>허브 없음</span><span>링 5 닫힘</span><span>곧게</span><span>둥근 잎 · 선만</span><span>노란 점 = 왼쪽 잎 속</span></div>
+<div class="row">
+<div class="prev">
+<div><span class="ic mono  s240"><svg viewBox="18 18 72 72"><use href="#i08"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 없음</div></div>
+<div><span class="ic  s240"><svg viewBox="18 18 72 72"><use href="#i08"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 = 왼쪽 잎 채움</div></div>
+</div>
+<div class="mid"><div class="smalls">
+<div class="pair"><span class="ic  s72"><svg viewBox="18 18 72 72"><use href="#i08"/></svg></span><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i08"/></svg></span></div><div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i08"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i08"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕(노란 점 있음)</div>
+<div class="pair"><span class="ic mono s72"><svg viewBox="18 18 72 72"><use href="#i08"/></svg></span><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i08"/></svg></span></div><div class="pair"><span class="ic on mono s72"><svg viewBox="18 18 72 72"><use href="#i08"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i08"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 / Onyx(노란 점 없음)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i08"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div>
+</div>
+<div class="notes"><h3>장점</h3><ul><li>선 하나의 문법 — 화면 속 V4 선 차와 가장 가까운 가족.</li><li>노란 판은 잎 하나를 채워 '노란 잎' — 점이 아니라 면이지만 작다.</li></ul><h3>주의</h3><ul><li>48 px 에서 잎 속 빈 공간(약 5 px)이 메워져 채운 잎과 구분이 안 된다 — 큰 크기 전용.</li><li>획이 많아(테두리 둘) 런처에서 가장 바쁘다.</li></ul><span class="eff">공수 최소 · path 4</span></div>
+</div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M26,54 A28,28 0 1 1 82,54 A28,28 0 1 1 26,54 Z" stroke="#222526" stroke-width="5"/&gt;
+  &lt;path d="M54,58 C40.7,64.5 30.2,59 27.7,44.4 C41,38 51.5,43.4 54,58 Z" fill="#F2C230" stroke="#222526" stroke-width="5"/&gt;
+  &lt;path d="M54,58 C56.5,43.4 67,38 80.3,44.4 C77.8,59 67.3,64.5 54,58 Z" fill="none" stroke="#222526" stroke-width="5"/&gt;
+  &lt;path d="M54,58 V82" stroke="#222526" stroke-width="5"/&gt;
+&lt;/svg&gt;
+<b>Onyx 바탕: #222526 ↔ #FFFFFF 맞바꿈 · 노란 점 없음: #F2C230 → #222526(그림색)</b></pre>
+</section>
+<section class="opt"><div class="ph"><span class="no">09</span><h2>반전</h2><span class="one">채운 원 안에 바탕색 새싹 — 남는 테가 핸들 링이 된다.</span></div>
+<div class="axes"><span>잎 = 좌우 살 · 줄기 = 아래 살</span><span>허브 = 노란 점(없으면 없음)</span><span>링 = 채운 원의 남은 테 4.5</span><span>곧게</span><span>둥근 잎 · 반전</span><span>노란 점 = 허브</span></div>
+<div class="row">
+<div class="prev">
+<div><span class="ic mono on s240"><svg viewBox="18 18 72 72"><use href="#i09"/></svg></span><div class="cap">240 px · Onyx + 흰 · 노란 점 없음</div></div>
+<div><span class="ic on s240"><svg viewBox="18 18 72 72"><use href="#i09"/></svg></span><div class="cap">240 px · Onyx + 흰 · 노란 점 = 허브 한 점</div></div>
+</div>
+<div class="mid"><div class="smalls">
+<div class="pair"><span class="ic  s72"><svg viewBox="18 18 72 72"><use href="#i09"/></svg></span><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i09"/></svg></span></div><div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i09"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i09"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕(노란 점 있음)</div>
+<div class="pair"><span class="ic mono s72"><svg viewBox="18 18 72 72"><use href="#i09"/></svg></span><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i09"/></svg></span></div><div class="pair"><span class="ic on mono s72"><svg viewBox="18 18 72 72"><use href="#i09"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i09"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 / Onyx(노란 점 없음)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i09"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div>
+</div>
+<div class="notes"><h3>장점</h3><ul><li>덩어리라 48 px 에서 가장 강하다 — 런처 격자에서 '검은 원 속 새싹' 하나로 찾힌다.</li><li>Onyx 바탕에서는 흰 원 + Onyx 새싹 — 두 바탕 모두 자연스럽다.</li></ul><h3>주의</h3><ul><li>링이 아니라 '원' 으로 읽혀 핸들 느낌이 약하다 — 줄기를 테까지 뚫어 열면 보강된다(아래 코드의 줄기 끝 y 를 86 으로).</li><li>VectorDrawable 에서 fill 겹침 순서(원 → 새싹) 를 지켜야 한다.</li></ul><span class="eff">공수 최소 · path 4(+점 1)</span></div>
+</div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M23,54 a31,31 0 1 0 62,0 a31,31 0 1 0 -62,0 Z" fill="#222526"/&gt;
+  &lt;path d="M54,53 C43.7,56.7 34,52.6 29.5,42.6 C39.8,38.9 49.6,43 54,53 Z" fill="#FFFFFF"/&gt;
+  &lt;path d="M54,53 C58.4,43 68.2,38.9 78.5,42.6 C74,52.6 64.3,56.7 54,53 Z" fill="#FFFFFF"/&gt;
+  &lt;path d="M54,53 V81" stroke="#FFFFFF" stroke-width="6"/&gt;
+  &lt;path d="M49.5,53 a4.5,4.5 0 1 0 9,0 a4.5,4.5 0 1 0 -9,0 Z" fill="#F2C230"/&gt;
+&lt;/svg&gt;
+<b>Onyx 바탕: #222526 ↔ #FFFFFF 맞바꿈 · 노란 점 없음: 마지막 점을 지우거나 #F2C230 → #FFFFFF(바탕색 = 새싹색)</b></pre>
+</section>
+<section class="opt"><div class="ph"><span class="no">10</span><h2>둥근 잎</h2><span class="one">물방울 잎의 둥근 끝이 링에 닿는다 — 잎이 링을 '잡은' 손 같다.</span><span class="pickb">추천</span></div>
+<div class="axes"><span>잎 = 좌우 살 · 줄기 = 아래 살</span><span>허브 없음</span><span>링 6 닫힘</span><span>곧게</span><span>둥근 끝 잎 · 잎 채움</span><span>노란 점 = 허브</span></div>
+<div class="row">
+<div class="prev">
+<div><span class="ic mono  s240"><svg viewBox="18 18 72 72"><use href="#i10"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 없음</div></div>
+<div><span class="ic  s240"><svg viewBox="18 18 72 72"><use href="#i10"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 = 허브 한 점</div></div>
+</div>
+<div class="mid"><div class="smalls">
+<div class="pair"><span class="ic  s72"><svg viewBox="18 18 72 72"><use href="#i10"/></svg></span><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i10"/></svg></span></div><div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i10"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i10"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕(노란 점 있음)</div>
+<div class="pair"><span class="ic mono s72"><svg viewBox="18 18 72 72"><use href="#i10"/></svg></span><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i10"/></svg></span></div><div class="pair"><span class="ic on mono s72"><svg viewBox="18 18 72 72"><use href="#i10"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i10"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 / Onyx(노란 점 없음)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i10"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div>
+</div>
+<div class="notes"><h3>장점</h3><ul><li>끝이 둥글어 48 px 에서 잎끝이 링에 '붙은' 모양이 유지된다(뾰족 잎은 묻힌다).</li><li>핸들을 쥔 두 손으로도 읽혀 '운전' 이 강해진다.</li></ul><h3>주의</h3><ul><li>잎이 통통해 01 보다 '풀' 느낌이 덜하다.</li><li>둥근 끝의 호를 VectorDrawable 로 옮길 때 C 곡선 그대로 — 문제 없음.</li></ul><span class="eff">공수 최소 · path 4(+점 1)</span></div>
+</div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M26,54 A28,28 0 1 1 82,54 A28,28 0 1 1 26,54 Z" stroke="#222526" stroke-width="6"/&gt;
+  &lt;path d="M54,56 C40.9,62 24.5,49.8 28.6,42.2 C32.8,34.6 51.9,41.7 54,56 Z" fill="#222526"/&gt;
+  &lt;path d="M54,56 C56.1,41.7 75.2,34.6 79.4,42.2 C83.5,49.8 67.1,62 54,56 Z" fill="#222526"/&gt;
+  &lt;path d="M54,56 V82" stroke="#222526" stroke-width="6"/&gt;
+  &lt;path d="M49.5,56 a4.5,4.5 0 1 0 9,0 a4.5,4.5 0 1 0 -9,0 Z" fill="#F2C230"/&gt;
+&lt;/svg&gt;
+<b>Onyx 바탕: #222526 ↔ #FFFFFF 맞바꿈 · 노란 점 없음: #F2C230 → #222526(그림색)</b></pre>
+</section>
+</div>
+<div class="topic tb"><div class="part"><span class="no">B</span><div><h2>11 – 20 · 뾰족 · 하트 반 · 기울어 · 바람 · 줄기 길이 · 눈금 · 잎 하나 · 어긋남 · 9시 15분</h2><p>같은 형식 — 240 px 두 판 · 72 / 48 px 네 쌍 · 한 줄 · SVG</p></div></div>
+<section class="opt"><div class="ph"><span class="no">11</span><h2>뾰족 잎</h2><span class="one">가늘고 뾰족한 잎 — 새싹이 바늘처럼 링을 찌른다.</span></div>
+<div class="axes"><span>잎 = 좌우 살 · 줄기 = 아래 살</span><span>허브 없음</span><span>링 4 닫힘</span><span>곧게</span><span>뾰족 잎 · 잎 채움</span><span>노란 점 = 허브</span></div>
+<div class="row">
+<div class="prev">
+<div><span class="ic mono  s240"><svg viewBox="18 18 72 72"><use href="#i11"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 없음</div></div>
+<div><span class="ic  s240"><svg viewBox="18 18 72 72"><use href="#i11"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 = 허브 한 점</div></div>
+</div>
+<div class="mid"><div class="smalls">
+<div class="pair"><span class="ic  s72"><svg viewBox="18 18 72 72"><use href="#i11"/></svg></span><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i11"/></svg></span></div><div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i11"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i11"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕(노란 점 있음)</div>
+<div class="pair"><span class="ic mono s72"><svg viewBox="18 18 72 72"><use href="#i11"/></svg></span><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i11"/></svg></span></div><div class="pair"><span class="ic on mono s72"><svg viewBox="18 18 72 72"><use href="#i11"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i11"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 / Onyx(노란 점 없음)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i11"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div>
+</div>
+<div class="notes"><h3>장점</h3><ul><li>살이 가늘어 세 살이 모두 '선' 에 가까워 핸들로 읽힌다.</li><li>링 4 와 잎의 날렵함이 어울려 가장 가볍다.</li></ul><h3>주의</h3><ul><li>가는 잎(폭 12)이 48 px 에서 선으로 뭉쳐 '새싹' 이 사라지고 'Y 핸들' 만 남는다 — 가장 위험한 안.</li><li>브랜드 엠블럼과 닮을 가능성이 20안 중 가장 높다.</li></ul><span class="eff">공수 최소 · path 4(+점 1)</span></div>
+</div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M26,54 A28,28 0 1 1 82,54 A28,28 0 1 1 26,54 Z" stroke="#222526" stroke-width="4"/&gt;
+  &lt;path d="M54,57 Q36.4,58.8 28.2,43.1 Q45.9,41.3 54,57 Z" fill="#222526"/&gt;
+  &lt;path d="M54,57 Q62.1,41.3 79.8,43.1 Q71.6,58.8 54,57 Z" fill="#222526"/&gt;
+  &lt;path d="M54,57 V82" stroke="#222526" stroke-width="5"/&gt;
+  &lt;path d="M49.5,57 a4.5,4.5 0 1 0 9,0 a4.5,4.5 0 1 0 -9,0 Z" fill="#F2C230"/&gt;
+&lt;/svg&gt;
+<b>Onyx 바탕: #222526 ↔ #FFFFFF 맞바꿈 · 노란 점 없음: #F2C230 → #222526(그림색)</b></pre>
+</section>
+<section class="opt"><div class="ph"><span class="no">12</span><h2>하트 반 잎</h2><span class="one">한쪽은 곧고 한쪽은 불룩한 잎 — 둘이 모여 하트 반쪽씩.</span></div>
+<div class="axes"><span>잎 = 좌우 살 · 줄기 = 아래 살</span><span>허브 없음</span><span>링 6 닫힘</span><span>곧게</span><span>하트 반 잎 · 잎 채움</span><span>노란 점 = 오른쪽 잎</span></div>
+<div class="row">
+<div class="prev">
+<div><span class="ic mono  s240"><svg viewBox="18 18 72 72"><use href="#i12"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 없음</div></div>
+<div><span class="ic  s240"><svg viewBox="18 18 72 72"><use href="#i12"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 = 오른쪽 잎</div></div>
+</div>
+<div class="mid"><div class="smalls">
+<div class="pair"><span class="ic  s72"><svg viewBox="18 18 72 72"><use href="#i12"/></svg></span><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i12"/></svg></span></div><div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i12"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i12"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕(노란 점 있음)</div>
+<div class="pair"><span class="ic mono s72"><svg viewBox="18 18 72 72"><use href="#i12"/></svg></span><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i12"/></svg></span></div><div class="pair"><span class="ic on mono s72"><svg viewBox="18 18 72 72"><use href="#i12"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i12"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 / Onyx(노란 점 없음)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i12"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div>
+</div>
+<div class="notes"><h3>장점</h3><ul><li>'화내지 않는 조수석' 의 따뜻함이 형태에 있다.</li><li>비대칭 잎이라 엠블럼의 곧은 살과 가장 다르다.</li></ul><h3>주의</h3><ul><li>48 px 에서 불룩한 쪽만 남아 잎이 '콩' 으로 보인다.</li><li>곡선 제어점이 많아 VectorDrawable 로 옮길 때 소수점 그대로 — 손으로 다듬기 어렵다.</li></ul><span class="eff">공수 최소 · path 4</span></div>
+</div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M26,54 A28,28 0 1 1 82,54 A28,28 0 1 1 26,54 Z" stroke="#222526" stroke-width="6"/&gt;
+  &lt;path d="M54,57 C45.2,64.4 28.5,57.2 25.9,48.1 C27,42.4 29.2,40.7 29.8,40 Z" fill="#222526"/&gt;
+  &lt;path d="M54,57 C50,46.2 62.5,33 71.9,33.6 C76.9,36.6 77.7,39.3 78.2,40 Z" fill="#F2C230" stroke="#222526" stroke-width="3"/&gt;
+  &lt;path d="M54,57 V82" stroke="#222526" stroke-width="6"/&gt;
+&lt;/svg&gt;
+<b>Onyx 바탕: #222526 ↔ #FFFFFF 맞바꿈 · 노란 점 없음: #F2C230 → #222526(그림색)</b></pre>
+</section>
+<section class="opt"><div class="ph"><span class="no">13</span><h2>살짝 기울어</h2><span class="one">새싹 전체를 12° 돌렸다 — 핸들을 살짝 꺾은 순간.</span></div>
+<div class="axes"><span>잎 = 좌우 살 · 줄기 = 아래 살</span><span>허브 없음</span><span>링 6 닫힘</span><span>살짝 기울어</span><span>둥근 잎 · 잎 채움</span><span>노란 점 = 허브</span></div>
+<div class="row">
+<div class="prev">
+<div><span class="ic mono  s240"><svg viewBox="18 18 72 72"><use href="#i13"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 없음</div></div>
+<div><span class="ic  s240"><svg viewBox="18 18 72 72"><use href="#i13"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 = 허브 한 점</div></div>
+</div>
+<div class="mid"><div class="smalls">
+<div class="pair"><span class="ic  s72"><svg viewBox="18 18 72 72"><use href="#i13"/></svg></span><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i13"/></svg></span></div><div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i13"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i13"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕(노란 점 있음)</div>
+<div class="pair"><span class="ic mono s72"><svg viewBox="18 18 72 72"><use href="#i13"/></svg></span><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i13"/></svg></span></div><div class="pair"><span class="ic on mono s72"><svg viewBox="18 18 72 72"><use href="#i13"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i13"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 / Onyx(노란 점 없음)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i13"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div>
+</div>
+<div class="notes"><h3>장점</h3><ul><li>조향 중인 핸들 — 정지한 엠블럼이 아니라 '운전 중' 이다.</li><li>비대칭이라 런처의 대칭 아이콘들 사이에서 눈에 띈다.</li></ul><h3>주의</h3><ul><li>기울기 12° 가 48 px 에서는 '삐뚤게 그린 것' 으로 보일 수 있다 — 18° 가 더 분명하다.</li><li>줄기가 수직이 아니라 새싹의 '서 있음' 이 약해진다.</li></ul><span class="eff">공수 최소 · path 4(+점 1)</span></div>
+</div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M26,54 A28,28 0 1 1 82,54 A28,28 0 1 1 26,54 Z" stroke="#222526" stroke-width="6"/&gt;
+  &lt;path d="M54,54 C44.1,59.7 33.1,57.2 26.7,47.7 C36.7,42 47.6,44.5 54,54 Z" fill="#222526"/&gt;
+  &lt;path d="M54,54 C56,42.7 64.9,35.9 76.4,37.1 C74.4,48.5 65.4,55.2 54,54 Z" fill="#222526"/&gt;
+  &lt;path d="M54,54 L59.8,81.4" stroke="#222526" stroke-width="6"/&gt;
+  &lt;path d="M49.5,54 a4.5,4.5 0 1 0 9,0 a4.5,4.5 0 1 0 -9,0 Z" fill="#F2C230"/&gt;
+&lt;/svg&gt;
+<b>Onyx 바탕: #222526 ↔ #FFFFFF 맞바꿈 · 노란 점 없음: #F2C230 → #222526(그림색)</b></pre>
+</section>
+<section class="opt"><div class="ph"><span class="no">14</span><h2>바람 맞은</h2><span class="one">줄기가 휘고 잎이 한쪽으로 쏠린다 — 바람 속에서도 서 있는 초보.</span></div>
+<div class="axes"><span>잎 = 좌우 살(비대칭) · 줄기 = 휜 아래 살</span><span>허브 없음</span><span>링 5 닫힘</span><span>바람 맞은</span><span>하트 반 잎 · 잎 채움</span><span>노란 점 = 허브</span></div>
+<div class="row">
+<div class="prev">
+<div><span class="ic mono  s240"><svg viewBox="18 18 72 72"><use href="#i14"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 없음</div></div>
+<div><span class="ic  s240"><svg viewBox="18 18 72 72"><use href="#i14"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 = 허브 한 점</div></div>
+</div>
+<div class="mid"><div class="smalls">
+<div class="pair"><span class="ic  s72"><svg viewBox="18 18 72 72"><use href="#i14"/></svg></span><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i14"/></svg></span></div><div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i14"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i14"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕(노란 점 있음)</div>
+<div class="pair"><span class="ic mono s72"><svg viewBox="18 18 72 72"><use href="#i14"/></svg></span><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i14"/></svg></span></div><div class="pair"><span class="ic on mono s72"><svg viewBox="18 18 72 72"><use href="#i14"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i14"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 / Onyx(노란 점 없음)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i14"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div>
+</div>
+<div class="notes"><h3>장점</h3><ul><li>이야기가 있다 — '흔들려도 괜찮다' 는 코치의 태도.</li><li>20안 중 가장 '그림' 같다 — 발표 덱 첫 장에 어울린다.</li></ul><h3>주의</h3><ul><li>살이 곧지 않아 '핸들' 로 읽히는 힘이 가장 약하다.</li><li>48 px 에서 휜 줄기가 그냥 삐뚤게 보인다.</li></ul><span class="eff">공수 최소 · path 4(+점 1)</span></div>
+</div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M26,54 A28,28 0 1 1 82,54 A28,28 0 1 1 26,54 Z" stroke="#222526" stroke-width="5"/&gt;
+  &lt;path d="M52,56 C41.8,60 28.9,48.4 29.3,39.4 C32,34.5 34.6,33.7 35.3,33.2 Z" fill="#222526"/&gt;
+  &lt;path d="M52,56 C52.8,44.3 69.9,37 78.5,41.5 C81.9,46.4 81.6,49.2 81.7,50.1 Z" fill="#222526"/&gt;
+  &lt;path d="M54,82 C54,72 48,65 52,56" stroke="#222526" stroke-width="6"/&gt;
+  &lt;path d="M47.5,56 a4.5,4.5 0 1 0 9,0 a4.5,4.5 0 1 0 -9,0 Z" fill="#F2C230"/&gt;
+&lt;/svg&gt;
+<b>Onyx 바탕: #222526 ↔ #FFFFFF 맞바꿈 · 노란 점 없음: #F2C230 → #222526(그림색)</b></pre>
+</section>
+<section class="opt"><div class="ph"><span class="no">15</span><h2>긴 줄기</h2><span class="one">허브를 위로 올리고 줄기를 중심 지나 바닥 살까지 — 키 큰 새싹.</span></div>
+<div class="axes"><span>잎 = 위 두 살 · 줄기 = 긴 아래 살</span><span>허브 = 줄기 끝 점(위)</span><span>링 5 닫힘</span><span>곧게</span><span>둥근 잎 · 잎 채움</span><span>노란 점 = 허브(위)</span></div>
+<div class="row">
+<div class="prev">
+<div><span class="ic mono  s240"><svg viewBox="18 18 72 72"><use href="#i15"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 없음</div></div>
+<div><span class="ic  s240"><svg viewBox="18 18 72 72"><use href="#i15"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 = 허브 한 점(위)</div></div>
+</div>
+<div class="mid"><div class="smalls">
+<div class="pair"><span class="ic  s72"><svg viewBox="18 18 72 72"><use href="#i15"/></svg></span><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i15"/></svg></span></div><div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i15"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i15"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕(노란 점 있음)</div>
+<div class="pair"><span class="ic mono s72"><svg viewBox="18 18 72 72"><use href="#i15"/></svg></span><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i15"/></svg></span></div><div class="pair"><span class="ic on mono s72"><svg viewBox="18 18 72 72"><use href="#i15"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i15"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 / Onyx(노란 점 없음)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i15"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div>
+</div>
+<div class="notes"><h3>장점</h3><ul><li>허브가 중심에서 벗어나 엠블럼 문법(중심 허브)에서 가장 멀다.</li><li>긴 줄기가 링의 지름을 가로질러 '살' 로 분명하다.</li></ul><h3>주의</h3><ul><li>잎이 짧아(길이 22) 48 px 에서 작다 — 잎을 뚫게(r 31) 하면 보강.</li><li>위쪽 노란 점이 '꽃' 으로 읽힐 수 있다.</li></ul><span class="eff">공수 최소 · path 4(+점 1)</span></div>
+</div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M26,54 A28,28 0 1 1 82,54 A28,28 0 1 1 26,54 Z" stroke="#222526" stroke-width="5"/&gt;
+  &lt;path d="M54,44 C45,48 36.6,44.5 33.2,35.3 C42.2,31.2 50.6,34.7 54,44 Z" fill="#222526"/&gt;
+  &lt;path d="M54,44 C57.4,34.7 65.8,31.2 74.8,35.3 C71.4,44.5 63,48 54,44 Z" fill="#222526"/&gt;
+  &lt;path d="M54,44 V82" stroke="#222526" stroke-width="6"/&gt;
+  &lt;path d="M49.5,44 a4.5,4.5 0 1 0 9,0 a4.5,4.5 0 1 0 -9,0 Z" fill="#F2C230"/&gt;
+&lt;/svg&gt;
+<b>Onyx 바탕: #222526 ↔ #FFFFFF 맞바꿈 · 노란 점 없음: #F2C230 → #222526(그림색)</b></pre>
+</section>
+<section class="opt"><div class="ph"><span class="no">16</span><h2>짧은 줄기</h2><span class="one">허브를 아래로 내리고 잎을 길게 — 줄기 끝 점이 허브.</span></div>
+<div class="axes"><span>잎 = 좌우 살(길게) · 줄기 = 짧은 아래 살</span><span>허브 = 줄기 끝 점</span><span>링 6 닫힘</span><span>곧게</span><span>뾰족 잎 · 잎 채움</span><span>노란 점 = 허브</span></div>
+<div class="row">
+<div class="prev">
+<div><span class="ic mono  s240"><svg viewBox="18 18 72 72"><use href="#i16"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 없음</div></div>
+<div><span class="ic  s240"><svg viewBox="18 18 72 72"><use href="#i16"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 = 허브 점</div></div>
+</div>
+<div class="mid"><div class="smalls">
+<div class="pair"><span class="ic  s72"><svg viewBox="18 18 72 72"><use href="#i16"/></svg></span><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i16"/></svg></span></div><div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i16"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i16"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕(노란 점 있음)</div>
+<div class="pair"><span class="ic mono s72"><svg viewBox="18 18 72 72"><use href="#i16"/></svg></span><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i16"/></svg></span></div><div class="pair"><span class="ic on mono s72"><svg viewBox="18 18 72 72"><use href="#i16"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i16"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 / Onyx(노란 점 없음)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i16"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div>
+</div>
+<div class="notes"><h3>장점</h3><ul><li>긴 잎 둘이 링 안을 채워 48 px 에서 면이 크다.</li><li>허브가 아래에 있어 세 살이 등분되지 않는다 — 엠블럼과 다르다.</li></ul><h3>주의</h3><ul><li>잎이 길어 '새싹' 보다 '풀잎 둘' 로 보일 수 있다.</li><li>허브 점(지름 11)이 줄기보다 굵어 '열쇠' 로도 읽힌다.</li></ul><span class="eff">공수 최소 · path 5</span></div>
+</div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M26,54 A28,28 0 1 1 82,54 A28,28 0 1 1 26,54 Z" stroke="#222526" stroke-width="6"/&gt;
+  &lt;path d="M54,64 Q32.1,60.5 30.8,38.3 Q52.7,41.9 54,64 Z" fill="#222526"/&gt;
+  &lt;path d="M54,64 Q55.3,41.9 77.2,38.3 Q75.9,60.5 54,64 Z" fill="#222526"/&gt;
+  &lt;path d="M54,64 V82" stroke="#222526" stroke-width="6"/&gt;
+  &lt;path d="M48.5,64 a5.5,5.5 0 1 0 11,0 a5.5,5.5 0 1 0 -11,0 Z" fill="#F2C230" stroke="#222526" stroke-width="2.5"/&gt;
+&lt;/svg&gt;
+<b>Onyx 바탕: #222526 ↔ #FFFFFF 맞바꿈 · 노란 점 없음: #F2C230 → #222526(그림색)</b></pre>
+</section>
+<section class="opt"><div class="ph"><span class="no">17</span><h2>눈금 링</h2><span class="one">12시에 짧은 눈금 — 경주 핸들의 센터 마크. 노랑이면 그 눈금.</span></div>
+<div class="axes"><span>잎 = 좌우 살 · 줄기 = 아래 살</span><span>허브 없음</span><span>링 5 닫힘 + 눈금</span><span>곧게</span><span>둥근 잎 · 잎 채움</span><span>노란 점 = 12시 눈금</span></div>
+<div class="row">
+<div class="prev">
+<div><span class="ic mono  s240"><svg viewBox="18 18 72 72"><use href="#i17"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 없음</div></div>
+<div><span class="ic  s240"><svg viewBox="18 18 72 72"><use href="#i17"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 = 12시 눈금</div></div>
+</div>
+<div class="mid"><div class="smalls">
+<div class="pair"><span class="ic  s72"><svg viewBox="18 18 72 72"><use href="#i17"/></svg></span><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i17"/></svg></span></div><div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i17"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i17"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕(노란 점 있음)</div>
+<div class="pair"><span class="ic mono s72"><svg viewBox="18 18 72 72"><use href="#i17"/></svg></span><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i17"/></svg></span></div><div class="pair"><span class="ic on mono s72"><svg viewBox="18 18 72 72"><use href="#i17"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i17"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 / Onyx(노란 점 없음)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i17"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div>
+</div>
+<div class="notes"><h3>장점</h3><ul><li>눈금(링 안쪽으로 7) 하나가 '핸들' 을 확정한다 — 식물·태양 아이콘으로 안 읽힌다.</li><li>노란 점이 허브가 아니라 링 위라 새싹 모양을 건드리지 않는다.</li></ul><h3>주의</h3><ul><li>흰 바탕에서 노란 눈금의 안쪽 부분은 대비가 약하다 — 눈금을 링 바깥으로 빼면 안전 원을 넘는다.</li><li>눈금과 잎끝 사이가 좁아 48 px 에서 붙어 보인다.</li></ul><span class="eff">공수 최소 · path 5</span></div>
+</div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M26,54 A28,28 0 1 1 82,54 A28,28 0 1 1 26,54 Z" stroke="#222526" stroke-width="5"/&gt;
+  &lt;path d="M54,55 C42.8,58.3 32.6,53.1 28.6,42.2 C39.8,38.9 50,44 54,55 Z" fill="#222526"/&gt;
+  &lt;path d="M54,55 C58,44 68.2,38.9 79.4,42.2 C75.4,53.1 65.2,58.3 54,55 Z" fill="#222526"/&gt;
+  &lt;path d="M54,55 V82" stroke="#222526" stroke-width="6"/&gt;
+  &lt;path d="M54,26 V33" stroke="#F2C230" stroke-width="5"/&gt;
+&lt;/svg&gt;
+<b>Onyx 바탕: #222526 ↔ #FFFFFF 맞바꿈 · 노란 점 없음: #F2C230 → #222526(그림색)</b></pre>
+</section>
+<section class="opt"><div class="ph"><span class="no">18</span><h2>잎 하나만 살</h2><span class="one">왼쪽 잎만 링에 닿고 오른쪽 잎은 짧게 안에 — 살 둘 + 자유로운 잎.</span><span class="pickb">추천</span></div>
+<div class="axes"><span>잎 하나만 살 · 줄기 = 아래 살</span><span>허브 없음</span><span>링 6 닫힘</span><span>곧게</span><span>둥근 잎 · 잎 채움</span><span>노란 점 = 짧은 잎</span></div>
+<div class="row">
+<div class="prev">
+<div><span class="ic mono  s240"><svg viewBox="18 18 72 72"><use href="#i18"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 없음</div></div>
+<div><span class="ic  s240"><svg viewBox="18 18 72 72"><use href="#i18"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 = 짧은 잎</div></div>
+</div>
+<div class="mid"><div class="smalls">
+<div class="pair"><span class="ic  s72"><svg viewBox="18 18 72 72"><use href="#i18"/></svg></span><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i18"/></svg></span></div><div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i18"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i18"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕(노란 점 있음)</div>
+<div class="pair"><span class="ic mono s72"><svg viewBox="18 18 72 72"><use href="#i18"/></svg></span><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i18"/></svg></span></div><div class="pair"><span class="ic on mono s72"><svg viewBox="18 18 72 72"><use href="#i18"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i18"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 / Onyx(노란 점 없음)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i18"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div>
+</div>
+<div class="notes"><h3>장점</h3><ul><li>세 살이 아니어서 어떤 자동차 엠블럼과도 겹치지 않는다 — 식별력 최고.</li><li>짧은 잎이 '새로 난 잎' 이라 초보의 뜻이 가장 살아 있다.</li><li>노란 잎 하나가 런처에서 찾는 표식이 된다.</li></ul><h3>주의</h3><ul><li>살 둘(왼쪽·아래)만으로 핸들이 읽히는지 48 px 에서 확인 — 링이 굵어 보강된다.</li><li>비대칭이라 왼손잡이·오른쪽 핸들 논쟁 없이 '그림' 으로만 봐야 한다.</li></ul><span class="eff">공수 최소 · path 4</span></div>
+</div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M26,54 A28,28 0 1 1 82,54 A28,28 0 1 1 26,54 Z" stroke="#222526" stroke-width="6"/&gt;
+  &lt;path d="M54,54 C43.1,57.6 32.9,52.8 28.6,42.2 C39.5,38.6 49.7,43.3 54,54 Z" fill="#222526"/&gt;
+  &lt;path d="M54,54 C54.8,46.8 60.1,43.1 67.1,44.8 C66.3,52 61.1,55.7 54,54 Z" fill="#F2C230" stroke="#222526" stroke-width="2.5"/&gt;
+  &lt;path d="M54,54 V82" stroke="#222526" stroke-width="6"/&gt;
+&lt;/svg&gt;
+<b>Onyx 바탕: #222526 ↔ #FFFFFF 맞바꿈 · 노란 점 없음: #F2C230 → #222526(그림색)</b></pre>
+</section>
+<section class="opt"><div class="ph"><span class="no">19</span><h2>어긋난 잎</h2><span class="one">두 잎이 줄기의 다른 높이에서 난다 — 실제 새싹처럼. 줄기 끝에 싹눈.</span></div>
+<div class="axes"><span>잎 = 좌우 살(높이 다름) · 줄기 = 긴 아래 살</span><span>허브 = 줄기 끝 점(싹눈)</span><span>링 5 닫힘</span><span>곧게</span><span>둥근 잎 · 잎 채움</span><span>노란 점 = 싹눈</span></div>
+<div class="row">
+<div class="prev">
+<div><span class="ic mono  s240"><svg viewBox="18 18 72 72"><use href="#i19"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 없음</div></div>
+<div><span class="ic  s240"><svg viewBox="18 18 72 72"><use href="#i19"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 = 싹눈</div></div>
+</div>
+<div class="mid"><div class="smalls">
+<div class="pair"><span class="ic  s72"><svg viewBox="18 18 72 72"><use href="#i19"/></svg></span><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i19"/></svg></span></div><div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i19"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i19"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕(노란 점 있음)</div>
+<div class="pair"><span class="ic mono s72"><svg viewBox="18 18 72 72"><use href="#i19"/></svg></span><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i19"/></svg></span></div><div class="pair"><span class="ic on mono s72"><svg viewBox="18 18 72 72"><use href="#i19"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i19"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 / Onyx(노란 점 없음)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i19"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div>
+</div>
+<div class="notes"><h3>장점</h3><ul><li>살이 한 점에서 만나지 않아 엠블럼 문법에서 벗어난다.</li><li>줄기가 위로 더 나와 '자라는 중' 이 보인다.</li></ul><h3>주의</h3><ul><li>세 살의 교점이 없어 48 px 에서 '핸들' 보다 '화살표 달린 막대' 로 읽힐 수 있다.</li><li>잎 길이가 달라(27 · 31) 균형을 손으로 맞춰야 한다.</li></ul><span class="eff">공수 최소 · path 5</span></div>
+</div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M26,54 A28,28 0 1 1 82,54 A28,28 0 1 1 26,54 Z" stroke="#222526" stroke-width="5"/&gt;
+  &lt;path d="M54,52 C44,57.1 33.5,54.1 27.7,44.4 C37.7,39.3 48.2,42.4 54,52 Z" fill="#222526"/&gt;
+  &lt;path d="M54,62 C57.8,49.9 68.7,43.8 81,46.8 C77.2,58.9 66.4,65 54,62 Z" fill="#222526"/&gt;
+  &lt;path d="M54,46 V82" stroke="#222526" stroke-width="6"/&gt;
+  &lt;path d="M49.5,46 a4.5,4.5 0 1 0 9,0 a4.5,4.5 0 1 0 -9,0 Z" fill="#F2C230" stroke="#222526" stroke-width="2.5"/&gt;
+&lt;/svg&gt;
+<b>Onyx 바탕: #222526 ↔ #FFFFFF 맞바꿈 · 노란 점 없음: #F2C230 → #222526(그림색)</b></pre>
+</section>
+<section class="opt"><div class="ph"><span class="no">20</span><h2>아홉 시 십오 분</h2><span class="one">잎이 9시·3시로 수평 — 운전 연수 첫 시간에 배우는 손 위치.</span></div>
+<div class="axes"><span>잎 = 좌우 살(수평) · 줄기 = 아래 살</span><span>허브 없음</span><span>링 6 닫힘</span><span>곧게</span><span>둥근 끝 잎 · 잎 채움</span><span>노란 점 = 허브</span></div>
+<div class="row">
+<div class="prev">
+<div><span class="ic mono  s240"><svg viewBox="18 18 72 72"><use href="#i20"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 없음</div></div>
+<div><span class="ic  s240"><svg viewBox="18 18 72 72"><use href="#i20"/></svg></span><div class="cap">240 px · 흰 + Onyx · 노란 점 = 허브 한 점</div></div>
+</div>
+<div class="mid"><div class="smalls">
+<div class="pair"><span class="ic  s72"><svg viewBox="18 18 72 72"><use href="#i20"/></svg></span><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i20"/></svg></span></div><div class="pair"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i20"/></svg></span><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i20"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 바탕 / Onyx 바탕(노란 점 있음)</div>
+<div class="pair"><span class="ic mono s72"><svg viewBox="18 18 72 72"><use href="#i20"/></svg></span><span class="ic mono s48"><svg viewBox="18 18 72 72"><use href="#i20"/></svg></span></div><div class="pair"><span class="ic on mono s72"><svg viewBox="18 18 72 72"><use href="#i20"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i20"/></svg></span></div>
+<div class="cap">72 · 48 px — 흰 / Onyx(노란 점 없음)</div>
+</div>
+<div class="lock"><span class="ic on s48"><svg viewBox="18 18 72 72"><use href="#i20"/></svg></span><span class="wm">Drive Coach<small>DRIVE COACH</small></span></div>
+</div>
+<div class="notes"><h3>장점</h3><ul><li>'9시 15분' 은 연수 교관의 첫 말 — 운전 연수 앱의 뜻이 그림 안에 있다.</li><li>T 자 살이라 Y 엠블럼과 다르고 48 px 에서 좌우 잎이 가장 넓게 벌어져 또렷하다.</li></ul><h3>주의</h3><ul><li>수평 잎은 '새싹' 보다 '저울·십자' 로 읽힐 수 있다 — 둥근 잎끝이 보강.</li><li>줄기와 잎이 직각이라 자연물 느낌은 20안 중 가장 적다.</li></ul><span class="eff">공수 최소 · path 4(+점 1)</span></div>
+</div>
+<pre class="code">&lt;svg viewBox="0 0 108 108" fill="none" stroke-linecap="round" stroke-linejoin="round"&gt;
+  &lt;path d="M26,54 A28,28 0 1 1 82,54 A28,28 0 1 1 26,54 Z" stroke="#222526" stroke-width="6"/&gt;
+  &lt;path d="M54,54 C45.6,64.6 26,62.4 26,54 C26,45.6 45.6,43.4 54,54 Z" fill="#222526"/&gt;
+  &lt;path d="M54,54 C62.4,43.4 82,45.6 82,54 C82,62.4 62.4,64.6 54,54 Z" fill="#222526"/&gt;
+  &lt;path d="M54,54 V82" stroke="#222526" stroke-width="6"/&gt;
+  &lt;path d="M49.5,54 a4.5,4.5 0 1 0 9,0 a4.5,4.5 0 1 0 -9,0 Z" fill="#F2C230"/&gt;
+&lt;/svg&gt;
+<b>Onyx 바탕: #222526 ↔ #FFFFFF 맞바꿈 · 노란 점 없음: #F2C230 → #222526(그림색)</b></pre>
+</section>
+</div>
+<div class="foot">
+<div class="rec"><div class="lab">RECOMMENDATION · 3</div><h2>추천 셋</h2>
+<div class="recrow"><div class="pick"><span class="ic on s72"><svg viewBox="18 18 72 72"><use href="#i18"/></svg></span><div class="t"><b>① 18 잎 하나만 살</b>세 살이 아니라 어떤 자동차 엠블럼과도 겹치지 않고, 노란 짧은 잎이 런처에서 찾는 표식이 된다.</div></div><div class="pick"><span class="ic  s72"><svg viewBox="18 18 72 72"><use href="#i01"/></svg></span><div class="t"><b>② 01 기본</b>컨셉을 가장 곧게 — 링 + 잎 둘 + 줄기 네 획, 노란 점 있고 없고 둘 다 완성. 각도만 사내 런처 보고 조정.</div></div><div class="pick"><span class="ic  s72"><svg viewBox="18 18 72 72"><use href="#i10"/></svg></span><div class="t"><b>③ 10 둥근 잎</b>둥근 잎끝이 48 px 에서도 링에 '붙어' 보여 핸들이 가장 늦게까지 살아남는다 — 손으로 쥔 핸들로도 읽힌다.</div></div></div>
+<p>셋 다 노란 점 없이도 완성이고, 노란 점은 런처에서 찾는 표식으로만 쓴다. 엠블럼과 가까운 순서는 11 뾰족 잎 → 02 노란 허브 → 01 기본(각도) — 이 셋은 사내 런처의 OEM 핸들 아이콘을 본 뒤에만 고른다. 48 px 에서 탈락: 06 가는 링(링이 사라짐) · 08 선 새싹(잎 속이 메워짐) · 11 뾰족 잎(Y 로 뭉침). 큰 그림(발표 덱·영상 첫 컷) 전용으로는 14 바람 맞은 · 12 하트 반 잎이 좋다.</p>
+<table class="sum"><tr><th>#</th><th>이름(흰 · 노랑 / Onyx · 단색)</th><th>잎 → 살</th><th>링</th><th>48 px</th><th>식별력(엠블럼과 거리)</th><th>노란 점</th><th>path</th></tr><tr class="pick"><td>01</td><td><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i01"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i01"/></svg></span> 기본</td><td>잎 = 좌우 살 · 줄기 = 아래 살</td><td>링 6 닫힘</td><td>좋음</td><td>중(핸들 각도 OEM 겹침)</td><td>허브 한 점</td><td>4(+점 1)</td></tr><tr><td>02</td><td><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i02"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i02"/></svg></span> 노란 허브</td><td>잎 = 좌우 살 · 줄기 = 아래 살</td><td>링 6 닫힘</td><td>매우 좋음</td><td>낮음(엠블럼 문법)</td><td>허브 원</td><td>5</td></tr><tr><td>03</td><td><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i03"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i03"/></svg></span> 위 두 살</td><td>잎 = 위 두 살 · 줄기 = 아래 살</td><td>링 5 닫힘</td><td>좋음</td><td>중</td><td>허브 한 점</td><td>4(+점 1)</td></tr><tr><td>04</td><td><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i04"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i04"/></svg></span> 열린 링</td><td>잎 = 좌우 살 · 줄기 = 아래 살</td><td>링 6 · 잎끝에서 열림</td><td>보통(틈 좁음)</td><td>높음</td><td>허브 한 점</td><td>4(+점 1)</td></tr><tr><td>05</td><td><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i05"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i05"/></svg></span> 뚫는 잎</td><td>잎 = 좌우 살 · 줄기 = 아래 살</td><td>링 5 · 잎이 뚫음</td><td>보통</td><td>중</td><td>오른쪽 잎</td><td>4</td></tr><tr><td>06</td><td><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i06"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i06"/></svg></span> 가는 링</td><td>잎 = 좌우 살 · 줄기 = 아래 살</td><td>링 2.5 닫힘</td><td>나쁨(링 사라짐)</td><td>중</td><td>허브 한 점</td><td>4(+점 1)</td></tr><tr><td>07</td><td><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i07"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i07"/></svg></span> 굵은 링</td><td>잎 = 좌우 살 · 줄기 = 아래 살</td><td>링 7 닫힘</td><td>매우 좋음</td><td>중</td><td>허브 한 점</td><td>4(+점 1)</td></tr><tr><td>08</td><td><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i08"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i08"/></svg></span> 선 새싹</td><td>잎 = 좌우 살 · 줄기 = 아래 살</td><td>링 5 닫힘</td><td>나쁨(잎 속 메워짐)</td><td>중</td><td>왼쪽 잎 채움</td><td>4</td></tr><tr><td>09</td><td><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i09"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i09"/></svg></span> 반전</td><td>잎 = 좌우 살 · 줄기 = 아래 살</td><td>링 = 채운 원의 남은 테 4.5</td><td>매우 좋음</td><td>높음(핸들 약함)</td><td>허브 한 점</td><td>4(+점 1)</td></tr><tr class="pick"><td>10</td><td><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i10"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i10"/></svg></span> 둥근 잎</td><td>잎 = 좌우 살 · 줄기 = 아래 살</td><td>링 6 닫힘</td><td>매우 좋음</td><td>높음</td><td>허브 한 점</td><td>4(+점 1)</td></tr><tr><td>11</td><td><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i11"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i11"/></svg></span> 뾰족 잎</td><td>잎 = 좌우 살 · 줄기 = 아래 살</td><td>링 4 닫힘</td><td>나쁨(Y 로 뭉침)</td><td>낮음</td><td>허브 한 점</td><td>4(+점 1)</td></tr><tr><td>12</td><td><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i12"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i12"/></svg></span> 하트 반 잎</td><td>잎 = 좌우 살 · 줄기 = 아래 살</td><td>링 6 닫힘</td><td>보통</td><td>높음</td><td>오른쪽 잎</td><td>4</td></tr><tr><td>13</td><td><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i13"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i13"/></svg></span> 살짝 기울어</td><td>잎 = 좌우 살 · 줄기 = 아래 살</td><td>링 6 닫힘</td><td>좋음</td><td>높음</td><td>허브 한 점</td><td>4(+점 1)</td></tr><tr><td>14</td><td><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i14"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i14"/></svg></span> 바람 맞은</td><td>잎 = 좌우 살(비대칭) · 줄기 = 휜 아래 살</td><td>링 5 닫힘</td><td>보통</td><td>높음(핸들 약함)</td><td>허브 한 점</td><td>4(+점 1)</td></tr><tr><td>15</td><td><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i15"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i15"/></svg></span> 긴 줄기</td><td>잎 = 위 두 살 · 줄기 = 긴 아래 살</td><td>링 5 닫힘</td><td>보통(잎 작음)</td><td>높음</td><td>허브 한 점(위)</td><td>4(+점 1)</td></tr><tr><td>16</td><td><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i16"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i16"/></svg></span> 짧은 줄기</td><td>잎 = 좌우 살(길게) · 줄기 = 짧은 아래 살</td><td>링 6 닫힘</td><td>좋음</td><td>중</td><td>허브 점</td><td>5</td></tr><tr><td>17</td><td><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i17"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i17"/></svg></span> 눈금 링</td><td>잎 = 좌우 살 · 줄기 = 아래 살</td><td>링 5 닫힘 + 눈금</td><td>좋음</td><td>높음</td><td>12시 눈금</td><td>5</td></tr><tr class="pick"><td>18</td><td><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i18"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i18"/></svg></span> 잎 하나만 살</td><td>잎 하나만 살 · 줄기 = 아래 살</td><td>링 6 닫힘</td><td>좋음</td><td>최고</td><td>짧은 잎</td><td>4</td></tr><tr><td>19</td><td><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i19"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i19"/></svg></span> 어긋난 잎</td><td>잎 = 좌우 살(높이 다름) · 줄기 = 긴 아래 살</td><td>링 5 닫힘</td><td>보통(교점 없음)</td><td>높음</td><td>싹눈</td><td>5</td></tr><tr><td>20</td><td><span class="ic  s48"><svg viewBox="18 18 72 72"><use href="#i20"/></svg></span><span class="ic on mono s48"><svg viewBox="18 18 72 72"><use href="#i20"/></svg></span> 아홉 시 십오 분</td><td>잎 = 좌우 살(수평) · 줄기 = 아래 살</td><td>링 6 닫힘</td><td>매우 좋음</td><td>높음</td><td>허브 한 점</td><td>4(+점 1)</td></tr></table>
+<p style="margin-top:12px;color:#6b6f72;font-size:13px">적용 순서(Codex): ① <code>ic_launcher.xml</code>(또는 <code>ic_launcher_foreground</code>)의 path 를 고른 안의 path 로 교체 — 코드 칸 그대로, 배경 레이어 = 바탕색 단색 ② 노란 점을 쓰면 <code>#F2C230</code> 그대로, 안 쓰면 그림색으로 ③ <code>strings.xml</code> 의 <code>app_name</code> = "Drive Coach" ④ 에뮬 런처 캡처로 72 px 확인(특히 잎끝이 링에 붙는지, 노란 점이 보이는지).</p>
+</div></div>
+</div>
+</body></html>
