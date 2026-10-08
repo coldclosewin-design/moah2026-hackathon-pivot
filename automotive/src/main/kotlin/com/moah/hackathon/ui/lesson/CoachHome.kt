@@ -190,7 +190,7 @@ internal fun HomeGallery(profile: Profile, task: Task, mode: LessonMode, picked:
                 FillButton("시작", onStart, Modifier.width(610.dp).height(300.dp), picked, home = true)
             } else {
                 Box(Modifier.weight(1f)) {
-                    HomeVehicle(Modifier.alpha(if (wheelOpen) .18f else 1f).width(780.dp).height(270.dp))
+                    ProfileHomeVehicle(profile.statement.car, Modifier.alpha(if (wheelOpen) .18f else 1f).width(780.dp).height(if (compact) 250.dp else 300.dp).align(Alignment.CenterStart))
                 }
                 FillButton("시작", onStart, Modifier.alpha(if (wheelOpen) .18f else 1f).width(1410.dp).height(if (compact) 240.dp else 300.dp), picked, home = true)
             }

@@ -1,0 +1,94 @@
+{
+  "checkedAt": "2026-10-08",
+  "result": "pass",
+  "checks": [
+    "5 PNG files readable",
+    "1536x1024 RGBA with transparent background",
+    "manifest paths and resource names valid",
+    "current four profile choices mapped; minivan reserved",
+    "right-facing side views visually reviewed"
+  ],
+  "appIntegration": "not changed; asset handoff only",
+  "assets": [
+    {
+      "id": "vehicle.city",
+      "file": "vehicles/wooden/v2/profile_vehicle_city_right.png",
+      "width": 1536,
+      "height": 1024,
+      "mode": "RGBA",
+      "transparentPixels": 1245875,
+      "contentBoundsAlpha128": [
+        394,
+        273,
+        1171,
+        821
+      ],
+      "bytes": 1350852,
+      "sha256": "3e47d1cad613a16b6188d07b7b4ef1d07fbcfd439a9f5e19d79b6c00ba9ec9f2"
+    },
+    {
+      "id": "vehicle.sedan",
+      "file": "vehicles/wooden/v2/profile_vehicle_sedan_right.png",
+      "width": 1536,
+      "height": 1024,
+      "mode": "RGBA",
+      "transparentPixels": 1190461,
+      "contentBoundsAlpha128": [
+        62,
+        347,
+        1470,
+        776
+      ],
+      "bytes": 1374013,
+      "sha256": "4e2ac3b6613aaec8ad9c3cd95f2c03b7cd59a77b4324b9932b77b821932eb557"
+    },
+    {
+      "id": "vehicle.midsize_suv",
+      "file": "vehicles/wooden/v2/profile_vehicle_midsize_suv_right.png",
+      "width": 1536,
+      "height": 1024,
+      "mode": "RGBA",
+      "transparentPixels": 921252,
+      "contentBoundsAlpha128": [
+        44,
+        233,
+        1497,
+        863
+      ],
+      "bytes": 1815255,
+      "sha256": "8063c250e65a36f929de562c5c548ea442eaf344a5259a98ca244d45d17c8960"
+    },
+    {
+      "id": "vehicle.large_suv",
+      "file": "vehicles/wooden/v2/profile_vehicle_large_suv_right.png",
+      "width": 1536,
+      "height": 1024,
+      "mode": "RGBA",
+      "transparentPixels": 850054,
+      "contentBoundsAlpha128": [
+        25,
+        206,
+        1500,
+        907
+      ],
+      "bytes": 1848171,
+      "sha256": "2f50a5aff6cccf68629e7d880c65d7f9615ffe1f55f9d9c88b82557c44cd3cd1"
+    },
+    {
+      "id": "vehicle.minivan",
+      "file": "vehicles/wooden/v2/profile_vehicle_minivan_right.png",
+      "width": 1536,
+      "height": 1024,
+      "mode": "RGBA",
+      "transparentPixels": 878650,
+      "contentBoundsAlpha128": [
+        56,
+        252,
+        1505,
+        828
+      ],
+      "bytes": 1673275,
+      "sha256": "ab714d44d15d8b7b3ba11b0f6016e4a09d960034c0231b36b94f752c02df0ec9"
+    }
+  ]
+}

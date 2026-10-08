@@ -171,8 +171,9 @@ private fun TaskBay(task: Task, chosen: Boolean, modifier: Modifier, onClick: ()
     Box(modifier.background(background, androidx.compose.foundation.shape.RoundedCornerShape(32.dp))
         .then(action).semantics(mergeDescendants = true) { selected = chosen }) {
         Column(Modifier.fillMaxSize().padding(12.dp)) {
-            BoxWithConstraints(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
-                val artHeight = minOf(maxHeight, maxWidth / (240f / 176f))
+            // 그림이 카드 위 모서리에 닿지 않게 위 여백을 둔다(10/8 사용자 "차 그림이 위에 닿아 있는 느낌" — #260 에서 다시 닿았던 것)
+            BoxWithConstraints(Modifier.fillMaxWidth().weight(1f).padding(top = 28.dp, bottom = 6.dp), contentAlignment = Alignment.Center) {
+                val artHeight = minOf(maxHeight * .88f, maxWidth / (240f / 176f))
                 val art = Modifier.size(artHeight * (240f / 176f), artHeight).alpha(if (task.isReady) 1f else .55f)
                 val ink = if (chosen) CoachColors.Paper else CoachColors.Ink
                 when (task.type) {

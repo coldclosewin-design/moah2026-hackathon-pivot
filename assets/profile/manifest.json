@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-10-08",
+  "pathBase": "assets/profile",
+  "purpose": "사용자 프로필에 따른 홈 화면 시각 에셋",
+  "integrationStatus": "assets-only",
+  "collections": [
+    {
+      "id": "vehicles.wooden.v2",
+      "category": "vehicles",
+      "style": "wooden",
+      "version": 2,
+      "direction": "right",
+      "view": "side",
+      "format": "png",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "fallback": {
+        "when": [
+          "unanswered",
+          "null",
+          "unknown"
+        ],
+        "action": "keep_existing_home_vehicle"
+      },
+      "assets": [
+        {
+          "id": "vehicle.city",
+          "label": "경차",
+          "file": "vehicles/wooden/v2/profile_vehicle_city_right.png",
+          "profileField": "statement.car",
+          "profileValue": "경차",
+          "chipId": "compact",
+          "status": "ready-to-integrate",
+          "accentColor": "mustard-yellow",
+          "androidResourceName": "profile_vehicle_city_right"
+        },
+        {
+          "id": "vehicle.sedan",
+          "label": "준중형",
+          "file": "vehicles/wooden/v2/profile_vehicle_sedan_right.png",
+          "profileField": "statement.car",
+          "profileValue": "준중형",
+          "chipId": "small",
+          "status": "ready-to-integrate",
+          "accentColor": "brick-red",
+          "androidResourceName": "profile_vehicle_sedan_right"
+        },
+        {
+          "id": "vehicle.midsize_suv",
+          "label": "중형 SUV",
+          "file": "vehicles/wooden/v2/profile_vehicle_midsize_suv_right.png",
+          "profileField": "statement.car",
+          "profileValue": "중형 SUV",
+          "chipId": "mid-suv",
+          "status": "ready-to-integrate",
+          "accentColor": "forest-green",
+          "androidResourceName": "profile_vehicle_midsize_suv_right"
+        },
+        {
+          "id": "vehicle.large_suv",
+          "label": "대형 SUV",
+          "file": "vehicles/wooden/v2/profile_vehicle_large_suv_right.png",
+          "profileField": "statement.car",
+          "profileValue": "큰 차",
+          "chipId": "large",
+          "status": "ready-to-integrate",
+          "accentColor": "navy",
+          "androidResourceName": "profile_vehicle_large_suv_right"
+        },
+        {
+          "id": "vehicle.minivan",
+          "label": "미니밴",
+          "file": "vehicles/wooden/v2/profile_vehicle_minivan_right.png",
+          "profileField": "statement.car",
+          "profileValue": null,
+          "chipId": null,
+          "status": "reserved-for-profile-expansion",
+          "accentColor": "terracotta-orange",
+          "androidResourceName": "profile_vehicle_minivan_right"
+        }
+      ]
+    }
+  ]
+}
