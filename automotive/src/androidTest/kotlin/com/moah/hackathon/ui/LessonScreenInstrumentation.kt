@@ -759,7 +759,14 @@ class LessonScreenInstrumentation : Instrumentation() {
         capture("28b-onboarding")
         click("주차")
         afterUiSettles("Second first-run question") { check(ProfileField.LAST_DRIVE.question in texts()) }
-        click("십 년 넘게"); click("시작하기")
+        click("십 년 넘게")
+        afterUiSettles("Third first-run question") { check(ProfileField.GOAL.question in texts()) }
+        click("아이 등하원")
+        afterUiSettles("Fourth first-run question") { check(ProfileField.LICENSE.question in texts()) }
+        click("십 년쯤 전")
+        afterUiSettles("Fifth first-run question") { check(ProfileField.CAR.question in texts()) }
+        click("중형 SUV")
+        click("시작하기")
         onMainChecked { vm.admin!!.setProfile(com.moah.hackathon.data.AdminPresets.PROFILE_RUSTY); vm.restart() }
         render(activity) { AdminHome(vm.admin!!, vm.phase.value as LessonPhase.Setup, {}) }
         capture("28b-admin"); check(buttonBounds("이 설정으로 홈").height() / scale >= 112)
@@ -1785,7 +1792,13 @@ class LessonScreenInstrumentation : Instrumentation() {
         click("주차")
         afterUiSettles("Second onboarding question") { check(ProfileField.LAST_DRIVE.question in texts()) }
         click("십 년 넘게")
-        afterUiSettles("Two questions complete") {
+        afterUiSettles("Third first-run question") { check(ProfileField.GOAL.question in texts()) }
+        click("아이 등하원")
+        afterUiSettles("Fourth first-run question") { check(ProfileField.LICENSE.question in texts()) }
+        click("십 년쯤 전")
+        afterUiSettles("Fifth first-run question") { check(ProfileField.CAR.question in texts()) }
+        click("중형 SUV")
+        afterUiSettles("Five questions complete") {
             check("시작하기" in texts())
             check(ProfileField.entries.none { it.question in texts() })
         }

@@ -7,7 +7,7 @@ import java.util.Properties
 /**
  * 프로필 다섯 줄(라운드 22 결정 7 = 7b P2 "한 장", 10/5). 답은 **칩만** — 키보드·STT·숫자 입력 없음.
  * 칩은 [ProfileStatement] 의 기존 필드에 대표값을 넣고, 저장된 값에서 거꾸로 칩을 찾는다(필드 타입은 그대로 — 멘트·Copilot 프롬프트·제안이 그대로 읽는다).
- * 줄 순서 = 묻는 순서: 첫 실행은 [ONBOARDING] 둘만, 나머지는 리포트 끝 카드가 세션마다 하나씩.
+ * 줄 순서 = 묻는 순서: 첫 실행은 [ONBOARDING](다섯 전부, 10/8), 건너뛴 줄은 리포트 끝 카드가 세션마다 하나씩.
  */
 enum class ProfileField(val title: String, val question: String) {
     FEAR("무서운 상황", "운전하면서 제일 무서운 건 뭐예요?"),
@@ -18,8 +18,11 @@ enum class ProfileField(val title: String, val question: String) {
     ;
 
     companion object {
-        /** 첫 실행에 묻는 줄 — 첫 제안을 바꾸는 둘(7b 질문 5 기본값). */
-        val ONBOARDING: List<ProfileField> = listOf(FEAR, LAST_DRIVE)
+        /**
+         * 첫 실행에 묻는 줄 — 다섯 전부(10/8 사용자: 둘만 묻고 시작하니 "필요한 일~타는 차가 설정 안 된 채 시작하는 버그" 로 보였다.
+         * 그 전(7b 질문 5 기본값)은 첫 제안을 바꾸는 둘만 묻고 나머지는 리포트 끝 카드에서 하나씩). 건너뛰기는 그대로 둔다.
+         */
+        val ONBOARDING: List<ProfileField> = entries
     }
 }
 
