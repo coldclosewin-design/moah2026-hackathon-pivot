@@ -130,13 +130,17 @@ class LessonViewModel(
         fun resetProfile() { machine.resetProfile(); _profileId.value = AdminPresets.PROFILE_EMPTY }
         fun setBand(visible: Boolean) { _bandVisible.value = visible }
 
-        private val _coachInput = MutableStateFlow(CoachInputMode.OFF)
-        /** 입력 방식 세 값(라운드 25 결정 7) — 준비실 "시뮬레이션 음성 입력 · 끔 / 카드 / 카드 + 글". 키보드가 없는 사내는 카드. */
+        /**
+         * 입력 방식 세 값(라운드 25 결정 7) — 준비실 "시뮬레이션 음성 입력 · 끔 / 카드 / 카드 + 글". 키보드가 없는 사내는 카드.
+         * **시연 빌드 기본은 카드**(10/8 사용자 — 기본 끔이라 말 카드를 못 보고 "미반영" 으로 보였다). Real(관리자 없음)은 그대로 끔.
+         */
+        private val _coachInput = MutableStateFlow(DEFAULT_COACH_INPUT)
         val coachInput: StateFlow<CoachInputMode> = _coachInput
         fun setCoachInput(mode: CoachInputMode) { machine.setCoachInput(mode); _coachInput.value = mode; _textInput.value = mode.on }
-        private val _textInput = MutableStateFlow(false)
+        private val _textInput = MutableStateFlow(DEFAULT_COACH_INPUT.on)
+        init { machine.setCoachInput(DEFAULT_COACH_INPUT) }
         /**
-         * "시뮬레이션 음성 입력"(10/6) — 켜면 홈 코치 시트에 텍스트 입력이 생기고 AI(또는 Fake 키워드 규칙)가 답한다. 기본 꺼짐.
+         * "시뮬레이션 음성 입력"(10/6) — 켜면 홈 코치 시트에 말 카드(+ 글 입력)가 생기고 AI(또는 Fake 키워드 규칙)가 답한다. 시연 빌드 기본 켬(카드).
          * 화면의 입력 칸·배지·버튼 문구는 이 값이 아니라 `Setup.coachTextInput` 을 본다(같은 값).
          */
         val textInput: StateFlow<Boolean> = _textInput
@@ -194,6 +198,8 @@ class LessonViewModel(
         private const val TAG = "MOAH/LessonViewModel"
         /** 관리자 조향각 상한 — 시나리오가 쓰는 범위(한 바퀴 반)와 같다. */
         const val STEERING_LIMIT_DEG = 540f
+        /** 시연 빌드의 홈 코치 입력 기본값 — 말 카드(키보드 없는 사내 에뮬에서도 몇 마디 대화가 된다). */
+        val DEFAULT_COACH_INPUT = CoachInputMode.CARDS
         fun factory(container: AppContainer): ViewModelProvider.Factory = viewModelFactory {
             initializer { LessonViewModel(container.lesson, container.tts, container.vehicle, container.scenarios, container.scenariosFor, container.copilot) }
         }

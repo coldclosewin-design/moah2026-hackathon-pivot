@@ -22,6 +22,11 @@ object SpeechCards {
         SpeechCard("shaky", "핸들 잡으면 손이 떨려요", CardStage.OPENING),
         SpeechCard("first-alone", "혼자 타는 건 처음이에요", CardStage.OPENING),
         SpeechCard("short-today", "오늘은 짧게만 할래요", CardStage.OPENING),
+        // 10/8 저녁 사용자 "화면에 비해 카드가 적다" — 다시 시작하는 사람의 말로 넷 더(첫 말은 모두 한 번 되묻는다)
+        SpeechCard("rusty", "운전 감을 되찾고 싶어요", CardStage.OPENING),
+        SpeechCard("honked", "뒤에서 빵빵대면 당황해요", CardStage.OPENING),
+        SpeechCard("pillar", "주차장 기둥이 무서워요", CardStage.OPENING),
+        SpeechCard("kid-tense", "아이 태우면 더 긴장돼요", CardStage.OPENING),
         SpeechCard("parallel-hint", "평행 주차 힌트로 할래요", CardStage.FOLLOW_UP),
         SpeechCard("rear-again", "후면 주차 다시 해 볼래요", CardStage.FOLLOW_UP),
         SpeechCard("mock-exam", "모의시험 볼래요", CardStage.FOLLOW_UP),
@@ -33,6 +38,9 @@ object SpeechCards {
         SpeechCard("parking-hard", "주차할 때가 제일 어려워요", CardStage.FOLLOW_UP),
         SpeechCard("lane-scary", "차선 바꿀 때가 무서워요", CardStage.FOLLOW_UP),
         SpeechCard("hint-only", "힌트만 주세요", CardStage.FOLLOW_UP),
+        SpeechCard("reverse-hard", "후진이 제일 어려워요", CardStage.FOLLOW_UP),
+        SpeechCard("guide-slow", "가이드로 차근차근요", CardStage.FOLLOW_UP),
+        SpeechCard("eval-exam", "시험처럼 평가해 주세요", CardStage.FOLLOW_UP),
         SpeechCard("road", "도로 주행이 궁금해요", CardStage.FOLLOW_UP),
         SpeechCard("profile", "내 프로필 고칠래요", CardStage.FOLLOW_UP),
     )
