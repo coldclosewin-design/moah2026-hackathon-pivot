@@ -37,13 +37,21 @@ internal fun QuizScreen(task: Task, index: Int, total: Int, item: QuizItem, lock
     }
     PosterSurface {
         Row(Modifier.fillMaxSize()) {
-            if (item.figure != null) RoadFigurePanel(item.figure, "${index + 1} / $total", Modifier.weight(.38f))
-            else QuizNumber((index + 1).toString().padStart(2, '0'), "${index + 1} / $total", Modifier.weight(.38f),
-                correct = chosen?.let { it == item.answer })
-            Column(Modifier.weight(.62f).fillMaxHeight().padding(start = 100.dp, end = 120.dp, top = 64.dp, bottom = 52.dp),
+            Column(Modifier.weight(.30f).fillMaxHeight().background(CoachColors.Ink).padding(80.dp), verticalArrangement = Arrangement.spacedBy(28.dp)) {
+                BrandMark(color = CoachColors.Paper)
+                Spacer(Modifier.height(24.dp))
+                Eyebrow("QUESTION", color = CoachColors.Platinum)
+                Row(verticalAlignment = Alignment.Bottom) {
+                    Headline((index + 1).toString().padStart(2, '0'), size = 280, color = CoachColors.Paper)
+                    LessonText(" / $total", 40, CoachColors.Platinum, modifier = Modifier.padding(bottom = 40.dp))
+                }
+                if (item.figure != null) RoadFigureDiagram(item.figure, Modifier.weight(1f).fillMaxWidth())
+                else Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) { SymbolTile(CoachSymbol.Thinking, Modifier.size(240.dp), animate = false) }
+            }
+            Column(Modifier.weight(.70f).fillMaxHeight().background(CoachColors.Lavender).padding(start = 80.dp, end = 80.dp, top = 64.dp, bottom = 52.dp),
                 verticalArrangement = Arrangement.spacedBy(24.dp)) {
                 Eyebrow("지식 테스트 · ${task.title}")
-                Headline(item.question, size = 72)
+                Headline(item.question, Modifier.fillMaxWidth(.92f), size = 88)
                 Column(Modifier.weight(1f).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically)) {
                     if (locked) {
                         LessonText(stringResource(R.string.lesson_quiz_locked), 40, CoachColors.Muted)
@@ -63,14 +71,13 @@ internal fun QuizScreen(task: Task, index: Int, total: Int, item: QuizItem, lock
                                 else -> CoachColors.Muted
                             }
                             val action = if (chosen == null) Modifier.clickable(role = Role.Button) { onAnswer(choiceIndex) } else Modifier
-                            Row(Modifier.fillMaxWidth().heightIn(min = 112.dp)
-                                .surfaceTexture(if (correct) CoachColors.Ink else CoachColors.Lavender,
-                                    if (correct) CoachTexture.SelectedCard else CoachTexture.Card)
-                                .then(if (mine && !correct) Modifier.border(4.dp, CoachColors.Signal) else Modifier)
+                            Row(Modifier.fillMaxWidth().heightIn(min = if (chosen == null) 140.dp else 112.dp)
+                                .background(if (correct) CoachColors.Ink else CoachColors.Paper, RoundedCornerShape(100))
+                                .then(if (mine && !correct) Modifier.border(4.dp, CoachColors.Signal, RoundedCornerShape(100)) else Modifier)
                                 .then(action).semantics { selected = mine }
                                 .padding(horizontal = 28.dp, vertical = 16.dp),
                                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                                LessonText("${choiceIndex + 1}", 32, foreground)
+                                LessonText("${choiceIndex + 1}", 32, foreground, modifier = Modifier.background(if (correct) CoachColors.Periwinkle else CoachColors.Lavender, RoundedCornerShape(100)).padding(horizontal = 20.dp, vertical = 10.dp))
                                 LessonText(choice, 42, foreground, modifier = Modifier.weight(1f))
                                 if (badge != null) LessonText(badge, 32,
                                     if (correct) CoachColors.Periwinkle else CoachColors.Paper,
@@ -80,7 +87,7 @@ internal fun QuizScreen(task: Task, index: Int, total: Int, item: QuizItem, lock
                         }
                         if (chosen != null) {
                             Spacer(Modifier.height(8.dp))
-                            QuizExplanation(item.why)
+                            SheetCard(Modifier.fillMaxWidth().heightIn(min = 180.dp)) { QuizExplanation(item.why) }
                         }
                     }
                 }
@@ -101,11 +108,6 @@ internal fun QuizScreen(task: Task, index: Int, total: Int, item: QuizItem, lock
 @Composable
 internal fun QuizNumber(number: String, label: String, modifier: Modifier, correct: Boolean? = null) {
     Box(modifier.fillMaxHeight().background(CoachColors.Ink).clipToBounds()) {
-        Canvas(Modifier.fillMaxSize()) {
-            drawArc(CoachColors.Periwinkle, 160f, 190f, false,
-                Offset(-size.width * .5f, size.height * .38f), Size(size.width * 1.5f, size.width * 1.5f),
-                style = androidx.compose.ui.graphics.drawscope.Stroke(110.dp.toPx()))
-        }
         BrandMark(Modifier.padding(start = 180.dp, top = 64.dp), CoachColors.Paper)
         Column(Modifier.align(Alignment.Center).padding(64.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Eyebrow(label, color = CoachColors.Paper)
@@ -135,7 +137,7 @@ internal fun QuizNumber(number: String, label: String, modifier: Modifier, corre
 
 @Composable
 internal fun QuizExplanation(text: String, size: Int = 40) {
-    Row(Modifier.fillMaxWidth().surfaceTexture(CoachColors.Lavender, CoachTexture.Card).padding(32.dp),
+    Row(Modifier.fillMaxWidth().background(CoachColors.Paper, RoundedCornerShape(40.dp)).padding(32.dp),
         horizontalArrangement = Arrangement.spacedBy(24.dp), verticalAlignment = Alignment.Top) {
         LessonText("“", 88, CoachColors.Periwinkle, modifier = Modifier.width(56.dp))
         LessonText(text, size, modifier = Modifier.weight(1f))

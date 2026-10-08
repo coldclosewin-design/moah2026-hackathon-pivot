@@ -14,6 +14,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -53,9 +57,14 @@ internal fun YellowModeIcon(modifier: Modifier = Modifier, bars: Int = 2, conver
 }
 
 @Composable
-internal fun WordPill(label: String, description: String, size: Int, chosen: Boolean = false, onClick: () -> Unit) {
-    Box(Modifier.shadow(3.dp, RoundedCornerShape(30.dp))
+internal fun WordPill(label: String, description: String, size: Int, chosen: Boolean = false, placeholder: Boolean = false, onClick: () -> Unit) {
+    Box(Modifier.heightIn(min = 112.dp).shadow(if (placeholder) 0.dp else 3.dp, RoundedCornerShape(30.dp))
         .background(if (chosen) CoachColors.Ink else CoachColors.Paper, RoundedCornerShape(30.dp))
+        .drawWithContent {
+            drawContent()
+            if (placeholder) drawRoundRect(CoachColors.Muted, cornerRadius = CornerRadius(30.dp.toPx()),
+                style = Stroke(2.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(8.dp.toPx(), 8.dp.toPx()))))
+        }
         .clickable(role = Role.Button, onClick = onClick).semantics { contentDescription = description }
         .padding(horizontal = 32.dp, vertical = 4.dp), contentAlignment = Alignment.Center) {
         LessonText(label, size, if (chosen) CoachColors.Paper else CoachColors.Ink, bold = true, maxLines = 1)

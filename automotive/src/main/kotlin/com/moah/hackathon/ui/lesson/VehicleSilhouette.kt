@@ -18,11 +18,11 @@ import androidx.compose.ui.graphics.drawscope.withTransform
 import com.moah.hackathon.ui.CoachColors
 
 /** V4: rear-up rounded body, one cabin and a front marker; shared by all four diagrams. */
-internal fun DrawScope.vehicleSilhouette(bodyColor: Color, panelColor: Color, glassColor: Color) {
+internal fun DrawScope.vehicleSilhouette(bodyColor: Color, panelColor: Color, glassColor: Color, outlineWidth: Float = 8f) {
     drawRoundRect(glassColor, Offset(5f, 0f), Size(90f, 250f), CornerRadius(40f, 40f))
-    drawRoundRect(bodyColor, Offset(5f, 0f), Size(90f, 250f), CornerRadius(40f, 40f), style = Stroke(8f))
-    drawRoundRect(bodyColor, Offset(23f, 55f), Size(54f, 110f), CornerRadius(16f, 16f), style = Stroke(8f))
-    drawLine(bodyColor, Offset(26f, 207f), Offset(74f, 207f), 8f, StrokeCap.Round)
+    drawRoundRect(bodyColor, Offset(5f, 0f), Size(90f, 250f), CornerRadius(40f, 40f), style = Stroke(outlineWidth))
+    drawRoundRect(bodyColor, Offset(23f, 55f), Size(54f, 110f), CornerRadius(16f, 16f), style = Stroke(outlineWidth))
+    drawLine(bodyColor, Offset(26f, 207f), Offset(74f, 207f), outlineWidth, StrokeCap.Round)
 }
 
 @Composable

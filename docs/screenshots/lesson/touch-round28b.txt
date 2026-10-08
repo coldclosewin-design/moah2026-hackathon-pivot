@@ -1,0 +1,10 @@
+Serial: emulator-5556
+Observer: sequential ADB wrapper after the original flow screenshot pull; no parallel UIAutomator.
+Counts include clickable, long-clickable and scrollable app nodes. System bars are excluded by package.
+Score nodes mean score labels, cumulative/digital deductions, or N-point values. Existing instantaneous warning sentences are preserved separately.
+The slope observer retries up to four fresh samples if the scenario is temporarily at <=5 km/h.
+{"capture": "12_maneuver_hint-sample-1-nodes.xml", "speed_kmh": 3.0, "app_nodes": 55, "touch_targets": 8, "score_nodes": [], "instant_warning_nodes": [], "map_visible": false, "requires_zero": false, "flow": "rear"}
+{"capture": "22_drive_slope-sample-1-nodes.xml", "speed_kmh": 0.0, "app_nodes": 53, "touch_targets": 10, "score_nodes": [], "instant_warning_nodes": [], "map_visible": true, "requires_zero": false, "flow": "course"}
+{"capture": "22_drive_slope-sample-2-nodes.xml", "speed_kmh": 0.0, "app_nodes": 53, "touch_targets": 10, "score_nodes": [], "instant_warning_nodes": ["뒤로 밀림, 감점입니다."], "map_visible": true, "requires_zero": false, "flow": "course"}
+{"capture": "22_drive_slope-sample-3-nodes.xml", "speed_kmh": 14.0, "app_nodes": 19, "touch_targets": 0, "score_nodes": [], "instant_warning_nodes": ["뒤로 밀림, 감점입니다."], "map_visible": true, "requires_zero": true, "flow": "course"}
+{"capture": "24_drive_emergency-sample-1-nodes.xml", "speed_kmh": 0.0, "app_nodes": 53, "touch_targets": 10, "score_nodes": [], "instant_warning_nodes": [], "map_visible": true, "requires_zero": false, "flow": "course"}

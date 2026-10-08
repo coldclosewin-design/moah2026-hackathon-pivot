@@ -20,44 +20,61 @@ import com.moah.hackathon.ui.CoachColors
 import com.moah.hackathon.ui.CoachTexture
 import kotlin.math.roundToInt
 
-/** All three scopes remain above the fixed provenance and single action row. */
+/** C1: one actual task table and a separate scope track; no synthetic cross-task totals. */
 @Composable
 internal fun CertificateContent(report: LessonReport, selected: ShareLevel?, onSelect: (ShareLevel) -> Unit,
-    onExample: () -> Unit, modifier: Modifier) {
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically) {
-            Eyebrow("진단서")
-            bestCourseAttempt(report.attempts)?.course?.let { result ->
-                LessonText("${report.task.title} · ${courseVerdict(result)}", 32)
+    modifier: Modifier) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(40.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+            Column { BrandMark(); Spacer(Modifier.height(24.dp)); Headline("진단서", size = 88) }
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                YellowContextIcon(ContextIcon.Document)
+                LessonText("예시입니다 — 실제 전송·계약은 없습니다", 36)
             }
         }
-        LessonText("예시입니다 — 실제 전송·계약은 없습니다", 32, CoachColors.Periwinkle)
-        Eyebrow("공유 범위 · 위로 갈수록 넓게")
-        Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            report.shareLevels.reversed().forEach { level ->
-                val chosen = level == selected
-                val ink = if (chosen) CoachColors.Paper else CoachColors.Ink
-                val muted = if (chosen) CoachColors.Paper.copy(alpha = .8f) else CoachColors.Muted
-                Row(Modifier.fillMaxWidth().height(148.dp).testTag("share-${level.name}")
-                    .surfaceTexture(if (chosen) CoachColors.Ink else CoachColors.Lavender,
-                        if (chosen) CoachTexture.SelectedCard else CoachTexture.Card)
-                    .selectable(chosen, role = Role.RadioButton, onClick = { onSelect(level) })
-                    .padding(horizontal = 24.dp, vertical = 12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(32.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(.44f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        LessonText(level.label, 40, ink)
-                        LessonText(level.description, 32, muted)
+        Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+            LessonText("기간 ${report.attempts.firstOrNull()?.index ?: 0}회차–${report.attempts.lastOrNull()?.index ?: 0}회차", 36)
+            LessonText(report.task.title, 36, CoachColors.Muted)
+        }
+        Row(Modifier.weight(1f).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(40.dp)) {
+            SheetCard(Modifier.weight(.58f).fillMaxHeight()) {
+                Column(Modifier.fillMaxSize().padding(52.dp), verticalArrangement = Arrangement.spacedBy(32.dp)) {
+                    Eyebrow("과제별")
+                    Row(Modifier.fillMaxWidth()) {
+                        LessonText("과제", 32, CoachColors.Muted, modifier = Modifier.weight(1.8f))
+                        LessonText("회차", 32, CoachColors.Muted, modifier = Modifier.weight(.6f))
+                        LessonText("숙련", 32, CoachColors.Muted, modifier = Modifier.weight(1f))
+                        LessonText("안전 · 판정", 32, CoachColors.Muted, modifier = Modifier.weight(1.2f))
                     }
-                    Column(Modifier.weight(.56f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        LessonText(level.benefit, 36, ink)
-                        LessonText("${level.condition} · 예시", 28, muted)
+                    PosterRule()
+                    Row(Modifier.fillMaxWidth().testTag("certificate-task-row"), verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1.8f)) { LessonText(report.task.title, 42); LessonText(report.mode.label, 32, CoachColors.Muted) }
+                        LessonText(report.attempts.size.toString(), 44, modifier = Modifier.weight(.6f))
+                        LessonText("${report.attempts.firstOrNull()?.score?.skill ?: report.best.skill} → ${report.attempts.lastOrNull()?.score?.skill ?: report.best.skill}", 44, modifier = Modifier.weight(1f))
+                        LessonText(bestCourseAttempt(report.attempts)?.course?.let(::courseVerdict)
+                            ?: "${report.attempts.firstOrNull()?.score?.safety ?: report.best.safety} → ${report.attempts.lastOrNull()?.score?.safety ?: report.best.safety}", 44, modifier = Modifier.weight(1.2f))
                     }
+                    PosterRule()
+                    Spacer(Modifier.weight(1f))
+                    LessonText("화살표 왼쪽 = 첫 회차 · 오른쪽 = 마지막 회차", 32, CoachColors.Muted)
+                    AvailabilitySummary(report.best.badge, 36)
+                    LessonText(reportDisclosure(report), 32, CoachColors.Muted)
+                }
+            }
+            SheetCard(Modifier.weight(.42f).fillMaxHeight()) {
+                Column(Modifier.fillMaxSize().padding(48.dp), verticalArrangement = Arrangement.spacedBy(32.dp)) {
+                    Eyebrow("공유 범위 · 오른쪽으로 갈수록 넓게")
+                    SelectionTrack(report.shareLevels, selected, { it.label }, onSelect, Modifier.fillMaxWidth(), height = 112.dp, textSize = 36)
+                    selected?.let { level ->
+                        LessonText(level.benefit, 44)
+                        LessonText("${level.condition} · 예시", 36, CoachColors.Muted)
+                        LessonText(level.description, 36)
+                    }
+                    Spacer(Modifier.weight(1f))
+                    LessonText("넓은 범위일수록 혜택이 늘어요 · 포함 항목은 공유 예시에서 확인", 32, CoachColors.Muted)
                 }
             }
         }
-        LessonText("넓은 범위일수록 혜택이 늘어요 · 포함 항목은 공유 예시에서 확인", 28, CoachColors.Muted)
-        TextAction("공유 예시 보기", onExample, size = 32)
     }
 }
 

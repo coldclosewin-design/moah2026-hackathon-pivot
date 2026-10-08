@@ -35,7 +35,7 @@ import kotlin.math.min
 internal fun CourseMap(course: TrackCourse, modifier: Modifier, progress: CourseProgress? = null,
     pose: Pose? = null, signal: TrackSignal? = null, trail: List<TrackPoint> = emptyList(),
     markers: List<Vec2> = emptyList(), thumbnail: Boolean = false, ink: Color = CoachColors.Paper,
-    previewRoute: Color? = null, showLabels: Boolean = true) {
+    previewRoute: Color? = null, showLabels: Boolean = true, lightRoad: Boolean = false) {
     val measurer = rememberTextMeasurer()
     val labels = remember(course, thumbnail, ink, measurer, showLabels) {
         if (thumbnail || !showLabels) emptyList() else course.map.shapes.filterIsInstance<MapShape.Label>().map {
@@ -53,7 +53,7 @@ internal fun CourseMap(course: TrackCourse, modifier: Modifier, progress: Course
         val oy = (size.height - map.heightM * scale) / 2
         fun p(v: Vec2) = Offset(ox + v.x * scaleX, oy + (map.heightM - v.y) * scale)
         fun area(a: Area, color: Color) = drawRect(color, p(Vec2(a.minX, a.maxY)), Size(a.width * scale, a.height * scale))
-        val road = if (thumbnail && previewRoute == null) ink else ink.copy(alpha = .28f)
+        val road = if (lightRoad) CoachColors.Paper else if (thumbnail && previewRoute == null) ink else ink.copy(alpha = .28f)
         val line = (if (thumbnail) 1.5f else 3f).dp.toPx()
         val dashed = PathEffect.dashPathEffect(floatArrayOf(2f * scale, 2f * scale))
         course.zones.forEach { zone ->
@@ -139,7 +139,7 @@ internal fun CourseMap(course: TrackCourse, modifier: Modifier, progress: Course
                 val h = VehicleSilhouetteGeometry.LENGTH * scale * TrackCourses.MAP_CAR_SCALE
                 rotate(180f - car.headingDeg, c) {
                     withTransform({ translate(c.x - w / 2, c.y - h / 2); scale(w / 100f, h / 250f, Offset.Zero) }) {
-                        vehicleSilhouette(CoachColors.Paper, CoachColors.Periwinkle, CoachColors.Ink)
+                        vehicleSilhouette(if (lightRoad) CoachColors.Ink else CoachColors.Paper, CoachColors.Periwinkle, if (lightRoad) CoachColors.Paper else CoachColors.Ink)
                     }
                 }
             }

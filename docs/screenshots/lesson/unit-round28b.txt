@@ -1,0 +1,6 @@
+2026-10-08 · emulator-5556 · codex/ui-round28b
+PowerShell: .\gradlew.bat assembleDebug testDebugUnitTest :automotive:assembleDebugAndroidTest
+JVM: {'tests': 368, 'failures': 0, 'errors': 0, 'skipped': 0}
+APK: automotive/build/outputs/apk/debug/automotive-debug.apk
+SHA-256: 4315b3d8fb2f74c5e55b4368524367bc5426c5c74b79f43921f8085ba9c02927
+This same app APK was used for all three consecutive Lesson contract runs and both live flows.

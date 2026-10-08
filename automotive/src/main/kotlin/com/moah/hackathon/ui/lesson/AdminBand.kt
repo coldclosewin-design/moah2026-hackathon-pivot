@@ -29,7 +29,7 @@ internal fun AdminBand(scenarios: List<Scenario>, playback: ScenarioPlayback?, o
     onResetRecords: () -> Unit = {}, onHide: () -> Unit = {}, signalSource: String = "") {
     var more by rememberSaveable { mutableStateOf(false) }
     val auth = aiState?.collectAsState()?.value
-    Column(Modifier.fillMaxWidth().background(CoachColors.Ink).testTag("admin-band")) {
+    Column(Modifier.fillMaxWidth().background(CoachColors.Periwinkle).testTag("admin-band")) {
         Row(Modifier.fillMaxWidth().height(90.dp).padding(horizontal = 24.dp),
             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             LessonText("관리자", 28, CoachColors.Paper.copy(alpha = .6f))

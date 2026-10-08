@@ -268,7 +268,11 @@ internal fun AvailabilitySummary(badge: com.moah.hackathon.vehicle.AvailabilityB
         Placeholder(((symbol.label.length + 1.4f) * size).sp, (size * 1.3f).sp, PlaceholderVerticalAlign.Center)) {
         Row(Modifier.fillMaxSize().clearAndSetSemantics {}, verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy((size * .4f).dp)) {
-            SymbolTile(symbol, Modifier.size(size.dp), animate = false)
+            SignalShape(when (symbol) {
+                CoachSymbol.Live -> SignalAvailability.LIVE
+                CoachSymbol.Simulated -> SignalAvailability.SIMULATED
+                else -> SignalAvailability.MISSING
+            }, Modifier.size(size.dp), if (onInk) CoachColors.Platinum else CoachColors.Ink)
             LessonText(symbol.label, size, if (onInk) CoachColors.Platinum else CoachColors.Periwinkle, maxLines = 1)
         }
     } }
