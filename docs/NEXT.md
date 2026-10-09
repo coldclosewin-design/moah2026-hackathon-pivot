@@ -9,14 +9,14 @@
 ### ⚑ 지금 (10/9) — 새 세션은 이 칸부터
 
 - **최종 사내 태그 `inhouse-20261009-3` = `c9b4399`** (번들 `build/moah2026-20261009-3.bundle` 약 415 MB, clone·`REPO_ONLY` PASS — `-2`(747c145) + 31d 프로필 시트 편집 칩 정렬 #276). 사내 시작 한 줄은 `docs/handoffs/INHOUSE_NOW.md`(새로 볼 것 12 · 녹화 주의: 2회차는 누른 뒤 손대지 않기 — 60 s 유예). 직전 `-2` = `747c145`(프로필 시트만 다름) · `-1` = `7a01065`(+ 아이콘).
-- **main = `1b14b84`** · 단위 테스트 **368** · 매 머지 `lesson_shots`·`RESERVE=1 emu_flow`·`course_flow` PASS(5554).
+- **main = `8a045a8`** · 단위 테스트 **368** · 매 머지 `lesson_shots`·`RESERVE=1 emu_flow`·`course_flow` PASS(5554).
 - **디자인**: 컨셉 01 Onyx 갤러리가 전 화면에(라운드 27~31c). 로고 = 핸들 속 새싹(`docs/design/round31-proposals/5-app-logo-sprout-sizes.html` 20번 E4). 출처 배지는 `자세히 보기` · 점검 카드 기호 · 준비실 세 곳에만(AGENTS). 말 카드 기본 켬. 첫 실행 다섯 질문. 관리자 띠 = 바닥 손잡이 서랍. 탈출 = 워드마크 2초.
-- **열린 발주 없음.** 열린 PR: #222 · #223(PPT 한 장 시안 — 사용자 선택용).
+- **열린 발주 없음.** 제출 PPT: 주최 양식 칸 원고 `docs/presentation/04_submission_form_20261009.md`(+ `submission-form-20261009/` 미리보기·아이콘·캡처 여섯) · 자유 양식 한 장 `drive-coach-onepager.pptx`(#282). 옛 시안 PR #222 · #223 은 열린 채(참고용).
 - 에뮬: Claude `CSTDe_API_34` = 5554 · Codex 5556. 스크린캡 `-d 4619827259835644672`. 일지 [10/8](journal/2026-10-08.md) · [10/9](journal/2026-10-09.md).
 
 ### 남은 일 (순서)
 
-1. **사람 몫(10/9)**: 사내 검증(INHOUSE_NOW 12) → 녹화(`docs/05b_recording_scenario_20261009.md` — 첫 진입부터 전 기능, 5/3/7분) → PPT 확정(#222/#223) → `submission`(태그 + `inhouse:` 커밋 1개) → MarketUploader(VEHICLE, versionCode +1) → 메일(MOAH@mobis.com).
+1. **사람 몫(10/9)**: 사내 검증(INHOUSE_NOW 12) → 녹화(`docs/05b_recording_scenario_20261009.md` — 첫 진입부터 전 기능, 5/3/7분) → PPT(주최 양식에 `04_submission_form` 원고·아이콘·캡처 옮김) → `submission`(태그 + `inhouse:` 커밋 1개) → MarketUploader(VEHICLE, versionCode +1) → 메일(MOAH@mobis.com).
 2. 사내 관찰 노트가 오면 `docs/INTEGRATION.md` B 절로 옮기고, 고칠 것은 PR 하나 = 한 scope → 다음 태그.
 3. 마감 뒤: 다크 모드(시안 26 6-P1, 색 토큰 역할 리팩터 먼저) · STT · 주행 중 AI 발화 · 시안 PNG 를 저장소 밖으로(번들 크기) · 지식 해설·보기 길이 규칙.
 
