@@ -5,11 +5,16 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -18,12 +23,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
 import com.moah.hackathon.feature.lesson.*
 import com.moah.hackathon.ui.CoachColors
 import com.moah.hackathon.ui.CoachTexture
@@ -49,13 +56,27 @@ internal fun ColumnScope.ProfileScreen(rows: List<ProfileRow>, onAnswer: (Profil
     var expanded by rememberSaveable { mutableStateOf(if (onboarding != null) rows.firstOrNull { it.field in allowed && it.answer == null }?.field?.name else null) }
     val complete = onboarding != null && rows.filter { it.field in allowed }.all { it.answer != null }
     val parts = profile?.let(::profileLine)?.split(" · ")
+    val columnStarts = remember { mutableStateMapOf<ProfileField, Dp>() }
+    val density = LocalDensity.current
+    val vehicleRes = profileVehicleRes(rows.firstOrNull { it.field == ProfileField.CAR }?.answer?.label)
     Eyebrow(if (onboarding == null) "내 프로필" else "처음 뵙겠습니다", color = CoachColors.Muted)
     Spacer(Modifier.height(28.dp))
     if (onboarding == null && parts != null) {
-        Headline("${parts.getOrNull(1).orEmpty()} ${parts.firstOrNull().orEmpty()},", size = 132)
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            LessonText("목표는 ", 132, CoachColors.Muted, bold = true)
-            LessonText(parts.getOrNull(2).orEmpty().removePrefix("목표: ") + ".", 132, bold = true)
+        val titleSize = if (expanded == null) 132 else 104
+        Box(Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(end = if (vehicleRes != null) 560.dp else 0.dp)) {
+                Headline("${parts.getOrNull(1).orEmpty()} ${parts.firstOrNull().orEmpty()},", size = titleSize)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    LessonText("목표는 ", titleSize, CoachColors.Muted, bold = true)
+                    LessonText(parts.getOrNull(2).orEmpty().removePrefix("목표: ") + ".", titleSize, bold = true)
+                }
+            }
+            vehicleRes?.let { res ->
+                Image(painterResource(res), contentDescription = "선택한 차 미리 보기",
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.align(Alignment.TopEnd).width(520.dp).height(220.dp)
+                        .graphicsLayer { scaleX = -1f }.testTag("profile-vehicle-preview"))
+            }
         }
     } else Headline("내 프로필을 같이 채워요.", size = 104)
     Spacer(Modifier.height(32.dp))
@@ -65,6 +86,9 @@ internal fun ColumnScope.ProfileScreen(rows: List<ProfileRow>, onAnswer: (Profil
         rows.forEach { row ->
             val active = row.field.name == expanded
             Column(Modifier.weight(1f).heightIn(min = 148.dp).testTag("profile-${row.field.name}")
+                .then(if (onboarding == null) Modifier.onGloballyPositioned {
+                    columnStarts[row.field] = with(density) { it.positionInParent().x.toDp() }
+                } else Modifier)
                 .clickable(role = Role.Button) { expanded = if (active) null else row.field.name }
                 .semantics(mergeDescendants = true) {
                     contentDescription = "${row.field.title}, ${row.answer?.label ?: "아직"}, 바꾸기"
@@ -78,7 +102,19 @@ internal fun ColumnScope.ProfileScreen(rows: List<ProfileRow>, onAnswer: (Profil
     }
     BoxWithConstraints(Modifier.weight(1f).fillMaxWidth().padding(top = 32.dp)) {
         rows.firstOrNull { it.field.name == expanded && it.field in allowed }?.let { active ->
-            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+            val columnStart = columnStarts[active.field] ?: 0.dp
+            val scroll = key(active.field) { rememberScrollState() }
+            val answers = if (onboarding != null) Modifier.fillMaxWidth() else Modifier
+                .layout { measurable, constraints ->
+                    // The sheet already has 84 dp padding; keep the chips 120 dp from the screen edge.
+                    val availableWidth = (constraints.maxWidth - 36.dp.roundToPx()).coerceAtLeast(0)
+                    val chips = measurable.measure(constraints.copy(minWidth = 0, maxWidth = availableWidth))
+                    val start = columnStart.roundToPx().coerceIn(0, availableWidth - chips.width)
+                    layout(constraints.maxWidth, chips.height) { chips.placeRelative(start, 0) }
+                }
+                .width(IntrinsicSize.Max)
+                .verticalScroll(scroll)
+            Column(answers, verticalArrangement = Arrangement.spacedBy(20.dp)) {
                 ProfileQuestion(active) { id ->
                     onAnswer(active.field, id)
                     expanded = if (onboarding != null) rows.firstOrNull { it.field in allowed && it.field != active.field && it.answer == null }?.field?.name else null
@@ -86,7 +122,7 @@ internal fun ColumnScope.ProfileScreen(rows: List<ProfileRow>, onAnswer: (Profil
                 if (onboarding != null) TextAction("닫기", { expanded = null }, size = 32)
             }
         }
-        profileVehicleRes(rows.firstOrNull { it.field == ProfileField.CAR }?.answer?.label)?.let { res ->
+        vehicleRes?.takeIf { onboarding != null }?.let { res ->
             Image(painterResource(res), contentDescription = "선택한 차 미리 보기",
                 contentScale = ContentScale.Fit,
                 modifier = Modifier.align(Alignment.BottomEnd).width(680.dp).height(220.dp)
@@ -98,18 +134,20 @@ internal fun ColumnScope.ProfileScreen(rows: List<ProfileRow>, onAnswer: (Profil
         BottomActions(secondary = { TextAction("건너뛰기", onBack) }, primary = if (complete) ({ PrimaryPill("시작하기", onBack) }) else null)
     } else Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(80.dp)) {
         BackPill(onBack)
-        Canvas(Modifier.size(72.dp).background(CoachColors.Ink, RoundedCornerShape(20.dp))) {
-            withTransform({ scale(size.width / 64f, size.height / 64f, Offset.Zero) }) {
-                drawPath(Path().apply {
-                    moveTo(12f, 32f); quadraticTo(32f, 7f, 52f, 32f)
-                    quadraticTo(32f, 57f, 12f, 32f); close()
-                }, CoachColors.Paper, style = Stroke(3.5f))
-                drawCircle(CoachColors.Paper, 7f, Offset(32f, 32f))
+        if (expanded == null) {
+            Canvas(Modifier.size(72.dp).background(CoachColors.Ink, RoundedCornerShape(20.dp))) {
+                withTransform({ scale(size.width / 64f, size.height / 64f, Offset.Zero) }) {
+                    drawPath(Path().apply {
+                        moveTo(12f, 32f); quadraticTo(32f, 7f, 52f, 32f)
+                        quadraticTo(32f, 57f, 12f, 32f); close()
+                    }, CoachColors.Paper, style = Stroke(3.5f))
+                    drawCircle(CoachColors.Paper, 7f, Offset(32f, 32f))
+                }
             }
-        }
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Eyebrow("앱이 본 것", color = CoachColors.Muted)
-            observedLines.forEach { LessonText(it, 36, CoachColors.Muted) }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Eyebrow("앱이 본 것", color = CoachColors.Muted)
+                observedLines.forEach { LessonText(it, 36, CoachColors.Muted) }
+            }
         }
     }
 }
