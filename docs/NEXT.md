@@ -8,8 +8,8 @@
 
 ### ⚑ 지금 (10/9) — 새 세션은 이 칸부터
 
-- **최종 사내 태그 `inhouse-20261009-2` = `747c145`** (번들 `build/moah2026-20261009-2.bundle` 약 410 MB, clone·`REPO_ONLY` PASS). 사내 시작 한 줄은 `docs/handoffs/INHOUSE_NOW.md`(새로 볼 것 12 · 녹화 주의: 2회차는 누른 뒤 손대지 않기 — 60 s 유예). 직전 `-1` = `7a01065`(아이콘만 다름).
-- **main = `e5e67d1`** · 단위 테스트 **368** · 매 머지 `lesson_shots`·`RESERVE=1 emu_flow`·`course_flow` PASS(5554).
+- **최종 사내 태그 `inhouse-20261009-3` = `c9b4399`** (번들 `build/moah2026-20261009-3.bundle` 약 415 MB, clone·`REPO_ONLY` PASS — `-2`(747c145) + 31d 프로필 시트 편집 칩 정렬 #276). 사내 시작 한 줄은 `docs/handoffs/INHOUSE_NOW.md`(새로 볼 것 12 · 녹화 주의: 2회차는 누른 뒤 손대지 않기 — 60 s 유예). 직전 `-2` = `747c145`(프로필 시트만 다름) · `-1` = `7a01065`(+ 아이콘).
+- **main = `17bac95`** · 단위 테스트 **368** · 매 머지 `lesson_shots`·`RESERVE=1 emu_flow`·`course_flow` PASS(5554).
 - **디자인**: 컨셉 01 Onyx 갤러리가 전 화면에(라운드 27~31c). 로고 = 핸들 속 새싹(`docs/design/round31-proposals/5-app-logo-sprout-sizes.html` 20번 E4). 출처 배지는 `자세히 보기` · 점검 카드 기호 · 준비실 세 곳에만(AGENTS). 말 카드 기본 켬. 첫 실행 다섯 질문. 관리자 띠 = 바닥 손잡이 서랍. 탈출 = 워드마크 2초.
 - **열린 발주 없음.** 열린 PR: #222 · #223(PPT 한 장 시안 — 사용자 선택용).
 - 에뮬: Claude `CSTDe_API_34` = 5554 · Codex 5556. 스크린캡 `-d 4619827259835644672`. 일지 [10/8](journal/2026-10-08.md) · [10/9](journal/2026-10-09.md).
