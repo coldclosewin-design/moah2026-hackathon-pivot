@@ -20,7 +20,7 @@
 2. `local.properties` 에 `mobis.vss.jar=automotive/libs/mobis.framework.core.jar` 한 줄 → `./gradlew assembleDebug testDebugUnitTest`
 3. `adb root` · Wi-Fi · `copilot_config.json` push · `adb logcat -G 16M` → `bash tools/inhouse_check.sh` → 요약 전체를 적는다
 4. 아래 "새로 볼 것"
-5. 문제가 없으면 준비실 프리셋으로 시작해 `docs/05_demo_script.md` 순서대로 녹화
+5. 문제가 없으면 **`docs/05b_recording_scenario_20261009.md`**(첫 진입 → 프로필 → 대화 → 예약 → 주차 두 회차 → 진단서·공유 → 점검 → 모의시험 → 지식, 5분/3분/7분) 순서대로 녹화. 옛 대본 `docs/05_demo_script.md` 는 옛 화면 기준
 
 ## 새로 볼 것 (이번 태그)
 
