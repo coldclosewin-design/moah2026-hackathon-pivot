@@ -1,0 +1,3 @@
+PASS: all four SVG paths, fill/stroke colors, widths and round caps/joins match handoff E4 exactly.
+PASS: path data also matches design proposal #20 (i20).
+PASS: 108x108 viewport, white background, adaptive icon/roundIcon, Drive Coach label.
