@@ -1,0 +1,4 @@
+2026-10-09 02:00:34 KST
+{'tests': 368, 'failures': 0, 'errors': 0, 'skipped': 0}
+automotive-debug.apk  SHA256 390b63ecc69dc1bb0b680c0666e706a1fe5ff53b2309201da248877cd18f663b
+automotive-debug-androidTest.apk  SHA256 08d4ffb5d98968e46e9619f9dbdf168f2474de060cf0ef7ec0933e42baca6921

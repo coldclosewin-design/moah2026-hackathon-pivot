@@ -17,6 +17,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
@@ -27,9 +28,10 @@ import com.moah.hackathon.ui.CoachColors
 /** C1: a second sheet at .965 scale, then the foreground rises in 420 ms. */
 @Composable
 internal fun SheetCard(modifier: Modifier = Modifier, dark: Boolean = false, stacked: Boolean = true,
+    animate: Boolean = true, color: Color = if (dark) CoachColors.Ink else CoachColors.Paper,
     content: @Composable BoxScope.() -> Unit) {
-    val arrival = remember { Animatable(0f) }
-    LaunchedEffect(Unit) { arrival.animateTo(1f, tween(420, easing = CoachMotion.Fill)) }
+    val arrival = remember(animate) { Animatable(if (animate) 0f else 1f) }
+    LaunchedEffect(animate) { if (animate) arrival.animateTo(1f, tween(420, easing = CoachMotion.Fill)) }
     Box(modifier.graphicsLayer {
         translationY = (1f - arrival.value) * 180.dp.toPx()
         alpha = arrival.value
@@ -37,7 +39,7 @@ internal fun SheetCard(modifier: Modifier = Modifier, dark: Boolean = false, sta
         if (stacked) Box(Modifier.matchParentSize().graphicsLayer { scaleX = .965f; scaleY = .965f; translationY = -24.dp.toPx() }
             .background(CoachColors.Paper.copy(alpha = .6f), RoundedCornerShape(48.dp)))
         Box(Modifier.fillMaxSize().shadow(2.dp, RoundedCornerShape(48.dp))
-            .background(if (dark) CoachColors.Ink else CoachColors.Paper, RoundedCornerShape(48.dp))
+            .background(color, RoundedCornerShape(48.dp))
             .clip(RoundedCornerShape(48.dp)), content = content)
     }
 }

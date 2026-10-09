@@ -1,0 +1,2 @@
+PASS Round25 locks: Done/Report/Quiz/QuizDone flat, no numbers or touch actions; Real has no hint or hold; demo short hold ignored, two-second hold stops at zero with band hidden
+Locks contract passed

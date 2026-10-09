@@ -35,11 +35,12 @@ import kotlin.math.min
 internal fun CourseMap(course: TrackCourse, modifier: Modifier, progress: CourseProgress? = null,
     pose: Pose? = null, signal: TrackSignal? = null, trail: List<TrackPoint> = emptyList(),
     markers: List<Vec2> = emptyList(), thumbnail: Boolean = false, ink: Color = CoachColors.Paper,
-    previewRoute: Color? = null, showLabels: Boolean = true, lightRoad: Boolean = false) {
+    previewRoute: Color? = null, showLabels: Boolean = true, lightRoad: Boolean = false,
+    missingSignal: Boolean = false, labelSize: Int = 26) {
     val measurer = rememberTextMeasurer()
-    val labels = remember(course, thumbnail, ink, measurer, showLabels) {
+    val labels = remember(course, thumbnail, ink, measurer, showLabels, labelSize) {
         if (thumbnail || !showLabels) emptyList() else course.map.shapes.filterIsInstance<MapShape.Label>().map {
-            it to measurer.measure(AnnotatedString(it.text), TextStyle(fontSize = 26.sp, color = ink))
+            it to measurer.measure(AnnotatedString(it.text), TextStyle(fontSize = labelSize.sp, color = ink))
         }
     }
     Canvas(modifier.clipToBounds().semantics { contentDescription = "${course.title} 코스 도면" }) {
@@ -109,13 +110,18 @@ internal fun CourseMap(course: TrackCourse, modifier: Modifier, progress: Course
             }
             is MapShape.Light -> if (!thumbnail) {
                 val c = p(shape.at)
-                drawCircle(CoachColors.Ink, 15.dp.toPx(), c)
-                drawCircle(when (signal) {
-                    TrackSignal.RED, TrackSignal.YELLOW -> CoachColors.Signal
-                    TrackSignal.GREEN -> CoachColors.Periwinkle
-                    else -> CoachColors.Muted
-                }, 10.dp.toPx(), c)
-                drawCircle(ink.copy(alpha = .6f), 15.dp.toPx(), c, style = Stroke(2.dp.toPx()))
+                if (missingSignal) {
+                    drawCircle(ink, 17.dp.toPx(), c, style = Stroke(3.dp.toPx(),
+                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(7.dp.toPx(), 5.dp.toPx()))))
+                } else {
+                    drawCircle(CoachColors.Ink, 15.dp.toPx(), c)
+                    drawCircle(when (signal) {
+                        TrackSignal.RED, TrackSignal.YELLOW -> CoachColors.Signal
+                        TrackSignal.GREEN -> CoachColors.Periwinkle
+                        else -> CoachColors.Muted
+                    }, 10.dp.toPx(), c)
+                    drawCircle(ink.copy(alpha = .6f), 15.dp.toPx(), c, style = Stroke(2.dp.toPx()))
+                }
             }
             is MapShape.Label -> Unit
         } }
