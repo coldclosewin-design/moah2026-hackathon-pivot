@@ -1,0 +1,8 @@
+Device: emulator-5556; screenshot: 2560x1440; app body: [0,76][2560,1312] = 1236 dp at density 160.
+Field | row x | question x before -> after | chip min height before -> after | gap above Back before -> after | right margin after
+fear | 84 | 84 -> 84 | 109 -> 112 | 0 -> 77 | 1487
+last_drive | 568 | 84 -> 568 | 109 -> 112 | 0 -> 77 | 892
+goal | 1053 | 84 -> 1053 | 109 -> 112 | 0 -> 77 | 797
+license | 1538 | 84 -> 1538 | 109 -> 112 | 0 -> 77 | 276
+car | 2023 | 84 -> 1786 | 109 -> 112 | 0 -> 77 | 120
+PASS: all five fields show complete 112 dp chips, question/chips aligned under the chosen column with left-only clamping, no footer overlap, preview above rows.
