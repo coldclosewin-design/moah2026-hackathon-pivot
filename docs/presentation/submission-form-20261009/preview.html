@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>제출 양식 미리보기 — Drive Coach</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Noto Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif; color: #1E2235; background: #fff; word-break: keep-all; }
+  .slide { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: #fff; }
+  .head { position: absolute; left: 0; top: 0; width: 1920px; height: 150px; background: #1E2A4A; color: #fff; display: flex; align-items: center; padding: 0 64px; justify-content: space-between; }
+  .head .l { display: flex; align-items: center; gap: 28px; }
+  .head img { width: 96px; height: 96px; border-radius: 22px; background: #fff; }
+  .app { font-size: 52px; font-weight: 700; line-height: 1.05; }
+  .app small { font-size: 24px; font-weight: 400; margin-left: 14px; opacity: .9; }
+  .team { margin-top: 8px; font-size: 24px; opacity: .9; }
+  .head .r { text-align: right; font-size: 26px; line-height: 1.3; opacity: .95; }
+  .col { position: absolute; top: 190px; }
+  .left { left: 64px; width: 840px; }
+  .right { left: 944px; width: 912px; }
+  .bar { height: 68px; background: #1E2A4A; color: #fff; font-size: 30px; font-weight: 600; display: flex; align-items: center; justify-content: center; border-radius: 10px; }
+  table { margin-top: 14px; width: 100%; border-collapse: collapse; font-size: 16.5px; line-height: 1.4; }
+  th { background: #1E2A4A; color: #fff; font-size: 18px; padding: 8px 6px; }
+  td { padding: 8px 12px; vertical-align: top; border-bottom: 2px solid #fff; background: #F5F6FA; }
+  td.k { width: 118px; font-weight: 700; font-size: 19px; text-align: center; vertical-align: middle; }
+  td.ox { width: 76px; text-align: center; font-weight: 700; font-size: 24px; color: #2F4FB5; vertical-align: middle; }
+  tr.blue td { background: #EAEDFA; }
+  td b { font-weight: 700; }
+  .panel { margin-top: 14px; background: #F5F6FA; border-radius: 10px; padding: 16px; height: 710px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .shot img { width: 100%; display: block; border-radius: 8px; box-shadow: 0 2px 8px rgba(30,42,74,.14); }
+  .shot p { margin-top: 6px; font-size: 15px; line-height: 1.35; color: #1E2235; }
+  .shot p b { color: #2F4FB5; margin-right: 4px; }
+  .notes { margin-top: 14px; font-size: 16px; line-height: 1.5; border-top: 1px solid #D5D9E6; padding-top: 10px; }
+  .notes b { color: #1E2A4A; }
+  .foot { position: absolute; left: 64px; right: 64px; bottom: 6px; font-size: 13px; color: #8A8F9E; text-align: center; }
+</style>
+</head>
+<body>
+<div class="slide">
+  <header class="head">
+    <div class="l">
+      <img src="icon-512.png" alt="">
+      <div>
+        <div class="app">Drive Coach <small>— 화내지 않는 조수석</small></div>
+        <div class="team">사고치조 / 전준영</div>
+      </div>
+    </div>
+    <div class="r">제출 양식 미리보기<br><span style="font-size:20px">실제 제출은 주최 PPT 양식에 원고를 옮긴다</span></div>
+  </header>
+
+  <section class="col left">
+    <div class="bar">서비스 소개</div>
+    <table>
+      <tr><th style="width:118px">항목</th><th style="width:76px">사용 여부</th><th>작성 내용</th></tr>
+      <tr><td class="k">개발 배경</td><td class="ox" style="font-size:18px;color:#8A8F9E">—</td><td>면허는 있지만 운전을 쉰 사람에게는 두려운 순간(주차·첫 100일)을 화내지 않고 반복해 줄 조수석이 없다. 차량 물적 사고의 <b>30.2%가 주차 중</b>(그중 53.8%가 후진), 초보 첫해 사고의 <b>41%가 처음 100일</b> 안, 학원 도로연수 10시간 50~60만 원. 아이 때문에 다시 운전을 시작한 장롱면허 10년차 가족을 옆에서 가르치다 둘 다 힘들었던 경험에서 출발했다.</td></tr>
+      <tr><td class="k">주요 기능</td><td class="ox" style="font-size:18px;color:#8A8F9E">—</td><td>두려운 상황을 <b>과제 18개</b>(주차 4 · 도로 주행 6 · 점검 2 · 지식 6)로 쪼개고, <b>차량 신호로 과정을 측정</b>해 <b>가이드 → 힌트 → 평가</b> 순으로 도움을 줄여 간다. 틀린 순간엔 규칙이 바로 음성으로(지연 0), 주행 중 화면은 잠근다. 정차하면 <b>점수 대신 판정 네 가지</b>와 회차 멘트, 문을 열면 리포트 · 진단서(공유 범위를 운전자가 고름) · 제휴 시험장 모의시험 · 말 카드 코치 대화 · 지식 테스트.</td></tr>
+      <tr><td class="k">기대 효과</td><td class="ox" style="font-size:18px;color:#8A8F9E">—</td><td>사고가 가장 많은 순간을 <b>차 안에서 혼자 반복</b> 연습(학원·동승 없이). 틀린 순간만 짧게 말해 운전자가 화면을 보지 않고 동승 갈등이 줄어든다. 회차가 쌓이면 <b>진단서</b>가 되어 보험·시험장·기관으로 이어질 수 있다(예시). 차량 신호만 쓰므로 카메라 없이 모든 AAOS 차량에 올릴 수 있다.</td></tr>
+      <tr class="blue"><td class="k">AI 연동</td><td class="ox">O</td><td>사내 Copilot(chat/completions)으로 <b>회차 멘트·총평·홈 코치 대화</b> 문장 생성. 규칙이 측정한 판정을 입력으로, 응답은 길이·금지어·의도 목록으로 검증해 실패하면 규칙 문장 폴백(사내: 로그인 뒤 폴백 0, 1.2~1.5 s). <b>감점 순간 힌트는 규칙</b>(지연 0). 음성 인식·주행 중 실시간 AI 발화 없음.</td></tr>
+      <tr class="blue"><td class="k">Vehicle API</td><td class="ox">O</td><td>VSS get/set/subscribe — <b>Speed</b>(급가속·급제동·잠금) · <b>SteeringWheel.Angle</b>(조향 왕복·방향 추정) · <b>SelectedGear</b>(기어·P) · <b>Seat IsBelted</b> · <b>Door IsOpen</b>(정차+문 = 리포트) · <b>DirectionIndicator L/R · Hazard</b>(점검·돌발) · LowVoltageSystemState(시동) · Brake.PedalPosition · Beam.Low · Wiping.Mode · ObstacleDetection. 신호마다 <b>실신호/시뮬레이션/미측정</b>을 구분해 미측정은 채점 제외, 뒤 거리·시험장 위치는 시뮬레이션으로 표시. 사내 차량 환경에서 코드 수정 없이 실행(실신호 7 · 시뮬 1 · 미측정 0).</td></tr>
+    </table>
+  </section>
+
+  <section class="col right">
+    <div class="bar">주요 화면 및 사용 시나리오</div>
+    <div class="panel">
+      <div class="grid">
+        <div class="shot"><img src="lesson-31a-home.png" alt=""><p><b>①</b>홈 — 프로필이 첫 과제·모드를 제안</p></div>
+        <div class="shot"><img src="lesson-30-coach.png" alt=""><p><b>②</b>말 카드로 코치와 대화 → 과제를 홈에(AI)</p></div>
+        <div class="shot"><img src="lesson-31a-parking.png" alt=""><p><b>③</b>주차 중 — 조향 링·기어·뒤 거리, 틀린 순간만 음성</p></div>
+        <div class="shot"><img src="lesson-31a-done.png" alt=""><p><b>④</b>회차 판정 네 가지 + 멘트, 2회차엔 ✓✓✓✓</p></div>
+        <div class="shot"><img src="lesson-31a-certificate.png" alt=""><p><b>⑤</b>문을 열면 리포트 → 진단서 공유 범위(예시)</p></div>
+        <div class="shot"><img src="lesson-31b-drive-course-exam-track.png" alt=""><p><b>⑥</b>제휴 시험장 모의시험 — 구간 감점·돌발·합격선</p></div>
+      </div>
+      <div class="notes">
+        <b>주요 기능</b> 과제 18 × 세 모드(가이드→힌트→평가) · 차량 신호로 과정 측정 · 판정 네 가지 · 말 카드 AI 코치 · 진단서/공유 · 시험장 모의시험<br>
+        <b>동작 과정</b> 홈(프로필·대화로 과제 선택) → 브리핑 → 연습(틀린 순간 음성, 주행 중 잠금) → 정차 "다 됐어요" → 판정·멘트 → 한 번 더 → 문 열림 → 리포트·진단서<br>
+        <b>기대 효과</b> 사고가 가장 많은 순간을 혼자 차 안에서 반복 연습 · 동승 갈등 없이 · 기록이 진단서로(보험·시험장·기관 — 예시) · 카메라 없이 모든 AAOS 차량
+      </div>
+    </div>
+  </section>
+  <div class="foot">한계 — 카메라가 없어 칸 안 최종 위치는 판정하지 않는다(과정을 본다) · 예약·진단서 공유·시험장 위치 신호는 시뮬레이션/예시 · 캡처는 외부 에뮬</div>
+</div>
+</body>
+</html>
